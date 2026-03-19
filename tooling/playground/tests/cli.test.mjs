@@ -2,54 +2,16 @@
  * CLI integration tests for the macroforge binary.
  *
  * Tests the CLI's ability to:
- * - Expand single files
- * - Scan directories
+ * - Cache files with macro expansion via `macroforge cache`
+ * - Expand single files via `macroforge expand` (for expand-specific features)
  * - Load and respect macroforge.config.ts (foreign types)
- * - Work in both default and --builtin-only modes
  */
 
-import { assert, assertEquals, assertMatch } from 'https://deno.land/std@0.224.0/assert/mod.ts';
+import { assert, assertEquals } from 'https://deno.land/std@0.224.0/assert/mod.ts';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs';
 import path from 'node:path';
-import { repoRoot } from './test-utils.mjs';
-
-// Path to the CLI binary
-const cliBinary = (() => {
-    // Try the macroforge_ts crate target directory first (where cargo builds by default)
-    const releaseInCrate = path.join(
-        repoRoot,
-        'crates',
-        'macroforge_ts',
-        'target',
-        'release',
-        'macroforge'
-    );
-    const debugInCrate = path.join(
-        repoRoot,
-        'crates',
-        'macroforge_ts',
-        'target',
-        'debug',
-        'macroforge'
-    );
-    // Also try workspace-level target directory
-    const release = path.join(
-        repoRoot,
-        'crates',
-        'target',
-        'release',
-        'macroforge'
-    );
-    const debug = path.join(repoRoot, 'crates', 'target', 'debug', 'macroforge');
-    if (existsSync(releaseInCrate)) return releaseInCrate;
-    if (existsSync(debugInCrate)) return debugInCrate;
-    if (existsSync(release)) return release;
-    if (existsSync(debug)) return debug;
-    throw new Error(
-        'macroforge CLI binary not found. Run `cargo build --release` first.'
-    );
-})();
+import { repoRoot, runCli } from './test-utils.mjs';
 
 // Temporary directory for test files
 const tmpDir = path.join(
@@ -60,30 +22,19 @@ const tmpDir = path.join(
     '.tmp-cli'
 );
 
-// Helper to run CLI and capture output
-function runCli(args, options = {}) {
-    const command = new Deno.Command(cliBinary, {
-        args,
-        cwd: options.cwd || tmpDir,
-        stdout: 'piped',
-        stderr: 'piped'
-    });
-    const result = command.outputSync();
-    const decoder = new TextDecoder();
-    return {
-        stdout: decoder.decode(result.stdout),
-        stderr: decoder.decode(result.stderr),
-        status: result.code,
-        success: result.success
-    };
-}
+// Cache directory within the temp project
+const cacheDir = path.join(tmpDir, '.macroforge', 'cache');
 
-// Setup helper
+// Setup helper — creates a minimal project root so `macroforge cache` works
 function setupTmpDir() {
     if (existsSync(tmpDir)) {
         fs.rmSync(tmpDir, { recursive: true });
     }
     fs.mkdirSync(tmpDir, { recursive: true });
+    fs.writeFileSync(
+        path.join(tmpDir, 'package.json'),
+        '{ "name": "cli-test" }'
+    );
 }
 
 // Cleanup helper
@@ -93,16 +44,21 @@ function cleanupTmpDir() {
     }
 }
 
+// Helper to read a cached file
+function readCacheFile(relPath) {
+    const cachePath = path.join(cacheDir, relPath + '.cache');
+    return fs.readFileSync(cachePath, 'utf8');
+}
+
 // ============================================================================
-// Basic CLI Tests
+// Cache-Based Tests
 // ============================================================================
 
-Deno.test('CLI: expands a simple file with @derive(Debug)', () => {
+Deno.test('CLI cache: caches a simple file with @derive(Debug)', () => {
     setupTmpDir();
     try {
-        const inputFile = path.join(tmpDir, 'simple.ts');
         fs.writeFileSync(
-            inputFile,
+            path.join(tmpDir, 'simple.ts'),
             `/** @derive(Debug) */
 interface User {
   name: string;
@@ -110,7 +66,7 @@ interface User {
 }`
         );
 
-        const result = runCli(['expand', inputFile, '--builtin-only']);
+        const result = runCli(['cache', tmpDir, '--builtin-only']);
 
         assertEquals(
             result.success,
@@ -118,23 +74,16 @@ interface User {
             `CLI should succeed. stderr: ${result.stderr}`
         );
 
-        // CLI writes status to stdout, not stderr
-        const output = result.stdout + result.stderr;
-        assert(
-            output.includes('wrote expanded output') || output.includes('expanded'),
-            `Should report writing output. stdout: ${result.stdout}, stderr: ${result.stderr}`
-        );
+        const cachePath = path.join(cacheDir, 'simple.ts.cache');
+        assert(existsSync(cachePath), 'Cache file should exist');
 
-        const expandedFile = path.join(tmpDir, 'simple.expanded.ts');
-        assert(existsSync(expandedFile), 'Expanded file should exist');
-
-        const expandedContent = fs.readFileSync(expandedFile, 'utf8');
+        const content = readCacheFile('simple.ts');
         assert(
-            expandedContent.includes('toString'),
+            content.includes('toString'),
             'Should generate toString method'
         );
         assert(
-            !expandedContent.includes('@derive'),
+            !content.includes('@derive'),
             'Should strip @derive decorator'
         );
     } finally {
@@ -142,12 +91,11 @@ interface User {
     }
 });
 
-Deno.test('CLI: expands a file with multiple macros', () => {
+Deno.test('CLI cache: caches a file with multiple macros', () => {
     setupTmpDir();
     try {
-        const inputFile = path.join(tmpDir, 'multi-macro.ts');
         fs.writeFileSync(
-            inputFile,
+            path.join(tmpDir, 'multi-macro.ts'),
             `/** @derive(Debug, Clone, Default) */
 interface Config {
   host: string;
@@ -156,7 +104,7 @@ interface Config {
 }`
         );
 
-        const result = runCli(['expand', inputFile, '--builtin-only']);
+        const result = runCli(['cache', tmpDir, '--builtin-only']);
 
         assertEquals(
             result.success,
@@ -164,8 +112,7 @@ interface Config {
             `CLI should succeed. stderr: ${result.stderr}`
         );
 
-        const expandedFile = path.join(tmpDir, 'multi-macro.expanded.ts');
-        const content = fs.readFileSync(expandedFile, 'utf8');
+        const content = readCacheFile('multi-macro.ts');
 
         assert(content.includes('toString'), 'Should have Debug (toString)');
         assert(content.includes('clone'), 'Should have Clone');
@@ -175,81 +122,28 @@ interface Config {
     }
 });
 
-Deno.test('CLI: exits with code 2 when no macros found', () => {
+Deno.test('CLI cache: scans directory and caches all files with macros', () => {
     setupTmpDir();
     try {
-        const inputFile = path.join(tmpDir, 'no-macros.ts');
         fs.writeFileSync(
-            inputFile,
-            `interface Plain {
-  value: string;
-}`
-        );
-
-        const result = runCli(['expand', inputFile, '--builtin-only', '--quiet']);
-
-        assertEquals(
-            result.status,
-            2,
-            'Should exit with code 2 when no macros found'
-        );
-    } finally {
-        cleanupTmpDir();
-    }
-});
-
-Deno.test('CLI: prints to stdout with --print flag', () => {
-    setupTmpDir();
-    try {
-        const inputFile = path.join(tmpDir, 'print-test.ts');
-        fs.writeFileSync(
-            inputFile,
-            `/** @derive(Debug) */
-interface Item { id: string; }`
-        );
-
-        const result = runCli(['expand', inputFile, '--builtin-only', '--print']);
-
-        assertEquals(result.success, true);
-        assert(
-            result.stdout.includes('toString'),
-            'Should print expanded code to stdout'
-        );
-    } finally {
-        cleanupTmpDir();
-    }
-});
-
-// ============================================================================
-// Scan Mode Tests
-// ============================================================================
-
-Deno.test('CLI --scan: scans directory and expands all files with macros', () => {
-    setupTmpDir();
-    const scanDir = path.join(tmpDir, 'scan-test');
-    try {
-        fs.mkdirSync(scanDir, { recursive: true });
-
-        // Create some test files
-        fs.writeFileSync(
-            path.join(scanDir, 'user.ts'),
+            path.join(tmpDir, 'user.ts'),
             `/** @derive(Debug) */
 interface User { name: string; }`
         );
 
         fs.writeFileSync(
-            path.join(scanDir, 'config.ts'),
+            path.join(tmpDir, 'config.ts'),
             `/** @derive(Clone) */
 interface Config { value: number; }`
         );
 
         fs.writeFileSync(
-            path.join(scanDir, 'plain.ts'),
+            path.join(tmpDir, 'plain.ts'),
             `interface Plain { x: number; }`
         );
 
         // Create a subdirectory with more files
-        const subDir = path.join(scanDir, 'models');
+        const subDir = path.join(tmpDir, 'models');
         fs.mkdirSync(subDir, { recursive: true });
         fs.writeFileSync(
             path.join(subDir, 'entity.ts'),
@@ -257,77 +151,92 @@ interface Config { value: number; }`
 interface Entity { id: string; }`
         );
 
-        const result = runCli(['expand', '--scan', scanDir, '--builtin-only'], {
-            cwd: repoRoot
-        });
+        const result = runCli(['cache', tmpDir, '--builtin-only']);
 
         assertEquals(
             result.success,
             true,
-            `Scan should succeed. stderr: ${result.stderr}`
-        );
-        assert(result.stderr.includes('scanning'), 'Should report scanning');
-        assert(result.stderr.includes('scan complete'), 'Should report completion');
-
-        // Check that files with macros were expanded
-        assert(
-            existsSync(path.join(scanDir, 'user.expanded.ts')),
-            'user.ts should be expanded'
-        );
-        assert(
-            existsSync(path.join(scanDir, 'config.expanded.ts')),
-            'config.ts should be expanded'
-        );
-        assert(
-            existsSync(path.join(scanDir, 'models', 'entity.expanded.ts')),
-            'models/entity.ts should be expanded'
+            `Cache should succeed. stderr: ${result.stderr}`
         );
 
-        // plain.ts has no macros, should not have an expanded file
+        // Check that files with macros were cached
         assert(
-            !existsSync(path.join(scanDir, 'plain.expanded.ts')),
-            'plain.ts should NOT be expanded (no macros)'
+            existsSync(path.join(cacheDir, 'user.ts.cache')),
+            'user.ts should be cached'
+        );
+        assert(
+            existsSync(path.join(cacheDir, 'config.ts.cache')),
+            'config.ts should be cached'
+        );
+        assert(
+            existsSync(path.join(cacheDir, 'models', 'entity.ts.cache')),
+            'models/entity.ts should be cached'
+        );
+
+        // plain.ts has no macros, should not have a cache file
+        assert(
+            !existsSync(path.join(cacheDir, 'plain.ts.cache')),
+            'plain.ts should NOT be cached (no macros)'
         );
     } finally {
         cleanupTmpDir();
     }
 });
 
-Deno.test('CLI --scan: skips .expanded. files', () => {
+Deno.test('CLI cache: is idempotent on re-run', () => {
     setupTmpDir();
-    const scanDir = path.join(tmpDir, 'scan-skip-test');
     try {
-        fs.mkdirSync(scanDir, { recursive: true });
-
         fs.writeFileSync(
-            path.join(scanDir, 'user.ts'),
+            path.join(tmpDir, 'user.ts'),
             `/** @derive(Debug) */
 interface User { name: string; }`
         );
 
-        // First scan
-        runCli(['expand', '--scan', scanDir, '--builtin-only'], { cwd: repoRoot });
+        // First cache
+        runCli(['cache', tmpDir, '--builtin-only']);
 
-        // Second scan - should not create double-expanded files
-        const result = runCli(['expand', '--scan', scanDir, '--builtin-only'], {
-            cwd: repoRoot
-        });
+        const firstContent = readCacheFile('user.ts');
+
+        // Second cache — should produce identical output
+        const result = runCli(['cache', tmpDir, '--builtin-only']);
 
         assertEquals(result.success, true);
-        assert(
-            !existsSync(path.join(scanDir, 'user.expanded.expanded.ts')),
-            'Should not create double-expanded files'
+
+        const secondContent = readCacheFile('user.ts');
+        assertEquals(
+            firstContent,
+            secondContent,
+            'Cache output should be identical on re-run'
         );
     } finally {
         cleanupTmpDir();
     }
 });
 
-// ============================================================================
-// Foreign Types / Config Tests
-// ============================================================================
+Deno.test('CLI cache: handles .svelte.ts extension correctly', () => {
+    setupTmpDir();
+    try {
+        fs.writeFileSync(
+            path.join(tmpDir, 'component.svelte.ts'),
+            `/** @derive(Debug) */
+interface Props { value: string; }`
+        );
 
-Deno.test('CLI config: builtin-only mode loads config and applies foreign types', () => {
+        const result = runCli(['cache', tmpDir, '--builtin-only']);
+
+        assertEquals(result.success, true);
+
+        const cachePath = path.join(cacheDir, 'component.svelte.ts.cache');
+        assert(
+            existsSync(cachePath),
+            'Should create cache file for .svelte.ts'
+        );
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+Deno.test('CLI cache: loads config and applies foreign types', () => {
     setupTmpDir();
     const configDir = path.join(tmpDir, 'config-test');
     try {
@@ -351,7 +260,7 @@ Deno.test('CLI config: builtin-only mode loads config and applies foreign types'
         // Create a package.json to mark project root
         fs.writeFileSync(
             path.join(configDir, 'package.json'),
-            `{ "name": "config-test" }`
+            '{ "name": "config-test" }'
         );
 
         // Create a file that uses the foreign type
@@ -366,13 +275,7 @@ interface Event {
 }`
         );
 
-        const result = runCli([
-            'expand',
-            path.join(configDir, 'event.ts'),
-            '--builtin-only'
-        ], {
-            cwd: configDir
-        });
+        const result = runCli(['cache', configDir, '--builtin-only']);
 
         assertEquals(
             result.success,
@@ -380,10 +283,11 @@ interface Event {
             `CLI should succeed. stderr: ${result.stderr}`
         );
 
-        const expandedFile = path.join(configDir, 'event.expanded.ts');
-        assert(existsSync(expandedFile), 'Expanded file should exist');
+        const configCacheDir = path.join(configDir, '.macroforge', 'cache');
+        const cachePath = path.join(configCacheDir, 'event.ts.cache');
+        assert(existsSync(cachePath), 'Cache file should exist');
 
-        const content = fs.readFileSync(expandedFile, 'utf8');
+        const content = fs.readFileSync(cachePath, 'utf8');
 
         // Check that foreign type handlers were used
         assert(
@@ -396,34 +300,146 @@ interface Event {
 });
 
 // ============================================================================
-// Output Path Tests
+// Serde Macro Tests (via cache)
 // ============================================================================
 
-Deno.test('CLI output: handles .svelte.ts extension correctly', () => {
+Deno.test('CLI cache: caches Serialize macro correctly', () => {
     setupTmpDir();
     try {
-        const inputFile = path.join(tmpDir, 'component.svelte.ts');
         fs.writeFileSync(
-            inputFile,
-            `/** @derive(Debug) */
-interface Props { value: string; }`
+            path.join(tmpDir, 'serialize.ts'),
+            `/** @derive(Serialize) */
+interface Message {
+  id: string;
+  content: string;
+  timestamp: number;
+}`
         );
 
-        const result = runCli(['expand', inputFile, '--builtin-only']);
+        const result = runCli(['cache', tmpDir, '--builtin-only']);
 
-        assertEquals(result.success, true);
+        assertEquals(
+            result.success,
+            true,
+            `CLI should succeed. stderr: ${result.stderr}`
+        );
 
-        const expectedOutput = path.join(tmpDir, 'component.expanded.svelte.ts');
+        const content = readCacheFile('serialize.ts');
+        assert(content.includes('serialize'), 'Should have serialize function');
         assert(
-            existsSync(expectedOutput),
-            `Should create component.expanded.svelte.ts, not component.svelte.expanded.ts`
+            content.includes('SerializeContext'),
+            'Should import SerializeContext'
         );
     } finally {
         cleanupTmpDir();
     }
 });
 
-Deno.test('CLI output: respects --out flag for custom output path', () => {
+Deno.test('CLI cache: caches Deserialize macro correctly', () => {
+    setupTmpDir();
+    try {
+        fs.writeFileSync(
+            path.join(tmpDir, 'deserialize.ts'),
+            `/** @derive(Deserialize) */
+interface Request {
+  method: string;
+  path: string;
+}`
+        );
+
+        const result = runCli(['cache', tmpDir, '--builtin-only']);
+
+        assertEquals(
+            result.success,
+            true,
+            `CLI should succeed. stderr: ${result.stderr}`
+        );
+
+        const content = readCacheFile('deserialize.ts');
+        assert(content.includes('deserialize'), 'Should have deserialize function');
+        assert(
+            content.includes('DeserializeContext'),
+            'Should import DeserializeContext'
+        );
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+Deno.test('CLI cache: caches combined Serialize + Deserialize', () => {
+    setupTmpDir();
+    try {
+        fs.writeFileSync(
+            path.join(tmpDir, 'serde-combined.ts'),
+            `/** @derive(Serialize, Deserialize) */
+interface Data {
+  value: string;
+  count: number;
+}`
+        );
+
+        const result = runCli(['cache', tmpDir, '--builtin-only']);
+
+        assertEquals(result.success, true);
+
+        const content = readCacheFile('serde-combined.ts');
+        assert(content.includes('serialize'), 'Should have serialize');
+        assert(content.includes('deserialize'), 'Should have deserialize');
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+// ============================================================================
+// Expand-Specific Tests (features with no cache equivalent)
+// ============================================================================
+
+Deno.test('CLI expand: exits with code 2 when no macros found', () => {
+    setupTmpDir();
+    try {
+        const inputFile = path.join(tmpDir, 'no-macros.ts');
+        fs.writeFileSync(
+            inputFile,
+            `interface Plain {
+  value: string;
+}`
+        );
+
+        const result = runCli(['expand', inputFile, '--builtin-only', '--quiet']);
+
+        assertEquals(
+            result.status,
+            2,
+            'Should exit with code 2 when no macros found'
+        );
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+Deno.test('CLI expand: prints to stdout with --print flag', () => {
+    setupTmpDir();
+    try {
+        const inputFile = path.join(tmpDir, 'print-test.ts');
+        fs.writeFileSync(
+            inputFile,
+            `/** @derive(Debug) */
+interface Item { id: string; }`
+        );
+
+        const result = runCli(['expand', inputFile, '--builtin-only', '--print']);
+
+        assertEquals(result.success, true);
+        assert(
+            result.stdout.includes('toString'),
+            'Should print expanded code to stdout'
+        );
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+Deno.test('CLI expand: respects --out flag for custom output path', () => {
     setupTmpDir();
     try {
         const inputFile = path.join(tmpDir, 'custom-out.ts');
@@ -448,109 +464,6 @@ interface Custom { x: number; }`
             `CLI should succeed. stderr: ${result.stderr}`
         );
         assert(existsSync(outputFile), 'Custom output file should exist');
-    } finally {
-        cleanupTmpDir();
-    }
-});
-
-// ============================================================================
-// Serde Macro Tests
-// ============================================================================
-
-Deno.test('CLI serde: expands Serialize macro correctly', () => {
-    setupTmpDir();
-    try {
-        const inputFile = path.join(tmpDir, 'serialize.ts');
-        fs.writeFileSync(
-            inputFile,
-            `/** @derive(Serialize) */
-interface Message {
-  id: string;
-  content: string;
-  timestamp: number;
-}`
-        );
-
-        const result = runCli(['expand', inputFile, '--builtin-only']);
-
-        assertEquals(
-            result.success,
-            true,
-            `CLI should succeed. stderr: ${result.stderr}`
-        );
-
-        const content = fs.readFileSync(
-            path.join(tmpDir, 'serialize.expanded.ts'),
-            'utf8'
-        );
-        assert(content.includes('serialize'), 'Should have serialize function');
-        assert(
-            content.includes('SerializeContext'),
-            'Should import SerializeContext'
-        );
-    } finally {
-        cleanupTmpDir();
-    }
-});
-
-Deno.test('CLI serde: expands Deserialize macro correctly', () => {
-    setupTmpDir();
-    try {
-        const inputFile = path.join(tmpDir, 'deserialize.ts');
-        fs.writeFileSync(
-            inputFile,
-            `/** @derive(Deserialize) */
-interface Request {
-  method: string;
-  path: string;
-}`
-        );
-
-        const result = runCli(['expand', inputFile, '--builtin-only']);
-
-        assertEquals(
-            result.success,
-            true,
-            `CLI should succeed. stderr: ${result.stderr}`
-        );
-
-        const content = fs.readFileSync(
-            path.join(tmpDir, 'deserialize.expanded.ts'),
-            'utf8'
-        );
-        assert(content.includes('deserialize'), 'Should have deserialize function');
-        assert(
-            content.includes('DeserializeContext'),
-            'Should import DeserializeContext'
-        );
-    } finally {
-        cleanupTmpDir();
-    }
-});
-
-Deno.test('CLI serde: expands combined Serialize + Deserialize', () => {
-    setupTmpDir();
-    try {
-        const inputFile = path.join(tmpDir, 'serde-combined.ts');
-        fs.writeFileSync(
-            inputFile,
-            `/** @derive(Serialize, Deserialize) */
-interface Data {
-  value: string;
-  count: number;
-}`
-        );
-
-        const result = runCli(['expand', inputFile, '--builtin-only']);
-
-        assertEquals(result.success, true);
-
-        const content = fs.readFileSync(
-            path.join(tmpDir, 'serde-combined.expanded.ts'),
-            'utf8'
-        );
-        assert(content.includes('serialize'), 'Should have serialize');
-        assert(content.includes('deserialize'), 'Should have deserialize');
     } finally {
         cleanupTmpDir();
     }

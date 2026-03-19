@@ -7,8 +7,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
  */
 
 // MaxItems validator
-
+/** @derive(Deserialize) */
 export class MaxItemsValidator {
+    /** @serde({ validate: ["maxItems(5)"] }) */
     items: Array<string>;
 
     constructor(props: {
@@ -215,8 +216,9 @@ export function maxItemsValidatorIs(value: unknown): value is MaxItemsValidator 
 }
 
 // MinItems validator
-
+/** @derive(Deserialize) */
 export class MinItemsValidator {
+    /** @serde({ validate: ["minItems(2)"] }) */
     items: Array<string>;
 
     constructor(props: {
@@ -423,8 +425,9 @@ export function minItemsValidatorIs(value: unknown): value is MinItemsValidator 
 }
 
 // ItemsCount validator
-
+/** @derive(Deserialize) */
 export class ItemsCountValidator {
+    /** @serde({ validate: ["itemsCount(3)"] }) */
     items: Array<string>;
 
     constructor(props: {

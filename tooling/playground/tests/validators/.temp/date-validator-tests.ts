@@ -7,8 +7,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
  */
 
 // ValidDate validator
-
+/** @derive(Deserialize) */
 export class ValidDateValidator {
+    /** @serde({ validate: ["validDate"] }) */
     date: Date;
 
     constructor(props: {
@@ -218,8 +219,9 @@ export function validDateValidatorIs(value: unknown): value is ValidDateValidato
 }
 
 // GreaterThanDate validator
-
+/** @derive(Deserialize) */
 export class GreaterThanDateValidator {
+    /** @serde({ validate: ['greaterThanDate("2020-01-01")'] }) */
     date: Date;
 
     constructor(props: {
@@ -431,8 +433,9 @@ export function greaterThanDateValidatorIs(value: unknown): value is GreaterThan
 }
 
 // GreaterThanOrEqualToDate validator
-
+/** @derive(Deserialize) */
 export class GreaterThanOrEqualToDateValidator {
+    /** @serde({ validate: ['greaterThanOrEqualToDate("2020-01-01")'] }) */
     date: Date;
 
     constructor(props: {
@@ -648,8 +651,9 @@ export function greaterThanOrEqualToDateValidatorIs(
 }
 
 // LessThanDate validator
-
+/** @derive(Deserialize) */
 export class LessThanDateValidator {
+    /** @serde({ validate: ['lessThanDate("2030-01-01")'] }) */
     date: Date;
 
     constructor(props: {
@@ -859,8 +863,9 @@ export function lessThanDateValidatorIs(value: unknown): value is LessThanDateVa
 }
 
 // LessThanOrEqualToDate validator
-
+/** @derive(Deserialize) */
 export class LessThanOrEqualToDateValidator {
+    /** @serde({ validate: ['lessThanOrEqualToDate("2030-01-01")'] }) */
     date: Date;
 
     constructor(props: {
@@ -1076,8 +1081,9 @@ export function lessThanOrEqualToDateValidatorIs(
 }
 
 // BetweenDate validator
-
+/** @derive(Deserialize) */
 export class BetweenDateValidator {
+    /** @serde({ validate: ['betweenDate("2020-01-01", "2030-01-01")'] }) */
     date: Date;
 
     constructor(props: {

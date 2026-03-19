@@ -7,8 +7,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
  */
 
 // GreaterThan validator
-
+/** @derive(Deserialize) */
 export class GreaterThanValidator {
+    /** @serde({ validate: ["greaterThan(0)"] }) */
     positive: number;
 
     constructor(props: {
@@ -213,8 +214,9 @@ export function greaterThanValidatorIs(value: unknown): value is GreaterThanVali
 }
 
 // GreaterThanOrEqualTo validator
-
+/** @derive(Deserialize) */
 export class GreaterThanOrEqualToValidator {
+    /** @serde({ validate: ["greaterThanOrEqualTo(0)"] }) */
     nonNegative: number;
 
     constructor(props: {
@@ -427,8 +429,9 @@ export function greaterThanOrEqualToValidatorIs(
 }
 
 // LessThan validator
-
+/** @derive(Deserialize) */
 export class LessThanValidator {
+    /** @serde({ validate: ["lessThan(100)"] }) */
     capped: number;
 
     constructor(props: {
@@ -633,8 +636,9 @@ export function lessThanValidatorIs(value: unknown): value is LessThanValidator 
 }
 
 // LessThanOrEqualTo validator
-
+/** @derive(Deserialize) */
 export class LessThanOrEqualToValidator {
+    /** @serde({ validate: ["lessThanOrEqualTo(100)"] }) */
     maxed: number;
 
     constructor(props: {
@@ -841,8 +845,9 @@ export function lessThanOrEqualToValidatorIs(value: unknown): value is LessThanO
 }
 
 // Between validator
-
+/** @derive(Deserialize) */
 export class BetweenValidator {
+    /** @serde({ validate: ["between(1, 100)"] }) */
     ranged: number;
 
     constructor(props: {
@@ -1047,8 +1052,9 @@ export function betweenValidatorIs(value: unknown): value is BetweenValidator {
 }
 
 // Int validator
-
+/** @derive(Deserialize) */
 export class IntValidator {
+    /** @serde({ validate: ["int"] }) */
     integer: number;
 
     constructor(props: {
@@ -1249,8 +1255,9 @@ export function intValidatorIs(value: unknown): value is IntValidator {
 }
 
 // NonNaN validator
-
+/** @derive(Deserialize) */
 export class NonNaNValidator {
+    /** @serde({ validate: ["nonNaN"] }) */
     valid: number;
 
     constructor(props: {
@@ -1455,8 +1462,9 @@ export function nonNaNValidatorIs(value: unknown): value is NonNaNValidator {
 }
 
 // Finite validator
-
+/** @derive(Deserialize) */
 export class FiniteValidator {
+    /** @serde({ validate: ["finite"] }) */
     finite: number;
 
     constructor(props: {
@@ -1661,8 +1669,9 @@ export function finiteValidatorIs(value: unknown): value is FiniteValidator {
 }
 
 // Positive validator
-
+/** @derive(Deserialize) */
 export class PositiveValidator {
+    /** @serde({ validate: ["positive"] }) */
     positive: number;
 
     constructor(props: {
@@ -1867,8 +1876,9 @@ export function positiveValidatorIs(value: unknown): value is PositiveValidator 
 }
 
 // NonNegative validator
-
+/** @derive(Deserialize) */
 export class NonNegativeValidator {
+    /** @serde({ validate: ["nonNegative"] }) */
     nonNegative: number;
 
     constructor(props: {
@@ -2073,8 +2083,9 @@ export function nonNegativeValidatorIs(value: unknown): value is NonNegativeVali
 }
 
 // Negative validator
-
+/** @derive(Deserialize) */
 export class NegativeValidator {
+    /** @serde({ validate: ["negative"] }) */
     negative: number;
 
     constructor(props: {
@@ -2279,8 +2290,9 @@ export function negativeValidatorIs(value: unknown): value is NegativeValidator 
 }
 
 // NonPositive validator
-
+/** @derive(Deserialize) */
 export class NonPositiveValidator {
+    /** @serde({ validate: ["nonPositive"] }) */
     nonPositive: number;
 
     constructor(props: {
@@ -2485,8 +2497,9 @@ export function nonPositiveValidatorIs(value: unknown): value is NonPositiveVali
 }
 
 // MultipleOf validator
-
+/** @derive(Deserialize) */
 export class MultipleOfValidator {
+    /** @serde({ validate: ["multipleOf(5)"] }) */
     multiple: number;
 
     constructor(props: {
@@ -2691,8 +2704,9 @@ export function multipleOfValidatorIs(value: unknown): value is MultipleOfValida
 }
 
 // Uint8 validator
-
+/** @derive(Deserialize) */
 export class Uint8Validator {
+    /** @serde({ validate: ["uint8"] }) */
     byte: number;
 
     constructor(props: {

@@ -4,6 +4,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 import macroforge from '@macroforge/vite-plugin';
@@ -18,6 +19,68 @@ export const repoRoot = process.env.MACROFORGE_ROOT ||
 export const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 export const svelteRoot = path.join(playgroundRoot, 'svelte');
 export const rootConfigPath = path.join(repoRoot, 'macroforge.json');
+
+// Path to the macroforge CLI binary
+export const cliBinary = (() => {
+    const releaseInCrate = path.join(
+        repoRoot,
+        'crates',
+        'macroforge_ts',
+        'target',
+        'release',
+        'macroforge'
+    );
+    const debugInCrate = path.join(
+        repoRoot,
+        'crates',
+        'macroforge_ts',
+        'target',
+        'debug',
+        'macroforge'
+    );
+    const release = path.join(
+        repoRoot,
+        'crates',
+        'target',
+        'release',
+        'macroforge'
+    );
+    const debug = path.join(repoRoot, 'crates', 'target', 'debug', 'macroforge');
+    const cargoInstall = path.join(
+        process.env.HOME || process.env.USERPROFILE || '',
+        '.cargo',
+        'bin',
+        'macroforge'
+    );
+    if (existsSync(releaseInCrate)) return releaseInCrate;
+    if (existsSync(debugInCrate)) return debugInCrate;
+    if (existsSync(release)) return release;
+    if (existsSync(debug)) return debug;
+    if (existsSync(cargoInstall)) return cargoInstall;
+    throw new Error(
+        'macroforge CLI binary not found. Run `cargo build` or `cargo install --path .` first.'
+    );
+})();
+
+/**
+ * Run the macroforge CLI binary and capture output.
+ */
+export function runCli(args, options = {}) {
+    const command = new Deno.Command(cliBinary, {
+        args,
+        cwd: options.cwd || process.cwd(),
+        stdout: 'piped',
+        stderr: 'piped'
+    });
+    const result = command.outputSync();
+    const decoder = new TextDecoder();
+    return {
+        stdout: decoder.decode(result.stdout),
+        stderr: decoder.decode(result.stderr),
+        status: result.code,
+        success: result.success
+    };
+}
 
 // Port counter for unique WebSocket ports per server instance
 let portCounter = 24700;

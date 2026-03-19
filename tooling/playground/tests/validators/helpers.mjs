@@ -1,61 +1,68 @@
 import { assert as assertTrue, assertEquals, assertStrictEquals } from 'jsr:@std/assert@1';
 import * as fs from 'node:fs';
-import { createRequire } from 'node:module';
 import * as path from 'node:path';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { cliBinary } from '../test-utils.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const playgroundRoot = path.resolve(__dirname, '..', '..');
-const repoRoot = path.resolve(playgroundRoot, '..', '..');
 const vanillaRoot = path.join(playgroundRoot, 'vanilla');
+const vanillaCacheDir = path.join(vanillaRoot, '.macroforge', 'cache');
 
-// Use require for synchronous loading of native module
-const require = createRequire(import.meta.url);
-const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
-const macroforge = require(swcMacrosPath);
-const expandSync = macroforge.expandSync;
-const loadConfig = macroforge.loadConfig;
+// Warm the cache once for all validator tests
+let cacheWarmed = false;
 
-// Load and cache the config for the vanilla playground
-const configPath = path.join(vanillaRoot, 'macroforge.config.ts');
-if (fs.existsSync(configPath)) {
-    const configContent = fs.readFileSync(configPath, 'utf8');
-    loadConfig(configContent, configPath);
+function warmCache() {
+    if (cacheWarmed) return;
+    const command = new Deno.Command(cliBinary, {
+        args: ['cache', vanillaRoot, '--builtin-only'],
+        cwd: vanillaRoot,
+        stdout: 'piped',
+        stderr: 'piped'
+    });
+    const result = command.outputSync();
+    if (!result.success) {
+        const decoder = new TextDecoder();
+        throw new Error(
+            `macroforge cache failed:\n${decoder.decode(result.stderr)}`
+        );
+    }
+    cacheWarmed = true;
 }
 
 // Module cache for compiled files
 const moduleCache = new Map();
 
 /**
- * Expand macros in a TypeScript file and compile it
+ * Expand macros in a TypeScript file via the cache and compile it
  */
 export async function expandAndCompile(filePath) {
     if (moduleCache.has(filePath)) {
         return moduleCache.get(filePath);
     }
 
-    const sourceCode = fs.readFileSync(filePath, 'utf8');
-    const result = expandSync(sourceCode, path.basename(filePath), {
-        configPath
-    });
+    warmCache();
 
-    if (result.diagnostics && result.diagnostics.length > 0) {
-        const errors = result.diagnostics.filter((d) => d.severity === 'error');
-        if (errors.length > 0) {
-            throw new Error(
-                `Macro expansion errors:\n${errors.map((e) => e.message).join('\n')}`
-            );
-        }
+    const relPath = path.relative(vanillaRoot, filePath);
+    const cachePath = path.join(vanillaCacheDir, relPath + '.cache');
+
+    let expandedCode;
+    if (existsSync(cachePath)) {
+        expandedCode = fs.readFileSync(cachePath, 'utf8');
+    } else {
+        // File has no macros — use the original source
+        expandedCode = fs.readFileSync(filePath, 'utf8');
     }
 
     const tempDir = path.join(__dirname, '.temp');
-    if (!fs.existsSync(tempDir)) {
+    if (!existsSync(tempDir)) {
         fs.mkdirSync(tempDir, { recursive: true });
     }
 
     const tempFile = path.join(tempDir, path.basename(filePath));
-    fs.writeFileSync(tempFile, result.code);
+    fs.writeFileSync(tempFile, expandedCode);
 
     try {
         const mod = await import(tempFile);

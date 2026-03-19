@@ -30,7 +30,9 @@ describe('Serialize macro expansion', () => {
 
         // New format uses static methods
         assert.ok(
-            result.code.includes('static serialize(value: User, keepMetadata?: boolean)'),
+            result.code.includes(
+                'static serialize(value: User, keepMetadata?: boolean)'
+            ),
             'Should generate static serialize method'
         );
         assert.ok(
@@ -588,7 +590,9 @@ describe('Combined Serialize + Deserialize', () => {
 
         // Serialize methods (now static)
         assert.ok(
-            result.code.includes('static serialize(value: Entity, keepMetadata?: boolean)'),
+            result.code.includes(
+                'static serialize(value: Entity, keepMetadata?: boolean)'
+            ),
             'Should have static serialize'
         );
         assert.ok(
@@ -785,7 +789,9 @@ describe('Edge cases', () => {
 
         // New format uses static methods
         assert.ok(
-            result.code.includes('static serialize(value: Empty, keepMetadata?: boolean)'),
+            result.code.includes(
+                'static serialize(value: Empty, keepMetadata?: boolean)'
+            ),
             'Should generate static serialize'
         );
         assert.ok(
@@ -1420,7 +1426,9 @@ describe('Serialize metadata stripping', () => {
             'Should bypass stripping when keepMetadata is true'
         );
         assert.ok(
-            result.code.includes('key === "__type" || key === "__id" ? undefined : val'),
+            result.code.includes(
+                'key === "__type" || key === "__id" ? undefined : val'
+            ),
             'Should have JSON.stringify replacer that strips __type and __id'
         );
     });
@@ -1455,7 +1463,9 @@ describe('Serialize metadata stripping', () => {
         const result = expandSync(code, 'test.ts');
 
         assert.ok(
-            result.code.includes('static serialize(value: User, keepMetadata?: boolean)'),
+            result.code.includes(
+                'static serialize(value: User, keepMetadata?: boolean)'
+            ),
             'Static method should accept keepMetadata'
         );
         assert.ok(
