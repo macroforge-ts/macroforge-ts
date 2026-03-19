@@ -5,3 +5,4 @@ debug/
 
 # Rust backup files
 **/*.rs.bk
+.DS_Store
