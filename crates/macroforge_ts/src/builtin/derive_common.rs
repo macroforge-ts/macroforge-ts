@@ -203,6 +203,12 @@ pub fn get_type_default(ts_type: &str) -> String {
         return "null".to_string();
     }
 
+    // Object literal types: { [key: string]: number }, { foo: string }, etc.
+    // Must be checked before union splitting since braces can contain pipes.
+    if t.starts_with('{') {
+        return "{}".to_string();
+    }
+
     // Handle union types (e.g., string | Account, "Estimate" | "Invoice")
     // Nullable unions (T | null, T | undefined) are already handled above.
     if let Some(parts) = split_top_level_union(t) {
@@ -362,10 +368,10 @@ pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &s
     };
 
     // Check primary entry first (fast path for unambiguous names)
-    if let Some(entry) = registry.get(type_name) {
-        if has_derive(entry) {
-            return true;
-        }
+    if let Some(entry) = registry.get(type_name)
+        && has_derive(entry)
+    {
+        return true;
     }
 
     // If ambiguous, check all qualified entries with this name
@@ -535,6 +541,20 @@ mod tests {
         assert_eq!(
             get_type_default("Result<User, Error>"),
             "resultDefaultValue<User, Error>()"
+        );
+        // Object literal types default to {}
+        assert_eq!(get_type_default("{ [key: string]: number }"), "{}");
+        assert_eq!(get_type_default("{ foo: string; bar: number }"), "{}");
+        assert_eq!(get_type_default("{ [K in keyof T]: V }"), "{}");
+    }
+
+    #[test]
+    fn test_get_type_default_object_literal_before_union_split() {
+        // Object types containing pipes should not be split as unions
+        assert_eq!(get_type_default("{ a: string | number }"), "{}");
+        assert_eq!(
+            get_type_default("{ status: \"active\" | \"inactive\" }"),
+            "{}"
         );
     }
 
@@ -783,7 +803,11 @@ mod tests {
         registry.insert(barrel_entry, "/project");
 
         // Must be marked ambiguous
-        assert!(registry.ambiguous_names.contains(&"PhoneNumber".to_string()));
+        assert!(
+            registry
+                .ambiguous_names
+                .contains(&"PhoneNumber".to_string())
+        );
 
         // type_has_derive should still return true
         assert!(type_has_derive(&registry, "PhoneNumber", "Gigaform"));

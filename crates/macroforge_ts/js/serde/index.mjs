@@ -22,6 +22,7 @@ var DeserializeContext;
     const patches = [];
     const toFreeze = [];
     const errors = [];
+    const scopes = [];
     return {
       register: (id, instance) => {
         registry.set(id, instance);
@@ -59,9 +60,17 @@ var DeserializeContext;
           Object.freeze(obj);
         }
       },
+      pushScope: (name) => {
+        scopes.push(name);
+      },
+      popScope: () => {
+        scopes.pop();
+      },
       pushErrors: (errs) => {
+        const prefix = scopes.length > 0 ? scopes.join(".") : "";
         for (const e of errs) {
-          errors.push(e);
+          const field = e.field === "_root" ? prefix || "_root" : prefix ? prefix + "." + e.field : e.field;
+          errors.push({ field, message: e.message });
         }
       },
       getErrors: () => errors

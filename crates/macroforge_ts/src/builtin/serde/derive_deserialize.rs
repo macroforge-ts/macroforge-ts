@@ -1569,6 +1569,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {:case TypeCategory::Wrapper(_)}
                                             {#if let Some(inner_type_name) = &field._wrapper_serializable_type}
                                                 {$let inner_deser_fn: Expr = ts_ident!(nested_deserialize_fn_name(inner_type_name)).into()}
+                                                ctx.pushScope("@{field.json_key}");
                                                 try {
                                                     const __result = @{inner_deser_fn}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1583,6 +1584,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     } else {
                                                         throw __e;
                                                     }
+                                                } finally {
+                                                    ctx.popScope();
                                                 }
                                             {:else}
                                                 instance.@{field._field_ident} = @{raw_var_ident};
@@ -1590,6 +1593,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                         {:case TypeCategory::Serializable(type_name)}
                                             {$let type_expr: Expr = ts_ident!(type_name).into()}
+                                            ctx.pushScope("@{field.json_key}");
                                             try {
                                                 const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1604,6 +1608,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 } else {
                                                     throw __e;
                                                 }
+                                            } finally {
+                                                ctx.popScope();
                                             }
 
                                         {:case TypeCategory::Nullable(_)}
@@ -1624,6 +1630,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     } else {
                                                         {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                             {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
+                                                            ctx.pushScope("@{field.json_key}");
                                                             try {
                                                                 const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1638,6 +1645,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                                 } else {
                                                                     throw __e;
                                                                 }
+                                                            } finally {
+                                                                ctx.popScope();
                                                             }
                                                         {:else}
                                                             instance.@{field._field_ident} = @{raw_var_ident};
@@ -1828,6 +1837,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                         {:case TypeCategory::Serializable(type_name)}
                                             {$let type_expr: Expr = ts_ident!(type_name).into()}
+                                            ctx.pushScope("@{field.json_key}");
                                             try {
                                                 const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1842,6 +1852,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 } else {
                                                     throw __e;
                                                 }
+                                            } finally {
+                                                ctx.popScope();
                                             }
 
                                         {:case TypeCategory::Nullable(_)}
@@ -1862,6 +1874,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     } else {
                                                         {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                             {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
+                                                            ctx.pushScope("@{field.json_key}");
                                                             try {
                                                                 const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                                 ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -1876,6 +1889,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                                 } else {
                                                                     throw __e;
                                                                 }
+                                                            } finally {
+                                                                ctx.popScope();
                                                             }
                                                         {:else}
                                                             instance.@{field._field_ident} = @{raw_var_ident};
@@ -2591,6 +2606,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                             {:case TypeCategory::Serializable(type_name)}
                                                 {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(type_name)).into()}
+                                                ctx.pushScope("@{field.json_key}");
                                                 try {
                                                     const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -2605,6 +2621,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     } else {
                                                         throw __e;
                                                     }
+                                                } finally {
+                                                    ctx.popScope();
                                                 }
 
                                             {:case TypeCategory::Nullable(_)}
@@ -2625,6 +2643,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         } else {
                                                             {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                                 {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(inner_type)).into()}
+                                                                ctx.pushScope("@{field.json_key}");
                                                                 try {
                                                                     const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -2639,6 +2658,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                                     } else {
                                                                         throw __e;
                                                                     }
+                                                                } finally {
+                                                                    ctx.popScope();
                                                                 }
                                                             {:else}
                                                                 instance.@{field._field_ident} = @{raw_var_ident};
@@ -2818,6 +2839,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                             {:case TypeCategory::Serializable(type_name)}
                                                 {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(type_name)).into()}
+                                                ctx.pushScope("@{field.json_key}");
                                                 try {
                                                     const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -2832,6 +2854,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     } else {
                                                         throw __e;
                                                     }
+                                                } finally {
+                                                    ctx.popScope();
                                                 }
 
                                             {:case TypeCategory::Nullable(_)}
@@ -2852,6 +2876,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         } else {
                                                             {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                                 {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(inner_type)).into()}
+                                                                ctx.pushScope("@{field.json_key}");
                                                                 try {
                                                                     const __result = @{deserialize_with_context_fn}(@{raw_var_ident}, ctx);
                                                                     ctx.assignOrDefer(instance, "@{field._field_name}", __result);
@@ -2866,6 +2891,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                                     } else {
                                                                         throw __e;
                                                                     }
+                                                                } finally {
+                                                                    ctx.popScope();
                                                                 }
                                                             {:else}
                                                                 instance.@{field._field_ident} = @{raw_var_ident};
@@ -3465,9 +3492,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                                 {:case TypeCategory::Serializable(inner_type_name)}
                                                     {$let inner_type_expr: Expr = ts_ident!(inner_type_name).into()}
-                                                    {
+                                                    ctx.pushScope("@{field.json_key}");
+                                                    try {
                                                         const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                         ctx.assignOrDefer(instance, "@{field._field_name}", __result);
+                                                    } finally {
+                                                        ctx.popScope();
                                                     }
 
                                                 {:case TypeCategory::Nullable(_)}
@@ -3488,8 +3518,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                             } else {
                                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                                     {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
-                                                                    const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
-                                                                    ctx.assignOrDefer(instance, "@{field._field_name}", __result);
+                                                                    ctx.pushScope("@{field.json_key}");
+                                                                    try {
+                                                                        const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                                                        ctx.assignOrDefer(instance, "@{field._field_name}", __result);
+                                                                    } finally {
+                                                                        ctx.popScope();
+                                                                    }
                                                                 {:else}
                                                                     instance.@{field._field_ident} = @{raw_var_ident};
                                                                 {/if}
@@ -3638,9 +3673,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                                 {:case TypeCategory::Serializable(inner_type_name)}
                                                     {$let inner_type_expr: Expr = ts_ident!(inner_type_name).into()}
-                                                    {
+                                                    ctx.pushScope("@{field.json_key}");
+                                                    try {
                                                         const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
                                                         ctx.assignOrDefer(instance, "@{field._field_name}", __result);
+                                                    } finally {
+                                                        ctx.popScope();
                                                     }
 
                                                 {:case TypeCategory::Nullable(_)}
@@ -3661,8 +3699,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                             } else {
                                                                 {#if let Some(inner_type) = &field._nullable_serializable_type}
                                                                     {$let inner_type_expr: Expr = ts_ident!(inner_type).into()}
-                                                                    const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
-                                                                    ctx.assignOrDefer(instance, "@{field._field_name}", __result);
+                                                                    ctx.pushScope("@{field.json_key}");
+                                                                    try {
+                                                                        const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                                                        ctx.assignOrDefer(instance, "@{field._field_name}", __result);
+                                                                    } finally {
+                                                                        ctx.popScope();
+                                                                    }
                                                                 {:else}
                                                                     instance.@{field._field_ident} = @{raw_var_ident};
                                                                 {/if}
@@ -4079,37 +4122,34 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {/if}
                                             {/if}
                                         {/for}
-                                        if (typeof value !== "object" || value === null) {
-                                            throw new @{deserialize_error_expr}([{
-                                                field: "_root",
-                                                message: "@{type_name}.deserializeWithContext: expected an object"
-                                            }]);
-                                        }
 
-                                        const __typeName = (value as any)["@{tag_field}"];
-                                        if (typeof __typeName === "string") {
-                                            {#for type_ref in &regular_serializables}
-                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                                if (__typeName === "@{type_ref.full_type}") {
-                                                    return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
-                                                }
-                                            {/for}
-                                            {#for type_ref in &foreign_serializables}
-                                                {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                        // Tag-based discrimination (only for object values)
+                                        if (typeof value === "object" && value !== null) {
+                                            const __typeName = (value as any)["@{tag_field}"];
+                                            if (typeof __typeName === "string") {
+                                                {#for type_ref in &regular_serializables}
+                                                    {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
                                                     if (__typeName === "@{type_ref.full_type}") {
-                                                        return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                        return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
                                                     }
-                                                {/if}
-                                            {/for}
+                                                {/for}
+                                                {#for type_ref in &foreign_serializables}
+                                                    {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                        {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                        if (__typeName === "@{type_ref.full_type}") {
+                                                            return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                        }
+                                                    {/if}
+                                                {/for}
 
-                                            throw new @{deserialize_error_expr}([{
-                                                field: "_root",
-                                                message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
-                                            }]);
+                                                throw new @{deserialize_error_expr}([{
+                                                    field: "_root",
+                                                    message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
+                                                }]);
+                                            }
                                         }
 
-                                        // No tag field — infer variant via structural shape matching
+                                        // Infer variant via structural shape matching (works for any value type)
                                         const __shapeMatches: Array<string> = [];
                                         {#for type_ref in &regular_serializables}
                                             {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -4140,6 +4180,26 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         }
 
                                         if (__shapeMatches.length > 1) {
+                                            // Multiple variants match — try each deserializer in order, return first success
+                                            {#for type_ref in &regular_serializables}
+                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                if (__shapeMatches.includes("@{type_ref.full_type}")) {
+                                                    try {
+                                                        return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                    } catch { /* try next variant */ }
+                                                }
+                                            {/for}
+                                            {#for type_ref in &foreign_serializables}
+                                                {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                    if (__shapeMatches.includes("@{type_ref.full_type}")) {
+                                                        try {
+                                                            return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                        } catch { /* try next variant */ }
+                                                    }
+                                                {/if}
+                                            {/for}
+
                                             throw new @{deserialize_error_expr}([{
                                                 field: "_root",
                                                 message: "@{type_name}.deserializeWithContext: missing @{tag_field} field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a @{tag_field} field to disambiguate."
@@ -4212,6 +4272,21 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {/for}
                                                     }
                                                 }
+                                            } else {
+                                                // Non-object values — regular serializables may still match (e.g. RecordLink can be a string)
+                                                const __shapeMatches: Array<string> = [];
+                                                {#for type_ref in &regular_serializables}
+                                                    {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    if (@{has_shape_fn}(value)) __shapeMatches.push("@{type_ref.full_type}");
+                                                {/for}
+                                                if (__shapeMatches.length === 1) {
+                                                    {#for type_ref in &regular_serializables}
+                                                        {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                        if (__shapeMatches[0] === "@{type_ref.full_type}") {
+                                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                        }
+                                                    {/for}
+                                                }
                                             }
                                         {/if}
 
@@ -4253,19 +4328,22 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 if ((@{foreign_shape_expr})(value)) return true;
                                             {/if}
                                         {/for}
-                                        if (typeof value !== "object" || value === null) {
-                                            return false;
+
+                                        // Tag-based discrimination (only for object values)
+                                        if (typeof value === "object" && value !== null) {
+                                            const __typeName = (value as any)["@{tag_field}"];
+                                            if (typeof __typeName === "string") {
+                                                return @{serializable_type_check_condition};
+                                            }
                                         }
-                                        const __typeName = (value as any)["@{tag_field}"];
-                                        if (typeof __typeName === "string") {
-                                            return @{serializable_type_check_condition};
-                                        }
+
+                                        // Shape matching works for any value type (including non-objects)
                                         let __matchCount = 0;
                                         {#for type_ref in &regular_serializables}
                                             {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
                                             if (@{has_shape_fn}(value)) __matchCount++;
                                         {/for}
-                                        return __matchCount === 1;
+                                        return __matchCount >= 1;
                                     {:else}
                                         {#if has_literals}
                                             const allowedLiterals = [@{literals.join(", ")}] as const;
@@ -4292,6 +4370,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {/for}
                                                     if (__matchCount === 1) return true;
                                                 }
+                                            } else {
+                                                // Non-object values — regular serializables may still match (e.g. RecordLink can be a string)
+                                                let __matchCount = 0;
+                                                {#for type_ref in &regular_serializables}
+                                                    {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    if (@{has_shape_fn}(value)) __matchCount++;
+                                                {/for}
+                                                if (__matchCount === 1) return true;
                                             }
                                             // Foreign types with hasShape may not be objects
                                             {#for type_ref in &foreign_serializables}

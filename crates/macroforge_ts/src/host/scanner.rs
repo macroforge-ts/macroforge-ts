@@ -464,12 +464,10 @@ export interface PhoneNumber {
 
         let globals = Globals::default();
         GLOBALS.set(&globals, || {
-            let module =
-                crate::ts_syn::parse::parse_ts_module(source, "phone-number.svelte.ts")
-                    .expect("parse failed");
+            let module = crate::ts_syn::parse::parse_ts_module(source, "phone-number.svelte.ts")
+                .expect("parse failed");
 
-            let interfaces =
-                crate::ts_syn::lower_interfaces(&module, source).unwrap_or_default();
+            let interfaces = crate::ts_syn::lower_interfaces(&module, source).unwrap_or_default();
             assert_eq!(interfaces.len(), 1, "Should find one interface");
 
             let iface = &interfaces[0];
@@ -496,7 +494,11 @@ export interface PhoneNumber {
             registry.insert(entry, "");
 
             assert!(
-                crate::builtin::derive_common::type_has_derive(&registry, "PhoneNumber", "Gigaform"),
+                crate::builtin::derive_common::type_has_derive(
+                    &registry,
+                    "PhoneNumber",
+                    "Gigaform"
+                ),
                 "type_has_derive should return true for Gigaform"
             );
             assert!(

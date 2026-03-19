@@ -173,21 +173,21 @@ try {
         .arg(&registry_path)
         .current_dir(&cwd)
         .output()
+        && output.status.success()
+        && registry_path.exists()
     {
-        if output.status.success() && registry_path.exists() {
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            if let Ok(info) = serde_json::from_str::<serde_json::Value>(&stdout) {
-                if info.get("ok").and_then(|v| v.as_bool()).unwrap_or(false) {
-                    let types = info.get("types").and_then(|v| v.as_u64()).unwrap_or(0);
-                    let files = info.get("files").and_then(|v| v.as_u64()).unwrap_or(0);
-                    eprintln!(
-                        "[macroforge] Type scan: {} types from {} files",
-                        types, files
-                    );
-                    *cached = Some(registry_path.to_string_lossy().to_string());
-                    return;
-                }
-            }
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Ok(info) = serde_json::from_str::<serde_json::Value>(&stdout)
+            && info.get("ok").and_then(|v| v.as_bool()).unwrap_or(false)
+        {
+            let types = info.get("types").and_then(|v| v.as_u64()).unwrap_or(0);
+            let files = info.get("files").and_then(|v| v.as_u64()).unwrap_or(0);
+            eprintln!(
+                "[macroforge] Type scan: {} types from {} files",
+                types, files
+            );
+            *cached = Some(registry_path.to_string_lossy().to_string());
+            return;
         }
     }
 
@@ -890,6 +890,11 @@ fn write_file(path: &PathBuf, contents: &str) -> Result<()> {
 ///
 /// Returns `Ok(())` if type checking passes, or an error with diagnostic details.
 fn run_tsc_wrapper(project: Option<PathBuf>) -> Result<()> {
+    // Build the type registry before launching tsc so that expandSync
+    // can resolve cross-module type references.
+    ensure_type_registry_cache();
+    let registry_path = TYPE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
+
     // Write a temporary Node.js script that wraps tsc and expands macros on file load
     let script = r#"
 const { createRequire } = require('module');
@@ -942,6 +947,15 @@ if (macroConfigPath) {
   }
 }
 
+// Load pre-built type registry if available
+const typeRegistryPath = process.env.MACROFORGE_TYPE_REGISTRY_PATH;
+let typeRegistryJson = undefined;
+if (typeRegistryPath) {
+  try {
+    typeRegistryJson = fs.readFileSync(typeRegistryPath, 'utf8');
+  } catch {}
+}
+
 const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
 if (configFile.error) {
   console.error(ts.formatDiagnostic(configFile.error, {
@@ -975,7 +989,9 @@ host.getSourceFile = (fileName, languageVersion, ...rest) => {
     ) {
       const sourceText = ts.sys.readFile(fileName);
       if (sourceText && sourceText.includes('@derive')) {
-        const expandOpts = macroConfigPath ? { configPath: macroConfigPath } : undefined;
+        const expandOpts = {};
+        if (macroConfigPath) expandOpts.configPath = macroConfigPath;
+        if (typeRegistryJson) expandOpts.typeRegistryJson = typeRegistryJson;
         const expanded = macros.expandSync(sourceText, fileName, expandOpts);
         const text = expanded.code || sourceText;
         return ts.createSourceFile(fileName, text, languageVersion, true);
@@ -1010,11 +1026,12 @@ process.exit(hasError ? 1 : 0);
         .to_string_lossy()
         .to_string();
 
-    let status = std::process::Command::new("node")
-        .arg(script_path)
-        .arg(project_arg)
-        .status()
-        .context("failed to run node tsc wrapper")?;
+    let mut cmd = std::process::Command::new("node");
+    cmd.arg(script_path).arg(project_arg);
+    if let Some(ref rp) = registry_path {
+        cmd.env("MACROFORGE_TYPE_REGISTRY_PATH", rp);
+    }
+    let status = cmd.status().context("failed to run node tsc wrapper")?;
 
     if !status.success() {
         anyhow::bail!("tsc wrapper exited with status {}", status);
@@ -1048,6 +1065,12 @@ fn run_svelte_check_wrapper(
     output: Option<String>,
     fail_on_warnings: bool,
 ) -> Result<()> {
+    // Build the type registry before launching svelte-check so that
+    // expandSync can resolve cross-module type references (e.g., enum
+    // fieldset variants defined in separate files).
+    ensure_type_registry_cache();
+    let registry_path = TYPE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
+
     let script = r#"
 const { createRequire } = require('module');
 const fs = require('fs');
@@ -1103,6 +1126,15 @@ if (macroConfigPath) {
   }
 }
 
+// --- 2b. Load pre-built type registry if available ---
+const typeRegistryPath = process.env.MACROFORGE_TYPE_REGISTRY_PATH;
+let typeRegistryJson = undefined;
+if (typeRegistryPath) {
+  try {
+    typeRegistryJson = fs.readFileSync(typeRegistryPath, 'utf8');
+  } catch {}
+}
+
 // --- 3. Patch ts.sys.readFile to expand macros ---
 const origReadFile = ts.sys.readFile.bind(ts.sys);
 ts.sys.readFile = (filePath, encoding) => {
@@ -1114,7 +1146,9 @@ ts.sys.readFile = (filePath, encoding) => {
       !filePath.endsWith('.d.ts') &&
       content.includes('@derive')
     ) {
-      const expandOpts = macroConfigPath ? { configPath: macroConfigPath } : undefined;
+      const expandOpts = {};
+      if (macroConfigPath) expandOpts.configPath = macroConfigPath;
+      if (typeRegistryJson) expandOpts.typeRegistryJson = typeRegistryJson;
       const expanded = macros.expandSync(content, filePath, expandOpts);
       return expanded.code || content;
     }
@@ -1154,6 +1188,12 @@ try {
 
     let mut cmd = std::process::Command::new("node");
     cmd.arg(&script_path);
+
+    // Pass the type registry path via environment variable so the JS
+    // script can load it and feed it to expandSync.
+    if let Some(ref rp) = registry_path {
+        cmd.env("MACROFORGE_TYPE_REGISTRY_PATH", rp);
+    }
 
     // Pass through CLI args for svelte-check to pick up
     if let Some(ref ws) = workspace {

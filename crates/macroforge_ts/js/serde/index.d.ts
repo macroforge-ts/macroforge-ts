@@ -156,8 +156,21 @@ export interface DeserializeContext {
      */
     freezeAll(): void;
     /**
+     * Pushes a field name onto the scope stack.
+     * Nested deserializers call this before processing so that any errors
+     * they push are automatically prefixed with the full path.
+     * @param name - The field name to push (e.g., "colors")
+     */
+    pushScope(name: string): void;
+    /**
+     * Pops the last field name from the scope stack.
+     * Must be called after the nested deserializer returns.
+     */
+    popScope(): void;
+    /**
      * Pushes validation errors onto the context.
      * Called by `deserializeWithContext` instead of throwing.
+     * Errors are automatically prefixed with the current scope stack.
      * @param errors - Array of field validation errors to accumulate
      */
     pushErrors(errors: FieldError[]): void;
