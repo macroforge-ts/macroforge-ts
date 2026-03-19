@@ -7,8 +7,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
  */
 
 // GreaterThanBigInt validator
-
+/** @derive(Deserialize) */
 export class GreaterThanBigIntValidator {
+    /** @serde({ validate: ["greaterThanBigInt(0)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -215,8 +216,9 @@ export function greaterThanBigIntValidatorIs(value: unknown): value is GreaterTh
 }
 
 // GreaterThanOrEqualToBigInt validator
-
+/** @derive(Deserialize) */
 export class GreaterThanOrEqualToBigIntValidator {
+    /** @serde({ validate: ["greaterThanOrEqualToBigInt(0)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -432,8 +434,9 @@ export function greaterThanOrEqualToBigIntValidatorIs(
 }
 
 // LessThanBigInt validator
-
+/** @derive(Deserialize) */
 export class LessThanBigIntValidator {
+    /** @serde({ validate: ["lessThanBigInt(1000)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -640,8 +643,9 @@ export function lessThanBigIntValidatorIs(value: unknown): value is LessThanBigI
 }
 
 // LessThanOrEqualToBigInt validator
-
+/** @derive(Deserialize) */
 export class LessThanOrEqualToBigIntValidator {
+    /** @serde({ validate: ["lessThanOrEqualToBigInt(1000)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -854,8 +858,9 @@ export function lessThanOrEqualToBigIntValidatorIs(
 }
 
 // BetweenBigInt validator
-
+/** @derive(Deserialize) */
 export class BetweenBigIntValidator {
+    /** @serde({ validate: ["betweenBigInt(0, 1000)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -1060,8 +1065,9 @@ export function betweenBigIntValidatorIs(value: unknown): value is BetweenBigInt
 }
 
 // PositiveBigInt validator
-
+/** @derive(Deserialize) */
 export class PositiveBigIntValidator {
+    /** @serde({ validate: ["positiveBigInt"] }) */
     value: bigint;
 
     constructor(props: {
@@ -1268,8 +1274,9 @@ export function positiveBigIntValidatorIs(value: unknown): value is PositiveBigI
 }
 
 // NonNegativeBigInt validator
-
+/** @derive(Deserialize) */
 export class NonNegativeBigIntValidator {
+    /** @serde({ validate: ["nonNegativeBigInt"] }) */
     value: bigint;
 
     constructor(props: {
@@ -1476,8 +1483,9 @@ export function nonNegativeBigIntValidatorIs(value: unknown): value is NonNegati
 }
 
 // NegativeBigInt validator
-
+/** @derive(Deserialize) */
 export class NegativeBigIntValidator {
+    /** @serde({ validate: ["negativeBigInt"] }) */
     value: bigint;
 
     constructor(props: {
@@ -1684,8 +1692,9 @@ export function negativeBigIntValidatorIs(value: unknown): value is NegativeBigI
 }
 
 // NonPositiveBigInt validator
-
+/** @derive(Deserialize) */
 export class NonPositiveBigIntValidator {
+    /** @serde({ validate: ["nonPositiveBigInt"] }) */
     value: bigint;
 
     constructor(props: {

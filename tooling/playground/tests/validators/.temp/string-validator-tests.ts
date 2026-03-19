@@ -8,8 +8,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
  */
 
 // Email validator
-
+/** @derive(Deserialize) */
 export class EmailValidator {
+    /** @serde({ validate: ["email"] }) */
     email: string;
 
     constructor(props: {
@@ -214,8 +215,9 @@ export function emailValidatorIs(value: unknown): value is EmailValidator {
 }
 
 // URL validator
-
+/** @derive(Deserialize) */
 export class UrlValidator {
+    /** @serde({ validate: ["url"] }) */
     url: string;
 
     constructor(props: {
@@ -416,8 +418,9 @@ export function urlValidatorIs(value: unknown): value is UrlValidator {
 }
 
 // UUID validator
-
+/** @derive(Deserialize) */
 export class UuidValidator {
+    /** @serde({ validate: ["uuid"] }) */
     id: string;
 
     constructor(props: {
@@ -621,8 +624,9 @@ export function uuidValidatorIs(value: unknown): value is UuidValidator {
 }
 
 // MaxLength validator
-
+/** @derive(Deserialize) */
 export class MaxLengthValidator {
+    /** @serde({ validate: ["maxLength(10)"] }) */
     shortText: string;
 
     constructor(props: {
@@ -827,8 +831,9 @@ export function maxLengthValidatorIs(value: unknown): value is MaxLengthValidato
 }
 
 // MinLength validator
-
+/** @derive(Deserialize) */
 export class MinLengthValidator {
+    /** @serde({ validate: ["minLength(5)"] }) */
     longText: string;
 
     constructor(props: {
@@ -1033,8 +1038,9 @@ export function minLengthValidatorIs(value: unknown): value is MinLengthValidato
 }
 
 // Length validator (exact)
-
+/** @derive(Deserialize) */
 export class LengthValidator {
+    /** @serde({ validate: ["length(8)"] }) */
     fixedText: string;
 
     constructor(props: {
@@ -1239,8 +1245,9 @@ export function lengthValidatorIs(value: unknown): value is LengthValidator {
 }
 
 // LengthRange validator (use length with 2 args)
-
+/** @derive(Deserialize) */
 export class LengthRangeValidator {
+    /** @serde({ validate: ["length(5, 10)"] }) */
     rangedText: string;
 
     constructor(props: {
@@ -1445,8 +1452,9 @@ export function lengthRangeValidatorIs(value: unknown): value is LengthRangeVali
 }
 
 // Pattern validator
-
+/** @derive(Deserialize) */
 export class PatternValidator {
+    /** @serde({ validate: ['pattern("^[A-Z]{3}$")'] }) */
     code: string;
 
     constructor(props: {
@@ -1651,8 +1659,9 @@ export function patternValidatorIs(value: unknown): value is PatternValidator {
 }
 
 // NonEmpty validator
-
+/** @derive(Deserialize) */
 export class NonEmptyValidator {
+    /** @serde({ validate: ["nonEmpty"] }) */
     required: string;
 
     constructor(props: {
@@ -1857,8 +1866,9 @@ export function nonEmptyValidatorIs(value: unknown): value is NonEmptyValidator 
 }
 
 // Trimmed validator
-
+/** @derive(Deserialize) */
 export class TrimmedValidator {
+    /** @serde({ validate: ["trimmed"] }) */
     trimmed: string;
 
     constructor(props: {
@@ -2063,8 +2073,9 @@ export function trimmedValidatorIs(value: unknown): value is TrimmedValidator {
 }
 
 // Lowercase validator
-
+/** @derive(Deserialize) */
 export class LowercaseValidator {
+    /** @serde({ validate: ["lowercase"] }) */
     lower: string;
 
     constructor(props: {
@@ -2269,8 +2280,9 @@ export function lowercaseValidatorIs(value: unknown): value is LowercaseValidato
 }
 
 // Uppercase validator
-
+/** @derive(Deserialize) */
 export class UppercaseValidator {
+    /** @serde({ validate: ["uppercase"] }) */
     upper: string;
 
     constructor(props: {
@@ -2475,8 +2487,9 @@ export function uppercaseValidatorIs(value: unknown): value is UppercaseValidato
 }
 
 // Capitalized validator
-
+/** @derive(Deserialize) */
 export class CapitalizedValidator {
+    /** @serde({ validate: ["capitalized"] }) */
     cap: string;
 
     constructor(props: {
@@ -2690,8 +2703,9 @@ export function capitalizedValidatorIs(value: unknown): value is CapitalizedVali
 }
 
 // Uncapitalized validator
-
+/** @derive(Deserialize) */
 export class UncapitalizedValidator {
+    /** @serde({ validate: ["uncapitalized"] }) */
     uncap: string;
 
     constructor(props: {
@@ -2896,8 +2910,9 @@ export function uncapitalizedValidatorIs(value: unknown): value is Uncapitalized
 }
 
 // StartsWith validator
-
+/** @derive(Deserialize) */
 export class StartsWithValidator {
+    /** @serde({ validate: ['startsWith("https://")'] }) */
     secureUrl: string;
 
     constructor(props: {
@@ -3102,8 +3117,9 @@ export function startsWithValidatorIs(value: unknown): value is StartsWithValida
 }
 
 // EndsWith validator
-
+/** @derive(Deserialize) */
 export class EndsWithValidator {
+    /** @serde({ validate: ['endsWith(".json")'] }) */
     filename: string;
 
     constructor(props: {
@@ -3308,8 +3324,9 @@ export function endsWithValidatorIs(value: unknown): value is EndsWithValidator 
 }
 
 // Includes validator
-
+/** @derive(Deserialize) */
 export class IncludesValidator {
+    /** @serde({ validate: ['includes("@")'] }) */
     emailLike: string;
 
     constructor(props: {

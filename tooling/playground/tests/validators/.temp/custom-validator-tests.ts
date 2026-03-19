@@ -17,8 +17,9 @@ export function isValidUsername(value: string): boolean {
 }
 
 // Custom number validator
-
+/** @derive(Deserialize) */
 export class CustomNumberValidator {
+    /** @serde({ validate: ["custom(isEven)"] }) */
     evenNumber: number;
 
     constructor(props: {
@@ -223,8 +224,9 @@ export function customNumberValidatorIs(value: unknown): value is CustomNumberVa
 }
 
 // Custom string validator
-
+/** @derive(Deserialize) */
 export class CustomStringValidator {
+    /** @serde({ validate: ["custom(isValidUsername)"] }) */
     username: string;
 
     constructor(props: {
@@ -432,8 +434,9 @@ export function customStringValidatorIs(value: unknown): value is CustomStringVa
 }
 
 // Custom validator with custom message
-
+/** @derive(Deserialize) */
 export class CustomWithMessageValidator {
+    /** @serde({ validate: [{ validate: "custom(isEven)", message: "Number must be even" }] }) */
     evenNumber: number;
 
     constructor(props: {

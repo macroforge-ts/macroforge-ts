@@ -7,8 +7,9 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
  */
 
 // Multiple validators on single field
-
+/** @derive(Deserialize) */
 export class MultipleValidatorsTest {
+    /** @serde({ validate: ["nonEmpty", "maxLength(100)", "trimmed"] }) */
     text: string;
 
     constructor(props: {
@@ -249,8 +250,9 @@ export function multipleValidatorsTestIs(value: unknown): value is MultipleValid
 }
 
 // Custom error message
-
+/** @derive(Deserialize) */
 export class CustomMessageTest {
+    /** @serde({ validate: [{ validate: "email", message: "Please enter a valid email address" }] }) */
     email: string;
 
     constructor(props: {
@@ -455,8 +457,9 @@ export function customMessageTestIs(value: unknown): value is CustomMessageTest 
 }
 
 // Mixed validators with custom message
-
+/** @derive(Deserialize) */
 export class MixedValidatorsTest {
+    /** @serde({ validate: ["nonEmpty", { validate: "email", message: "Invalid email format" }] }) */
     email: string;
 
     constructor(props: {
@@ -679,8 +682,9 @@ export function mixedValidatorsTestIs(value: unknown): value is MixedValidatorsT
 }
 
 // Combined string validators
-
+/** @derive(Deserialize) */
 export class CombinedStringValidatorsTest {
+    /** @serde({ validate: ["minLength(3)", "maxLength(20)", "lowercase"] }) */
     username: string;
 
     constructor(props: {
@@ -926,8 +930,9 @@ export function combinedStringValidatorsTestIs(
 }
 
 // Combined number validators
-
+/** @derive(Deserialize) */
 export class CombinedNumberValidatorsTest {
+    /** @serde({ validate: ["int", "positive", "lessThan(1000)"] }) */
     score: number;
 
     constructor(props: {
