@@ -13,70 +13,7 @@ import {
     assertEquals,
     assertStringIncludes
 } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import { repoRoot, svelteRoot } from './test-utils.mjs';
-
-// Path to the CLI binary (same resolution as cli.test.mjs)
-const cliBinary = (() => {
-    const releaseInCrate = path.join(
-        repoRoot,
-        'crates',
-        'macroforge_ts',
-        'target',
-        'release',
-        'macroforge'
-    );
-    const debugInCrate = path.join(
-        repoRoot,
-        'crates',
-        'macroforge_ts',
-        'target',
-        'debug',
-        'macroforge'
-    );
-    const release = path.join(
-        repoRoot,
-        'crates',
-        'target',
-        'release',
-        'macroforge'
-    );
-    const debug = path.join(repoRoot, 'crates', 'target', 'debug', 'macroforge');
-    // Also check cargo install location
-    const cargoInstall = path.join(
-        process.env.HOME || process.env.USERPROFILE || '',
-        '.cargo',
-        'bin',
-        'macroforge'
-    );
-    if (existsSync(releaseInCrate)) return releaseInCrate;
-    if (existsSync(debugInCrate)) return debugInCrate;
-    if (existsSync(release)) return release;
-    if (existsSync(debug)) return debug;
-    if (existsSync(cargoInstall)) return cargoInstall;
-    throw new Error(
-        'macroforge CLI binary not found. Run `cargo build` or `cargo install --path .` first.'
-    );
-})();
-
-// Helper to run CLI and capture output
-function runCli(args, options = {}) {
-    const command = new Deno.Command(cliBinary, {
-        args,
-        cwd: options.cwd || svelteRoot,
-        stdout: 'piped',
-        stderr: 'piped'
-    });
-    const result = command.outputSync();
-    const decoder = new TextDecoder();
-    return {
-        stdout: decoder.decode(result.stdout),
-        stderr: decoder.decode(result.stderr),
-        status: result.code,
-        success: result.success
-    };
-}
+import { runCli, svelteRoot } from './test-utils.mjs';
 
 // ============================================================================
 // Help & Basic Invocation
@@ -114,8 +51,8 @@ Deno.test('svelte-check: --help shows usage', () => {
 
 Deno.test('svelte-check: type-checks the svelte playground project', () => {
     // Ensure .svelte-kit types are generated (prerequisite for svelte-check)
-    const syncResult = new Deno.Command('node', {
-        args: ['./node_modules/.bin/svelte-kit', 'sync'],
+    const syncResult = new Deno.Command('./node_modules/.bin/svelte-kit', {
+        args: ['sync'],
         cwd: svelteRoot,
         stdout: 'piped',
         stderr: 'piped'
@@ -126,7 +63,9 @@ Deno.test('svelte-check: type-checks the svelte playground project', () => {
         `svelte-kit sync should succeed. stderr: ${new TextDecoder().decode(syncResult.stderr)}`
     );
 
-    const result = runCli(['svelte-check', '--tsconfig', './tsconfig.json']);
+    const result = runCli(['svelte-check', '--tsconfig', './tsconfig.json'], {
+        cwd: svelteRoot
+    });
 
     assertEquals(
         result.success,
@@ -142,7 +81,7 @@ Deno.test('svelte-check: --output machine produces machine-readable output', () 
         './tsconfig.json',
         '--output',
         'machine'
-    ]);
+    ], { cwd: svelteRoot });
 
     assertEquals(
         result.success,
@@ -158,7 +97,7 @@ Deno.test('svelte-check: --workspace flag is forwarded', () => {
         svelteRoot,
         '--tsconfig',
         './tsconfig.json'
-    ]);
+    ], { cwd: svelteRoot });
 
     assertEquals(
         result.success,
@@ -175,7 +114,7 @@ Deno.test('svelte-check: --fail-on-warnings exits non-zero on warnings', () => {
         '--tsconfig',
         './tsconfig.json',
         '--fail-on-warnings'
-    ]);
+    ], { cwd: svelteRoot });
 
     // We don't assert success here because the project might have warnings.
     // We just verify it doesn't crash (status should be 0 or 1, not a node crash).
