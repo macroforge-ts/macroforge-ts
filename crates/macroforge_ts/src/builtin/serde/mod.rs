@@ -1387,8 +1387,8 @@ pub(crate) fn split_top_level_union(s: &str) -> Option<Vec<&str>> {
                 in_string = true;
                 string_char = c;
             }
-            '<' | '(' | '[' => depth += 1,
-            '>' | ')' | ']' => depth = depth.saturating_sub(1),
+            '<' | '(' | '[' | '{' => depth += 1,
+            '>' | ')' | ']' | '}' => depth = depth.saturating_sub(1),
             '|' if depth == 0 => {
                 parts.push(s[start..i].trim());
                 start = i + 1;
@@ -2748,6 +2748,26 @@ mod tests {
         assert_eq!(
             TypeCategory::from_ts_type("Record<string, User>"),
             TypeCategory::Record("string".into(), "User".into())
+        );
+    }
+
+    #[test]
+    fn test_split_top_level_union_tracks_braces() {
+        // Pipes inside braces should not split
+        assert_eq!(split_top_level_union("{ a: string | number }"), None);
+        assert_eq!(
+            split_top_level_union("{ status: \"active\" | \"inactive\" }"),
+            None
+        );
+        // Pipes outside braces should still split
+        assert_eq!(
+            split_top_level_union("{ a: string } | { b: number }"),
+            Some(vec!["{ a: string }", "{ b: number }"])
+        );
+        // Mixed: pipe inside braces ignored, pipe outside splits
+        assert_eq!(
+            split_top_level_union("{ a: string | number } | null"),
+            Some(vec!["{ a: string | number }", "null"])
         );
     }
 

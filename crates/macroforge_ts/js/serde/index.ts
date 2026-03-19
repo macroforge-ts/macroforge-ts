@@ -186,8 +186,23 @@ export interface DeserializeContext {
   freezeAll(): void;
 
   /**
+   * Pushes a field name onto the scope stack.
+   * Nested deserializers call this before processing so that any errors
+   * they push are automatically prefixed with the full path.
+   * @param name - The field name to push (e.g., "colors")
+   */
+  pushScope(name: string): void;
+
+  /**
+   * Pops the last field name from the scope stack.
+   * Must be called after the nested deserializer returns.
+   */
+  popScope(): void;
+
+  /**
    * Pushes validation errors onto the context.
    * Called by `deserializeWithContext` instead of throwing.
+   * Errors are automatically prefixed with the current scope stack.
    * @param errors - Array of field validation errors to accumulate
    */
   pushErrors(errors: FieldError[]): void;
@@ -236,6 +251,7 @@ export namespace DeserializeContext {
     > = [];
     const toFreeze: object[] = [];
     const errors: FieldError[] = [];
+    const scopes: string[] = [];
 
     return {
       register: (id, instance) => {
@@ -281,9 +297,21 @@ export namespace DeserializeContext {
         }
       },
 
+      pushScope: (name) => {
+        scopes.push(name);
+      },
+
+      popScope: () => {
+        scopes.pop();
+      },
+
       pushErrors: (errs) => {
+        const prefix = scopes.length > 0 ? scopes.join(".") : "";
         for (const e of errs) {
-          errors.push(e);
+          const field = e.field === "_root"
+            ? (prefix || "_root")
+            : (prefix ? prefix + "." + e.field : e.field);
+          errors.push({ field, message: e.message });
         }
       },
 

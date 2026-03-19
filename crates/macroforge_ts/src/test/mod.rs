@@ -2647,6 +2647,49 @@ export type ActivityType = /** @default */ Created | Edited | Sent;
 }
 
 #[test]
+fn test_derive_default_on_interface_with_object_literal_field() {
+    // Regression: interfaces with fields typed as object literals (e.g. index signatures)
+    // must not silently fail to generate their defaultValue function.
+    let source = r#"
+/** @derive(Default) */
+export interface Assignment {
+    name: string;
+    scores: { [key: string]: number };
+    active: boolean;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for interface with object literal field. Got: {:?}",
+            result.diagnostics
+        );
+
+        assert!(
+            result.code.contains("assignmentDefaultValue"),
+            "Should generate assignmentDefaultValue function. Got:\n{}",
+            result.code
+        );
+        // The object literal field should default to {}
+        assert!(
+            result.code.contains("scores: {}"),
+            "Object literal field should default to {{}}. Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
 fn test_inline_jsdoc_with_export_interface() {
     // Test that /** @derive(X) */ export interface works on same line
     let source =
