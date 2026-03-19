@@ -145,7 +145,7 @@ impl TypeRegistry {
         }
         // Find import source for this name and match against qualified entries
         if let Some(import) = file_imports.iter().find(|i| i.local_name == name) {
-            for (_, entry) in &self.qualified_types {
+            for entry in self.qualified_types.values() {
                 if entry.name == name && entry.file_path.contains(&import.module_specifier) {
                     return Some(entry);
                 }
@@ -195,7 +195,7 @@ impl TypeRegistry {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::abi::ir::{ClassIR, InterfaceIR};
+    use crate::abi::ir::InterfaceIR;
     use crate::abi::{DecoratorIR, SpanIR};
 
     fn make_interface_entry(
@@ -237,19 +237,27 @@ mod tests {
         let entry1 = make_interface_entry(
             "PhoneNumber",
             "/project/src/types/phone-number.svelte.ts",
-            vec![derive_decorator("Default, Serialize, Deserialize, Gigaform")],
+            vec![derive_decorator(
+                "Default, Serialize, Deserialize, Gigaform",
+            )],
         );
         let entry2 = make_interface_entry(
             "PhoneNumber",
             "/project/src/types/all-types.svelte.ts",
-            vec![derive_decorator("Default, Serialize, Deserialize, Gigaform")],
+            vec![derive_decorator(
+                "Default, Serialize, Deserialize, Gigaform",
+            )],
         );
 
         registry.insert(entry1, "/project");
         registry.insert(entry2, "/project");
 
         // Name should be ambiguous
-        assert!(registry.ambiguous_names.contains(&"PhoneNumber".to_string()));
+        assert!(
+            registry
+                .ambiguous_names
+                .contains(&"PhoneNumber".to_string())
+        );
 
         // get() returns None for ambiguous names — callers must use resolve() or get_all()
         assert!(registry.get("PhoneNumber").is_none());
