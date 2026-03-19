@@ -8,7 +8,7 @@
         "binaryName": "playground-macro",
         "triples": {}
     },
-    "files": ["index.d.ts", "index.js"],
+    "files": ["index.d.ts", "index.js", "*.node"],
     "scripts": {
         "setup-vendor": "bash ../setup-vendor.sh && source ../../.env && mkdir -p vendor && ln -sfn \"$MACROFORGE_TS_CRATE\" vendor/macroforge_ts && ln -sfn \"$MACROFORGE_TS_MACROS_CRATE\" vendor/macroforge_ts_macros && ln -sfn \"$MACROFORGE_TS_QUOTE_CRATE\" vendor/macroforge_ts_quote && ln -sfn \"$MACROFORGE_TS_SYN_CRATE\" vendor/macroforge_ts_syn",
         "build": "deno run -A npm:@napi-rs/cli/napi build --platform --release --package playground-macros",

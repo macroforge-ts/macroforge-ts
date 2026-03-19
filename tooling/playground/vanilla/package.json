@@ -10,7 +10,9 @@
         "clean": "rm -rf node_modules"
     },
     "dependencies": {
-        "effect": "^3.19.4"
+        "@playground/macro": "file:../macro",
+        "effect": "^3.19.4",
+        "macroforge": "file:../vendor/macroforge_ts"
     },
     "devDependencies": {
         "@types/node": "^22.10.2",
