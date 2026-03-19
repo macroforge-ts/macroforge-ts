@@ -1452,7 +1452,7 @@ try {
 
 // Prefer node_modules near the file being processed (walk upward toward rootDir)
 if (ctx?.file_name) {
-  let current = path.dirname(ctx.file_name);
+  let current = path.resolve(rootDir, path.dirname(ctx.file_name));
   const rootResolved = path.resolve(rootDir);
   while (true) {
     addCandidate(path.join(current, 'node_modules', modulePath));
@@ -2919,6 +2919,12 @@ export function __macroforgeRunDebug(ctxJson) {
         let nested_root = root.join("apps/app");
         let node_modules_macro = nested_root.join("node_modules/@ext/macro");
         fs::create_dir_all(&node_modules_macro).unwrap();
+
+        // Node.js ESM resolution requires package.json with "type":"module"
+        write(
+            &nested_root.join("package.json"),
+            r#"{"name":"app","type":"module"}"#,
+        );
 
         write(
             &node_modules_macro.join("package.json"),
