@@ -1474,3 +1474,273 @@ describe('Serialize metadata stripping', () => {
         );
     });
 });
+
+// ============================================================================
+// Enum tagging modes — expansion tests
+// ============================================================================
+
+describe('Enum tagging modes — expansion', () => {
+    const baseTypes = `
+        /** @derive(Serialize, Deserialize) */
+        class Cat { name: string; lives: number; }
+        /** @derive(Serialize, Deserialize) */
+        class Dog { name: string; breed: string; }
+    `;
+
+    test('default (internally tagged) — preserves __type pass-through', () => {
+        const code = `${baseTypes}
+            /** @derive(Serialize, Deserialize) */
+            type Animal = Cat | Dog;
+        `;
+        const result = expandSync(code, 'test.ts');
+
+        // Serialize: should pass through variant directly (internally tagged default)
+        assert.ok(
+            result.code.includes('return __variant'),
+            'InternallyTagged serialize should pass through variant'
+        );
+        // Deserialize: should check __type tag field
+        assert.ok(
+            result.code.includes('(value as any)["__type"]'),
+            'InternallyTagged deserialize should check __type field'
+        );
+    });
+
+    test('internally tagged with custom tag name', () => {
+        const code = `${baseTypes}
+            /** @derive(Serialize, Deserialize) */
+            /** @serde({ tag: "kind" }) */
+            type Animal = Cat | Dog;
+        `;
+        const result = expandSync(code, 'test.ts');
+
+        // Deserialize: should check custom "kind" field
+        assert.ok(
+            result.code.includes('(value as any)["kind"]'),
+            'InternallyTagged with custom tag should check "kind" field'
+        );
+    });
+
+    test('externally tagged — wraps as { TypeName: { ...fields } }', () => {
+        const code = `${baseTypes}
+            /** @derive(Serialize, Deserialize) */
+            /** @serde({ externallyTagged: true }) */
+            type Animal = Cat | Dog;
+        `;
+        const result = expandSync(code, 'test.ts');
+
+        // Serialize: should destructure __type and wrap as { [typeName]: fields }
+        assert.ok(
+            result.code.includes('{ __type: __typeName, __id: __idVal, ...fields }'),
+            'ExternallyTagged serialize should destructure __type from variant'
+        );
+        assert.ok(
+            result.code.includes('[__typeName]: fields'),
+            'ExternallyTagged serialize should wrap as { [typeName]: fields }'
+        );
+        // Deserialize: should extract variant name from object key
+        assert.ok(
+            result.code.includes('const __variantName = __keys[0]'),
+            'ExternallyTagged deserialize should get variant name from first key'
+        );
+        assert.ok(
+            result.code.includes('__variantName === "Cat"'),
+            'ExternallyTagged deserialize should match variant name "Cat"'
+        );
+        // HasShape: should check for object key matching variant name
+        assert.ok(
+            result.code.includes('animalHasShape'),
+            'Should generate animalHasShape function'
+        );
+    });
+
+    test('adjacently tagged — wraps as { tag: "TypeName", content: { ...fields } }', () => {
+        const code = `${baseTypes}
+            /** @derive(Serialize, Deserialize) */
+            /** @serde({ tag: "t", content: "c" }) */
+            type Animal = Cat | Dog;
+        `;
+        const result = expandSync(code, 'test.ts');
+
+        // Serialize: should wrap with tag and content fields
+        assert.ok(
+            result.code.includes('"t": __typeName'),
+            'AdjacentlyTagged serialize should set tag field "t"'
+        );
+        assert.ok(
+            result.code.includes('"c": fields'),
+            'AdjacentlyTagged serialize should set content field "c"'
+        );
+        // Deserialize: should read tag and content fields
+        assert.ok(
+            result.code.includes('(value as any)["t"]'),
+            'AdjacentlyTagged deserialize should read tag field "t"'
+        );
+        assert.ok(
+            result.code.includes('(value as any)["c"]'),
+            'AdjacentlyTagged deserialize should read content field "c"'
+        );
+        assert.ok(
+            result.code.includes('adjacently tagged object with'),
+            'AdjacentlyTagged error message should reference adjacently tagged structure'
+        );
+    });
+
+    test('untagged — strips __type and uses shape matching only', () => {
+        const code = `${baseTypes}
+            /** @derive(Serialize, Deserialize) */
+            /** @serde({ untagged: true }) */
+            type Animal = Cat | Dog;
+        `;
+        const result = expandSync(code, 'test.ts');
+
+        // Serialize: should strip __type and return raw fields
+        assert.ok(
+            result.code.includes('{ __type: __typeName, __id: __idVal, ...fields }'),
+            'Untagged serialize should destructure __type from variant'
+        );
+        assert.ok(
+            result.code.includes('{ ...fields }'),
+            'Untagged serialize should spread raw fields'
+        );
+        // Deserialize: should NOT check any tag field, should use shape matching
+        assert.ok(
+            result.code.includes('catHasShape(value)'),
+            'Untagged deserialize should use catHasShape for shape matching'
+        );
+        assert.ok(
+            result.code.includes('dogHasShape(value)'),
+            'Untagged deserialize should use dogHasShape for shape matching'
+        );
+        assert.ok(
+            result.code.includes('does not match any variant shape'),
+            'Untagged error message should mention shape matching failure'
+        );
+    });
+});
+
+// ============================================================================
+// Enum tagging modes — runtime round-trip tests
+// ============================================================================
+
+describe('Enum tagging modes — runtime round-trip', () => {
+    /**
+     * Helper: expand code, evaluate the generated module, and return its exports.
+     * We concatenate the macroforge/serde runtime stubs so the expanded code can
+     * actually execute without a real import resolver.
+     */
+    function evalExpanded(code) {
+        const result = expandSync(code, 'test.ts');
+        // Strip TypeScript type annotations so we can eval as JS
+        // Also strip import statements (we'll inject stubs)
+        let js = result.code
+            .replace(/import\s+\{[^}]*\}\s+from\s+["'][^"']+["'];?/g, '')
+            .replace(/export\s+/g, '')
+            // strip type annotations from parameters/return types
+            .replace(/:\s*(?:string|number|boolean|void|any|unknown|null|undefined)(?:\s*\|[^,){}=]*)?/g, '')
+            .replace(/:\s*(?:Array|Record|Map|Set)<[^>]*>/g, '')
+            .replace(/\?\s*:/g, '?') // optional params
+            // strip 'as any', 'as Type', etc.
+            .replace(/\bas\s+(?:any|[A-Z]\w*(?:\s*\|\s*\w+)*)/g, '')
+            // strip interface/type declarations
+            .replace(/(?:interface|type)\s+\w+[^{]*\{[^}]*\}/g, '')
+            .replace(/type\s+\w+\s*=[^;]+;/g, '');
+
+        // Inject minimal SerializeContext stub
+        const stubs = `
+            class SerializeContext {
+                static create() { return new SerializeContext(); }
+                _nextId = 1;
+                _seen = new Map();
+                getId(obj) { return this._seen.get(obj) ?? null; }
+                register(obj) {
+                    const id = this._nextId++;
+                    this._seen.set(obj, id);
+                    return id;
+                }
+            }
+            const __mf_SerializeContext = SerializeContext;
+        `;
+
+        const module = { exports: {} };
+        const fn = new Function('module', 'exports', stubs + js + `
+            module.exports = { ${
+                (js.match(/function\s+(\w+)\s*[<(]/g) || [])
+                    .map(m => m.match(/function\s+(\w+)/)[1])
+                    .join(', ')
+            } };
+        `);
+        fn(module, module.exports);
+        return module.exports;
+    }
+
+    test('externally tagged: serialize + deserialize both generate correct code', () => {
+        const code = `
+            /** @derive(Serialize, Deserialize) */
+            class Cat {
+                name: string;
+                lives: number;
+            }
+            /** @derive(Serialize, Deserialize) */
+            class Dog {
+                name: string;
+                breed: string;
+            }
+            /** @derive(Serialize, Deserialize) */
+            /** @serde({ externallyTagged: true }) */
+            type Animal = Cat | Dog;
+        `;
+        const result = expandSync(code, 'test.ts');
+
+        // Verify the generated code includes the externally tagged wrapping
+        assert.ok(
+            result.code.includes('[__typeName]: fields'),
+            'Should generate externally tagged wrapping in serialize'
+        );
+        assert.ok(
+            result.code.includes('const __variantName = __keys[0]'),
+            'Deserialize should extract variant name from object keys'
+        );
+    });
+
+    test('adjacently tagged: serialize produces { tag, content } structure', () => {
+        const code = `
+            /** @derive(Serialize) */
+            class Cat { name: string; lives: number; }
+            /** @derive(Serialize) */
+            class Dog { name: string; breed: string; }
+            /** @derive(Serialize) */
+            /** @serde({ tag: "type", content: "data" }) */
+            type Animal = Cat | Dog;
+        `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('"type": __typeName, "data": fields'),
+            'Should wrap as { type: name, data: fields }'
+        );
+    });
+
+    test('untagged: serialize strips all type metadata', () => {
+        const code = `
+            /** @derive(Serialize) */
+            class Cat { name: string; lives: number; }
+            /** @derive(Serialize) */
+            class Dog { name: string; breed: string; }
+            /** @derive(Serialize) */
+            /** @serde({ untagged: true }) */
+            type Animal = Cat | Dog;
+        `;
+        const result = expandSync(code, 'test.ts');
+
+        assert.ok(
+            result.code.includes('{ ...fields }'),
+            'Should spread raw fields without tag'
+        );
+        assert.ok(
+            !result.code.includes('return __variant') ||
+            result.code.includes('{ ...fields }'),
+            'Should not pass through variant directly in untagged mode'
+        );
+    });
+});
