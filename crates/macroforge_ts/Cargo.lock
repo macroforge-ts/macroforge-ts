@@ -993,9 +993,9 @@ checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
 
 [[package]]
 name = "itoa"
-version = "1.0.17"
+version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2"
+checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "js-sys"
@@ -1090,7 +1090,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.78"
+version = "0.1.79"
 dependencies = [
  "anyhow",
  "clap",
@@ -1117,9 +1117,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.78"
+version = "0.1.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0d464c5b0ddc7c449a2e37aacffd5f8349ee4d7d0b046e53d2963b1a5bd5850"
+checksum = "171849b0383769f929d9be3aac397777dffacc99bd9ae50b1fc8bfb0709892d5"
 dependencies = [
  "convert_case 0.10.0",
  "proc-macro2",
@@ -1129,9 +1129,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.78"
+version = "0.1.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e0e82668da80fe41ca2403cc2c978bfdce64b698d97b01632a6e0904d2dc0fb"
+checksum = "a68f9c45e0e2043daedd0f73d0fc27d486ce219ad1385931eb4a04f9428b2368"
 dependencies = [
  "anyhow",
  "convert_case 0.10.0",
@@ -1147,9 +1147,9 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.78"
+version = "0.1.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "024d0c283d42461df9c90d2678805ce7fab1de5ef1b813d6e895dd7672d386ea"
+checksum = "eeefa8451236f187eb1e5f9a82886e294af50f3df40979b68ed42df29a03866f"
 dependencies = [
  "indexmap",
  "serde",
@@ -2648,18 +2648,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.42"
+version = "0.8.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2578b716f8a7a858b7f02d5bd870c14bf4ddbbcf3a4c05414ba6503640505e3"
+checksum = "efbb2a062be311f2ba113ce66f697a4dc589f85e78a4aea276200804cea0ed87"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.42"
+version = "0.8.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e6cc098ea4d3bd6246687de65af3f920c430e236bee1e3bf2e441463f08a02f"
+checksum = "0e8bc7269b54418e7aeeef514aa68f8690b8c0489a06b0136e5f57c4c5ccab89"
 dependencies = [
  "proc-macro2",
  "quote",
