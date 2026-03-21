@@ -3406,3 +3406,121 @@ type MaybeDate = DateTime.DateTime | string | number;
         );
     });
 }
+
+#[test]
+fn test_derive_default_inline_object_union_with_default() {
+    // Regression test: union of inline object types with @default on first member.
+    // This matches the PropValue pattern where all members are inline objects
+    // (adjacently-tagged serde unions).
+    let source = r#"
+/** @derive(Default, Serialize, Deserialize) */
+/** @serde({ tag: "type", content: "value" }) */
+export type PropValue = /** @default */ { type: 'String'; value: string } | { type: 'Number'; value: number } | { type: 'Boolean'; value: boolean } | { type: 'Json'; value: string } | { type: 'Asset'; value: string } | { type: 'Page'; value: string } | { type: 'Expression'; value: string };
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for inline object union with @default. Got: {:?}",
+            result.diagnostics
+        );
+
+        assert!(
+            result.code.contains("propValueDefaultValue"),
+            "Should generate propValueDefaultValue function. Got:\n{}",
+            result.code
+        );
+
+        assert!(
+            result.code.contains("'String'") || result.code.contains("\"String\""),
+            "Should contain 'String' literal value in default. Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
+fn test_derive_default_inline_object_union_without_default() {
+    // All-object union without @default: should fallback to first member
+    let source = r#"
+/** @derive(Default) */
+export type Status = { kind: 'Active'; data: string } | { kind: 'Inactive'; reason: string };
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for all-object union (fallback to first). Got: {:?}",
+            result.diagnostics
+        );
+
+        assert!(
+            result.code.contains("statusDefaultValue"),
+            "Should generate statusDefaultValue function. Got:\n{}",
+            result.code
+        );
+
+        assert!(
+            result.code.contains("'Active'") || result.code.contains("\"Active\""),
+            "Should contain 'Active' from first variant. Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
+fn test_derive_default_inline_object_union_default_on_non_first() {
+    // @default on a non-first object member
+    let source = r#"
+/** @derive(Default) */
+export type PropValue = { type: 'String'; value: string } | /** @default */ { type: 'Number'; value: number };
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors with @default on non-first object member. Got: {:?}",
+            result.diagnostics
+        );
+
+        assert!(
+            result.code.contains("propValueDefaultValue"),
+            "Should generate propValueDefaultValue function. Got:\n{}",
+            result.code
+        );
+
+        // Should use Number variant, not String
+        assert!(
+            result.code.contains("'Number'") || result.code.contains("\"Number\""),
+            "Should contain 'Number' from @default variant. Got:\n{}",
+            result.code
+        );
+    });
+}

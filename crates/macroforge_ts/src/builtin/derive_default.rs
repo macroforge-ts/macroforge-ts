@@ -561,6 +561,21 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 // Union type: check for @default on a variant OR @default(...) on the type
                 let members = type_alias.as_union().unwrap();
 
+                // Helper: build an object literal default from an inline object variant's fields
+                fn build_object_default(fields: &[crate::ts_syn::InterfaceFieldIR]) -> String {
+                    let props: Vec<String> = fields
+                        .iter()
+                        .map(|f| {
+                            let opts = DefaultFieldOptions::from_decorators(&f.decorators);
+                            let value = opts
+                                .value
+                                .unwrap_or_else(|| get_type_default(&f.ts_type));
+                            format!("{}: {}", f.name, value)
+                        })
+                        .collect();
+                    format!("({{ {} }})", props.join(", "))
+                }
+
                 // Check for parenthesized union members - can't place @default inside parens
                 // e.g., `(string | Product) | (string | Service)` is not allowed
                 let parenthesized: Vec<&str> = members
@@ -585,7 +600,28 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 // First, look for a variant with @default decorator
                 let default_variant_from_member = members.iter().find_map(|member| {
                     if member.has_decorator("default") {
-                        member.type_name().map(String::from)
+                        // Named type (TypeRef or Literal) — use the type name
+                        if let Some(name) = member.type_name() {
+                            return Some(name.to_string());
+                        }
+                        // Object type (tagged union variant) — build an object literal
+                        // with default values for each field
+                        if let Some(fields) = member.as_object() {
+                            return Some(build_object_default(fields));
+                        }
+                        None
+                    } else {
+                        None
+                    }
+                });
+
+                // Fallback for tagged object unions where @default may not be
+                // attached to the member: use the first object variant.
+                let default_variant_from_member = default_variant_from_member.or_else(|| {
+                    let all_objects = members.iter().all(|m| m.is_object());
+                    if all_objects {
+                        let result = members.first().and_then(|m| m.as_object()).map(|fields| build_object_default(fields));
+                            result
                     } else {
                         None
                     }
@@ -604,6 +640,16 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 });
 
                 if let Some(variant) = default_variant {
+                    if variant.is_empty() {
+                        return Err(MacroforgeError::new(
+                            input.decorator_span(),
+                            format!(
+                                "@derive(Default): resolved an empty default expression for union type '{}'. \
+                                 Add @default on a variant or @default(expression) on the type.",
+                                type_name
+                            ),
+                        ));
+                    }
                     // Determine the default expression based on variant type
                     // Use as-is if it's already an expression, a literal, or a primitive value
                     let is_expression = variant.contains('.') || variant.contains('(');
