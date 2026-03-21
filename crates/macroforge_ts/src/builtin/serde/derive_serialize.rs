@@ -147,7 +147,7 @@ use crate::ts_syn::{
 use convert_case::{Case, Casing};
 
 use super::{
-    SerdeContainerOptions, SerdeFieldOptions, TypeCategory, get_foreign_types,
+    SerdeContainerOptions, SerdeFieldOptions, TaggingMode, TypeCategory, get_foreign_types,
     rewrite_expression_namespaces,
 };
 use crate::builtin::return_types::SERIALIZE_CONTEXT;
@@ -436,7 +436,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let class_ident = ts_ident!(class_name);
             let serialize_context_ident = ts_ident!(SERIALIZE_CONTEXT);
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
-            let tag_field = container_opts.tag_field();
+            let tag_field = container_opts.tag_field_or_default();
 
             // Generate function names (always prefix style)
             let fn_serialize_ident = ts_ident!("{}Serialize", class_name.to_case(Case::Camel));
@@ -1103,7 +1103,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let serialize_context_ident = ts_ident!(SERIALIZE_CONTEXT);
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
-            let tag_field = container_opts.tag_field();
+            let tag_field = container_opts.tag_field_or_default();
 
             // Collect serializable fields from interface with diagnostic collection
             let mut all_diagnostics = DiagnosticCollector::new();
@@ -1762,7 +1762,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 // Object type: serialize fields
                 let container_opts =
                     SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
-                let tag_field = container_opts.tag_field();
+                let tag_field = container_opts.tag_field_or_default();
 
                 // Collect serializable fields with diagnostic collection
                 let mut all_diagnostics = DiagnosticCollector::new();
@@ -2003,8 +2003,112 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 };
                 result.add_aliased_import("SerializeContext", "macroforge/serde");
                 Ok(result)
+            } else if type_alias.as_union().is_some() {
+                // Union type: tagging-mode-aware serialization
+                let container_opts =
+                    SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
+                let fn_serialize_internal_expr: Expr = fn_serialize_internal_ident.clone().into();
+
+                let is_internally_tagged = matches!(container_opts.tagging, TaggingMode::InternallyTagged { .. });
+                let is_externally_tagged = matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
+                let is_adjacently_tagged = matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
+                let is_untagged = matches!(container_opts.tagging, TaggingMode::Untagged);
+                let tag_field = container_opts.tag_field_or_default().to_string();
+                let content_field = container_opts.content_field().unwrap_or("").to_string();
+
+                let mut result = if let Some(params) = &type_params_ident {
+                    ts_template! {
+                        /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                        export function @{fn_serialize_ident}<@{params}>(value: @{full_type_ident}, keepMetadata?: boolean): string {
+                            const ctx = @{serialize_context_expr}.create();
+                            const __raw = @{fn_serialize_internal_expr}(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
+                        export function @{fn_serialize_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{serialize_context_ident}): unknown {
+                            const __variant = typeof (value as any)?.serializeWithContext === "function"
+                                ? (value as any).serializeWithContext(ctx)
+                                : value;
+
+                            {#if is_internally_tagged}
+                                // Internally tagged: pass through (variant already has __type embedded)
+                                return __variant;
+                            {:else}
+                                // Non-internally-tagged modes: restructure the variant output
+                                if (typeof __variant !== "object" || __variant === null) return __variant;
+                                const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+                                if (typeof __typeName !== "string") return __variant;
+
+                                {#if is_externally_tagged}
+                                    // Externally tagged: { "TypeName": { ...fields } }
+                                    const __outer: Record<string, unknown> = { [__typeName]: fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+                                {:else if is_adjacently_tagged}
+                                    // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
+                                    const __outer: Record<string, unknown> = { "@{tag_field}": __typeName, "@{content_field}": fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+                                {:else if is_untagged}
+                                    // Untagged: just the raw fields
+                                    const __outer: Record<string, unknown> = { ...fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+                                {/if}
+                            {/if}
+                        }
+                    }
+                } else {
+                    ts_template! {
+                        /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
+                        export function @{fn_serialize_ident}(value: @{full_type_ident}, keepMetadata?: boolean): string {
+                            const ctx = @{serialize_context_expr}.create();
+                            const __raw = @{fn_serialize_internal_expr}(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
+                        export function @{fn_serialize_internal_ident}(value: @{full_type_ident}, ctx: @{serialize_context_ident}): unknown {
+                            const __variant = typeof (value as any)?.serializeWithContext === "function"
+                                ? (value as any).serializeWithContext(ctx)
+                                : value;
+
+                            {#if is_internally_tagged}
+                                // Internally tagged: pass through (variant already has __type embedded)
+                                return __variant;
+                            {:else}
+                                // Non-internally-tagged modes: restructure the variant output
+                                if (typeof __variant !== "object" || __variant === null) return __variant;
+                                const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+                                if (typeof __typeName !== "string") return __variant;
+
+                                {#if is_externally_tagged}
+                                    // Externally tagged: { "TypeName": { ...fields } }
+                                    const __outer: Record<string, unknown> = { [__typeName]: fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+                                {:else if is_adjacently_tagged}
+                                    // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
+                                    const __outer: Record<string, unknown> = { "@{tag_field}": __typeName, "@{content_field}": fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+                                {:else if is_untagged}
+                                    // Untagged: just the raw fields
+                                    const __outer: Record<string, unknown> = { ...fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+                                {/if}
+                            {/if}
+                        }
+                    }
+                };
+                result.add_aliased_import("SerializeContext", "macroforge/serde");
+                Ok(result)
             } else {
-                // Union, tuple, or simple alias: delegate to inner type's serializeWithContext if available
+                // Tuple or simple alias: delegate to inner type's serializeWithContext if available
                 let fn_serialize_internal_expr: Expr = fn_serialize_internal_ident.clone().into();
                 let mut result = if let Some(params) = &type_params_ident {
                     ts_template! {
