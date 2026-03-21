@@ -325,13 +325,37 @@ impl RenameAll {
     }
 }
 
+/// Enum tagging strategy for serialized unions.
+/// Mirrors Rust serde's enum representation options.
+#[derive(Debug, Clone, PartialEq)]
+pub enum TaggingMode {
+    /// Internally tagged: `{ tag: "TypeName", ...fields }`
+    /// This is the default (using `__type` as the tag field).
+    InternallyTagged { tag: String },
+    /// Externally tagged: `{ "TypeName": { ...fields } }` or just `"TypeName"` for unit variants
+    ExternallyTagged,
+    /// Adjacently tagged: `{ tag: "TypeName", content: { ...fields } }`
+    AdjacentlyTagged { tag: String, content: String },
+    /// Untagged: raw value with no type information wrapper
+    Untagged,
+}
+
+impl Default for TaggingMode {
+    fn default() -> Self {
+        Self::InternallyTagged {
+            tag: "__type".to_string(),
+        }
+    }
+}
+
 /// Container-level serde options (on the class/interface itself)
 #[derive(Debug, Clone, Default)]
 pub struct SerdeContainerOptions {
     pub rename_all: RenameAll,
     pub deny_unknown_fields: bool,
-    /// Custom discriminator field name for type tagging. Defaults to `"__type"`.
-    pub tag: Option<String>,
+    /// The tagging mode for this container. Determines how type discrimination
+    /// is handled in serialized union representations.
+    pub tagging: TaggingMode,
 }
 
 impl SerdeContainerOptions {
@@ -353,17 +377,57 @@ impl SerdeContainerOptions {
                 opts.deny_unknown_fields = true;
             }
 
-            if let Some(tag) = extract_named_string(args, "tag") {
-                opts.tag = Some(tag);
+            // Resolve tagging mode from combination of attributes
+            let tag = extract_named_string(args, "tag");
+            let content = extract_named_string(args, "content");
+            let untagged = has_flag(args, "untagged");
+            let externally_tagged = has_flag(args, "externallyTagged");
+
+            if untagged {
+                opts.tagging = TaggingMode::Untagged;
+            } else if externally_tagged {
+                opts.tagging = TaggingMode::ExternallyTagged;
+            } else if let Some(tag_name) = tag {
+                if let Some(content_name) = content {
+                    opts.tagging = TaggingMode::AdjacentlyTagged {
+                        tag: tag_name,
+                        content: content_name,
+                    };
+                } else {
+                    opts.tagging = TaggingMode::InternallyTagged { tag: tag_name };
+                }
             }
+            // else: default remains InternallyTagged { tag: "__type" }
         }
         opts
     }
 
-    /// Returns the discriminator field name: either the user-configured `tag`
-    /// value or the default `"__type"`.
-    pub fn tag_field(&self) -> &str {
-        self.tag.as_deref().unwrap_or("__type")
+    /// Returns the tag field name for internally-tagged or adjacently-tagged modes.
+    /// Returns None for externally-tagged and untagged modes.
+    pub fn tag_field(&self) -> Option<&str> {
+        match &self.tagging {
+            TaggingMode::InternallyTagged { tag } => Some(tag.as_str()),
+            TaggingMode::AdjacentlyTagged { tag, .. } => Some(tag.as_str()),
+            _ => None,
+        }
+    }
+
+    /// Returns the discriminator field name with a fallback default of `"__type"`.
+    /// Used by individual class/interface serializers that always embed a tag.
+    pub fn tag_field_or_default(&self) -> &str {
+        match &self.tagging {
+            TaggingMode::InternallyTagged { tag } => tag.as_str(),
+            TaggingMode::AdjacentlyTagged { tag, .. } => tag.as_str(),
+            _ => "__type",
+        }
+    }
+
+    /// Returns the content field name for adjacently-tagged mode.
+    pub fn content_field(&self) -> Option<&str> {
+        match &self.tagging {
+            TaggingMode::AdjacentlyTagged { content, .. } => Some(content.as_str()),
+            _ => None,
+        }
     }
 }
 
@@ -2030,18 +2094,66 @@ mod tests {
     }
 
     #[test]
-    fn test_container_tag() {
+    fn test_container_tag_internally_tagged() {
         let decorator = make_decorator(r#"{ tag: "type" }"#);
         let opts = SerdeContainerOptions::from_decorators(&[decorator]);
-        assert_eq!(opts.tag.as_deref(), Some("type"));
-        assert_eq!(opts.tag_field(), "type");
+        assert_eq!(
+            opts.tagging,
+            TaggingMode::InternallyTagged {
+                tag: "type".to_string()
+            }
+        );
+        assert_eq!(opts.tag_field(), Some("type"));
+        assert_eq!(opts.tag_field_or_default(), "type");
+        assert_eq!(opts.content_field(), None);
     }
 
     #[test]
     fn test_container_tag_default() {
         let opts = SerdeContainerOptions::default();
-        assert_eq!(opts.tag, None);
-        assert_eq!(opts.tag_field(), "__type");
+        assert_eq!(
+            opts.tagging,
+            TaggingMode::InternallyTagged {
+                tag: "__type".to_string()
+            }
+        );
+        assert_eq!(opts.tag_field(), Some("__type"));
+        assert_eq!(opts.tag_field_or_default(), "__type");
+    }
+
+    #[test]
+    fn test_container_externally_tagged() {
+        let decorator = make_decorator(r#"{ externallyTagged: true }"#);
+        let opts = SerdeContainerOptions::from_decorators(&[decorator]);
+        assert_eq!(opts.tagging, TaggingMode::ExternallyTagged);
+        assert_eq!(opts.tag_field(), None);
+        assert_eq!(opts.tag_field_or_default(), "__type");
+    }
+
+    #[test]
+    fn test_container_adjacently_tagged() {
+        let decorator = make_decorator(r#"{ tag: "t", content: "c" }"#);
+        let opts = SerdeContainerOptions::from_decorators(&[decorator]);
+        assert_eq!(
+            opts.tagging,
+            TaggingMode::AdjacentlyTagged {
+                tag: "t".to_string(),
+                content: "c".to_string()
+            }
+        );
+        assert_eq!(opts.tag_field(), Some("t"));
+        assert_eq!(opts.tag_field_or_default(), "t");
+        assert_eq!(opts.content_field(), Some("c"));
+    }
+
+    #[test]
+    fn test_container_untagged() {
+        let decorator = make_decorator(r#"{ untagged: true }"#);
+        let opts = SerdeContainerOptions::from_decorators(&[decorator]);
+        assert_eq!(opts.tagging, TaggingMode::Untagged);
+        assert_eq!(opts.tag_field(), None);
+        assert_eq!(opts.tag_field_or_default(), "__type");
+        assert_eq!(opts.content_field(), None);
     }
 
     #[test]

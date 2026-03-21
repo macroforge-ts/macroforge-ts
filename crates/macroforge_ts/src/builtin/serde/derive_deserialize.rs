@@ -326,7 +326,7 @@ use crate::ts_syn::{
 use convert_case::{Case, Casing};
 
 use super::{
-    SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec,
+    SerdeContainerOptions, SerdeFieldOptions, TaggingMode, TypeCategory, Validator, ValidatorSpec,
     get_foreign_types, rewrite_expression_namespaces,
 };
 use crate::builtin::return_types::{
@@ -968,7 +968,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let pending_ref_expr: Expr = pending_ref_ident.clone().into();
             let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
-            let tag_field = container_opts.tag_field();
+            let tag_field = container_opts.tag_field_or_default();
 
             // Generate function names (always prefix style)
             let fn_deserialize_ident = ts_ident!("{}Deserialize", class_name.to_case(Case::Camel));
@@ -2079,7 +2079,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
-            let tag_field = container_opts.tag_field();
+            let tag_field = container_opts.tag_field_or_default();
 
             // Collect deserializable fields with diagnostic collection
             let mut all_diagnostics = DiagnosticCollector::new();
@@ -3009,7 +3009,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             if type_alias.is_object() {
                 let container_opts =
                     SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
-                let tag_field = container_opts.tag_field();
+                let tag_field = container_opts.tag_field_or_default();
 
                 // Collect deserializable fields with diagnostic collection
                 let mut all_diagnostics = DiagnosticCollector::new();
@@ -3792,7 +3792,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 // Union type - could be literal union, type ref union, or mixed
                 let container_opts =
                     SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
-                let tag_field = container_opts.tag_field();
+                let tag_field = container_opts.tag_field_or_default();
+
+                // Tagging mode variables for template branching
+                let _is_internally_tagged = matches!(container_opts.tagging, TaggingMode::InternallyTagged { .. });
+                let is_externally_tagged = matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
+                let is_adjacently_tagged = matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
+                let is_untagged = matches!(container_opts.tagging, TaggingMode::Untagged);
+                let content_field = container_opts.content_field().unwrap_or("").to_string();
 
                 // Build generic type signature if type has type params
                 let type_params = type_alias.type_params();
@@ -4123,93 +4130,205 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             {/if}
                                         {/for}
 
-                                        // Tag-based discrimination (only for object values)
-                                        if (typeof value === "object" && value !== null) {
-                                            const __typeName = (value as any)["@{tag_field}"];
-                                            if (typeof __typeName === "string") {
+                                        {#if is_externally_tagged}
+                                            // Externally tagged: { "TypeName": { ...fields } }
+                                            if (typeof value === "object" && value !== null) {
+                                                const __keys = Object.keys(value);
+                                                if (__keys.length >= 1) {
+                                                    const __variantName = __keys[0];
+                                                    const __inner = (value as any)[__variantName];
+                                                    {#for type_ref in &regular_serializables}
+                                                        {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                        if (__variantName === "@{type_ref.full_type}") {
+                                                            return @{deserialize_with_context_fn}(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as @{full_type_ident};
+                                                        }
+                                                    {/for}
+                                                    {#for type_ref in &foreign_serializables}
+                                                        {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                            {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                            if (__variantName === "@{type_ref.full_type}") {
+                                                                return (@{foreign_deser_expr})(__inner) as @{full_type_ident};
+                                                            }
+                                                        {/if}
+                                                    {/for}
+                                                    throw new @{deserialize_error_expr}([{
+                                                        field: "_root",
+                                                        message: "@{type_name}.deserializeWithContext: unknown variant \"" + __variantName + "\". Expected one of: @{expected_types_str}"
+                                                    }]);
+                                                }
+                                            }
+                                            // String value may be a unit variant name
+                                            if (typeof value === "string") {
                                                 {#for type_ref in &regular_serializables}
                                                     {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                                    if (__typeName === "@{type_ref.full_type}") {
+                                                    if (value === "@{type_ref.full_type}") {
+                                                        return @{deserialize_with_context_fn}({}, ctx) as @{full_type_ident};
+                                                    }
+                                                {/for}
+                                            }
+                                            throw new @{deserialize_error_expr}([{
+                                                field: "_root",
+                                                message: "@{type_name}.deserializeWithContext: expected externally tagged object with variant key. Expected one of: @{expected_types_str}"
+                                            }]);
+                                        {:else if is_adjacently_tagged}
+                                            // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
+                                            if (typeof value === "object" && value !== null) {
+                                                const __typeName = (value as any)["@{tag_field}"];
+                                                if (typeof __typeName === "string") {
+                                                    const __content = (value as any)["@{content_field}"];
+                                                    {#for type_ref in &regular_serializables}
+                                                        {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                        if (__typeName === "@{type_ref.full_type}") {
+                                                            return @{deserialize_with_context_fn}(__content != null && typeof __content === "object" ? __content : {}, ctx) as @{full_type_ident};
+                                                        }
+                                                    {/for}
+                                                    {#for type_ref in &foreign_serializables}
+                                                        {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                            {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                            if (__typeName === "@{type_ref.full_type}") {
+                                                                return (@{foreign_deser_expr})(__content) as @{full_type_ident};
+                                                            }
+                                                        {/if}
+                                                    {/for}
+                                                    throw new @{deserialize_error_expr}([{
+                                                        field: "_root",
+                                                        message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
+                                                    }]);
+                                                }
+                                            }
+                                            throw new @{deserialize_error_expr}([{
+                                                field: "_root",
+                                                message: "@{type_name}.deserializeWithContext: expected adjacently tagged object with \"@{tag_field}\" and \"@{content_field}\" fields"
+                                            }]);
+                                        {:else if is_untagged}
+                                            // Untagged: shape matching only, no tag field
+                                            const __shapeMatches: Array<string> = [];
+                                            {#for type_ref in &regular_serializables}
+                                                {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                if (@{has_shape_fn}(value)) __shapeMatches.push("@{type_ref.full_type}");
+                                            {/for}
+                                            {#for type_ref in &foreign_serializables}
+                                                {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
+                                                    {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                                    if ((@{foreign_shape_expr})(value)) __shapeMatches.push("@{type_ref.full_type}");
+                                                {/if}
+                                            {/for}
+
+                                            if (__shapeMatches.length >= 1) {
+                                                {#for type_ref in &regular_serializables}
+                                                    {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    if (__shapeMatches[0] === "@{type_ref.full_type}") {
+                                                        try {
+                                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                        } catch { /* try next variant */ }
+                                                    }
+                                                {/for}
+                                                {#for type_ref in &foreign_serializables}
+                                                    {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                        {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                        if (__shapeMatches.includes("@{type_ref.full_type}")) {
+                                                            try {
+                                                                return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                            } catch { /* try next variant */ }
+                                                        }
+                                                    {/if}
+                                                {/for}
+                                            }
+
+                                            throw new @{deserialize_error_expr}([{
+                                                field: "_root",
+                                                message: "@{type_name}.deserializeWithContext: value does not match any variant shape. Expected one of: @{expected_types_str}"
+                                            }]);
+                                        {:else}
+                                            // Internally tagged (default): tag-based discrimination with shape matching fallback
+                                            // Tag-based discrimination (only for object values)
+                                            if (typeof value === "object" && value !== null) {
+                                                const __typeName = (value as any)["@{tag_field}"];
+                                                if (typeof __typeName === "string") {
+                                                    {#for type_ref in &regular_serializables}
+                                                        {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                        if (__typeName === "@{type_ref.full_type}") {
+                                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                        }
+                                                    {/for}
+                                                    {#for type_ref in &foreign_serializables}
+                                                        {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                            {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                            if (__typeName === "@{type_ref.full_type}") {
+                                                                return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                            }
+                                                        {/if}
+                                                    {/for}
+
+                                                    throw new @{deserialize_error_expr}([{
+                                                        field: "_root",
+                                                        message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
+                                                    }]);
+                                                }
+                                            }
+
+                                            // Infer variant via structural shape matching (works for any value type)
+                                            const __shapeMatches: Array<string> = [];
+                                            {#for type_ref in &regular_serializables}
+                                                {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                if (@{has_shape_fn}(value)) __shapeMatches.push("@{type_ref.full_type}");
+                                            {/for}
+                                            {#for type_ref in &foreign_serializables}
+                                                {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
+                                                    {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                                    if ((@{foreign_shape_expr})(value)) __shapeMatches.push("@{type_ref.full_type}");
+                                                {/if}
+                                            {/for}
+
+                                            if (__shapeMatches.length === 1) {
+                                                {#for type_ref in &regular_serializables}
+                                                    {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                                         return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
                                                     }
                                                 {/for}
                                                 {#for type_ref in &foreign_serializables}
                                                     {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
                                                         {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
-                                                        if (__typeName === "@{type_ref.full_type}") {
+                                                        if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                                             return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                        }
+                                                    {/if}
+                                                {/for}
+                                            }
+
+                                            if (__shapeMatches.length > 1) {
+                                                // Multiple variants match — try each deserializer in order, return first success
+                                                {#for type_ref in &regular_serializables}
+                                                    {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    if (__shapeMatches.includes("@{type_ref.full_type}")) {
+                                                        try {
+                                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                        } catch { /* try next variant */ }
+                                                    }
+                                                {/for}
+                                                {#for type_ref in &foreign_serializables}
+                                                    {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                        {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                        if (__shapeMatches.includes("@{type_ref.full_type}")) {
+                                                            try {
+                                                                return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                            } catch { /* try next variant */ }
                                                         }
                                                     {/if}
                                                 {/for}
 
                                                 throw new @{deserialize_error_expr}([{
                                                     field: "_root",
-                                                    message: "@{type_name}.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
+                                                    message: "@{type_name}.deserializeWithContext: missing @{tag_field} field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a @{tag_field} field to disambiguate."
                                                 }]);
                                             }
-                                        }
-
-                                        // Infer variant via structural shape matching (works for any value type)
-                                        const __shapeMatches: Array<string> = [];
-                                        {#for type_ref in &regular_serializables}
-                                            {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                            if (@{has_shape_fn}(value)) __shapeMatches.push("@{type_ref.full_type}");
-                                        {/for}
-                                        {#for type_ref in &foreign_serializables}
-                                            {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
-                                                {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
-                                                if ((@{foreign_shape_expr})(value)) __shapeMatches.push("@{type_ref.full_type}");
-                                            {/if}
-                                        {/for}
-
-                                        if (__shapeMatches.length === 1) {
-                                            {#for type_ref in &regular_serializables}
-                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                                if (__shapeMatches[0] === "@{type_ref.full_type}") {
-                                                    return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
-                                                }
-                                            {/for}
-                                            {#for type_ref in &foreign_serializables}
-                                                {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
-                                                    if (__shapeMatches[0] === "@{type_ref.full_type}") {
-                                                        return (@{foreign_deser_expr})(value) as @{full_type_ident};
-                                                    }
-                                                {/if}
-                                            {/for}
-                                        }
-
-                                        if (__shapeMatches.length > 1) {
-                                            // Multiple variants match — try each deserializer in order, return first success
-                                            {#for type_ref in &regular_serializables}
-                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                                if (__shapeMatches.includes("@{type_ref.full_type}")) {
-                                                    try {
-                                                        return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
-                                                    } catch { /* try next variant */ }
-                                                }
-                                            {/for}
-                                            {#for type_ref in &foreign_serializables}
-                                                {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
-                                                    if (__shapeMatches.includes("@{type_ref.full_type}")) {
-                                                        try {
-                                                            return (@{foreign_deser_expr})(value) as @{full_type_ident};
-                                                        } catch { /* try next variant */ }
-                                                    }
-                                                {/if}
-                                            {/for}
 
                                             throw new @{deserialize_error_expr}([{
                                                 field: "_root",
-                                                message: "@{type_name}.deserializeWithContext: missing @{tag_field} field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a @{tag_field} field to disambiguate."
+                                                message: "@{type_name}.deserializeWithContext: missing @{tag_field} field and value does not match any variant shape. Expected one of: @{expected_types_str}"
                                             }]);
-                                        }
-
-                                        throw new @{deserialize_error_expr}([{
-                                            field: "_root",
-                                            message: "@{type_name}.deserializeWithContext: missing @{tag_field} field and value does not match any variant shape. Expected one of: @{expected_types_str}"
-                                        }]);
+                                        {/if}
                                     {:else}
                                         {#if has_literals}
                                             const allowedLiterals = [@{literals.join(", ")}] as const;
@@ -4239,25 +4358,120 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {/if}
 
                                         {#if has_serializables}
-                                            if (typeof value === "object" && value !== null) {
-                                                const __typeName = (value as any)["@{tag_field}"];
-                                                if (typeof __typeName === "string") {
+                                            {#if is_externally_tagged}
+                                                // Externally tagged: { "TypeName": { ...fields } }
+                                                if (typeof value === "object" && value !== null) {
+                                                    const __keys = Object.keys(value);
+                                                    if (__keys.length >= 1) {
+                                                        const __variantName = __keys[0];
+                                                        const __inner = (value as any)[__variantName];
+                                                        {#for type_ref in &regular_serializables}
+                                                            {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                            if (__variantName === "@{type_ref.full_type}") {
+                                                                return @{deserialize_with_context_fn}(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as @{full_type_ident};
+                                                            }
+                                                        {/for}
+                                                        {#for type_ref in &foreign_serializables}
+                                                            {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                                {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                                if (__variantName === "@{type_ref.full_type}") {
+                                                                    return (@{foreign_deser_expr})(__inner) as @{full_type_ident};
+                                                                }
+                                                            {/if}
+                                                        {/for}
+                                                    }
+                                                }
+                                                if (typeof value === "string") {
                                                     {#for type_ref in &regular_serializables}
                                                         {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                                        if (__typeName === "@{type_ref.full_type}") {
-                                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                        if (value === "@{type_ref.full_type}") {
+                                                            return @{deserialize_with_context_fn}({}, ctx) as @{full_type_ident};
                                                         }
                                                     {/for}
-                                                    {#for type_ref in &foreign_serializables}
+                                                }
+                                            {:else if is_adjacently_tagged}
+                                                // Adjacently tagged: { tag: "TypeName", content: { ...fields } }
+                                                if (typeof value === "object" && value !== null) {
+                                                    const __typeName = (value as any)["@{tag_field}"];
+                                                    if (typeof __typeName === "string") {
+                                                        const __content = (value as any)["@{content_field}"];
+                                                        {#for type_ref in &regular_serializables}
+                                                            {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                            if (__typeName === "@{type_ref.full_type}") {
+                                                                return @{deserialize_with_context_fn}(__content != null && typeof __content === "object" ? __content : {}, ctx) as @{full_type_ident};
+                                                            }
+                                                        {/for}
+                                                        {#for type_ref in &foreign_serializables}
+                                                            {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                                {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                                if (__typeName === "@{type_ref.full_type}") {
+                                                                    return (@{foreign_deser_expr})(__content) as @{full_type_ident};
+                                                                }
+                                                            {/if}
+                                                        {/for}
+                                                    }
+                                                }
+                                            {:else if is_untagged}
+                                                // Untagged: shape matching only
+                                                {#for type_ref in &regular_serializables}
+                                                    {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    if (@{has_shape_fn}(value)) {
+                                                        try {
+                                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                        } catch { /* try next variant */ }
+                                                    }
+                                                {/for}
+                                                {#for type_ref in &foreign_serializables}
+                                                    {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
+                                                        {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
                                                         {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
                                                             {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
-                                                            if (__typeName === "@{type_ref.full_type}") {
-                                                                return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                            if ((@{foreign_shape_expr})(value)) {
+                                                                try {
+                                                                    return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                                } catch { /* try next variant */ }
                                                             }
                                                         {/if}
-                                                    {/for}
+                                                    {/if}
+                                                {/for}
+                                            {:else}
+                                                // Internally tagged (default): tag-based + shape matching fallback
+                                                if (typeof value === "object" && value !== null) {
+                                                    const __typeName = (value as any)["@{tag_field}"];
+                                                    if (typeof __typeName === "string") {
+                                                        {#for type_ref in &regular_serializables}
+                                                            {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                            if (__typeName === "@{type_ref.full_type}") {
+                                                                return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                            }
+                                                        {/for}
+                                                        {#for type_ref in &foreign_serializables}
+                                                            {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
+                                                                {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                                if (__typeName === "@{type_ref.full_type}") {
+                                                                    return (@{foreign_deser_expr})(value) as @{full_type_ident};
+                                                                }
+                                                            {/if}
+                                                        {/for}
+                                                    } else {
+                                                        // No tag field — infer variant via structural shape matching
+                                                        const __shapeMatches: Array<string> = [];
+                                                        {#for type_ref in &regular_serializables}
+                                                            {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                            if (@{has_shape_fn}(value)) __shapeMatches.push("@{type_ref.full_type}");
+                                                        {/for}
+                                                        if (__shapeMatches.length === 1) {
+                                                            {#for type_ref in &regular_serializables}
+                                                                {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                                if (__shapeMatches[0] === "@{type_ref.full_type}") {
+                                                                    return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
+                                                                }
+                                                            {/for}
+                                                        }
+                                                    }
                                                 } else {
-                                                    // No tag field — infer variant via structural shape matching
+                                                    // Non-object values — regular serializables may still match (e.g. RecordLink can be a string)
                                                     const __shapeMatches: Array<string> = [];
                                                     {#for type_ref in &regular_serializables}
                                                         {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -4272,22 +4486,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                         {/for}
                                                     }
                                                 }
-                                            } else {
-                                                // Non-object values — regular serializables may still match (e.g. RecordLink can be a string)
-                                                const __shapeMatches: Array<string> = [];
-                                                {#for type_ref in &regular_serializables}
-                                                    {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                                    if (@{has_shape_fn}(value)) __shapeMatches.push("@{type_ref.full_type}");
-                                                {/for}
-                                                if (__shapeMatches.length === 1) {
-                                                    {#for type_ref in &regular_serializables}
-                                                        {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                                        if (__shapeMatches[0] === "@{type_ref.full_type}") {
-                                                            return @{deserialize_with_context_fn}(value, ctx) as @{full_type_ident};
-                                                        }
-                                                    {/for}
-                                                }
-                                            }
+                                            {/if}
                                         {/if}
 
                                         // Foreign types may not be objects — check hasShape outside the object block
@@ -4329,21 +4528,53 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             {/if}
                                         {/for}
 
-                                        // Tag-based discrimination (only for object values)
-                                        if (typeof value === "object" && value !== null) {
-                                            const __typeName = (value as any)["@{tag_field}"];
-                                            if (typeof __typeName === "string") {
-                                                return @{serializable_type_check_condition};
+                                        {#if is_externally_tagged}
+                                            // Externally tagged: check if object has a key matching a variant name
+                                            if (typeof value === "object" && value !== null) {
+                                                const __keys = Object.keys(value);
+                                                if (__keys.length >= 1) {
+                                                    const __variantName = __keys[0];
+                                                    if (@{serializable_type_check_condition.replace("__typeName", "__variantName")}) return true;
+                                                }
                                             }
-                                        }
+                                            if (typeof value === "string") {
+                                                if (@{serializable_type_check_condition.replace("__typeName", "value")}) return true;
+                                            }
+                                            return false;
+                                        {:else if is_adjacently_tagged}
+                                            // Adjacently tagged: check for tag and content fields
+                                            if (typeof value === "object" && value !== null) {
+                                                const __typeName = (value as any)["@{tag_field}"];
+                                                if (typeof __typeName === "string" && "@{content_field}" in (value as any)) {
+                                                    return @{serializable_type_check_condition};
+                                                }
+                                            }
+                                            return false;
+                                        {:else if is_untagged}
+                                            // Untagged: shape matching only
+                                            let __matchCount = 0;
+                                            {#for type_ref in &regular_serializables}
+                                                {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                if (@{has_shape_fn}(value)) __matchCount++;
+                                            {/for}
+                                            return __matchCount >= 1;
+                                        {:else}
+                                            // Internally tagged (default): tag-based + shape matching
+                                            if (typeof value === "object" && value !== null) {
+                                                const __typeName = (value as any)["@{tag_field}"];
+                                                if (typeof __typeName === "string") {
+                                                    return @{serializable_type_check_condition};
+                                                }
+                                            }
 
-                                        // Shape matching works for any value type (including non-objects)
-                                        let __matchCount = 0;
-                                        {#for type_ref in &regular_serializables}
-                                            {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                            if (@{has_shape_fn}(value)) __matchCount++;
-                                        {/for}
-                                        return __matchCount >= 1;
+                                            // Shape matching works for any value type (including non-objects)
+                                            let __matchCount = 0;
+                                            {#for type_ref in &regular_serializables}
+                                                {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                if (@{has_shape_fn}(value)) __matchCount++;
+                                            {/for}
+                                            return __matchCount >= 1;
+                                        {/if}
                                     {:else}
                                         {#if has_literals}
                                             const allowedLiterals = [@{literals.join(", ")}] as const;
@@ -4358,11 +4589,50 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             if (value instanceof Date) return true;
                                         {/if}
                                         {#if has_serializables}
-                                            if (typeof value === "object" && value !== null) {
-                                                const __typeName = (value as any)["@{tag_field}"];
-                                                if (typeof __typeName === "string") {
-                                                    if (@{serializable_type_check_condition}) return true;
+                                            {#if is_externally_tagged}
+                                                // Externally tagged: check if object has a key matching a variant name
+                                                if (typeof value === "object" && value !== null) {
+                                                    const __keys = Object.keys(value);
+                                                    if (__keys.length >= 1) {
+                                                        const __variantName = __keys[0];
+                                                        if (@{serializable_type_check_condition.replace("__typeName", "__variantName")}) return true;
+                                                    }
+                                                }
+                                                if (typeof value === "string") {
+                                                    if (@{serializable_type_check_condition.replace("__typeName", "value")}) return true;
+                                                }
+                                            {:else if is_adjacently_tagged}
+                                                // Adjacently tagged: check for tag and content fields
+                                                if (typeof value === "object" && value !== null) {
+                                                    const __typeName = (value as any)["@{tag_field}"];
+                                                    if (typeof __typeName === "string" && "@{content_field}" in (value as any)) {
+                                                        if (@{serializable_type_check_condition}) return true;
+                                                    }
+                                                }
+                                            {:else if is_untagged}
+                                                // Untagged: shape matching only
+                                                let __matchCount = 0;
+                                                {#for type_ref in &regular_serializables}
+                                                    {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                    if (@{has_shape_fn}(value)) __matchCount++;
+                                                {/for}
+                                                if (__matchCount >= 1) return true;
+                                            {:else}
+                                                // Internally tagged (default)
+                                                if (typeof value === "object" && value !== null) {
+                                                    const __typeName = (value as any)["@{tag_field}"];
+                                                    if (typeof __typeName === "string") {
+                                                        if (@{serializable_type_check_condition}) return true;
+                                                    } else {
+                                                        let __matchCount = 0;
+                                                        {#for type_ref in &regular_serializables}
+                                                            {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
+                                                            if (@{has_shape_fn}(value)) __matchCount++;
+                                                        {/for}
+                                                        if (__matchCount === 1) return true;
+                                                    }
                                                 } else {
+                                                    // Non-object values — regular serializables may still match (e.g. RecordLink can be a string)
                                                     let __matchCount = 0;
                                                     {#for type_ref in &regular_serializables}
                                                         {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -4370,15 +4640,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {/for}
                                                     if (__matchCount === 1) return true;
                                                 }
-                                            } else {
-                                                // Non-object values — regular serializables may still match (e.g. RecordLink can be a string)
-                                                let __matchCount = 0;
-                                                {#for type_ref in &regular_serializables}
-                                                    {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
-                                                    if (@{has_shape_fn}(value)) __matchCount++;
-                                                {/for}
-                                                if (__matchCount === 1) return true;
-                                            }
+                                            {/if}
                                             // Foreign types with hasShape may not be objects
                                             {#for type_ref in &foreign_serializables}
                                                 {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
