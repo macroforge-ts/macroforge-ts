@@ -567,9 +567,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         .iter()
                         .map(|f| {
                             let opts = DefaultFieldOptions::from_decorators(&f.decorators);
-                            let value = opts
-                                .value
-                                .unwrap_or_else(|| get_type_default(&f.ts_type));
+                            let value = opts.value.unwrap_or_else(|| get_type_default(&f.ts_type));
                             format!("{}: {}", f.name, value)
                         })
                         .collect();
@@ -620,8 +618,10 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 let default_variant_from_member = default_variant_from_member.or_else(|| {
                     let all_objects = members.iter().all(|m| m.is_object());
                     if all_objects {
-                        let result = members.first().and_then(|m| m.as_object()).map(|fields| build_object_default(fields));
-                            result
+                        members
+                            .first()
+                            .and_then(|m| m.as_object())
+                            .map(build_object_default)
                     } else {
                         None
                     }
