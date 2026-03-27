@@ -287,6 +287,17 @@ enum Command {
         #[arg(long)]
         builtin_only: bool,
     },
+    /// Delete the .macroforge/cache directory and rebuild from scratch.
+    ///
+    /// Equivalent to manually deleting the cache and running `cache`.
+    /// Useful when the cache is corrupted or you want a guaranteed clean state.
+    Refresh {
+        /// Root directory (defaults to cwd)
+        root: Option<PathBuf>,
+        /// Use only built-in Rust macros (faster, no Node.js)
+        #[arg(long)]
+        builtin_only: bool,
+    },
 }
 
 fn main() -> Result<()> {
@@ -332,6 +343,7 @@ fn main() -> Result<()> {
             debounce_ms,
         } => run_watch(root, builtin_only, debounce_ms),
         Command::Cache { root, builtin_only } => run_cache(root, builtin_only),
+        Command::Refresh { root, builtin_only } => run_refresh(root, builtin_only),
     }
 }
 
@@ -1308,6 +1320,10 @@ struct CacheEntry {
     source_hash: String,
     /// Whether the file contained macros.
     has_macros: bool,
+    /// SHA-256 of the whitespace-normalized source content.
+    /// Used to detect whitespace-only changes in watch mode.
+    #[serde(default)]
+    normalized_hash: String,
 }
 
 /// Computes SHA-256 of a byte slice, returned as lowercase hex.
@@ -1315,6 +1331,36 @@ fn content_hash(content: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(content);
     format!("{:x}", hasher.finalize())
+}
+
+/// Computes SHA-256 of whitespace-normalized content.
+///
+/// Normalization: trim trailing whitespace per line, collapse runs of blank
+/// lines into a single newline, trim leading/trailing blank lines. Leading
+/// indentation is preserved (meaningful in TS template literals).
+fn normalized_content_hash(content: &str) -> String {
+    let mut normalized = String::with_capacity(content.len());
+    let mut prev_blank = false;
+
+    for line in content.lines() {
+        let trimmed = line.trim_end();
+        if trimmed.is_empty() {
+            if !prev_blank && !normalized.is_empty() {
+                normalized.push('\n');
+            }
+            prev_blank = true;
+        } else {
+            if !normalized.is_empty() {
+                normalized.push('\n');
+            }
+            normalized.push_str(trimmed);
+            prev_blank = false;
+        }
+    }
+
+    // Trim trailing blank lines so "foo\n" and "foo\n\n\n" hash the same
+    let normalized = normalized.trim_end_matches('\n');
+    content_hash(normalized.as_bytes())
 }
 
 /// Config file names searched in order of precedence.
@@ -1604,6 +1650,8 @@ fn warm_cache(
             continue;
         }
 
+        let norm_hash = normalized_content_hash(&source);
+
         match expand_for_cache(file_path, &source, builtin_only) {
             Ok(Some(expanded)) => {
                 if let Err(e) = write_cache_file(cache_dir, &rel_path, &expanded) {
@@ -1615,6 +1663,7 @@ fn warm_cache(
                     CacheEntry {
                         source_hash,
                         has_macros: true,
+                        normalized_hash: norm_hash,
                     },
                 );
                 expanded_count += 1;
@@ -1626,6 +1675,7 @@ fn warm_cache(
                     CacheEntry {
                         source_hash,
                         has_macros: false,
+                        normalized_hash: norm_hash,
                     },
                 );
             }
@@ -1676,6 +1726,27 @@ fn init_cache(
 fn run_cache(root: Option<PathBuf>, builtin_only: bool) -> Result<()> {
     let (root, cache_dir, mut manifest) = init_cache(root, "cache", builtin_only)?;
     warm_cache("cache", &root, &cache_dir, &mut manifest, builtin_only)?;
+    Ok(())
+}
+
+/// Delete the .macroforge/cache directory and rebuild from scratch.
+fn run_refresh(root: Option<PathBuf>, builtin_only: bool) -> Result<()> {
+    let root_resolved = root
+        .clone()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .canonicalize()
+        .unwrap_or_else(|_| PathBuf::from("."));
+    let cache_dir = root_resolved.join(".macroforge").join("cache");
+
+    if cache_dir.exists() {
+        eprintln!("[macroforge refresh] Deleting {}", cache_dir.display());
+        fs::remove_dir_all(&cache_dir).context("failed to delete .macroforge/cache")?;
+    } else {
+        eprintln!("[macroforge refresh] No existing cache found, building fresh");
+    }
+
+    let (root, cache_dir, mut manifest) = init_cache(root, "refresh", builtin_only)?;
+    warm_cache("refresh", &root, &cache_dir, &mut manifest, builtin_only)?;
     Ok(())
 }
 
@@ -1740,6 +1811,7 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                             Err(_) => continue,
                         };
                         let source_hash = content_hash(source.as_bytes());
+                        let norm_hash = normalized_content_hash(&source);
 
                         match expand_for_cache(file_path, &source, builtin_only) {
                             Ok(Some(expanded)) => {
@@ -1749,6 +1821,7 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                                     CacheEntry {
                                         source_hash,
                                         has_macros: true,
+                                        normalized_hash: norm_hash,
                                     },
                                 );
                                 count += 1;
@@ -1760,6 +1833,7 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                                     CacheEntry {
                                         source_hash,
                                         has_macros: false,
+                                        normalized_hash: norm_hash,
                                     },
                                 );
                             }
@@ -1790,6 +1864,33 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                         };
 
                         let source_hash = content_hash(source.as_bytes());
+
+                        // Fast path: file is byte-identical to cached version
+                        if let Some(entry) = manifest.entries.get(&rel_path)
+                            && entry.source_hash == source_hash
+                        {
+                            continue;
+                        }
+
+                        // Check if only whitespace changed
+                        let norm_hash = normalized_content_hash(&source);
+                        if let Some(entry) = manifest.entries.get(&rel_path)
+                            && !entry.normalized_hash.is_empty()
+                            && entry.normalized_hash == norm_hash
+                        {
+                            // Update raw hash but skip re-expansion
+                            manifest.entries.insert(
+                                rel_path.clone(),
+                                CacheEntry {
+                                    source_hash,
+                                    has_macros: entry.has_macros,
+                                    normalized_hash: norm_hash,
+                                },
+                            );
+                            eprintln!("  [·] {} (whitespace only)", rel_path);
+                            continue;
+                        }
+
                         let file_start = std::time::Instant::now();
 
                         match expand_for_cache(file_path, &source, builtin_only) {
@@ -1800,6 +1901,7 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                                     CacheEntry {
                                         source_hash,
                                         has_macros: true,
+                                        normalized_hash: norm_hash,
                                     },
                                 );
                                 let elapsed = file_start.elapsed();
@@ -1811,6 +1913,7 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                                     CacheEntry {
                                         source_hash,
                                         has_macros: false,
+                                        normalized_hash: norm_hash,
                                     },
                                 );
                                 eprintln!("  [.] {} (no macros)", rel_path);
@@ -2100,5 +2203,45 @@ mod tests {
 
         assert_eq!(aliases.get("EffectOption"), Some(&"Option".to_string()));
         assert_eq!(aliases.get("EffectDateTime"), Some(&"DateTime".to_string()));
+    }
+
+    // =========================================================================
+    // normalized_content_hash tests
+    // =========================================================================
+
+    #[test]
+    fn test_normalized_hash_trailing_whitespace() {
+        let a = "fn foo() {\n    bar();\n}\n";
+        let b = "fn foo() {   \n    bar();   \n}   \n";
+        assert_eq!(normalized_content_hash(a), normalized_content_hash(b));
+    }
+
+    #[test]
+    fn test_normalized_hash_blank_lines() {
+        let a = "import { x } from 'y';\n\nexport class Foo {}\n";
+        let b = "import { x } from 'y';\n\n\n\nexport class Foo {}\n";
+        assert_eq!(normalized_content_hash(a), normalized_content_hash(b));
+    }
+
+    #[test]
+    fn test_normalized_hash_trailing_newlines() {
+        let a = "const x = 1;\n";
+        let b = "const x = 1;\n\n\n";
+        assert_eq!(normalized_content_hash(a), normalized_content_hash(b));
+    }
+
+    #[test]
+    fn test_normalized_hash_real_change_differs() {
+        let a = "const x = 1;\n";
+        let b = "const x = 2;\n";
+        assert_ne!(normalized_content_hash(a), normalized_content_hash(b));
+    }
+
+    #[test]
+    fn test_normalized_hash_indentation_change_differs() {
+        let a = "  const x = 1;\n";
+        let b = "    const x = 1;\n";
+        // Leading indentation IS significant
+        assert_ne!(normalized_content_hash(a), normalized_content_hash(b));
     }
 }
