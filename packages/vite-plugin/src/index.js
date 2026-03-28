@@ -45,6 +45,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import {
   collectExternalDecoratorModules,
+  hasMacroAnnotations,
   loadMacroConfig,
 } from "@macroforge/shared";
 
@@ -789,8 +790,8 @@ export async function macroforge() {
         return null;
       }
 
-      // Quick check: files without @derive can't have macros — skip entirely
-      if (!code.includes("@derive")) {
+      // Quick check: skip files without a real @derive directive
+      if (!hasMacroAnnotations(code)) {
         return null;
       }
 
