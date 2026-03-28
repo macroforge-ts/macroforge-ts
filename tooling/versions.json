@@ -1,51 +1,51 @@
 {
-    "svelte-preprocessor": {
-        "local": "0.1.78",
-        "registry": "0.1.66"
-    },
-    "svelte-language-server": {
-        "local": "0.1.78",
-        "registry": "0.1.78"
-    },
-    "shared": {
-        "local": "0.1.78",
-        "registry": "0.1.66"
-    },
-    "core": {
-        "local": "0.1.78",
-        "registry": "0.1.78"
-    },
-    "mcp-server": {
-        "local": "0.1.78",
-        "registry": "0.1.66"
-    },
-    "syn": {
-        "local": "0.1.78",
-        "registry": "0.1.68"
-    },
-    "template": {
-        "local": "0.1.78",
-        "registry": "0.1.66"
-    },
-    "typescript-plugin": {
-        "local": "0.1.78",
-        "registry": "0.1.78"
-    },
     "website": {
-        "local": "0.1.78",
-        "registry": ""
-    },
-    "tooling": {
-        "local": "0.1.78",
+        "local": "0.1.79",
         "registry": ""
     },
     "vite-plugin": {
-        "local": "0.1.78",
-        "registry": "0.1.48"
+        "local": "0.1.77",
+        "registry": "0.1.77"
+    },
+    "macros": {
+        "local": "0.1.79",
+        "registry": "0.1.79"
+    },
+    "shared": {
+        "local": "0.1.77",
+        "registry": "0.1.77"
+    },
+    "svelte-preprocessor": {
+        "local": "0.1.77",
+        "registry": "0.1.77"
+    },
+    "tooling": {
+        "local": "0.1.79",
+        "registry": ""
+    },
+    "typescript-plugin": {
+        "local": "0.1.77",
+        "registry": "0.1.77"
     },
     "zed-extensions": null,
-    "macros": {
-        "local": "0.1.78",
-        "registry": "0.1.68"
+    "svelte-language-server": {
+        "local": "0.1.77",
+        "registry": "0.1.77"
+    },
+    "core": {
+        "local": "0.1.77",
+        "registry": "0.1.77"
+    },
+    "template": {
+        "local": "0.1.79",
+        "registry": "0.1.79"
+    },
+    "syn": {
+        "local": "0.1.79",
+        "registry": "0.1.79"
+    },
+    "mcp-server": {
+        "local": "0.1.77",
+        "registry": "0.1.77"
     }
 }

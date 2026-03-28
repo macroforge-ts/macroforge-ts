@@ -42,7 +42,10 @@ export class CustomNumberValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CustomNumberValidator.deserializeWithContext(data, ctx);
+            const resultOrRef = CustomNumberValidator.deserializeWithContext(
+                data,
+                ctx
+            );
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -117,7 +120,9 @@ export class CustomNumberValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(CustomNumberValidator.prototype) as CustomNumberValidator;
+        const instance = Object.create(
+            CustomNumberValidator.prototype
+        ) as CustomNumberValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -219,7 +224,9 @@ export function customNumberValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function customNumberValidatorIs(value: unknown): value is CustomNumberValidator {
+export function customNumberValidatorIs(
+    value: unknown
+): value is CustomNumberValidator {
     return CustomNumberValidator.is(value);
 }
 
@@ -249,7 +256,10 @@ export class CustomStringValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CustomStringValidator.deserializeWithContext(data, ctx);
+            const resultOrRef = CustomStringValidator.deserializeWithContext(
+                data,
+                ctx
+            );
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -324,7 +334,9 @@ export class CustomStringValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(CustomStringValidator.prototype) as CustomStringValidator;
+        const instance = Object.create(
+            CustomStringValidator.prototype
+        ) as CustomStringValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -429,7 +441,9 @@ export function customStringValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function customStringValidatorIs(value: unknown): value is CustomStringValidator {
+export function customStringValidatorIs(
+    value: unknown
+): value is CustomStringValidator {
     return CustomStringValidator.is(value);
 }
 
@@ -459,7 +473,10 @@ export class CustomWithMessageValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CustomWithMessageValidator.deserializeWithContext(data, ctx);
+            const resultOrRef = CustomWithMessageValidator.deserializeWithContext(
+                data,
+                ctx
+            );
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -638,6 +655,8 @@ export function customWithMessageValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function customWithMessageValidatorIs(value: unknown): value is CustomWithMessageValidator {
+export function customWithMessageValidatorIs(
+    value: unknown
+): value is CustomWithMessageValidator {
     return CustomWithMessageValidator.is(value);
 }

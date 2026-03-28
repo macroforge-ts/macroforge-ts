@@ -327,8 +327,6 @@ test(
                     apiToken: 'token_qa'
                 });
                 assert.deepEqual(JSON.parse(MacroUser.serialize(svelteUser)), {
-                    __type: 'MacroUser',
-                    __id: 0,
                     id: 'usr_55',
                     name: 'Rin Tester',
                     role: 'Macro QA',

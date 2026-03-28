@@ -42,7 +42,7 @@ mod tests {
             let mut parser = Parser::new_from(lexer);
             let module = parser.parse_module().expect("Failed to parse test source");
 
-            let classes = lower_classes(&module, source).expect("Failed to lower classes");
+            let classes = lower_classes(&module, source, None).expect("Failed to lower classes");
             let class = classes
                 .first()
                 .expect("Expected at least one class in test source")
@@ -85,7 +85,7 @@ mod tests {
             let mut parser = Parser::new_from(lexer);
             let module = parser.parse_module().expect("Failed to parse test source");
 
-            let interfaces = lower_interfaces(&module, source).expect("Failed to lower interfaces");
+            let interfaces = lower_interfaces(&module, source, None).expect("Failed to lower interfaces");
             let interface = interfaces
                 .first()
                 .expect("Expected at least one interface in test source")
