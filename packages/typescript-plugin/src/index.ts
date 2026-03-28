@@ -56,6 +56,7 @@ import path from 'node:path';
 import {
     getExternalDecoratorInfo,
     getExternalMacroInfo,
+    hasMacroAnnotations,
     loadMacroConfig,
     parseMacroImportComments
 } from '@macroforge/shared';
@@ -724,8 +725,7 @@ function shouldProcess(fileName: string) {
  */
 function hasMacroDirectives(text: string) {
     return (
-        text.includes('@derive') ||
-        /\/\*\*\s*@derive\s*\(/i.test(text) ||
+        hasMacroAnnotations(text) ||
         /\/\*\*\s*import\s+macro\b/i.test(text)
     );
 }
