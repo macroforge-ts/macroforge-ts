@@ -1330,7 +1330,12 @@ struct CacheEntry {
 fn content_hash(content: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(content);
-    format!("{:x}", hasher.finalize())
+    let result = hasher.finalize();
+    result.iter().fold(String::with_capacity(64), |mut s, b| {
+        use std::fmt::Write;
+        let _ = write!(s, "{b:02x}");
+        s
+    })
 }
 
 /// Computes SHA-256 of whitespace-normalized content.
@@ -1647,6 +1652,18 @@ fn warm_cache(
         if let Some(entry) = manifest.entries.get(&rel_path)
             && entry.source_hash == source_hash
         {
+            // Backfill normalized_hash for entries from older manifests
+            if entry.normalized_hash.is_empty() {
+                let norm_hash = normalized_content_hash(&source);
+                manifest.entries.insert(
+                    rel_path,
+                    CacheEntry {
+                        source_hash,
+                        has_macros: entry.has_macros,
+                        normalized_hash: norm_hash,
+                    },
+                );
+            }
             continue;
         }
 
@@ -2243,5 +2260,54 @@ mod tests {
         let b = "    const x = 1;\n";
         // Leading indentation IS significant
         assert_ne!(normalized_content_hash(a), normalized_content_hash(b));
+    }
+
+    // =========================================================================
+    // warm_cache normalized_hash backfill test
+    // =========================================================================
+
+    #[test]
+    fn test_warm_cache_backfills_normalized_hash() {
+        // Simulate a manifest entry from before the normalized_hash feature:
+        // source_hash matches the file on disk, but normalized_hash is empty.
+        // warm_cache should backfill the normalized_hash without re-expanding.
+
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        let cache_dir = root.join(".macroforge").join("cache");
+        fs::create_dir_all(&cache_dir).unwrap();
+
+        // Write a source file
+        let src_dir = root.join("src");
+        fs::create_dir_all(&src_dir).unwrap();
+        let src_file = src_dir.join("test.ts");
+        let source = "const x = 1;\n";
+        fs::write(&src_file, source).unwrap();
+
+        // Create a manifest with an entry that has a matching source_hash
+        // but an empty normalized_hash (simulating an old manifest)
+        let source_hash = content_hash(source.as_bytes());
+        let mut manifest = CacheManifest::new(
+            env!("CARGO_PKG_VERSION").to_string(),
+            "none".to_string(),
+            true,
+        );
+        manifest.entries.insert(
+            "src/test.ts".to_string(),
+            CacheEntry {
+                source_hash: source_hash.clone(),
+                has_macros: false,
+                normalized_hash: String::new(), // empty = old manifest
+            },
+        );
+
+        // warm_cache should skip re-expansion (source_hash matches)
+        // but backfill the normalized_hash
+        warm_cache("test", root, &cache_dir, &mut manifest, true).unwrap();
+
+        let entry = manifest.entries.get("src/test.ts").unwrap();
+        assert_eq!(entry.source_hash, source_hash);
+        assert!(!entry.normalized_hash.is_empty(), "normalized_hash should be backfilled");
+        assert_eq!(entry.normalized_hash, normalized_content_hash(source));
     }
 }
