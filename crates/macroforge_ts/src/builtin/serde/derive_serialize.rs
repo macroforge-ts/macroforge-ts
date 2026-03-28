@@ -2009,9 +2009,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
                 let fn_serialize_internal_expr: Expr = fn_serialize_internal_ident.clone().into();
 
-                let is_internally_tagged = matches!(container_opts.tagging, TaggingMode::InternallyTagged { .. });
-                let is_externally_tagged = matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
-                let is_adjacently_tagged = matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
+                let is_internally_tagged =
+                    matches!(container_opts.tagging, TaggingMode::InternallyTagged { .. });
+                let is_externally_tagged =
+                    matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
+                let is_adjacently_tagged =
+                    matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
                 let is_untagged = matches!(container_opts.tagging, TaggingMode::Untagged);
                 let tag_field = container_opts.tag_field_or_default().to_string();
                 let content_field = container_opts.content_field().unwrap_or("").to_string();

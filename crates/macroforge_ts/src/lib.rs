@@ -1670,6 +1670,41 @@ pub fn expand_sync(
 ///
 /// # Algorithm
 ///
+/// Check if source code contains `@derive(` as a standalone JSDoc directive.
+///
+/// Only matches `@derive(` when it appears at the start of a JSDoc line (after
+/// stripping `/**`, `*/`, `*`, and whitespace). Skips `@derive` embedded in prose
+/// (e.g., `"result from @derive(Deserialize)"`) and inside fenced code blocks.
+fn has_macro_annotations(source: &str) -> bool {
+    if !source.contains("@derive") {
+        return false;
+    }
+    let mut in_code_block = false;
+    for line in source.lines() {
+        // Strip JSDoc comment syntax: /**, */, leading *, and whitespace
+        let trimmed = line
+            .trim()
+            .trim_start_matches('/')
+            .trim_start_matches('*')
+            .trim_end_matches('/')
+            .trim_end_matches('*')
+            .trim();
+        if trimmed.starts_with("```") {
+            in_code_block = !in_code_block;
+            continue;
+        }
+        if in_code_block {
+            continue;
+        }
+        // A line must START with @derive( to be a real directive.
+        // This rejects prose like "result from @derive(Deserialize)".
+        if trimmed.starts_with("@derive(") {
+            return true;
+        }
+    }
+    false
+}
+
 /// 1. **Early bailout**: If code doesn't contain `@derive`, return unchanged
 /// 2. **Parse**: Convert code to SWC AST
 /// 3. **Expand**: Run all registered macros on decorated classes
@@ -1684,7 +1719,8 @@ fn expand_inner(
     // This optimization avoids expensive parsing for files that don't use macros
     // and prevents issues with Svelte runes ($state, $derived, etc.) that use
     // similar syntax but aren't macroforge decorators.
-    if !code.contains("@derive") {
+    // Uses has_macro_annotations to skip @derive inside fenced code blocks in docs.
+    if !has_macro_annotations(code) {
         return Ok(ExpandResult::unchanged(code));
     }
 

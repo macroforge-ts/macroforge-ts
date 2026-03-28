@@ -285,6 +285,28 @@ impl MacroExpander {
         self.type_registry = registry;
     }
 
+    /// Build the set of valid annotation names that should be recognized during lowering.
+    ///
+    /// This includes `"derive"` (always), all builtin decorator module names (e.g., `"serde"`,
+    /// `"debug"`), and any external decorator modules configured on this expander.
+    fn valid_annotation_names(&self) -> std::collections::HashSet<String> {
+        let mut set = std::collections::HashSet::new();
+        set.insert("derive".to_string());
+
+        // Add all builtin decorator annotation names (the `export` field holds the
+        // actual keyword used in JSDoc, e.g. "serde", "debug", "default", "hash")
+        for name in derived::decorator_annotation_names() {
+            set.insert(name.to_ascii_lowercase());
+        }
+
+        // Add external decorator module names
+        for module in &self.external_decorator_modules {
+            set.insert(module.to_ascii_lowercase());
+        }
+
+        set
+    }
+
     /// Expand all macros in the source code (simple API for CLI usage)
     pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
         use crate::ts_syn::parse_ts_module;
@@ -292,16 +314,19 @@ impl MacroExpander {
         let module = parse_ts_module(source)
             .map_err(|e| MacroError::InvalidConfig(format!("Parse error: {:?}", e)))?;
 
-        let classes = lower_classes(&module, source)
+        let valid_annotations = self.valid_annotation_names();
+        let filter = Some(&valid_annotations);
+
+        let classes = lower_classes(&module, source, filter)
             .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
 
-        let interfaces = lower_interfaces(&module, source)
+        let interfaces = lower_interfaces(&module, source, filter)
             .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
 
-        let enums = lower_enums(&module, source)
+        let enums = lower_enums(&module, source, filter)
             .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
 
-        let type_aliases = lower_type_aliases(&module, source)
+        let type_aliases = lower_type_aliases(&module, source, filter)
             .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
 
         let imports = crate::host::import_registry::ImportRegistry::from_module(&module, source);
@@ -400,16 +425,19 @@ impl MacroExpander {
             }
         };
 
-        let classes = lower_classes(&module, source)
+        let valid_annotations = self.valid_annotation_names();
+        let filter = Some(&valid_annotations);
+
+        let classes = lower_classes(&module, source, filter)
             .context("failed to lower classes for macro processing")?;
 
-        let interfaces = lower_interfaces(&module, source)
+        let interfaces = lower_interfaces(&module, source, filter)
             .context("failed to lower interfaces for macro processing")?;
 
-        let enums =
-            lower_enums(&module, source).context("failed to lower enums for macro processing")?;
+        let enums = lower_enums(&module, source, filter)
+            .context("failed to lower enums for macro processing")?;
 
-        let type_aliases = lower_type_aliases(&module, source)
+        let type_aliases = lower_type_aliases(&module, source, filter)
             .context("failed to lower type aliases for macro processing")?;
 
         let imports = crate::host::import_registry::ImportRegistry::from_module(&module, source);
