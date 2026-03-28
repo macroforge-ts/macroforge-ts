@@ -1637,7 +1637,10 @@ describe('Enum tagging modes — runtime round-trip', () => {
             .replace(/import\s+\{[^}]*\}\s+from\s+["'][^"']+["'];?/g, '')
             .replace(/export\s+/g, '')
             // strip type annotations from parameters/return types
-            .replace(/:\s*(?:string|number|boolean|void|any|unknown|null|undefined)(?:\s*\|[^,){}=]*)?/g, '')
+            .replace(
+                /:\s*(?:string|number|boolean|void|any|unknown|null|undefined)(?:\s*\|[^,){}=]*)?/g,
+                ''
+            )
             .replace(/:\s*(?:Array|Record|Map|Set)<[^>]*>/g, '')
             .replace(/\?\s*:/g, '?') // optional params
             // strip 'as any', 'as Type', etc.
@@ -1663,13 +1666,17 @@ describe('Enum tagging modes — runtime round-trip', () => {
         `;
 
         const module = { exports: {} };
-        const fn = new Function('module', 'exports', stubs + js + `
+        const fn = new Function(
+            'module',
+            'exports',
+            stubs + js + `
             module.exports = { ${
                 (js.match(/function\s+(\w+)\s*[<(]/g) || [])
-                    .map(m => m.match(/function\s+(\w+)/)[1])
+                    .map((m) => m.match(/function\s+(\w+)/)[1])
                     .join(', ')
             } };
-        `);
+        `
+        );
         fn(module, module.exports);
         return module.exports;
     }
@@ -1739,7 +1746,7 @@ describe('Enum tagging modes — runtime round-trip', () => {
         );
         assert.ok(
             !result.code.includes('return __variant') ||
-            result.code.includes('{ ...fields }'),
+                result.code.includes('{ ...fields }'),
             'Should not pass through variant directly in untagged mode'
         );
     });

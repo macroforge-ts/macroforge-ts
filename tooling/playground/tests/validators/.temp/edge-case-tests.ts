@@ -32,7 +32,10 @@ export class MultipleValidatorsTest {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = MultipleValidatorsTest.deserializeWithContext(data, ctx);
+            const resultOrRef = MultipleValidatorsTest.deserializeWithContext(
+                data,
+                ctx
+            );
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -107,7 +110,9 @@ export class MultipleValidatorsTest {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(MultipleValidatorsTest.prototype) as MultipleValidatorsTest;
+        const instance = Object.create(
+            MultipleValidatorsTest.prototype
+        ) as MultipleValidatorsTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -245,7 +250,9 @@ export function multipleValidatorsTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function multipleValidatorsTestIs(value: unknown): value is MultipleValidatorsTest {
+export function multipleValidatorsTestIs(
+    value: unknown
+): value is MultipleValidatorsTest {
     return MultipleValidatorsTest.is(value);
 }
 
@@ -350,7 +357,9 @@ export class CustomMessageTest {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(CustomMessageTest.prototype) as CustomMessageTest;
+        const instance = Object.create(
+            CustomMessageTest.prototype
+        ) as CustomMessageTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -452,7 +461,9 @@ export function customMessageTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function customMessageTestIs(value: unknown): value is CustomMessageTest {
+export function customMessageTestIs(
+    value: unknown
+): value is CustomMessageTest {
     return CustomMessageTest.is(value);
 }
 
@@ -557,7 +568,9 @@ export class MixedValidatorsTest {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(MixedValidatorsTest.prototype) as MixedValidatorsTest;
+        const instance = Object.create(
+            MixedValidatorsTest.prototype
+        ) as MixedValidatorsTest;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -677,7 +690,9 @@ export function mixedValidatorsTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function mixedValidatorsTestIs(value: unknown): value is MixedValidatorsTest {
+export function mixedValidatorsTestIs(
+    value: unknown
+): value is MixedValidatorsTest {
     return MixedValidatorsTest.is(value);
 }
 
@@ -707,7 +722,10 @@ export class CombinedStringValidatorsTest {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(data, ctx);
+            const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(
+                data,
+                ctx
+            );
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -851,7 +869,9 @@ export class CombinedStringValidatorsTest {
         return errors;
     }
 
-    static validateFields(_partial: Partial<CombinedStringValidatorsTest>): Array<{
+    static validateFields(
+        _partial: Partial<CombinedStringValidatorsTest>
+    ): Array<{
         field: string;
         message: string;
     }> {
@@ -955,7 +975,10 @@ export class CombinedNumberValidatorsTest {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(data, ctx);
+            const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(
+                data,
+                ctx
+            );
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1099,7 +1122,9 @@ export class CombinedNumberValidatorsTest {
         return errors;
     }
 
-    static validateFields(_partial: Partial<CombinedNumberValidatorsTest>): Array<{
+    static validateFields(
+        _partial: Partial<CombinedNumberValidatorsTest>
+    ): Array<{
         field: string;
         message: string;
     }> {
