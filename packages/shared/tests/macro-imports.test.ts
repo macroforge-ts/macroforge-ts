@@ -1,5 +1,5 @@
 import { assertEquals } from 'jsr:@std/assert@1';
-import { parseMacroImportComments } from '../src/macro-imports.ts';
+import { hasMacroAnnotations, parseMacroImportComments } from '../src/macro-imports.ts';
 
 Deno.test('parseMacroImportComments - parses single macro import', () => {
     const text = `/** import macro {JSON} from "@playground/macro"; */`;
@@ -107,4 +107,77 @@ Deno.test('parseMacroImportComments - last import wins for duplicate macro names
 
     assertEquals(result.size, 1);
     assertEquals(result.get('JSON'), 'package-b');
+});
+
+// ============================================================================
+// hasMacroAnnotations tests
+// ============================================================================
+
+Deno.test('hasMacroAnnotations - matches single-line JSDoc directive', () => {
+    assertEquals(hasMacroAnnotations('/** @derive(Debug) */\nclass X {}'), true);
+});
+
+Deno.test('hasMacroAnnotations - matches multi-line JSDoc directive', () => {
+    const code = `/**
+ * @derive(Debug, Clone)
+ */
+class X {}`;
+    assertEquals(hasMacroAnnotations(code), true);
+});
+
+Deno.test('hasMacroAnnotations - matches directive with description before it', () => {
+    const code = `/**
+ * A user class.
+ * @derive(Debug)
+ */
+class User {}`;
+    assertEquals(hasMacroAnnotations(code), true);
+});
+
+Deno.test('hasMacroAnnotations - rejects @derive in prose text', () => {
+    const code = `/** Deserialize result format from @derive(Deserialize) */
+export type DeserializeResult<T> =
+  | { success: true; value: T }
+  | { success: false; errors: Array<{ field: string; message: string }> };`;
+    assertEquals(hasMacroAnnotations(code), false);
+});
+
+Deno.test('hasMacroAnnotations - rejects @derive in fenced code blocks', () => {
+    const code = `/**
+ * @example
+ * \`\`\`typescript
+ * // @derive(Debug)
+ * class Foo {}
+ * \`\`\`
+ */
+export class Bar {}`;
+    assertEquals(hasMacroAnnotations(code), false);
+});
+
+Deno.test('hasMacroAnnotations - rejects file with no @derive at all', () => {
+    assertEquals(hasMacroAnnotations('class X { name: string; }'), false);
+});
+
+Deno.test('hasMacroAnnotations - rejects large file with @derive only in prose', () => {
+    const code = `import type { Option } from "effect";
+
+/** Deserialize result format from @derive(Deserialize) */
+export type DeserializeResult<T> =
+  | { success: true; value: T }
+  | { success: false; errors: Array<{ field: string; message: string }> };
+
+/** Base interface for field controllers */
+export interface FieldController<T> {
+  readonly path: ReadonlyArray<string | number>;
+  get(): T;
+  set(value: T): void;
+  getError(): Option.Option<Array<string>>;
+}
+
+/** Number field controller with numeric constraints */
+export interface NumberFieldController extends FieldController<number | null> {
+  readonly min?: number;
+  readonly max?: number;
+}`;
+    assertEquals(hasMacroAnnotations(code), false);
 });

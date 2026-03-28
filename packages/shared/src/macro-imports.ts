@@ -5,6 +5,55 @@
  */
 
 /**
+ * Checks whether source code contains `@derive(` as a real JSDoc directive.
+ *
+ * Only matches `@derive(` when it appears at the start of a JSDoc comment line
+ * (after stripping comment syntax like `/**`, `*​/`, `*`, and whitespace).
+ * This correctly rejects `@derive` embedded in prose text such as
+ * `"Deserialize result format from @derive(Deserialize)"`.
+ *
+ * Use this instead of `code.includes("@derive")` to avoid false positives.
+ *
+ * @param source - The TypeScript source code to scan
+ * @returns `true` if the source contains a real `@derive(` directive
+ *
+ * @example
+ * ```typescript
+ * hasMacroAnnotations('/** @derive(Debug) *​/ class X {}');     // true
+ * hasMacroAnnotations('/** result from @derive(Debug) *​/');    // false — embedded in prose
+ * hasMacroAnnotations('class X {}');                            // false
+ * ```
+ */
+export function hasMacroAnnotations(source: string): boolean {
+    if (!source.includes("@derive")) {
+        return false;
+    }
+    let inCodeBlock = false;
+    for (const line of source.split("\n")) {
+        // Strip JSDoc comment syntax: /**, */, leading *, and whitespace
+        const trimmed = line
+            .trim()
+            .replace(/^\/+/, "")
+            .replace(/^\*+/, "")
+            .replace(/\*+\/$/, "")
+            .replace(/\/+$/, "")
+            .trim();
+        if (trimmed.startsWith("```")) {
+            inCodeBlock = !inCodeBlock;
+            continue;
+        }
+        if (inCodeBlock) {
+            continue;
+        }
+        // A line must START with @derive( to be a real directive.
+        if (trimmed.startsWith("@derive(")) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Parses macro import comments from TypeScript code.
  *
  * @remarks

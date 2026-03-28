@@ -11,7 +11,7 @@
  */
 
 // Re-export all utilities
-export { parseMacroImportComments } from './macro-imports.js';
+export { hasMacroAnnotations, parseMacroImportComments } from './macro-imports.js';
 
 export {
     clearExternalManifestCache,
@@ -35,7 +35,7 @@ export {
 } from './config.js';
 
 // Import for composite functions
-import { parseMacroImportComments } from './macro-imports.js';
+import { hasMacroAnnotations, parseMacroImportComments } from './macro-imports.js';
 import { getExternalManifest, type RequireFunction } from './external-manifest.js';
 
 /**
