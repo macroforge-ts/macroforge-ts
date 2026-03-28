@@ -3795,9 +3795,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let tag_field = container_opts.tag_field_or_default();
 
                 // Tagging mode variables for template branching
-                let _is_internally_tagged = matches!(container_opts.tagging, TaggingMode::InternallyTagged { .. });
-                let is_externally_tagged = matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
-                let is_adjacently_tagged = matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
+                let _is_internally_tagged =
+                    matches!(container_opts.tagging, TaggingMode::InternallyTagged { .. });
+                let is_externally_tagged =
+                    matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
+                let is_adjacently_tagged =
+                    matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
                 let is_untagged = matches!(container_opts.tagging, TaggingMode::Untagged);
                 let content_field = container_opts.content_field().unwrap_or("").to_string();
 

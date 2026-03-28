@@ -367,16 +367,16 @@ fn main() -> Result<()> {
 ///
 /// Returns `Ok(())` on success, or an error if the scan fails.
 fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> Result<()> {
+    use rayon::prelude::*;
+
     let root = root.canonicalize().unwrap_or(root);
     eprintln!("[macroforge] scanning {}", root.display());
 
-    let mut files_found = 0;
-    let mut files_expanded = 0;
-    let mut current_dir: Option<PathBuf> = None;
-
+    // Phase 1: Collect all files (sequential walk)
+    let mut files: Vec<PathBuf> = Vec::new();
     let walker = WalkBuilder::new(&root)
-        .hidden(false) // Don't skip hidden files
-        .git_ignore(!include_ignored) // Respect .gitignore unless --include-ignored
+        .hidden(false)
+        .git_ignore(!include_ignored)
         .git_global(false)
         .git_exclude(false)
         .build();
@@ -384,7 +384,6 @@ fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> 
     for entry in walker.flatten() {
         let path = entry.path();
 
-        // Only process .ts and .tsx files (not .d.ts)
         let is_ts_file = path
             .extension()
             .is_some_and(|ext| ext == "ts" || ext == "tsx")
@@ -398,36 +397,40 @@ fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> 
             continue;
         }
 
-        // Skip .expanded. files
         let filename = path.file_name().unwrap_or_default().to_string_lossy();
         if filename.contains(".expanded.") {
             continue;
         }
 
-        // Print directory change
-        if let Some(parent) = path.parent()
-            && current_dir.as_ref() != Some(&parent.to_path_buf())
-        {
-            let display_path = parent
-                .strip_prefix(&root)
-                .unwrap_or(parent)
-                .display()
-                .to_string();
-            let display_path = if display_path.is_empty() {
-                ".".to_string()
-            } else {
-                display_path
-            };
-            eprintln!("[macroforge] entering {}/", display_path);
-            current_dir = Some(parent.to_path_buf());
-        }
+        files.push(path.to_path_buf());
+    }
 
-        files_found += 1;
+    let files_found = files.len();
 
-        // Try to expand the file
-        match try_expand_file(path.to_path_buf(), None, None, false, builtin_only, true) {
+    // Phase 2: Expand in parallel
+    let pool = if builtin_only {
+        rayon::ThreadPoolBuilder::new().build()?
+    } else {
+        rayon::ThreadPoolBuilder::new().num_threads(4).build()?
+    };
+
+    let results: Vec<_> = pool.install(|| {
+        files
+            .par_iter()
+            .map(|path| {
+                let result =
+                    try_expand_file(path.clone(), None, None, false, builtin_only, true);
+                (path.clone(), result)
+            })
+            .collect()
+    });
+
+    // Phase 3: Report results (sequential)
+    let mut files_expanded = 0;
+    for (path, result) in &results {
+        match result {
             Ok(true) => files_expanded += 1,
-            Ok(false) => {} // No macros found, that's fine
+            Ok(false) => {}
             Err(e) => {
                 eprintln!(
                     "[macroforge] error expanding {}: {}",
@@ -1468,9 +1471,44 @@ fn collect_watch_files(root: &Path) -> Vec<PathBuf> {
 ///
 /// Returns `Ok(Some(expanded_code))` if macros were found and expanded,
 /// `Ok(None)` if no macros present, or `Err` on failure.
-fn expand_for_cache(path: &Path, source: &str, builtin_only: bool) -> Result<Option<String>> {
-    // Quick check: skip files without @derive
+/// Check if source code contains `@derive(` as a standalone JSDoc directive.
+///
+/// Only matches `@derive(` when it appears at the start of a JSDoc line (after
+/// stripping `/**`, `*/`, `*`, and whitespace). Skips `@derive` embedded in prose
+/// (e.g., `"result from @derive(Deserialize)"`) and inside fenced code blocks.
+fn has_macro_annotations(source: &str) -> bool {
     if !source.contains("@derive") {
+        return false;
+    }
+    let mut in_code_block = false;
+    for line in source.lines() {
+        // Strip JSDoc comment syntax: /**, */, leading *, and whitespace
+        let trimmed = line
+            .trim()
+            .trim_start_matches('/')
+            .trim_start_matches('*')
+            .trim_end_matches('/')
+            .trim_end_matches('*')
+            .trim();
+        if trimmed.starts_with("```") {
+            in_code_block = !in_code_block;
+            continue;
+        }
+        if in_code_block {
+            continue;
+        }
+        // A line must START with @derive( to be a real directive.
+        // This rejects prose like "result from @derive(Deserialize)".
+        if trimmed.starts_with("@derive(") {
+            return true;
+        }
+    }
+    false
+}
+
+fn expand_for_cache(path: &Path, source: &str, builtin_only: bool) -> Result<Option<String>> {
+    // Quick check: skip files without @derive (ignoring fenced code blocks in docs)
+    if !has_macro_annotations(source) {
         return Ok(None);
     }
 
@@ -1630,11 +1668,15 @@ fn warm_cache(
     manifest: &mut CacheManifest,
     builtin_only: bool,
 ) -> Result<()> {
+    use rayon::prelude::*;
+
     eprintln!("[macroforge {label}] Warming cache for {}", root.display());
     let start = std::time::Instant::now();
     let files = collect_watch_files(root);
     let mut expanded_count = 0u32;
 
+    // Phase 1: Read files, hash, filter out already-cached (sequential for manifest reads)
+    let mut files_to_expand: Vec<(PathBuf, String, String, String, String)> = Vec::new();
     for file_path in &files {
         let rel_path = file_path
             .strip_prefix(root)
@@ -1668,8 +1710,40 @@ fn warm_cache(
         }
 
         let norm_hash = normalized_content_hash(&source);
+        files_to_expand.push((
+            file_path.clone(),
+            rel_path,
+            source,
+            source_hash,
+            norm_hash,
+        ));
+    }
 
-        match expand_for_cache(file_path, &source, builtin_only) {
+    // Phase 2: Expand in parallel
+    let pool = if builtin_only {
+        rayon::ThreadPoolBuilder::new().build()?
+    } else {
+        rayon::ThreadPoolBuilder::new().num_threads(4).build()?
+    };
+
+    let results: Vec<_> = pool.install(|| {
+        files_to_expand
+            .par_iter()
+            .map(|(file_path, rel_path, source, source_hash, norm_hash)| {
+                let result = expand_for_cache(file_path, source, builtin_only);
+                (
+                    rel_path.clone(),
+                    source_hash.clone(),
+                    norm_hash.clone(),
+                    result,
+                )
+            })
+            .collect()
+    });
+
+    // Phase 3: Apply results to manifest (sequential)
+    for (rel_path, source_hash, norm_hash, result) in results {
+        match result {
             Ok(Some(expanded)) => {
                 if let Err(e) = write_cache_file(cache_dir, &rel_path, &expanded) {
                     eprintln!("  [!] {} — write failed: {}", rel_path, e);
@@ -1767,10 +1841,230 @@ fn run_refresh(root: Option<PathBuf>, builtin_only: bool) -> Result<()> {
     Ok(())
 }
 
+// =========================================================================
+// Macro source watching: discover, detect build system, rebuild
+// =========================================================================
+
+#[derive(Debug)]
+struct MacroSourceInfo {
+    name: String,
+    package_dir: PathBuf,
+    source_dirs: Vec<PathBuf>,
+    kind: MacroSourceKind,
+}
+
+#[derive(Debug)]
+enum MacroSourceKind {
+    /// Rust NAPI macro (has Cargo.toml with macroforge_ts dependency)
+    RustNapi,
+    /// JavaScript/TypeScript macro package
+    JsTs,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum BuildSystem {
+    Npm,
+    Pnpm,
+    Yarn,
+}
+
+fn detect_build_system(root: &Path) -> BuildSystem {
+    if root.join("pnpm-lock.yaml").exists() {
+        BuildSystem::Pnpm
+    } else if root.join("yarn.lock").exists() {
+        BuildSystem::Yarn
+    } else {
+        BuildSystem::Npm
+    }
+}
+
+/// Discover macro source packages from workspace configuration.
+fn discover_macro_sources(root: &Path) -> Vec<MacroSourceInfo> {
+    let pkg_json_path = root.join("package.json");
+    let pkg_json = match fs::read_to_string(&pkg_json_path) {
+        Ok(s) => s,
+        Err(_) => return Vec::new(),
+    };
+    let pkg: serde_json::Value = match serde_json::from_str(&pkg_json) {
+        Ok(v) => v,
+        Err(_) => return Vec::new(),
+    };
+
+    // Collect workspace patterns
+    let workspace_patterns: Vec<String> = match &pkg["workspaces"] {
+        serde_json::Value::Array(arr) => arr
+            .iter()
+            .filter_map(|v| v.as_str().map(String::from))
+            .collect(),
+        serde_json::Value::Object(obj) => obj
+            .get("packages")
+            .and_then(|v| v.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|v| v.as_str().map(String::from))
+                    .collect()
+            })
+            .unwrap_or_default(),
+        _ => Vec::new(),
+    };
+
+    // Expand workspace patterns into actual directories
+    let mut workspace_dirs: Vec<PathBuf> = Vec::new();
+    for pattern in &workspace_patterns {
+        if pattern.contains('*') {
+            // Simple glob: "packages/*" -> list subdirs of "packages/"
+            let prefix = pattern.trim_end_matches("/*").trim_end_matches("/**");
+            let base = root.join(prefix);
+            if let Ok(entries) = fs::read_dir(&base) {
+                for entry in entries.flatten() {
+                    if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+                        workspace_dirs.push(entry.path());
+                    }
+                }
+            }
+        } else {
+            let dir = root.join(pattern);
+            if dir.is_dir() {
+                workspace_dirs.push(dir);
+            }
+        }
+    }
+
+    let mut sources = Vec::new();
+    for dir in &workspace_dirs {
+        let cargo_toml = dir.join("Cargo.toml");
+        let child_pkg_json = dir.join("package.json");
+
+        // Check if it's a Rust NAPI macro crate
+        if cargo_toml.exists() {
+            if let Ok(content) = fs::read_to_string(&cargo_toml) {
+                if content.contains("macroforge_ts") {
+                    let src_dir = dir.join("src");
+                    let name = dir
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string();
+                    sources.push(MacroSourceInfo {
+                        name,
+                        package_dir: dir.clone(),
+                        source_dirs: if src_dir.is_dir() {
+                            vec![src_dir]
+                        } else {
+                            vec![dir.clone()]
+                        },
+                        kind: MacroSourceKind::RustNapi,
+                    });
+                    continue;
+                }
+            }
+        }
+
+        // Check if it's a JS/TS macro package
+        if child_pkg_json.exists() {
+            if let Ok(content) = fs::read_to_string(&child_pkg_json) {
+                if let Ok(child_pkg) = serde_json::from_str::<serde_json::Value>(&content) {
+                    let has_macroforge_dep = ["dependencies", "devDependencies", "peerDependencies"]
+                        .iter()
+                        .any(|key| {
+                            child_pkg[key]
+                                .as_object()
+                                .is_some_and(|deps| deps.contains_key("macroforge"))
+                        });
+
+                    if has_macroforge_dep {
+                        let src_dir = dir.join("src");
+                        let name = child_pkg["name"]
+                            .as_str()
+                            .unwrap_or_default()
+                            .to_string();
+                        sources.push(MacroSourceInfo {
+                            name: if name.is_empty() {
+                                dir.file_name()
+                                    .unwrap_or_default()
+                                    .to_string_lossy()
+                                    .to_string()
+                            } else {
+                                name
+                            },
+                            package_dir: dir.clone(),
+                            source_dirs: if src_dir.is_dir() {
+                                vec![src_dir]
+                            } else {
+                                vec![dir.clone()]
+                            },
+                            kind: MacroSourceKind::JsTs,
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    sources
+}
+
+/// Rebuild a macro package. Returns Ok(()) on success.
+fn rebuild_macro(info: &MacroSourceInfo, build_system: BuildSystem, _root: &Path) -> Result<()> {
+    let (cmd, args) = match build_system {
+        BuildSystem::Pnpm => ("pnpm", vec!["run", "build"]),
+        BuildSystem::Yarn => ("yarn", vec!["build"]),
+        BuildSystem::Npm => ("npm", vec!["run", "build"]),
+    };
+
+    eprintln!(
+        "[macroforge watch] Running `{} {}` in {}",
+        cmd,
+        args.join(" "),
+        info.package_dir.display()
+    );
+
+    let output = std::process::Command::new(cmd)
+        .args(&args)
+        .current_dir(&info.package_dir)
+        .env("NAPI_BUILD_SKIP_WATCHER", "1")
+        .output()
+        .with_context(|| {
+            format!(
+                "failed to run `{cmd}` for macro package '{}'",
+                info.name
+            )
+        })?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        anyhow::bail!(
+            "macro rebuild failed for '{}' (exit {}):\n{}\n{}",
+            info.name,
+            output.status,
+            stdout,
+            stderr
+        );
+    }
+
+    Ok(())
+}
+
 /// Main watch loop: warm cache then watch for changes.
 fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Result<()> {
     let (root, cache_dir, mut manifest) = init_cache(root, "watch", builtin_only)?;
     warm_cache("watch", &root, &cache_dir, &mut manifest, builtin_only)?;
+
+    // Discover macro source packages and watch them
+    let macro_sources = discover_macro_sources(&root);
+    let build_system = detect_build_system(&root);
+
+    if !macro_sources.is_empty() {
+        eprintln!(
+            "[macroforge watch] Discovered {} macro source package(s):",
+            macro_sources.len()
+        );
+        for src in &macro_sources {
+            eprintln!("  - {} ({:?})", src.name, src.kind);
+        }
+    }
+
     eprintln!("[macroforge watch] Watching for changes... (Ctrl+C to stop)");
 
     // --- Watch loop ---
@@ -1782,10 +2076,24 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
         .watch(&root, RecursiveMode::Recursive)
         .context("failed to start watching")?;
 
+    // Watch macro source directories that are outside root
+    for src in &macro_sources {
+        for dir in &src.source_dirs {
+            if dir.exists() && !dir.starts_with(&root) {
+                debouncer
+                    .watch(dir, RecursiveMode::Recursive)
+                    .with_context(|| {
+                        format!("failed to watch macro source: {}", dir.display())
+                    })?;
+            }
+        }
+    }
+
     for result in rx {
         match result {
             Ok(events) => {
                 let mut config_changed = false;
+                let mut macro_source_changed: Option<&MacroSourceInfo> = None;
                 let mut changed_files: Vec<PathBuf> = Vec::new();
 
                 for event in &events {
@@ -1799,6 +2107,15 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                             }
                         }
 
+                        // Check if path belongs to a macro source package
+                        let is_macro_src = macro_sources.iter().find(|ms| {
+                            ms.source_dirs.iter().any(|d| event_path.starts_with(d))
+                        });
+                        if let Some(ms) = is_macro_src {
+                            macro_source_changed = Some(ms);
+                            continue;
+                        }
+
                         if is_watchable_ts_file(event_path, &root) {
                             changed_files.push(event_path.clone());
                         }
@@ -1808,29 +2125,69 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                 changed_files.sort();
                 changed_files.dedup();
 
-                if config_changed {
+                // Macro source change: rebuild then full re-expand
+                if let Some(macro_info) = macro_source_changed {
+                    eprintln!(
+                        "[macroforge watch] Macro source changed in '{}', rebuilding...",
+                        macro_info.name
+                    );
+
+                    match rebuild_macro(macro_info, build_system, &root) {
+                        Ok(()) => {
+                            eprintln!(
+                                "[macroforge watch] Macro '{}' rebuilt, re-expanding all files...",
+                                macro_info.name
+                            );
+                            manifest.entries.clear();
+                            macroforge_ts::host::clear_config_cache();
+                            warm_cache("watch", &root, &cache_dir, &mut manifest, builtin_only)?;
+                        }
+                        Err(e) => {
+                            eprintln!(
+                                "[macroforge watch] Macro rebuild failed: {}",
+                                e
+                            );
+                        }
+                    }
+                } else if config_changed {
+                    use rayon::prelude::*;
+
                     let new_config_hash = compute_config_hash(&root);
                     manifest.config_hash = new_config_hash;
                     manifest.entries.clear();
                     eprintln!("[macroforge watch] Config changed, re-expanding all files...");
 
                     let all_files = collect_watch_files(&root);
+
+                    // Read and hash all files (sequential)
+                    let files_with_source: Vec<_> = all_files
+                        .iter()
+                        .filter_map(|file_path| {
+                            let rel_path = file_path
+                                .strip_prefix(&root)
+                                .unwrap_or(file_path)
+                                .to_string_lossy()
+                                .to_string();
+                            let source = fs::read_to_string(file_path).ok()?;
+                            let source_hash = content_hash(source.as_bytes());
+                            let norm_hash = normalized_content_hash(&source);
+                            Some((file_path.clone(), rel_path, source, source_hash, norm_hash))
+                        })
+                        .collect();
+
+                    // Expand in parallel
+                    let results: Vec<_> = files_with_source
+                        .par_iter()
+                        .map(|(file_path, rel_path, source, source_hash, norm_hash)| {
+                            let result = expand_for_cache(file_path, source, builtin_only);
+                            (rel_path.clone(), source_hash.clone(), norm_hash.clone(), result)
+                        })
+                        .collect();
+
+                    // Apply results (sequential)
                     let mut count = 0u32;
-                    for file_path in &all_files {
-                        let rel_path = file_path
-                            .strip_prefix(&root)
-                            .unwrap_or(file_path)
-                            .to_string_lossy()
-                            .to_string();
-
-                        let source = match fs::read_to_string(file_path) {
-                            Ok(s) => s,
-                            Err(_) => continue,
-                        };
-                        let source_hash = content_hash(source.as_bytes());
-                        let norm_hash = normalized_content_hash(&source);
-
-                        match expand_for_cache(file_path, &source, builtin_only) {
+                    for (rel_path, source_hash, norm_hash, result) in results {
+                        match result {
                             Ok(Some(expanded)) => {
                                 let _ = write_cache_file(&cache_dir, &rel_path, &expanded);
                                 manifest.entries.insert(
@@ -2307,7 +2664,10 @@ mod tests {
 
         let entry = manifest.entries.get("src/test.ts").unwrap();
         assert_eq!(entry.source_hash, source_hash);
-        assert!(!entry.normalized_hash.is_empty(), "normalized_hash should be backfilled");
+        assert!(
+            !entry.normalized_hash.is_empty(),
+            "normalized_hash should be backfilled"
+        );
         assert_eq!(entry.normalized_hash, normalized_content_hash(source));
     }
 }

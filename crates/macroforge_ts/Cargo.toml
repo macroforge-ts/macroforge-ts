@@ -65,6 +65,7 @@ indexmap = "2.7"
 
 # Concurrency
 dashmap = "6.1"
+rayon = "1.10"
 
 # Build script utilities (optional, for napi auto-build)
 libc = { version = "0.2", optional = true }

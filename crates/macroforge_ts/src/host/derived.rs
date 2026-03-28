@@ -228,19 +228,33 @@ pub fn decorator_metadata() -> Vec<DecoratorMetadata> {
         .collect()
 }
 
-/// Returns all unique decorator module names.
+/// Returns all unique decorator module names (package names).
 ///
-/// These are the keywords used in field-level decorators like `@serde({ ... })`.
-/// Used by `strip_decorators` to identify Macroforge-specific decorators.
-///
-/// # Returns
-///
-/// A set of module names (e.g., `{"serde", "debug", "hash"}`).
+/// Note: this returns the `module` field of `DecoratorDescriptor` which is the
+/// npm package name. For the actual annotation keywords used in JSDoc (e.g.,
+/// `"serde"`, `"debug"`, `"hash"`), use [`decorator_annotation_names`].
 pub fn decorator_modules() -> BTreeSet<&'static str> {
     inventory::iter::<DerivedMacroRegistration>
         .into_iter()
         .flat_map(|entry| entry.descriptor.decorators)
         .map(|decorator| decorator.module)
+        .collect()
+}
+
+/// Returns all unique decorator annotation names.
+///
+/// These are the keywords used in field-level decorators like `@serde({ ... })`,
+/// `@debug(skip)`, `@default(...)`, etc. Used by annotation filtering to only
+/// recognize valid macroforge annotations during lowering.
+///
+/// # Returns
+///
+/// A set of annotation names (e.g., `{"serde", "debug", "hash", "default", "ord"}`).
+pub fn decorator_annotation_names() -> BTreeSet<&'static str> {
+    inventory::iter::<DerivedMacroRegistration>
+        .into_iter()
+        .flat_map(|entry| entry.descriptor.decorators)
+        .map(|decorator| decorator.export)
         .collect()
 }
 
