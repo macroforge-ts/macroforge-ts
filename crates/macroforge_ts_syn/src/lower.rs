@@ -38,7 +38,7 @@
 //!     "#;
 //!
 //!     let module = parse_ts_module(source)?;
-//!     let classes = lower_classes(&module, source)?;
+//!     let classes = lower_classes(&module, source, None)?;
 //!
 //!     assert_eq!(classes.len(), 1);
 //!     assert_eq!(classes[0].name, "User");
@@ -63,6 +63,8 @@
 //! Both `@derive(Debug, Clone)` and `@serde(rename = "user")` are collected
 //! as decorators on the class.
 
+use std::collections::HashSet;
+
 use crate::abi::*;
 
 use crate::TsSynError;
@@ -81,7 +83,7 @@ use crate::TsSynError;
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = "class Foo {} interface Bar {}";
 ///     let module = parse_ts_module(source)?;
-///     let targets = lower_targets(&module, source)?;
+///     let targets = lower_targets(&module, source, None)?;
 ///
 ///     for target in targets {
 ///         match target {
@@ -139,7 +141,7 @@ use swc_core::ecma::visit::{Visit, VisitWith};
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = "class User { name: string; }";
 ///     let module = parse_ts_module(source)?;
-///     let classes = lower_classes(&module, source)?;
+///     let classes = lower_classes(&module, source, None)?;
 ///
 ///     assert_eq!(classes.len(), 1);
 ///     assert_eq!(classes[0].name, "User");
@@ -147,10 +149,15 @@ use swc_core::ecma::visit::{Visit, VisitWith};
 /// }
 /// ```
 #[cfg(feature = "swc")]
-pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSynError> {
+pub fn lower_classes(
+    module: &Module,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Result<Vec<ClassIR>, TsSynError> {
     let mut v = ClassCollector {
         out: vec![],
         source,
+        valid_annotations,
     };
     module.visit_with(&mut v);
     Ok(v.out)
@@ -177,7 +184,7 @@ pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSy
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = "interface User { name: string; greet(): void; }";
 ///     let module = parse_ts_module(source)?;
-///     let interfaces = lower_interfaces(&module, source)?;
+///     let interfaces = lower_interfaces(&module, source, None)?;
 ///
 ///     assert_eq!(interfaces[0].name, "User");
 ///     assert_eq!(interfaces[0].fields.len(), 1);
@@ -186,10 +193,15 @@ pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSy
 /// }
 /// ```
 #[cfg(feature = "swc")]
-pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR>, TsSynError> {
+pub fn lower_interfaces(
+    module: &Module,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Result<Vec<InterfaceIR>, TsSynError> {
     let mut v = InterfaceCollector {
         out: vec![],
         source,
+        valid_annotations,
     };
     module.visit_with(&mut v);
     Ok(v.out)
@@ -220,7 +232,7 @@ pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR
 ///     "#;
 ///
 ///     let module = parse_ts_module(source)?;
-///     let targets = lower_targets(&module, source)?;
+///     let targets = lower_targets(&module, source, None)?;
 ///
 ///     // targets contains all 4 declarations
 ///     assert_eq!(targets.len(), 4);
@@ -228,10 +240,15 @@ pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR
 /// }
 /// ```
 #[cfg(feature = "swc")]
-pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>, TsSynError> {
+pub fn lower_targets(
+    module: &Module,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Result<Vec<LoweredTarget>, TsSynError> {
     let mut v = TargetCollector {
         out: vec![],
         source,
+        valid_annotations,
     };
     module.visit_with(&mut v);
     Ok(v.out)
@@ -264,7 +281,7 @@ pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>
 ///     "#;
 ///
 ///     let module = parse_ts_module(source)?;
-///     let enums = lower_enums(&module, source)?;
+///     let enums = lower_enums(&module, source, None)?;
 ///
 ///     assert_eq!(enums[0].name, "Status");
 ///     assert_eq!(enums[0].variants.len(), 2);
@@ -272,10 +289,15 @@ pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>
 /// }
 /// ```
 #[cfg(feature = "swc")]
-pub fn lower_enums(module: &Module, source: &str) -> Result<Vec<EnumIR>, TsSynError> {
+pub fn lower_enums(
+    module: &Module,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Result<Vec<EnumIR>, TsSynError> {
     let mut v = EnumCollector {
         out: vec![],
         source,
+        valid_annotations,
     };
     module.visit_with(&mut v);
     Ok(v.out)
@@ -319,7 +341,7 @@ pub fn lower_enums(module: &Module, source: &str) -> Result<Vec<EnumIR>, TsSynEr
 ///     "#;
 ///
 ///     let module = parse_ts_module(source)?;
-///     let type_aliases = lower_type_aliases(&module, source)?;
+///     let type_aliases = lower_type_aliases(&module, source, None)?;
 ///
 ///     assert_eq!(type_aliases.len(), 2);
 ///     assert_eq!(type_aliases[0].name, "Status");
@@ -342,10 +364,15 @@ pub fn lower_enums(module: &Module, source: &str) -> Result<Vec<EnumIR>, TsSynEr
 /// The `@default` decorator on the "light" variant is captured in the
 /// corresponding [`TypeMember::decorators`] field.
 #[cfg(feature = "swc")]
-pub fn lower_type_aliases(module: &Module, source: &str) -> Result<Vec<TypeAliasIR>, TsSynError> {
+pub fn lower_type_aliases(
+    module: &Module,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Result<Vec<TypeAliasIR>, TsSynError> {
     let mut v = TypeAliasCollector {
         out: vec![],
         source,
+        valid_annotations,
     };
     module.visit_with(&mut v);
     Ok(v.out)
@@ -355,6 +382,7 @@ pub fn lower_type_aliases(module: &Module, source: &str) -> Result<Vec<TypeAlias
 struct ClassCollector<'a> {
     out: Vec<ClassIR>,
     source: &'a str,
+    valid_annotations: Option<&'a HashSet<String>>,
 }
 
 #[cfg(feature = "swc")]
@@ -380,9 +408,10 @@ impl<'a> Visit for ClassCollector<'a> {
         decorators.extend(collect_leading_macro_directives(
             self.source,
             n.class.span.lo.0 as usize,
+            self.valid_annotations,
         ));
 
-        let (fields, methods) = lower_members(&n.class.body, self.source);
+        let (fields, methods) = lower_members(&n.class.body, self.source, self.valid_annotations);
 
         self.out.push(ClassIR {
             name,
@@ -404,12 +433,13 @@ impl<'a> Visit for ClassCollector<'a> {
 struct InterfaceCollector<'a> {
     out: Vec<InterfaceIR>,
     source: &'a str,
+    valid_annotations: Option<&'a HashSet<String>>,
 }
 
 #[cfg(feature = "swc")]
 impl<'a> Visit for InterfaceCollector<'a> {
     fn visit_ts_interface_decl(&mut self, n: &TsInterfaceDecl) {
-        if let Some(ir) = lower_interface(n, self.source) {
+        if let Some(ir) = lower_interface(n, self.source, self.valid_annotations) {
             self.out.push(ir);
         }
     }
@@ -419,12 +449,13 @@ impl<'a> Visit for InterfaceCollector<'a> {
 struct EnumCollector<'a> {
     out: Vec<EnumIR>,
     source: &'a str,
+    valid_annotations: Option<&'a HashSet<String>>,
 }
 
 #[cfg(feature = "swc")]
 impl<'a> Visit for EnumCollector<'a> {
     fn visit_ts_enum_decl(&mut self, n: &TsEnumDecl) {
-        if let Some(ir) = lower_enum(n, self.source) {
+        if let Some(ir) = lower_enum(n, self.source, self.valid_annotations) {
             self.out.push(ir);
         }
     }
@@ -434,12 +465,13 @@ impl<'a> Visit for EnumCollector<'a> {
 struct TypeAliasCollector<'a> {
     out: Vec<TypeAliasIR>,
     source: &'a str,
+    valid_annotations: Option<&'a HashSet<String>>,
 }
 
 #[cfg(feature = "swc")]
 impl<'a> Visit for TypeAliasCollector<'a> {
     fn visit_ts_type_alias_decl(&mut self, n: &TsTypeAliasDecl) {
-        if let Some(ir) = lower_type_alias(n, self.source) {
+        if let Some(ir) = lower_type_alias(n, self.source, self.valid_annotations) {
             self.out.push(ir);
         }
     }
@@ -449,6 +481,7 @@ impl<'a> Visit for TypeAliasCollector<'a> {
 struct TargetCollector<'a> {
     out: Vec<LoweredTarget>,
     source: &'a str,
+    valid_annotations: Option<&'a HashSet<String>>,
 }
 
 #[cfg(feature = "swc")]
@@ -473,9 +506,10 @@ impl<'a> Visit for TargetCollector<'a> {
         decorators.extend(collect_leading_macro_directives(
             self.source,
             n.class.span.lo.0 as usize,
+            self.valid_annotations,
         ));
 
-        let (fields, methods) = lower_members(&n.class.body, self.source);
+        let (fields, methods) = lower_members(&n.class.body, self.source, self.valid_annotations);
 
         self.out.push(LoweredTarget::Class(ClassIR {
             name,
@@ -493,26 +527,30 @@ impl<'a> Visit for TargetCollector<'a> {
     }
 
     fn visit_ts_interface_decl(&mut self, n: &TsInterfaceDecl) {
-        if let Some(ir) = lower_interface(n, self.source) {
+        if let Some(ir) = lower_interface(n, self.source, self.valid_annotations) {
             self.out.push(LoweredTarget::Interface(ir));
         }
     }
 
     fn visit_ts_enum_decl(&mut self, n: &TsEnumDecl) {
-        if let Some(ir) = lower_enum(n, self.source) {
+        if let Some(ir) = lower_enum(n, self.source, self.valid_annotations) {
             self.out.push(LoweredTarget::Enum(ir));
         }
     }
 
     fn visit_ts_type_alias_decl(&mut self, n: &TsTypeAliasDecl) {
-        if let Some(ir) = lower_type_alias(n, self.source) {
+        if let Some(ir) = lower_type_alias(n, self.source, self.valid_annotations) {
             self.out.push(LoweredTarget::TypeAlias(ir));
         }
     }
 }
 
 #[cfg(feature = "swc")]
-fn lower_interface(n: &TsInterfaceDecl, source: &str) -> Option<InterfaceIR> {
+fn lower_interface(
+    n: &TsInterfaceDecl,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Option<InterfaceIR> {
     let name = n.id.sym.to_string();
     let span = swc_span_to_ir(n.span);
 
@@ -529,9 +567,10 @@ fn lower_interface(n: &TsInterfaceDecl, source: &str) -> Option<InterfaceIR> {
     };
 
     // Collect decorators from leading JSDoc comments
-    let decorators = collect_leading_macro_directives(source, n.span.lo.0 as usize);
+    let decorators =
+        collect_leading_macro_directives(source, n.span.lo.0 as usize, valid_annotations);
 
-    let (fields, methods) = lower_interface_members(&n.body.body, source);
+    let (fields, methods) = lower_interface_members(&n.body.body, source, valid_annotations);
 
     Some(InterfaceIR {
         name,
@@ -546,7 +585,11 @@ fn lower_interface(n: &TsInterfaceDecl, source: &str) -> Option<InterfaceIR> {
 }
 
 #[cfg(feature = "swc")]
-fn lower_enum(n: &TsEnumDecl, source: &str) -> Option<EnumIR> {
+fn lower_enum(
+    n: &TsEnumDecl,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Option<EnumIR> {
     let name = n.id.sym.to_string();
     let span = swc_span_to_ir(n.span);
 
@@ -563,10 +606,11 @@ fn lower_enum(n: &TsEnumDecl, source: &str) -> Option<EnumIR> {
     };
 
     // Collect decorators from leading JSDoc comments
-    let decorators = collect_leading_macro_directives(source, n.span.lo.0 as usize);
+    let decorators =
+        collect_leading_macro_directives(source, n.span.lo.0 as usize, valid_annotations);
 
     // Lower enum members with values
-    let variants = lower_enum_members(&n.members, source);
+    let variants = lower_enum_members(&n.members, source, valid_annotations);
 
     Some(EnumIR {
         name,
@@ -579,7 +623,11 @@ fn lower_enum(n: &TsEnumDecl, source: &str) -> Option<EnumIR> {
 }
 
 #[cfg(feature = "swc")]
-fn lower_enum_members(members: &[TsEnumMember], source: &str) -> Vec<EnumVariantIR> {
+fn lower_enum_members(
+    members: &[TsEnumMember],
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Vec<EnumVariantIR> {
     let mut variants = vec![];
     let mut next_auto_value: f64 = 0.0;
 
@@ -590,7 +638,11 @@ fn lower_enum_members(members: &[TsEnumMember], source: &str) -> Vec<EnumVariant
         };
 
         // Collect field-level decorators from JSDoc comments
-        let decorators = collect_leading_macro_directives(source, member.span.lo.0 as usize);
+        let decorators = collect_leading_macro_directives(
+            source,
+            member.span.lo.0 as usize,
+            valid_annotations,
+        );
 
         // Extract the value from the initializer
         let value = if let Some(init) = &member.init {
@@ -655,12 +707,17 @@ fn lower_enum_members(members: &[TsEnumMember], source: &str) -> Vec<EnumVariant
 }
 
 #[cfg(feature = "swc")]
-fn lower_type_alias(n: &TsTypeAliasDecl, source: &str) -> Option<TypeAliasIR> {
+fn lower_type_alias(
+    n: &TsTypeAliasDecl,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Option<TypeAliasIR> {
     let name = n.id.sym.to_string();
     let span = swc_span_to_ir(n.span);
 
     // Collect decorators from leading JSDoc comments
-    let decorators = collect_leading_macro_directives(source, n.span.lo.0 as usize);
+    let decorators =
+        collect_leading_macro_directives(source, n.span.lo.0 as usize, valid_annotations);
 
     // Extract type parameters
     let type_params = n
@@ -670,7 +727,7 @@ fn lower_type_alias(n: &TsTypeAliasDecl, source: &str) -> Option<TypeAliasIR> {
         .unwrap_or_default();
 
     // Lower the type body
-    let body = lower_type_body(&n.type_ann, source);
+    let body = lower_type_body(&n.type_ann, source, valid_annotations);
 
     Some(TypeAliasIR {
         name,
@@ -682,7 +739,11 @@ fn lower_type_alias(n: &TsTypeAliasDecl, source: &str) -> Option<TypeAliasIR> {
 }
 
 #[cfg(feature = "swc")]
-fn lower_type_body(ts_type: &TsType, source: &str) -> TypeBody {
+fn lower_type_body(
+    ts_type: &TsType,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> TypeBody {
     use swc_core::ecma::ast::TsType::*;
 
     match ts_type {
@@ -693,7 +754,7 @@ fn lower_type_body(ts_type: &TsType, source: &str) -> TypeBody {
             let members: Vec<TypeMember> = union
                 .types
                 .iter()
-                .map(|t| lower_type_member(t, source))
+                .map(|t| lower_type_member(t, source, valid_annotations))
                 .collect();
             TypeBody::Union(members)
         }
@@ -705,14 +766,14 @@ fn lower_type_body(ts_type: &TsType, source: &str) -> TypeBody {
             let members: Vec<TypeMember> = intersection
                 .types
                 .iter()
-                .map(|t| lower_type_member(t, source))
+                .map(|t| lower_type_member(t, source, valid_annotations))
                 .collect();
             TypeBody::Intersection(members)
         }
 
         // Type literal (object type): { x: number; y: number }
         TsTypeLit(lit) => {
-            let (fields, _methods) = lower_interface_members(&lit.members, source);
+            let (fields, _methods) = lower_interface_members(&lit.members, source, valid_annotations);
             TypeBody::Object { fields }
         }
 
@@ -759,12 +820,20 @@ fn lower_type_body(ts_type: &TsType, source: &str) -> TypeBody {
 }
 
 #[cfg(feature = "swc")]
-fn lower_type_member(ts_type: &TsType, source: &str) -> TypeMember {
+fn lower_type_member(
+    ts_type: &TsType,
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> TypeMember {
     use crate::abi::ir::type_alias::TypeMemberKind;
     use swc_core::ecma::ast::TsType::*;
 
     // Parse any leading JSDoc comment decorators (e.g., /** @default */)
-    let decorators = collect_leading_macro_directives(source, ts_type.span().lo.0 as usize);
+    let decorators = collect_leading_macro_directives(
+        source,
+        ts_type.span().lo.0 as usize,
+        valid_annotations,
+    );
 
     let kind = match ts_type {
         // Literal type: "active", 42, true
@@ -775,7 +844,7 @@ fn lower_type_member(ts_type: &TsType, source: &str) -> TypeMember {
 
         // Type literal (inline object): { role: string }
         TsTypeLit(lit) => {
-            let (fields, _methods) = lower_interface_members(&lit.members, source);
+            let (fields, _methods) = lower_interface_members(&lit.members, source, valid_annotations);
             TypeMemberKind::Object { fields }
         }
 
@@ -793,6 +862,7 @@ fn lower_type_member(ts_type: &TsType, source: &str) -> TypeMember {
 fn lower_interface_members(
     body: &[TsTypeElement],
     source: &str,
+    valid_annotations: Option<&HashSet<String>>,
 ) -> (Vec<InterfaceFieldIR>, Vec<InterfaceMethodIR>) {
     let mut fields = vec![];
     let mut methods = vec![];
@@ -812,7 +882,11 @@ fn lower_interface_members(
                     .unwrap_or_else(|| "any".into());
 
                 // Collect decorators from leading JSDoc comments
-                let decorators = collect_leading_macro_directives(source, prop.span.lo.0 as usize);
+                let decorators = collect_leading_macro_directives(
+                    source,
+                    prop.span.lo.0 as usize,
+                    valid_annotations,
+                );
 
                 fields.push(InterfaceFieldIR {
                     name,
@@ -839,7 +913,11 @@ fn lower_interface_members(
                     .map(|t| snippet(source, t.type_ann.span()).trim().to_string())
                     .unwrap_or_else(|| "void".into());
 
-                let decorators = collect_leading_macro_directives(source, meth.span.lo.0 as usize);
+                let decorators = collect_leading_macro_directives(
+                    source,
+                    meth.span.lo.0 as usize,
+                    valid_annotations,
+                );
 
                 methods.push(InterfaceMethodIR {
                     name,
@@ -859,7 +937,11 @@ fn lower_interface_members(
 }
 
 #[cfg(feature = "swc")]
-fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<MethodSigIR>) {
+fn lower_members(
+    body: &[ClassMember],
+    source: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> (Vec<FieldIR>, Vec<MethodSigIR>) {
     let mut fields = vec![];
     let mut methods = vec![];
 
@@ -881,6 +963,7 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                 decorators.extend(collect_leading_macro_directives(
                     source,
                     p.span.lo.0 as usize,
+                    valid_annotations,
                 ));
 
                 fields.push(FieldIR {
@@ -1003,7 +1086,11 @@ fn lower_decorators(decs: &[Decorator], source: &str) -> Vec<DecoratorIR> {
         .collect()
 }
 
-fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<DecoratorIR> {
+fn collect_leading_macro_directives(
+    source: &str,
+    target_start: usize,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Vec<DecoratorIR> {
     // target_start is 1-based (from SWC BytePos), convert to 0-based for slicing
     let target_start_0 = target_start.saturating_sub(1);
     if target_start_0 == 0 || target_start_0 > source.len() {
@@ -1058,7 +1145,7 @@ fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<De
         let directives = if is_macro_import {
             Vec::new()
         } else {
-            parse_all_macro_directives(comment_body)
+            parse_all_macro_directives(comment_body, valid_annotations)
         };
 
         for (name, args_src) in directives {
@@ -1107,19 +1194,105 @@ fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<De
 /// Also supports directives without parens: `@default` (treated as empty args)
 /// Supports multiline decorator arguments: `@overview({ ... \n ... })`
 #[cfg(feature = "swc")]
-fn parse_all_macro_directives(comment_body: &str) -> Vec<(String, String)> {
+fn parse_all_macro_directives(
+    comment_body: &str,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Vec<(String, String)> {
     let mut results = Vec::new();
 
-    // Normalize the comment body into a single string by stripping JSDoc `*` prefixes
-    // and joining lines. This allows decorator arguments to span multiple lines.
-    let normalized: String = comment_body
+    // Normalize lines: strip JSDoc `*` prefixes and whitespace. Lines starting with `@`
+    // contain directives; other lines are continuations (if inside open balanced brackets)
+    // or prose (skipped entirely). This prevents `@derive` in prose like
+    // "result from @derive(Deserialize)" from being misinterpreted as a directive.
+    let lines: Vec<&str> = comment_body
         .lines()
         .map(|line| line.trim().trim_start_matches('*').trim())
         .filter(|line| !line.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ");
+        .collect();
 
-    let mut remaining = normalized.as_str();
+    // Accumulates directive text across lines for multiline arguments
+    let mut accumulated = String::new();
+    // Track bracket depth for multiline argument continuation
+    let mut paren_depth: i32 = 0;
+    let mut brace_depth: i32 = 0;
+    let mut bracket_depth: i32 = 0;
+
+    for line in &lines {
+        let in_continuation = paren_depth > 0 || brace_depth > 0 || bracket_depth > 0;
+
+        if in_continuation {
+            // We're inside a multiline argument — accumulate this line
+            accumulated.push(' ');
+            accumulated.push_str(line);
+            for c in line.chars() {
+                match c {
+                    '(' => paren_depth += 1,
+                    ')' => paren_depth -= 1,
+                    '{' => brace_depth += 1,
+                    '}' => brace_depth -= 1,
+                    '[' => bracket_depth += 1,
+                    ']' => bracket_depth -= 1,
+                    _ => {}
+                }
+            }
+            if paren_depth <= 0 && brace_depth <= 0 && bracket_depth <= 0 {
+                // Multiline argument is complete — parse the accumulated text
+                parse_directives_from_text(&accumulated, valid_annotations, &mut results);
+                accumulated.clear();
+                paren_depth = 0;
+                brace_depth = 0;
+                bracket_depth = 0;
+            }
+            continue;
+        }
+
+        // Not in a continuation — line must start with `@` to contain directives
+        if !line.starts_with('@') {
+            continue;
+        }
+
+        // Track bracket depth to detect multiline arguments
+        for c in line.chars() {
+            match c {
+                '(' => paren_depth += 1,
+                ')' => paren_depth -= 1,
+                '{' => brace_depth += 1,
+                '}' => brace_depth -= 1,
+                '[' => bracket_depth += 1,
+                ']' => bracket_depth -= 1,
+                _ => {}
+            }
+        }
+
+        if paren_depth > 0 || brace_depth > 0 || bracket_depth > 0 {
+            // Multiline argument started — accumulate and continue to next line
+            accumulated = line.to_string();
+            continue;
+        }
+
+        // All brackets balanced on this line — parse directives immediately
+        paren_depth = 0;
+        brace_depth = 0;
+        bracket_depth = 0;
+        parse_directives_from_text(line, valid_annotations, &mut results);
+    }
+
+    // If there's leftover accumulated text (unclosed brackets), try to parse what we have
+    if !accumulated.is_empty() {
+        parse_directives_from_text(&accumulated, valid_annotations, &mut results);
+    }
+
+    results
+}
+
+/// Parse directives from a single text fragment (may contain multiple `@name(args)` directives).
+#[cfg(feature = "swc")]
+fn parse_directives_from_text(
+    text: &str,
+    valid_annotations: Option<&HashSet<String>>,
+    results: &mut Vec<(String, String)>,
+) {
+    let mut remaining = text;
     while let Some(at_idx) = remaining.find('@') {
         let after_at = &remaining[at_idx + 1..];
 
@@ -1135,6 +1308,15 @@ fn parse_all_macro_directives(comment_body: &str) -> Vec<(String, String)> {
         }
 
         let name = &after_at[..name_end];
+
+        // If an allowlist is provided, skip annotations not in it
+        if let Some(valid) = valid_annotations {
+            if !valid.contains(&name.to_ascii_lowercase()) {
+                remaining = &remaining[at_idx + 1 + name_end..];
+                continue;
+            }
+        }
+
         let after_name = &after_at[name_end..];
 
         // Check if there's an opening paren
@@ -1209,8 +1391,6 @@ fn parse_all_macro_directives(comment_body: &str) -> Vec<(String, String)> {
             }
         }
     }
-
-    results
 }
 
 fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
@@ -1485,7 +1665,11 @@ fn adjust_method_span(
 }
 
 #[cfg(not(feature = "swc"))]
-pub fn lower_classes(_module: &(), _source: &str) -> Result<Vec<ClassIR>, TsSynError> {
+pub fn lower_classes(
+    _module: &(),
+    _source: &str,
+    _valid_annotations: Option<&HashSet<String>>,
+) -> Result<Vec<ClassIR>, TsSynError> {
     Err(TsSynError::Unsupported("swc feature disabled".into()))
 }
 
@@ -1505,7 +1689,7 @@ mod tests {
             let source =
                 "class User { getName(prefix: string, suffix: string): string { return ''; } }";
             let module = parse_module(source);
-            let classes = lower_classes(&module, source).expect("lowering to succeed");
+            let classes = lower_classes(&module, source, None).expect("lowering to succeed");
             let class = classes.first().expect("class");
             let method = class
                 .methods
@@ -1526,7 +1710,7 @@ mod tests {
             let source =
                 "class User { public static async getUser(): Promise<User> { return null!; } }";
             let module = parse_module(source);
-            let classes = lower_classes(&module, source).expect("lowering to succeed");
+            let classes = lower_classes(&module, source, None).expect("lowering to succeed");
             let class = classes.first().expect("class");
             let method = class.methods.first().expect("method");
 
@@ -1572,7 +1756,7 @@ mod tests {
             }
             "#;
             let module = parse_module(source);
-            let classes = lower_classes(&module, source).expect("lowering to succeed");
+            let classes = lower_classes(&module, source, None).expect("lowering to succeed");
             let first = classes.first().expect("class");
             let field = first.fields.first().expect("field");
             let decorator = field.decorators.first().expect("decorator");
@@ -1593,7 +1777,7 @@ mod tests {
             class User {}
             "#;
             let module = parse_module(source);
-            let classes = lower_classes(&module, source).expect("lowering to succeed");
+            let classes = lower_classes(&module, source, None).expect("lowering to succeed");
             let class = classes.first().expect("class");
             let decorator = class.decorators.first().expect("decorator");
             let snippet =
@@ -1620,7 +1804,7 @@ mod tests {
     #[test]
     fn parse_all_macro_directives_single_line() {
         let comment_body = " @derive(Default, Deserialize) ";
-        let directives = parse_all_macro_directives(comment_body);
+        let directives = parse_all_macro_directives(comment_body, None);
         assert_eq!(directives.len(), 1);
         assert_eq!(directives[0].0, "Derive");
         assert_eq!(directives[0].1, "Default, Deserialize");
@@ -1633,7 +1817,7 @@ mod tests {
          * @derive(Default, Deserialize)
          * @default(Created.defaultValue())
          "#;
-        let directives = parse_all_macro_directives(comment_body);
+        let directives = parse_all_macro_directives(comment_body, None);
         assert_eq!(
             directives.len(),
             2,
@@ -1650,7 +1834,7 @@ mod tests {
     #[test]
     fn parse_all_macro_directives_same_line() {
         let comment_body = " @derive(Default) @default(Foo.defaultValue()) ";
-        let directives = parse_all_macro_directives(comment_body);
+        let directives = parse_all_macro_directives(comment_body, None);
         // Should parse both directives on the same line
         assert_eq!(
             directives.len(),
@@ -1677,7 +1861,7 @@ export interface PhoneNumber {
     number: string;
 }"#;
             let module = parse_module(source);
-            let interfaces = lower_interfaces(&module, source).expect("lowering to succeed");
+            let interfaces = lower_interfaces(&module, source, None).expect("lowering to succeed");
             let iface = interfaces.first().expect("interface");
 
             // Should have exactly 1 decorator: Derive
@@ -1712,7 +1896,7 @@ export interface PhoneNumber {
  */
 export type Interval = DailyRecurrenceRule | WeeklyRecurrenceRule;"#;
             let module = parse_module(source);
-            let type_aliases = lower_type_aliases(&module, source).expect("lowering to succeed");
+            let type_aliases = lower_type_aliases(&module, source, None).expect("lowering to succeed");
             let alias = type_aliases.first().expect("type alias");
 
             assert_eq!(alias.name, "Interval");
@@ -1750,7 +1934,7 @@ export type UnionWithDefault =
   | /** @default */ VariantA
   | VariantB;"#;
             let module = parse_module(source);
-            let type_aliases = lower_type_aliases(&module, source).expect("lowering to succeed");
+            let type_aliases = lower_type_aliases(&module, source, None).expect("lowering to succeed");
             let alias = type_aliases.first().expect("type alias");
 
             assert_eq!(alias.name, "UnionWithDefault");
@@ -1796,7 +1980,7 @@ interface UserProfile {
 }
 "#;
             let module = parse_module(source);
-            let interfaces = lower_interfaces(&module, source).expect("lowering to succeed");
+            let interfaces = lower_interfaces(&module, source, None).expect("lowering to succeed");
             let iface = interfaces.first().expect("interface");
 
             assert_eq!(iface.name, "UserProfile");
@@ -1844,7 +2028,7 @@ type ContactInfo = {
 };
 "#;
             let module = parse_module(source);
-            let type_aliases = lower_type_aliases(&module, source).expect("lowering to succeed");
+            let type_aliases = lower_type_aliases(&module, source, None).expect("lowering to succeed");
             let alias = type_aliases.first().expect("type alias");
 
             assert_eq!(alias.name, "ContactInfo");

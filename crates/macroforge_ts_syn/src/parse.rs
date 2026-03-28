@@ -26,7 +26,7 @@
 //!     let module = parse_ts_module(source, "input.ts")?;
 //!
 //!     // Now you can use the module with lowering functions
-//!     let _classes = lower_classes(&module, source)?;
+//!     let _classes = lower_classes(&module, source, None)?;
 //!     Ok(())
 //! }
 //! ```
@@ -99,10 +99,10 @@ use crate::TsSynError;
 /// fn example() -> Result<(), TsSynError> {
 ///     let source = "class User {}";
 ///     let module = parse_ts_module(source, "input.ts")?;
-///     let _classes = lower_classes(&module, source)?;
-///     let _interfaces = lower_interfaces(&module, source)?;
-///     let _enums = lower_enums(&module, source)?;
-///     let _type_aliases = lower_type_aliases(&module, source)?;
+///     let _classes = lower_classes(&module, source, None)?;
+///     let _interfaces = lower_interfaces(&module, source, None)?;
+///     let _enums = lower_enums(&module, source, None)?;
+///     let _type_aliases = lower_type_aliases(&module, source, None)?;
 ///     Ok(())
 /// }
 /// ```
