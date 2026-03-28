@@ -26,6 +26,7 @@
  * @packageDocumentation
  */
 
+import { hasMacroAnnotations } from "@macroforge/shared";
 import type { Preprocessor, PreprocessorGroup } from "svelte/compiler";
 
 /**
@@ -335,7 +336,7 @@ export function macroforgePreprocess(
      * Most components won't have macros, so this saves the cost of loading
      * and calling the native expansion engine in the common case.
      */
-    if (!content.includes("@derive")) {
+    if (!hasMacroAnnotations(content)) {
       return;
     }
 
