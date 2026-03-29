@@ -32,10 +32,7 @@ export class GreaterThanBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanBigIntValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = GreaterThanBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -214,9 +211,7 @@ export function greaterThanBigIntValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function greaterThanBigIntValidatorIs(
-    value: unknown
-): value is GreaterThanBigIntValidator {
+export function greaterThanBigIntValidatorIs(value: unknown): value is GreaterThanBigIntValidator {
     return GreaterThanBigIntValidator.is(value);
 }
 
@@ -246,11 +241,10 @@ export class GreaterThanOrEqualToBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanOrEqualToBigIntValidator
-                .deserializeWithContext(
-                    data,
-                    ctx
-                );
+            const resultOrRef = GreaterThanOrEqualToBigIntValidator.deserializeWithContext(
+                data,
+                ctx
+            );
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -372,9 +366,7 @@ export class GreaterThanOrEqualToBigIntValidator {
         return errors;
     }
 
-    static validateFields(
-        _partial: Partial<GreaterThanOrEqualToBigIntValidator>
-    ): Array<{
+    static validateFields(_partial: Partial<GreaterThanOrEqualToBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -467,10 +459,7 @@ export class LessThanBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LessThanBigIntValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = LessThanBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -649,9 +638,7 @@ export function lessThanBigIntValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lessThanBigIntValidatorIs(
-    value: unknown
-): value is LessThanBigIntValidator {
+export function lessThanBigIntValidatorIs(value: unknown): value is LessThanBigIntValidator {
     return LessThanBigIntValidator.is(value);
 }
 
@@ -681,8 +668,7 @@ export class LessThanOrEqualToBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LessThanOrEqualToBigIntValidator
-                .deserializeWithContext(data, ctx);
+            const resultOrRef = LessThanOrEqualToBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -804,9 +790,7 @@ export class LessThanOrEqualToBigIntValidator {
         return errors;
     }
 
-    static validateFields(
-        _partial: Partial<LessThanOrEqualToBigIntValidator>
-    ): Array<{
+    static validateFields(_partial: Partial<LessThanOrEqualToBigIntValidator>): Array<{
         field: string;
         message: string;
     }> {
@@ -899,10 +883,7 @@ export class BetweenBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = BetweenBigIntValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = BetweenBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -977,9 +958,7 @@ export class BetweenBigIntValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            BetweenBigIntValidator.prototype
-        ) as BetweenBigIntValidator;
+        const instance = Object.create(BetweenBigIntValidator.prototype) as BetweenBigIntValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1081,9 +1060,7 @@ export function betweenBigIntValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function betweenBigIntValidatorIs(
-    value: unknown
-): value is BetweenBigIntValidator {
+export function betweenBigIntValidatorIs(value: unknown): value is BetweenBigIntValidator {
     return BetweenBigIntValidator.is(value);
 }
 
@@ -1113,10 +1090,7 @@ export class PositiveBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = PositiveBigIntValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = PositiveBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1295,9 +1269,7 @@ export function positiveBigIntValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function positiveBigIntValidatorIs(
-    value: unknown
-): value is PositiveBigIntValidator {
+export function positiveBigIntValidatorIs(value: unknown): value is PositiveBigIntValidator {
     return PositiveBigIntValidator.is(value);
 }
 
@@ -1327,10 +1299,7 @@ export class NonNegativeBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonNegativeBigIntValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = NonNegativeBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1509,9 +1478,7 @@ export function nonNegativeBigIntValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonNegativeBigIntValidatorIs(
-    value: unknown
-): value is NonNegativeBigIntValidator {
+export function nonNegativeBigIntValidatorIs(value: unknown): value is NonNegativeBigIntValidator {
     return NonNegativeBigIntValidator.is(value);
 }
 
@@ -1541,10 +1508,7 @@ export class NegativeBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NegativeBigIntValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = NegativeBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1723,9 +1687,7 @@ export function negativeBigIntValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function negativeBigIntValidatorIs(
-    value: unknown
-): value is NegativeBigIntValidator {
+export function negativeBigIntValidatorIs(value: unknown): value is NegativeBigIntValidator {
     return NegativeBigIntValidator.is(value);
 }
 
@@ -1755,10 +1717,7 @@ export class NonPositiveBigIntValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonPositiveBigIntValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = NonPositiveBigIntValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1937,8 +1896,6 @@ export function nonPositiveBigIntValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonPositiveBigIntValidatorIs(
-    value: unknown
-): value is NonPositiveBigIntValidator {
+export function nonPositiveBigIntValidatorIs(value: unknown): value is NonPositiveBigIntValidator {
     return NonPositiveBigIntValidator.is(value);
 }

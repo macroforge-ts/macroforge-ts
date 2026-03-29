@@ -67,11 +67,14 @@ pub fn run(args: ManifestArgs) -> Result<()> {
 
         crate::cli::ManifestCommands::SwapLocal => {
             manifests::swap_local(&config)?;
+            let all_repos: Vec<&str> = config.repos.keys().map(|s| s.as_str()).collect();
+            manifests::swap_npm_local(&config, &all_repos)?;
             format::success("Swapped to local dependencies");
         }
 
         crate::cli::ManifestCommands::SwapRegistry => {
             manifests::swap_registry(&config, &versions)?;
+            manifests::swap_npm_registry(&config, &versions)?;
             format::success("Swapped to registry dependencies");
         }
 

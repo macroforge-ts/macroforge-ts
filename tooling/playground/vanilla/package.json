@@ -7,7 +7,8 @@
         "dev": "node --env-file=../../.env ./node_modules/.bin/vite",
         "build": "node --env-file=../../.env ./node_modules/.bin/vite build",
         "preview": "node --env-file=../../.env ./node_modules/.bin/vite preview",
-        "clean": "rm -rf node_modules"
+        "clean": "rm -rf dist node_modules",
+        "cleanbuild": "deno task clean && deno install --node-modules-dir && deno task build"
     },
     "dependencies": {
         "@playground/macro": "file:../macro",

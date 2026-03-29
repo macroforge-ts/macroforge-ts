@@ -333,10 +333,7 @@ export class UrlValidator {
         return instance;
     }
 
-    static validateField<K extends keyof UrlValidator>(
-        _field: K,
-        _value: UrlValidator[K]
-    ): Array<{
+    static validateField<K extends keyof UrlValidator>(_field: K, _value: UrlValidator[K]): Array<{
         field: string;
         message: string;
     }> {
@@ -527,11 +524,7 @@ export class UuidValidator {
         ctx.trackForFreeze(instance);
         {
             const __raw_id = obj['id'] as string;
-            if (
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    __raw_id
-                )
-            ) {
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__raw_id)) {
                 errors.push({
                     field: 'id',
                     message: 'UuidValidator.id must be a valid UUID'
@@ -556,11 +549,7 @@ export class UuidValidator {
         }> = [];
         if (_field === 'id') {
             const __val = _value as string;
-            if (
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    __val
-                )
-            ) {
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) {
                 errors.push({
                     field: 'id',
                     message: 'UuidValidator.id must be a valid UUID'
@@ -580,11 +569,7 @@ export class UuidValidator {
         }> = [];
         if ('id' in _partial && _partial.id !== undefined) {
             const __val = _partial.id as string;
-            if (
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    __val
-                )
-            ) {
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__val)) {
                 errors.push({
                     field: 'id',
                     message: 'UuidValidator.id must be a valid UUID'
@@ -739,9 +724,7 @@ export class MaxLengthValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            MaxLengthValidator.prototype
-        ) as MaxLengthValidator;
+        const instance = Object.create(MaxLengthValidator.prototype) as MaxLengthValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -843,9 +826,7 @@ export function maxLengthValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function maxLengthValidatorIs(
-    value: unknown
-): value is MaxLengthValidator {
+export function maxLengthValidatorIs(value: unknown): value is MaxLengthValidator {
     return MaxLengthValidator.is(value);
 }
 
@@ -950,9 +931,7 @@ export class MinLengthValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            MinLengthValidator.prototype
-        ) as MinLengthValidator;
+        const instance = Object.create(MinLengthValidator.prototype) as MinLengthValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1054,9 +1033,7 @@ export function minLengthValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function minLengthValidatorIs(
-    value: unknown
-): value is MinLengthValidator {
+export function minLengthValidatorIs(value: unknown): value is MinLengthValidator {
     return MinLengthValidator.is(value);
 }
 
@@ -1161,9 +1138,7 @@ export class LengthValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            LengthValidator.prototype
-        ) as LengthValidator;
+        const instance = Object.create(LengthValidator.prototype) as LengthValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1295,10 +1270,7 @@ export class LengthRangeValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LengthRangeValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = LengthRangeValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -1373,9 +1345,7 @@ export class LengthRangeValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            LengthRangeValidator.prototype
-        ) as LengthRangeValidator;
+        const instance = Object.create(LengthRangeValidator.prototype) as LengthRangeValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1477,9 +1447,7 @@ export function lengthRangeValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lengthRangeValidatorIs(
-    value: unknown
-): value is LengthRangeValidator {
+export function lengthRangeValidatorIs(value: unknown): value is LengthRangeValidator {
     return LengthRangeValidator.is(value);
 }
 
@@ -1584,9 +1552,7 @@ export class PatternValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            PatternValidator.prototype
-        ) as PatternValidator;
+        const instance = Object.create(PatternValidator.prototype) as PatternValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1793,9 +1759,7 @@ export class NonEmptyValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            NonEmptyValidator.prototype
-        ) as NonEmptyValidator;
+        const instance = Object.create(NonEmptyValidator.prototype) as NonEmptyValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -1897,9 +1861,7 @@ export function nonEmptyValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonEmptyValidatorIs(
-    value: unknown
-): value is NonEmptyValidator {
+export function nonEmptyValidatorIs(value: unknown): value is NonEmptyValidator {
     return NonEmptyValidator.is(value);
 }
 
@@ -2004,9 +1966,7 @@ export class TrimmedValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            TrimmedValidator.prototype
-        ) as TrimmedValidator;
+        const instance = Object.create(TrimmedValidator.prototype) as TrimmedValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2213,9 +2173,7 @@ export class LowercaseValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            LowercaseValidator.prototype
-        ) as LowercaseValidator;
+        const instance = Object.create(LowercaseValidator.prototype) as LowercaseValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2317,9 +2275,7 @@ export function lowercaseValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lowercaseValidatorIs(
-    value: unknown
-): value is LowercaseValidator {
+export function lowercaseValidatorIs(value: unknown): value is LowercaseValidator {
     return LowercaseValidator.is(value);
 }
 
@@ -2424,9 +2380,7 @@ export class UppercaseValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            UppercaseValidator.prototype
-        ) as UppercaseValidator;
+        const instance = Object.create(UppercaseValidator.prototype) as UppercaseValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2528,9 +2482,7 @@ export function uppercaseValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function uppercaseValidatorIs(
-    value: unknown
-): value is UppercaseValidator {
+export function uppercaseValidatorIs(value: unknown): value is UppercaseValidator {
     return UppercaseValidator.is(value);
 }
 
@@ -2560,10 +2512,7 @@ export class CapitalizedValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CapitalizedValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = CapitalizedValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -2638,9 +2587,7 @@ export class CapitalizedValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            CapitalizedValidator.prototype
-        ) as CapitalizedValidator;
+        const instance = Object.create(CapitalizedValidator.prototype) as CapitalizedValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -2751,9 +2698,7 @@ export function capitalizedValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function capitalizedValidatorIs(
-    value: unknown
-): value is CapitalizedValidator {
+export function capitalizedValidatorIs(value: unknown): value is CapitalizedValidator {
     return CapitalizedValidator.is(value);
 }
 
@@ -2783,10 +2728,7 @@ export class UncapitalizedValidator {
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = UncapitalizedValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = UncapitalizedValidator.deserializeWithContext(data, ctx);
             if (__mf_PendingRef.is(resultOrRef)) {
                 return {
                     success: false,
@@ -2861,19 +2803,14 @@ export class UncapitalizedValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            UncapitalizedValidator.prototype
-        ) as UncapitalizedValidator;
+        const instance = Object.create(UncapitalizedValidator.prototype) as UncapitalizedValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
         {
             const __raw_uncap = obj['uncap'] as string;
-            if (
-                __raw_uncap.length > 0 &&
-                __raw_uncap[0] !== __raw_uncap[0].toLowerCase()
-            ) {
+            if (__raw_uncap.length > 0 && __raw_uncap[0] !== __raw_uncap[0].toLowerCase()) {
                 errors.push({
                     field: 'uncap',
                     message: 'UncapitalizedValidator.uncap must be uncapitalized'
@@ -2968,9 +2905,7 @@ export function uncapitalizedValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function uncapitalizedValidatorIs(
-    value: unknown
-): value is UncapitalizedValidator {
+export function uncapitalizedValidatorIs(value: unknown): value is UncapitalizedValidator {
     return UncapitalizedValidator.is(value);
 }
 
@@ -3075,9 +3010,7 @@ export class StartsWithValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            StartsWithValidator.prototype
-        ) as StartsWithValidator;
+        const instance = Object.create(StartsWithValidator.prototype) as StartsWithValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -3179,9 +3112,7 @@ export function startsWithValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function startsWithValidatorIs(
-    value: unknown
-): value is StartsWithValidator {
+export function startsWithValidatorIs(value: unknown): value is StartsWithValidator {
     return StartsWithValidator.is(value);
 }
 
@@ -3286,9 +3217,7 @@ export class EndsWithValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            EndsWithValidator.prototype
-        ) as EndsWithValidator;
+        const instance = Object.create(EndsWithValidator.prototype) as EndsWithValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -3390,9 +3319,7 @@ export function endsWithValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function endsWithValidatorIs(
-    value: unknown
-): value is EndsWithValidator {
+export function endsWithValidatorIs(value: unknown): value is EndsWithValidator {
     return EndsWithValidator.is(value);
 }
 
@@ -3497,9 +3424,7 @@ export class IncludesValidator {
                 message: 'missing required field'
             });
         }
-        const instance = Object.create(
-            IncludesValidator.prototype
-        ) as IncludesValidator;
+        const instance = Object.create(IncludesValidator.prototype) as IncludesValidator;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
@@ -3601,8 +3526,6 @@ export function includesValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function includesValidatorIs(
-    value: unknown
-): value is IncludesValidator {
+export function includesValidatorIs(value: unknown): value is IncludesValidator {
     return IncludesValidator.is(value);
 }
