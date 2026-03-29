@@ -1,28 +1,31 @@
 FROM ubuntu:24.04
 
-# Install Node.js 24 and build dependencies
+# Install Deno and build dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     python3 \
     make \
     g++ \
-    && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
-    && apt-get install -y nodejs \
+    unzip \
+    && curl -fsSL https://deno.land/install.sh | sh \
     && rm -rf /var/lib/apt/lists/*
+
+ENV DENO_DIR="/root/.deno"
+ENV PATH="/root/.deno/bin:$PATH"
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files and lockfile
+COPY package.json deno.lock ./
 
 # Install dependencies
-RUN npm ci
+RUN deno install --node-modules-dir
 
 # Copy the rest of the app
 COPY . .
 
 # Build the app
-RUN npm run build
+RUN deno task build
 
 # Expose port
 EXPOSE 3000
