@@ -467,7 +467,8 @@ export interface PhoneNumber {
             let module = crate::ts_syn::parse::parse_ts_module(source, "phone-number.svelte.ts")
                 .expect("parse failed");
 
-            let interfaces = crate::ts_syn::lower_interfaces(&module, source, None).unwrap_or_default();
+            let interfaces =
+                crate::ts_syn::lower_interfaces(&module, source, None).unwrap_or_default();
             assert_eq!(interfaces.len(), 1, "Should find one interface");
 
             let iface = &interfaces[0];
