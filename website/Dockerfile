@@ -30,10 +30,5 @@ RUN deno task build
 # Expose port
 EXPOSE 3000
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV HOST=0.0.0.0
-
-# Run the app
-CMD ["node", "build"]
+# Serve static files
+CMD ["deno", "run", "--allow-net", "--allow-read", "jsr:@std/http@1/file-server", "build/", "--port", "3000"]
