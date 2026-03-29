@@ -128,10 +128,7 @@ pub fn generate_all_to(root: &Path, out_root: &Path) -> Result<()> {
 // ── Rust README generation ──────────────────────────────────────────────────
 
 fn generate_rust_readme(root: &Path, crate_name: &str) -> Result<String> {
-    let json_path = root.join(format!(
-        "website/static/api-data/rust/{}.json",
-        crate_name
-    ));
+    let json_path = root.join(format!("website/static/api-data/rust/{}.json", crate_name));
 
     let mut out = String::new();
 
@@ -198,7 +195,11 @@ fn generate_rust_readme(root: &Path, crate_name: &str) -> Result<String> {
     ));
 
     // Key Exports grouped by kind
-    if let Some(items) = doc.as_ref().and_then(|d| d.get("items")).and_then(|v| v.as_array()) {
+    if let Some(items) = doc
+        .as_ref()
+        .and_then(|d| d.get("items"))
+        .and_then(|v| v.as_array())
+    {
         let groups = group_items_by_kind(items);
         if !groups.is_empty() {
             out.push_str("## Key Exports\n\n");
@@ -304,41 +305,37 @@ fn generate_ts_readme(
 
     // Installation
     out.push_str("## Installation\n\n");
-    out.push_str(&format!(
-        "```bash\nnpm install {}\n```\n\n",
-        npm_name
-    ));
+    out.push_str(&format!("```bash\nnpm install {}\n```\n\n", npm_name));
 
     // API section — exports grouped by kind
     if let Some(exports) = doc
         .as_ref()
         .and_then(|d| d.get("exports"))
         .and_then(|v| v.as_array())
+        && !exports.is_empty()
     {
-        if !exports.is_empty() {
-            let groups = group_exports_by_kind(exports);
-            if !groups.is_empty() {
-                out.push_str("## API\n\n");
-                for (kind_label, entries) in &groups {
-                    out.push_str(&format!("### {}\n\n", kind_label));
-                    for entry in entries {
-                        let desc_short = first_sentence(&entry.1);
-                        if desc_short.is_empty() {
-                            out.push_str(&format!("- **`{}`**\n", entry.0));
-                        } else {
-                            out.push_str(&format!("- **`{}`** - {}\n", entry.0, desc_short));
-                        }
+        let groups = group_exports_by_kind(exports);
+        if !groups.is_empty() {
+            out.push_str("## API\n\n");
+            for (kind_label, entries) in &groups {
+                out.push_str(&format!("### {}\n\n", kind_label));
+                for entry in entries {
+                    let desc_short = first_sentence(&entry.1);
+                    if desc_short.is_empty() {
+                        out.push_str(&format!("- **`{}`**\n", entry.0));
+                    } else {
+                        out.push_str(&format!("- **`{}`** - {}\n", entry.0, desc_short));
                     }
-                    out.push('\n');
                 }
+                out.push('\n');
             }
+        }
 
-            // First code example from exports
-            if let Some(example) = find_first_ts_code_example(exports) {
-                out.push_str("## Examples\n\n");
-                out.push_str(&example);
-                out.push_str("\n\n");
-            }
+        // First code example from exports
+        if let Some(example) = find_first_ts_code_example(exports) {
+            out.push_str("## Examples\n\n");
+            out.push_str(&example);
+            out.push_str("\n\n");
         }
     }
 
@@ -375,10 +372,7 @@ fn group_items_by_kind(items: &[serde_json::Value]) -> Vec<(String, Vec<(String,
         std::collections::HashMap::new();
 
     for item in items {
-        let kind = item
-            .get("kind")
-            .and_then(|v| v.as_str())
-            .unwrap_or("other");
+        let kind = item.get("kind").and_then(|v| v.as_str()).unwrap_or("other");
         let name = item
             .get("name")
             .and_then(|v| v.as_str())
@@ -397,11 +391,11 @@ fn group_items_by_kind(items: &[serde_json::Value]) -> Vec<(String, Vec<(String,
 
     let mut result = Vec::new();
     for kind in &kind_order {
-        if let Some(entries) = buckets.remove(*kind) {
-            if !entries.is_empty() {
-                let label = kind_labels.get(kind).unwrap_or(kind);
-                result.push((label.to_string(), entries));
-            }
+        if let Some(entries) = buckets.remove(*kind)
+            && !entries.is_empty()
+        {
+            let label = kind_labels.get(kind).unwrap_or(kind);
+            result.push((label.to_string(), entries));
         }
     }
     // Any remaining kinds
@@ -433,10 +427,7 @@ fn group_exports_by_kind(exports: &[serde_json::Value]) -> Vec<(String, Vec<(Str
         std::collections::HashMap::new();
 
     for exp in exports {
-        let kind = exp
-            .get("kind")
-            .and_then(|v| v.as_str())
-            .unwrap_or("other");
+        let kind = exp.get("kind").and_then(|v| v.as_str()).unwrap_or("other");
         let name = exp
             .get("name")
             .and_then(|v| v.as_str())
@@ -455,11 +446,11 @@ fn group_exports_by_kind(exports: &[serde_json::Value]) -> Vec<(String, Vec<(Str
 
     let mut result = Vec::new();
     for kind in &kind_order {
-        if let Some(entries) = buckets.remove(*kind) {
-            if !entries.is_empty() {
-                let label = kind_labels.get(kind).unwrap_or(kind);
-                result.push((label.to_string(), entries));
-            }
+        if let Some(entries) = buckets.remove(*kind)
+            && !entries.is_empty()
+        {
+            let label = kind_labels.get(kind).unwrap_or(kind);
+            result.push((label.to_string(), entries));
         }
     }
     let mut remaining: Vec<_> = buckets.into_iter().filter(|(_, v)| !v.is_empty()).collect();
@@ -543,11 +534,11 @@ fn strip_leading_line_if_matches<'a>(text: &'a str, line_to_strip: &str) -> &'a 
         return text;
     }
     let trimmed = text.trim_start();
-    if let Some(first_line) = trimmed.lines().next() {
-        if first_line.trim() == line_to_strip.trim() {
-            let after = &trimmed[first_line.len()..];
-            return after.trim_start_matches('\n');
-        }
+    if let Some(first_line) = trimmed.lines().next()
+        && first_line.trim() == line_to_strip.trim()
+    {
+        let after = &trimmed[first_line.len()..];
+        return after.trim_start_matches('\n');
     }
     text
 }

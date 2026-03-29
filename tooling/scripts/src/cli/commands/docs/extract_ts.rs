@@ -14,7 +14,7 @@ use swc_core::common::input::StringInput;
 use swc_core::common::source_map::SmallPos;
 use swc_core::common::{FileName, SourceMap, Span, Spanned};
 use swc_core::ecma::ast::*;
-use swc_core::ecma::parser::{lexer::Lexer, Parser, Syntax, TsSyntax};
+use swc_core::ecma::parser::{Parser, Syntax, TsSyntax, lexer::Lexer};
 
 /// TypeScript package documentation
 #[derive(Debug, Serialize, Deserialize)]
@@ -189,8 +189,7 @@ fn extract_package_docs(pkg_dir: &Path, pkg_name: &str) -> Result<PackageDoc> {
     for source_path in &source_paths {
         if source_path.exists() {
             if let Ok(source) = fs::read_to_string(source_path) {
-                let mut file_exports =
-                    extract_exports_swc(&source, source_path, pkg_dir)?;
+                let mut file_exports = extract_exports_swc(&source, source_path, pkg_dir)?;
                 exports.append(&mut file_exports);
             }
             break;
@@ -198,21 +197,20 @@ fn extract_package_docs(pkg_dir: &Path, pkg_name: &str) -> Result<PackageDoc> {
     }
 
     // If the main entry is a barrel file with re-exports, also parse the referenced files
-    if let Some(first_path) = source_paths.iter().find(|p| p.exists()) {
-        if let Ok(source) = fs::read_to_string(first_path) {
-            let re_export_files = find_reexport_sources(&source, first_path);
-            for re_path in re_export_files {
-                if re_path.exists() {
-                    if let Ok(re_source) = fs::read_to_string(&re_path) {
-                        let mut re_exports =
-                            extract_exports_swc(&re_source, &re_path, pkg_dir)
-                                .unwrap_or_default();
-                        // Only add exports not already present (avoid duplicates from barrel)
-                        for exp in re_exports.drain(..) {
-                            if !exports.iter().any(|e| e.name == exp.name) {
-                                exports.push(exp);
-                            }
-                        }
+    if let Some(first_path) = source_paths.iter().find(|p| p.exists())
+        && let Ok(source) = fs::read_to_string(first_path)
+    {
+        let re_export_files = find_reexport_sources(&source, first_path);
+        for re_path in re_export_files {
+            if re_path.exists()
+                && let Ok(re_source) = fs::read_to_string(&re_path)
+            {
+                let mut re_exports =
+                    extract_exports_swc(&re_source, &re_path, pkg_dir).unwrap_or_default();
+                // Only add exports not already present (avoid duplicates from barrel)
+                for exp in re_exports.drain(..) {
+                    if !exports.iter().any(|e| e.name == exp.name) {
+                        exports.push(exp);
                     }
                 }
             }
@@ -256,11 +254,7 @@ fn find_reexport_sources(source: &str, entry_path: &Path) -> Vec<PathBuf> {
 }
 
 /// Parse a TypeScript source file with SWC and extract exported declarations
-fn extract_exports_swc(
-    source: &str,
-    file_path: &Path,
-    _pkg_dir: &Path,
-) -> Result<Vec<ExportDoc>> {
+fn extract_exports_swc(source: &str, file_path: &Path, _pkg_dir: &Path) -> Result<Vec<ExportDoc>> {
     let cm = SourceMap::default();
     let comments = SingleThreadedComments::default();
 
@@ -271,9 +265,7 @@ fn extract_exports_swc(
 
     let lexer = Lexer::new(
         Syntax::Typescript(TsSyntax {
-            tsx: file_path
-                .extension()
-                .is_some_and(|e| e == "tsx"),
+            tsx: file_path.extension().is_some_and(|e| e == "tsx"),
             decorators: true,
             ..Default::default()
         }),
@@ -304,9 +296,7 @@ fn extract_exports_swc(
             // export default function foo() { ... }
             // export default class Foo { ... }
             ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultDecl(default_decl)) => {
-                if let Some(exp) =
-                    extract_from_default_decl(default_decl, source, &comments)
-                {
+                if let Some(exp) = extract_from_default_decl(default_decl, source, &comments) {
                     exports.push(exp);
                 }
             }
@@ -739,11 +729,7 @@ fn format_fn_type(func: &Function, source: &str) -> String {
 // ---------------------------------------------------------------------------
 
 /// Get the leading JSDoc comment for a span and parse it
-fn get_leading_jsdoc(
-    span: Span,
-    _source: &str,
-    comments: &SingleThreadedComments,
-) -> JsDoc {
+fn get_leading_jsdoc(span: Span, _source: &str, comments: &SingleThreadedComments) -> JsDoc {
     let leading = comments.get_leading(span.lo);
     if let Some(leading) = leading {
         // Find the last block comment (JSDoc) before this node
@@ -771,13 +757,18 @@ fn parse_jsdoc(text: &str) -> JsDoc {
 
         // Handle example code blocks
         if in_example {
-            if trimmed.starts_with("```") && example_lines.iter().any(|l: &String| l.contains("```")) {
+            if trimmed.starts_with("```")
+                && example_lines.iter().any(|l: &String| l.contains("```"))
+            {
                 example_lines.push(trimmed.to_string());
                 doc.examples.push(example_lines.join("\n"));
                 example_lines.clear();
                 in_example = false;
                 current_tag = None;
-            } else if trimmed.starts_with('@') && !trimmed.starts_with("@derive") && !in_code_fence(&example_lines) {
+            } else if trimmed.starts_with('@')
+                && !trimmed.starts_with("@derive")
+                && !in_code_fence(&example_lines)
+            {
                 // New tag encountered, close example without closing fence
                 doc.examples.push(example_lines.join("\n"));
                 example_lines.clear();
@@ -958,13 +949,13 @@ fn parse_param_tag(text: &str) -> (String, String, String) {
     let text = text.trim();
 
     // Check for `{Type} name - desc` format
-    if text.starts_with('{') {
-        if let Some(close) = text.find('}') {
-            let param_type = text[1..close].trim().to_string();
-            let rest = text[close + 1..].trim();
-            let (name, desc) = split_name_desc(rest);
-            return (name, param_type, desc);
-        }
+    if text.starts_with('{')
+        && let Some(close) = text.find('}')
+    {
+        let param_type = text[1..close].trim().to_string();
+        let rest = text[close + 1..].trim();
+        let (name, desc) = split_name_desc(rest);
+        return (name, param_type, desc);
     }
 
     // Simple `name - desc` or `name desc` format
@@ -1005,9 +996,5 @@ fn span_text(span: Span, source: &str) -> String {
 
 /// Convert a vec to Option<Vec>, returning None if empty
 fn nonempty_vec<T>(v: Vec<T>) -> Option<Vec<T>> {
-    if v.is_empty() {
-        None
-    } else {
-        Some(v)
-    }
+    if v.is_empty() { None } else { Some(v) }
 }

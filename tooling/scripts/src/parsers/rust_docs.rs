@@ -105,9 +105,17 @@ fn extract_doc_from_attrs(attrs: &[Attribute]) -> String {
     doc_lines.join("\n")
 }
 
+/// Parsed doc sections: (description, params, returns, examples)
+type DocSections = (
+    String,
+    Option<Vec<ParamDoc>>,
+    Option<ReturnDoc>,
+    Option<Vec<String>>,
+);
+
 /// Split a doc string at the first `# Section` header.
 /// Returns (description, params, returns, examples) parsed from the sections.
-fn parse_doc_sections(doc: &str) -> (String, Option<Vec<ParamDoc>>, Option<ReturnDoc>, Option<Vec<String>>) {
+fn parse_doc_sections(doc: &str) -> DocSections {
     let mut description_lines = Vec::new();
     let mut current_section: Option<String> = None;
     let mut current_content = Vec::new();
@@ -122,7 +130,14 @@ fn parse_doc_sections(doc: &str) -> (String, Option<Vec<ParamDoc>>, Option<Retur
         if let Some(caps) = section_re.captures(line) {
             // Save previous section
             if let Some(ref section) = current_section {
-                save_section(section, &current_content, &param_re, &mut params, &mut returns, &mut examples);
+                save_section(
+                    section,
+                    &current_content,
+                    &param_re,
+                    &mut params,
+                    &mut returns,
+                    &mut examples,
+                );
             }
             current_section = Some(caps.get(1).unwrap().as_str().to_lowercase());
             current_content.clear();
@@ -135,12 +150,27 @@ fn parse_doc_sections(doc: &str) -> (String, Option<Vec<ParamDoc>>, Option<Retur
 
     // Save last section
     if let Some(ref section) = current_section {
-        save_section(section, &current_content, &param_re, &mut params, &mut returns, &mut examples);
+        save_section(
+            section,
+            &current_content,
+            &param_re,
+            &mut params,
+            &mut returns,
+            &mut examples,
+        );
     }
 
     let description = description_lines.join("\n").trim().to_string();
-    let params = if params.is_empty() { None } else { Some(params) };
-    let examples = if examples.is_empty() { None } else { Some(examples) };
+    let params = if params.is_empty() {
+        None
+    } else {
+        Some(params)
+    };
+    let examples = if examples.is_empty() {
+        None
+    } else {
+        Some(examples)
+    };
 
     (description, params, returns, examples)
 }
