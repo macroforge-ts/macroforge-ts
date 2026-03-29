@@ -69,8 +69,9 @@ jobs:
               run: deno install
 
             - name: Build native module
-              run: deno run -A npm:@napi-rs/cli/napi build --platform --release --target ${{ matrix.settings.target }} -- --jobs 3
+              run: deno run -A npm:@napi-rs/cli/napi build --platform --release --target ${{ matrix.settings.target }} -- --jobs 2
               env:
+                  CARGO_PROFILE_RELEASE_CODEGEN_UNITS: '16'
                   CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
                   CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
                   CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
