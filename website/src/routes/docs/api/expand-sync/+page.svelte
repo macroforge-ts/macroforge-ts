@@ -63,6 +63,15 @@
 <CodeBlock code={`interface ExpandOptions {
   // Keep @derive decorators in output (default: false)
   keepDecorators?: boolean;
+
+  // External decorator module packages to load
+  externalDecoratorModules?: Array<string>;
+
+  // Path to a previously loaded config file
+  configPath?: string;
+
+  // JSON string of project-wide type registry for cross-file awareness
+  typeRegistryJson?: string;
 }`} lang="typescript" />
 
 <h2 id="expand-result">ExpandResult</h2>
@@ -87,12 +96,10 @@
 <h2 id="macro-diagnostic">MacroDiagnostic</h2>
 
 <CodeBlock code={`interface MacroDiagnostic {
+  level: string;    // "error", "warning", or "info"
   message: string;
-  severity: "error" | "warning" | "info";
-  span: {
-    start: number;
-    end: number;
-  };
+  start?: number;   // Start position in source
+  end?: number;     // End position in source
 }`} lang="typescript" />
 
 <h2 id="example">Example</h2>
@@ -124,7 +131,7 @@ if (result.types) {
 
 if (result.diagnostics.length > 0) {
   for (const diag of result.diagnostics) {
-    console.log(\`[\${diag.severity}] \${diag.message}\`);
+    console.log(\`[\${diag.level}] \${diag.message}\`);
   }
 }`} lang="typescript" />
 
@@ -137,8 +144,8 @@ if (result.diagnostics.length > 0) {
 <CodeBlock code={`const result = expandSync(invalidCode, "file.ts");
 
 for (const diag of result.diagnostics) {
-  if (diag.severity === "error") {
-    console.error(\`Error at \${diag.span.start}: \${diag.message}\`);
+  if (diag.level === "error") {
+    console.error(\`Error at \${diag.start}: \${diag.message}\`);
   }
 }`} lang="typescript" />
 

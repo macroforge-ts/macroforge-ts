@@ -54,9 +54,9 @@ class User {
 }
 
 // After macro expansion, User has:
-// - toString(): string              (from Debug)
-// - clone(): User                   (from Clone)
-// - equals(other: unknown): boolean (from PartialEq)`} lang="typescript" filename="user.ts" />
+// - static toString(value: User): string          (from Debug)
+// - static clone(value: User): User               (from Clone)
+// - static equals(a: User, b: User): boolean      (from PartialEq)`} lang="typescript" filename="user.ts" />
 
 <h2 id="ide-integration">IDE Integration</h2>
 
@@ -90,15 +90,12 @@ class User {
 	If you're using Vite, add the plugin to your config for automatic macro expansion during build:
 </p>
 
-<CodeBlock code={`import macroforge from "@macroforge/vite-plugin";
+<CodeBlock code={`import { macroforge } from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
-    macroforge({
-      generateTypes: true,
-      typesOutputDir: ".macroforge/types"
-    })
+    macroforge()
   ]
 });`} lang="typescript" filename="vite.config.ts" />
 

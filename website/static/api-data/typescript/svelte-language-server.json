@@ -1,0 +1,44 @@
+{
+  "name": "@macroforge/svelte-language-server",
+  "version": "0.1.77",
+  "description": "A language server for Svelte with macroforge integration",
+  "exports": [
+    {
+      "name": "LSOptions",
+      "kind": "interface",
+      "type": null,
+      "description": ""
+    },
+    {
+      "name": "startServer",
+      "kind": "function",
+      "type": "(options?: SOptions)) => void",
+      "description": "Starts the language server.",
+      "params": [
+        {
+          "name": "options",
+          "type": "SOptions)",
+          "description": "Options to customize behavior"
+        }
+      ]
+    },
+    {
+      "name": "SvelteCheckDiagnosticSource",
+      "kind": "type",
+      "type": "js' | 'css' | 'svelte';",
+      "description": ""
+    },
+    {
+      "name": "SvelteCheckOptions",
+      "kind": "interface",
+      "type": null,
+      "description": ""
+    },
+    {
+      "name": "SvelteCheck",
+      "kind": "class",
+      "type": null,
+      "description": "Small wrapper around PluginHost's Diagnostic Capabilities for svelte-check, without the overhead of the lsp."
+    }
+  ]
+}

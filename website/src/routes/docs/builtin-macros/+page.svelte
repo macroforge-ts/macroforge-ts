@@ -5,7 +5,7 @@
 
 <svelte:head>
 	<title>Built-in Macros - Macroforge Documentation</title>
-	<meta name="description" content="Overview of Macroforge's built-in derive macros: Debug, Clone, Eq, Serialize, and Deserialize." />
+	<meta name="description" content="Overview of Macroforge's built-in derive macros: Debug, Clone, PartialEq, Serialize, and Deserialize." />
 </svelte:head>
 
 <h1>Built-in Macros</h1>
@@ -28,47 +28,47 @@
 	<tbody>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/debug')}><code>Debug</code></a></td>
-			<td><code>toString(): string</code></td>
+			<td><code>static toString(value: T): string</code></td>
 			<td>Human-readable string representation</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/clone')}><code>Clone</code></a></td>
-			<td><code>clone(): T</code></td>
+			<td><code>static clone(value: T): T</code></td>
 			<td>Creates a deep copy of the object</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/default')}><code>Default</code></a></td>
-			<td><code>static default(): T</code></td>
+			<td><code>static defaultValue(): T</code></td>
 			<td>Creates an instance with default values</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/hash')}><code>Hash</code></a></td>
-			<td><code>hashCode(): number</code></td>
+			<td><code>static hashCode(value: T): number</code></td>
 			<td>Generates a hash code for the object</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/partial-eq')}><code>PartialEq</code></a></td>
-			<td><code>equals(other: T): boolean</code></td>
+			<td><code>static equals(a: T, b: T): boolean</code></td>
 			<td>Value equality comparison</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/ord')}><code>Ord</code></a></td>
-			<td><code>compare(other: T): number</code></td>
+			<td><code>static compareTo(a: T, b: T): number</code></td>
 			<td>Total ordering comparison (-1, 0, 1)</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/partial-ord')}><code>PartialOrd</code></a></td>
-			<td><code>partialCompare(other: T): number | null</code></td>
+			<td><code>static compareTo(a: T, b: T): number | null</code></td>
 			<td>Partial ordering comparison</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/serialize')}><code>Serialize</code></a></td>
-			<td><code>toJSON(): Record&lt;string, unknown&gt;</code></td>
+			<td><code>static serialize(value: T): string</code></td>
 			<td>JSON serialization with type handling</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/deserialize')}><code>Deserialize</code></a></td>
-			<td><code>static fromJSON(data: unknown): T</code></td>
+			<td><code>static deserialize(input: unknown): Result&lt;T, ...&gt;</code></td>
 			<td>JSON deserialization with validation</td>
 		</tr>
 	</tbody>
@@ -197,15 +197,15 @@ console.log(ApiStatus.equals("success", "success")); // true`} lang="typescript"
 <CodeBlock code={`const user = new User("Alice", 30);
 
 // Debug
-console.log(user.toString());
+console.log(User.toString(user));
 // "User { name: Alice, age: 30 }"
 
 // Clone
-const copy = user.clone();
+const copy = User.clone(user);
 console.log(copy.name); // "Alice"
 
-// Eq
-console.log(user.equals(copy)); // true`} lang="typescript" />
+// PartialEq
+console.log(User.equals(user, copy)); // true`} lang="typescript" />
 
 <h2 id="detailed-documentation">Detailed Documentation</h2>
 

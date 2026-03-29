@@ -81,6 +81,8 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/language-servers');
         case '/docs/language-servers/svelte':
             return resolve('/docs/language-servers/svelte');
+        case '/docs/language-servers/vtsls-macroforge':
+            return resolve('/docs/language-servers/vtsls-macroforge');
         case '/docs/language-servers/zed':
             return resolve('/docs/language-servers/zed');
 
@@ -175,6 +177,7 @@ export const navigation: NavSection[] = [
         items: [
             { title: 'Overview', href: '/docs/language-servers' },
             { title: 'Svelte', href: '/docs/language-servers/svelte' },
+            { title: 'vtsls-macroforge', href: '/docs/language-servers/vtsls-macroforge' },
             { title: 'Zed Extensions', href: '/docs/language-servers/zed' }
         ]
     },

@@ -1,0 +1,6 @@
+{
+  "name": "macroforge",
+  "version": "0.1.77",
+  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "exports": []
+}

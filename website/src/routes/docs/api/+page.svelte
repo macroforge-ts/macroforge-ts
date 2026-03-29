@@ -30,6 +30,10 @@
   transformSync,
   checkSyntax,
   parseImportSources,
+  loadConfig,
+  clearConfigCache,
+  scanProjectSync,
+  Derive,
   NativePlugin,
   PositionMapper
 } from "macroforge";`} lang="typescript" />
@@ -59,6 +63,22 @@
 		<tr>
 			<td><code>parseImportSources()</code></td>
 			<td>Extract import information</td>
+		</tr>
+		<tr>
+			<td><code>loadConfig()</code></td>
+			<td>Load and parse a Macroforge config file</td>
+		</tr>
+		<tr>
+			<td><code>clearConfigCache()</code></td>
+			<td>Clear the cached config</td>
+		</tr>
+		<tr>
+			<td><code>scanProjectSync()</code></td>
+			<td>Scan a project directory for types</td>
+		</tr>
+		<tr>
+			<td><code>Derive()</code></td>
+			<td>TC39 decorator for macro expansion</td>
 		</tr>
 	</tbody>
 </table>

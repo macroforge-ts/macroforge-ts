@@ -1,39 +1,43 @@
 {
-    "name": "@macroforge/svelte-preprocessor",
-    "kind": "typescript_package",
-    "version": "0.1.61",
-    "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
-    "overview": "",
-    "items": [
+  "name": "@macroforge/svelte-preprocessor",
+  "version": "0.1.77",
+  "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
+  "exports": [
+    {
+      "name": "MacroforgePreprocessorOptions",
+      "kind": "interface",
+      "type": null,
+      "description": "Configuration options for the Macroforge Svelte preprocessor. These options control how the preprocessor identifies and transforms script blocks containing `@derive` decorators. ```",
+      "examples": [
+        "```ts\n// Default behavior - TypeScript only, decorators stripped\nmacroforgePreprocess()\n\n// Keep decorators for debugging\nmacroforgePreprocess({ keepDecorators: true })\n\n// Process both TypeScript and JavaScript\nmacroforgePreprocess({ processJavaScript: true })\n```"
+      ]
+    },
+    {
+      "name": "macroforgePreprocess",
+      "kind": "function",
+      "type": "(options?: acroforgePreprocessorOptions) => reprocessorGroup",
+      "description": "Creates a Svelte preprocessor that expands Macroforge macros in `<script>` blocks. This is the main entry point for integrating Macroforge with Svelte. The returned preprocessor intercepts script blocks, detects `@derive` decorators, and expands them into generated code using the native Macroforge engine. ## Preprocessor Order **Important:** This preprocessor must be placed BEFORE other preprocessors like `vitePreprocess()` in the preprocess array. Macros must be expanded before TypeScript compilation occurs, or the TypeScript compiler will fail on the decorator syntax. ## Processing Logic The preprocessor performs these steps for each script block: 1. **Language Check** - Verifies the script is TypeScript (or JavaScript if enabled) 2. **Quick Scan** - Skips blocks without `@derive` (performance optimization) 3. **Expansion** - Calls the native engine to expand macros 4. **Diagnostics** - Logs any errors or warnings from expansion 5. **Return** - Returns transformed code or `undefined` if unchanged ## Error Handling The preprocessor is designed to be resilient: - If native bindings fail to load, it silently skips processing - If macro expansion throws, it logs a warning and continues - Svelte compilation proceeds even if preprocessing fails ``` ```",
+      "params": [
         {
-            "name": "MacroforgePreprocessorOptions",
-            "kind": "interface",
-            "signature": "interface MacroforgePreprocessorOptions",
-            "description": "Configuration options for the Macroforge Svelte preprocessor.\n\nThese options control how the preprocessor identifies and transforms\nscript blocks containing `@derive` decorators.",
-            "examples": [
-                "```ts\n// Default behavior - TypeScript only, decorators stripped\nmacroforgePreprocess()\n\n// Keep decorators for debugging\nmacroforgePreprocess({ keepDecorators: true })\n\n// Process both TypeScript and JavaScript\nmacroforgePreprocess({ processJavaScript: true })\n```"
-            ]
-        },
-        {
-            "name": "macroforgePreprocess",
-            "kind": "function",
-            "signature": "function macroforgePreprocess(options: MacroforgePreprocessorOptions): PreprocessorGroup",
-            "description": "Creates a Svelte preprocessor that expands Macroforge macros in `<script>` blocks.\n\nThis is the main entry point for integrating Macroforge with Svelte. The returned\npreprocessor intercepts script blocks, detects `@derive` decorators, and expands\nthem into generated code using the native Macroforge engine.\n\n## Preprocessor Order\n\n**Important:** This preprocessor must be placed BEFORE other preprocessors like\n`vitePreprocess()` in the preprocess array. Macros must be expanded before\nTypeScript compilation occurs, or the TypeScript compiler will fail on the\ndecorator syntax.\n\n## Processing Logic\n\nThe preprocessor performs these steps for each script block:\n\n1. **Language Check** - Verifies the script is TypeScript (or JavaScript if enabled)\n2. **Quick Scan** - Skips blocks without `@derive` (performance optimization)\n3. **Expansion** - Calls the native engine to expand macros\n4. **Diagnostics** - Logs any errors or warnings from expansion\n5. **Return** - Returns transformed code or `undefined` if unchanged\n\n## Error Handling\n\nThe preprocessor is designed to be resilient:\n- If native bindings fail to load, it silently skips processing\n- If macro expansion throws, it logs a warning and continues\n- Svelte compilation proceeds even if preprocessing fails",
-            "params": [
-                {
-                    "name": "options",
-                    "type": "",
-                    "description": "Configuration options for the preprocessor"
-                }
-            ],
-            "returns": {
-                "type": "",
-                "description": "A Svelte `PreprocessorGroup` with name \"macroforge\" and a script preprocessor"
-            },
-            "examples": [
-                "Basic usage\n```js\n// svelte.config.js\nimport { vitePreprocess } from '@sveltejs/vite-plugin-svelte';\nimport { macroforgePreprocess } from '@macroforge/svelte-preprocessor';\n\nexport default {\npreprocess: [\nmacroforgePreprocess(),   // Expand macros FIRST\nvitePreprocess()          // Then handle TypeScript/CSS\n]\n};\n```",
-                "With options\n```js\n// svelte.config.js\nimport { macroforgePreprocess } from '@macroforge/svelte-preprocessor';\n\nexport default {\npreprocess: [\nmacroforgePreprocess({\nkeepDecorators: true,      // Keep @derive in output for debugging\nprocessJavaScript: true    // Also process <script> blocks without lang=\"ts\"\n})\n]\n};\n```"
-            ]
+          "name": "options",
+          "type": "",
+          "description": "Configuration options for the preprocessor"
         }
-    ]
+      ],
+      "returns": "A Svelte `PreprocessorGroup` with name \"macroforge\" and a script preprocessor",
+      "examples": [
+        "Basic usage\n```js\n// svelte.config.js\nimport { vitePreprocess } from '@sveltejs/vite-plugin-svelte';\nimport { macroforgePreprocess } from '@macroforge/svelte-preprocessor';\n\nexport default {\npreprocess: [\nmacroforgePreprocess(),   // Expand macros FIRST\nvitePreprocess()          // Then handle TypeScript/CSS\n]\n};\n```",
+        "With options\n```js\n// svelte.config.js\nimport { macroforgePreprocess } from '@macroforge/svelte-preprocessor';\n\nexport default {\npreprocess: [\nmacroforgePreprocess({\nkeepDecorators: true,      // Keep @derive in output for debugging\nprocessJavaScript: true    // Also process <script> blocks without lang=\"ts\"\n})\n]\n};\n```"
+      ]
+    },
+    {
+      "name": "default",
+      "kind": "const",
+      "type": null,
+      "description": "Default export for convenient importing. ```",
+      "examples": [
+        "```js\nimport macroforgePreprocess from '@macroforge/svelte-preprocessor';\n```"
+      ]
+    }
+  ]
 }

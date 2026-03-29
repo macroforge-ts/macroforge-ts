@@ -5,30 +5,36 @@
 
 <svelte:head>
 	<title>Configuration - Macroforge Documentation</title>
-	<meta name="description" content="Configure Macroforge with macroforge.json." />
+	<meta name="description" content="Configure Macroforge with macroforge.config.ts." />
 </svelte:head>
 
 <h1>Configuration</h1>
 
 <p class="lead">
-	Macroforge can be configured with a <code>macroforge.json</code> file in your project root.
+	Macroforge can be configured with a <code>macroforge.config.ts</code> file in your project root.
 </p>
 
 <h2 id="config-file">Configuration File</h2>
 
-<p>Create a <code>macroforge.json</code> file:</p>
+<p>
+	Macroforge searches for config files in the following order, walking up from the input file's directory:
+</p>
 
-<CodeBlock code={`{
-  "allowNativeMacros": true,
-  "macroPackages": [],
-  "keepDecorators": false,
-  "limits": {
-    "maxExecutionTimeMs": 5000,
-    "maxMemoryBytes": 104857600,
-    "maxOutputSize": 10485760,
-    "maxDiagnostics": 100
-  }
-}`} lang="json" filename="macroforge.json" />
+<ul>
+	<li><code>macroforge.config.ts</code></li>
+	<li><code>macroforge.config.mts</code></li>
+	<li><code>macroforge.config.js</code></li>
+	<li><code>macroforge.config.mjs</code></li>
+	<li><code>macroforge.config.cjs</code></li>
+</ul>
+
+<p>Create a <code>macroforge.config.ts</code> file:</p>
+
+<CodeBlock code={`import { defineConfig } from "macroforge/config";
+
+export default defineConfig({
+  keepDecorators: false,
+});`} lang="typescript" filename="macroforge.config.ts" />
 
 <h2 id="options">Options Reference</h2>
 

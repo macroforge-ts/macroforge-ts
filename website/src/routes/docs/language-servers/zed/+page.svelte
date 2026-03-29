@@ -1,6 +1,7 @@
 <script lang="ts">
     import CodeBlock from "$lib/components/ui/CodeBlock.svelte";
     import Alert from "$lib/components/ui/Alert.svelte";
+    import { resolve } from "$app/paths";
 </script>
 
 <svelte:head>
@@ -94,15 +95,8 @@ ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/ex
 
 <p>
     This extension wraps <a href="https://github.com/yioneko/vtsls">VTSLS</a> (a TypeScript
-    language server) with macroforge integration. It provides:
+    language server) with macroforge integration. See the <a href={resolve('/docs/language-servers/vtsls-macroforge')}>dedicated vtsls-macroforge page</a> for full documentation.
 </p>
-
-<ul>
-    <li>Full TypeScript language features</li>
-    <li>Macro expansion at edit time</li>
-    <li>Accurate error positions in original source</li>
-    <li>Completions for macro-generated methods</li>
-</ul>
 
 <h2 id="svelte-macroforge">svelte-macroforge</h2>
 

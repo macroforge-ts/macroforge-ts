@@ -22,7 +22,7 @@
 
 <p>Add the plugin to your <code>vite.config.ts</code>:</p>
 
-<CodeBlock code={`import macroforge from "@macroforge/vite-plugin";
+<CodeBlock code={`import { macroforge } from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -33,23 +33,35 @@ export default defineConfig({
 
 <h2 id="options">Options</h2>
 
-<CodeBlock code={`macroforge({
-  // Generate .d.ts files for expanded code
-  generateTypes: true,
+<p>
+	The vite plugin reads its configuration from a <code>macroforge.config.ts</code> (or <code>.js</code>, <code>.mjs</code>, <code>.cjs</code>) file
+	in your project root. Vite-specific options go under the <code>vite</code> key:
+</p>
 
-  // Output directory for generated types
-  typesOutputDir: ".macroforge/types",
+<CodeBlock code={`import { defineConfig } from "macroforge/config";
 
-  // Emit metadata files for debugging
-  emitMetadata: false,
-
+export default defineConfig({
   // Keep @derive decorators in output (for debugging)
   keepDecorators: false,
 
-  // File patterns to process
-  include: ["**/*.ts", "**/*.tsx"],
-  exclude: ["node_modules/**"]
-})`} lang="typescript" />
+  // Vite-specific options
+  vite: {
+    // Generate .d.ts files for expanded code
+    generateTypes: true,
+
+    // Output directory for generated types
+    typesOutputDir: ".macroforge/types",
+
+    // Emit metadata files for debugging
+    emitMetadata: true,
+
+    // Output directory for metadata files
+    metadataOutputDir: ".macroforge/meta",
+
+    // Enable disk cache in dev mode
+    devCache: true,
+  }
+});`} lang="typescript" filename="macroforge.config.ts" />
 
 <h3>Option Reference</h3>
 
@@ -64,22 +76,34 @@ export default defineConfig({
 	</thead>
 	<tbody>
 		<tr>
-			<td><code>generateTypes</code></td>
+			<td><code>vite.generateTypes</code></td>
 			<td><code>boolean</code></td>
 			<td><code>true</code></td>
 			<td>Generate .d.ts files</td>
 		</tr>
 		<tr>
-			<td><code>typesOutputDir</code></td>
+			<td><code>vite.typesOutputDir</code></td>
 			<td><code>string</code></td>
 			<td><code>.macroforge/types</code></td>
 			<td>Where to write type files</td>
 		</tr>
 		<tr>
-			<td><code>emitMetadata</code></td>
+			<td><code>vite.emitMetadata</code></td>
 			<td><code>boolean</code></td>
-			<td><code>false</code></td>
+			<td><code>true</code></td>
 			<td>Emit macro metadata files</td>
+		</tr>
+		<tr>
+			<td><code>vite.metadataOutputDir</code></td>
+			<td><code>string</code></td>
+			<td><code>.macroforge/meta</code></td>
+			<td>Where to write metadata files</td>
+		</tr>
+		<tr>
+			<td><code>vite.devCache</code></td>
+			<td><code>boolean</code></td>
+			<td><code>true</code></td>
+			<td>Enable disk cache during development</td>
 		</tr>
 		<tr>
 			<td><code>keepDecorators</code></td>
@@ -94,7 +118,7 @@ export default defineConfig({
 
 <h3>React (Vite)</h3>
 
-<CodeBlock code={`import macroforge from "@macroforge/vite-plugin";
+<CodeBlock code={`import { macroforge } from "@macroforge/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -107,7 +131,7 @@ export default defineConfig({
 
 <h3>SvelteKit</h3>
 
-<CodeBlock code={`import macroforge from "@macroforge/vite-plugin";
+<CodeBlock code={`import { macroforge } from "@macroforge/vite-plugin";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 

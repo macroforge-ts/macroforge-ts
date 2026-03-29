@@ -99,6 +99,18 @@ cargo build --release --bin macroforge
                 support)</td
             >
         </tr>
+        <tr>
+            <td><code>--scan</code></td>
+            <td>Scan directory for TypeScript files with macros</td>
+        </tr>
+        <tr>
+            <td><code>--include-ignored</code></td>
+            <td>Include files ignored by .gitignore when scanning</td>
+        </tr>
+        <tr>
+            <td><code>-q, --quiet</code></td>
+            <td>Suppress output when no macros are found</td>
+        </tr>
     </tbody>
 </table>
 
@@ -175,6 +187,122 @@ cargo build --release --bin macroforge
 <p>Type check with a specific config:</p>
 
 <CodeBlock code={`macroforge tsc -p tsconfig.build.json`} lang="bash" />
+
+<h3 id="svelte-check">macroforge svelte-check</h3>
+
+<p>
+    Runs <code>svelte-check</code> with macro expansion, so Svelte components using macros are properly type-checked.
+</p>
+
+<CodeBlock code={`macroforge svelte-check [options]`} lang="bash" />
+
+<h4>Options</h4>
+
+<table>
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>--workspace &lt;path&gt;</code></td>
+            <td>Workspace directory (defaults to current directory)</td>
+        </tr>
+        <tr>
+            <td><code>--tsconfig &lt;path&gt;</code></td>
+            <td>Path to <code>tsconfig.json</code></td>
+        </tr>
+        <tr>
+            <td><code>--output &lt;format&gt;</code></td>
+            <td>Output format: <code>human</code>, <code>human-verbose</code>, <code>machine</code>, <code>machine-verbose</code></td>
+        </tr>
+        <tr>
+            <td><code>--fail-on-warnings</code></td>
+            <td>Exit with error on warnings (not just errors)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 id="watch">macroforge watch</h3>
+
+<p>
+    Watches source files and maintains the macro expansion cache, keeping it up to date as files change.
+</p>
+
+<CodeBlock code={`macroforge watch [root] [options]`} lang="bash" />
+
+<h4>Options</h4>
+
+<table>
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>--builtin-only</code></td>
+            <td>Use only built-in Rust macros</td>
+        </tr>
+        <tr>
+            <td><code>--debounce-ms &lt;ms&gt;</code></td>
+            <td>Debounce interval in milliseconds (default: 100)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 id="cache">macroforge cache</h3>
+
+<p>
+    Builds the <code>.macroforge/cache</code> directory once for all source files. Useful for CI or pre-build steps.
+</p>
+
+<CodeBlock code={`macroforge cache [root] [options]`} lang="bash" />
+
+<h4>Options</h4>
+
+<table>
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>--builtin-only</code></td>
+            <td>Use only built-in Rust macros</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 id="refresh">macroforge refresh</h3>
+
+<p>
+    Deletes and rebuilds the macro cache from scratch.
+</p>
+
+<CodeBlock code={`macroforge refresh [root] [options]`} lang="bash" />
+
+<h4>Options</h4>
+
+<table>
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>--builtin-only</code></td>
+            <td>Use only built-in Rust macros</td>
+        </tr>
+    </tbody>
+</table>
 
 <h2 id="output-format">Output Format</h2>
 

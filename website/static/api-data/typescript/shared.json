@@ -1,34 +1,232 @@
 {
-    "name": "@macroforge/shared",
-    "kind": "typescript_package",
-    "version": "0.1.61",
-    "description": "Shared utilities for Macroforge plugins",
-    "overview": "",
-    "items": [
+  "name": "@macroforge/shared",
+  "version": "0.1.77",
+  "description": "Shared utilities for Macroforge plugins",
+  "exports": [
+    {
+      "name": "collectExternalDecoratorModules",
+      "kind": "function",
+      "type": "(code: tring,, requireFn?: equireFunction) => tring[]",
+      "description": "Collects decorator modules from external macro packages referenced in the code. This function parses macro import comments in the code to find external packages, then loads their manifests and collects all decorator module names. ```",
+      "params": [
         {
-            "name": "collectExternalDecoratorModules",
-            "kind": "function",
-            "signature": "function collectExternalDecoratorModules(code: string, requireFn: RequireFunction): string[]",
-            "description": "Collects decorator modules from external macro packages referenced in the code.\n\nThis function parses macro import comments in the code to find external packages,\nthen loads their manifests and collects all decorator module names.",
-            "params": [
-                {
-                    "name": "code",
-                    "type": "",
-                    "description": "The TypeScript source code to scan"
-                },
-                {
-                    "name": "requireFn",
-                    "type": "",
-                    "description": "Optional custom require function for loading external packages"
-                }
-            ],
-            "returns": {
-                "type": "",
-                "description": "Array of decorator module names from external packages"
-            },
-            "examples": [
-                "```typescript\nconst code = `/** import macro {Gigaform} from \"@playground/macro\"; *​/\n/** @derive(Gigaform) *​/\nclass MyForm {}`;\n\nconst modules = collectExternalDecoratorModules(code);\n// => [\"hiddenController\", \"fieldController\", ...]\n```"
-            ]
+          "name": "code",
+          "type": "tring,",
+          "description": "The TypeScript source code to scan"
+        },
+        {
+          "name": "requireFn",
+          "type": "equireFunction",
+          "description": "Optional custom require function for loading external packages"
         }
-    ]
+      ],
+      "returns": "Array of decorator module names from external packages",
+      "examples": [
+        "```typescript\nconst code = `/** import macro {Gigaform} from \"@playground/macro\"; *​/\n/** @derive(Gigaform) *​/\nclass MyForm {}`;\n\nconst modules = collectExternalDecoratorModules(code);\n// => [\"hiddenController\", \"fieldController\", ...]\n```"
+      ]
+    },
+    {
+      "name": "hasMacroAnnotations",
+      "kind": "function",
+      "type": "(source: tring)) => oolean",
+      "description": "Checks whether source code contains `@derive(` as a real JSDoc directive. Only matches `@derive(` when it appears at the start of a JSDoc comment line (after stripping comment syntax like `/**`, `*​/`, `*`, and whitespace). This correctly rejects `@derive` embedded in prose text such as `\"Deserialize result format from @derive(Deserialize)\"`. Use this instead of `code.includes(\"@derive\")` to avoid false positives. ```",
+      "params": [
+        {
+          "name": "source",
+          "type": "tring)",
+          "description": "The TypeScript source code to scan"
+        }
+      ],
+      "returns": "`true` if the source contains a real `@derive(` directive",
+      "examples": [
+        "```typescript\nhasMacroAnnotations('/** @derive(Debug) *​/ class X {}');     // true\nhasMacroAnnotations('/** result from @derive(Debug) *​/');    // false — embedded in prose\nhasMacroAnnotations('class X {}');                            // false\n```"
+      ]
+    },
+    {
+      "name": "parseMacroImportComments",
+      "kind": "function",
+      "type": "(text: tring)) => ap<string, string>",
+      "description": "Parses macro import comments from TypeScript code. ```",
+      "params": [
+        {
+          "name": "text",
+          "type": "tring)",
+          "description": "The TypeScript source code to parse"
+        }
+      ],
+      "returns": "Map of macro names to their module paths",
+      "examples": [
+        "```typescript\nconst text = `/** import macro {JSON, FieldController} from \"@playground/macro\"; *​/`;\nparseMacroImportComments(text);\n// => Map { \"JSON\" => \"@playground/macro\", \"FieldController\" => \"@playground/macro\" }\n```"
+      ],
+      "remarks": "Extracts macro names mapped to their source module paths from macro import comments like: `import macro { ... } from \"package\"`."
+    },
+    {
+      "name": "RequireFunction",
+      "kind": "type",
+      "type": "id: string) => unknown;",
+      "description": "Function type for requiring modules. Accepts any function that can load a module by path."
+    },
+    {
+      "name": "clearExternalManifestCache",
+      "kind": "function",
+      "type": "() => oid",
+      "description": "Clears the external manifest cache. Useful for testing or when packages may have been updated.",
+      "returns": "oid"
+    },
+    {
+      "name": "getExternalManifest",
+      "kind": "function",
+      "type": "(modulePath: tring,, requireFn?: equireFunction) => acroManifest | null",
+      "description": "Attempts to load the manifest from an external macro package. External macro packages (like `@playground/macro`) export their own `__macroforgeGetManifest()` function that provides macro metadata including descriptions. ```",
+      "params": [
+        {
+          "name": "modulePath",
+          "type": "tring,",
+          "description": "The package path (e.g., \"@playground/macro\")"
+        },
+        {
+          "name": "requireFn",
+          "type": "equireFunction",
+          "description": "Optional custom require function. If not provided, creates one using import.meta.url context."
+        }
+      ],
+      "returns": "The macro manifest, or null if loading failed",
+      "examples": [
+        "```typescript\n// Basic usage\nconst manifest = getExternalManifest(\"@playground/macro\");\n\n// With custom require function (e.g., from vite-plugin)\nimport { createRequire } from \"node:module\";\nconst moduleRequire = createRequire(import.meta.url);\nconst manifest = getExternalManifest(\"@playground/macro\", moduleRequire);\n```"
+      ]
+    },
+    {
+      "name": "getExternalMacroInfo",
+      "kind": "function",
+      "type": "(macroName: tring,, modulePath: tring,, requireFn?: equireFunction) => acroManifestEntry | null",
+      "description": "Looks up macro info from an external package manifest. ```",
+      "params": [
+        {
+          "name": "macroName",
+          "type": "tring,",
+          "description": "The macro name to look up"
+        },
+        {
+          "name": "modulePath",
+          "type": "tring,",
+          "description": "The package path"
+        },
+        {
+          "name": "requireFn",
+          "type": "equireFunction",
+          "description": "Optional custom require function"
+        }
+      ],
+      "returns": "The macro manifest entry, or null if not found",
+      "examples": [
+        "```typescript\nconst macroInfo = getExternalMacroInfo(\"Gigaform\", \"@playground/macro\");\nif (macroInfo) {\nconsole.log(macroInfo.description);\n}\n```"
+      ]
+    },
+    {
+      "name": "getExternalDecoratorInfo",
+      "kind": "function",
+      "type": "(decoratorName: tring,, modulePath: tring,, requireFn?: equireFunction) => ecoratorManifestEntry | null",
+      "description": "Looks up decorator info from an external package manifest. ```",
+      "params": [
+        {
+          "name": "decoratorName",
+          "type": "tring,",
+          "description": "The decorator name to look up"
+        },
+        {
+          "name": "modulePath",
+          "type": "tring,",
+          "description": "The package path"
+        },
+        {
+          "name": "requireFn",
+          "type": "equireFunction",
+          "description": "Optional custom require function"
+        }
+      ],
+      "returns": "The decorator manifest entry, or null if not found",
+      "examples": [
+        "```typescript\nconst decoratorInfo = getExternalDecoratorInfo(\"hiddenController\", \"@playground/macro\");\nif (decoratorInfo) {\nconsole.log(decoratorInfo.description);\n}\n```"
+      ]
+    },
+    {
+      "name": "CONFIG_FILES",
+      "kind": "const",
+      "type": null,
+      "description": "Supported config file names in order of precedence."
+    },
+    {
+      "name": "ReturnTypesMode",
+      "kind": "type",
+      "type": "vanilla' | 'custom' | 'effect';",
+      "description": "Return type style for generated macro code. - `'vanilla'` (default): Plain TypeScript discriminated unions - Deserialize: `{ success: true; value: T } | { success: false; errors: FieldError[] }` - PartialOrd: `number | null` - `'custom'`: Uses `@rydshift/mirror` types - Deserialize: `Result<T, Array<FieldError>>` - PartialOrd: `Option<number>` - `'effect'`: Uses Effect library types - Deserialize: `Exit<FieldError[], T>` - PartialOrd: `Option.Option<number>`"
+    },
+    {
+      "name": "ConfigLoadResult",
+      "kind": "interface",
+      "type": null,
+      "description": "Result from parsing a config file."
+    },
+    {
+      "name": "VitePluginConfig",
+      "kind": "interface",
+      "type": null,
+      "description": "Vite plugin configuration options.",
+      "remarks": "These options control the Vite plugin behavior for type generation and metadata emission."
+    },
+    {
+      "name": "MacroConfig",
+      "kind": "interface",
+      "type": null,
+      "description": "Configuration options loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).",
+      "remarks": "This configuration affects how macros are expanded and what artifacts are preserved in the output."
+    },
+    {
+      "name": "ConfigLoader",
+      "kind": "type",
+      "type": "content: string,\n    filepath: string\n) => ConfigLoadResult;",
+      "description": "Function type for loading config content. This allows plugins to inject their own config loading mechanism."
+    },
+    {
+      "name": "findConfigFile",
+      "kind": "function",
+      "type": "(startDir: tring)) => tring | null",
+      "description": "Finds a macroforge config file in the directory tree. ```",
+      "params": [
+        {
+          "name": "startDir",
+          "type": "tring)",
+          "description": "The directory to start searching from"
+        }
+      ],
+      "returns": "The path to the config file, or null if not found",
+      "examples": [
+        "```typescript\nconst configPath = findConfigFile('/project/src/components');\n// => '/project/macroforge.config.js' or null\n```"
+      ],
+      "remarks": "The search stops when: - A config file is found - A package.json boundary is reached - The filesystem root is reached"
+    },
+    {
+      "name": "loadMacroConfig",
+      "kind": "function",
+      "type": "(startDir: tring,, loadConfigFn?: onfigLoader) => acroConfig",
+      "description": "Loads Macroforge configuration from `macroforge.config.js` (or .ts/.mjs/.cjs). ```",
+      "params": [
+        {
+          "name": "startDir",
+          "type": "tring,",
+          "description": "The directory to start searching from (typically the project root)"
+        },
+        {
+          "name": "loadConfigFn",
+          "type": "onfigLoader",
+          "description": "Optional function to parse the config file content. If provided, will be called with (content, filepath). If not provided, only the configPath will be set."
+        }
+      ],
+      "returns": "The loaded configuration, or default values if no config file is found",
+      "examples": [
+        "```typescript\n// Basic usage (no parsing, just find the config path)\nconst config = loadMacroConfig('/project/src');\n// => { keepDecorators: false, configPath: '/project/macroforge.config.js' }\n\n// With Rust binary parser\nconst config = loadMacroConfig('/project/src', rustTransformer.loadConfig);\n// => { keepDecorators: true, configPath: '...', hasForeignTypes: true }\n```"
+      ],
+      "remarks": "Starting from the given directory, this function walks up the filesystem hierarchy looking for a macroforge config file. The first one found is parsed using the provided loader function (if any), which extracts configuration including foreign type handlers."
+    }
+  ]
 }
