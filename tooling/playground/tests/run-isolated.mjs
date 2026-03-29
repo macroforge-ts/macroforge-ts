@@ -53,19 +53,24 @@ for (const file of testFiles) {
     const elapsed = ((performance.now() - start) / 1000).toFixed(1);
     const decoder = new TextDecoder();
 
-    if (result.success) {
-        // Extract pass count from deno test output
-        const summary = decoder.decode(result.stdout).match(/(\d+) passed/);
-        const count = summary ? summary[1] : '?';
+    const stdout = decoder.decode(result.stdout);
+    const stderr = decoder.decode(result.stderr);
+
+    // Check actual test results, not just exit code — NAPI modules can cause
+    // Deno to exit non-zero ("Promise resolution is still pending") even when
+    // all tests pass, because native module handles keep the event loop alive.
+    const passedMatch = stdout.match(/(\d+) passed/);
+    const failedMatch = stdout.match(/(\d+) failed/);
+    const testsActuallyPassed = passedMatch && failedMatch &&
+        failedMatch[1] === '0';
+
+    if (result.success || testsActuallyPassed) {
+        const count = passedMatch ? passedMatch[1] : '?';
         console.log(`  \x1b[32m✓\x1b[0m ${label} (${count} tests, ${elapsed}s)`);
         passed++;
     } else {
         console.log(`  \x1b[31m✗\x1b[0m ${label} (${elapsed}s)`);
-        failures.push({
-            file,
-            stdout: decoder.decode(result.stdout),
-            stderr: decoder.decode(result.stderr)
-        });
+        failures.push({ file, stdout, stderr });
         failed++;
     }
 }

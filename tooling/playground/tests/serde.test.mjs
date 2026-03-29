@@ -1633,7 +1633,7 @@ describe('Enum tagging modes — runtime round-trip', () => {
         const result = expandSync(code, 'test.ts');
         // Strip TypeScript type annotations so we can eval as JS
         // Also strip import statements (we'll inject stubs)
-        let js = result.code
+        const js = result.code
             .replace(/import\s+\{[^}]*\}\s+from\s+["'][^"']+["'];?/g, '')
             .replace(/export\s+/g, '')
             // strip type annotations from parameters/return types

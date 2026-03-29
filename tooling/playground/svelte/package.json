@@ -10,6 +10,8 @@
         "prepare": "svelte-kit sync || echo ''",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "clean": "rm -rf dist .svelte-kit node_modules",
+        "cleanbuild": "deno task clean && deno install --node-modules-dir && deno task build",
         "test": "vitest run",
         "test:watch": "vitest"
     },
