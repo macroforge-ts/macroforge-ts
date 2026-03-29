@@ -418,8 +418,7 @@ fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> 
         files
             .par_iter()
             .map(|path| {
-                let result =
-                    try_expand_file(path.clone(), None, None, false, builtin_only, true);
+                let result = try_expand_file(path.clone(), None, None, false, builtin_only, true);
                 (path.clone(), result)
             })
             .collect()
@@ -620,12 +619,18 @@ const path = require('path');
 // Create require from the cwd to resolve modules properly
 const cwdRequire = createRequire(process.cwd() + '/package.json');
 
-let expandSync, loadConfig, clearConfigCache;
+let expandSync, loadConfig, clearConfigCache, collectExternalDecoratorModules;
 try {
   const macroforge = cwdRequire('macroforge');
   expandSync = macroforge.expandSync;
   loadConfig = macroforge.loadConfig;
   clearConfigCache = macroforge.clearConfigCache;
+  try {
+    const shared = cwdRequire('@macroforge/shared');
+    collectExternalDecoratorModules = shared.collectExternalDecoratorModules;
+  } catch (e) {
+    console.error('[macroforge] warning: @macroforge/shared not available, external decorator filtering disabled:', e.message);
+  }
 } catch {
   // macroforge not installed - output fallback marker for Rust to detect
   console.log(JSON.stringify({ fallback: true }));
@@ -674,6 +679,15 @@ try {
     const configContent = fs.readFileSync(configPath, 'utf8');
     loadConfig(configContent, configPath);
     options.configPath = configPath;
+  }
+
+  // Collect external decorator modules so the annotation filter includes them
+  if (collectExternalDecoratorModules) {
+    try {
+      options.externalDecoratorModules = collectExternalDecoratorModules(code, cwdRequire);
+    } catch (e) {
+      console.error('[macroforge] warning: failed to collect external decorator modules:', e.message);
+    }
   }
 
   const result = expandSync(code, inputPath, options);
@@ -1548,11 +1562,17 @@ const fs = require('fs');
 const path = require('path');
 const cwdRequire = createRequire(process.cwd() + '/package.json');
 
-let expandSync, loadConfig;
+let expandSync, loadConfig, collectExternalDecoratorModules;
 try {
   const macroforge = cwdRequire('macroforge');
   expandSync = macroforge.expandSync;
   loadConfig = macroforge.loadConfig;
+  try {
+    const shared = cwdRequire('@macroforge/shared');
+    collectExternalDecoratorModules = shared.collectExternalDecoratorModules;
+  } catch (e) {
+    console.error('[macroforge] warning: @macroforge/shared not available, external decorator filtering disabled:', e.message);
+  }
 } catch {
   console.log(JSON.stringify({ fallback: true }));
   process.exit(0);
@@ -1597,6 +1617,15 @@ try {
     try {
       options.typeRegistryJson = fs.readFileSync(typeRegistryPath, 'utf8');
     } catch {}
+  }
+
+  // Collect external decorator modules so the annotation filter includes them
+  if (collectExternalDecoratorModules) {
+    try {
+      options.externalDecoratorModules = collectExternalDecoratorModules(code, cwdRequire);
+    } catch (e) {
+      console.error('[macroforge] warning: failed to collect external decorator modules:', e.message);
+    }
   }
 
   const result = expandSync(code, inputPath, options);
@@ -1710,13 +1739,7 @@ fn warm_cache(
         }
 
         let norm_hash = normalized_content_hash(&source);
-        files_to_expand.push((
-            file_path.clone(),
-            rel_path,
-            source,
-            source_hash,
-            norm_hash,
-        ));
+        files_to_expand.push((file_path.clone(), rel_path, source, source_hash, norm_hash));
     }
 
     // Phase 2: Expand in parallel
@@ -1936,67 +1959,62 @@ fn discover_macro_sources(root: &Path) -> Vec<MacroSourceInfo> {
         let child_pkg_json = dir.join("package.json");
 
         // Check if it's a Rust NAPI macro crate
-        if cargo_toml.exists() {
-            if let Ok(content) = fs::read_to_string(&cargo_toml) {
-                if content.contains("macroforge_ts") {
-                    let src_dir = dir.join("src");
-                    let name = dir
-                        .file_name()
-                        .unwrap_or_default()
-                        .to_string_lossy()
-                        .to_string();
-                    sources.push(MacroSourceInfo {
-                        name,
-                        package_dir: dir.clone(),
-                        source_dirs: if src_dir.is_dir() {
-                            vec![src_dir]
-                        } else {
-                            vec![dir.clone()]
-                        },
-                        kind: MacroSourceKind::RustNapi,
-                    });
-                    continue;
-                }
-            }
+        if cargo_toml.exists()
+            && let Ok(content) = fs::read_to_string(&cargo_toml)
+            && content.contains("macroforge_ts")
+        {
+            let src_dir = dir.join("src");
+            let name = dir
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
+            sources.push(MacroSourceInfo {
+                name,
+                package_dir: dir.clone(),
+                source_dirs: if src_dir.is_dir() {
+                    vec![src_dir]
+                } else {
+                    vec![dir.clone()]
+                },
+                kind: MacroSourceKind::RustNapi,
+            });
+            continue;
         }
 
         // Check if it's a JS/TS macro package
-        if child_pkg_json.exists() {
-            if let Ok(content) = fs::read_to_string(&child_pkg_json) {
-                if let Ok(child_pkg) = serde_json::from_str::<serde_json::Value>(&content) {
-                    let has_macroforge_dep = ["dependencies", "devDependencies", "peerDependencies"]
-                        .iter()
-                        .any(|key| {
-                            child_pkg[key]
-                                .as_object()
-                                .is_some_and(|deps| deps.contains_key("macroforge"))
-                        });
+        if child_pkg_json.exists()
+            && let Ok(content) = fs::read_to_string(&child_pkg_json)
+            && let Ok(child_pkg) = serde_json::from_str::<serde_json::Value>(&content)
+        {
+            let has_macroforge_dep = ["dependencies", "devDependencies", "peerDependencies"]
+                .iter()
+                .any(|key| {
+                    child_pkg[key]
+                        .as_object()
+                        .is_some_and(|deps| deps.contains_key("macroforge"))
+                });
 
-                    if has_macroforge_dep {
-                        let src_dir = dir.join("src");
-                        let name = child_pkg["name"]
-                            .as_str()
+            if has_macroforge_dep {
+                let src_dir = dir.join("src");
+                let name = child_pkg["name"].as_str().unwrap_or_default().to_string();
+                sources.push(MacroSourceInfo {
+                    name: if name.is_empty() {
+                        dir.file_name()
                             .unwrap_or_default()
-                            .to_string();
-                        sources.push(MacroSourceInfo {
-                            name: if name.is_empty() {
-                                dir.file_name()
-                                    .unwrap_or_default()
-                                    .to_string_lossy()
-                                    .to_string()
-                            } else {
-                                name
-                            },
-                            package_dir: dir.clone(),
-                            source_dirs: if src_dir.is_dir() {
-                                vec![src_dir]
-                            } else {
-                                vec![dir.clone()]
-                            },
-                            kind: MacroSourceKind::JsTs,
-                        });
-                    }
-                }
+                            .to_string_lossy()
+                            .to_string()
+                    } else {
+                        name
+                    },
+                    package_dir: dir.clone(),
+                    source_dirs: if src_dir.is_dir() {
+                        vec![src_dir]
+                    } else {
+                        vec![dir.clone()]
+                    },
+                    kind: MacroSourceKind::JsTs,
+                });
             }
         }
     }
@@ -2024,12 +2042,7 @@ fn rebuild_macro(info: &MacroSourceInfo, build_system: BuildSystem, _root: &Path
         .current_dir(&info.package_dir)
         .env("NAPI_BUILD_SKIP_WATCHER", "1")
         .output()
-        .with_context(|| {
-            format!(
-                "failed to run `{cmd}` for macro package '{}'",
-                info.name
-            )
-        })?;
+        .with_context(|| format!("failed to run `{cmd}` for macro package '{}'", info.name))?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -2082,9 +2095,7 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
             if dir.exists() && !dir.starts_with(&root) {
                 debouncer
                     .watch(dir, RecursiveMode::Recursive)
-                    .with_context(|| {
-                        format!("failed to watch macro source: {}", dir.display())
-                    })?;
+                    .with_context(|| format!("failed to watch macro source: {}", dir.display()))?;
             }
         }
     }
@@ -2108,9 +2119,9 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                         }
 
                         // Check if path belongs to a macro source package
-                        let is_macro_src = macro_sources.iter().find(|ms| {
-                            ms.source_dirs.iter().any(|d| event_path.starts_with(d))
-                        });
+                        let is_macro_src = macro_sources
+                            .iter()
+                            .find(|ms| ms.source_dirs.iter().any(|d| event_path.starts_with(d)));
                         if let Some(ms) = is_macro_src {
                             macro_source_changed = Some(ms);
                             continue;
@@ -2143,10 +2154,7 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                             warm_cache("watch", &root, &cache_dir, &mut manifest, builtin_only)?;
                         }
                         Err(e) => {
-                            eprintln!(
-                                "[macroforge watch] Macro rebuild failed: {}",
-                                e
-                            );
+                            eprintln!("[macroforge watch] Macro rebuild failed: {}", e);
                         }
                     }
                 } else if config_changed {
@@ -2180,7 +2188,12 @@ fn run_watch(root: Option<PathBuf>, builtin_only: bool, debounce_ms: u64) -> Res
                         .par_iter()
                         .map(|(file_path, rel_path, source, source_hash, norm_hash)| {
                             let result = expand_for_cache(file_path, source, builtin_only);
-                            (rel_path.clone(), source_hash.clone(), norm_hash.clone(), result)
+                            (
+                                rel_path.clone(),
+                                source_hash.clone(),
+                                norm_hash.clone(),
+                                result,
+                            )
                         })
                         .collect();
 

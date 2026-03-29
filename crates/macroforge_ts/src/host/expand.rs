@@ -285,23 +285,30 @@ impl MacroExpander {
         self.type_registry = registry;
     }
 
-    /// Build the set of valid annotation names that should be recognized during lowering.
+    /// Build the complete set of valid annotation names for lowering.
     ///
-    /// This includes `"derive"` (always), all builtin decorator module names (e.g., `"serde"`,
-    /// `"debug"`), and any external decorator modules configured on this expander.
-    fn valid_annotation_names(&self) -> std::collections::HashSet<String> {
+    /// Includes `"derive"`, all builtin decorator annotation names, any explicitly
+    /// configured external decorator modules, and — if the source imports external
+    /// macros — decorator names resolved from those packages' manifests.
+    fn valid_annotation_names(&self, source: &str) -> std::collections::HashSet<String> {
         let mut set = std::collections::HashSet::new();
         set.insert("derive".to_string());
 
-        // Add all builtin decorator annotation names (the `export` field holds the
-        // actual keyword used in JSDoc, e.g. "serde", "debug", "default", "hash")
+        // Add all builtin decorator annotation names
         for name in derived::decorator_annotation_names() {
             set.insert(name.to_ascii_lowercase());
         }
 
-        // Add external decorator module names
+        // Add explicitly configured external decorator modules
         for module in &self.external_decorator_modules {
             set.insert(module.to_ascii_lowercase());
+        }
+
+        // Resolve decorator names from external macro packages imported in the source
+        if self.external_decorator_modules.is_empty() {
+            for name in resolve_external_decorator_names(source, self.external_loader.as_ref()) {
+                set.insert(name.to_ascii_lowercase());
+            }
         }
 
         set
@@ -314,7 +321,7 @@ impl MacroExpander {
         let module = parse_ts_module(source)
             .map_err(|e| MacroError::InvalidConfig(format!("Parse error: {:?}", e)))?;
 
-        let valid_annotations = self.valid_annotation_names();
+        let valid_annotations = self.valid_annotation_names(source);
         let filter = Some(&valid_annotations);
 
         let classes = lower_classes(&module, source, filter)
@@ -425,7 +432,7 @@ impl MacroExpander {
             }
         };
 
-        let valid_annotations = self.valid_annotation_names();
+        let valid_annotations = self.valid_annotation_names(source);
         let filter = Some(&valid_annotations);
 
         let classes = lower_classes(&module, source, filter)
@@ -1389,6 +1396,58 @@ fn strip_decorators(code: &str, external_decorator_modules: &[&str]) -> String {
 }
 
 // ============================================================================
+// External Decorator Name Resolution
+// ============================================================================
+
+/// Cache for resolved external decorator names per package path.
+static EXTERNAL_DECORATOR_CACHE: std::sync::LazyLock<dashmap::DashMap<String, Vec<String>>> =
+    std::sync::LazyLock::new(dashmap::DashMap::new);
+
+/// Resolve decorator annotation names from external macro packages imported in the source.
+///
+/// Parses `/** import macro { ... } from "package" */` comments, then spawns Node.js
+/// to load each package's manifest and extract decorator export names. Results are cached.
+fn resolve_external_decorator_names(
+    source: &str,
+    loader: Option<&ExternalMacroLoader>,
+) -> Vec<String> {
+    use crate::ts_syn::import_registry::collect_macro_import_comments_pub;
+
+    let imports = collect_macro_import_comments_pub(source);
+    if imports.is_empty() {
+        return Vec::new();
+    }
+
+    // Deduplicate package paths
+    let packages: Vec<String> = imports
+        .values()
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .cloned()
+        .collect();
+
+    let mut all_names = Vec::new();
+    for pkg in &packages {
+        // Check cache first
+        if let Some(cached) = EXTERNAL_DECORATOR_CACHE.get(pkg) {
+            all_names.extend(cached.value().clone());
+            continue;
+        }
+
+        // Resolve via Node.js
+        let Some(loader) = loader else {
+            continue;
+        };
+
+        let names = loader.resolve_decorator_names(pkg);
+        EXTERNAL_DECORATOR_CACHE.insert(pkg.clone(), names.clone());
+        all_names.extend(names);
+    }
+
+    all_names
+}
+
+// ============================================================================
 // External Macro Loader
 // ============================================================================
 
@@ -1399,6 +1458,44 @@ struct ExternalMacroLoader {
 impl ExternalMacroLoader {
     fn new(root_dir: std::path::PathBuf) -> Self {
         Self { root_dir }
+    }
+
+    /// Resolve decorator export names from an external macro package's manifest.
+    fn resolve_decorator_names(&self, package_path: &str) -> Vec<String> {
+        let script = format!(
+            r#"
+const {{ createRequire }} = require('module');
+const req = createRequire(process.cwd() + '/package.json');
+try {{
+  const m = req({pkg});
+  if (m.__macroforgeGetManifest) {{
+    const manifest = m.__macroforgeGetManifest();
+    const names = (manifest.decorators || []).map(d => d.export);
+    console.log(JSON.stringify(names));
+  }} else {{
+    console.log("[]");
+  }}
+}} catch (e) {{
+  console.error('[macroforge] Failed to load manifest from ' + {pkg} + ':', e.message);
+  console.log("[]");
+}}
+"#,
+            pkg = serde_json::to_string(package_path).unwrap_or_default()
+        );
+
+        let output = Command::new("node")
+            .arg("-e")
+            .arg(&script)
+            .current_dir(&self.root_dir)
+            .output();
+
+        match output {
+            Ok(out) if out.status.success() => {
+                let stdout = String::from_utf8_lossy(&out.stdout);
+                serde_json::from_str::<Vec<String>>(stdout.trim()).unwrap_or_default()
+            }
+            _ => Vec::new(),
+        }
     }
 
     fn run_macro(&self, ctx: &MacroContextIR) -> napi::Result<MacroResult> {
