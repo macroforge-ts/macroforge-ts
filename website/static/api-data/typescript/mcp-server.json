@@ -1,24 +1,24 @@
 {
-  "name": "@macroforge/mcp-server",
-  "version": "0.1.77",
-  "description": "MCP server for Macroforge documentation and code analysis",
-  "exports": [
-    {
-      "name": "registerTools",
-      "kind": "function",
-      "type": "(server: erver)) => oid",
-      "description": "Registers all Macroforge MCP tools with the server instance. This function: 1. Loads documentation sections from disk 2. Registers a `tools/list` handler returning all available tools 3. Registers a `tools/call` handler routing requests to appropriate handlers The tools registered provide documentation access and code analysis capabilities for AI assistants working with Macroforge. ```",
-      "params": [
+    "name": "@macroforge/mcp-server",
+    "version": "0.1.77",
+    "description": "MCP server for Macroforge documentation and code analysis",
+    "exports": [
         {
-          "name": "server",
-          "type": "erver)",
-          "description": "The MCP Server instance to register tools with"
+            "name": "registerTools",
+            "kind": "function",
+            "type": "(server: erver)) => oid",
+            "description": "Registers all Macroforge MCP tools with the server instance. This function: 1. Loads documentation sections from disk 2. Registers a `tools/list` handler returning all available tools 3. Registers a `tools/call` handler routing requests to appropriate handlers The tools registered provide documentation access and code analysis capabilities for AI assistants working with Macroforge. ```",
+            "params": [
+                {
+                    "name": "server",
+                    "type": "erver)",
+                    "description": "The MCP Server instance to register tools with"
+                }
+            ],
+            "returns": "oid",
+            "examples": [
+                "```typescript\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { registerTools } from './tools/index.js';\n\nconst server = new Server({ name: 'macroforge', version: '1.0.0' }, { capabilities: { tools: {} } });\nregisterTools(server);\n```"
+            ]
         }
-      ],
-      "returns": "oid",
-      "examples": [
-        "```typescript\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { registerTools } from './tools/index.js';\n\nconst server = new Server({ name: 'macroforge', version: '1.0.0' }, { capabilities: { tools: {} } });\nregisterTools(server);\n```"
-      ]
-    }
-  ]
+    ]
 }

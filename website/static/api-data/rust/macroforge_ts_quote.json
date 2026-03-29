@@ -1,24 +1,24 @@
 {
-  "name": "macroforge_ts_quote",
-  "kind": "rust_crate",
-  "version": "0.1.79",
-  "description": "Quote macro for generating TypeScript code at compile time",
-  "overview": "TypeScript code generation macros for macroforge.\n\nThis crate provides procedural macros for generating TypeScript code from Rust.\nIt offers two primary approaches:\n\n- [`ts_quote!`] - A thin wrapper around SWC's `quote!` macro with enhanced\n  interpolation syntax for compile-time validated TypeScript generation.\n\n- [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,\n  `{#for}`, `{#match}`) and expression interpolation (`@{expr}`).\n\n# Architecture\n\nThe quote implementation uses TypeScript parsing (`Syntax::Typescript`) instead\nof JavaScript, enabling native support for type annotations and TypeScript syntax.\n\n# Insert Positions\n\n`ts_template!` supports an optional position keyword to control where generated\ncode is inserted:\n\n```ignore\n// Insert inside the class body\nts_template!(Within { ... })\n\n// Insert at the top of the file (for imports)\nts_template!(Top { ... })\n\n// Default: insert after the target (Below)\nts_template! { ... }\n```\n\nAvailable positions: `Top`, `Above`, `Within`, `Below`, `Bottom`",
-  "items": [
-    {
-      "name": "ts_quote",
-      "kind": "function",
-      "signature": "pub fn ts_quote(input : TokenStream) -> TokenStream",
-      "description": "Parse and generate code for a TypeScript quote.",
-      "examples": [
-        "use macroforge_ts_quote::ts_quote;\n\nlet ast = ts_quote!(\"function foo(x: number): string { return x.toString(); }\" as ModuleItem);"
-      ]
-    },
-    {
-      "name": "ts_template",
-      "kind": "function",
-      "signature": "pub fn ts_template(input : TokenStream) -> TokenStream",
-      "description": "Generate TypeScript code with Rust-style control flow and interpolation.\n\nReturns a `TsStream` that can be used as macro output."
-    }
-  ]
+    "name": "macroforge_ts_quote",
+    "kind": "rust_crate",
+    "version": "0.1.79",
+    "description": "Quote macro for generating TypeScript code at compile time",
+    "overview": "TypeScript code generation macros for macroforge.\n\nThis crate provides procedural macros for generating TypeScript code from Rust.\nIt offers two primary approaches:\n\n- [`ts_quote!`] - A thin wrapper around SWC's `quote!` macro with enhanced\n  interpolation syntax for compile-time validated TypeScript generation.\n\n- [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,\n  `{#for}`, `{#match}`) and expression interpolation (`@{expr}`).\n\n# Architecture\n\nThe quote implementation uses TypeScript parsing (`Syntax::Typescript`) instead\nof JavaScript, enabling native support for type annotations and TypeScript syntax.\n\n# Insert Positions\n\n`ts_template!` supports an optional position keyword to control where generated\ncode is inserted:\n\n```ignore\n// Insert inside the class body\nts_template!(Within { ... })\n\n// Insert at the top of the file (for imports)\nts_template!(Top { ... })\n\n// Default: insert after the target (Below)\nts_template! { ... }\n```\n\nAvailable positions: `Top`, `Above`, `Within`, `Below`, `Bottom`",
+    "items": [
+        {
+            "name": "ts_quote",
+            "kind": "function",
+            "signature": "pub fn ts_quote(input : TokenStream) -> TokenStream",
+            "description": "Parse and generate code for a TypeScript quote.",
+            "examples": [
+                "use macroforge_ts_quote::ts_quote;\n\nlet ast = ts_quote!(\"function foo(x: number): string { return x.toString(); }\" as ModuleItem);"
+            ]
+        },
+        {
+            "name": "ts_template",
+            "kind": "function",
+            "signature": "pub fn ts_template(input : TokenStream) -> TokenStream",
+            "description": "Generate TypeScript code with Rust-style control flow and interpolation.\n\nReturns a `TsStream` that can be used as macro output."
+        }
+    ]
 }

@@ -1,36 +1,36 @@
 {
-  "builtinMacros": [
-    "clone",
-    "debug",
-    "serialize",
-    "ord",
-    "partial_eq",
-    "partial_ord",
-    "default",
-    "hash",
-    "deserialize"
-  ],
-  "crates": [
-    {
-      "itemCount": 35,
-      "name": "macroforge_ts",
-      "version": "0.1.77"
-    },
-    {
-      "itemCount": 25,
-      "name": "macroforge_ts_syn",
-      "version": "0.1.79"
-    },
-    {
-      "itemCount": 2,
-      "name": "macroforge_ts_quote",
-      "version": "0.1.79"
-    },
-    {
-      "itemCount": 1,
-      "name": "macroforge_ts_macros",
-      "version": "0.1.79"
-    }
-  ],
-  "generated": "2026-03-29T07:12:54.710450+00:00"
+    "builtinMacros": [
+        "clone",
+        "debug",
+        "serialize",
+        "ord",
+        "partial_eq",
+        "partial_ord",
+        "default",
+        "hash",
+        "deserialize"
+    ],
+    "crates": [
+        {
+            "itemCount": 35,
+            "name": "macroforge_ts",
+            "version": "0.1.77"
+        },
+        {
+            "itemCount": 25,
+            "name": "macroforge_ts_syn",
+            "version": "0.1.79"
+        },
+        {
+            "itemCount": 2,
+            "name": "macroforge_ts_quote",
+            "version": "0.1.79"
+        },
+        {
+            "itemCount": 1,
+            "name": "macroforge_ts_macros",
+            "version": "0.1.79"
+        }
+    ],
+    "generated": "2026-03-29T07:12:54.710450+00:00"
 }
