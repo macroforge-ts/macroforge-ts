@@ -21,95 +21,64 @@ on:
     pull_request: null
 
 jobs:
-    build-macos:
+    build:
         strategy:
             fail-fast: false
             matrix:
-                target: [x86_64-apple-darwin, aarch64-apple-darwin]
-        name: Build - ${{ matrix.target }}
-        runs-on: macos-15-intel
-        steps:
-            - uses: actions/checkout@v6
-            - uses: denoland/setup-deno@v2
-              with:
-                  deno-version: v2.x
-            - uses: dtolnay/rust-toolchain@stable
-              with:
-                  targets: ${{ matrix.target }}
-            - uses: Swatinem/rust-cache@v2
-              with:
-                  shared-key: ${{ matrix.target }}
-            - run: deno install
-            - name: Build native module
-              run: deno run -A npm:@napi-rs/cli/napi build --platform --release --target ${{ matrix.target }}
-            - uses: actions/upload-artifact@v7
-              with:
-                  name: bindings-${{ matrix.target }}
-                  path: '*.node'
-                  if-no-files-found: error
+                settings:
+                    - host: macos-15-intel
+                      target: x86_64-apple-darwin
+                    - host: macos-15-intel
+                      target: aarch64-apple-darwin
+                    - host: ubuntu-latest
+                      target: x86_64-unknown-linux-gnu
+                    - host: ubuntu-latest
+                      target: aarch64-unknown-linux-gnu
+                    - host: windows-latest
+                      target: x86_64-pc-windows-msvc
+                    - host: windows-latest
+                      target: aarch64-pc-windows-msvc
 
-    build-linux:
-        needs: build-macos
-        strategy:
-            fail-fast: false
-            matrix:
-                target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
-        name: Build - ${{ matrix.target }}
-        runs-on: ubuntu-latest
+        name: Build - ${{ matrix.settings.target }}
+        runs-on: ${{ matrix.settings.host }}
         steps:
             - uses: actions/checkout@v6
-            - uses: denoland/setup-deno@v2
+
+            - name: Setup Deno
+              uses: denoland/setup-deno@v2
               with:
                   deno-version: v2.x
-            - uses: dtolnay/rust-toolchain@stable
+
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@stable
               with:
-                  targets: ${{ matrix.target }}
-            - uses: Swatinem/rust-cache@v2
+                  targets: ${{ matrix.settings.target }}
+
+            - name: Cache Rust
+              uses: Swatinem/rust-cache@v2
               with:
-                  shared-key: ${{ matrix.target }}
-            - name: Install cross-compile tools (arm64)
-              if: matrix.target == 'aarch64-unknown-linux-gnu'
+                  shared-key: ${{ matrix.settings.target }}
+
+            - name: Install cross-compile tools (Linux arm64)
+              if: matrix.settings.target == 'aarch64-unknown-linux-gnu'
               run: |
                   sudo apt-get update
                   sudo apt-get install -y gcc-aarch64-linux-gnu
-            - run: deno install
+
+            - name: Install dependencies
+              run: deno install
+
             - name: Build native module
-              run: deno run -A npm:@napi-rs/cli/napi build --platform --release --target ${{ matrix.target }}
+              run: deno run -A npm:@napi-rs/cli/napi build --platform --release --target ${{ matrix.settings.target }}
               env:
                   CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
                   CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
                   CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
-            - uses: actions/upload-artifact@v7
-              with:
-                  name: bindings-${{ matrix.target }}
-                  path: '*.node'
-                  if-no-files-found: error
 
-    build-windows:
-        needs: build-linux
-        strategy:
-            fail-fast: false
-            matrix:
-                target: [x86_64-pc-windows-msvc, aarch64-pc-windows-msvc]
-        name: Build - ${{ matrix.target }}
-        runs-on: windows-latest
-        steps:
-            - uses: actions/checkout@v6
-            - uses: denoland/setup-deno@v2
+            - name: Upload artifact
+              uses: actions/upload-artifact@v7
               with:
-                  deno-version: v2.x
-            - uses: dtolnay/rust-toolchain@stable
-              with:
-                  targets: ${{ matrix.target }}
-            - uses: Swatinem/rust-cache@v2
-              with:
-                  shared-key: ${{ matrix.target }}
-            - run: deno install
-            - name: Build native module
-              run: deno run -A npm:@napi-rs/cli/napi build --platform --release --target ${{ matrix.target }}
-            - uses: actions/upload-artifact@v7
-              with:
-                  name: bindings-${{ matrix.target }}
+                  name: bindings-${{ matrix.settings.target }}
                   path: '*.node'
                   if-no-files-found: error
 
@@ -145,7 +114,7 @@ jobs:
     publish:
         name: Publish
         runs-on: ubuntu-latest
-        needs: [build-macos, build-linux, build-windows, clippy, fmt]
+        needs: [build, clippy, fmt]
         if: startsWith(github.ref, 'refs/tags/v')
         steps:
             - uses: actions/checkout@v6
