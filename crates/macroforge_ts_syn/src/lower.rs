@@ -638,11 +638,8 @@ fn lower_enum_members(
         };
 
         // Collect field-level decorators from JSDoc comments
-        let decorators = collect_leading_macro_directives(
-            source,
-            member.span.lo.0 as usize,
-            valid_annotations,
-        );
+        let decorators =
+            collect_leading_macro_directives(source, member.span.lo.0 as usize, valid_annotations);
 
         // Extract the value from the initializer
         let value = if let Some(init) = &member.init {
@@ -773,7 +770,8 @@ fn lower_type_body(
 
         // Type literal (object type): { x: number; y: number }
         TsTypeLit(lit) => {
-            let (fields, _methods) = lower_interface_members(&lit.members, source, valid_annotations);
+            let (fields, _methods) =
+                lower_interface_members(&lit.members, source, valid_annotations);
             TypeBody::Object { fields }
         }
 
@@ -829,11 +827,8 @@ fn lower_type_member(
     use swc_core::ecma::ast::TsType::*;
 
     // Parse any leading JSDoc comment decorators (e.g., /** @default */)
-    let decorators = collect_leading_macro_directives(
-        source,
-        ts_type.span().lo.0 as usize,
-        valid_annotations,
-    );
+    let decorators =
+        collect_leading_macro_directives(source, ts_type.span().lo.0 as usize, valid_annotations);
 
     let kind = match ts_type {
         // Literal type: "active", 42, true
@@ -844,7 +839,8 @@ fn lower_type_member(
 
         // Type literal (inline object): { role: string }
         TsTypeLit(lit) => {
-            let (fields, _methods) = lower_interface_members(&lit.members, source, valid_annotations);
+            let (fields, _methods) =
+                lower_interface_members(&lit.members, source, valid_annotations);
             TypeMemberKind::Object { fields }
         }
 
@@ -1310,11 +1306,11 @@ fn parse_directives_from_text(
         let name = &after_at[..name_end];
 
         // If an allowlist is provided, skip annotations not in it
-        if let Some(valid) = valid_annotations {
-            if !valid.contains(&name.to_ascii_lowercase()) {
-                remaining = &remaining[at_idx + 1 + name_end..];
-                continue;
-            }
+        if let Some(valid) = valid_annotations
+            && !valid.contains(&name.to_ascii_lowercase())
+        {
+            remaining = &remaining[at_idx + 1 + name_end..];
+            continue;
         }
 
         let after_name = &after_at[name_end..];
@@ -1896,7 +1892,8 @@ export interface PhoneNumber {
  */
 export type Interval = DailyRecurrenceRule | WeeklyRecurrenceRule;"#;
             let module = parse_module(source);
-            let type_aliases = lower_type_aliases(&module, source, None).expect("lowering to succeed");
+            let type_aliases =
+                lower_type_aliases(&module, source, None).expect("lowering to succeed");
             let alias = type_aliases.first().expect("type alias");
 
             assert_eq!(alias.name, "Interval");
@@ -1934,7 +1931,8 @@ export type UnionWithDefault =
   | /** @default */ VariantA
   | VariantB;"#;
             let module = parse_module(source);
-            let type_aliases = lower_type_aliases(&module, source, None).expect("lowering to succeed");
+            let type_aliases =
+                lower_type_aliases(&module, source, None).expect("lowering to succeed");
             let alias = type_aliases.first().expect("type alias");
 
             assert_eq!(alias.name, "UnionWithDefault");
@@ -2028,7 +2026,8 @@ type ContactInfo = {
 };
 "#;
             let module = parse_module(source);
-            let type_aliases = lower_type_aliases(&module, source, None).expect("lowering to succeed");
+            let type_aliases =
+                lower_type_aliases(&module, source, None).expect("lowering to succeed");
             let alias = type_aliases.first().expect("type alias");
 
             assert_eq!(alias.name, "ContactInfo");

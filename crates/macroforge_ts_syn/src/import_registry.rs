@@ -440,6 +440,12 @@ pub fn clear_registry() {
 // JSDoc @import macro comment parsing
 // ============================================================================
 
+/// Public wrapper for `collect_macro_import_comments` — extracts macro name -> module path
+/// from JSDoc `/** import macro { ... } from "package" */` comments.
+pub fn collect_macro_import_comments_pub(source: &str) -> HashMap<String, String> {
+    collect_macro_import_comments(source)
+}
+
 /// Extracts import information from JSDoc `@import macro` comments.
 fn collect_macro_import_comments(source: &str) -> HashMap<String, String> {
     let mut out = HashMap::new();
