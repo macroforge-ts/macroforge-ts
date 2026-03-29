@@ -1333,7 +1333,7 @@ fn wait_for_package(
                     .as_deref()
                     == Some(version)
             },
-            Duration::from_secs(600),
+            Duration::from_secs(1800),
             Duration::from_secs(10),
             ctx,
         )?;
@@ -1346,7 +1346,7 @@ fn wait_for_package(
             version,
             "npm",
             || registry::npm_version(npm_name).ok().flatten().as_deref() == Some(version),
-            Duration::from_secs(600),
+            Duration::from_secs(1800),
             Duration::from_secs(10),
             ctx,
         )?;

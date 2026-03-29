@@ -58,6 +58,13 @@ pub enum Commands {
 
     /// Run tests for packages
     Test(TestArgs),
+
+    /// Publish all packages from local machine
+    #[command(name = "publish-local")]
+    PublishLocal(PublishLocalArgs),
+
+    /// Commit, tag, and push all repos (no registry waiting)
+    Push(PushArgs),
 }
 
 #[derive(clap::Args)]
@@ -266,4 +273,38 @@ pub struct TestArgs {
     /// Run tests for specific repos (comma-separated). Only applies to 'rust' suite.
     #[arg(long)]
     pub repos: Option<String>,
+}
+
+#[derive(clap::Args)]
+pub struct PublishLocalArgs {
+    /// Skip the napi build step (binaries already built)
+    #[arg(long)]
+    pub skip_build: bool,
+
+    /// Print what would be done without actually publishing
+    #[arg(long)]
+    pub dry_run: bool,
+
+    /// Skip confirmation prompts
+    #[arg(short = 'y', long)]
+    pub yes: bool,
+}
+
+#[derive(clap::Args)]
+pub struct PushArgs {
+    /// Repos to push (comma-separated, or 'all', 'rust', 'ts')
+    #[arg(short, long, default_value = "all")]
+    pub repos: String,
+
+    /// Skip confirmation prompts
+    #[arg(short = 'y', long)]
+    pub yes: bool,
+
+    /// Dry run - show what would be done
+    #[arg(long)]
+    pub dry_run: bool,
+
+    /// Custom commit message (used for all repos)
+    #[arg(short, long)]
+    pub message: Option<String>,
 }
