@@ -72,7 +72,7 @@
 
 <ol>
     <li>
-        Fork or clone the <a href="https://github.com/rymskip/macroforge-ts"
+        Fork or clone the <a href="https://github.com/macroforge-ts"
             >macroforge-ts/zed-extensions repository</a
         >
     </li>

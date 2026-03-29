@@ -30,5 +30,8 @@ RUN deno task build
 # Expose port
 EXPOSE 3000
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/ || exit 1
+
 # Serve static files
 CMD ["deno", "run", "--allow-net", "--allow-read", "jsr:@std/http@1/file-server", "build/", "--port", "3000"]

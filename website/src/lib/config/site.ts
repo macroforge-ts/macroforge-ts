@@ -6,7 +6,7 @@ export const siteConfig = {
     url: 'https://macroforge.dev',
     ogImage: '/og-image.png',
     links: {
-        github: 'https://github.com/rymskip/macroforge-ts',
+        github: 'https://github.com/macroforge-ts',
         npm: 'https://www.npmjs.com/package/macroforge'
     },
     author: 'Jakob Lochinski'
