@@ -82,6 +82,8 @@ fn run_cli(cli: Cli) -> Result<()> {
         Some(Commands::Expand(args)) => cli::commands::expand::run(args),
         Some(Commands::Check(args)) => cli::commands::check::run(args),
         Some(Commands::Test(args)) => cli::commands::test::run(args),
+        Some(Commands::PublishLocal(args)) => cli::commands::publish_local::run(&args),
+        Some(Commands::Push(args)) => cli::commands::push::run(&args),
         None => {
             // No command: show help
             use clap::CommandFactory;
