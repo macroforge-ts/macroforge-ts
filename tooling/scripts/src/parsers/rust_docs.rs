@@ -105,6 +105,100 @@ fn extract_doc_from_attrs(attrs: &[Attribute]) -> String {
     doc_lines.join("\n")
 }
 
+/// Split a doc string at the first `# Section` header.
+/// Returns (description, params, returns, examples) parsed from the sections.
+fn parse_doc_sections(doc: &str) -> (String, Option<Vec<ParamDoc>>, Option<ReturnDoc>, Option<Vec<String>>) {
+    let mut description_lines = Vec::new();
+    let mut current_section: Option<String> = None;
+    let mut current_content = Vec::new();
+    let mut params = Vec::new();
+    let mut returns = None;
+    let mut examples = Vec::new();
+
+    let section_re = regex::Regex::new(r"^#\s+(.+)$").unwrap();
+    let param_re = regex::Regex::new(r"^\*\s*`(\w+)`\s*-\s*(.+)").unwrap();
+
+    for line in doc.lines() {
+        if let Some(caps) = section_re.captures(line) {
+            // Save previous section
+            if let Some(ref section) = current_section {
+                save_section(section, &current_content, &param_re, &mut params, &mut returns, &mut examples);
+            }
+            current_section = Some(caps.get(1).unwrap().as_str().to_lowercase());
+            current_content.clear();
+        } else if current_section.is_some() {
+            current_content.push(line.to_string());
+        } else {
+            description_lines.push(line.to_string());
+        }
+    }
+
+    // Save last section
+    if let Some(ref section) = current_section {
+        save_section(section, &current_content, &param_re, &mut params, &mut returns, &mut examples);
+    }
+
+    let description = description_lines.join("\n").trim().to_string();
+    let params = if params.is_empty() { None } else { Some(params) };
+    let examples = if examples.is_empty() { None } else { Some(examples) };
+
+    (description, params, returns, examples)
+}
+
+fn save_section(
+    section: &str,
+    content: &[String],
+    param_re: &regex::Regex,
+    params: &mut Vec<ParamDoc>,
+    returns: &mut Option<ReturnDoc>,
+    examples: &mut Vec<String>,
+) {
+    let text = content.join("\n").trim().to_string();
+    match section {
+        "arguments" | "parameters" | "params" => {
+            for line in content {
+                if let Some(caps) = param_re.captures(line.trim()) {
+                    params.push(ParamDoc {
+                        name: caps.get(1).unwrap().as_str().to_string(),
+                        param_type: String::new(),
+                        description: caps.get(2).unwrap().as_str().trim().to_string(),
+                    });
+                }
+            }
+        }
+        "returns" | "return" => {
+            if !text.is_empty() {
+                *returns = Some(ReturnDoc {
+                    return_type: String::new(),
+                    description: text,
+                });
+            }
+        }
+        "example" | "examples" => {
+            // Extract code blocks from the example section
+            let code_re = regex::Regex::new(r"```(?:\w+)?\n([\s\S]*?)```").unwrap();
+            for caps in code_re.captures_iter(&text) {
+                examples.push(caps.get(1).unwrap().as_str().trim().to_string());
+            }
+        }
+        _ => {} // Ignore other sections (Errors, Performance, etc.)
+    }
+}
+
+/// Build an ItemDoc from raw doc string with section parsing
+fn build_item_doc(name: String, kind: &str, signature: String, doc: String) -> ItemDoc {
+    let (description, params, returns, examples) = parse_doc_sections(&doc);
+    ItemDoc {
+        name,
+        kind: kind.to_string(),
+        signature,
+        description,
+        params,
+        returns,
+        examples,
+    }
+}
+
 /// Extract documentation from a single syn Item
 fn extract_item_doc(item: &Item) -> Option<ItemDoc> {
     match item {
@@ -117,15 +211,7 @@ fn extract_item_doc(item: &Item) -> Option<ItemDoc> {
             let name = item_fn.sig.ident.to_string();
             let signature = format_fn_signature(&item_fn.sig, &item_fn.vis);
 
-            Some(ItemDoc {
-                name,
-                kind: "function".to_string(),
-                signature,
-                description: doc,
-                params: None,
-                returns: None,
-                examples: None,
-            })
+            Some(build_item_doc(name, "function", signature, doc))
         }
         Item::Struct(item_struct) => {
             let doc = extract_doc_from_attrs(&item_struct.attrs);
@@ -150,15 +236,7 @@ fn extract_item_doc(item: &Item) -> Option<ItemDoc> {
             };
             let signature = format!("pub struct {}{}", name, generics);
 
-            Some(ItemDoc {
-                name,
-                kind: "struct".to_string(),
-                signature,
-                description: doc,
-                params: None,
-                returns: None,
-                examples: None,
-            })
+            Some(build_item_doc(name, "struct", signature, doc))
         }
         Item::Enum(item_enum) => {
             let doc = extract_doc_from_attrs(&item_enum.attrs);
@@ -169,15 +247,7 @@ fn extract_item_doc(item: &Item) -> Option<ItemDoc> {
             let name = item_enum.ident.to_string();
             let signature = format!("pub enum {}", name);
 
-            Some(ItemDoc {
-                name,
-                kind: "enum".to_string(),
-                signature,
-                description: doc,
-                params: None,
-                returns: None,
-                examples: None,
-            })
+            Some(build_item_doc(name, "enum", signature, doc))
         }
         Item::Type(item_type) => {
             let doc = extract_doc_from_attrs(&item_type.attrs);
@@ -188,15 +258,7 @@ fn extract_item_doc(item: &Item) -> Option<ItemDoc> {
             let name = item_type.ident.to_string();
             let signature = format!("pub type {} = ...", name);
 
-            Some(ItemDoc {
-                name,
-                kind: "type".to_string(),
-                signature,
-                description: doc,
-                params: None,
-                returns: None,
-                examples: None,
-            })
+            Some(build_item_doc(name, "type", signature, doc))
         }
         Item::Trait(item_trait) => {
             let doc = extract_doc_from_attrs(&item_trait.attrs);
@@ -207,15 +269,7 @@ fn extract_item_doc(item: &Item) -> Option<ItemDoc> {
             let name = item_trait.ident.to_string();
             let signature = format!("pub trait {}", name);
 
-            Some(ItemDoc {
-                name,
-                kind: "trait".to_string(),
-                signature,
-                description: doc,
-                params: None,
-                returns: None,
-                examples: None,
-            })
+            Some(build_item_doc(name, "trait", signature, doc))
         }
         _ => None,
     }
