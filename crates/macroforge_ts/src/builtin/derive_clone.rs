@@ -8,22 +8,25 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `classNameClone(value)` + `static clone(value)` | Standalone function + static wrapper method |
-//! | Enum | `enumNameClone(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
-//! | Interface | `interfaceNameClone(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
-//! | Type Alias | `typeNameClone(value: TypeName): TypeName` | Standalone function with spread copy for objects |
+//! | Class | `{className}Clone(value)` + `static clone(value)` | Standalone function + static wrapper method |
+//! | Enum | `{enumName}Clone(value): EnumName` | Standalone function (enums are primitives, returns value as-is) |
+//! | Interface | `{ifaceName}Clone(value): InterfaceName` | Standalone function creating a new object literal |
+//! | Type Alias | `{typeName}Clone(value): TypeName` | Standalone function with spread copy for objects |
+//!
+//! Names use **camelCase** conversion (e.g., `Point` → `pointClone`).
 //!
 //!
 //! ## Cloning Strategy
 //!
-//! The generated clone performs a **shallow copy** of all fields:
+//! The generated clone is **type-aware** when a type registry is available:
 //!
-//! - **Primitives** (`string`, `number`, `boolean`): Copied by value
-//! - **Objects**: Reference is copied (not deep cloned)
-//! - **Arrays**: Reference is copied (not deep cloned)
-//!
-//! For deep cloning of nested objects, those objects should also derive `Clone`
-//! and the caller should clone them explicitly.
+//! - **Primitives** (`string`, `number`, `boolean`, `bigint`): Copied by value
+//! - **`Date`**: Deep cloned via `new Date(x.getTime())`
+//! - **Arrays**: Spread copy `[...arr]`, or deep map if element type has `Clone`
+//! - **`Map`/`Set`**: New collection, deep copy if value type has `Clone`
+//! - **Objects with `@derive(Clone)`**: Deep cloned via their standalone clone function
+//! - **Optional fields**: Null-checked — `null`/`undefined` pass through unchanged
+//! - **Other objects**: Shallow copy (reference)
 //!
 //! ## Example
 //!
@@ -246,12 +249,12 @@ fn generate_clone_expr_fallback(field_name: &str, ts_type: &str, var: &str) -> S
 /// Returns a `TsStream` containing the generated clone method or function,
 /// or a `MacroforgeError` if code generation fails.
 ///
-/// # Generated Signatures (default suffix style)
+/// # Generated Signatures
 ///
-/// - Classes: `clone(): ClassName`
-/// - Enums: `cloneEnumName(value: EnumName): EnumName`
-/// - Interfaces: `cloneInterfaceName(value: InterfaceName): InterfaceName`
-/// - Type Aliases: `cloneTypeName(value: TypeName): TypeName`
+/// - Classes: `static clone(value): ClassName` + `{className}Clone(value): ClassName`
+/// - Enums: `{enumName}Clone(value): EnumName`
+/// - Interfaces: `{ifaceName}Clone(value): InterfaceName`
+/// - Type Aliases: `{typeName}Clone(value): TypeName`
 #[ts_macro_derive(Clone, description = "Generates a clone() method for deep cloning")]
 pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);

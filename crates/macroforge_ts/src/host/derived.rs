@@ -291,8 +291,9 @@ pub struct MacroManifest {
 
 /// Returns the complete manifest of all registered macros and decorators.
 ///
-/// This is the primary introspection API for tooling to discover available
-/// macros at runtime.
+/// The manifest includes all macros discovered via the `inventory` crate
+/// at link time, along with their field-level decorators. This is the
+/// primary introspection API for tooling.
 ///
 /// # Example
 ///
@@ -300,9 +301,12 @@ pub struct MacroManifest {
 /// use macroforge_ts::host::derived::get_manifest;
 ///
 /// let manifest = get_manifest();
-/// println!("Available macros:");
-/// for macro_entry in &manifest.macros {
-///     println!("  {} - {}", macro_entry.name, macro_entry.description);
+/// println!("Macroforge v{} manifest:", manifest.version);
+/// for m in &manifest.macros {
+///     println!("  @derive({}) [{}] - {}", m.name, m.package, m.description);
+/// }
+/// for d in &manifest.decorators {
+///     println!("  @{}({}) - {}", d.module, d.export, d.docs);
 /// }
 /// ```
 pub fn get_manifest() -> MacroManifest {

@@ -1,7 +1,7 @@
 //! # Configuration for the Macro Host
 //!
 //! This module handles loading and managing configuration for the macro system.
-//! Configuration is provided via a `macroforge.config.js` (or `.ts`, `.mjs`, `.cjs`) file
+//! Configuration is provided via a `macroforge.config.ts` (or `.mts`, `.js`, `.mjs`, `.cjs`) file
 //! in the project root.
 //!
 //! ## Configuration File Locations

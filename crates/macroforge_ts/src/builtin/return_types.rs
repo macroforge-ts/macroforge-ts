@@ -8,6 +8,12 @@
 //! - **Deserialize**: `{ success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }`
 //! - **PartialOrd**: `number | null`
 //!
+//! ## Notation
+//!
+//! Type signatures use **semicolons** (TypeScript type literal syntax: `{ a: string; b: number }`),
+//! while runtime object expressions use **commas** (`{ a: "hello", b: 42 }`). Both are correct
+//! for their respective contexts.
+//!
 //! ## Usage
 //!
 //! These helpers are used by `derive_deserialize.rs` and `derive_partial_ord.rs`

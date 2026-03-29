@@ -10,28 +10,28 @@
 //!
 //! | Macro | Generated Method | Description |
 //! |-------|------------------|-------------|
-//! | `PartialEq` | `equals(other): boolean` | Field-by-field equality comparison |
-//! | `Hash` | `hashCode(): number` | Hash code generation for collections |
+//! | `PartialEq` | `static equals(a, b): boolean` | Field-by-field equality comparison |
+//! | `Hash` | `static hashCode(value): number` | Hash code generation for collections |
 //!
 //! ### Ordering
 //!
 //! | Macro | Generated Method | Description |
 //! |-------|------------------|-------------|
-//! | `PartialOrd` | `compareTo(other): number \| null` | Partial ordering (can return null) |
-//! | `Ord` | `compareTo(other): number` | Total ordering (never null) |
+//! | `PartialOrd` | `static compareTo(a, b): number \| null` | Partial ordering (can return null) |
+//! | `Ord` | `static compareTo(a, b): number` | Total ordering (never null) |
 //!
 //! ### Cloning & Debugging
 //!
 //! | Macro | Generated Method | Description |
 //! |-------|------------------|-------------|
-//! | `Clone` | `clone(): T` | Deep copy of the object |
-//! | `Debug` | `toString(): string` | Human-readable debug representation |
+//! | `Clone` | `static clone(value): T` | Deep copy of the object |
+//! | `Debug` | `static toString(value): string` | Human-readable debug representation |
 //!
 //! ### Initialization
 //!
 //! | Macro | Generated Method | Description |
 //! |-------|------------------|-------------|
-//! | `Default` | `static default(): T` | Factory method with default values |
+//! | `Default` | `static defaultValue(): T` | Factory method with default values |
 //!
 //! ### Serialization (Serde)
 //!
