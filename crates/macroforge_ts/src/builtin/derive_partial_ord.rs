@@ -8,19 +8,21 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `classNamePartialCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
-//! | Enum | `enumNamePartialCompare(a: EnumName, b: EnumName): Option<number>` | Standalone function returning Option |
-//! | Interface | `interfaceNamePartialCompare(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
-//! | Type Alias | `typeNamePartialCompare(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
+//! | Class | `{className}PartialCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
+//! | Enum | `{enumName}PartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
+//! | Interface | `{ifaceName}PartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
+//! | Type Alias | `{typeName}PartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
+//!
+//! Names use **camelCase** conversion (e.g., `Temperature` → `temperaturePartialCompare`).
 //!
 //! ## Return Values
 //!
-//! Unlike `Ord`, `PartialOrd` returns an `Option<number>` to handle incomparable values:
+//! Unlike `Ord`, `PartialOrd` returns `number | null` to handle incomparable values:
 //!
-//! - **Option.some(-1)**: `a` is less than `b`
-//! - **Option.some(0)**: `a` is equal to `b`
-//! - **Option.some(1)**: `a` is greater than `b`
-//! - **Option.none()**: Values are incomparable
+//! - **-1**: `a` is less than `b`
+//! - **0**: `a` is equal to `b`
+//! - **1**: `a` is greater than `b`
+//! - **null**: Values are incomparable
 //!
 //! ## When to Use PartialOrd vs Ord
 //!
@@ -36,8 +38,8 @@
 //! Fields are compared **lexicographically** in declaration order:
 //!
 //! 1. Compare first field
-//! 2. If incomparable, return `Option.none()`
-//! 3. If not equal, return that result wrapped in `Option.some()`
+//! 2. If incomparable, return `null`
+//! 3. If not equal, return that result
 //! 4. Otherwise, compare next field
 //! 5. Continue until a difference is found or all fields are equal
 //!
@@ -45,13 +47,13 @@
 //!
 //! | Type | Comparison Method |
 //! |------|-------------------|
-//! | `number`/`bigint` | Direct comparison, returns some() |
-//! | `string` | `localeCompare()` wrapped in some() |
-//! | `boolean` | false < true, wrapped in some() |
-//! | null/undefined | Returns none() for mismatched nullability |
-//! | Arrays | Lexicographic, propagates none() on incomparable elements |
-//! | `Date` | Timestamp comparison, none() if invalid |
-//! | Objects | Unwraps nested Option from compareTo() |
+//! | `number`/`bigint` | Direct subtraction (`a - b`) |
+//! | `string` | `localeCompare()` |
+//! | `boolean` | `false < true` (cast to number) |
+//! | null/undefined | Returns `null` for mismatched nullability |
+//! | Arrays | Lexicographic, propagates `null` on incomparable elements |
+//! | `Date` | Timestamp comparison, `null` if invalid |
+//! | Objects | Delegates to `compareTo()` if available |
 //!
 //! ## Field-Level Options
 //!
@@ -246,7 +248,7 @@ fn generate_field_compare_for_interface(
 
 #[ts_macro_derive(
     PartialOrd,
-    description = "Generates a compareTo() method for partial ordering (returns Option<number>: some(-1), some(0), some(1), or none())",
+    description = "Generates a compareTo() method for partial ordering (returns number | null: -1, 0, 1, or null)",
     attributes(ord)
 )]
 pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {

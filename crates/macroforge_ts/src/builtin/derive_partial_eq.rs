@@ -40,12 +40,12 @@
 //! ## Example
 //!
 //! ```typescript
-//! /** @derive(PartialEq, Hash) */
+//! /** @derive(PartialEq) */
 //! class User {
 //!     id: number;
 //!     name: string;
 //!
-//!     /** @partialEq({ skip: true }) @hash({ skip: true }) */
+//!     /** @partialEq({ skip: true }) */
 //!     cachedScore: number;
 //! }
 //! ```
@@ -62,33 +62,11 @@
 //!     static equals(a: User, b: User): boolean {
 //!         return userEquals(a, b);
 //!     }
-//!
-//!     static hashCode(value: User): number {
-//!         return userHashCode(value);
-//!     }
 //! }
 //!
 //! export function userEquals(a: User, b: User): boolean {
 //!     if (a === b) return true;
 //!     return a.id === b.id && a.name === b.name;
-//! }
-//!
-//! export function userHashCode(value: User): number {
-//!     let hash = 17;
-//!     hash =
-//!         (hash * 31 +
-//!             (Number.isInteger(value.id)
-//!                 ? value.id | 0
-//!                 : value.id
-//!                       .toString()
-//!                       .split('')
-//!                       .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-//!         0;
-//!     hash =
-//!         (hash * 31 +
-//!             (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
-//!         0;
-//!     return hash;
 //! }
 //! ```
 //!
@@ -100,60 +78,8 @@
 //! - **Symmetry**: `a.equals(b)` implies `b.equals(a)`
 //! - **Hash consistency**: Equal objects must have equal hash codes
 //!
-//! To maintain the hash contract, skip the same fields in both `PartialEq` and `Hash`:
-//!
-//! ```typescript
-//! /** @derive(PartialEq, Hash) */
-//! class User {
-//!     id: number;
-//!     name: string;
-//!
-//!     /** @partialEq({ skip: true }) @hash({ skip: true }) */
-//!     cachedScore: number;
-//! }
-//! ```
-//!
-//! Generated output:
-//!
-//! ```typescript
-//! class User {
-//!     id: number;
-//!     name: string;
-//!
-//!     cachedScore: number;
-//!
-//!     static equals(a: User, b: User): boolean {
-//!         return userEquals(a, b);
-//!     }
-//!
-//!     static hashCode(value: User): number {
-//!         return userHashCode(value);
-//!     }
-//! }
-//!
-//! export function userEquals(a: User, b: User): boolean {
-//!     if (a === b) return true;
-//!     return a.id === b.id && a.name === b.name;
-//! }
-//!
-//! export function userHashCode(value: User): number {
-//!     let hash = 17;
-//!     hash =
-//!         (hash * 31 +
-//!             (Number.isInteger(value.id)
-//!                 ? value.id | 0
-//!                 : value.id
-//!                       .toString()
-//!                       .split('')
-//!                       .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-//!         0;
-//!     hash =
-//!         (hash * 31 +
-//!             (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
-//!         0;
-//!     return hash;
-//! }
-//! ```
+//! To maintain the hash contract, skip the same fields in both `PartialEq` and `Hash`,
+//! as shown in the example above using `@partialEq({ skip: true }) @hash({ skip: true })`.
 
 use convert_case::{Case, Casing};
 

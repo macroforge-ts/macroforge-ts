@@ -8,7 +8,7 @@
   ],
   "description": "TypeScript macro expansion engine powered by Rust and SWC",
   "engines": {
-    "node": ">= 18"
+    "node": ">= 24"
   },
   "files": [
     "macroforge.win32-x64-msvc.node"

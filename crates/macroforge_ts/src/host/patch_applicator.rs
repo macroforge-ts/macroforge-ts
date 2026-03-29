@@ -33,6 +33,13 @@
 //!   Segment 2: original[11-12] -> expanded[25-26] (unchanged: "}")
 //! ```
 //!
+//! ## Position Conventions
+//!
+//! All [`SpanIR`] positions in patches use **1-based** byte offsets (matching SWC's
+//! internal convention). The [`SourceMapping`] output uses **0-based** positions
+//! (matching the TypeScript language service API). The applicator converts between
+//! these conventions internally.
+//!
 //! ## Source Mapping
 //!
 //! The engine generates source mapping data that enables:
@@ -429,13 +436,17 @@ impl<'a> PatchApplicator<'a> {
     }
 }
 
-/// Builder for collecting and applying patches from multiple macros
+/// Builder for collecting and applying patches from multiple macros.
+///
+/// Accumulates runtime patches (`.ts`/`.js` output) and type patches (`.d.ts` output)
+/// separately, then applies them with deduplication.
 pub struct PatchCollector {
     runtime_patches: Vec<Patch>,
     type_patches: Vec<Patch>,
 }
 
 impl PatchCollector {
+    /// Create a new empty patch collector.
     pub fn new() -> Self {
         Self {
             runtime_patches: Vec::new(),
@@ -443,30 +454,40 @@ impl PatchCollector {
         }
     }
 
+    /// Append runtime code patches (inserted into `.ts`/`.js` output).
     pub fn add_runtime_patches(&mut self, patches: Vec<Patch>) {
         self.runtime_patches.extend(patches);
     }
 
+    /// Append type-level patches (inserted into `.d.ts` output).
     pub fn add_type_patches(&mut self, patches: Vec<Patch>) {
         self.type_patches.extend(patches);
     }
 
+    /// Returns `true` if any type-level patches have been collected.
     pub fn has_type_patches(&self) -> bool {
         !self.type_patches.is_empty()
     }
 
+    /// Returns `true` if any patches (runtime or type) have been collected.
     pub fn has_patches(&self) -> bool {
         !self.runtime_patches.is_empty() || !self.type_patches.is_empty()
     }
 
+    /// Returns the number of runtime patches collected so far.
     pub fn runtime_patches_count(&self) -> usize {
         self.runtime_patches.len()
     }
 
+    /// Returns a slice of runtime patches starting from the given index.
     pub fn runtime_patches_slice(&self, start: usize) -> &[Patch] {
         &self.runtime_patches[start..]
     }
 
+    /// Apply all collected runtime patches to the source, returning the modified code.
+    ///
+    /// Deduplicates patches before applying. Returns the original source unchanged
+    /// if no runtime patches have been collected.
     pub fn apply_runtime_patches(&self, source: &str) -> Result<String> {
         if self.runtime_patches.is_empty() {
             return Ok(source.to_string());
@@ -477,6 +498,10 @@ impl PatchCollector {
         applicator.apply()
     }
 
+    /// Apply all collected type patches to the source, returning the modified code.
+    ///
+    /// Deduplicates patches before applying. Returns the original source unchanged
+    /// if no type patches have been collected.
     pub fn apply_type_patches(&self, source: &str) -> Result<String> {
         if self.type_patches.is_empty() {
             return Ok(source.to_string());
@@ -487,6 +512,12 @@ impl PatchCollector {
         applicator.apply()
     }
 
+    /// Apply runtime patches and return both the modified code and source mapping.
+    ///
+    /// # Arguments
+    ///
+    /// * `source` - The original source code
+    /// * `macro_name` - Fallback attribution for patches without `source_macro`
     pub fn apply_runtime_patches_with_mapping(
         &self,
         source: &str,
@@ -510,6 +541,12 @@ impl PatchCollector {
         applicator.apply_with_mapping(macro_name)
     }
 
+    /// Apply type patches and return both the modified code and source mapping.
+    ///
+    /// # Arguments
+    ///
+    /// * `source` - The original source code
+    /// * `macro_name` - Fallback attribution for patches without `source_macro`
     pub fn apply_type_patches_with_mapping(
         &self,
         source: &str,
@@ -532,6 +569,7 @@ impl PatchCollector {
         applicator.apply_with_mapping(macro_name)
     }
 
+    /// Returns a reference to the collected type patches.
     pub fn get_type_patches(&self) -> &Vec<Patch> {
         &self.type_patches
     }

@@ -40,7 +40,7 @@
 //! ## Error Handling
 //!
 //! The dispatcher never panics. All errors are converted to diagnostics:
-//! - Macro not found → Error diagnostic with helpful message
+//! - Macro not found (both module-path and name-only fallback failed) → Error diagnostic
 //! - ABI mismatch → Error diagnostic with version info
 //! - TsStream creation failure → Error diagnostic with details
 //! - Macro panic → Error diagnostic with panic message

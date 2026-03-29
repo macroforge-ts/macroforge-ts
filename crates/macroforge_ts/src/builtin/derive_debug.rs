@@ -5,16 +5,18 @@
 //!
 //! ## Generated Output
 //!
-//! **Classes**: Generates a standalone function `classNameToString(value)` and a static wrapper
+//! **Classes**: Generates a standalone function `{className}ToString(value)` and a static wrapper
 //! method `static toString(value)` returning a string like `"ClassName { field1: value1, field2: value2 }"`.
 //!
-//! **Enums**: Generates a standalone function `enumNameToString(value)` that performs
+//! **Enums**: Generates a standalone function `{enumName}ToString(value)` that performs
 //! reverse lookup on numeric enums.
 //!
-//! **Interfaces**: Generates a standalone function `interfaceNameToString(value)`.
+//! **Interfaces**: Generates a standalone function `{ifaceName}ToString(value)`.
 //!
 //! **Type Aliases**: Generates a standalone function using JSON.stringify for
 //! complex types, or field enumeration for object types.
+//!
+//! Names use **camelCase** conversion (e.g., `User` → `userToString`).
 //!
 //!
 //! ## Field-Level Options

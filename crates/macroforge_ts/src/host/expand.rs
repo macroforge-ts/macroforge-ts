@@ -125,18 +125,29 @@ const BUILTIN_MACRO_NAMES: &[&str] = &[
     "Deserialize",
 ];
 
-/// Result of macro expansion
+/// Result of macro expansion.
+///
+/// Contains the expanded source code along with diagnostics, IR representations
+/// of all discovered declarations, and an optional source mapping for IDE integration.
 #[derive(Debug, Clone)]
 pub struct MacroExpansion {
+    /// The expanded source code after macro processing.
     pub code: String,
+    /// Diagnostics (errors, warnings, info) generated during expansion.
     pub diagnostics: Vec<Diagnostic>,
+    /// Whether any macros were expanded (i.e., source code was modified).
     pub changed: bool,
+    /// Separate type-level output (`.d.ts` patches), if any macros generated type declarations.
     pub type_output: Option<String>,
+    /// All classes found in the source, lowered to IR.
     pub classes: Vec<ClassIR>,
+    /// All interfaces found in the source, lowered to IR.
     pub interfaces: Vec<InterfaceIR>,
+    /// All enums found in the source, lowered to IR.
     pub enums: Vec<EnumIR>,
+    /// All type aliases found in the source, lowered to IR.
     pub type_aliases: Vec<TypeAliasIR>,
-    /// Source mapping between original and expanded code positions
+    /// Bidirectional source mapping between original and expanded code positions.
     pub source_mapping: Option<SourceMapping>,
 }
 
@@ -179,12 +190,27 @@ impl LoweredItems {
 }
 
 impl MacroExpander {
-    /// Create a new expander with the local registry populated from inventory
+    /// Create a new expander with the local registry populated from inventory.
+    ///
+    /// Discovers the project configuration by searching upward from the current
+    /// directory for a `macroforge.config.*` file, then registers all built-in
+    /// macros via the inventory.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if configuration discovery or macro registration fails.
     pub fn new() -> anyhow::Result<Self> {
         Self::new_with_env(None)
     }
 
-    /// Create a new expander, optionally with a NAPI environment
+    /// Create a new expander, optionally with a NAPI environment.
+    ///
+    /// When `env` is `Some`, the expander can call into Node.js for external
+    /// macro loading. When `None`, only built-in macros are available.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if configuration discovery or macro registration fails.
     pub fn new_with_env(_env: Option<&napi::Env>) -> anyhow::Result<Self> {
         let (config, root_dir) = MacroConfig::find_with_root()
             .context("failed to discover macro configuration")?
@@ -197,13 +223,28 @@ impl MacroExpander {
         Self::with_config_and_env(config, root_dir, _env)
     }
 
-    /// Create an expander with a specific config
+    /// Create an expander with a specific configuration and project root.
+    ///
+    /// Use this when you already have a parsed [`MacroConfig`] (e.g., from tests
+    /// or when the config was loaded externally).
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if macro registration fails.
     #[allow(dead_code)]
     pub fn with_config(config: MacroConfig, root_dir: std::path::PathBuf) -> anyhow::Result<Self> {
         Self::with_config_and_env(config, root_dir, None)
     }
 
-    /// Create an expander with a specific config and optional NAPI environment
+    /// Create an expander with a specific config and optional NAPI environment.
+    ///
+    /// This is the most flexible constructor, used by both [`Self::new`] and
+    /// [`Self::with_config`]. Registers all built-in macros from the inventory
+    /// and optionally sets up the external macro loader.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if macro registration fails.
     pub fn with_config_and_env(
         config: MacroConfig,
         root_dir: std::path::PathBuf,

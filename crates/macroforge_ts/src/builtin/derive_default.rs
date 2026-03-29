@@ -8,10 +8,12 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `static defaultValue(): ClassName` | Static factory method |
-//! | Enum | `defaultValueEnumName(): EnumName` | Standalone function returning marked variant |
-//! | Interface | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal |
-//! | Type Alias | `defaultValueTypeName(): TypeName` | Standalone function with type-appropriate default |
+//! | Class | `static defaultValue()` + `{className}DefaultValue()` | Static factory method + standalone function |
+//! | Enum | `{enumName}DefaultValue(): EnumName` | Standalone function returning `@default` variant |
+//! | Interface | `{ifaceName}DefaultValue(): InterfaceName` | Standalone function returning object literal |
+//! | Type Alias | `{typeName}DefaultValue(): TypeName` | Standalone function with type-appropriate default |
+//!
+//! Names use **camelCase** conversion (e.g., `UserSettings` → `userSettingsDefaultValue`).
 //!
 //!
 //! ## Default Values by Type
@@ -74,6 +76,10 @@
 //!         return instance;
 //!     }
 //! }
+//!
+//! export function userSettingsDefaultValue(): UserSettings {
+//!     return UserSettings.defaultValue();
+//! }
 //! ```
 //!
 //! ## Enum Defaults
@@ -102,10 +108,6 @@
 //!
 //! export function statusDefaultValue(): Status {
 //!     return Status.Pending;
-//! }
-//!
-//! namespace Status {
-//!     export const defaultValue = statusDefaultValue;
 //! }
 //! ```
 //!

@@ -169,13 +169,14 @@ pub fn parse_generic_type(type_name: &str) -> Option<(&str, &str)> {
     }
 }
 
-/// Check if a type has a known default value.
-/// All types are assumed to implement Default - primitives/collections have built-in defaults,
-/// unknown types are assumed to have a defaultValue() static method (Rust's derive(Default) philosophy).
+/// Returns whether a type can have a default value generated for it.
+///
+/// Always returns `true` because all types are assumed to implement Default:
+/// primitives and collections have built-in defaults, and custom types are
+/// assumed to provide a `{typeName}DefaultValue()` standalone function
+/// (following Rust's `derive(Default)` philosophy). This function exists
+/// as a named predicate for readability.
 pub fn has_known_default(_ts_type: &str) -> bool {
-    // All types are assumed to implement Default
-    // - Primitives/collections have built-in defaults
-    // - Unknown types are assumed to have defaultValue() method
     true
 }
 
@@ -277,6 +278,11 @@ fn format_default_call(type_name: &str) -> String {
 // Helper functions (shared with other modules)
 // ============================================================================
 
+/// Check if a decorator argument string contains the given flag.
+///
+/// Splits the argument string on non-alphanumeric characters and checks if
+/// any token matches `flag` (case-insensitive). Returns `false` if the flag
+/// is explicitly set to `false` (e.g., `skip: false` or `skip=false`).
 pub fn has_flag(args: &str, flag: &str) -> bool {
     if flag_explicit_false(args, flag) {
         return false;
@@ -292,6 +298,12 @@ fn flag_explicit_false(args: &str, flag: &str) -> bool {
     condensed.contains(&format!("{flag}:false")) || condensed.contains(&format!("{flag}=false"))
 }
 
+/// Extract a named string value from a decorator argument string.
+///
+/// Looks for patterns like `name: "value"`, `name = "value"`, or `name("value")`
+/// and returns the unquoted string. The name match is case-insensitive.
+///
+/// Returns `None` if the name is not found or the value is not a string literal.
 pub fn extract_named_string(args: &str, name: &str) -> Option<String> {
     let lower = args.to_ascii_lowercase();
     let idx = lower.find(name)?;
