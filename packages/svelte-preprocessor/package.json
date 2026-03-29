@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@macroforge/shared": "workspace:*",
+    "@macroforge/shared": "^0.1.77",
     "macroforge": "^0.1.77"
   },
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
