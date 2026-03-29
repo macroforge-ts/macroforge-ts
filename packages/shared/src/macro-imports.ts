@@ -25,20 +25,20 @@
  * ```
  */
 export function hasMacroAnnotations(source: string): boolean {
-    if (!source.includes("@derive")) {
+    if (!source.includes('@derive')) {
         return false;
     }
     let inCodeBlock = false;
-    for (const line of source.split("\n")) {
+    for (const line of source.split('\n')) {
         // Strip JSDoc comment syntax: /**, */, leading *, and whitespace
         const trimmed = line
             .trim()
-            .replace(/^\/+/, "")
-            .replace(/^\*+/, "")
-            .replace(/\*+\/$/, "")
-            .replace(/\/+$/, "")
+            .replace(/^\/+/, '')
+            .replace(/^\*+/, '')
+            .replace(/\*+\/$/, '')
+            .replace(/\/+$/, '')
             .trim();
-        if (trimmed.startsWith("```")) {
+        if (trimmed.startsWith('```')) {
             inCodeBlock = !inCodeBlock;
             continue;
         }
@@ -46,7 +46,7 @@ export function hasMacroAnnotations(source: string): boolean {
             continue;
         }
         // A line must START with @derive( to be a real directive.
-        if (trimmed.startsWith("@derive(")) {
+        if (trimmed.startsWith('@derive(')) {
             return true;
         }
     }

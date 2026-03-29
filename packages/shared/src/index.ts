@@ -35,7 +35,7 @@ export {
 } from './config.js';
 
 // Import for composite functions
-import { hasMacroAnnotations, parseMacroImportComments } from './macro-imports.js';
+import { parseMacroImportComments } from './macro-imports.js';
 import { getExternalManifest, type RequireFunction } from './external-manifest.js';
 
 /**
@@ -67,6 +67,6 @@ export function collectExternalDecoratorModules(
 
     return modulePaths.flatMap((modulePath) => {
         const manifest = getExternalManifest(modulePath, requireFn);
-        return manifest?.decorators.map((d) => d.module) ?? [];
+        return manifest?.decorators.map((d) => d.export) ?? [];
     });
 }
