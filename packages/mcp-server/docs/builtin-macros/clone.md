@@ -9,21 +9,24 @@ independent copies of values.
 | Type | Generated Code | Description |
 |------|----------------|-------------|
 | Class | `classNameClone(value)` + `static clone(value)` | Standalone function + static wrapper method |
-| Enum | `enumNameClone(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
-| Interface | `interfaceNameClone(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
-| Type Alias | `typeNameClone(value: TypeName): TypeName` | Standalone function with spread copy for objects |
+| Enum | `enumNameClone(value): EnumName` | Standalone function (enums are primitives, returns value as-is) |
+| Interface | `ifaceNameClone(value): InterfaceName` | Standalone function creating a new object literal |
+| Type Alias | `typeNameClone(value): TypeName` | Standalone function with spread copy for objects |
+
+Names use **camelCase** conversion (e.g., `Point` → `pointClone`).
 
 
 ## Cloning Strategy
 
-The generated clone performs a **shallow copy** of all fields:
+The generated clone is **type-aware** when a type registry is available:
 
-- **Primitives** (`string`, `number`, `boolean`): Copied by value
-- **Objects**: Reference is copied (not deep cloned)
-- **Arrays**: Reference is copied (not deep cloned)
-
-For deep cloning of nested objects, those objects should also derive `Clone`
-and the caller should clone them explicitly.
+- **Primitives** (`string`, `number`, `boolean`, `bigint`): Copied by value
+- **`Date`**: Deep cloned via `new Date(x.getTime())`
+- **Arrays**: Spread copy `[...arr]`, or deep map if element type has `Clone`
+- **`Map`/`Set`**: New collection, deep copy if value type has `Clone`
+- **Objects with `@derive(Clone)`**: Deep cloned via their standalone clone function
+- **Optional fields**: Null-checked — `null`/`undefined` pass through unchanged
+- **Other objects**: Shallow copy (reference)
 
 ## Example
 

@@ -8,10 +8,12 @@ a standard way to create "zero" or "empty" instances of types.
 
 | Type | Generated Code | Description |
 |------|----------------|-------------|
-| Class | `static defaultValue(): ClassName` | Static factory method |
-| Enum | `defaultValueEnumName(): EnumName` | Standalone function returning marked variant |
-| Interface | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal |
-| Type Alias | `defaultValueTypeName(): TypeName` | Standalone function with type-appropriate default |
+| Class | `static defaultValue()` + `classNameDefaultValue()` | Static factory method + standalone function |
+| Enum | `enumNameDefaultValue(): EnumName` | Standalone function returning `@default` variant |
+| Interface | `ifaceNameDefaultValue(): InterfaceName` | Standalone function returning object literal |
+| Type Alias | `typeNameDefaultValue(): TypeName` | Standalone function with type-appropriate default |
+
+Names use **camelCase** conversion (e.g., `UserSettings` → `userSettingsDefaultValue`).
 
 
 ## Default Values by Type
@@ -72,6 +74,10 @@ class UserSettings {
         return instance;
     }
 }
+
+export function userSettingsDefaultValue(): UserSettings {
+    return UserSettings.defaultValue();
+}
 ```
 
 ## Enum Defaults
@@ -98,10 +104,6 @@ enum Status {
 
 export function statusDefaultValue(): Status {
     return Status.Pending;
-}
-
-namespace Status {
-    export const defaultValue = statusDefaultValue;
 }
 ```
 

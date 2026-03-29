@@ -21,10 +21,13 @@ Uses the standard polynomial rolling hash algorithm:
 ```text
 hash = 17  // Initial seed
 for each field:
-    hash = (hash * 31 + fieldHash) | 0  // Bitwise OR keeps it 32-bit integer
+    hash = (hash * 31 + fieldHash) | 0
 ```
 
-This algorithm is consistent with Java's `Objects.hash()` implementation.
+The `| 0` (bitwise OR with zero) at the end of each step coerces the result
+to a 32-bit signed integer, preventing floating-point drift from repeated
+multiplication. This is equivalent to casting to `i32` in Rust and consistent
+with Java's `Objects.hash()` implementation.
 
 ## Type-Specific Hashing
 
@@ -49,7 +52,7 @@ The `@hash` decorator supports:
 ## Example
 
 ```typescript before
-/** @derive(Hash, PartialEq) */
+/** @derive(Hash) */
 class User {
     id: number;
     name: string;
@@ -69,10 +72,6 @@ class User {
     static hashCode(value: User): number {
         return userHashCode(value);
     }
-
-    static equals(a: User, b: User): boolean {
-        return userEquals(a, b);
-    }
 }
 
 export function userHashCode(value: User): number {
@@ -91,11 +90,6 @@ export function userHashCode(value: User): number {
             (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
         0;
     return hash;
-}
-
-export function userEquals(a: User, b: User): boolean {
-    if (a === b) return true;
-    return a.id === b.id && a.name === b.name && a.cachedScore === b.cachedScore;
 }
 ```
 

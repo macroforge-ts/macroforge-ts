@@ -94,7 +94,7 @@ class User {
 @param value - The value to serialize
 @param ctx - The serialization context  */
 
-    static serializeWithContext(value: User, ctx: @{SERIALIZE_CONTEXT}): Record<string, unknown> {
+    static serializeWithContext(value: User, ctx: @SERIALIZE_CONTEXT): Record<string, unknown> {
         return userSerializeWithContext(value, ctx);
     }
 }
@@ -104,7 +104,7 @@ class User {
 @returns JSON string representation with cycle detection metadata */ export function userSerialize(
     value: User
 ): string {
-    const ctx = @{SERIALIZE_CONTEXT}.create();
+    const ctx = @SERIALIZE_CONTEXT.create();
     return JSON.stringify(userSerializeWithContext(value, ctx));
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
@@ -123,7 +123,7 @@ export function userSerializeWithContext(
     result['userName'] = value.name;
     {
         const __flattened = userMetadataSerializeWithContext(value.metadata, ctx);
-        const { __type: _, __id: __, ...rest } = __flattened as any;
+        const { __type: _, __id: __, ...rest } = __flattened as any; // tag field name is configurable via `tag` option
         Object.assign(result, rest);
     }
     return result;

@@ -11,10 +11,12 @@ method `static toString(value)` returning a string like `"ClassName { field1: va
 **Enums**: Generates a standalone function `enumNameToString(value)` that performs
 reverse lookup on numeric enums.
 
-**Interfaces**: Generates a standalone function `interfaceNameToString(value)`.
+**Interfaces**: Generates a standalone function `ifaceNameToString(value)`.
 
 **Type Aliases**: Generates a standalone function using JSON.stringify for
 complex types, or field enumeration for object types.
+
+Names use **camelCase** conversion (e.g., `User` → `userToString`).
 
 
 ## Field-Level Options

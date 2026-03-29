@@ -150,7 +150,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: @{DESERIALIZE_OPTIONS}
+        opts?: @DESERIALIZE_OPTIONS
     ): Result<
         User,
         Array<{
@@ -162,9 +162,9 @@ class User {
             // Auto-detect: if string, parse as JSON first
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
-            const ctx = @{DESERIALIZE_CONTEXT}.create();
+            const ctx = @DESERIALIZE_CONTEXT.create();
             const resultOrRef = User.deserializeWithContext(data, ctx);
-            if (@{PENDING_REF}.is(resultOrRef)) {
+            if (@PENDING_REF.is(resultOrRef)) {
                 return Result.err([
                     {
                         field: '_root',
@@ -178,7 +178,7 @@ class User {
             }
             return Result.ok(resultOrRef);
         } catch (e) {
-            if (e instanceof @{DESERIALIZE_ERROR}) {
+            if (e instanceof @DESERIALIZE_ERROR) {
                 return Result.err(e.errors);
             }
             const message = e instanceof Error ? e.message : String(e);
@@ -192,12 +192,12 @@ class User {
     }
 
     /** @internal */
-    static deserializeWithContext(value: any, ctx: @{DESERIALIZE_CONTEXT}): User | @{PENDING_REF} {
+    static deserializeWithContext(value: any, ctx: @DESERIALIZE_CONTEXT): User | @PENDING_REF {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new @{DESERIALIZE_ERROR}([
+            throw new @DESERIALIZE_ERROR([
                 {
                     field: '_root',
                     message: 'User.deserializeWithContext: expected an object'
@@ -231,7 +231,7 @@ class User {
             });
         }
         if (errors.length > 0) {
-            throw new @{DESERIALIZE_ERROR}(errors);
+            throw new @deserialize_error_expr(errors);
         }
         const instance = Object.create(User.prototype) as User;
         if (obj.__id !== undefined) {
@@ -257,7 +257,7 @@ class User {
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
-            throw new @{DESERIALIZE_ERROR}(errors);
+            throw new @deserialize_error_expr(errors);
         }
         return instance;
     }
