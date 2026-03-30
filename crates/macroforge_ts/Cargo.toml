@@ -16,7 +16,7 @@ crate-type = ["cdylib", "rlib"]
 
 [[bin]]
 name = "macroforge"
-path = "src/bin/cli.rs"
+path = "src/bin/cli/main.rs"
 
 [dependencies]
 # NAPI-RS for Node.js bindings
@@ -34,9 +34,9 @@ swc_core = { version = "59.0.1", features = [
 ] }
 
 # Macroforge crates (local development)
-macroforge_ts_syn = "0.1.80"
-macroforge_ts_quote = "0.1.80"
-macroforge_ts_macros = "0.1.80"
+macroforge_ts_syn = {path = "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts_syn"}
+macroforge_ts_quote = {path = "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts_quote"}
+macroforge_ts_macros = {path = "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts_macros"}
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -80,3 +80,4 @@ napi-build = "2.3.1"
 libc = "0.2"
 
 [dev-dependencies]
+trybuild = "1.0"
