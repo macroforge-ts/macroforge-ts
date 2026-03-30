@@ -1,0 +1,127 @@
+//! # Default Macro Implementation
+//!
+//! The `Default` macro generates a static `defaultValue()` factory method that creates
+//! instances with default values. This is analogous to Rust's `Default` trait, providing
+//! a standard way to create "zero" or "empty" instances of types.
+//!
+//! ## Generated Output
+//!
+//! | Type | Generated Code | Description |
+//! |------|----------------|-------------|
+//! | Class | `static defaultValue()` + `{className}DefaultValue()` | Static factory method + standalone function |
+//! | Enum | `{enumName}DefaultValue(): EnumName` | Standalone function returning `@default` variant |
+//! | Interface | `{ifaceName}DefaultValue(): InterfaceName` | Standalone function returning object literal |
+//! | Type Alias | `{typeName}DefaultValue(): TypeName` | Standalone function with type-appropriate default |
+//!
+//! Names use **camelCase** conversion (e.g., `UserSettings` -> `userSettingsDefaultValue`).
+//!
+//!
+//! ## Default Values by Type
+//!
+//! The macro uses Rust-like default semantics:
+//!
+//! | Type | Default Value |
+//! |------|---------------|
+//! | `string` | `""` (empty string) |
+//! | `number` | `0` |
+//! | `boolean` | `false` |
+//! | `bigint` | `0n` |
+//! | `T[]` | `[]` (empty array) |
+//! | `Array<T>` | `[]` (empty array) |
+//! | `Map<K,V>` | `new Map()` |
+//! | `Set<T>` | `new Set()` |
+//! | `Date` | `new Date()` (current time) |
+//! | `T \| null` | `null` |
+//! | `CustomType` | `CustomType.defaultValue()` (recursive) |
+//!
+//! ## Field-Level Options
+//!
+//! The `@default` decorator allows specifying explicit default values:
+//!
+//! - `@default(42)` - Use 42 as the default
+//! - `@default("hello")` - Use "hello" as the default
+//! - `@default([])` - Use empty array as the default
+//! - `@default({ value: "test" })` - Named form for complex values
+//!
+//! ## Example
+//!
+//! ```typescript
+//! /** @derive(Default) */
+//! class UserSettings {
+//!     /** @default("light") */
+//!     theme: string;
+//!
+//!     /** @default(10) */
+//!     pageSize: number;
+//!
+//!     notifications: boolean;  // Uses type default: false
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! class UserSettings {
+//!     theme: string;
+//!
+//!     pageSize: number;
+//!
+//!     notifications: boolean; // Uses type default: false
+//!
+//!     static defaultValue(): UserSettings {
+//!         const instance = new UserSettings();
+//!         instance.theme = 'light';
+//!         instance.pageSize = 10;
+//!         instance.notifications = false;
+//!         return instance;
+//!     }
+//! }
+//!
+//! export function userSettingsDefaultValue(): UserSettings {
+//!     return UserSettings.defaultValue();
+//! }
+//! ```
+//!
+//! ## Enum Defaults
+//!
+//! For enums, mark one variant with `@default`:
+//!
+//! ```typescript
+//! /** @derive(Default) */
+//! enum Status {
+//!     /** @default */
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! enum Status {
+//!     /** @default */
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
+//!
+//! export function statusDefaultValue(): Status {
+//!     return Status.Pending;
+//! }
+//! ```
+//!
+//! ## Error Handling
+//!
+//! The macro will return an error if:
+//!
+//! - A non-primitive field lacks `@default` and has no known default
+//! - An enum has no variant marked with `@default`
+//! - A union type has no `@default` on a variant
+
+mod core;
+mod types;
+
+#[cfg(test)]
+mod tests;
+

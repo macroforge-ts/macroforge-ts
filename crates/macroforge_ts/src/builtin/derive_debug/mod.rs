@@ -1,0 +1,73 @@
+//! # Debug Macro Implementation
+//!
+//! The `Debug` macro generates a human-readable `toString()` method for
+//! TypeScript classes, interfaces, enums, and type aliases.
+//!
+//! ## Generated Output
+//!
+//! **Classes**: Generates a standalone function `{className}ToString(value)` and a static wrapper
+//! method `static toString(value)` returning a string like `"ClassName { field1: value1, field2: value2 }"`.
+//!
+//! **Enums**: Generates a standalone function `{enumName}ToString(value)` that performs
+//! reverse lookup on numeric enums.
+//!
+//! **Interfaces**: Generates a standalone function `{ifaceName}ToString(value)`.
+//!
+//! **Type Aliases**: Generates a standalone function using JSON.stringify for
+//! complex types, or field enumeration for object types.
+//!
+//! Names use **camelCase** conversion (e.g., `User` -> `userToString`).
+//!
+//!
+//! ## Field-Level Options
+//!
+//! The `@debug` decorator supports:
+//!
+//! - `skip` - Exclude the field from debug output
+//! - `rename = "label"` - Use a custom label instead of the field name
+//!
+//! ## Example
+//!
+//! ```typescript
+//! /** @derive(Debug) */
+//! class User {
+//!     /** @debug({ rename: "id" }) */
+//!     userId: number;
+//!
+//!     /** @debug({ skip: true }) */
+//!     password: string;
+//!
+//!     email: string;
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! class User {
+//!     userId: number;
+//!
+//!     password: string;
+//!
+//!     email: string;
+//!
+//!     static toString(value: User): string {
+//!         return userToString(value);
+//!     }
+//! }
+//!
+//! export function userToString(value: User): string {
+//!     const parts: string[] = [];
+//!     parts.push('id: ' + value.userId);
+//!     parts.push('email: ' + value.email);
+//!     return 'User { ' + parts.join(', ') + ' }';
+//! }
+//! ```
+
+mod core;
+mod debug_generation;
+mod types;
+
+#[cfg(test)]
+mod tests;
+
