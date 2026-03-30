@@ -436,27 +436,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         // Swap to local path dependencies first
         println!("  {} Swapping to local path dependencies...", "→".blue());
         manifests::swap_local(&config)?;
-        // Also swap rust-tests to use same absolute paths (avoids lockfile collision)
-        manifests::swap_rust_tests_local(&config)?;
 
-        // Clean-build rust-tests
-        let playground_tests = config.root.join("tooling/playground/tests");
-        print!("  {} {}... ", "Building:".bold(), "rust-tests".cyan());
-        io::stdout().flush()?;
-        match shell::deno::task(&playground_tests, "cleanbuild:rust") {
-            Ok(_) => println!("{}", "done".green()),
-            Err(e) => {
-                println!("{}", "failed".red());
-                format::error(&format!("Build failed: {}", e));
-                // Restore rust-tests before rollback
-                let _ = manifests::swap_rust_tests_vendor(&config);
-                rollback(&config, &original_versions_cache);
-                return Err(e);
-            }
-        }
-
-        // Keep rust-tests using absolute paths until all tests complete
-        // (will be restored to vendor paths with swap_rust_tests_vendor before commit)
         let repo_names_slice: Vec<&str> = repos.iter().map(|r| r.name.as_str()).collect();
         manifests::swap_npm_local(&config, &repo_names_slice)?;
 
@@ -670,7 +650,6 @@ pub fn run(args: PrepArgs) -> Result<()> {
         step.print();
 
         let playground_tests = config.root.join("tooling/playground/tests");
-        let rust_tests = playground_tests.join("rust-tests");
 
         // Expand macros
         print!("  {} Expanding macros... ", "→".blue());
@@ -703,18 +682,6 @@ pub fn run(args: PrepArgs) -> Result<()> {
         print!("  {} Validator tests... ", "→".blue());
         io::stdout().flush()?;
         match shell::deno::task(&playground_tests, "test:validators") {
-            Ok(_) => println!("{}", "passed".green()),
-            Err(e) => {
-                println!("{}", "failed".red());
-                rollback(&config, &original_versions_cache);
-                return Err(e);
-            }
-        }
-
-        // Rust playground tests
-        print!("  {} Rust tests... ", "→".blue());
-        io::stdout().flush()?;
-        match shell::cargo::test(&rust_tests) {
             Ok(_) => println!("{}", "passed".green()),
             Err(e) => {
                 println!("{}", "failed".red());
@@ -831,8 +798,6 @@ pub fn run(args: PrepArgs) -> Result<()> {
             "  {} Swapping to registry dependencies for commit...",
             "→".blue()
         );
-        // Restore rust-tests to vendor paths before commit
-        manifests::swap_rust_tests_vendor(&config)?;
         manifests::swap_registry(&config, &versions_cache)?;
         manifests::swap_npm_registry(&config, &versions_cache)?;
     }

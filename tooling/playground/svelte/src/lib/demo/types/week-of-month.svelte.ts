@@ -2,8 +2,8 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type WeekOfMonth =
-    | /** @default */ 'First'
-    | 'Second'
-    | 'Third'
-    | 'Fourth'
-    | 'Last';
+  | /** @default */ "First"
+  | "Second"
+  | "Third"
+  | "Fourth"
+  | "Last";

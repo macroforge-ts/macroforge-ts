@@ -2,5 +2,5 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Created {
-    initialData: string | null;
+  initialData: string | null;
 }

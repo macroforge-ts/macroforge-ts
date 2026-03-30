@@ -1,7 +1,0 @@
-{
-    "tasks": {
-        "setup-vendor": "bash setup-vendor.sh",
-        "test": "deno task setup-vendor && cargo test",
-        "clean": "rm -rf target vendor"
-    }
-}

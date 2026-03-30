@@ -2,6 +2,6 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Sent {
-    recipient: string | null;
-    method: string | null;
+  recipient: string | null;
+  method: string | null;
 }
