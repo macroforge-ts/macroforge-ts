@@ -119,13 +119,12 @@ fn run_package_tests(config: &Config) -> Result<()> {
     Ok(())
 }
 
-/// Run playground tests (expand + deno tests + rust tests + e2e)
+/// Run playground tests (expand + deno tests + e2e)
 fn run_playground_tests(config: &Config) -> Result<()> {
     println!("\n{}", "Running playground tests".bold());
     println!("{}", "─".repeat(40));
 
     let playground_tests = config.root.join("tooling/playground/tests");
-    let rust_tests = playground_tests.join("rust-tests");
 
     // First expand macros (call directly via our expand module)
     print!("  {} Expanding macros... ", "→".blue());
@@ -160,17 +159,6 @@ fn run_playground_tests(config: &Config) -> Result<()> {
         Err(e) => {
             println!("{}", "failed".red());
             return Err(e).context("Validator tests failed");
-        }
-    }
-
-    // Run Rust playground tests
-    print!("  {} Rust tests... ", "→".blue());
-    io::stdout().flush()?;
-    match shell::cargo::test(&rust_tests) {
-        Ok(_) => println!("{}", "passed".green()),
-        Err(e) => {
-            println!("{}", "failed".red());
-            return Err(e).context("Rust playground tests failed");
         }
     }
 

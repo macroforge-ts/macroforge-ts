@@ -2,7 +2,7 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type NextStep =
-    | /** @default */ 'InitialContact'
-    | 'Qualified'
-    | 'Estimate'
-    | 'Negotiation';
+  | /** @default */ "InitialContact"
+  | "Qualified"
+  | "Estimate"
+  | "Negotiation";

@@ -2,7 +2,7 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type RowHeight =
-    | 'ExtraSmall'
-    | 'Small'
-    | /** @default */ 'Medium'
-    | 'Large';
+  | "ExtraSmall"
+  | "Small"
+  | /** @default */ "Medium"
+  | "Large";
