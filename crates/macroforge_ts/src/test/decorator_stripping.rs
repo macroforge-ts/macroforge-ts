@@ -35,7 +35,7 @@ export class Example {
     let expander =
         MacroExpander::with_config(MacroConfig::default(), std::env::current_dir().unwrap())
             .unwrap();
-    let expanded = expander.expand(code, "example.ts").unwrap();
+    let expanded = expander.expand_source(code, "example.ts").unwrap();
 
     assert!(
         !expanded.code.contains("@derive"),

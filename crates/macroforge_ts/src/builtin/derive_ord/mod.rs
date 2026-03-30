@@ -1,0 +1,100 @@
+//! # Ord Macro Implementation
+//!
+//! The `Ord` macro generates a `compareTo()` method for **total ordering** comparison.
+//! This is analogous to Rust's `Ord` trait, enabling objects to be sorted and
+//! compared with a guaranteed ordering relationship.
+//!
+//! ## Generated Output
+//!
+//! | Type | Generated Code | Description |
+//! |------|----------------|-------------|
+//! | Class | `classNameCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
+//! | Enum | `enumNameCompare(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
+//! | Interface | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
+//! | Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+//!
+//!
+//! ## Return Values
+//!
+//! Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values
+//! can be compared:
+//!
+//! - **-1**: `a` is less than `b`
+//! - **0**: `a` is equal to `b`
+//! - **1**: `a` is greater than `b`
+//!
+//! The function **never returns null** - all values must be comparable.
+//!
+//! ## Comparison Strategy
+//!
+//! Fields are compared **lexicographically** in declaration order:
+//!
+//! 1. Compare first field
+//! 2. If not equal, return that result
+//! 3. Otherwise, compare next field
+//! 4. Continue until a difference is found or all fields are equal
+//!
+//! ## Type-Specific Comparisons
+//!
+//! | Type | Comparison Method |
+//! |------|-------------------|
+//! | `number`/`bigint` | Direct `<` and `>` comparison |
+//! | `string` | `localeCompare()` (clamped to -1, 0, 1) |
+//! | `boolean` | false < true |
+//! | Arrays | Lexicographic element-by-element |
+//! | `Date` | `getTime()` timestamp comparison |
+//! | Objects | Calls `compareTo()` if available, else 0 |
+//!
+//! ## Field-Level Options
+//!
+//! The `@ord` decorator supports:
+//!
+//! - `skip` - Exclude the field from ordering comparison
+//!
+//! ## Example
+//!
+//! ```typescript
+//! /** @derive(Ord) */
+//! class Version {
+//!     major: number;
+//!     minor: number;
+//!     patch: number;
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! class Version {
+//!     major: number;
+//!     minor: number;
+//!     patch: number;
+//!
+//!     static compareTo(a: Version, b: Version): number {
+//!         return versionCompare(a, b);
+//!     }
+//! }
+//!
+//! export function versionCompare(a: Version, b: Version): number {
+//!     if (a === b) return 0;
+//!     const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+//!     if (cmp0 !== 0) return cmp0;
+//!     const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+//!     if (cmp1 !== 0) return cmp1;
+//!     const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
+//!     if (cmp2 !== 0) return cmp2;
+//!     return 0;
+//! }
+//! ```
+//!
+//! ## Ord vs PartialOrd
+//!
+//! - Use **Ord** when all values are comparable (total ordering)
+//! - Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)
+
+mod comparison;
+mod core;
+#[cfg(test)]
+mod tests;
+mod types;
+
