@@ -192,7 +192,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         ///
         /// # Returns
         ///
-        /// A JSON string containing the [`MacroResult`] with the transformed code
+        /// Returns a JSON string containing the [`MacroResult`] with the transformed code
         /// or any diagnostic errors.
         ///
         /// # Errors
@@ -201,9 +201,11 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         /// - The input JSON cannot be parsed
         /// - The `TsStream` cannot be created from the context
         /// - The result cannot be serialized to JSON
-        #[macroforge_ts::napi_derive::napi(js_name = #run_macro_js_name_lit)]
+        #[cfg(feature = "node")]
+        #[cfg_attr(feature = "node", macroforge_ts::napi_derive::napi(js_name = #run_macro_js_name_lit))]
         pub fn #run_macro_fn_ident(context_json: String) -> macroforge_ts::napi::Result<String> {
             use macroforge_ts::host::Macroforge;
+
 
             // Parse the context from JSON
             let ctx: macroforge_ts::ts_syn::MacroContextIR = macroforge_ts::serde_json::from_str(&context_json)
