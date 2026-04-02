@@ -10,28 +10,6 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        extension: [svelte-macroforge, vtsls-macroforge]
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-wasip1
-
-      - name: Cache Rust
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: ${{ matrix.extension }}
-
-      - name: Build ${{ matrix.extension }}
-        working-directory: ${{ matrix.extension }}
-        run: cargo build --target wasm32-wasip1 --release
-
   clippy:
     runs-on: ubuntu-latest
     strategy:
