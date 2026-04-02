@@ -287,11 +287,14 @@ export class SveltePlugin
             }
 
             try {
-                return require.resolve(plugin, {
-                    paths: [filePath]
-                });
+                if (typeof require !== 'undefined' && require.resolve) {
+                    return require.resolve(plugin, {
+                        paths: [filePath]
+                    });
+                }
             } catch (error) {
-                Logger.error(`failed to resolve plugin ${plugin} with error:\n`, error);
+                // Ignore resolution errors for plugins that don't exist
+                return undefined;
             }
         }
     }
