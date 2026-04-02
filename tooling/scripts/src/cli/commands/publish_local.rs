@@ -26,11 +26,7 @@ const POLL_TIMEOUT: Duration = Duration::from_secs(30 * 60);
 // ---------------------------------------------------------------------------
 
 fn npm_already_published(package: &str, version: &str) -> bool {
-    registry::npm_version(package)
-        .ok()
-        .flatten()
-        .as_deref()
-        == Some(version)
+    registry::npm_version(package).ok().flatten().as_deref() == Some(version)
 }
 
 fn crate_already_published(crate_name: &str, version: &str) -> bool {
@@ -100,7 +96,11 @@ fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
         return Ok(false);
     }
     if dry_run {
-        format::info(&format!("[dry-run] npm publish {} from {}", package, dir.display()));
+        format::info(&format!(
+            "[dry-run] npm publish {} from {}",
+            package,
+            dir.display()
+        ));
         return Ok(false);
     }
 
@@ -144,11 +144,18 @@ fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
 /// Returns true if actually published, false if skipped.
 fn publish_crate(dir: &Path, crate_name: &str, version: &str, dry_run: bool) -> Result<bool> {
     if crate_already_published(crate_name, version) {
-        format::warning(&format!("{}@{} already on crates.io, skipping", crate_name, version));
+        format::warning(&format!(
+            "{}@{} already on crates.io, skipping",
+            crate_name, version
+        ));
         return Ok(false);
     }
     if dry_run {
-        format::info(&format!("[dry-run] cargo publish {} from {}", crate_name, dir.display()));
+        format::info(&format!(
+            "[dry-run] cargo publish {} from {}",
+            crate_name,
+            dir.display()
+        ));
         return Ok(false);
     }
 
@@ -184,7 +191,9 @@ fn publish_crate(dir: &Path, crate_name: &str, version: &str, dry_run: bool) -> 
                 .dir(dir)
                 .inherit()
                 .run_checked()
-                .with_context(|| format!("cargo publish failed for {} (after re-auth)", crate_name))?;
+                .with_context(|| {
+                    format!("cargo publish failed for {} (after re-auth)", crate_name)
+                })?;
             format::success(&format!("Published {}@{}", crate_name, version));
             Ok(true)
         }
@@ -338,7 +347,12 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
     } else {
         Shell::new("deno")
             .args(&[
-                "run", "-A", "npm:@napi-rs/cli/napi", "build", "--platform", "--release",
+                "run",
+                "-A",
+                "npm:@napi-rs/cli/napi",
+                "build",
+                "--platform",
+                "--release",
             ])
             .dir(&root.join("crates/macroforge_ts"))
             .inherit()
@@ -361,7 +375,10 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         let content = std::fs::read_to_string(&pkg_json)?;
         let pkg: serde_json::Value = serde_json::from_str(&content)?;
         let name = pkg.get("name").and_then(|v| v.as_str()).unwrap_or("");
-        let ver = pkg.get("version").and_then(|v| v.as_str()).unwrap_or(&version);
+        let ver = pkg
+            .get("version")
+            .and_then(|v| v.as_str())
+            .unwrap_or(&version);
 
         if name.is_empty() {
             continue;
@@ -376,14 +393,20 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
     // Wait for all platform packages
     if !args.dry_run {
         for platform in PLATFORMS {
-            let pkg_json = root.join(format!("crates/macroforge_ts/npm/{}/package.json", platform));
-            if let Ok(content) = std::fs::read_to_string(&pkg_json) {
-                if let Ok(pkg) = serde_json::from_str::<serde_json::Value>(&content) {
-                    let name = pkg.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                    let ver = pkg.get("version").and_then(|v| v.as_str()).unwrap_or(&version);
-                    if !name.is_empty() {
-                        wait_for_npm(name, ver)?;
-                    }
+            let pkg_json = root.join(format!(
+                "crates/macroforge_ts/npm/{}/package.json",
+                platform
+            ));
+            if let Ok(content) = std::fs::read_to_string(&pkg_json)
+                && let Ok(pkg) = serde_json::from_str::<serde_json::Value>(&content)
+            {
+                let name = pkg.get("name").and_then(|v| v.as_str()).unwrap_or("");
+                let ver = pkg
+                    .get("version")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or(&version);
+                if !name.is_empty() {
+                    wait_for_npm(name, ver)?;
                 }
             }
         }
@@ -397,7 +420,10 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
             None => continue,
         };
 
-        let pkg_version = versions.get_local(repo_name).unwrap_or(&version).to_string();
+        let pkg_version = versions
+            .get_local(repo_name)
+            .unwrap_or(&version)
+            .to_string();
 
         match repo.repo_type {
             RepoType::Rust => {
@@ -417,7 +443,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
 
                 // Also publish npm if it has an npm name
                 if let Some(npm_name) = &repo.npm_name {
-                    format::info(&format!("Publishing npm {}@{}...", npm_name.cyan(), pkg_version));
+                    format::info(&format!(
+                        "Publishing npm {}@{}...",
+                        npm_name.cyan(),
+                        pkg_version
+                    ));
                     match publish_npm(&repo.abs_path, npm_name, &pkg_version, args.dry_run)? {
                         true => {
                             if !args.dry_run {
@@ -444,7 +474,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
                 }
             }
             _ => {
-                format::step(step, total, &format!("Skipping {} (no registry)", repo_name));
+                format::step(
+                    step,
+                    total,
+                    &format!("Skipping {} (no registry)", repo_name),
+                );
             }
         }
     }

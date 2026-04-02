@@ -42,29 +42,29 @@ const CRATES: &[(&str, &str)] = &[
 
 /// Builtin macro configurations
 const BUILTIN_MACROS: &[(&str, &str, &str)] = &[
-    ("debug", "src/builtin/derive_debug.rs", "Debug"),
-    ("clone", "src/builtin/derive_clone.rs", "Clone"),
-    ("default", "src/builtin/derive_default.rs", "Default"),
-    ("hash", "src/builtin/derive_hash.rs", "Hash"),
-    ("ord", "src/builtin/derive_ord.rs", "Ord"),
+    ("debug", "src/builtin/derive_debug/mod.rs", "Debug"),
+    ("clone", "src/builtin/derive_clone/mod.rs", "Clone"),
+    ("default", "src/builtin/derive_default/mod.rs", "Default"),
+    ("hash", "src/builtin/derive_hash/mod.rs", "Hash"),
+    ("ord", "src/builtin/derive_ord/mod.rs", "Ord"),
     (
         "partial_eq",
-        "src/builtin/derive_partial_eq.rs",
+        "src/builtin/derive_partial_eq/mod.rs",
         "PartialEq",
     ),
     (
         "partial_ord",
-        "src/builtin/derive_partial_ord.rs",
+        "src/builtin/derive_partial_ord/mod.rs",
         "PartialOrd",
     ),
     (
         "serialize",
-        "src/builtin/serde/derive_serialize.rs",
+        "src/builtin/serde/derive_serialize/mod.rs",
         "Serialize",
     ),
     (
         "deserialize",
-        "src/builtin/serde/derive_deserialize.rs",
+        "src/builtin/serde/derive_deserialize/mod.rs",
         "Deserialize",
     ),
 ];

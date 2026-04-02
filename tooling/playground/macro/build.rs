@@ -4,8 +4,12 @@
 //! when `cargo build` finishes.
 
 fn main() {
-    napi_build::setup();
+    #[cfg(feature = "node")]
+    {
+        napi_build::setup();
+    }
 
     // Auto-trigger napi build after cargo completes
+    #[cfg(feature = "node")]
     macroforge_ts::build::napi_auto_build("playground-macros");
 }
