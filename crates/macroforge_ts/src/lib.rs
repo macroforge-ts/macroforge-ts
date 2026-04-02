@@ -1,8 +1,9 @@
 //! # Macroforge TypeScript Macro Engine
 //!
 //! This crate provides a TypeScript macro expansion engine that brings Rust-like derive macros
-//! to TypeScript. It is designed to be used via NAPI bindings from Node.js, enabling compile-time
-//! code generation for TypeScript projects.
+//! to TypeScript. It supports multiple output targets via feature flags:
+//! - `node`: (Default) Native Node.js bindings via NAPI-RS for maximum performance.
+//! - `wasm`: Universal WebAssembly module via wasm-bindgen for browser and edge environments.
 //!
 //! ## Overview
 //!
@@ -14,31 +15,30 @@
 //!
 //! The crate is organized into several key components:
 //!
-//! - **NAPI Bindings** (`NativePlugin`, `expand_sync`, `transform_sync`): Entry points for Node.js
-//! - **Position Mapping** (`NativePositionMapper`, `NativeMapper`): Bidirectional source mapping
-//!   for IDE integration
-//! - **Macro Host** (`host` module): Core expansion engine with registry and dispatcher
-//! - **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Serialize, etc.)
+//! - **Unified API** (`api` module): An output-agnostic trait-based interface (`MacroforgeApi`)
+//!   that defines all macro operations.
+//! - **Target Bindings**:
+//!   - `bindings_napi`: Node.js specific entry points using NAPI-RS.
+//!   - `bindings_wasm`: Universal entry points using `wasm-bindgen`.
+//! - **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping
+//!   for IDE integration.
+//! - **Macro Host** (`host` module): Core expansion engine with registry and dispatcher.
+//! - **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Serialize, etc.).
 //!
-//! ## Performance Considerations
+//! ## Usage
 //!
-//! - Uses a 32MB thread stack to prevent stack overflow during deep SWC AST recursion
-//! - Implements early bailout for files without `@derive` decorators
-//! - Caches expansion results keyed by filepath and version
-//! - Uses binary search for O(log n) position mapping lookups
-//!
-//! ## Usage from Node.js
+//! ### From Node.js (Default)
 //!
 //! ```javascript
-//! const { NativePlugin, expand_sync } = require('macroforge-ts');
+//! const { expandSync } = require('macroforge');
+//! const result = expandSync(code, filepath, { keep_decorators: false });
+//! ```
 //!
-//! // Create a plugin instance with caching
-//! const plugin = new NativePlugin();
+//! ### From WASM
 //!
-//! // Process a file (uses cache if version matches)
-//! const result = plugin.process_file(filepath, code, { version: '1.0' });
-//!
-//! // Or use the sync function directly
+//! ```javascript
+//! import init, { expand_sync } from './pkg/macroforge_ts.js';
+//! await init();
 //! const result = expand_sync(code, filepath, { keep_decorators: false });
 //! ```
 //!
