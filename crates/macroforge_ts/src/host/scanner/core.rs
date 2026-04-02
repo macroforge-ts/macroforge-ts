@@ -3,9 +3,7 @@ use std::path::{Path, PathBuf};
 use ignore::WalkBuilder;
 use swc_core::common::{GLOBALS, Globals};
 
-use crate::ts_syn::abi::ir::type_registry::{
-    TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
-};
+use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
 use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
 
 use super::collectors::{collect_exported_names, collect_file_imports};

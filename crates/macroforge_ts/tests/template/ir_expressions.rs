@@ -21,7 +21,11 @@ fn test_class_expr_anonymous() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("= class") || source.contains("=class"), "Expected '= class'. Got:\n{}", source);
+    assert!(
+        source.contains("= class") || source.contains("=class"),
+        "Expected '= class'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -34,7 +38,11 @@ fn test_class_expr_named() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("class FactoryImpl") || source.contains("class  FactoryImpl"), "Expected 'class FactoryImpl'. Got:\n{}", source);
+    assert!(
+        source.contains("class FactoryImpl") || source.contains("class  FactoryImpl"),
+        "Expected 'class FactoryImpl'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -47,7 +55,11 @@ fn test_class_expr_with_extends() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("extends Parent") || source.contains("extends  Parent"), "Expected 'extends Parent'. Got:\n{}", source);
+    assert!(
+        source.contains("extends Parent") || source.contains("extends  Parent"),
+        "Expected 'extends Parent'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -62,7 +74,11 @@ fn test_fn_expr_anonymous() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("function(") || source.contains("function ("), "Expected 'function('. Got:\n{}", source);
+    assert!(
+        source.contains("function(") || source.contains("function ("),
+        "Expected 'function('. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -73,7 +89,11 @@ fn test_fn_expr_named() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("function fact") || source.contains("function  fact"), "Expected 'function fact'. Got:\n{}", source);
+    assert!(
+        source.contains("function fact") || source.contains("function  fact"),
+        "Expected 'function fact'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -84,7 +104,11 @@ fn test_fn_expr_async() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("async") && source.contains("function"), "Expected 'async function'. Got:\n{}", source);
+    assert!(
+        source.contains("async") && source.contains("function"),
+        "Expected 'async function'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -96,7 +120,11 @@ fn test_fn_expr_generator() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("function*") || source.contains("function *"), "Expected 'function*'. Got:\n{}", source);
+    assert!(
+        source.contains("function*") || source.contains("function *"),
+        "Expected 'function*'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -109,7 +137,11 @@ fn test_unary_expr_minus() {
         const negative = -value;
     };
     let source = stream.source();
-    assert!(source.contains("-value") || source.contains("- value"), "Expected '-value'. Got:\n{}", source);
+    assert!(
+        source.contains("-value") || source.contains("- value"),
+        "Expected '-value'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -118,7 +150,11 @@ fn test_unary_expr_plus() {
         const num = +stringValue;
     };
     let source = stream.source();
-    assert!(source.contains("+stringValue") || source.contains("+ stringValue"), "Expected '+stringValue'. Got:\n{}", source);
+    assert!(
+        source.contains("+stringValue") || source.contains("+ stringValue"),
+        "Expected '+stringValue'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -127,7 +163,11 @@ fn test_unary_expr_not() {
         const inverted = !condition;
     };
     let source = stream.source();
-    assert!(source.contains("!condition") || source.contains("! condition"), "Expected '!condition'. Got:\n{}", source);
+    assert!(
+        source.contains("!condition") || source.contains("! condition"),
+        "Expected '!condition'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -136,7 +176,11 @@ fn test_unary_expr_bitwise_not() {
         const flipped = ~bits;
     };
     let source = stream.source();
-    assert!(source.contains("~bits") || source.contains("~ bits"), "Expected '~bits'. Got:\n{}", source);
+    assert!(
+        source.contains("~bits") || source.contains("~ bits"),
+        "Expected '~bits'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -145,7 +189,11 @@ fn test_unary_expr_typeof() {
         const typeStr = typeof value;
     };
     let source = stream.source();
-    assert!(source.contains("typeof value") || source.contains("typeof  value"), "Expected 'typeof value'. Got:\n{}", source);
+    assert!(
+        source.contains("typeof value") || source.contains("typeof  value"),
+        "Expected 'typeof value'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -154,7 +202,11 @@ fn test_unary_expr_void() {
         void runSideEffect();
     };
     let source = stream.source();
-    assert!(source.contains("void runSideEffect") || source.contains("void  runSideEffect"), "Expected 'void runSideEffect'. Got:\n{}", source);
+    assert!(
+        source.contains("void runSideEffect") || source.contains("void  runSideEffect"),
+        "Expected 'void runSideEffect'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -163,7 +215,11 @@ fn test_unary_expr_delete() {
         delete obj.property;
     };
     let source = stream.source();
-    assert!(source.contains("delete obj") || source.contains("delete  obj"), "Expected 'delete obj'. Got:\n{}", source);
+    assert!(
+        source.contains("delete obj") || source.contains("delete  obj"),
+        "Expected 'delete obj'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -176,7 +232,11 @@ fn test_update_expr_postfix_increment() {
         counter++;
     };
     let source = stream.source();
-    assert!(source.contains("counter++") || source.contains("counter ++"), "Expected 'counter++'. Got:\n{}", source);
+    assert!(
+        source.contains("counter++") || source.contains("counter ++"),
+        "Expected 'counter++'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -185,7 +245,11 @@ fn test_update_expr_prefix_increment() {
         const next = ++counter;
     };
     let source = stream.source();
-    assert!(source.contains("++counter") || source.contains("++ counter"), "Expected '++counter'. Got:\n{}", source);
+    assert!(
+        source.contains("++counter") || source.contains("++ counter"),
+        "Expected '++counter'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -194,7 +258,11 @@ fn test_update_expr_postfix_decrement() {
         remaining--;
     };
     let source = stream.source();
-    assert!(source.contains("remaining--") || source.contains("remaining --"), "Expected 'remaining--'. Got:\n{}", source);
+    assert!(
+        source.contains("remaining--") || source.contains("remaining --"),
+        "Expected 'remaining--'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -203,7 +271,11 @@ fn test_update_expr_prefix_decrement() {
         const prev = --counter;
     };
     let source = stream.source();
-    assert!(source.contains("--counter") || source.contains("-- counter"), "Expected '--counter'. Got:\n{}", source);
+    assert!(
+        source.contains("--counter") || source.contains("-- counter"),
+        "Expected '--counter'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -219,7 +291,11 @@ fn test_await_expr_simple() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("await fetch") || source.contains("await  fetch"), "Expected 'await fetch'. Got:\n{}", source);
+    assert!(
+        source.contains("await fetch") || source.contains("await  fetch"),
+        "Expected 'await fetch'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -232,7 +308,11 @@ fn test_await_expr_chained() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("await") && source.contains("json"), "Expected await and json. Got:\n{}", source);
+    assert!(
+        source.contains("await") && source.contains("json"),
+        "Expected await and json. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -249,7 +329,11 @@ fn test_yield_expr_simple() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("yield"), "Expected 'yield'. Got:\n{}", source);
+    assert!(
+        source.contains("yield"),
+        "Expected 'yield'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -262,7 +346,11 @@ fn test_yield_expr_with_value() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("yield i") || source.contains("yield  i"), "Expected 'yield i'. Got:\n{}", source);
+    assert!(
+        source.contains("yield i") || source.contains("yield  i"),
+        "Expected 'yield i'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -273,7 +361,11 @@ fn test_yield_expr_delegate() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("yield*") || source.contains("yield *"), "Expected 'yield*'. Got:\n{}", source);
+    assert!(
+        source.contains("yield*") || source.contains("yield *"),
+        "Expected 'yield*'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -287,8 +379,16 @@ fn test_paren_expr_arithmetic() {
     };
     let source = stream.source();
     // Parentheses should be present for correct precedence
-    assert!(source.contains("(") && source.contains(")"), "Expected parentheses. Got:\n{}", source);
-    assert!(source.contains("a") && source.contains("b") && source.contains("c"), "Expected a, b, c. Got:\n{}", source);
+    assert!(
+        source.contains("(") && source.contains(")"),
+        "Expected parentheses. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("a") && source.contains("b") && source.contains("c"),
+        "Expected a, b, c. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -297,8 +397,16 @@ fn test_paren_expr_for_precedence() {
         const value = (condition ? a : b).property;
     };
     let source = stream.source();
-    assert!(source.contains("condition"), "Expected 'condition'. Got:\n{}", source);
-    assert!(source.contains("property"), "Expected 'property'. Got:\n{}", source);
+    assert!(
+        source.contains("condition"),
+        "Expected 'condition'. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("property"),
+        "Expected 'property'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -311,7 +419,11 @@ fn test_seq_expr_simple() {
         const last = (a = 1, b = 2, c = 3);
     };
     let source = stream.source();
-    assert!(source.contains("a") && source.contains("b") && source.contains("c"), "Expected a, b, c. Got:\n{}", source);
+    assert!(
+        source.contains("a") && source.contains("b") && source.contains("c"),
+        "Expected a, b, c. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -322,7 +434,11 @@ fn test_seq_expr_in_for() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("i") && source.contains("j"), "Expected 'i' and 'j'. Got:\n{}", source);
+    assert!(
+        source.contains("i") && source.contains("j"),
+        "Expected 'i' and 'j'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -366,7 +482,11 @@ fn test_ts_as_expr() {
         const str = value as string;
     };
     let source = stream.source();
-    assert!(source.contains("as string") || source.contains("as  string"), "Expected 'as string'. Got:\n{}", source);
+    assert!(
+        source.contains("as string") || source.contains("as  string"),
+        "Expected 'as string'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -375,7 +495,11 @@ fn test_ts_as_const() {
         const tuple = [1, 2, 3] as const;
     };
     let source = stream.source();
-    assert!(source.contains("as const") || source.contains("as  const"), "Expected 'as const'. Got:\n{}", source);
+    assert!(
+        source.contains("as const") || source.contains("as  const"),
+        "Expected 'as const'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -384,7 +508,11 @@ fn test_ts_as_any() {
         const unsafe = unknownValue as any;
     };
     let source = stream.source();
-    assert!(source.contains("as any") || source.contains("as  any"), "Expected 'as any'. Got:\n{}", source);
+    assert!(
+        source.contains("as any") || source.contains("as  any"),
+        "Expected 'as any'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -397,7 +525,11 @@ fn test_ts_non_null_expr() {
         const definite = maybeNull!;
     };
     let source = stream.source();
-    assert!(source.contains("maybeNull!") || source.contains("maybeNull !"), "Expected non-null assertion. Got:\n{}", source);
+    assert!(
+        source.contains("maybeNull!") || source.contains("maybeNull !"),
+        "Expected non-null assertion. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -408,7 +540,12 @@ fn test_ts_non_null_chained() {
     let source = stream.source();
     // Should have multiple non-null assertions
     let count = source.matches("!").count();
-    assert!(count >= 2, "Expected at least 2 '!' assertions. Got {} in:\n{}", count, source);
+    assert!(
+        count >= 2,
+        "Expected at least 2 '!' assertions. Got {} in:\n{}",
+        count,
+        source
+    );
 }
 
 // =============================================================================
@@ -421,7 +558,11 @@ fn test_ts_satisfies_expr() {
         const config = { name: "test" } satisfies Config;
     };
     let source = stream.source();
-    assert!(source.contains("satisfies Config") || source.contains("satisfies  Config"), "Expected 'satisfies Config'. Got:\n{}", source);
+    assert!(
+        source.contains("satisfies Config") || source.contains("satisfies  Config"),
+        "Expected 'satisfies Config'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -433,7 +574,11 @@ fn test_ts_satisfies_complex() {
         } satisfies Record<string, string | number[]>;
     };
     let source = stream.source();
-    assert!(source.contains("satisfies"), "Expected 'satisfies'. Got:\n{}", source);
+    assert!(
+        source.contains("satisfies"),
+        "Expected 'satisfies'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -446,7 +591,13 @@ fn test_ts_instantiation() {
         const specificFn = genericFn<string>;
     };
     let source = stream.source();
-    assert!(source.contains("genericFn<string>") || source.contains("genericFn< string >") || source.contains("genericFn <string>"), "Expected type instantiation. Got:\n{}", source);
+    assert!(
+        source.contains("genericFn<string>")
+            || source.contains("genericFn< string >")
+            || source.contains("genericFn <string>"),
+        "Expected type instantiation. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -455,7 +606,11 @@ fn test_ts_instantiation_multiple() {
         const mapFn = transform<Input, Output>;
     };
     let source = stream.source();
-    assert!(source.contains("Input") && source.contains("Output"), "Expected Input, Output. Got:\n{}", source);
+    assert!(
+        source.contains("Input") && source.contains("Output"),
+        "Expected Input, Output. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -472,7 +627,11 @@ fn test_super_call() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("super()") || source.contains("super ()"), "Expected 'super()'. Got:\n{}", source);
+    assert!(
+        source.contains("super()") || source.contains("super ()"),
+        "Expected 'super()'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -485,7 +644,11 @@ fn test_super_call_with_args() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("super(name)") || source.contains("super( name )"), "Expected 'super(name)'. Got:\n{}", source);
+    assert!(
+        source.contains("super(name)") || source.contains("super( name )"),
+        "Expected 'super(name)'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -498,7 +661,11 @@ fn test_super_property() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("super.method"), "Expected 'super.method'. Got:\n{}", source);
+    assert!(
+        source.contains("super.method"),
+        "Expected 'super.method'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -528,7 +695,11 @@ fn test_private_name_field() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("#count"), "Expected '#count'. Got:\n{}", source);
+    assert!(
+        source.contains("#count"),
+        "Expected '#count'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -548,7 +719,11 @@ fn test_private_name_method() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("#validate"), "Expected '#validate'. Got:\n{}", source);
+    assert!(
+        source.contains("#validate"),
+        "Expected '#validate'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -566,7 +741,11 @@ fn test_private_name_static() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("#instance"), "Expected '#instance'. Got:\n{}", source);
+    assert!(
+        source.contains("#instance"),
+        "Expected '#instance'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -579,7 +758,11 @@ fn test_bigint_lit_simple() {
         const big = 9007199254740991n;
     };
     let source = stream.source();
-    assert!(source.contains("9007199254740991n"), "Expected BigInt literal. Got:\n{}", source);
+    assert!(
+        source.contains("9007199254740991n"),
+        "Expected BigInt literal. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -597,7 +780,11 @@ fn test_bigint_lit_operations() {
         const result = 100n + 200n;
     };
     let source = stream.source();
-    assert!(source.contains("100n") && source.contains("200n"), "Expected BigInt operations. Got:\n{}", source);
+    assert!(
+        source.contains("100n") && source.contains("200n"),
+        "Expected BigInt operations. Got:\n{}",
+        source
+    );
 }
 
 #[test]

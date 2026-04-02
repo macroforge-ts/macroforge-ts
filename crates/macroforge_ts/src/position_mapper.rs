@@ -1,6 +1,6 @@
 use napi_derive::napi;
 
-use crate::napi_types::{
+use crate::api_types::{
     GeneratedRegionResult, MappingSegmentResult, SourceMappingResult, SpanResult,
 };
 

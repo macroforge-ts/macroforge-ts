@@ -790,8 +790,7 @@ fn test_field_deserialize_with() {
 
 #[test]
 fn test_field_serialize_and_deserialize_with() {
-    let decorator =
-        make_decorator(r#"{ serializeWith: "toJson", deserializeWith: "fromJson" }"#);
+    let decorator = make_decorator(r#"{ serializeWith: "toJson", deserializeWith: "fromJson" }"#);
     let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
     let opts = result.options;
     assert_eq!(opts.serialize_with.as_deref(), Some("toJson"));

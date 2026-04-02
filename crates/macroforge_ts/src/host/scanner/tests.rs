@@ -47,7 +47,9 @@ fn test_collect_exported_names() {
 
 #[test]
 fn test_scanner_svelte_ts_interface_with_derive() {
-    use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
+    use crate::ts_syn::abi::ir::type_registry::{
+        TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
+    };
     use swc_core::common::{GLOBALS, Globals};
 
     // Simulate scanning a .svelte.ts file with a JSDoc @derive on an interface
@@ -62,8 +64,7 @@ export interface PhoneNumber {
         let module = crate::ts_syn::parse::parse_ts_module(source, "phone-number.svelte.ts")
             .expect("parse failed");
 
-        let interfaces =
-            crate::ts_syn::lower_interfaces(&module, source, None).unwrap_or_default();
+        let interfaces = crate::ts_syn::lower_interfaces(&module, source, None).unwrap_or_default();
         assert_eq!(interfaces.len(), 1, "Should find one interface");
 
         let iface = &interfaces[0];
@@ -90,11 +91,7 @@ export interface PhoneNumber {
         registry.insert(entry, "");
 
         assert!(
-            crate::builtin::derive_common::type_has_derive(
-                &registry,
-                "PhoneNumber",
-                "Gigaform"
-            ),
+            crate::builtin::derive_common::type_has_derive(&registry, "PhoneNumber", "Gigaform"),
             "type_has_derive should return true for Gigaform"
         );
         assert!(

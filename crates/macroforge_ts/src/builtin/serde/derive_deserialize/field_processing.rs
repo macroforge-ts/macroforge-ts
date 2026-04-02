@@ -3,11 +3,11 @@ use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{parse_ts_expr, ts_ident};
 
 use super::super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
+use super::super::{get_foreign_types, rewrite_expression_namespaces};
 use super::helpers::{
     classify_serde_value_kind, get_serializable_type_name, nested_deserialize_fn_name,
     parse_default_expr, try_composite_foreign_deserialize,
 };
-use super::super::{get_foreign_types, rewrite_expression_namespaces};
 use super::types::{DeserializeField, ObjectVariant, SerdeValueKind, raw_cast_type};
 
 /// Converts an `InterfaceFieldIR` into a `DeserializeField`.
@@ -111,21 +111,22 @@ pub(super) fn interface_field_to_deserialize_field(
             .or_else(|| try_composite_foreign_deserialize(&field.ts_type))
     };
 
-    let deserialize_with = deserialize_with_src
-        .as_ref()
-        .and_then(|expr_src| match parse_ts_expr(expr_src) {
-            Ok(expr) => Some(*expr),
-            Err(err) => {
-                diagnostics.error(
-                    field.span,
-                    format!(
-                        "@serde(deserializeWith): invalid expression for '{}': {err:?}",
-                        field.name
-                    ),
-                );
-                None
-            }
-        });
+    let deserialize_with =
+        deserialize_with_src
+            .as_ref()
+            .and_then(|expr_src| match parse_ts_expr(expr_src) {
+                Ok(expr) => Some(*expr),
+                Err(err) => {
+                    diagnostics.error(
+                        field.span,
+                        format!(
+                            "@serde(deserializeWith): invalid expression for '{}': {err:?}",
+                            field.name
+                        ),
+                    );
+                    None
+                }
+            });
 
     let default_expr =
         opts.default_expr

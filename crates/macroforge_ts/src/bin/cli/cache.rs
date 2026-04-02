@@ -8,7 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::wrappers::{ensure_type_registry_cache, TYPE_REGISTRY_CACHE_PATH};
+use crate::wrappers::{TYPE_REGISTRY_CACHE_PATH, ensure_type_registry_cache};
 
 /// Cache manifest stored at `.macroforge/cache/manifest.json`.
 ///
@@ -134,7 +134,11 @@ impl CacheManifest {
 }
 
 /// Writes expanded code to `<cache_dir>/<rel_path>.cache`.
-pub(crate) fn write_cache_file(cache_dir: &Path, rel_path: &str, expanded_code: &str) -> Result<()> {
+pub(crate) fn write_cache_file(
+    cache_dir: &Path,
+    rel_path: &str,
+    expanded_code: &str,
+) -> Result<()> {
     let cache_path = cache_dir.join(format!("{rel_path}.cache"));
     if let Some(parent) = cache_path.parent() {
         fs::create_dir_all(parent)?;
@@ -218,7 +222,11 @@ pub(crate) fn has_macro_annotations(source: &str) -> bool {
     false
 }
 
-pub(crate) fn expand_for_cache(path: &Path, source: &str, builtin_only: bool) -> Result<Option<String>> {
+pub(crate) fn expand_for_cache(
+    path: &Path,
+    source: &str,
+    builtin_only: bool,
+) -> Result<Option<String>> {
     // Quick check: skip files without @derive (ignoring fenced code blocks in docs)
     if !has_macro_annotations(source) {
         return Ok(None);

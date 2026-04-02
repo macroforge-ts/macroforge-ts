@@ -105,9 +105,8 @@
 //!
 //! The generated functions return `number | null` where `null` indicates incomparable values.
 
-pub(crate) mod types;
 pub(crate) mod comparison;
 mod core;
 #[cfg(test)]
 mod tests;
-
+pub(crate) mod types;

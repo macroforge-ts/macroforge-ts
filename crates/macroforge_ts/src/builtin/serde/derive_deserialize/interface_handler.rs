@@ -36,8 +36,7 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
     let pending_ref_ident = ts_ident!(PENDING_REF);
     let pending_ref_expr: Expr = pending_ref_ident.clone().into();
     let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
-    let container_opts =
-        SerdeContainerOptions::from_decorators(&interface.inner.decorators);
+    let container_opts = SerdeContainerOptions::from_decorators(&interface.inner.decorators);
     let tag_field = container_opts.tag_field_or_default();
 
     // Collect deserializable fields with diagnostic collection
@@ -46,8 +45,7 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
         .fields()
         .iter()
         .filter_map(|field| {
-            let parse_result =
-                SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+            let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
             all_diagnostics.extend(parse_result.diagnostics);
             let opts = parse_result.options;
 
@@ -129,8 +127,7 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
             } else {
                 // Check if the field's type matches a configured foreign type
                 let foreign_types = get_foreign_types();
-                let ft_match =
-                    TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
                 // Error if import source mismatch (type matches but wrong import)
                 if let Some(error) = ft_match.error {
                     all_diagnostics.error(field.span, error);
@@ -148,21 +145,22 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                     .or_else(|| try_composite_foreign_deserialize(&field.ts_type))
             };
 
-            let deserialize_with = deserialize_with_src.as_ref().and_then(|expr_src| {
-                match parse_ts_expr(expr_src) {
-                    Ok(expr) => Some(*expr),
-                    Err(err) => {
-                        all_diagnostics.error(
-                            field.span,
-                            format!(
-                                "@serde(deserializeWith): invalid expression for '{}': {err:?}",
-                                field.name
-                            ),
-                        );
-                        None
-                    }
-                }
-            });
+            let deserialize_with =
+                deserialize_with_src
+                    .as_ref()
+                    .and_then(|expr_src| match parse_ts_expr(expr_src) {
+                        Ok(expr) => Some(*expr),
+                        Err(err) => {
+                            all_diagnostics.error(
+                                field.span,
+                                format!(
+                                    "@serde(deserializeWith): invalid expression for '{}': {err:?}",
+                                    field.name
+                                ),
+                            );
+                            None
+                        }
+                    });
 
             let default_expr = opts.default_expr.as_ref().and_then(|expr_src| {
                 match parse_default_expr(expr_src) {
@@ -267,8 +265,7 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
         interface_name.to_case(Case::Camel)
     ));
     let fn_is_ident = ts_ident!(format!("{}Is", interface_name.to_case(Case::Camel)));
-    let fn_has_shape_ident =
-        ts_ident!(format!("{}HasShape", interface_name.to_case(Case::Camel)));
+    let fn_has_shape_ident = ts_ident!(format!("{}HasShape", interface_name.to_case(Case::Camel)));
     let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
 
     // Compute return type and wrappers
@@ -281,11 +278,11 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
         r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
         interface_name
     ));
-    let error_root_ref_expr = parse_ts_expr(&error_root_ref)
-        .expect("deserialize root error wrapper should parse");
+    let error_root_ref_expr =
+        parse_ts_expr(&error_root_ref).expect("deserialize root error wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
-    let error_from_catch_expr = parse_ts_expr(&error_from_catch)
-        .expect("deserialize catch error wrapper should parse");
+    let error_from_catch_expr =
+        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
     let error_generic_message_expr = parse_ts_expr(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");

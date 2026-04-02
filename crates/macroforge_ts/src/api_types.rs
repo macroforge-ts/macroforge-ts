@@ -1,4 +1,6 @@
+#[cfg(feature = "node")]
 use napi_derive::napi;
+use serde::{Deserialize, Serialize};
 
 // ============================================================================
 // Data Structures
@@ -15,8 +17,8 @@ use napi_derive::napi;
 /// * `map` - Optional source map for debugging (currently not implemented)
 /// * `types` - Optional TypeScript type declarations for generated methods
 /// * `metadata` - Optional JSON metadata about processed classes
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct TransformResult {
     /// The transformed TypeScript/JavaScript code with all macros expanded.
     pub code: String,
@@ -38,7 +40,7 @@ pub struct TransformResult {
 ///
 /// # Fields
 ///
-/// * `level` - Severity level: "error", "warning", or "info"
+/// * `level` - Severity level: "error", "warning", "info"
 /// * `message` - Human-readable description of the issue
 /// * `start` - Optional byte offset where the issue starts in the source
 /// * `end` - Optional byte offset where the issue ends in the source
@@ -55,8 +57,8 @@ pub struct TransformResult {
 ///     end: Some(45),
 /// };
 /// ```
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct MacroDiagnostic {
     /// Severity level of the diagnostic.
     /// One of: "error", "warning", "info".
@@ -82,8 +84,8 @@ pub struct MacroDiagnostic {
 /// - `original_start < original_end`
 /// - `expanded_start < expanded_end`
 /// - Segments are non-overlapping and sorted by position
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct MappingSegmentResult {
     /// Byte offset where this segment starts in the original source.
     pub original_start: u32,
@@ -105,8 +107,8 @@ pub struct MappingSegmentResult {
 /// For a `@derive(Debug)` macro that generates a `toString()` method,
 /// a `GeneratedRegionResult` would mark the entire method body as generated
 /// with `source_macro = "Debug"`.
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct GeneratedRegionResult {
     /// Byte offset where the generated region starts in the expanded source.
     pub start: u32,
@@ -127,8 +129,8 @@ pub struct GeneratedRegionResult {
 /// - Converting positions from original source to expanded source and vice versa
 /// - Identifying which macro generated a given piece of code
 /// - Mapping IDE diagnostics from expanded code back to original source
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SourceMappingResult {
     /// Segments mapping preserved regions between original and expanded source.
     /// Sorted by position for efficient binary search lookups.
@@ -162,8 +164,8 @@ pub struct SourceMappingResult {
 ///     // Handle errors
 /// }
 /// ```
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ExpandResult {
     /// The expanded TypeScript code with all macros processed.
     pub code: String,
@@ -207,8 +209,8 @@ impl ExpandResult {
 /// Information about an imported identifier from a TypeScript module.
 ///
 /// Used to track where decorators and macro-related imports come from.
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ImportSourceResult {
     /// Local identifier name in the import statement (e.g., `Derive` in `import { Derive }`).
     pub local: String,
@@ -219,8 +221,8 @@ pub struct ImportSourceResult {
 /// Result of checking TypeScript syntax validity.
 ///
 /// Returned by [`check_syntax`] to indicate whether code parses successfully.
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SyntaxCheckResult {
     /// `true` if the code parsed without errors, `false` otherwise.
     pub ok: bool,
@@ -231,8 +233,8 @@ pub struct SyntaxCheckResult {
 /// A span (range) in source code, represented as start position and length.
 ///
 /// Used for mapping diagnostics and other positional information.
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SpanResult {
     /// Byte offset where the span starts.
     pub start: u32,
@@ -244,8 +246,8 @@ pub struct SpanResult {
 ///
 /// This structure mirrors TypeScript's diagnostic format for interoperability
 /// with language servers and IDEs.
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct JsDiagnostic {
     /// Byte offset where the diagnostic starts. `None` for global diagnostics.
     pub start: Option<u32>,
@@ -262,7 +264,8 @@ pub struct JsDiagnostic {
 /// Options for macro expansion.
 ///
 /// Used by [`expand_sync`] to configure expansion behavior.
-#[napi(object)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ExpandOptions {
     /// If `true`, preserves `@derive` decorators in the output.
     /// If `false` (default), decorators are stripped after expansion.
@@ -322,7 +325,8 @@ pub struct ExpandOptions {
 ///
 /// Used by [`NativePlugin::process_file`] to configure expansion behavior
 /// and caching.
-#[napi(object)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ProcessFileOptions {
     /// If `true`, preserves `@derive` decorators in the output.
     /// If `false` (default), decorators are stripped after expansion.
@@ -342,7 +346,8 @@ pub struct ProcessFileOptions {
 }
 
 /// Options for scanning a TypeScript project for type information.
-#[napi(object)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ScanOptions {
     /// File extensions to scan (default: `[".ts", ".tsx"]`).
     pub extensions: Option<Vec<String>>,
@@ -351,8 +356,8 @@ pub struct ScanOptions {
 }
 
 /// Result of scanning a project for type information.
-#[napi(object)]
-#[derive(Clone)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ScanResult {
     /// JSON-serialized [`TypeRegistry`].
     /// Pass this to `expand_sync` via `ExpandOptions.type_registry_json`.
@@ -368,7 +373,8 @@ pub struct ScanResult {
 /// Result of loading a macroforge configuration file.
 ///
 /// Returned by [`load_config`] after parsing a `macroforge.config.js/ts` file.
-#[napi(object)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct LoadConfigResult {
     /// Whether to preserve `@derive` decorators in the output code.
     pub keep_decorators: bool,

@@ -13,13 +13,10 @@ use super::super::{
 };
 use super::field_processing::interface_field_to_deserialize_field;
 use super::helpers::{
-    extract_base_type, nested_deserialize_fn_name,
-    nested_deserialize_result_fn_name, nested_has_shape_fn_name,
-    type_accepts_string,
+    extract_base_type, nested_deserialize_fn_name, nested_deserialize_result_fn_name,
+    nested_has_shape_fn_name, type_accepts_string,
 };
-use super::types::{
-    DeserializeField, SerdeValueKind, SerializableTypeRef,
-};
+use super::types::{DeserializeField, SerdeValueKind, SerializableTypeRef};
 use super::validation::generate_field_validations;
 use crate::builtin::return_types::{
     DESERIALIZE_CONTEXT, DESERIALIZE_ERROR, DESERIALIZE_OPTIONS, PENDING_REF,
@@ -134,8 +131,7 @@ fn handle_object_type_alias(
     full_type_name: &str,
     validate_field_generic_decl: &str,
 ) -> Result<TsStream, MacroforgeError> {
-    let container_opts =
-        SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
+    let container_opts = SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
     let tag_field = container_opts.tag_field_or_default();
 
     // Collect deserializable fields with diagnostic collection
@@ -145,11 +141,7 @@ fn handle_object_type_alias(
         .unwrap()
         .iter()
         .filter_map(|field| {
-            interface_field_to_deserialize_field(
-                field,
-                &container_opts,
-                &mut all_diagnostics,
-            )
+            interface_field_to_deserialize_field(field, &container_opts, &mut all_diagnostics)
         })
         .collect();
 
@@ -197,8 +189,7 @@ fn handle_object_type_alias(
         "{}DeserializeWithContext",
         type_name.to_case(Case::Camel)
     ));
-    let fn_deserialize_internal_expr: Expr =
-        fn_deserialize_internal_ident.clone().into();
+    let fn_deserialize_internal_expr: Expr = fn_deserialize_internal_ident.clone().into();
     let fn_validate_field_ident = ts_ident!(format!(
         "{}ValidateField{}",
         type_name.to_case(Case::Camel),
@@ -223,27 +214,26 @@ fn handle_object_type_alias(
     let return_type = deserialize_return_type(full_type_name);
     let return_type_ident = ts_ident!(return_type.as_str());
     let success_result = wrap_success("resultOrRef");
-    let success_result_expr = parse_ts_expr(&success_result)
-        .expect("deserialize success wrapper should parse");
+    let success_result_expr =
+        parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
     let error_root_ref = wrap_error(&format!(
         r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
         type_name
     ));
-    let error_root_ref_expr = parse_ts_expr(&error_root_ref)
-        .expect("deserialize root error wrapper should parse");
+    let error_root_ref_expr =
+        parse_ts_expr(&error_root_ref).expect("deserialize root error wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
-    let error_from_catch_expr = parse_ts_expr(&error_from_catch)
-        .expect("deserialize catch error wrapper should parse");
+    let error_from_catch_expr =
+        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
     let error_generic_message_expr = parse_ts_expr(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");
     let error_from_ctx = wrap_error("__errors");
-    let error_from_ctx_expr = parse_ts_expr(&error_from_ctx)
-        .expect("deserialize ctx error wrapper should parse");
+    let error_from_ctx_expr =
+        parse_ts_expr(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
 
     // Build known keys array string
-    let known_keys_list: Vec<_> =
-        known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
+    let known_keys_list: Vec<_> = known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
 
     // Flag for whether any required fields exist
     let has_required = !required_fields.is_empty();
@@ -807,15 +797,13 @@ fn handle_union_type_alias(
     members: &[crate::ts_syn::abi::ir::type_alias::TypeMember],
 ) -> Result<TsStream, MacroforgeError> {
     // Union type - could be literal union, type ref union, or mixed
-    let container_opts =
-        SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
+    let container_opts = SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
     let tag_field = container_opts.tag_field_or_default();
 
     // Tagging mode variables for template branching
     let _is_internally_tagged =
         matches!(container_opts.tagging, TaggingMode::InternallyTagged { .. });
-    let is_externally_tagged =
-        matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
+    let is_externally_tagged = matches!(container_opts.tagging, TaggingMode::ExternallyTagged);
     let is_adjacently_tagged =
         matches!(container_opts.tagging, TaggingMode::AdjacentlyTagged { .. });
     let is_untagged = matches!(container_opts.tagging, TaggingMode::Untagged);
@@ -958,8 +946,7 @@ fn handle_union_type_alias(
             type_name.to_case(Case::Camel),
             generic_decl
         );
-        let fn_is_ident =
-            ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
+        let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
         let fn_has_shape_ident =
             ts_ident!("{}HasShape{}", type_name.to_case(Case::Camel), generic_decl);
         let fn_has_shape_expr: Expr = fn_has_shape_ident.clone().into();
@@ -1027,8 +1014,7 @@ fn handle_union_type_alias(
         type_name.to_case(Case::Camel),
         generic_decl
     );
-    let fn_deserialize_internal_expr: Expr =
-        fn_deserialize_internal_ident.clone().into();
+    let fn_deserialize_internal_expr: Expr = fn_deserialize_internal_ident.clone().into();
     let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
     let fn_has_shape_ident =
         ts_ident!("{}HasShape{}", type_name.to_case(Case::Camel), generic_decl);
@@ -1039,23 +1025,23 @@ fn handle_union_type_alias(
     let return_type_ident = ts_ident!(return_type.as_str());
     let full_type_ident = ts_ident!(full_type_name);
     let success_result = wrap_success("resultOrRef");
-    let success_result_expr = parse_ts_expr(&success_result)
-        .expect("deserialize success wrapper should parse");
+    let success_result_expr =
+        parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
     let error_root_ref = wrap_error(&format!(
         r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
         type_name
     ));
-    let error_root_ref_expr = parse_ts_expr(&error_root_ref)
-        .expect("deserialize root error wrapper should parse");
+    let error_root_ref_expr =
+        parse_ts_expr(&error_root_ref).expect("deserialize root error wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
-    let error_from_catch_expr = parse_ts_expr(&error_from_catch)
-        .expect("deserialize catch error wrapper should parse");
+    let error_from_catch_expr =
+        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
     let error_generic_message_expr = parse_ts_expr(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");
     let error_from_ctx = wrap_error("__errors");
-    let error_from_ctx_expr = parse_ts_expr(&error_from_ctx)
-        .expect("deserialize ctx error wrapper should parse");
+    let error_from_ctx_expr =
+        parse_ts_expr(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
 
     // If string is a valid variant, skip JSON.parse — the string IS the value.
     // Check foreign serializable types directly (their hasShape inline tells us
@@ -1065,9 +1051,10 @@ fn handle_union_type_alias(
         || has_literals
         || serializable_types.iter().any(|st| {
             st.is_foreign
-                && st.foreign_has_shape_inline.as_ref().is_some_and(|hs| {
-                    hs.contains("typeof") && hs.contains("\"string\"")
-                })
+                && st
+                    .foreign_has_shape_inline
+                    .as_ref()
+                    .is_some_and(|hs| hs.contains("typeof") && hs.contains("\"string\""))
         })
         || type_accepts_string(type_name, type_registry, &foreign_types_config);
     let data_init_expr = if has_string_variant {
@@ -1708,15 +1695,13 @@ fn handle_fallback_type_alias(
         type_name.to_case(Case::Camel),
         generic_args
     );
-    let fn_deserialize_internal_expr: Expr =
-        fn_deserialize_internal_ident.clone().into();
+    let fn_deserialize_internal_expr: Expr = fn_deserialize_internal_ident.clone().into();
     let fn_validate_field_ident = ts_ident!(
         "{}ValidateField{}",
         type_name.to_case(Case::Camel),
         validate_field_generic_decl
     );
-    let fn_validate_fields_ident =
-        ts_ident!("{}ValidateFields", type_name.to_case(Case::Camel));
+    let fn_validate_fields_ident = ts_ident!("{}ValidateFields", type_name.to_case(Case::Camel));
     let fn_is_ident = ts_ident!("{}Is{}", type_name.to_case(Case::Camel), generic_decl);
     let fn_has_shape_ident =
         ts_ident!("{}HasShape{}", type_name.to_case(Case::Camel), generic_decl);
@@ -1727,22 +1712,21 @@ fn handle_fallback_type_alias(
     let return_type = deserialize_return_type(full_type_name);
     let return_type_ident = ts_ident!(return_type.as_str());
     let success_result = wrap_success("result");
-    let success_result_expr = parse_ts_expr(&success_result)
-        .expect("deserialize success wrapper should parse");
+    let success_result_expr =
+        parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
-    let error_from_catch_expr = parse_ts_expr(&error_from_catch)
-        .expect("deserialize catch error wrapper should parse");
+    let error_from_catch_expr =
+        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
     let error_generic_message_expr = parse_ts_expr(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");
     let error_from_ctx = wrap_error("__errors");
-    let error_from_ctx_expr = parse_ts_expr(&error_from_ctx)
-        .expect("deserialize ctx error wrapper should parse");
+    let error_from_ctx_expr =
+        parse_ts_expr(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
 
     // Use the type registry and foreign types to determine if this type accepts strings.
     let foreign_types_config = get_foreign_types();
-    let accepts_string =
-        type_accepts_string(type_name, type_registry, &foreign_types_config);
+    let accepts_string = type_accepts_string(type_name, type_registry, &foreign_types_config);
     let data_init_expr = if accepts_string {
         parse_ts_expr("input").expect("data init expr should parse")
     } else {

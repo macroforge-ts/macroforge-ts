@@ -128,8 +128,7 @@ fn test_format_insertion_adds_newline_and_indent() {
     let code = PatchCode::ClassMember(ClassMember::Empty(EmptyStmt {
         span: swc_core::common::DUMMY_SP,
     }));
-    let formatted =
-        applicator.format_insertion("toString(): string;", closing_brace_pos, &code);
+    let formatted = applicator.format_insertion("toString(): string;", closing_brace_pos, &code);
 
     // Should start with newline and have proper indentation
     assert!(formatted.starts_with('\n'));
@@ -218,8 +217,7 @@ fn test_no_formatting_for_text_patches() {
     let source = "class User {}";
     let pos = 11; // 0-based index for format_insertion (internal use)
     let applicator = PatchApplicator::new(source, vec![]);
-    let formatted =
-        applicator.format_insertion("test", pos, &PatchCode::Text("test".to_string()));
+    let formatted = applicator.format_insertion("test", pos, &PatchCode::Text("test".to_string()));
     // Text patches should not get extra formatting
     assert_eq!(formatted, "test");
 }

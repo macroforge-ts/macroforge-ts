@@ -1,5 +1,5 @@
 use super::descriptors::{
-    DecoratorMetadata, DerivedMacroDescriptor, DerivedMacroRegistration, DYNAMIC_MODULE_MARKER,
+    DYNAMIC_MODULE_MARKER, DecoratorMetadata, DerivedMacroDescriptor, DerivedMacroRegistration,
 };
 use crate::host::{MacroRegistry, Result};
 use std::collections::BTreeSet;

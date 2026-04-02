@@ -1,9 +1,5 @@
 use anyhow::{Context, Result};
-use std::{
-    fs,
-    path::PathBuf,
-    sync::Mutex,
-};
+use std::{fs, path::PathBuf, sync::Mutex};
 
 /// Cached path to the type registry JSON file (built once per process via scanProjectSync).
 pub(crate) static TYPE_REGISTRY_CACHE_PATH: Mutex<Option<String>> = Mutex::new(None);

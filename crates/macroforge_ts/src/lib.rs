@@ -65,7 +65,9 @@ pub extern crate inventory;
 pub extern crate macroforge_ts_macros;
 pub extern crate macroforge_ts_quote;
 pub extern crate macroforge_ts_syn;
+#[cfg(feature = "node")]
 pub extern crate napi;
+#[cfg(feature = "node")]
 pub extern crate napi_derive;
 pub extern crate serde_json;
 
@@ -161,35 +163,53 @@ pub mod builtin;
 // ============================================================================
 // Extracted submodules
 // ============================================================================
-mod napi_types;
-mod position_mapper;
-mod plugin;
+pub mod api;
+pub mod api_types;
 mod expand_core;
-mod napi_functions;
 mod manifest;
+
+#[cfg(feature = "node")]
+pub mod bindings_napi;
+#[cfg(feature = "wasm")]
+pub mod bindings_wasm;
+
+#[cfg(feature = "node")]
+mod plugin;
+#[cfg(feature = "node")]
+mod position_mapper;
 
 // ============================================================================
 // Public re-exports (preserving the original public API)
 // ============================================================================
-pub use napi_types::{
-    TransformResult, MacroDiagnostic, MappingSegmentResult, GeneratedRegionResult,
-    SourceMappingResult, ExpandResult, ImportSourceResult, SyntaxCheckResult, SpanResult,
-    JsDiagnostic, ExpandOptions, ProcessFileOptions, ScanOptions, ScanResult, LoadConfigResult,
+pub use api_types::{
+    ExpandOptions, ExpandResult, GeneratedRegionResult, ImportSourceResult, JsDiagnostic,
+    LoadConfigResult, MacroDiagnostic, MappingSegmentResult, ProcessFileOptions, ScanOptions,
+    ScanResult, SourceMappingResult, SpanResult, SyntaxCheckResult, TransformResult,
 };
 
-pub use position_mapper::{NativePositionMapper, NativeMapper};
+#[cfg(feature = "node")]
+pub use position_mapper::{NativeMapper, NativePositionMapper};
 
+#[cfg(feature = "node")]
 pub use plugin::NativePlugin;
 
-pub use napi_functions::{
-    expand_sync, transform_sync, check_syntax, parse_import_sources, derive_decorator,
-    load_config, clear_config_cache, scan_project_sync,
+#[cfg(feature = "node")]
+pub use bindings_napi::{
+    check_syntax, clear_config_cache, derive_decorator, expand_sync, load_config,
+    parse_import_sources, scan_project_sync, transform_sync,
+};
+
+#[cfg(feature = "wasm")]
+pub use bindings_wasm::{
+    check_syntax as wasm_check_syntax, clear_config_cache as wasm_clear_config_cache,
+    derive_decorator as wasm_derive_decorator, expand_sync as wasm_expand_sync,
+    load_config as wasm_load_config, parse_import_sources as wasm_parse_import_sources,
+    scan_project_sync as wasm_scan_project_sync, transform_sync as wasm_transform_sync,
 };
 
 pub use manifest::{
-    MacroManifestEntry, DecoratorManifestEntry, MacroManifest,
-    get_macro_manifest, is_macro_package, get_macro_names,
-    debug_get_modules, debug_lookup, debug_descriptors,
+    DecoratorManifestEntry, MacroManifest, MacroManifestEntry, debug_descriptors,
+    debug_get_modules, debug_lookup, get_macro_manifest, get_macro_names, is_macro_package,
 };
 
 // Re-export internal items used by tests

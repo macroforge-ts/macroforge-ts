@@ -438,7 +438,7 @@ export declare function __macroforgeIsMacroPackage(): boolean
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -466,7 +466,7 @@ export declare function __macroforgeRunClone(contextJson: string): string
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -494,7 +494,7 @@ export declare function __macroforgeRunDebug(contextJson: string): string
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -522,7 +522,7 @@ export declare function __macroforgeRunDefault(contextJson: string): string
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -550,7 +550,7 @@ export declare function __macroforgeRunDeserialize(contextJson: string): string
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -578,7 +578,7 @@ export declare function __macroforgeRunHash(contextJson: string): string
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -606,7 +606,7 @@ export declare function __macroforgeRunOrd(contextJson: string): string
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -634,7 +634,7 @@ export declare function __macroforgeRunPartialEq(contextJson: string): string
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -662,7 +662,7 @@ export declare function __macroforgeRunPartialOrd(contextJson: string): string
  * r"
  * r" # Returns
  * r"
- * r" A JSON string containing the [`MacroResult`] with the transformed code
+ * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
  * r" or any diagnostic errors.
  * r"
  * r" # Errors
@@ -674,50 +674,8 @@ export declare function __macroforgeRunPartialOrd(contextJson: string): string
  */
 export declare function __macroforgeRunSerialize(contextJson: string): string
 
-/**
- * Checks if the given TypeScript code has valid syntax.
- *
- * This function attempts to parse the code using SWC's TypeScript parser
- * without performing any macro expansion.
- *
- * # Arguments
- *
- * * `code` - The TypeScript source code to check
- * * `filepath` - The file path (used to determine if it's TSX based on extension)
- *
- * # Returns
- *
- * A [`SyntaxCheckResult`] indicating success or containing the parse error.
- *
- * # Example
- *
- * ```javascript
- * const result = check_syntax("const x: number = 42;", "test.ts");
- * if (!result.ok) {
- *     console.error("Syntax error:", result.error);
- * }
- * ```
- */
 export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult
 
-/**
- * Clears the configuration cache.
- *
- * This is useful for testing to ensure each test starts with a clean state.
- * In production, clearing the cache will force configs to be re-parsed on next access.
- *
- * # Example
- *
- * ```javascript
- * const { clearConfigCache, loadConfig } = require('macroforge-ts');
- *
- * // Clear cache before each test
- * clearConfigCache();
- *
- * // Now load a fresh config
- * const result = loadConfig(configContent, configPath);
- * ```
- */
 export declare function clearConfigCache(): void
 
 /**
@@ -737,25 +695,6 @@ export interface DecoratorManifestEntry {
   docs: string
 }
 
-/**
- * The `@Derive` decorator function exported to JavaScript/TypeScript.
- *
- * This is a no-op function that exists purely for TypeScript type checking.
- * The actual decorator processing happens during macro expansion, where
- * `@derive(...)` decorators are recognized and transformed.
- *
- * # TypeScript Usage
- *
- * ```typescript
- * import { Derive } from "macroforge-ts";
- *
- * @Derive(Debug, Clone, Serialize)
- * class User {
- *     name: string;
- *     email: string;
- * }
- * ```
- */
 export declare function Derive(...features: any[]): ClassDecorator
 
 /**
@@ -862,43 +801,6 @@ export interface ExpandResult {
   sourceMapping?: SourceMappingResult
 }
 
-/**
- * Synchronously expands macros in TypeScript code.
- *
- * This is the standalone macro expansion function that doesn't use caching.
- * For cached expansion, use [`NativePlugin::process_file`] instead.
- *
- * # Arguments
- *
- * * `_env` - NAPI environment (unused but required by NAPI)
- * * `code` - The TypeScript source code to expand
- * * `filepath` - The file path (used for TSX detection)
- * * `options` - Optional configuration (e.g., `keep_decorators`)
- *
- * # Returns
- *
- * An [`ExpandResult`] containing the expanded code, diagnostics, and source mapping.
- *
- * # Errors
- *
- * Returns an error if:
- * - Thread spawning fails
- * - The worker thread panics
- * - Macro host initialization fails
- *
- * # Performance
- *
- * - Uses a 32MB thread stack to prevent stack overflow
- * - Performs early bailout for files without `@derive` decorators
- *
- * # Example
- *
- * ```javascript
- * const result = expand_sync(env, code, "user.ts", { keep_decorators: false });
- * console.log(result.code); // Expanded TypeScript code
- * console.log(result.diagnostics); // Any warnings or errors
- * ```
- */
 export declare function expandSync(code: string, filepath: string, options?: ExpandOptions | undefined | null): ExpandResult
 
 /**
@@ -953,39 +855,6 @@ export interface JsDiagnostic {
   category?: string
 }
 
-/**
- * Load and parse a macroforge configuration file.
- *
- * Parses a `macroforge.config.js/ts` file and caches the result for use
- * during macro expansion. The configuration includes both simple settings
- * (like `keepDecorators`) and foreign type handlers.
- *
- * # Arguments
- *
- * * `content` - The raw content of the configuration file
- * * `filepath` - Path to the configuration file (used to determine syntax and as cache key)
- *
- * # Returns
- *
- * A [`LoadConfigResult`] containing the parsed configuration summary.
- *
- * # Example
- *
- * ```javascript
- * import { loadConfig, expandSync } from 'macroforge';
- * import fs from 'fs';
- *
- * const configPath = 'macroforge.config.js';
- * const configContent = fs.readFileSync(configPath, 'utf-8');
- *
- * // Load and cache the configuration
- * const result = loadConfig(configContent, configPath);
- * console.log(`Loaded config with ${result.foreignTypeCount} foreign types`);
- *
- * // The config is now cached and will be used by expandSync
- * const expanded = expandSync(code, filepath, { configPath });
- * ```
- */
 export declare function loadConfig(content: string, filepath: string): LoadConfigResult
 
 /**
@@ -1012,7 +881,7 @@ export interface LoadConfigResult {
  *
  * # Fields
  *
- * * `level` - Severity level: "error", "warning", or "info"
+ * * `level` - Severity level: "error", "warning", "info"
  * * `message` - Human-readable description of the issue
  * * `start` - Optional byte offset where the issue starts in the source
  * * `end` - Optional byte offset where the issue ends in the source
@@ -1108,37 +977,6 @@ export interface MappingSegmentResult {
   expandedEnd: number
 }
 
-/**
- * Parses import statements from TypeScript code and returns their sources.
- *
- * This function extracts information about all import statements in the code,
- * mapping each imported identifier to its source module. Useful for analyzing
- * dependencies and understanding where decorators come from.
- *
- * # Arguments
- *
- * * `code` - The TypeScript source code to parse
- * * `filepath` - The file path (used for TSX detection)
- *
- * # Returns
- *
- * A vector of [`ImportSourceResult`] entries, one for each imported identifier.
- *
- * # Errors
- *
- * Returns an error if the code cannot be parsed.
- *
- * # Example
- *
- * ```javascript
- * // For code: import { Derive, Clone } from "macroforge-ts";
- * const imports = parse_import_sources(code, "test.ts");
- * // Returns: [
- * //   { local: "Derive", module: "macroforge-ts" },
- * //   { local: "Clone", module: "macroforge-ts" }
- * // ]
- * ```
- */
 export declare function parseImportSources(code: string, filepath: string): Array<ImportSourceResult>
 
 /**
@@ -1183,34 +1021,6 @@ export interface ScanOptions {
   exportedOnly?: boolean
 }
 
-/**
- * Scan a TypeScript project and build a type registry.
- *
- * This should be called once at build start (e.g., in Vite's `buildStart` hook)
- * and the resulting `registry_json` should be passed to [`expand_sync`] via
- * `ExpandOptions.type_registry_json`.
- *
- * # Arguments
- *
- * * `root_dir` - The project root directory to scan
- * * `options` - Optional scan configuration
- *
- * # Returns
- *
- * A [`ScanResult`] with the serialized registry and scan statistics.
- *
- * # Example
- *
- * ```javascript
- * const scan = scanProjectSync(projectRoot);
- * console.log(`Found ${scan.typesFound} types in ${scan.filesScanned} files`);
- *
- * // Pass to expand_sync for each file
- * const result = expandSync(code, filepath, {
- *   typeRegistryJson: scan.registryJson,
- * });
- * ```
- */
 export declare function scanProjectSync(rootDir: string, options?: ScanOptions | undefined | null): ScanResult
 
 /** Result of scanning a project for type information. */
@@ -1311,31 +1121,4 @@ export interface TransformResult {
   metadata?: string
 }
 
-/**
- * Synchronously transforms TypeScript code through the macro expansion system.
- *
- * This is similar to [`expand_sync`] but returns a [`TransformResult`] which
- * includes source map information (when available).
- *
- * # Arguments
- *
- * * `_env` - NAPI environment (unused but required by NAPI)
- * * `code` - The TypeScript source code to transform
- * * `filepath` - The file path (used for TSX detection)
- *
- * # Returns
- *
- * A [`TransformResult`] containing the transformed code and metadata.
- *
- * # Errors
- *
- * Returns an error if:
- * - Thread spawning fails
- * - The worker thread panics
- * - Macro expansion fails
- *
- * # Thread Safety
- *
- * Uses a 32MB thread stack to prevent stack overflow during deep AST recursion.
- */
 export declare function transformSync(code: string, filepath: string): TransformResult

@@ -23,9 +23,7 @@ mod tests;
 pub use validation::generate_validation_condition;
 
 use crate::macros::ts_macro_derive;
-use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
-};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(
     Deserialize,

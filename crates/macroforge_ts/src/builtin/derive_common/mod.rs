@@ -47,9 +47,7 @@ mod type_utils;
 #[cfg(test)]
 mod tests;
 
-pub use field_options::{
-    CompareFieldOptions, DefaultFieldOptions, extract_named_string, has_flag,
-};
+pub use field_options::{CompareFieldOptions, DefaultFieldOptions, extract_named_string, has_flag};
 pub use registry_helpers::{
     collection_element_type, map_key_type, resolved_type_has_derive, standalone_fn_name,
     type_has_derive,
