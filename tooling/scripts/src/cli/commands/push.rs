@@ -134,7 +134,10 @@ pub fn run(args: &PushArgs) -> Result<()> {
             };
 
             if args.dry_run {
-                format::info(&format!("  [dry-run] git add -A && git commit -m {:?}", message));
+                format::info(&format!(
+                    "  [dry-run] git add -A && git commit -m {:?}",
+                    message
+                ));
             } else {
                 shell::git::add_all(&repo.abs_path).context("git add failed")?;
                 shell::git::commit(&repo.abs_path, &message).context("git commit failed")?;
