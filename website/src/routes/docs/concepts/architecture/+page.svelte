@@ -13,19 +13,31 @@
 <h1>Architecture</h1>
 
 <p class="lead">
-	Macroforge is built as a native Node.js module using Rust and NAPI-RS. It leverages SWC for fast TypeScript parsing and code generation.
+	Macroforge is built as a modular Rust engine with multiple output targets. It leverages SWC for fast TypeScript parsing and code generation, while providing both native Node.js and universal WebAssembly bindings.
 </p>
 
 <h2 id="overview">Overview</h2>
 
 <ArchitectureDiagram layers={[
-	{ title: "Node.js / Vite" },
-	{ title: "NAPI-RS Bindings" },
+	{ title: "JavaScript Environments", items: ["Node.js", "Vite", "Browser", "Edge"] },
+	{ title: "Target Bindings", items: ["NAPI-RS (Node)", "wasm-bindgen (Universal)"] },
+	{ title: "Unified API", items: ["MacroforgeApi Trait", "CoreEngine"] },
 	{ title: "Macro Crates", items: ["macroforge_ts_syn", "macroforge_ts_quote", "macroforge_ts_macros"] },
 	{ title: "SWC Core", items: ["TypeScript parsing & codegen"] }
 ]} />
 
 <h2 id="components">Core Components</h2>
+
+<h3>Unified API & Core Engine</h3>
+<p>
+	At the heart of Macroforge is an output-agnostic <code>MacroforgeApi</code> trait. This allows the core expansion logic to remain identical across all platforms while supporting different transport layers (NAPI or WASM).
+</p>
+
+<h3>Target Bindings</h3>
+<ul>
+	<li><strong>NAPI-RS</strong>: Bridges Rust and Node.js for maximum performance using native binaries.</li>
+	<li><strong>wasm-bindgen</strong>: Compiles the engine to WebAssembly for universal compatibility across browsers and edge workers.</li>
+</ul>
 
 <h3>SWC Core</h3>
 <p>
@@ -93,10 +105,10 @@
 <h2 id="performance">Performance Characteristics</h2>
 
 <ul>
-	<li><strong>Thread-safe</strong>: Each expansion runs in an isolated thread with a 32MB stack</li>
-	<li><strong>Caching</strong>: <code>NativePlugin</code> caches results by file version</li>
-	<li><strong>Binary search</strong>: Position mapping uses O(log n) lookups</li>
-	<li><strong>Zero-copy</strong>: SWC's arena allocator minimizes allocations</li>
+	<li><strong>Isolated Execution</strong>: In Node.js, each expansion runs in a dedicated thread with a 32MB stack to prevent stack overflow during deep recursion. In WASM, execution is synchronous on the main thread.</li>
+	<li><strong>Caching</strong>: <code>NativePlugin</code> (Node) and API calls support version-based caching to skip redundant work.</li>
+	<li><strong>Binary search</strong>: Position mapping uses optimized O(log n) lookups.</li>
+	<li><strong>Zero-copy</strong>: SWC's arena allocator minimizes allocations during AST manipulation.</li>
 </ul>
 
 <h2 id="re-exports">Re-exported Crates</h2>

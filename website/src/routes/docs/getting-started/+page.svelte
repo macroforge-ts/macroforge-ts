@@ -18,7 +18,8 @@
 <h2 id="requirements">Requirements</h2>
 
 <ul>
-	<li>Node.js 24.0 or later</li>
+	<li>Node.js 24.0 or later (for native bindings)</li>
+	<li>A WebAssembly-compatible environment (for WASM version)</li>
 	<li>TypeScript 5.9 or later</li>
 </ul>
 
@@ -33,7 +34,11 @@
 <CodeBlock code="pnpm add macroforge" lang="bash" filename="pnpm" />
 
 <Alert type="info">
-	Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64).
+	Macroforge provides two distribution options:
+	<ul>
+		<li><strong>Native Bindings</strong>: Pre-built binaries for macOS, Linux, and Windows. Used by default in Node.js.</li>
+		<li><strong>WebAssembly</strong>: A universal <code>@macroforge/wasm</code> package for browser, edge, and other environments.</li>
+	</ul>
 </Alert>
 
 <h2 id="basic-usage">Basic Usage</h2>
