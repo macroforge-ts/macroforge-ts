@@ -7,8 +7,7 @@ use std::{
 };
 
 use crate::cache::{
-    CacheEntry,
-    collect_watch_files, compute_config_hash, content_hash, expand_for_cache,
+    CacheEntry, collect_watch_files, compute_config_hash, content_hash, expand_for_cache,
     init_cache, is_watchable_ts_file, normalized_content_hash, warm_cache, write_cache_file,
 };
 

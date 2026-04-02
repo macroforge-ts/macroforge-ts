@@ -2,8 +2,8 @@ use crate::builtin::derive_partial_ord::comparison::generate_field_compare_for_i
 use crate::builtin::derive_partial_ord::types::OrdField;
 use crate::builtin::return_types::partial_ord_return_type;
 use crate::macros::ts_template;
-use crate::ts_syn::ts_ident;
 use crate::ts_syn::TsStream;
+use crate::ts_syn::ts_ident;
 
 #[test]
 fn test_partial_ord_macro_output_vanilla() {

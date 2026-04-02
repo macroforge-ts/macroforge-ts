@@ -1,4 +1,7 @@
 //! Build script for macroforge_ts.
 fn main() {
-    napi_build::setup();
+    #[cfg(feature = "node")]
+    {
+        napi_build::setup();
+    }
 }

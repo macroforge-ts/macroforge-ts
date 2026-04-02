@@ -1,8 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::cache::{
-    CacheEntry, CacheManifest, content_hash, normalized_content_hash, warm_cache,
-};
+use crate::cache::{CacheEntry, CacheManifest, content_hash, normalized_content_hash, warm_cache};
 use crate::expand::{get_expanded_path, offset_to_line_col};
 
 // =========================================================================

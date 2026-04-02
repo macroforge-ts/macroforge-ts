@@ -66,8 +66,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
         .fields()
         .iter()
         .filter_map(|field| {
-            let parse_result =
-                SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+            let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
             all_diagnostics.extend(parse_result.diagnostics);
             let opts = parse_result.options;
 
@@ -149,8 +148,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
             } else {
                 // Check if the field's type matches a configured foreign type
                 let foreign_types = get_foreign_types();
-                let ft_match =
-                    TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
+                let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
                 // Error if import source mismatch (type matches but wrong import)
                 if let Some(error) = ft_match.error {
                     all_diagnostics.error(field.span, error);
@@ -168,14 +166,31 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                     .or_else(|| try_composite_foreign_deserialize(&field.ts_type))
             };
 
-            let deserialize_with = deserialize_with_src.as_ref().and_then(|expr_src| {
-                match parse_ts_expr(expr_src) {
-                    Ok(expr) => Some(*expr),
+            let deserialize_with =
+                deserialize_with_src
+                    .as_ref()
+                    .and_then(|expr_src| match parse_ts_expr(expr_src) {
+                        Ok(expr) => Some(*expr),
+                        Err(err) => {
+                            all_diagnostics.error(
+                                field.span,
+                                format!(
+                                    "@serde(deserializeWith): invalid expression for '{}': {err:?}",
+                                    field.name
+                                ),
+                            );
+                            None
+                        }
+                    });
+
+            let default_expr = opts.default_expr.as_ref().and_then(|expr_src| {
+                match parse_default_expr(expr_src) {
+                    Ok(expr) => Some(expr),
                     Err(err) => {
                         all_diagnostics.error(
                             field.span,
                             format!(
-                                "@serde(deserializeWith): invalid expression for '{}': {err:?}",
+                                "@serde({{default: ...}}): invalid expression for '{}': {err:?}",
                                 field.name
                             ),
                         );
@@ -183,22 +198,6 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                     }
                 }
             });
-
-                let default_expr = opts.default_expr.as_ref().and_then(|expr_src| {
-                    match parse_default_expr(expr_src) {
-                        Ok(expr) => Some(expr),
-                        Err(err) => {
-                            all_diagnostics.error(
-                                field.span,
-                                format!(
-                                    "@serde({{default: ...}}): invalid expression for '{}': {err:?}",
-                                    field.name
-                                ),
-                            );
-                            None
-                        }
-                    }
-                });
 
             Some(DeserializeField {
                 json_key,
@@ -283,11 +282,11 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
         r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
         class_name
     ));
-    let error_root_ref_expr = parse_ts_expr(&error_root_ref)
-        .expect("deserialize root error wrapper should parse");
+    let error_root_ref_expr =
+        parse_ts_expr(&error_root_ref).expect("deserialize root error wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
-    let error_from_catch_expr = parse_ts_expr(&error_from_catch)
-        .expect("deserialize catch error wrapper should parse");
+    let error_from_catch_expr =
+        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
     let error_generic_message_expr = parse_ts_expr(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");

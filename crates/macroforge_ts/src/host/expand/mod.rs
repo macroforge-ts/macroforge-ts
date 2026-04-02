@@ -81,10 +81,10 @@
 //! }
 //! ```
 
-mod external_loader;
 mod derive_targets;
-pub mod imports;
+mod external_loader;
 mod helpers;
+pub mod imports;
 mod registration;
 #[cfg(test)]
 mod tests;
@@ -105,11 +105,11 @@ use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
 };
 
-use external_loader::{ExternalMacroLoader, resolve_external_decorator_names};
 use derive_targets::{
     DeriveTargetIR, SpanKey, collect_derive_targets, diagnostic_span_for_derive,
     find_macro_name_span, span_ir_with_at,
 };
+use external_loader::{ExternalMacroLoader, resolve_external_decorator_names};
 use helpers::{
     MemberWithComment, derive_insert_pos, extract_function_names_from_patches,
     find_macro_comment_span, generate_convenience_export, get_derive_target_end_span,
@@ -213,18 +213,7 @@ impl MacroExpander {
     ///
     /// Returns an error if configuration discovery or macro registration fails.
     pub fn new() -> anyhow::Result<Self> {
-        Self::new_with_env(None)
-    }
-
-    /// Create a new expander, optionally with a NAPI environment.
-    ///
-    /// When `env` is `Some`, the expander can call into Node.js for external
-    /// macro loading. When `None`, only built-in macros are available.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if configuration discovery or macro registration fails.
-    pub fn new_with_env(_env: Option<&napi::Env>) -> anyhow::Result<Self> {
+        #[cfg(not(target_arch = "wasm32"))]
         let (config, root_dir) = MacroConfig::find_with_root()
             .context("failed to discover macro configuration")?
             .unwrap_or_else(|| {
@@ -233,7 +222,11 @@ impl MacroExpander {
                     std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from(".")),
                 )
             });
-        Self::with_config_and_env(config, root_dir, _env)
+
+        #[cfg(target_arch = "wasm32")]
+        let (config, root_dir) = (MacroConfig::default(), std::path::PathBuf::from("."));
+
+        Self::with_config(config, root_dir)
     }
 
     /// Create an expander with a specific configuration and project root.
@@ -244,25 +237,7 @@ impl MacroExpander {
     /// # Errors
     ///
     /// Returns an error if macro registration fails.
-    #[allow(dead_code)]
     pub fn with_config(config: MacroConfig, root_dir: std::path::PathBuf) -> anyhow::Result<Self> {
-        Self::with_config_and_env(config, root_dir, None)
-    }
-
-    /// Create an expander with a specific config and optional NAPI environment.
-    ///
-    /// This is the most flexible constructor, used by both [`Self::new`] and
-    /// [`Self::with_config`]. Registers all built-in macros from the inventory
-    /// and optionally sets up the external macro loader.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if macro registration fails.
-    pub fn with_config_and_env(
-        config: MacroConfig,
-        root_dir: std::path::PathBuf,
-        _env: Option<&napi::Env>,
-    ) -> anyhow::Result<Self> {
         let registry = MacroRegistry::new();
         register_packages(&registry, &config, &root_dir)?;
 
@@ -310,7 +285,10 @@ impl MacroExpander {
             config,
             keep_decorators,
             external_decorator_modules: Vec::new(),
+            #[cfg(not(target_arch = "wasm32"))]
             external_loader: Some(ExternalMacroLoader::new(root_dir)),
+            #[cfg(target_arch = "wasm32")]
+            external_loader: None,
             type_registry: None,
         })
     }
@@ -842,7 +820,7 @@ impl MacroExpander {
                     eprintln!("[DEBUG]   type_patches: {}", result.type_patches.len());
                     eprintln!(
                         "[DEBUG]   tokens: {:?}",
-                        result.tokens.as_ref().map(|t| t.len())
+                        result.tokens.as_ref().map(|t: &String| t.len())
                     );
                     if let Some(tokens) = &result.tokens {
                         eprintln!(

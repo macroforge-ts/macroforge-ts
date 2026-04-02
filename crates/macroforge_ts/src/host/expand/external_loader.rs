@@ -1,6 +1,5 @@
+use anyhow::{Context, anyhow, bail};
 use std::process::Command;
-
-use napi::Status;
 
 use crate::ts_syn::abi::{MacroContextIR, MacroResult};
 
@@ -107,21 +106,17 @@ try {{
         }
     }
 
-    pub(crate) fn run_macro(&self, ctx: &MacroContextIR) -> napi::Result<MacroResult> {
+    pub(crate) fn run_macro(&self, ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
         let fn_name = format!("__macroforgeRun{}", ctx.macro_name);
         let ctx_json =
-            serde_json::to_string(ctx).map_err(|e| napi::Error::new(Status::InvalidArg, e))?;
+            serde_json::to_string(ctx).map_err(|e| anyhow!("Failed to serialize context: {e}"))?;
 
         // Write context JSON to a temp file to avoid OS argument length limits
         // (E2BIG / "Argument list too long" when the serialized context is large).
         let ctx_file =
             std::env::temp_dir().join(format!("macroforge_ctx_{}.json", std::process::id()));
-        std::fs::write(&ctx_file, &ctx_json).map_err(|e| {
-            napi::Error::new(
-                Status::GenericFailure,
-                format!("Failed to write macro context to temp file: {e}"),
-            )
-        })?;
+        std::fs::write(&ctx_file, &ctx_json)
+            .context("Failed to write macro context to temp file")?;
 
         let script = r#"
 const [modulePath, fnName, ctxFile, rootDir] = process.argv.slice(1);
@@ -307,38 +302,21 @@ const tryImport = async (id) => {
             .arg(ctx_file.to_string_lossy().as_ref())
             .arg(self.root_dir.to_string_lossy().as_ref())
             .output()
-            .map_err(|e| {
-                napi::Error::new(
-                    Status::GenericFailure,
-                    format!("Failed to spawn node for external macro: {e}"),
-                )
-            })?;
+            .context("Failed to spawn node for external macro")?;
 
         // Clean up the temp file
         let _ = std::fs::remove_file(&ctx_file);
 
         if !child.status.success() {
             let stderr = String::from_utf8_lossy(&child.stderr);
-            return Err(napi::Error::new(
-                Status::GenericFailure,
-                format!("External macro runner failed: {stderr}"),
-            ));
+            bail!("External macro runner failed: {stderr}");
         }
 
-        let result_json = String::from_utf8(child.stdout).map_err(|e| {
-            napi::Error::new(
-                Status::InvalidArg,
-                format!("Macro runner returned non-UTF8 output: {e}"),
-            )
-        })?;
+        let result_json =
+            String::from_utf8(child.stdout).context("Macro runner returned non-UTF8 output")?;
 
-        let host_result: crate::ts_syn::abi::MacroResult = serde_json::from_str(&result_json)
-            .map_err(|e| {
-                napi::Error::new(
-                    Status::InvalidArg,
-                    format!("Failed to parse macro result: {e}"),
-                )
-            })?;
+        let host_result: crate::ts_syn::abi::MacroResult =
+            serde_json::from_str(&result_json).context("Failed to parse macro result")?;
 
         Ok(MacroResult {
             runtime_patches: host_result.runtime_patches,

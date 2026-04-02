@@ -7,5 +7,9 @@ fn test_simple_import() {
         import { foo } from "module";
     };
     let source = stream.source();
-    assert!(source.contains("import"), "Expected 'import'. Got:\n{}", source);
+    assert!(
+        source.contains("import"),
+        "Expected 'import'. Got:\n{}",
+        source
+    );
 }

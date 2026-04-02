@@ -1,4 +1,6 @@
-use crate::builtin::derive_common::{is_numeric_type, is_primitive_type, standalone_fn_name, type_has_derive};
+use crate::builtin::derive_common::{
+    is_numeric_type, is_primitive_type, standalone_fn_name, type_has_derive,
+};
 use crate::builtin::return_types::{is_none_check, unwrap_option_or_null};
 use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
 

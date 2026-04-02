@@ -15,7 +15,8 @@
             "**/build",
             "**/node_modules",
             "index.js",
-            "index.d.ts"
+            "index.d.ts",
+            "tests/fixtures/**"
         ]
     }
 }

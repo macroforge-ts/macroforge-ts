@@ -251,7 +251,11 @@ pub(super) fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
     ir
 }
 
-pub(super) fn find_macro_name_span(source: &str, decorator_span: SpanIR, macro_name: &str) -> Option<SpanIR> {
+pub(super) fn find_macro_name_span(
+    source: &str,
+    decorator_span: SpanIR,
+    macro_name: &str,
+) -> Option<SpanIR> {
     let start = decorator_span.start.saturating_sub(1) as usize;
     let end = decorator_span.end.saturating_sub(1) as usize;
 

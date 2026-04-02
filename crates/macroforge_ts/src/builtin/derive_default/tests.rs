@@ -1,7 +1,7 @@
 use super::types::DefaultField;
 use crate::macros::ts_template;
-use crate::ts_syn::ts_ident;
 use crate::ts_syn::parse_ts_expr;
+use crate::ts_syn::ts_ident;
 
 #[test]
 fn test_default_macro_output() {

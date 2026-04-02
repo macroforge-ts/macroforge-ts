@@ -1,8 +1,6 @@
 use convert_case::{Case, Casing};
 
-use crate::builtin::derive_common::{
-    DefaultFieldOptions, get_type_default, has_known_default,
-};
+use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_known_default};
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::ts_ident;

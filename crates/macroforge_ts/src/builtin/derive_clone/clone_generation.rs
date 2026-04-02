@@ -133,11 +133,7 @@ pub(crate) fn element_clone_expr(
 
 /// Fallback clone expression when no type registry is available.
 /// Handles known built-in types; everything else is shallow copy.
-pub(crate) fn generate_clone_expr_fallback(
-    field_name: &str,
-    ts_type: &str,
-    var: &str,
-) -> String {
+pub(crate) fn generate_clone_expr_fallback(field_name: &str, ts_type: &str, var: &str) -> String {
     let access = format!("{var}.{field_name}");
     let t = ts_type.trim();
 

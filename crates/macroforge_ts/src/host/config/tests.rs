@@ -10,8 +10,7 @@ fn test_parse_simple_config() {
             }
         "#;
 
-    let config =
-        MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
     assert!(config.keep_decorators);
     assert!(!config.generate_convenience_const);
 }
@@ -30,8 +29,7 @@ fn test_parse_config_with_foreign_types() {
             }
         "#;
 
-    let config =
-        MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
     assert_eq!(config.foreign_types.len(), 1);
 
     let dt = &config.foreign_types[0];
@@ -53,8 +51,7 @@ fn test_parse_config_with_multiple_sources() {
             }
         "#;
 
-    let config =
-        MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
     let dt = &config.foreign_types[0];
     assert_eq!(dt.from, vec!["effect", "@effect/schema"]);
 }
@@ -74,16 +71,14 @@ fn test_parse_typescript_config() {
             }
         "#;
 
-    let config =
-        MacroforgeConfigLoader::from_config_file(content, "macroforge.config.ts").unwrap();
+    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.ts").unwrap();
     assert_eq!(config.foreign_types.len(), 1);
 }
 
 #[test]
 fn test_default_values() {
     let content = "export default {}";
-    let config =
-        MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
 
     assert!(!config.keep_decorators);
     assert!(config.generate_convenience_const);

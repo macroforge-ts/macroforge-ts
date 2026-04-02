@@ -2,10 +2,8 @@ use napi::bindgen_prelude::*;
 use napi_derive::napi;
 use swc_core::common::{GLOBALS, Globals};
 
+use crate::api_types::{ExpandOptions, ExpandResult, JsDiagnostic, ProcessFileOptions};
 use crate::expand_core::expand_inner;
-use crate::napi_types::{
-    ExpandOptions, ExpandResult, JsDiagnostic, ProcessFileOptions,
-};
 use crate::position_mapper::{NativeMapper, NativePositionMapper};
 
 // ============================================================================
@@ -250,15 +248,21 @@ impl NativePlugin {
             .map_err(|_| {
                 Error::new(
                     Status::GenericFailure,
-                    "Macro expansion worker thread panicked (Stack Overflow?)",
+                    "Macro expansion worker thread panicked (Stack Overflow?)".to_string(),
                 )
             })?
             .map_err(|_| {
                 Error::new(
                     Status::GenericFailure,
-                    "Macro expansion panicked inside worker",
+                    "Macro expansion panicked inside worker".to_string(),
                 )
-            })??;
+            })?
+            .map_err(|e| {
+                Error::new(
+                    Status::GenericFailure,
+                    format!("Macro expansion failed: {}", e),
+                )
+            })?;
 
         // Update Cache: Store the result for future requests with the same version.
         if let Ok(mut guard) = self.cache.lock() {

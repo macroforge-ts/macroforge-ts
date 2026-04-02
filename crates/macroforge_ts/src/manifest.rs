@@ -1,7 +1,9 @@
+#[cfg(feature = "node")]
 use napi_derive::napi;
+use serde::{Deserialize, Serialize};
 
-use crate::host::derived;
 use crate::host::MacroExpander;
+use crate::host::derived;
 
 // ============================================================================
 // Manifest / Debug API
@@ -11,7 +13,8 @@ use crate::host::MacroExpander;
 ///
 /// Used by [`MacroManifest`] to describe available macros to tooling
 /// such as IDE extensions and documentation generators.
-#[napi(object)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Serialize, Deserialize)]
 pub struct MacroManifestEntry {
     /// The macro name (e.g., "Debug", "Clone", "Serialize").
     pub name: String,
@@ -27,7 +30,8 @@ pub struct MacroManifestEntry {
 ///
 /// Used by [`MacroManifest`] to describe field-level decorators
 /// that can be used with macros.
-#[napi(object)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Serialize, Deserialize)]
 pub struct DecoratorManifestEntry {
     /// The module this decorator belongs to (e.g., "serde").
     pub module: String,
@@ -45,7 +49,8 @@ pub struct DecoratorManifestEntry {
 /// - IDE autocompletion
 /// - Documentation generation
 /// - Tooling integration
-#[napi(object)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Serialize, Deserialize)]
 pub struct MacroManifest {
     /// ABI version for compatibility checking.
     pub version: u32,
@@ -71,7 +76,7 @@ pub struct MacroManifest {
 /// console.log("Available macros:", manifest.macros.map(m => m.name));
 /// // ["Debug", "Clone", "PartialEq", "Hash", "Serialize", "Deserialize", ...]
 /// ```
-#[napi(js_name = "__macroforgeGetManifest")]
+#[cfg_attr(feature = "node", napi(js_name = "__macroforgeGetManifest"))]
 pub fn get_macro_manifest() -> MacroManifest {
     let manifest = derived::get_manifest();
     MacroManifest {
@@ -106,7 +111,7 @@ pub fn get_macro_manifest() -> MacroManifest {
 /// # Returns
 ///
 /// `true` if at least one macro is registered, `false` otherwise.
-#[napi(js_name = "__macroforgeIsMacroPackage")]
+#[cfg_attr(feature = "node", napi(js_name = "__macroforgeIsMacroPackage"))]
 pub fn is_macro_package() -> bool {
     !derived::macro_names().is_empty()
 }
@@ -116,7 +121,7 @@ pub fn is_macro_package() -> bool {
 /// # Returns
 ///
 /// A vector of macro names (e.g., `["Debug", "Clone", "Serialize"]`).
-#[napi(js_name = "__macroforgeGetMacroNames")]
+#[cfg_attr(feature = "node", napi(js_name = "__macroforgeGetMacroNames"))]
 pub fn get_macro_names() -> Vec<String> {
     derived::macro_names()
         .into_iter()
@@ -131,7 +136,7 @@ pub fn get_macro_names() -> Vec<String> {
 /// # Returns
 ///
 /// A vector of module names.
-#[napi(js_name = "__macroforgeDebugGetModules")]
+#[cfg_attr(feature = "node", napi(js_name = "__macroforgeDebugGetModules"))]
 pub fn debug_get_modules() -> Vec<String> {
     crate::host::derived::modules()
         .into_iter()
@@ -151,7 +156,7 @@ pub fn debug_get_modules() -> Vec<String> {
 /// # Returns
 ///
 /// A string describing whether the macro was found or not.
-#[napi(js_name = "__macroforgeDebugLookup")]
+#[cfg_attr(feature = "node", napi(js_name = "__macroforgeDebugLookup"))]
 pub fn debug_lookup(module: String, name: String) -> String {
     match MacroExpander::new() {
         Ok(host) => match host.dispatcher.registry().lookup(&module, &name) {
@@ -170,7 +175,7 @@ pub fn debug_lookup(module: String, name: String) -> String {
 /// # Returns
 ///
 /// A vector of strings describing each registered macro descriptor.
-#[napi(js_name = "__macroforgeDebugDescriptors")]
+#[cfg_attr(feature = "node", napi(js_name = "__macroforgeDebugDescriptors"))]
 pub fn debug_descriptors() -> Vec<String> {
     inventory::iter::<crate::host::derived::DerivedMacroRegistration>()
         .map(|entry| {

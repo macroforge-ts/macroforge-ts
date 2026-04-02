@@ -16,7 +16,11 @@ fn test_qualified_name_type() {
         type Handler = Express.RequestHandler;
     };
     let source = stream.source();
-    assert!(source.contains("Express.RequestHandler") || source.contains("Express .RequestHandler"), "Expected 'Express.RequestHandler'. Got:\n{}", source);
+    assert!(
+        source.contains("Express.RequestHandler") || source.contains("Express .RequestHandler"),
+        "Expected 'Express.RequestHandler'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -25,7 +29,11 @@ fn test_qualified_name_nested() {
         type DeepType = Namespace.SubNamespace.Type;
     };
     let source = stream.source();
-    assert!(source.contains("Namespace") && source.contains("SubNamespace") && source.contains("Type"), "Expected nested namespace. Got:\n{}", source);
+    assert!(
+        source.contains("Namespace") && source.contains("SubNamespace") && source.contains("Type"),
+        "Expected nested namespace. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -39,7 +47,11 @@ fn test_literal_type_string() {
     };
     let source = stream.source();
     // Check for string literals - may be quoted differently
-    assert!(source.contains("up") && source.contains("down"), "Expected string literals. Got:\n{}", source);
+    assert!(
+        source.contains("up") && source.contains("down"),
+        "Expected string literals. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -48,7 +60,11 @@ fn test_literal_type_number() {
         type HttpStatus = 200 | 404 | 500;
     };
     let source = stream.source();
-    assert!(source.contains("200") && source.contains("404") && source.contains("500"), "Expected number literals. Got:\n{}", source);
+    assert!(
+        source.contains("200") && source.contains("404") && source.contains("500"),
+        "Expected number literals. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -74,7 +90,11 @@ fn test_intersection_type_simple() {
     };
     let source = stream.source();
     assert!(source.contains("&"), "Expected '&'. Got:\n{}", source);
-    assert!(source.contains("TypeA") && source.contains("TypeB"), "Expected TypeA and TypeB. Got:\n{}", source);
+    assert!(
+        source.contains("TypeA") && source.contains("TypeB"),
+        "Expected TypeA and TypeB. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -84,7 +104,12 @@ fn test_intersection_type_multiple() {
     };
     let source = stream.source();
     let count = source.matches("&").count();
-    assert!(count >= 3, "Expected at least 3 '&'. Got {} in:\n{}", count, source);
+    assert!(
+        count >= 3,
+        "Expected at least 3 '&'. Got {} in:\n{}",
+        count,
+        source
+    );
 }
 
 #[test]
@@ -93,7 +118,11 @@ fn test_intersection_type_with_object() {
         type Extended = Base & { extra: string };
     };
     let source = stream.source();
-    assert!(source.contains("&") && source.contains("extra"), "Expected intersection with object. Got:\n{}", source);
+    assert!(
+        source.contains("&") && source.contains("extra"),
+        "Expected intersection with object. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -106,8 +135,16 @@ fn test_tuple_type_simple() {
         type Pair = [string, number];
     };
     let source = stream.source();
-    assert!(source.contains("[") && source.contains("]"), "Expected tuple brackets. Got:\n{}", source);
-    assert!(source.contains("string") && source.contains("number"), "Expected string and number. Got:\n{}", source);
+    assert!(
+        source.contains("[") && source.contains("]"),
+        "Expected tuple brackets. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("string") && source.contains("number"),
+        "Expected string and number. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -116,7 +153,11 @@ fn test_tuple_type_labeled() {
         type Point = [x: number, y: number, z: number];
     };
     let source = stream.source();
-    assert!(source.contains("x") && source.contains("y") && source.contains("z"), "Expected labeled tuple. Got:\n{}", source);
+    assert!(
+        source.contains("x") && source.contains("y") && source.contains("z"),
+        "Expected labeled tuple. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -125,7 +166,11 @@ fn test_tuple_type_optional() {
         type Args = [string, number?, boolean?];
     };
     let source = stream.source();
-    assert!(source.contains("?"), "Expected optional elements. Got:\n{}", source);
+    assert!(
+        source.contains("?"),
+        "Expected optional elements. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -134,7 +179,11 @@ fn test_tuple_type_with_rest() {
         type VarArgs = [first: string, ...rest: number[]];
     };
     let source = stream.source();
-    assert!(source.contains("..."), "Expected rest element. Got:\n{}", source);
+    assert!(
+        source.contains("..."),
+        "Expected rest element. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -143,7 +192,11 @@ fn test_tuple_type_readonly() {
         type Frozen = readonly [number, number];
     };
     let source = stream.source();
-    assert!(source.contains("readonly"), "Expected 'readonly'. Got:\n{}", source);
+    assert!(
+        source.contains("readonly"),
+        "Expected 'readonly'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -167,7 +220,11 @@ fn test_fn_type_generic() {
     };
     let source = stream.source();
     assert!(source.contains("=>"), "Expected '=>'. Got:\n{}", source);
-    assert!(source.contains("T") && source.contains("U"), "Expected T and U. Got:\n{}", source);
+    assert!(
+        source.contains("T") && source.contains("U"),
+        "Expected T and U. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -176,7 +233,11 @@ fn test_fn_type_no_params() {
         type Factory = () => object;
     };
     let source = stream.source();
-    assert!(source.contains("()") && source.contains("=>"), "Expected '() =>'. Got:\n{}", source);
+    assert!(
+        source.contains("()") && source.contains("=>"),
+        "Expected '() =>'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -185,7 +246,11 @@ fn test_fn_type_rest_params() {
         type VarFunc = (...args: string[]) => void;
     };
     let source = stream.source();
-    assert!(source.contains("...args") || source.contains("... args"), "Expected '...args'. Got:\n{}", source);
+    assert!(
+        source.contains("...args") || source.contains("... args"),
+        "Expected '...args'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -208,7 +273,11 @@ fn test_constructor_type_simple() {
         type Newable = new () => object;
     };
     let source = stream.source();
-    assert!(source.contains("new") && source.contains("()"), "Expected 'new ()'. Got:\n{}", source);
+    assert!(
+        source.contains("new") && source.contains("()"),
+        "Expected 'new ()'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -221,8 +290,16 @@ fn test_object_type_simple() {
         type Config = { name: string; value: number };
     };
     let source = stream.source();
-    assert!(source.contains("name") && source.contains("string"), "Expected 'name: string'. Got:\n{}", source);
-    assert!(source.contains("value") && source.contains("number"), "Expected 'value: number'. Got:\n{}", source);
+    assert!(
+        source.contains("name") && source.contains("string"),
+        "Expected 'name: string'. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("value") && source.contains("number"),
+        "Expected 'value: number'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -231,7 +308,11 @@ fn test_object_type_optional() {
         type Options = { required: string; optional?: number };
     };
     let source = stream.source();
-    assert!(source.contains("optional?") || source.contains("optional ?"), "Expected 'optional?'. Got:\n{}", source);
+    assert!(
+        source.contains("optional?") || source.contains("optional ?"),
+        "Expected 'optional?'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -240,7 +321,11 @@ fn test_object_type_readonly() {
         type Frozen = { readonly id: string; readonly name: string };
     };
     let source = stream.source();
-    assert!(source.contains("readonly"), "Expected 'readonly'. Got:\n{}", source);
+    assert!(
+        source.contains("readonly"),
+        "Expected 'readonly'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -249,7 +334,11 @@ fn test_object_type_index_signature() {
         type Dict = { [key: string]: unknown };
     };
     let source = stream.source();
-    assert!(source.contains("[key") || source.contains("[ key"), "Expected index signature. Got:\n{}", source);
+    assert!(
+        source.contains("[key") || source.contains("[ key"),
+        "Expected index signature. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -261,7 +350,11 @@ fn test_object_type_method() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("init") && source.contains("process"), "Expected methods. Got:\n{}", source);
+    assert!(
+        source.contains("init") && source.contains("process"),
+        "Expected methods. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -274,7 +367,11 @@ fn test_paren_type_union() {
         type Nullable = (string | number) | null;
     };
     let source = stream.source();
-    assert!(source.contains("(") && source.contains(")"), "Expected parentheses. Got:\n{}", source);
+    assert!(
+        source.contains("(") && source.contains(")"),
+        "Expected parentheses. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -283,7 +380,14 @@ fn test_paren_type_intersection() {
         type Complex = (A | B) & (C | D);
     };
     let source = stream.source();
-    assert!(source.contains("A") && source.contains("B") && source.contains("C") && source.contains("D"), "Expected A, B, C, D. Got:\n{}", source);
+    assert!(
+        source.contains("A")
+            && source.contains("B")
+            && source.contains("C")
+            && source.contains("D"),
+        "Expected A, B, C, D. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -297,7 +401,11 @@ fn test_typeof_type_variable() {
         type ConfigType = typeof config;
     };
     let source = stream.source();
-    assert!(source.contains("typeof config") || source.contains("typeof  config"), "Expected 'typeof config'. Got:\n{}", source);
+    assert!(
+        source.contains("typeof config") || source.contains("typeof  config"),
+        "Expected 'typeof config'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -306,7 +414,11 @@ fn test_typeof_type_import() {
         type ModuleType = typeof import("./module");
     };
     let source = stream.source();
-    assert!(source.contains("typeof") && source.contains("import"), "Expected 'typeof import'. Got:\n{}", source);
+    assert!(
+        source.contains("typeof") && source.contains("import"),
+        "Expected 'typeof import'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -319,7 +431,11 @@ fn test_keyof_type_simple() {
         type Keys = keyof User;
     };
     let source = stream.source();
-    assert!(source.contains("keyof User") || source.contains("keyof  User"), "Expected 'keyof User'. Got:\n{}", source);
+    assert!(
+        source.contains("keyof User") || source.contains("keyof  User"),
+        "Expected 'keyof User'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -330,7 +446,11 @@ fn test_keyof_type_in_generic() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("keyof"), "Expected 'keyof'. Got:\n{}", source);
+    assert!(
+        source.contains("keyof"),
+        "Expected 'keyof'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -344,7 +464,11 @@ fn test_indexed_access_type_string() {
     };
     let source = stream.source();
     // Check for indexed access - quotes might vary
-    assert!(source.contains("User[") && source.contains("name"), "Expected indexed access. Got:\n{}", source);
+    assert!(
+        source.contains("User[") && source.contains("name"),
+        "Expected indexed access. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -353,7 +477,11 @@ fn test_indexed_access_type_generic() {
         type PropType<T, K extends keyof T> = T[K];
     };
     let source = stream.source();
-    assert!(source.contains("T[K]") || source.contains("T[ K ]") || source.contains("T [K]"), "Expected 'T[K]'. Got:\n{}", source);
+    assert!(
+        source.contains("T[K]") || source.contains("T[ K ]") || source.contains("T [K]"),
+        "Expected 'T[K]'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -362,7 +490,11 @@ fn test_indexed_access_type_number() {
         type First = Tuple[0];
     };
     let source = stream.source();
-    assert!(source.contains("Tuple[0]") || source.contains("Tuple[ 0 ]"), "Expected 'Tuple[0]'. Got:\n{}", source);
+    assert!(
+        source.contains("Tuple[0]") || source.contains("Tuple[ 0 ]"),
+        "Expected 'Tuple[0]'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -375,8 +507,16 @@ fn test_conditional_type_simple() {
         type IsString<T> = T extends string ? true : false;
     };
     let source = stream.source();
-    assert!(source.contains("extends"), "Expected 'extends'. Got:\n{}", source);
-    assert!(source.contains("?") && source.contains(":"), "Expected '?' and ':'. Got:\n{}", source);
+    assert!(
+        source.contains("extends"),
+        "Expected 'extends'. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("?") && source.contains(":"),
+        "Expected '?' and ':'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -390,7 +530,12 @@ fn test_conditional_type_nested() {
     };
     let source = stream.source();
     let extends_count = source.matches("extends").count();
-    assert!(extends_count >= 3, "Expected at least 3 'extends'. Got {} in:\n{}", extends_count, source);
+    assert!(
+        extends_count >= 3,
+        "Expected at least 3 'extends'. Got {} in:\n{}",
+        extends_count,
+        source
+    );
 }
 
 #[test]
@@ -399,7 +544,11 @@ fn test_conditional_type_distributive() {
         type NonNullable<T> = T extends null | undefined ? never : T;
     };
     let source = stream.source();
-    assert!(source.contains("extends") && source.contains("never"), "Expected conditional with never. Got:\n{}", source);
+    assert!(
+        source.contains("extends") && source.contains("never"),
+        "Expected conditional with never. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -412,7 +561,11 @@ fn test_infer_type_return() {
         type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
     };
     let source = stream.source();
-    assert!(source.contains("infer R") || source.contains("infer  R"), "Expected 'infer R'. Got:\n{}", source);
+    assert!(
+        source.contains("infer R") || source.contains("infer  R"),
+        "Expected 'infer R'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -421,7 +574,11 @@ fn test_infer_type_array() {
         type Flatten<T> = T extends (infer U)[] ? U : T;
     };
     let source = stream.source();
-    assert!(source.contains("infer U") || source.contains("infer  U"), "Expected 'infer U'. Got:\n{}", source);
+    assert!(
+        source.contains("infer U") || source.contains("infer  U"),
+        "Expected 'infer U'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -430,7 +587,11 @@ fn test_infer_type_promise() {
         type Awaited<T> = T extends Promise<infer U> ? U : T;
     };
     let source = stream.source();
-    assert!(source.contains("infer"), "Expected 'infer'. Got:\n{}", source);
+    assert!(
+        source.contains("infer"),
+        "Expected 'infer'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -443,7 +604,13 @@ fn test_mapped_type_simple() {
         type ReadonlyType<T> = { readonly [K in keyof T]: T[K] };
     };
     let source = stream.source();
-    assert!(source.contains("[K in keyof T]") || source.contains("[ K in keyof T ]") || (source.contains("in") && source.contains("keyof")), "Expected mapped type. Got:\n{}", source);
+    assert!(
+        source.contains("[K in keyof T]")
+            || source.contains("[ K in keyof T ]")
+            || (source.contains("in") && source.contains("keyof")),
+        "Expected mapped type. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -452,7 +619,11 @@ fn test_mapped_type_optional() {
         type Partial<T> = { [K in keyof T]?: T[K] };
     };
     let source = stream.source();
-    assert!(source.contains("?") || source.contains("?:"), "Expected optional modifier. Got:\n{}", source);
+    assert!(
+        source.contains("?") || source.contains("?:"),
+        "Expected optional modifier. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -461,7 +632,11 @@ fn test_mapped_type_remove_readonly() {
         type Mutable<T> = { -readonly [K in keyof T]: T[K] };
     };
     let source = stream.source();
-    assert!(source.contains("-readonly") || source.contains("- readonly"), "Expected '-readonly'. Got:\n{}", source);
+    assert!(
+        source.contains("-readonly") || source.contains("- readonly"),
+        "Expected '-readonly'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -470,7 +645,11 @@ fn test_mapped_type_remove_optional() {
         type Required<T> = { [K in keyof T]-?: T[K] };
     };
     let source = stream.source();
-    assert!(source.contains("-?") || source.contains("- ?"), "Expected '-?'. Got:\n{}", source);
+    assert!(
+        source.contains("-?") || source.contains("- ?"),
+        "Expected '-?'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -483,7 +662,11 @@ fn test_mapped_type_as_clause() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("as"), "Expected 'as' clause. Got:\n{}", source);
+    assert!(
+        source.contains("as"),
+        "Expected 'as' clause. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -496,7 +679,11 @@ fn test_import_type_simple() {
         type Config = import("./config").Config;
     };
     let source = stream.source();
-    assert!(source.contains("import(") || source.contains("import ("), "Expected 'import('. Got:\n{}", source);
+    assert!(
+        source.contains("import(") || source.contains("import ("),
+        "Expected 'import('. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -505,7 +692,11 @@ fn test_import_type_with_typeof() {
         type ModuleType = typeof import("./module");
     };
     let source = stream.source();
-    assert!(source.contains("typeof") && source.contains("import"), "Expected 'typeof import'. Got:\n{}", source);
+    assert!(
+        source.contains("typeof") && source.contains("import"),
+        "Expected 'typeof import'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -514,7 +705,11 @@ fn test_import_type_in_type_alias() {
         type Db = import("./database").Database;
     };
     let source = stream.source();
-    assert!(source.contains("import") && source.contains("Database"), "Expected import type. Got:\n{}", source);
+    assert!(
+        source.contains("import") && source.contains("Database"),
+        "Expected import type. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -531,7 +726,11 @@ fn test_this_type_return() {
         }
     };
     let source = stream.source();
-    assert!(source.contains(": this") || source.contains(":this"), "Expected ': this'. Got:\n{}", source);
+    assert!(
+        source.contains(": this") || source.contains(":this"),
+        "Expected ': this'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -544,7 +743,11 @@ fn test_this_type_in_class() {
         }
     };
     let source = stream.source();
-    assert!(source.contains(": this") || source.contains(":this"), "Expected ': this' return type. Got:\n{}", source);
+    assert!(
+        source.contains(": this") || source.contains(":this"),
+        "Expected ': this' return type. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -555,5 +758,9 @@ fn test_this_type_constraint() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("clone") && source.contains("this"), "Expected clone returning this. Got:\n{}", source);
+    assert!(
+        source.contains("clone") && source.contains("this"),
+        "Expected clone returning this. Got:\n{}",
+        source
+    );
 }

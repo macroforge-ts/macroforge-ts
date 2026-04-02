@@ -17,7 +17,11 @@ fn test_for_in_stmt_object() {
     };
     let source = stream.source();
     assert!(source.contains("for"), "Expected 'for'. Got:\n{}", source);
-    assert!(source.contains("in object") || source.contains("in  object"), "Expected 'in object'. Got:\n{}", source);
+    assert!(
+        source.contains("in object") || source.contains("in  object"),
+        "Expected 'in object'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -28,7 +32,11 @@ fn test_for_in_stmt_with_index() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("for") && source.contains("in array"), "Expected for-in. Got:\n{}", source);
+    assert!(
+        source.contains("for") && source.contains("in array"),
+        "Expected for-in. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -41,8 +49,16 @@ fn test_for_in_stmt_let() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("let prop") || source.contains("let  prop"), "Expected 'let prop'. Got:\n{}", source);
-    assert!(source.contains("in obj") || source.contains("in  obj"), "Expected 'in obj'. Got:\n{}", source);
+    assert!(
+        source.contains("let prop") || source.contains("let  prop"),
+        "Expected 'let prop'. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("in obj") || source.contains("in  obj"),
+        "Expected 'in obj'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -53,7 +69,11 @@ fn test_for_in_stmt_var() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("var key") || source.contains("var  key"), "Expected 'var key'. Got:\n{}", source);
+    assert!(
+        source.contains("var key") || source.contains("var  key"),
+        "Expected 'var key'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -69,7 +89,11 @@ fn test_for_of_stmt_array() {
     };
     let source = stream.source();
     assert!(source.contains("for"), "Expected 'for'. Got:\n{}", source);
-    assert!(source.contains("of items") || source.contains("of  items"), "Expected 'of items'. Got:\n{}", source);
+    assert!(
+        source.contains("of items") || source.contains("of  items"),
+        "Expected 'of items'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -80,7 +104,11 @@ fn test_for_of_stmt_destructure_array() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("of entries") || source.contains("of  entries"), "Expected 'of entries'. Got:\n{}", source);
+    assert!(
+        source.contains("of entries") || source.contains("of  entries"),
+        "Expected 'of entries'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -91,7 +119,11 @@ fn test_for_of_stmt_destructure_object() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("of users") || source.contains("of  users"), "Expected 'of users'. Got:\n{}", source);
+    assert!(
+        source.contains("of users") || source.contains("of  users"),
+        "Expected 'of users'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -102,7 +134,11 @@ fn test_for_of_stmt_string() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("of text") || source.contains("of  text"), "Expected 'of text'. Got:\n{}", source);
+    assert!(
+        source.contains("of text") || source.contains("of  text"),
+        "Expected 'of text'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -113,7 +149,11 @@ fn test_for_of_stmt_set() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("of uniqueSet") || source.contains("of  uniqueSet"), "Expected 'of uniqueSet'. Got:\n{}", source);
+    assert!(
+        source.contains("of uniqueSet") || source.contains("of  uniqueSet"),
+        "Expected 'of uniqueSet'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -124,7 +164,11 @@ fn test_for_of_stmt_map() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("of myMap") || source.contains("of  myMap"), "Expected 'of myMap'. Got:\n{}", source);
+    assert!(
+        source.contains("of myMap") || source.contains("of  myMap"),
+        "Expected 'of myMap'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -141,7 +185,11 @@ fn test_for_await_of_stmt() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("for await") || source.contains("for  await"), "Expected 'for await'. Got:\n{}", source);
+    assert!(
+        source.contains("for await") || source.contains("for  await"),
+        "Expected 'for await'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -159,7 +207,11 @@ fn test_for_await_of_stmt_async_generator() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("for await") || source.contains("for  await"), "Expected 'for await'. Got:\n{}", source);
+    assert!(
+        source.contains("for await") || source.contains("for  await"),
+        "Expected 'for await'. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -173,7 +225,11 @@ fn test_empty_stmt_standalone() {
     };
     let source = stream.source();
     // Empty statement should produce a semicolon or be trimmed
-    assert!(source.contains(";") || source.trim().is_empty() || source.is_empty(), "Expected empty statement. Got:\n{}", source);
+    assert!(
+        source.contains(";") || source.trim().is_empty() || source.is_empty(),
+        "Expected empty statement. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -184,7 +240,11 @@ fn test_empty_stmt_in_for() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("for") && source.contains(";;"), "Expected infinite for loop. Got:\n{}", source);
+    assert!(
+        source.contains("for") && source.contains(";;"),
+        "Expected infinite for loop. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -196,7 +256,11 @@ fn test_empty_stmt_after_label() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("outer") && source.contains("continue"), "Expected labeled statement. Got:\n{}", source);
+    assert!(
+        source.contains("outer") && source.contains("continue"),
+        "Expected labeled statement. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -209,8 +273,16 @@ fn test_throw_stmt_error() {
         throw new Error("Something went wrong");
     };
     let source = stream.source();
-    assert!(source.contains("throw"), "Expected 'throw'. Got:\n{}", source);
-    assert!(source.contains("new Error") || source.contains("new  Error"), "Expected 'new Error'. Got:\n{}", source);
+    assert!(
+        source.contains("throw"),
+        "Expected 'throw'. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("new Error") || source.contains("new  Error"),
+        "Expected 'new Error'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -219,8 +291,16 @@ fn test_throw_stmt_custom_error() {
         throw new ValidationError("Invalid input", { field: "email" });
     };
     let source = stream.source();
-    assert!(source.contains("throw"), "Expected 'throw'. Got:\n{}", source);
-    assert!(source.contains("ValidationError"), "Expected 'ValidationError'. Got:\n{}", source);
+    assert!(
+        source.contains("throw"),
+        "Expected 'throw'. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("ValidationError"),
+        "Expected 'ValidationError'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -229,7 +309,11 @@ fn test_throw_stmt_type_error() {
         throw new TypeError("Expected a string");
     };
     let source = stream.source();
-    assert!(source.contains("throw") && source.contains("TypeError"), "Expected throw TypeError. Got:\n{}", source);
+    assert!(
+        source.contains("throw") && source.contains("TypeError"),
+        "Expected throw TypeError. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -238,7 +322,11 @@ fn test_throw_stmt_range_error() {
         throw new RangeError("Value out of range");
     };
     let source = stream.source();
-    assert!(source.contains("throw") && source.contains("RangeError"), "Expected throw RangeError. Got:\n{}", source);
+    assert!(
+        source.contains("throw") && source.contains("RangeError"),
+        "Expected throw RangeError. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -247,7 +335,11 @@ fn test_throw_stmt_string() {
         throw "An error occurred";
     };
     let source = stream.source();
-    assert!(source.contains("throw"), "Expected 'throw'. Got:\n{}", source);
+    assert!(
+        source.contains("throw"),
+        "Expected 'throw'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -260,7 +352,11 @@ fn test_throw_stmt_in_function() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("throw"), "Expected 'throw'. Got:\n{}", source);
+    assert!(
+        source.contains("throw"),
+        "Expected 'throw'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -274,7 +370,11 @@ fn test_throw_stmt_rethrow() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("throw e") || source.contains("throw  e"), "Expected rethrow. Got:\n{}", source);
+    assert!(
+        source.contains("throw e") || source.contains("throw  e"),
+        "Expected rethrow. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -288,7 +388,11 @@ fn test_throw_stmt_conditional() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("throw") && source.contains("null"), "Expected conditional throw. Got:\n{}", source);
+    assert!(
+        source.contains("throw") && source.contains("null"),
+        "Expected conditional throw. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -305,7 +409,11 @@ fn test_for_in_with_throw() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("for") && source.contains("in required"), "Expected for-in. Got:\n{}", source);
+    assert!(
+        source.contains("for") && source.contains("in required"),
+        "Expected for-in. Got:\n{}",
+        source
+    );
     assert!(source.contains("throw"), "Expected throw. Got:\n{}", source);
 }
 
@@ -320,7 +428,11 @@ fn test_for_of_with_throw() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("for") && source.contains("of items"), "Expected for-of. Got:\n{}", source);
+    assert!(
+        source.contains("for") && source.contains("of items"),
+        "Expected for-of. Got:\n{}",
+        source
+    );
     assert!(source.contains("throw"), "Expected throw. Got:\n{}", source);
 }
 
@@ -335,5 +447,10 @@ fn test_nested_for_loops() {
     };
     let source = stream.source();
     let for_count = source.matches("for").count();
-    assert!(for_count >= 2, "Expected at least 2 'for'. Got {} in:\n{}", for_count, source);
+    assert!(
+        for_count >= 2,
+        "Expected at least 2 'for'. Got {} in:\n{}",
+        for_count,
+        source
+    );
 }

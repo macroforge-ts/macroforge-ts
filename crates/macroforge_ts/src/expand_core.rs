@@ -1,4 +1,4 @@
-use napi::bindgen_prelude::*;
+use anyhow::{Result, anyhow};
 use swc_core::{
     common::{FileName, SourceMap, errors::Handler, sync::Lrc},
     ecma::{
@@ -12,12 +12,12 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::sync::LazyLock;
 
-use crate::host::CONFIG_CACHE;
-use crate::host::MacroExpander;
-use crate::napi_types::{
+use crate::api_types::{
     ExpandOptions, ExpandResult, GeneratedRegionResult, MacroDiagnostic, MappingSegmentResult,
     SourceMappingResult, TransformResult,
 };
+use crate::host::CONFIG_CACHE;
+use crate::host::MacroExpander;
 use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 use crate::ts_syn::{Diagnostic, DiagnosticLevel};
 
@@ -132,12 +132,8 @@ pub(crate) fn expand_inner(
     // Create a new macro host for this thread.
     // Each thread needs its own MacroExpander because the expansion process
     // is stateful and cannot be safely shared across threads.
-    let mut macro_host = MacroExpander::new().map_err(|err| {
-        Error::new(
-            Status::GenericFailure,
-            format!("Failed to initialize macro host: {err:?}"),
-        )
-    })?;
+    let mut macro_host =
+        MacroExpander::new().map_err(|err| anyhow!("Failed to initialize macro host: {err:?}"))?;
 
     // Apply options if provided
     if let Some(ref opts) = options {
@@ -205,12 +201,7 @@ pub(crate) fn expand_inner(
     crate::host::import_registry::clear_registry();
 
     // Now propagate any error
-    let expansion = expansion_result.map_err(|err| {
-        Error::new(
-            Status::GenericFailure,
-            format!("Macro expansion failed: {err:?}"),
-        )
-    })?;
+    let expansion = expansion_result.map_err(|err| anyhow!("Macro expansion failed: {err:?}"))?;
 
     // Convert internal diagnostics to NAPI-compatible format
     let diagnostics = expansion
@@ -299,21 +290,16 @@ pub(crate) fn expand_inner(
 /// - Expansion fails
 /// - Any error-level diagnostic is emitted
 pub(crate) fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {
-    let macro_host = MacroExpander::new().map_err(|err| {
-        Error::new(
-            Status::GenericFailure,
-            format!("Failed to init host: {err:?}"),
-        )
-    })?;
+    let macro_host = MacroExpander::new().map_err(|err| anyhow!("Failed to init host: {err:?}"))?;
 
     let (program, cm) = parse_program(code, filepath)?;
 
     let expansion = macro_host
         .expand(code, &program, filepath)
-        .map_err(|err| Error::new(Status::GenericFailure, format!("Expansion failed: {err:?}")))?;
+        .map_err(|err| anyhow!("Expansion failed: {err:?}"))?;
 
     // Unlike expand_inner, transform_inner treats errors as fatal
-    handle_macro_diagnostics(&expansion.diagnostics, filepath)?;
+    handle_macro_diagnostics(&expansion.diagnostics, filepath).map_err(|e| anyhow!(e))?;
 
     // Optimization: Only re-emit if we didn't change anything.
     // If expansion.changed is true, we already have the string from the expander.
@@ -390,7 +376,7 @@ pub(crate) fn parse_program(code: &str, filepath: &str) -> Result<(Program, Lrc<
             // Format and emit the error for debugging purposes
             let msg = format!("Failed to parse TypeScript: {:?}", error);
             error.into_diagnostic(&handler).emit();
-            Err(Error::new(Status::GenericFailure, msg))
+            Err(anyhow!(msg))
         }
     }
 }
@@ -419,7 +405,7 @@ pub(crate) fn emit_program(program: &Program, cm: &Lrc<SourceMap>) -> Result<Str
     };
     emitter
         .emit_program(program)
-        .map_err(|e| Error::new(Status::GenericFailure, format!("{:?}", e)))?;
+        .map_err(|e| anyhow!("{:?}", e))?;
     Ok(String::from_utf8_lossy(&buf).to_string())
 }
 
@@ -436,7 +422,7 @@ pub(crate) fn emit_program(program: &Program, cm: &Lrc<SourceMap>) -> Result<Str
 /// # Returns
 ///
 /// `Ok(())` if no errors, `Err` with the first error message otherwise.
-pub(crate) fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<()> {
+pub(crate) fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<(), String> {
     for diag in diags {
         if matches!(diag.level, DiagnosticLevel::Error) {
             // Format error location for helpful error messages
@@ -444,10 +430,7 @@ pub(crate) fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Resu
                 .span
                 .map(|s| format!("{}:{}-{}", file, s.start, s.end))
                 .unwrap_or_else(|| file.to_string());
-            return Err(Error::new(
-                Status::GenericFailure,
-                format!("Macro error at {}: {}", loc, diag.message),
-            ));
+            return Err(format!("Macro error at {}: {}", loc, diag.message));
         }
     }
     Ok(())

@@ -1,6 +1,6 @@
 use super::*;
-use crate::ts_syn::abi::SpanIR;
 use crate::ts_syn::ResolvedTypeRef;
+use crate::ts_syn::abi::SpanIR;
 
 fn span() -> SpanIR {
     SpanIR::new(0, 0)
@@ -215,9 +215,7 @@ fn test_parse_generic_type() {
 // Type Registry Helper Tests
 // ========================================================================
 
-use crate::ts_syn::abi::ir::type_registry::{
-    TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
-};
+use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
 use crate::ts_syn::abi::{ClassIR, InterfaceIR};
 
 fn zero_span() -> SpanIR {

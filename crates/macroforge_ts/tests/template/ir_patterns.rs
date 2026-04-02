@@ -15,8 +15,16 @@ fn test_object_pat_simple() {
         const { name, age } = user;
     };
     let source = stream.source();
-    assert!(source.contains("{") && source.contains("}"), "Expected object pattern. Got:\n{}", source);
-    assert!(source.contains("name") && source.contains("age"), "Expected 'name' and 'age'. Got:\n{}", source);
+    assert!(
+        source.contains("{") && source.contains("}"),
+        "Expected object pattern. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("name") && source.contains("age"),
+        "Expected 'name' and 'age'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -25,7 +33,11 @@ fn test_object_pat_with_alias() {
         const { firstName: first, lastName: last } = person;
     };
     let source = stream.source();
-    assert!(source.contains("firstName") && source.contains("first"), "Expected alias pattern. Got:\n{}", source);
+    assert!(
+        source.contains("firstName") && source.contains("first"),
+        "Expected alias pattern. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -34,7 +46,11 @@ fn test_object_pat_with_default() {
         const { name = "anonymous", age = 0 } = config;
     };
     let source = stream.source();
-    assert!(source.contains("=") && source.contains("anonymous"), "Expected default value. Got:\n{}", source);
+    assert!(
+        source.contains("=") && source.contains("anonymous"),
+        "Expected default value. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -43,7 +59,11 @@ fn test_object_pat_nested() {
         const { user: { name, email } } = response;
     };
     let source = stream.source();
-    assert!(source.contains("user") && source.contains("name") && source.contains("email"), "Expected nested pattern. Got:\n{}", source);
+    assert!(
+        source.contains("user") && source.contains("name") && source.contains("email"),
+        "Expected nested pattern. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -52,7 +72,11 @@ fn test_object_pat_with_rest() {
         const { id, ...rest } = data;
     };
     let source = stream.source();
-    assert!(source.contains("...rest") || source.contains("... rest"), "Expected '...rest'. Got:\n{}", source);
+    assert!(
+        source.contains("...rest") || source.contains("... rest"),
+        "Expected '...rest'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -63,7 +87,11 @@ fn test_object_pat_in_function_param() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("{") && source.contains("name") && source.contains("value"), "Expected destructured param. Got:\n{}", source);
+    assert!(
+        source.contains("{") && source.contains("name") && source.contains("value"),
+        "Expected destructured param. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -72,7 +100,11 @@ fn test_object_pat_with_type_annotation() {
         const { x, y }: Point = getPoint();
     };
     let source = stream.source();
-    assert!(source.contains("Point"), "Expected type annotation. Got:\n{}", source);
+    assert!(
+        source.contains("Point"),
+        "Expected type annotation. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -85,8 +117,16 @@ fn test_array_pat_simple() {
         const [first, second] = array;
     };
     let source = stream.source();
-    assert!(source.contains("[") && source.contains("]"), "Expected array pattern. Got:\n{}", source);
-    assert!(source.contains("first") && source.contains("second"), "Expected 'first' and 'second'. Got:\n{}", source);
+    assert!(
+        source.contains("[") && source.contains("]"),
+        "Expected array pattern. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("first") && source.contains("second"),
+        "Expected 'first' and 'second'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -95,7 +135,11 @@ fn test_array_pat_with_skip() {
         const [first, , third] = array;
     };
     let source = stream.source();
-    assert!(source.contains("first") && source.contains("third"), "Expected skipped element. Got:\n{}", source);
+    assert!(
+        source.contains("first") && source.contains("third"),
+        "Expected skipped element. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -104,7 +148,11 @@ fn test_array_pat_with_rest() {
         const [head, ...tail] = list;
     };
     let source = stream.source();
-    assert!(source.contains("...tail") || source.contains("... tail"), "Expected '...tail'. Got:\n{}", source);
+    assert!(
+        source.contains("...tail") || source.contains("... tail"),
+        "Expected '...tail'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -113,7 +161,11 @@ fn test_array_pat_with_default() {
         const [first = 0, second = 0] = values;
     };
     let source = stream.source();
-    assert!(source.contains("= 0"), "Expected default values. Got:\n{}", source);
+    assert!(
+        source.contains("= 0"),
+        "Expected default values. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -122,7 +174,11 @@ fn test_array_pat_nested() {
         const [[a, b], [c, d]] = matrix;
     };
     let source = stream.source();
-    assert!(source.contains("[[") || source.contains("[ ["), "Expected nested array. Got:\n{}", source);
+    assert!(
+        source.contains("[[") || source.contains("[ ["),
+        "Expected nested array. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -131,7 +187,11 @@ fn test_array_pat_mixed() {
         const [name, { age, city }] = tuple;
     };
     let source = stream.source();
-    assert!(source.contains("name") && source.contains("age") && source.contains("city"), "Expected mixed destructuring. Got:\n{}", source);
+    assert!(
+        source.contains("name") && source.contains("age") && source.contains("city"),
+        "Expected mixed destructuring. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -142,7 +202,13 @@ fn test_array_pat_in_for_of() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("[key, value]") || source.contains("[ key , value ]") || (source.contains("key") && source.contains("value")), "Expected destructuring in for-of. Got:\n{}", source);
+    assert!(
+        source.contains("[key, value]")
+            || source.contains("[ key , value ]")
+            || (source.contains("key") && source.contains("value")),
+        "Expected destructuring in for-of. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -159,7 +225,11 @@ fn test_method_prop_simple() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("greet()") || source.contains("greet ()"), "Expected method 'greet()'. Got:\n{}", source);
+    assert!(
+        source.contains("greet()") || source.contains("greet ()"),
+        "Expected method 'greet()'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -172,7 +242,11 @@ fn test_method_prop_with_params() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("add") && source.contains("number"), "Expected typed method. Got:\n{}", source);
+    assert!(
+        source.contains("add") && source.contains("number"),
+        "Expected typed method. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -185,7 +259,11 @@ fn test_method_prop_async() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("async") && source.contains("fetchData"), "Expected 'async fetchData'. Got:\n{}", source);
+    assert!(
+        source.contains("async") && source.contains("fetchData"),
+        "Expected 'async fetchData'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -199,7 +277,11 @@ fn test_method_prop_generator() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("*items") || source.contains("* items") || source.contains("*\n"), "Expected generator method. Got:\n{}", source);
+    assert!(
+        source.contains("*items") || source.contains("* items") || source.contains("*\n"),
+        "Expected generator method. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -213,7 +295,11 @@ fn test_method_prop_computed_name() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("[key]") || source.contains("[ key ]"), "Expected computed method name. Got:\n{}", source);
+    assert!(
+        source.contains("[key]") || source.contains("[ key ]"),
+        "Expected computed method name. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -231,7 +317,11 @@ fn test_getter_prop_simple() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("get value") || source.contains("get  value"), "Expected 'get value'. Got:\n{}", source);
+    assert!(
+        source.contains("get value") || source.contains("get  value"),
+        "Expected 'get value'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -244,7 +334,11 @@ fn test_getter_prop_with_type() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("get count") || source.contains("get  count"), "Expected getter with return type. Got:\n{}", source);
+    assert!(
+        source.contains("get count") || source.contains("get  count"),
+        "Expected getter with return type. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -259,7 +353,11 @@ fn test_getter_prop_in_class() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("get name") || source.contains("get  name"), "Expected class getter. Got:\n{}", source);
+    assert!(
+        source.contains("get name") || source.contains("get  name"),
+        "Expected class getter. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -277,7 +375,11 @@ fn test_setter_prop_simple() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("set value") || source.contains("set  value"), "Expected 'set value'. Got:\n{}", source);
+    assert!(
+        source.contains("set value") || source.contains("set  value"),
+        "Expected 'set value'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -294,7 +396,11 @@ fn test_setter_prop_in_class() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("set age") || source.contains("set  age"), "Expected class setter. Got:\n{}", source);
+    assert!(
+        source.contains("set age") || source.contains("set  age"),
+        "Expected class setter. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -311,8 +417,16 @@ fn test_getter_setter_pair() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("get data") || source.contains("get  data"), "Expected getter. Got:\n{}", source);
-    assert!(source.contains("set data") || source.contains("set  data"), "Expected setter. Got:\n{}", source);
+    assert!(
+        source.contains("get data") || source.contains("get  data"),
+        "Expected getter. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("set data") || source.contains("set  data"),
+        "Expected setter. Got:\n{}",
+        source
+    );
 }
 
 // =============================================================================
@@ -327,7 +441,11 @@ fn test_index_signature_string_key() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("[key:") || source.contains("[ key :") || source.contains("[key :"), "Expected index signature. Got:\n{}", source);
+    assert!(
+        source.contains("[key:") || source.contains("[ key :") || source.contains("[key :"),
+        "Expected index signature. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -338,7 +456,11 @@ fn test_index_signature_number_key() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("[index:") || source.contains("[ index :") || source.contains("[index :"), "Expected numeric index. Got:\n{}", source);
+    assert!(
+        source.contains("[index:") || source.contains("[ index :") || source.contains("[index :"),
+        "Expected numeric index. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -349,7 +471,11 @@ fn test_index_signature_readonly() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("readonly"), "Expected 'readonly'. Got:\n{}", source);
+    assert!(
+        source.contains("readonly"),
+        "Expected 'readonly'. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -361,8 +487,16 @@ fn test_index_signature_with_properties() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("name:") || source.contains("name :"), "Expected named property. Got:\n{}", source);
-    assert!(source.contains("[key") || source.contains("[ key"), "Expected index signature. Got:\n{}", source);
+    assert!(
+        source.contains("name:") || source.contains("name :"),
+        "Expected named property. Got:\n{}",
+        source
+    );
+    assert!(
+        source.contains("[key") || source.contains("[ key"),
+        "Expected index signature. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -374,7 +508,11 @@ fn test_index_signature_in_type() {
         };
     };
     let source = stream.source();
-    assert!(source.contains("[k") || source.contains("[ k"), "Expected index signature in type. Got:\n{}", source);
+    assert!(
+        source.contains("[k") || source.contains("[ k"),
+        "Expected index signature in type. Got:\n{}",
+        source
+    );
 }
 
 #[test]
@@ -385,5 +523,9 @@ fn test_index_signature_symbol_key() {
         }
     };
     let source = stream.source();
-    assert!(source.contains("symbol"), "Expected symbol key type. Got:\n{}", source);
+    assert!(
+        source.contains("symbol"),
+        "Expected symbol key type. Got:\n{}",
+        source
+    );
 }

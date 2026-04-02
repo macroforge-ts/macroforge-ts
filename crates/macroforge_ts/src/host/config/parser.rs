@@ -1,6 +1,8 @@
 use super::super::error::Result;
 use super::namespaces::extract_expression_namespaces;
-use macroforge_ts_syn::config::{ForeignTypeAlias, ForeignTypeConfig, ImportInfo, MacroforgeConfig};
+use macroforge_ts_syn::config::{
+    ForeignTypeAlias, ForeignTypeConfig, ImportInfo, MacroforgeConfig,
+};
 use std::collections::HashMap;
 
 use swc_core::{

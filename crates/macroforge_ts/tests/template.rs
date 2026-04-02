@@ -15,10 +15,12 @@ mod ir_types;
 mod test_single;
 
 use macroforge_ts::macros::ts_template;
-use macroforge_ts::ts_syn::abi::{MacroContextIR, SpanIR};
-use macroforge_ts::ts_syn::{Data, DeriveInput, ParseTs, TsStream, lower_classes, lower_interfaces};
 use macroforge_ts::swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
 use macroforge_ts::swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+use macroforge_ts::ts_syn::abi::{MacroContextIR, SpanIR};
+use macroforge_ts::ts_syn::{
+    Data, DeriveInput, ParseTs, TsStream, lower_classes, lower_interfaces,
+};
 
 fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
@@ -240,9 +242,7 @@ pub fn field_controller_macro() {
             assert!(source.contains("makeFormModelBaseProps"));
             // SWC adds spaces around colons but NOT before generics
             assert!(source.contains("memoFieldController(superForm: SuperForm<FormModel>"));
-            assert!(
-                source.contains("descriptionFieldController(superForm: SuperForm<FormModel>")
-            );
+            assert!(source.contains("descriptionFieldController(superForm: SuperForm<FormModel>"));
             // Check correct type generation
             assert!(source.contains("MemoFieldController<FormModel, string | null, 1>"));
             // Check static block generation
@@ -568,8 +568,7 @@ fn test_ident_block_with_underscore_separator() {
 #[test]
 fn test_union_type_for_loop_basic() {
     // Test basic for loop with Vec<String> - simulating union type refs
-    let type_refs: Vec<String> =
-        vec!["User".to_string(), "Admin".to_string(), "Guest".to_string()];
+    let type_refs: Vec<String> = vec!["User".to_string(), "Admin".to_string(), "Guest".to_string()];
 
     let stream: TsStream = ts_template! {
         function dispatch(value: any) {
