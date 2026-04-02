@@ -48,7 +48,9 @@
         "macros",
         "derive",
         "codegen",
-        "swc"
+        "swc",
+        "wasm",
+        "webassembly"
     ],
     "license": "MIT",
     "main": "index.js",
