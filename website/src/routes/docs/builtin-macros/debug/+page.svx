@@ -27,7 +27,7 @@ reverse lookup on numeric enums.
 **Type Aliases**: Generates a standalone function using JSON.stringify for
 complex types, or field enumeration for object types.
 
-Names use **camelCase** conversion (e.g., `User` → `userToString`).
+Names use **camelCase** conversion (e.g., `User` -> `userToString`).
 
 
 ## Field-Level Options

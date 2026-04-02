@@ -7,7 +7,7 @@ on:
         branches: [main]
 
 jobs:
-    build:
+    check:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
@@ -25,12 +25,3 @@ jobs:
 
             - name: Lint
               run: deno task lint
-
-            - name: Build
-              run: deno task build
-
-            - name: Deploy website
-              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-              run: |
-                  curl -X POST "${{ secrets.DEPLOY_WEBHOOK_URL }}" \
-                    -H "Authorization: Bearer ${{ secrets.DEPLOY_API_TOKEN }}"

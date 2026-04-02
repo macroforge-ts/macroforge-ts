@@ -25,7 +25,7 @@ a standard way to create "zero" or "empty" instances of types.
 | Interface | `ifaceNameDefaultValue(): InterfaceName` | Standalone function returning object literal |
 | Type Alias | `typeNameDefaultValue(): TypeName` | Standalone function with type-appropriate default |
 
-Names use **camelCase** conversion (e.g., `UserSettings` → `userSettingsDefaultValue`).
+Names use **camelCase** conversion (e.g., `UserSettings` -> `userSettingsDefaultValue`).
 
 
 ## Default Values by Type
