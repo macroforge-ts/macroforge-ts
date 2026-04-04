@@ -159,7 +159,7 @@ impl_enum!(Callee, [Super, Import, Expr]);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::ToCode;
+    use crate::ToCode;
     use crate::ctxt::Ctx;
     use quote::ToTokens;
     use rustc_hash::FxHashMap;

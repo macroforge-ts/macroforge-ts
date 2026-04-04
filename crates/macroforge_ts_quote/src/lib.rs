@@ -32,26 +32,34 @@
 //!
 //! Available positions: `Top`, `Above`, `Within`, `Below`, `Bottom`
 
-use std::iter::once;
-
 use proc_macro::TokenStream;
 use quote::ToTokens;
 use syn::{Block, ExprBlock};
 
 use self::{
-    ast::ToCode,
     ctxt::{Ctx, prepare_vars},
     input::QuoteInput,
-    ret_type::parse_input_type,
 };
 
-mod ast;
-mod builder;
+#[cfg(feature = "oxc")]
+use self::oxc_ret_type::parse_input_type;
+#[cfg(all(feature = "swc", not(feature = "oxc")))]
+use self::swc_ret_type::parse_input_type;
+
+#[cfg(all(feature = "swc", not(feature = "oxc")))]
+mod swc_ast;
+#[cfg(all(feature = "swc", not(feature = "oxc")))]
+mod swc_builder;
+#[cfg(all(feature = "swc", not(feature = "oxc")))]
+mod swc_ret_type;
+
+#[cfg(feature = "oxc")]
+mod oxc_ret_type;
+
 #[cfg(feature = "compiler")]
 mod compiler;
 mod ctxt;
 mod input;
-mod ret_type;
 mod template;
 #[cfg(test)]
 mod test;
@@ -67,13 +75,39 @@ mod test;
 /// ```
 #[proc_macro]
 pub fn ts_quote(input: TokenStream) -> TokenStream {
-    match ts_quote_impl(input.into()) {
-        Ok(tokens) => tokens.into(),
-        Err(err) => err.to_compile_error().into(),
+    #[cfg(feature = "oxc")]
+    {
+        match ts_quote_impl(input.into()) {
+            Ok(tokens) => tokens.into(),
+            Err(err) => err.to_compile_error().into(),
+        }
+    }
+    #[cfg(all(not(feature = "oxc"), feature = "swc"))]
+    {
+        match ts_quote_impl(input.into()) {
+            Ok(tokens) => tokens.into(),
+            Err(err) => err.to_compile_error().into(),
+        }
+    }
+    #[cfg(all(not(feature = "swc"), not(feature = "oxc")))]
+    {
+        syn::Error::new(
+            proc_macro2::Span::call_site(),
+            "Either 'swc' or 'oxc' feature must be enabled for macroforge_ts_quote",
+        )
+        .to_compile_error()
+        .into()
     }
 }
 
+pub(crate) trait ToCode {
+    fn to_code(&self, cx: &Ctx) -> syn::Expr;
+}
+
+#[cfg(any(feature = "swc", feature = "oxc"))]
 fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::TokenStream> {
+    use std::iter::once;
+
     let QuoteInput {
         src,
         as_token: _,

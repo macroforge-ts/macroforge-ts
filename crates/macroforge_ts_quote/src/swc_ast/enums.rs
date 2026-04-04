@@ -3,7 +3,7 @@ use syn::parse_quote;
 
 macro_rules! impl_simple_enum {
     ($E:ident, [ $($v:ident),* ]) => {
-        impl crate::ast::ToCode for $E {
+        impl crate::ToCode for $E {
             fn to_code(&self, _: &crate::ctxt::Ctx) -> syn::Expr {
                 match self {
                     $(
@@ -82,7 +82,7 @@ impl_simple_enum!(ImportPhase, [Defer, Source, Evaluation]);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::ToCode;
+    use crate::ToCode;
     use crate::ctxt::Ctx;
     use quote::ToTokens;
     use rustc_hash::FxHashMap;

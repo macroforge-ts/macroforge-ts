@@ -311,8 +311,8 @@ impl Parser {
             self.consume(); // {:case
             self.skip_whitespace();
 
-            // Parse pattern until }
-            let pattern_str = self.collect_rust_until(SyntaxKind::RBrace);
+            // Parse pattern (and optional guard) until }
+            let raw = self.collect_rust_until(SyntaxKind::RBrace);
             self.expect(SyntaxKind::RBrace).ok_or_else(|| {
                 ParseError::new(
                     ParseErrorKind::MissingClosingBrace,
@@ -321,16 +321,27 @@ impl Parser {
                 .with_context("match arm pattern")
             })?;
 
+            // Split on ` if ` to extract guard: `Pattern if guard_expr`
+            let (pattern_str, guard_str) = if let Some(idx) = raw.find(" if ") {
+                (&raw[..idx], Some(&raw[idx + 4..]))
+            } else {
+                (raw.as_str(), None)
+            };
+
             // Parse body expression
             let body_expr = self.parse_expr_until_control_continuation()?;
 
-            let pattern = Self::str_to_token_stream(&pattern_str)
+            let pattern = Self::str_to_token_stream(pattern_str)
                 .map_err(|e| e.with_context("match arm pattern"))?;
+            let guard = guard_str
+                .map(|g| Self::str_to_token_stream(g.trim()))
+                .transpose()
+                .map_err(|e| e.with_context("match arm guard"))?;
 
             arms.push(MatchArmExpr {
                 span: IrSpan::new(start_byte, self.current_byte_offset()),
                 pattern,
-                guard: None, // TODO: Support guards with `if cond` syntax
+                guard,
                 body_expr: Box::new(body_expr),
             });
 

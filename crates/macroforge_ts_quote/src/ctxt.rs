@@ -3,10 +3,17 @@
 use std::cell::RefCell;
 
 use rustc_hash::FxHashMap;
-use swc_macros_common::call_site;
 use syn::{ExprPath, ExprReference, Ident, Token, parse_quote, punctuated::Punctuated};
 
-use super::{ast::ToCode, input::QuoteVar};
+use super::{ToCode, input::QuoteVar};
+
+#[cfg(all(feature = "swc", not(feature = "oxc")))]
+use swc_macros_common::call_site;
+
+#[cfg(any(not(feature = "swc"), feature = "oxc"))]
+fn call_site() -> proc_macro2::Span {
+    proc_macro2::Span::call_site()
+}
 
 #[derive(Debug)]
 pub(crate) struct Ctx {
@@ -62,7 +69,14 @@ impl VarData {
         if use_clone {
             let var_ref_expr = self.expr_for_var_ref();
 
-            parse_quote!(macroforge_ts::swc_core::quote::ImplicitClone::clone_quote_var(&#var_ref_expr))
+            #[cfg(all(feature = "swc", not(feature = "oxc")))]
+            {
+                parse_quote!(macroforge_ts::swc_core::quote::ImplicitClone::clone_quote_var(&#var_ref_expr))
+            }
+            #[cfg(any(not(feature = "swc"), feature = "oxc"))]
+            {
+                var_ref_expr
+            }
         } else {
             self.expr_for_var_ref()
         }
@@ -165,8 +179,15 @@ pub(super) fn prepare_vars(
             },
             call_site(),
         );
+
+        #[cfg(all(feature = "swc", not(feature = "oxc")))]
         stmts.push(parse_quote! {
             let #var_ident: macroforge_ts::swc_core::ecma::ast::#type_name = #value;
+        });
+
+        #[cfg(any(not(feature = "swc"), feature = "oxc"))]
+        stmts.push(parse_quote! {
+            let #var_ident = #value;
         });
     }
 
@@ -337,7 +358,10 @@ mod tests {
         // First call - val=2, should clone (val != 1), count becomes 1
         let expr1 = var_data.get_expr();
         let expr1_str = expr1.to_token_stream().to_string();
+        #[cfg(feature = "swc")]
         assert!(expr1_str.contains("clone_quote_var"));
+        #[cfg(not(feature = "swc"))]
+        assert_eq!(expr1_str, "quote_var_test");
 
         // Second call - val=1, should NOT clone (val == 1 is last use), count becomes 0
         let expr2 = var_data.get_expr();

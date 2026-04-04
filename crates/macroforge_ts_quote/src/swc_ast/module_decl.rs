@@ -44,7 +44,7 @@ impl_struct!(ExportNamespaceSpecifier, [span, name]);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::ToCode;
+    use crate::ToCode;
     use crate::ctxt::Ctx;
     use quote::ToTokens;
     use rustc_hash::FxHashMap;

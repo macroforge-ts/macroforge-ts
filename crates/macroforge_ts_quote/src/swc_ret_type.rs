@@ -1,3 +1,4 @@
+#![cfg(feature = "swc")]
 use std::any::type_name;
 
 use anyhow::{Context, Error, anyhow, bail};
@@ -6,7 +7,7 @@ use swc_core::ecma::ast::{AssignTarget, Decl, EsVersion, ModuleDecl, ModuleItem,
 use swc_core::ecma::parser::{PResult, Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 use syn::{GenericArgument, PathArguments, Type};
 
-use super::{ast::ToCode, ctxt::Ctx};
+use super::{ToCode, ctxt::Ctx};
 
 /// Storage for `dyn ToCode`.The first `Box`, which is required to store `dyn
 /// ToCode`, is ignored.
@@ -59,7 +60,7 @@ fn parse<T>(
     op: &mut dyn FnMut(&mut Parser<Lexer>) -> PResult<T>,
 ) -> Result<BoxWrapper, Error>
 where
-    T: ToCode,
+    T: ToCode + 'static,
 {
     let cm = Lrc::new(SourceMap::default());
     let fm = cm.new_source_file(FileName::Anon.into(), input_str.to_string());

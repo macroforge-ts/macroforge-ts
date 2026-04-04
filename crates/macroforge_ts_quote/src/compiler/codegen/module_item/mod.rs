@@ -596,7 +596,7 @@ impl Codegen {
                 let specifiers_code: GenResult<Vec<TokenStream>> = specifiers
                     .iter()
                     .map(|spec| match spec {
-                        IrNode::NamedImport { local, imported, .. } => {
+                        IrNode::NamedImport { local, imported, type_only, .. } => {
                             let local_code = self.generate_ident(local)?;
                             let imported_code = match imported.as_ref() {
                                 Some(i) => {
@@ -611,7 +611,7 @@ impl Codegen {
                                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                                         local: #local_code,
                                         imported: #imported_code,
-                                        is_type_only: false,
+                                        is_type_only: #type_only,
                                     }
                                 )
                             })
@@ -676,7 +676,7 @@ impl Codegen {
                 let specifiers_code: GenResult<Vec<TokenStream>> = specifiers
                     .iter()
                     .map(|spec| {
-                        if let IrNode::ExportSpecifier { local, exported, .. } = spec {
+                        if let IrNode::ExportSpecifier { local, exported, type_only, .. } = spec {
                             let local_code = self.generate_ident(local)?;
                             let local_name = quote! { macroforge_ts::swc_core::ecma::ast::ModuleExportName::Ident(#local_code) };
                             let exported_code = match exported.as_ref() {
@@ -692,7 +692,7 @@ impl Codegen {
                                         span: macroforge_ts::swc_core::common::DUMMY_SP,
                                         orig: #local_name,
                                         exported: #exported_code,
-                                        is_type_only: false,
+                                        is_type_only: #type_only,
                                     }
                                 )
                             })
@@ -1417,37 +1417,11 @@ impl Codegen {
                 }))
             }
 
-            // TypeScript if statement at module level
-            IrNode::TsIfStmt {
-                test, cons, alt, ..
-            } => {
-                let test_code = self.generate_expr_string_parts(test)?;
-                let cons_code = self.generate_stmt_as_string(cons)?;
-                let alt_code = alt
-                    .as_ref()
-                    .map(|a| {
-                        let ac = self.generate_stmt_as_string(a)?;
-                        Ok(quote! {
-                            __stmt_str.push_str(" else ");
-                            #ac
-                        })
-                    })
-                    .transpose()?;
+            // TypeScript if statement at module level — use structured AST generation
+            IrNode::TsIfStmt { .. } => {
+                let stmt_code = self.generate_stmt(node)?;
                 Ok(Some(quote! {
-                    {
-                        let mut __stmt_str = String::new();
-                        __stmt_str.push_str("if (");
-                        #test_code
-                        __stmt_str.push_str(") ");
-                        #cons_code
-                        #alt_code
-                        let __parsed = macroforge_ts::ts_syn::parse_ts_stmt(&__stmt_str)
-                            .unwrap_or_else(|e| panic!(
-                                "Failed to parse generated TypeScript if statement:\n\n{}\n\nError: {:?}",
-                                __stmt_str, e
-                            ));
-                        #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(__parsed));
-                    }
+                    #output_var.push(macroforge_ts::swc_core::ecma::ast::ModuleItem::Stmt(#stmt_code));
                 }))
             }
 
