@@ -1,7 +1,7 @@
 use swc_core::ecma::ast::*;
 use syn::parse_quote;
 
-use crate::ast::ToCode;
+use crate::ToCode;
 use crate::ctxt::{Ctx, VarPos};
 
 // Helper to check if a TsEntityName is a $variable reference
@@ -343,7 +343,7 @@ impl_enum!(TsParamPropParam, [Ident, Assign]);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::ToCode;
+    use crate::ToCode;
     use crate::ctxt::Ctx;
     use quote::ToTokens;
     use rustc_hash::FxHashMap;

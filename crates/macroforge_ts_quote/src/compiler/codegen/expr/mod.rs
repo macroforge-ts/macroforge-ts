@@ -1107,15 +1107,6 @@ impl Codegen {
             )),
         }
     }
-    /// Generate code that builds an expression string from an IrNode.
-    pub(in super::super) fn generate_expr_string_parts(
-        &self,
-        node: &IrNode,
-    ) -> GenResult<TokenStream> {
-        // Reuse generate_stmt_string_part since it handles the same node types
-        self.generate_stmt_string_part(node)
-    }
-
     pub(in super::super) fn generate_ts_expr_with_type_args(
         &self,
         _extends: &[IrNode],

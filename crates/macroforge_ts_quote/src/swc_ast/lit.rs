@@ -4,7 +4,7 @@ use swc_core::ecma::ast::*;
 use syn::{ExprLit, LitBool, LitByteStr, LitFloat, parse_quote};
 
 use super::ToCode;
-use crate::{builder::Builder, ctxt::Ctx};
+use crate::{ctxt::Ctx, swc_builder::Builder};
 
 fail_todo!(BigInt);
 fail_todo!(JSXText);

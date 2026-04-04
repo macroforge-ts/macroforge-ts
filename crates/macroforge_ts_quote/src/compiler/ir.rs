@@ -1033,11 +1033,12 @@ pub enum IrNode {
         src: String,
     },
 
-    /// Named import: `{ a, b as c }`
+    /// Named import: `{ a, b as c }` or `{ type a }`
     NamedImport {
         span: IrSpan,
         local: Box<IrNode>,
         imported: Option<Box<IrNode>>,
+        type_only: bool,
     },
 
     /// Default import: `foo`
@@ -1054,11 +1055,12 @@ pub enum IrNode {
         type_only: bool,
     },
 
-    /// Export specifier: `a as b`
+    /// Export specifier: `a as b` or `type a as b`
     ExportSpecifier {
         span: IrSpan,
         local: Box<IrNode>,
         exported: Option<Box<IrNode>>,
+        type_only: bool,
     },
 
     /// Default export: `export default expr`

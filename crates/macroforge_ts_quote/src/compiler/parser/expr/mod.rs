@@ -264,15 +264,29 @@ impl Parser {
 
         self.skip_whitespace();
 
-        // Handle rest parameter: ...arg
+        // Handle rest parameter: ...arg or ...arg: Type
         if self.at(SyntaxKind::DotDotDot) {
             self.consume();
             self.skip_whitespace();
             let pat = self.parse_binding_pattern()?;
+            self.skip_whitespace();
+            let type_ann = if self.at(SyntaxKind::Colon) {
+                self.consume();
+                self.skip_whitespace();
+                self.push_context(Context::type_annotation([
+                    SyntaxKind::Comma,
+                    SyntaxKind::RParen,
+                ]));
+                let ty = self.parse_type()?;
+                self.pop_context();
+                Some(Box::new(ty))
+            } else {
+                None
+            };
             return Ok(IrNode::RestPat {
                 span: IrSpan::new(start_byte, self.current_byte_offset()),
                 arg: Box::new(pat),
-                type_ann: None, // TODO: parse type annotation
+                type_ann,
             });
         }
 

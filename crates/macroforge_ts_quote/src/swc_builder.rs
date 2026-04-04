@@ -1,3 +1,4 @@
+#![cfg(feature = "swc")]
 use proc_macro2::Span;
 use syn::{Expr, ExprStruct, FieldValue, Ident, Member, Token, punctuated::Punctuated};
 

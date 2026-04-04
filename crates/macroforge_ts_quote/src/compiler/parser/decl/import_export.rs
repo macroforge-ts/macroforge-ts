@@ -85,14 +85,11 @@ impl Parser {
                         (imported, None)
                     };
 
-                    // If type-only specifier, wrap in a special node or mark it
-                    // For now, we treat it as a regular named import
-                    let _ = specifier_type_only; // TODO: handle per-specifier type-only
-
                     specifiers.push(IrNode::NamedImport {
                         span: IrSpan::new(spec_start, self.current_byte_offset()),
                         local: Box::new(local),
                         imported: imported_name,
+                        type_only: specifier_type_only,
                     });
 
                     self.skip_whitespace();
@@ -337,8 +334,6 @@ impl Parser {
             } else {
                 false
             };
-            let _ = specifier_type_only; // TODO: handle per-specifier type-only
-
             let local = self.parse_ts_ident_or_placeholder()?;
             self.skip_whitespace();
 
@@ -355,6 +350,7 @@ impl Parser {
                 span: IrSpan::new(spec_start, self.current_byte_offset()),
                 local: Box::new(local),
                 exported,
+                type_only: specifier_type_only,
             });
 
             self.skip_whitespace();

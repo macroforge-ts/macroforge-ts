@@ -1,3 +1,4 @@
+#![cfg(feature = "swc")]
 use swc_core::common::{Span, SyntaxContext};
 use swc_core::ecma::ast::*;
 use syn::{ExprBlock, parse_quote};
@@ -6,7 +7,7 @@ use super::ctxt::Ctx;
 
 macro_rules! fail_todo {
     ($T:ty) => {
-        impl crate::ast::ToCode for $T {
+        impl crate::ToCode for $T {
             fn to_code(&self, _: &crate::ctxt::Ctx) -> syn::Expr {
                 todo!("ToCode for {}", stringify!($T))
             }
@@ -19,7 +20,7 @@ macro_rules! impl_enum_body {
         match $s {
             $(
                 $E::$v(inner) => {
-                    let val = crate::ast::ToCode::to_code(inner, $cx);
+                    let val = crate::ToCode::to_code(inner, $cx);
                     syn::parse_quote!(
                         macroforge_ts::swc_core::ecma::ast::$E::$v(#val)
                     )
@@ -33,7 +34,8 @@ macro_rules! impl_enum_body {
 
 macro_rules! impl_enum {
     ($E:ident, [ $($v:ident),* ]) => {
-        impl crate::ast::ToCode for $E {
+        #[cfg(feature = "swc")]
+        impl crate::ToCode for $E {
             fn to_code(&self, cx: &crate::ctxt::Ctx) -> syn::Expr {
                 impl_enum_body!($E, self, cx, [ $($v),* ])
             }
@@ -42,7 +44,8 @@ macro_rules! impl_enum {
 
 
     ($E:ident, [ $($v:ident),* ], true) => {
-        impl crate::ast::ToCode for $E {
+        #[cfg(feature = "swc")]
+        impl crate::ToCode for $E {
             fn to_code(&self, cx: &crate::ctxt::Ctx) -> syn::Expr {
                 if let Some(i) = self.as_ident() {
                     if let Some(var_name) = i.sym.strip_prefix('$') {
@@ -63,16 +66,17 @@ macro_rules! impl_struct {
         $name:ident,
         [ $($v:ident),* ]
     ) => {
-        impl crate::ast::ToCode for $name {
+        #[cfg(feature = "swc")]
+        impl crate::ToCode for $name {
             fn to_code(&self, cx: &crate::ctxt::Ctx) -> syn::Expr {
-                let mut builder = crate::builder::Builder::new(stringify!($name));
+                let mut builder = crate::swc_builder::Builder::new(stringify!($name));
 
                 let Self { $($v,)* } = self;
 
                 $(
                     builder.add(
                         stringify!($v),
-                        crate::ast::ToCode::to_code($v, cx),
+                        crate::ToCode::to_code($v, cx),
                     );
                 )*
 
@@ -94,10 +98,9 @@ mod prop;
 mod stmt;
 mod typescript;
 
-pub(crate) trait ToCode: 'static {
-    fn to_code(&self, cx: &Ctx) -> syn::Expr;
-}
+use super::ToCode;
 
+#[cfg(feature = "swc")]
 impl<T> ToCode for Box<T>
 where
     T: ?Sized + ToCode,
@@ -108,7 +111,7 @@ where
     }
 }
 
-/// TODO: Optimize
+#[cfg(feature = "swc")]
 impl<T> ToCode for Option<T>
 where
     T: ToCode,
@@ -127,12 +130,14 @@ where
 
 impl_struct!(Invalid, [span]);
 
+#[cfg(feature = "swc")]
 impl ToCode for Span {
     fn to_code(&self, _: &Ctx) -> syn::Expr {
         parse_quote!(macroforge_ts::swc_core::common::DUMMY_SP)
     }
 }
 
+#[cfg(feature = "swc")]
 impl ToCode for SyntaxContext {
     fn to_code(&self, _: &Ctx) -> syn::Expr {
         parse_quote!(macroforge_ts::swc_core::common::SyntaxContext::empty())
@@ -183,6 +188,7 @@ impl_enum!(OptChainBase, [Member, Call]);
 impl_enum!(JSXElementName, [Ident, JSXMemberExpr, JSXNamespacedName]);
 impl_enum!(JSXAttrOrSpread, [JSXAttr, SpreadElement]);
 
+#[cfg(feature = "swc")]
 impl<T> ToCode for Vec<T>
 where
     T: ToCode,
