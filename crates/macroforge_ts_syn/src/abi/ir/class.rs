@@ -31,7 +31,10 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::abi::{DecoratorIR, SpanIR, swc_ast};
+use crate::abi::{DecoratorIR, SpanIR};
+
+#[cfg(feature = "swc")]
+use crate::abi::swc_ast;
 
 /// Intermediate representation of a TypeScript class declaration.
 ///
@@ -94,6 +97,7 @@ pub struct ClassIR {
     pub decorators: Vec<DecoratorIR>,
 
     /// The raw SWC decorator AST nodes (not serialized).
+    #[cfg(feature = "swc")]
     #[serde(skip)]
     pub decorators_ast: Vec<swc_ast::Decorator>,
 
@@ -105,6 +109,7 @@ pub struct ClassIR {
 
     /// Raw SWC class members (not serialized).
     /// Includes all members for advanced use cases.
+    #[cfg(feature = "swc")]
     #[serde(skip)]
     pub members: Vec<swc_ast::ClassMember>,
 }
@@ -144,6 +149,7 @@ pub struct FieldIR {
 
     /// The raw SWC type annotation AST (not serialized).
     /// Available for advanced type analysis.
+    #[cfg(feature = "swc")]
     #[serde(skip)]
     pub type_ann: Option<Box<swc_ast::TsType>>,
 
@@ -160,6 +166,7 @@ pub struct FieldIR {
     pub decorators: Vec<DecoratorIR>,
 
     /// The raw SWC class property AST (not serialized).
+    #[cfg(feature = "swc")]
     #[serde(skip)]
     pub prop_ast: Option<swc_ast::ClassProp>,
 }
@@ -220,6 +227,7 @@ pub struct MethodSigIR {
 
     /// The raw SWC method AST (not serialized).
     /// Provides access to the full method including body.
+    #[cfg(feature = "swc")]
     #[serde(skip)]
     pub member_ast: Option<MethodAstIR>,
 }
@@ -229,6 +237,7 @@ pub struct MethodSigIR {
 /// TypeScript/JavaScript classes have two kinds of method-like members:
 /// regular methods and constructors. This enum allows unified handling
 /// while preserving the distinction.
+#[cfg(feature = "swc")]
 #[derive(Clone, Debug, PartialEq)]
 pub enum MethodAstIR {
     /// A regular class method.

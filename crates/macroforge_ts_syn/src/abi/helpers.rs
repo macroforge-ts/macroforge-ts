@@ -122,6 +122,7 @@ pub fn insert_into_class(class_span: SpanIR, code: impl Into<PatchCode>) -> Patc
 ///     insert_class_member(class.body_span, prop)
 /// }
 /// ```
-pub fn insert_class_member(class_span: SpanIR, member: swc_ast::ClassMember) -> Patch {
+#[cfg(feature = "swc")]
+pub fn insert_class_member(class_span: SpanIR, member: crate::abi::swc_ast::ClassMember) -> Patch {
     insert_into_class(class_span, PatchCode::from(member))
 }

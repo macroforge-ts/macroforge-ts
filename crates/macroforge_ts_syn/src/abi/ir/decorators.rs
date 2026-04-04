@@ -30,7 +30,10 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::abi::{SpanIR, swc_ast};
+use crate::abi::SpanIR;
+
+#[cfg(feature = "swc")]
+use crate::abi::swc_ast;
 
 /// Intermediate representation of a decorator or JSDoc attribute.
 ///
@@ -82,6 +85,7 @@ pub struct DecoratorIR {
 
     /// The raw SWC decorator AST node (not serialized).
     /// Only available for TypeScript decorator syntax, not JSDoc.
+    #[cfg(feature = "swc")]
     #[serde(skip)]
     pub node: Option<swc_ast::Decorator>,
 }

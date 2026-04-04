@@ -11,6 +11,61 @@ use std::collections::HashMap;
 
 use indexmap::IndexMap;
 
+use crate::abi::ir::type_registry::FileImportEntry;
+
+/// Extract import declarations from a parsed Oxc program.
+#[cfg(feature = "oxc")]
+pub fn collect_file_imports_oxc(program: &oxc_ast::ast::Program<'_>) -> Vec<FileImportEntry> {
+    use oxc_ast::ast::*;
+    let mut imports = Vec::new();
+
+    for stmt in &program.body {
+        if let Statement::ImportDeclaration(import) = stmt {
+            let module_specifier = import.source.value.to_string();
+            let is_type_only = import.import_kind.is_type();
+
+            if let Some(specifiers) = &import.specifiers {
+                for specifier in specifiers {
+                    match specifier {
+                        ImportDeclarationSpecifier::ImportSpecifier(s) => {
+                            let local = s.local.name.to_string();
+                            let original = if s.imported.name() != s.local.name {
+                                Some(s.imported.name().to_string())
+                            } else {
+                                None
+                            };
+                            imports.push(FileImportEntry {
+                                local_name: local,
+                                module_specifier: module_specifier.clone(),
+                                original_name: original,
+                                is_type_only: is_type_only || s.import_kind.is_type(),
+                            });
+                        }
+                        ImportDeclarationSpecifier::ImportDefaultSpecifier(s) => {
+                            imports.push(FileImportEntry {
+                                local_name: s.local.name.to_string(),
+                                module_specifier: module_specifier.clone(),
+                                original_name: Some("default".to_string()),
+                                is_type_only,
+                            });
+                        }
+                        ImportDeclarationSpecifier::ImportNamespaceSpecifier(s) => {
+                            imports.push(FileImportEntry {
+                                local_name: s.local.name.to_string(),
+                                module_specifier: module_specifier.clone(),
+                                original_name: Some("*".to_string()),
+                                is_type_only,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    imports
+}
+
 #[cfg(feature = "swc")]
 use swc_core::ecma::ast::{
     ImportDecl, ImportSpecifier, Module, ModuleDecl, ModuleExportName, ModuleItem,
@@ -87,6 +142,81 @@ impl ImportRegistry {
     pub fn new() -> Self {
         Self {
             source_imports: HashMap::new(),
+            config_imports: HashMap::new(),
+            generated: IndexMap::new(),
+        }
+    }
+
+    /// Build from Oxc AST.
+    #[cfg(feature = "oxc")]
+    pub fn from_oxc_program(program: &oxc_ast::ast::Program<'_>, source: &str) -> Self {
+        use oxc_ast::ast::*;
+        let mut source_imports = HashMap::new();
+
+        source_imports.extend(collect_macro_import_comments(source).into_iter().map(
+            |(name, module_src)| {
+                (
+                    name,
+                    SourceImport {
+                        source_module: module_src,
+                        original_name: None,
+                        is_type_only: false,
+                    },
+                )
+            },
+        ));
+
+        for stmt in &program.body {
+            if let Statement::ImportDeclaration(import) = stmt {
+                let source_module = import.source.value.to_string();
+                if let Some(specifiers) = &import.specifiers {
+                    for specifier in specifiers {
+                        match specifier {
+                            ImportDeclarationSpecifier::ImportSpecifier(s) => {
+                                let local_name = s.local.name.to_string();
+                                let original_name = if s.imported.name() != s.local.name {
+                                    Some(s.imported.name().to_string())
+                                } else {
+                                    None
+                                };
+                                source_imports.insert(
+                                    local_name,
+                                    SourceImport {
+                                        source_module: source_module.clone(),
+                                        original_name,
+                                        is_type_only: import.import_kind.is_type()
+                                            || s.import_kind.is_type(),
+                                    },
+                                );
+                            }
+                            ImportDeclarationSpecifier::ImportDefaultSpecifier(s) => {
+                                source_imports.insert(
+                                    s.local.name.to_string(),
+                                    SourceImport {
+                                        source_module: source_module.clone(),
+                                        original_name: Some("default".to_string()),
+                                        is_type_only: import.import_kind.is_type(),
+                                    },
+                                );
+                            }
+                            ImportDeclarationSpecifier::ImportNamespaceSpecifier(s) => {
+                                source_imports.insert(
+                                    s.local.name.to_string(),
+                                    SourceImport {
+                                        source_module: source_module.clone(),
+                                        original_name: Some("*".to_string()),
+                                        is_type_only: import.import_kind.is_type(),
+                                    },
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Self {
+            source_imports,
             config_imports: HashMap::new(),
             generated: IndexMap::new(),
         }

@@ -16,7 +16,7 @@
 //!
 //! Use `proto_method!` to generate `Class.prototype.method = function() {...}`:
 //!
-//! ```rust
+//! ```rust,ignore
 //! use macroforge_ts_syn::{proto_method, ts_ident};
 //! use macroforge_ts_syn::swc_ecma_ast::Stmt;
 //!

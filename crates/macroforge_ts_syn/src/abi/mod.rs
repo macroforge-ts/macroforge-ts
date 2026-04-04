@@ -66,9 +66,29 @@ pub use patch::*;
 pub use source_map::*;
 pub use span::*;
 
+/// A union type representing any lowerable TypeScript declaration.
+#[derive(Clone, Debug)]
+pub enum LoweredTarget {
+    /// A lowered class declaration.
+    Class(crate::abi::ClassIR),
+    /// A lowered interface declaration.
+    Interface(crate::abi::InterfaceIR),
+    /// A lowered enum declaration.
+    Enum(crate::abi::EnumIR),
+    /// A lowered type alias declaration.
+    TypeAlias(crate::abi::TypeAliasIR),
+}
+
 /// Re-export of SWC's ECMAScript AST types.
 ///
 /// Available when the `swc` feature is enabled. Provides direct access
 /// to the underlying AST types used by the parser.
 #[cfg(feature = "swc")]
 pub use swc_core::ecma::ast as swc_ast;
+
+/// Re-export of Oxc's ECMAScript AST types.
+///
+/// Available when the `oxc` feature is enabled. Provides direct access
+/// to the underlying AST types used by the parser.
+#[cfg(feature = "oxc")]
+pub use oxc_ast::ast as oxc_ast;

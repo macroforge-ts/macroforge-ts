@@ -47,7 +47,10 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::abi::{SpanIR, swc_ast};
+use crate::abi::SpanIR;
+
+#[cfg(feature = "swc")]
+use crate::abi::swc_ast;
 
 /// Specifies where generated code should be inserted relative to the target.
 ///
@@ -303,19 +306,22 @@ pub enum PatchCode {
 
     /// An SWC class member AST node.
     ///
-    /// Use this when constructing class members programmatically
+    /// A class member (property, method, constructor). Generated
     /// using SWC's AST types or the `quote!` macro.
+    #[cfg(feature = "swc")]
     ClassMember(swc_ast::ClassMember),
 
     /// An SWC statement AST node.
     ///
     /// Use for standalone statements or function/method bodies.
+    #[cfg(feature = "swc")]
     Stmt(swc_ast::Stmt),
 
     /// An SWC module item AST node.
     ///
     /// Use for top-level declarations like imports, exports,
     /// or function/class declarations.
+    #[cfg(feature = "swc")]
     ModuleItem(swc_ast::ModuleItem),
 }
 
@@ -327,6 +333,7 @@ impl serde::Serialize for PatchCode {
     {
         match self {
             PatchCode::Text(s) => serializer.serialize_str(s),
+            #[cfg(feature = "swc")]
             _ => serializer.serialize_str("/* AST node - cannot serialize */"),
         }
     }
@@ -354,24 +361,28 @@ impl From<&str> for PatchCode {
     }
 }
 
+#[cfg(feature = "swc")]
 impl From<swc_ast::ClassMember> for PatchCode {
     fn from(member: swc_ast::ClassMember) -> Self {
         PatchCode::ClassMember(member)
     }
 }
 
+#[cfg(feature = "swc")]
 impl From<swc_ast::Stmt> for PatchCode {
     fn from(stmt: swc_ast::Stmt) -> Self {
         PatchCode::Stmt(stmt)
     }
 }
 
+#[cfg(feature = "swc")]
 impl From<swc_ast::ModuleItem> for PatchCode {
     fn from(item: swc_ast::ModuleItem) -> Self {
         PatchCode::ModuleItem(item)
     }
 }
 
+#[cfg(feature = "swc")]
 impl From<Vec<swc_ast::Stmt>> for PatchCode {
     fn from(stmts: Vec<swc_ast::Stmt>) -> Self {
         // For Vec<Stmt>, wrap in a block and convert to a single Stmt
@@ -387,6 +398,7 @@ impl From<Vec<swc_ast::Stmt>> for PatchCode {
     }
 }
 
+#[cfg(feature = "swc")]
 impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
     fn from(items: Vec<swc_ast::ModuleItem>) -> Self {
         // For Vec<ModuleItem>, take the first if there's only one
