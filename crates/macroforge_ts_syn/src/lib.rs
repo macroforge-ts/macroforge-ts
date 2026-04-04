@@ -108,7 +108,15 @@ pub mod config;
 pub mod derive;
 pub mod errors;
 pub mod import_registry;
+pub mod jsdoc;
+#[cfg(feature = "swc")]
 pub mod lower;
+#[cfg(feature = "oxc")]
+pub mod lower_oxc;
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+mod oxc_compat;
+#[cfg(feature = "oxc")]
+mod oxc_quote_helpers;
 pub mod parse;
 pub mod quote_helpers;
 pub mod stream;
@@ -117,10 +125,25 @@ pub use abi::*;
 pub use derive::*;
 pub use errors::*;
 pub use import_registry::{
-    ImportRegistry, clear_registry, install_registry, take_registry, with_registry,
-    with_registry_mut,
+    ImportRegistry, clear_registry, collect_file_imports_oxc, install_registry, take_registry,
+    with_registry, with_registry_mut,
 };
+#[cfg(feature = "swc")]
 pub use lower::*;
+#[cfg(feature = "oxc")]
+pub use lower_oxc::{
+    collect_exported_names_oxc, lower_classes_oxc, lower_enums_oxc, lower_interfaces_oxc,
+    lower_targets_oxc, lower_type_aliases_oxc,
+};
+#[cfg(feature = "oxc")]
+pub use oxc_quote_helpers::{
+    ToOxcAssignTargetSource, ToOxcExprSource, ToOxcIdentSource, ToOxcPatSource,
+    ToOxcStringLiteralSource, ToOxcTypeSource, oxc_assignment_target_to_string,
+    oxc_binding_pattern_to_string, oxc_expr_to_string, oxc_stmt_to_string,
+    oxc_string_literal_to_string, oxc_type_to_string, parse_oxc_assignment_target,
+    parse_oxc_binding_pattern, parse_oxc_expr, parse_oxc_module_item, parse_oxc_program,
+    parse_oxc_prop_or_spread, parse_oxc_statement, parse_oxc_type,
+};
 pub use stream::*;
 #[cfg(feature = "swc")]
 pub use swc_core::quote;
@@ -134,6 +157,24 @@ pub use swc_core;
 pub use swc_core::common as swc_common;
 #[cfg(feature = "swc")]
 pub use swc_core::ecma::ast as swc_ecma_ast;
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+pub mod swc_ecma_ast {
+    pub use crate::oxc_compat::{Expr, Ident};
+}
+
+// Re-export oxc modules at top level for ergonomics
+#[cfg(feature = "oxc")]
+pub use ::oxc_allocator;
+#[cfg(feature = "oxc")]
+pub use ::oxc_ast;
+#[cfg(feature = "oxc")]
+pub use ::oxc_codegen;
+#[cfg(feature = "oxc")]
+pub use ::oxc_parser;
+#[cfg(feature = "oxc")]
+pub use ::oxc_span;
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+pub use oxc_compat::{emit_expr, parse_ts_expr};
 
 // Helper macros for creating AST nodes
 
@@ -688,6 +729,17 @@ macro_rules! ts_ident {
     // Format string with arguments
     ($fmt:expr, $($args:expr),+ $(,)?) => {
         $crate::swc_core::ecma::ast::Ident::new_no_ctxt(format!($fmt, $($args),+).into(), $crate::swc_core::common::DUMMY_SP)
+    };
+}
+
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+#[macro_export]
+macro_rules! ts_ident {
+    ($name:expr) => {
+        $crate::swc_ecma_ast::Ident::new(AsRef::<str>::as_ref(&$name))
+    };
+    ($fmt:expr, $($args:expr),+ $(,)?) => {
+        $crate::swc_ecma_ast::Ident::new(format!($fmt, $($args),+))
     };
 }
 
@@ -1621,6 +1673,27 @@ impl ToTsString for swc_core::ecma::ast::Stmt {
 }
 
 #[cfg(feature = "swc")]
+impl ToTsString for crate::TsStream {
+    fn to_ts_string(&self) -> String {
+        self.source().to_string()
+    }
+}
+
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+impl ToTsString for crate::swc_ecma_ast::Expr {
+    fn to_ts_string(&self) -> String {
+        emit_expr(self)
+    }
+}
+
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+impl ToTsString for crate::swc_ecma_ast::Ident {
+    fn to_ts_string(&self) -> String {
+        self.sym.clone()
+    }
+}
+
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
 impl ToTsString for crate::TsStream {
     fn to_ts_string(&self) -> String {
         self.source().to_string()

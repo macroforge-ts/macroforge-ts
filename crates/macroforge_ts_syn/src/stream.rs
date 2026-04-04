@@ -15,21 +15,33 @@
 //!
 //! ## Basic Usage
 //!
-//! ```rust,no_run
-//! use macroforge_ts_syn::{TsStream, parse_ts_str, TsSynError};
-//! use swc_core::ecma::ast::{Expr, Stmt, Module};
+//! ```rust
+//! # #[cfg(feature = "swc")] {
+//! use macroforge_ts_syn::{TsStream, TsSynError, parse_ts_str};
+//! use macroforge_ts_syn::swc_ecma_ast::{Expr, Module, Stmt};
 //!
-//! fn main() -> Result<(), TsSynError> {
-//!     // Parse individual constructs
-//!     let expr: Box<Expr> = parse_ts_str("x + y")?;
-//!     let stmt: Stmt = parse_ts_str("const x = 5;")?;
-//!     let module: Module = parse_ts_str("export class Foo {}")?;
+//! let _expr: Box<Expr> = parse_ts_str("x + y")?;
+//! let _stmt: Stmt = parse_ts_str("const x = 5;")?;
+//! let _module: Module = parse_ts_str("export class Foo {}")?;
 //!
-//!     // Or use TsStream directly
-//!     let mut stream = TsStream::new("const x = 5;", "input.ts")?;
-//!     let stmt = stream.parse_stmt()?;
-//!     Ok(())
-//! }
+//! let mut stream = TsStream::new("const x = 5;", "input.ts")?;
+//! let _stmt = stream.parse_stmt()?;
+//! # }
+//! # #[cfg(feature = "oxc")] {
+//! use macroforge_ts_syn::{
+//!     oxc_expr_to_string, oxc_stmt_to_string, parse_oxc_expr, parse_oxc_program,
+//!     parse_oxc_statement,
+//! };
+//!
+//! let expr = parse_oxc_expr("x + y")?;
+//! let stmt = parse_oxc_statement("const x = 5;")?;
+//! let module = parse_oxc_program("export class Foo {}")?;
+//!
+//! assert_eq!(oxc_expr_to_string(&expr), "x + y");
+//! assert_eq!(oxc_stmt_to_string(&stmt).trim(), "const x = 5;");
+//! assert_eq!(module.body.len(), 1);
+//! # }
+//! # Ok::<(), macroforge_ts_syn::TsSynError>(())
 //! ```
 //!
 //! ## Macro Context
@@ -90,7 +102,7 @@ use swc_core::ecma::ast::*;
 #[cfg(feature = "swc")]
 use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
 #[cfg(feature = "swc")]
-use swc_core::ecma::parser::{PResult, Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 
 use crate::TsSynError;
 
@@ -180,7 +192,7 @@ impl ImportConfig {
 ///
 /// # Parsing
 ///
-/// ```rust,no_run
+/// ```rust,ignore
 /// use macroforge_ts_syn::{TsStream, TsSynError};
 ///
 /// fn main() -> Result<(), TsSynError> {
@@ -193,7 +205,7 @@ impl ImportConfig {
 ///
 /// # Working with Imports
 ///
-/// ```rust,no_run
+/// ```rust,ignore
 /// use macroforge_ts_syn::{TsStream, TsSynError};
 ///
 /// fn main() -> Result<(), TsSynError> {
@@ -209,9 +221,9 @@ impl ImportConfig {
 ///     Ok(())
 /// }
 /// ```
-#[cfg(feature = "swc")]
 pub struct TsStream {
-    source_map: Lrc<SourceMap>,
+    #[cfg(feature = "swc")]
+    source_map: swc_core::common::sync::Lrc<swc_core::common::SourceMap>,
     source: String,
     file_name: String,
     /// Macro context data (decorator span, target span, etc.)
@@ -230,6 +242,32 @@ pub struct TsStream {
     /// These resolve `{PascalCaseTypeName}{Suffix}` type references and generate
     /// `import type` statements. Used for types like `ColorsErrors`, `ColorsTainted`.
     pub cross_module_type_suffixes: Vec<String>,
+}
+
+#[cfg(feature = "oxc")]
+impl TsStream {
+    /// Create a temporary parser for a parsing operation with Oxc.
+    pub fn parse_stmt_oxc<'a>(
+        &'a self,
+        allocator: &'a oxc_allocator::Allocator,
+    ) -> Result<oxc_ast::ast::Statement<'a>, TsSynError> {
+        let source_type = oxc_span::SourceType::ts()
+            .with_typescript(true)
+            .with_jsx(self.file_name.ends_with(".tsx"));
+        let ret = oxc_parser::Parser::new(allocator, &self.source, source_type).parse();
+        if !ret.errors.is_empty() {
+            return Err(TsSynError::Parse(format!(
+                "Oxc parse errors: {:?}",
+                ret.errors
+            )));
+        }
+
+        ret.program
+            .body
+            .into_iter()
+            .next()
+            .ok_or_else(|| TsSynError::Parse("No statement found".to_string()))
+    }
 }
 
 /// Formats TypeScript source code using SWC's emitter.
@@ -338,12 +376,12 @@ pub fn format_ts_source(source: &str) -> String {
     source.to_string()
 }
 
-#[cfg(feature = "swc")]
 impl TsStream {
     /// Create a new parsing stream from source code.
     pub fn new(source: &str, file_name: &str) -> Result<Self, TsSynError> {
         Ok(TsStream {
-            source_map: Lrc::new(Default::default()),
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
             source: source.to_string(),
             file_name: file_name.to_string(),
             ctx: None,
@@ -357,7 +395,8 @@ impl TsStream {
     /// Create a new parsing stream from an owned string.
     pub fn from_string(source: String) -> Self {
         TsStream {
-            source_map: Lrc::new(Default::default()),
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
             source,
             file_name: "macro_output.ts".to_string(),
             ctx: None,
@@ -371,7 +410,8 @@ impl TsStream {
     /// Create a new parsing stream with a specific insert position.
     pub fn with_insert_pos(source: String, insert_pos: crate::abi::InsertPos) -> Self {
         TsStream {
-            source_map: Lrc::new(Default::default()),
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
             source,
             file_name: "macro_output.ts".to_string(),
             ctx: None,
@@ -390,7 +430,8 @@ impl TsStream {
         runtime_patches: Vec<crate::abi::Patch>,
     ) -> Self {
         TsStream {
-            source_map: Lrc::new(Default::default()),
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
             source,
             file_name: "macro_output.ts".to_string(),
             ctx: None,
@@ -414,7 +455,8 @@ impl TsStream {
         ctx: crate::abi::MacroContextIR,
     ) -> Result<Self, TsSynError> {
         Ok(TsStream {
-            source_map: Lrc::new(Default::default()),
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
             source: source.to_string(),
             file_name: file_name.to_string(),
             ctx: Some(ctx),
@@ -652,58 +694,71 @@ impl TsStream {
 
     /// Create a temporary parser for a parsing operation.
     /// This is an internal helper that manages SWC's complex lifetimes.
+    #[cfg(feature = "swc")]
     fn with_parser<F, T>(&self, f: F) -> Result<T, TsSynError>
     where
-        F: for<'a> FnOnce(&mut Parser<Lexer<'a>>) -> PResult<T>,
+        F: for<'a> FnOnce(
+            &mut swc_core::ecma::parser::Parser<swc_core::ecma::parser::lexer::Lexer<'a>>,
+        ) -> swc_core::ecma::parser::PResult<T>,
     {
         let fm = self.source_map.new_source_file(
-            FileName::Custom(self.file_name.clone()).into(),
+            swc_core::common::FileName::Custom(self.file_name.clone()).into(),
             self.source.clone(),
         );
 
-        let syntax = Syntax::Typescript(TsSyntax {
+        let syntax = swc_core::ecma::parser::Syntax::Typescript(swc_core::ecma::parser::TsSyntax {
             tsx: self.file_name.ends_with(".tsx"),
             decorators: true,
             ..Default::default()
         });
 
-        let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
+        let lexer = swc_core::ecma::parser::lexer::Lexer::new(
+            syntax,
+            swc_core::ecma::ast::EsVersion::latest(),
+            swc_core::ecma::parser::StringInput::from(&*fm),
+            None,
+        );
 
-        let mut parser = Parser::new_from(lexer);
+        let mut parser = swc_core::ecma::parser::Parser::new_from(lexer);
         f(&mut parser).map_err(|e| TsSynError::Parse(format!("{:?}", e)))
     }
 
     /// Parse a value of type T from the stream.
     /// This is analogous to `syn::ParseBuffer::parse::<T>()`.
+    #[cfg(feature = "swc")]
     pub fn parse<T: ParseTs>(&mut self) -> Result<T, TsSynError> {
         T::parse(self)
     }
 
     /// Parse an identifier.
-    pub fn parse_ident(&self) -> Result<Ident, TsSynError> {
+    #[cfg(feature = "swc")]
+    pub fn parse_ident(&self) -> Result<swc_core::ecma::ast::Ident, TsSynError> {
         self.with_parser(|parser| {
             use swc_core::common::DUMMY_SP;
             use swc_core::ecma::parser::error::{Error, SyntaxError};
             // Parse as expression and extract identifier
             parser.parse_expr().and_then(|expr| match *expr {
-                Expr::Ident(ident) => Ok(ident),
+                swc_core::ecma::ast::Expr::Ident(ident) => Ok(ident),
                 _ => Err(Error::new(DUMMY_SP, SyntaxError::TS1003)),
             })
         })
     }
 
     /// Parse a statement.
-    pub fn parse_stmt(&self) -> Result<Stmt, TsSynError> {
+    #[cfg(feature = "swc")]
+    pub fn parse_stmt(&self) -> Result<swc_core::ecma::ast::Stmt, TsSynError> {
         self.with_parser(|parser| parser.parse_stmt_list_item())
     }
 
     /// Parse an expression.
-    pub fn parse_expr(&self) -> Result<Box<Expr>, TsSynError> {
+    #[cfg(feature = "swc")]
+    pub fn parse_expr(&self) -> Result<Box<swc_core::ecma::ast::Expr>, TsSynError> {
         self.with_parser(|parser| parser.parse_expr())
     }
 
     /// Parse a module (useful for parsing complete TypeScript files).
-    pub fn parse_module(&self) -> Result<Module, TsSynError> {
+    #[cfg(feature = "swc")]
+    pub fn parse_module(&self) -> Result<swc_core::ecma::ast::Module, TsSynError> {
         self.with_parser(|parser| parser.parse_module())
     }
 }
@@ -711,7 +766,7 @@ impl TsStream {
 /// A trait for types that can be parsed from TypeScript source, analogous to `syn::parse::Parse`.
 ///
 /// Implement this trait to enable parsing your custom types with [`TsStream::parse`]
-/// and [`parse_ts_str`].
+/// and [`parse_ts_str`] when the `swc` feature is enabled.
 ///
 /// # Built-in Implementations
 ///
@@ -723,35 +778,32 @@ impl TsStream {
 ///
 /// # Implementing ParseTs
 ///
-/// ```rust,no_run
+/// ```rust
+/// # #[cfg(feature = "swc")] {
 /// use macroforge_ts_syn::{ParseTs, TsStream, TsSynError, parse_ts_str};
+/// use macroforge_ts_syn::swc_ecma_ast::Ident;
 ///
 /// struct MyType {
 ///     name: String,
-///     value: i32,
 /// }
 ///
 /// impl ParseTs for MyType {
 ///     fn parse(input: &mut TsStream) -> Result<Self, TsSynError> {
-///         // Use TsStream's parsing methods
-///         let ident = input.parse_ident()?;
-///
-///         // Or parse sub-expressions
-///         let _expr = input.parse_expr()?;
-///
-///         // Return the parsed type
-///         Ok(MyType {
-///             name: ident.sym.to_string(),
-///             value: 42,
-///         })
+///         let ident: Ident = input.parse()?;
+///         Ok(MyType { name: ident.sym.to_string() })
 ///     }
 /// }
 ///
-/// fn main() -> Result<(), TsSynError> {
-///     // Now you can use it with parse_ts_str
-///     let _my_value: MyType = parse_ts_str("identifier")?;
-///     Ok(())
-/// }
+/// let value: MyType = parse_ts_str("identifier")?;
+/// assert_eq!(value.name, "identifier");
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{oxc_expr_to_string, parse_oxc_expr};
+///
+/// let expr = parse_oxc_expr("identifier")?;
+/// assert_eq!(oxc_expr_to_string(&expr), "identifier");
+/// # }
+/// # Ok::<(), macroforge_ts_syn::TsSynError>(())
 /// ```
 ///
 /// # Using with DeriveInput
@@ -822,6 +874,11 @@ pub fn parse_ts_expr(code: &str) -> Result<Box<Expr>, TsSynError> {
 #[cfg(feature = "swc")]
 pub fn parse_ts_stmt(code: &str) -> Result<Stmt, TsSynError> {
     parse_ts_str(code)
+}
+
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+pub fn parse_ts_stmt(code: &str) -> Result<oxc_ast::ast::Statement<'static>, TsSynError> {
+    crate::parse_oxc_statement(code)
 }
 
 /// Parse a snippet of TypeScript code as a module.

@@ -27,7 +27,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use macroforge_ts_syn::{lower_classes, parse_ts_module, TsSynError};
+//! use macroforge_ts_syn::TsSynError;
 //!
 //! fn main() -> Result<(), TsSynError> {
 //!     let source = r#"
@@ -37,8 +37,16 @@
 //!         }
 //!     "#;
 //!
-//!     let module = parse_ts_module(source)?;
-//!     let classes = lower_classes(&module, source, None)?;
+//! # #[cfg(feature = "swc")] {
+//! use macroforge_ts_syn::{lower_classes, parse::parse_ts_module};
+//! let module = parse_ts_module(source, "input.ts")?;
+//! let classes = lower_classes(&module, source, None)?;
+//! # }
+//! # #[cfg(feature = "oxc")] {
+//! use macroforge_ts_syn::{lower_classes_oxc, parse_oxc_program};
+//! let program = parse_oxc_program(source)?;
+//! let classes = lower_classes_oxc(&program, source, None)?;
+//! # }
 //!
 //!     assert_eq!(classes.len(), 1);
 //!     assert_eq!(classes[0].name, "User");
@@ -78,12 +86,20 @@ use crate::TsSynError;
 /// # Example
 ///
 /// ```rust
-/// use macroforge_ts_syn::{lower_targets, parse_ts_module, LoweredTarget, TsSynError};
+/// use macroforge_ts_syn::{LoweredTarget, TsSynError};
 ///
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = "class Foo {} interface Bar {}";
-///     let module = parse_ts_module(source)?;
-///     let targets = lower_targets(&module, source, None)?;
+/// # #[cfg(feature = "swc")] {
+/// use macroforge_ts_syn::{lower_targets, parse::parse_ts_module};
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let targets = lower_targets(&module, source, None)?;
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{lower_targets_oxc, parse_oxc_program};
+/// let program = parse_oxc_program(source)?;
+/// let targets = lower_targets_oxc(&program, source, None)?;
+/// # }
 ///
 ///     for target in targets {
 ///         match target {
@@ -96,18 +112,6 @@ use crate::TsSynError;
 ///     Ok(())
 /// }
 /// ```
-#[derive(Clone, Debug)]
-pub enum LoweredTarget {
-    /// A lowered class declaration.
-    Class(ClassIR),
-    /// A lowered interface declaration.
-    Interface(InterfaceIR),
-    /// A lowered enum declaration.
-    Enum(EnumIR),
-    /// A lowered type alias declaration.
-    TypeAlias(TypeAliasIR),
-}
-
 #[cfg(feature = "swc")]
 use swc_core::common::{Span, Spanned};
 #[cfg(feature = "swc")]
@@ -136,12 +140,20 @@ use swc_core::ecma::visit::{Visit, VisitWith};
 /// # Example
 ///
 /// ```rust
-/// use macroforge_ts_syn::{lower_classes, parse_ts_module, TsSynError};
+/// use macroforge_ts_syn::TsSynError;
 ///
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = "class User { name: string; }";
-///     let module = parse_ts_module(source)?;
-///     let classes = lower_classes(&module, source, None)?;
+/// # #[cfg(feature = "swc")] {
+/// use macroforge_ts_syn::{lower_classes, parse::parse_ts_module};
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let classes = lower_classes(&module, source, None)?;
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{lower_classes_oxc, parse_oxc_program};
+/// let program = parse_oxc_program(source)?;
+/// let classes = lower_classes_oxc(&program, source, None)?;
+/// # }
 ///
 ///     assert_eq!(classes.len(), 1);
 ///     assert_eq!(classes[0].name, "User");
@@ -179,12 +191,20 @@ pub fn lower_classes(
 /// # Example
 ///
 /// ```rust
-/// use macroforge_ts_syn::{lower_interfaces, parse_ts_module, TsSynError};
+/// use macroforge_ts_syn::TsSynError;
 ///
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = "interface User { name: string; greet(): void; }";
-///     let module = parse_ts_module(source)?;
-///     let interfaces = lower_interfaces(&module, source, None)?;
+/// # #[cfg(feature = "swc")] {
+/// use macroforge_ts_syn::{lower_interfaces, parse::parse_ts_module};
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let interfaces = lower_interfaces(&module, source, None)?;
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{lower_interfaces_oxc, parse_oxc_program};
+/// let program = parse_oxc_program(source)?;
+/// let interfaces = lower_interfaces_oxc(&program, source, None)?;
+/// # }
 ///
 ///     assert_eq!(interfaces[0].name, "User");
 ///     assert_eq!(interfaces[0].fields.len(), 1);
@@ -221,7 +241,7 @@ pub fn lower_interfaces(
 /// # Example
 ///
 /// ```rust
-/// use macroforge_ts_syn::{lower_targets, parse_ts_module, TsSynError};
+/// use macroforge_ts_syn::TsSynError;
 ///
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = r#"
@@ -231,8 +251,16 @@ pub fn lower_interfaces(
 ///         type ID = string;
 ///     "#;
 ///
-///     let module = parse_ts_module(source)?;
-///     let targets = lower_targets(&module, source, None)?;
+/// # #[cfg(feature = "swc")] {
+/// use macroforge_ts_syn::{lower_targets, parse::parse_ts_module};
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let targets = lower_targets(&module, source, None)?;
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{lower_targets_oxc, parse_oxc_program};
+/// let program = parse_oxc_program(source)?;
+/// let targets = lower_targets_oxc(&program, source, None)?;
+/// # }
 ///
 ///     // targets contains all 4 declarations
 ///     assert_eq!(targets.len(), 4);
@@ -270,7 +298,7 @@ pub fn lower_targets(
 /// # Example
 ///
 /// ```rust
-/// use macroforge_ts_syn::{lower_enums, parse_ts_module, TsSynError};
+/// use macroforge_ts_syn::TsSynError;
 ///
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = r#"
@@ -280,8 +308,16 @@ pub fn lower_targets(
 ///         }
 ///     "#;
 ///
-///     let module = parse_ts_module(source)?;
-///     let enums = lower_enums(&module, source, None)?;
+/// # #[cfg(feature = "swc")] {
+/// use macroforge_ts_syn::{lower_enums, parse::parse_ts_module};
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let enums = lower_enums(&module, source, None)?;
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{lower_enums_oxc, parse_oxc_program};
+/// let program = parse_oxc_program(source)?;
+/// let enums = lower_enums_oxc(&program, source, None)?;
+/// # }
 ///
 ///     assert_eq!(enums[0].name, "Status");
 ///     assert_eq!(enums[0].variants.len(), 2);
@@ -332,7 +368,7 @@ pub fn lower_enums(
 /// # Example
 ///
 /// ```rust
-/// use macroforge_ts_syn::{lower_type_aliases, parse_ts_module, TypeBody, TsSynError};
+/// use macroforge_ts_syn::{TypeBody, TsSynError};
 ///
 /// fn main() -> Result<(), TsSynError> {
 ///     let source = r#"
@@ -340,8 +376,16 @@ pub fn lower_enums(
 ///         type Point = { x: number; y: number };
 ///     "#;
 ///
-///     let module = parse_ts_module(source)?;
-///     let type_aliases = lower_type_aliases(&module, source, None)?;
+/// # #[cfg(feature = "swc")] {
+/// use macroforge_ts_syn::{lower_type_aliases, parse::parse_ts_module};
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let type_aliases = lower_type_aliases(&module, source, None)?;
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{lower_type_aliases_oxc, parse_oxc_program};
+/// let program = parse_oxc_program(source)?;
+/// let type_aliases = lower_type_aliases_oxc(&program, source, None)?;
+/// # }
 ///
 ///     assert_eq!(type_aliases.len(), 2);
 ///     assert_eq!(type_aliases[0].name, "Status");
@@ -413,13 +457,33 @@ impl<'a> Visit for ClassCollector<'a> {
 
         let (fields, methods) = lower_members(&n.class.body, self.source, self.valid_annotations);
 
+        let mut type_params = Vec::new();
+        if let Some(tp) = &n.class.type_params {
+            for p in &tp.params {
+                type_params.push(p.name.sym.to_string());
+            }
+        }
+
+        let mut heritage = Vec::new();
+        if let Some(super_class) = &n.class.super_class {
+            if let Expr::Ident(ident) = &**super_class {
+                heritage.push(ident.sym.to_string());
+            }
+        }
+        for item in &n.class.implements {
+            let TsExprWithTypeArgs { expr, .. } = item;
+            if let Expr::Ident(ident) = &**expr {
+                heritage.push(ident.sym.to_string());
+            }
+        }
+
         self.out.push(ClassIR {
             name,
             span,
             body_span,
             is_abstract: n.class.is_abstract,
-            type_params: vec![],
-            heritage: vec![], // TODO: lower extends/implements
+            type_params,
+            heritage,
             decorators,
             decorators_ast: n.class.decorators.clone(),
             fields,
@@ -572,12 +636,26 @@ fn lower_interface(
 
     let (fields, methods) = lower_interface_members(&n.body.body, source, valid_annotations);
 
+    let mut type_params = Vec::new();
+    if let Some(tp) = &n.type_params {
+        for p in &tp.params {
+            type_params.push(p.name.sym.to_string());
+        }
+    }
+
+    let mut heritage = Vec::new();
+    for ext in &n.extends {
+        if let Expr::Ident(ident) = &*ext.expr {
+            heritage.push(ident.sym.to_string());
+        }
+    }
+
     Some(InterfaceIR {
         name,
         span,
         body_span,
-        type_params: vec![], // TODO: extract type params
-        heritage: vec![],    // TODO: extract extends
+        type_params,
+        heritage,
         decorators,
         fields,
         methods,
@@ -1189,204 +1267,11 @@ fn collect_leading_macro_directives(
 /// Supports multiple directives on the same line: `@derive(X) @default(Y)`
 /// Also supports directives without parens: `@default` (treated as empty args)
 /// Supports multiline decorator arguments: `@overview({ ... \n ... })`
-#[cfg(feature = "swc")]
-fn parse_all_macro_directives(
+pub(crate) fn parse_all_macro_directives(
     comment_body: &str,
     valid_annotations: Option<&HashSet<String>>,
 ) -> Vec<(String, String)> {
-    let mut results = Vec::new();
-
-    // Normalize lines: strip JSDoc `*` prefixes and whitespace. Lines starting with `@`
-    // contain directives; other lines are continuations (if inside open balanced brackets)
-    // or prose (skipped entirely). This prevents `@derive` in prose like
-    // "result from @derive(Deserialize)" from being misinterpreted as a directive.
-    let lines: Vec<&str> = comment_body
-        .lines()
-        .map(|line| line.trim().trim_start_matches('*').trim())
-        .filter(|line| !line.is_empty())
-        .collect();
-
-    // Accumulates directive text across lines for multiline arguments
-    let mut accumulated = String::new();
-    // Track bracket depth for multiline argument continuation
-    let mut paren_depth: i32 = 0;
-    let mut brace_depth: i32 = 0;
-    let mut bracket_depth: i32 = 0;
-
-    for line in &lines {
-        let in_continuation = paren_depth > 0 || brace_depth > 0 || bracket_depth > 0;
-
-        if in_continuation {
-            // We're inside a multiline argument — accumulate this line
-            accumulated.push(' ');
-            accumulated.push_str(line);
-            for c in line.chars() {
-                match c {
-                    '(' => paren_depth += 1,
-                    ')' => paren_depth -= 1,
-                    '{' => brace_depth += 1,
-                    '}' => brace_depth -= 1,
-                    '[' => bracket_depth += 1,
-                    ']' => bracket_depth -= 1,
-                    _ => {}
-                }
-            }
-            if paren_depth <= 0 && brace_depth <= 0 && bracket_depth <= 0 {
-                // Multiline argument is complete — parse the accumulated text
-                parse_directives_from_text(&accumulated, valid_annotations, &mut results);
-                accumulated.clear();
-                paren_depth = 0;
-                brace_depth = 0;
-                bracket_depth = 0;
-            }
-            continue;
-        }
-
-        // Not in a continuation — line must start with `@` to contain directives
-        if !line.starts_with('@') {
-            continue;
-        }
-
-        // Track bracket depth to detect multiline arguments
-        for c in line.chars() {
-            match c {
-                '(' => paren_depth += 1,
-                ')' => paren_depth -= 1,
-                '{' => brace_depth += 1,
-                '}' => brace_depth -= 1,
-                '[' => bracket_depth += 1,
-                ']' => bracket_depth -= 1,
-                _ => {}
-            }
-        }
-
-        if paren_depth > 0 || brace_depth > 0 || bracket_depth > 0 {
-            // Multiline argument started — accumulate and continue to next line
-            accumulated = line.to_string();
-            continue;
-        }
-
-        // All brackets balanced on this line — parse directives immediately
-        paren_depth = 0;
-        brace_depth = 0;
-        bracket_depth = 0;
-        parse_directives_from_text(line, valid_annotations, &mut results);
-    }
-
-    // If there's leftover accumulated text (unclosed brackets), try to parse what we have
-    if !accumulated.is_empty() {
-        parse_directives_from_text(&accumulated, valid_annotations, &mut results);
-    }
-
-    results
-}
-
-/// Parse directives from a single text fragment (may contain multiple `@name(args)` directives).
-#[cfg(feature = "swc")]
-fn parse_directives_from_text(
-    text: &str,
-    valid_annotations: Option<&HashSet<String>>,
-    results: &mut Vec<(String, String)>,
-) {
-    let mut remaining = text;
-    while let Some(at_idx) = remaining.find('@') {
-        let after_at = &remaining[at_idx + 1..];
-
-        // Extract the directive name (alphanumeric chars until space, paren, or end)
-        let name_end = after_at
-            .find(|c: char| !c.is_alphanumeric() && c != '_')
-            .unwrap_or(after_at.len());
-
-        if name_end == 0 {
-            // No valid name found, skip
-            remaining = &remaining[at_idx + 1..];
-            continue;
-        }
-
-        let name = &after_at[..name_end];
-
-        // If an allowlist is provided, skip annotations not in it
-        if let Some(valid) = valid_annotations
-            && !valid.contains(&name.to_ascii_lowercase())
-        {
-            remaining = &remaining[at_idx + 1 + name_end..];
-            continue;
-        }
-
-        let after_name = &after_at[name_end..];
-
-        // Check if there's an opening paren
-        let trimmed_after_name = after_name.trim_start();
-        if trimmed_after_name.starts_with('(') {
-            // Has arguments - parse balanced parens
-            let paren_start = after_name.len() - trimmed_after_name.len();
-            let args_start = paren_start + 1;
-
-            // Parse balanced parentheses to find the closing one
-            let mut depth: i32 = 1;
-            let mut brace_depth: i32 = 0;
-            let mut bracket_depth: i32 = 0;
-            let mut close_idx = None;
-
-            for (i, c) in after_name[args_start..].char_indices() {
-                match c {
-                    '(' => depth += 1,
-                    ')' => {
-                        depth -= 1;
-                        if depth == 0 && brace_depth == 0 && bracket_depth == 0 {
-                            close_idx = Some(args_start + i);
-                            break;
-                        }
-                    }
-                    '{' => brace_depth += 1,
-                    '}' => brace_depth = brace_depth.saturating_sub(1),
-                    '[' => bracket_depth += 1,
-                    ']' => bracket_depth = bracket_depth.saturating_sub(1),
-                    _ => {}
-                }
-            }
-
-            if let Some(close) = close_idx {
-                let args = after_name[args_start..close].trim();
-
-                let normalized_name = if name.eq_ignore_ascii_case("derive") {
-                    "Derive".to_string()
-                } else {
-                    name.to_string()
-                };
-
-                results.push((normalized_name, args.to_string()));
-
-                // Continue searching after this directive's closing paren
-                let end_of_directive = at_idx + 1 + name_end + close + 1;
-                if end_of_directive < remaining.len() {
-                    remaining = &remaining[end_of_directive..];
-                } else {
-                    break;
-                }
-            } else {
-                // No matching close paren, skip to next @ symbol
-                remaining = &remaining[at_idx + 1..];
-            }
-        } else {
-            // No parens - directive without arguments (like @default)
-            let normalized_name = if name.eq_ignore_ascii_case("derive") {
-                "Derive".to_string()
-            } else {
-                name.to_string()
-            };
-
-            results.push((normalized_name, String::new()));
-
-            // Continue after the directive name
-            let end_of_directive = at_idx + 1 + name_end;
-            if end_of_directive < remaining.len() {
-                remaining = &remaining[end_of_directive..];
-            } else {
-                break;
-            }
-        }
-    }
+    crate::jsdoc::parse_all_macro_directives(comment_body, valid_annotations)
 }
 
 fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
@@ -1448,10 +1333,8 @@ fn snippet(source: &str, sp: Span) -> String {
     if sp.is_dummy() {
         return String::new();
     }
-    // SWC BytePos is 1-based by default for the first file.
-    // We subtract 1 to map to 0-based string index.
-    // TODO: This assumes the span is from a file starting at 1.
-    // For robust multi-file support, lower_classes needs the file start position.
+    // SWC BytePos is 1-based (each file is parsed with its own SourceMap).
+    // Subtract 1 to map to 0-based string index.
     let lo = (sp.lo.0 as usize).saturating_sub(1);
     let hi = (sp.hi.0 as usize).saturating_sub(1);
 

@@ -117,7 +117,7 @@ use crate::abi::{
 
 use crate::TsSynError;
 
-#[cfg(feature = "swc")]
+#[cfg(any(feature = "swc", all(feature = "oxc", not(feature = "swc"))))]
 use crate::TsStream;
 
 /// The input to a derive macro, analogous to `syn::DeriveInput`.
@@ -884,7 +884,7 @@ impl DeriveInput {
     }
 }
 
-#[cfg(feature = "swc")]
+#[cfg(any(feature = "swc", all(feature = "oxc", not(feature = "swc"))))]
 impl crate::ParseTs for DeriveInput {
     fn parse(input: &mut TsStream) -> Result<Self, TsSynError> {
         let ctx = input
@@ -965,27 +965,33 @@ mod tests {
                         name: "id".into(),
                         span: SpanIR::new(25, 35),
                         ts_type: "number".into(),
+                        #[cfg(feature = "swc")]
                         type_ann: None,
                         optional: false,
                         readonly: false,
                         visibility: crate::abi::Visibility::Public,
                         decorators: vec![],
+                        #[cfg(feature = "swc")]
                         prop_ast: None,
                     },
                     FieldIR {
                         name: "name".into(),
                         span: SpanIR::new(40, 55),
                         ts_type: "string".into(),
+                        #[cfg(feature = "swc")]
                         type_ann: None,
                         optional: false,
                         readonly: false,
                         visibility: crate::abi::Visibility::Public,
                         decorators: vec![],
+                        #[cfg(feature = "swc")]
                         prop_ast: None,
                     },
                 ],
                 methods: vec![],
+                #[cfg(feature = "swc")]
                 decorators_ast: vec![],
+                #[cfg(feature = "swc")]
                 members: vec![],
             }),
             target_source: "class User { id: number; name: string; }".into(),

@@ -11,24 +11,28 @@
 //!
 //! ## Example
 //!
-//! ```rust,no_run
-//! use macroforge_ts_syn::parse::parse_ts_module;
+//! ```rust
+//! let source = r#"
+//!     class User {
+//!         name: string;
+//!         age: number;
+//!     }
+//! "#;
+//!
+//! # #[cfg(feature = "swc")] {
 //! use macroforge_ts_syn::lower_classes;
+//! use macroforge_ts_syn::parse::parse_ts_module;
 //!
-//! fn example() -> Result<(), macroforge_ts_syn::TsSynError> {
-//!     let source = r#"
-//!         class User {
-//!             name: string;
-//!             age: number;
-//!         }
-//!     "#;
+//! let module = parse_ts_module(source, "input.ts")?;
+//! let _classes = lower_classes(&module, source, None)?;
+//! # }
+//! # #[cfg(feature = "oxc")] {
+//! use macroforge_ts_syn::{lower_classes_oxc, parse_oxc_program};
 //!
-//!     let module = parse_ts_module(source, "input.ts")?;
-//!
-//!     // Now you can use the module with lowering functions
-//!     let _classes = lower_classes(&module, source, None)?;
-//!     Ok(())
-//! }
+//! let program = parse_oxc_program(source)?;
+//! let _classes = lower_classes_oxc(&program, source, None)?;
+//! # }
+//! # Ok::<(), macroforge_ts_syn::TsSynError>(())
 //! ```
 //!
 //! ## File Type Detection
@@ -71,40 +75,52 @@ use crate::TsSynError;
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```rust
+/// # #[cfg(feature = "swc")] {
 /// use macroforge_ts_syn::parse::parse_ts_module;
-/// use macroforge_ts_syn::TsSynError;
 ///
-/// fn example() -> Result<(), TsSynError> {
-///     // Parse TypeScript
-///     let _module = parse_ts_module("const x: number = 5;", "input.ts")?;
+/// let _module = parse_ts_module("const x: number = 5;", "input.ts")?;
+/// let _module = parse_ts_module("const el = <div>Hello</div>;", "component.tsx")?;
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::parse_oxc_program;
 ///
-///     // Parse TSX (JSX in TypeScript)
-///     let _module = parse_ts_module(
-///         "const el = <div>Hello</div>;",
-///         "component.tsx"
-///     )?;
-///     Ok(())
-/// }
+/// let _program = parse_oxc_program("const x: number = 5;")?;
+/// let _program = parse_oxc_program("const el = <div>Hello</div>;")?;
+/// # }
+/// # Ok::<(), macroforge_ts_syn::TsSynError>(())
 /// ```
 ///
 /// # Integration with Lowering
 ///
 /// The returned `Module` can be passed to the lowering functions:
 ///
-/// ```rust,no_run
-/// use macroforge_ts_syn::parse::parse_ts_module;
-/// use macroforge_ts_syn::{lower_classes, lower_interfaces, lower_enums, lower_type_aliases, TsSynError};
+/// ```rust
+/// let source = "class User {}";
 ///
-/// fn example() -> Result<(), TsSynError> {
-///     let source = "class User {}";
-///     let module = parse_ts_module(source, "input.ts")?;
-///     let _classes = lower_classes(&module, source, None)?;
-///     let _interfaces = lower_interfaces(&module, source, None)?;
-///     let _enums = lower_enums(&module, source, None)?;
-///     let _type_aliases = lower_type_aliases(&module, source, None)?;
-///     Ok(())
-/// }
+/// # #[cfg(feature = "swc")] {
+/// use macroforge_ts_syn::parse::parse_ts_module;
+/// use macroforge_ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
+///
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let _classes = lower_classes(&module, source, None)?;
+/// let _interfaces = lower_interfaces(&module, source, None)?;
+/// let _enums = lower_enums(&module, source, None)?;
+/// let _type_aliases = lower_type_aliases(&module, source, None)?;
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{
+///     lower_classes_oxc, lower_enums_oxc, lower_interfaces_oxc, lower_type_aliases_oxc,
+///     parse_oxc_program,
+/// };
+///
+/// let program = parse_oxc_program(source)?;
+/// let _classes = lower_classes_oxc(&program, source, None)?;
+/// let _interfaces = lower_interfaces_oxc(&program, source, None)?;
+/// let _enums = lower_enums_oxc(&program, source, None)?;
+/// let _type_aliases = lower_type_aliases_oxc(&program, source, None)?;
+/// # }
+/// # Ok::<(), macroforge_ts_syn::TsSynError>(())
 /// ```
 #[cfg(feature = "swc")]
 pub fn parse_ts_module(source: &str, file_name: &str) -> Result<Module, TsSynError> {

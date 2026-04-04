@@ -226,6 +226,7 @@ mod tests {
             name: "Derive".to_string(),
             args_src: args.to_string(),
             span: SpanIR::new(0, 0),
+            #[cfg(feature = "swc")]
             node: None,
         }
     }
