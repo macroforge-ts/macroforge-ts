@@ -13,7 +13,7 @@ import { describe, test } from 'node:test';
 import { repoRoot } from './test-utils.mjs';
 
 const require = createRequire(import.meta.url);
-const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
+const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/pkg/macroforge_ts.js');
 const { expandSync, loadConfig, clearConfigCache } = require(swcMacrosPath);
 
 // ============================================================================
@@ -431,12 +431,11 @@ describe('Field decorators override foreign type config', () => {
 
         const code = `
       import type { DateTime } from 'effect';
-      import { serializeWith } from 'macroforge/serde';
 
       /** @derive(Serialize) */
       interface Event {
         name: string;
-        @serializeWith((v) => v.toEpochMillis())
+        /** @serde({ serializeWith: (v) => v.toEpochMillis() }) */
         startTime: DateTime.DateTime;
       }
     `;
@@ -460,12 +459,11 @@ describe('Field decorators override foreign type config', () => {
 
         const code = `
       import type { DateTime } from 'effect';
-      import { deserializeWith } from 'macroforge/serde';
 
       /** @derive(Deserialize) */
       interface Event {
         name: string;
-        @deserializeWith((raw) => DateTime.fromEpochMillis(raw))
+        /** @serde({ deserializeWith: (raw) => DateTime.fromEpochMillis(raw) }) */
         startTime: DateTime.DateTime;
       }
     `;
@@ -489,12 +487,11 @@ describe('Field decorators override foreign type config', () => {
 
         const code = `
       import type { DateTime } from 'effect';
-      import { default as defaultValue } from 'macroforge/serde';
 
       /** @derive(Default) */
       interface Event {
         name: string;
-        @defaultValue(() => DateTime.make(2024, 1, 1))
+        /** @default(() => DateTime.make(2024, 1, 1)) */
         startTime: DateTime.DateTime;
       }
     `;

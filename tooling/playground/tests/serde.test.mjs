@@ -10,7 +10,7 @@ import { describe, test } from 'node:test';
 import { repoRoot } from './test-utils.mjs';
 
 const require = createRequire(import.meta.url);
-const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
+const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/pkg/macroforge_ts.js');
 const { expandSync } = require(swcMacrosPath);
 
 // ============================================================================

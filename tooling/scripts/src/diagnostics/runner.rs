@@ -138,7 +138,7 @@ impl DiagnosticsRunner {
                 for project in &projects {
                     let rel_path = project.strip_prefix(&self.root).unwrap_or(project);
                     eprintln!("  deno fmt: {:?}", rel_path);
-                    if let Err(e) = shell::deno::deno_fmt(project) {
+                    if let Err(e) = shell::deno::deno_fmt(project, &[]) {
                         eprintln!("    Failed: {}", e);
                     }
                 }

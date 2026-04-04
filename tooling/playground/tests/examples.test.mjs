@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { repoRoot, svelteRoot, vanillaRoot, withViteServer } from './test-utils.mjs';
+import { repoRoot, svelteRoot, vanillaRoot, withViteServer, initExternalMacros } from './test-utils.mjs';
 
 // Use dynamic import for TypeScript to work in both Node and Deno
 const ts = await import('npm:typescript@5').then((m) => m.default ?? m);
@@ -202,8 +202,10 @@ test('TS Language Plugin filters diagnostics for available external macros', asy
 test('Macro expansion formats code correctly', async () => {
     const { createRequire } = await import('node:module');
     const require = createRequire(import.meta.url);
-    const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
-    const { expandSync } = require(swcMacrosPath);
+    const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/pkg/macroforge_ts.js');
+    const macroforgeModule = require(swcMacrosPath);
+    const { expandSync } = macroforgeModule;
+    initExternalMacros(macroforgeModule);
 
     const userContent = fs.readFileSync(
         path.join(vanillaRoot, 'src/user.ts'),
@@ -246,8 +248,10 @@ test('Macro Host reports diagnostics for invalid usage', async () => {
     // Test the core macro host logic used by both plugins and language server
     const { createRequire } = await import('node:module');
     const require = createRequire(import.meta.url);
-    const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/index.js');
-    const { expandSync } = require(swcMacrosPath);
+    const swcMacrosPath = path.join(repoRoot, 'crates/macroforge_ts/pkg/macroforge_ts.js');
+    const macroforgeModule = require(swcMacrosPath);
+    const { expandSync } = macroforgeModule;
+    initExternalMacros(macroforgeModule);
 
     const code = `
         import { Derive } from "@macroforge/macros";

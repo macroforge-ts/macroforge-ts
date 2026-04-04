@@ -4,6 +4,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
@@ -80,6 +81,68 @@ export function runCli(args, options = {}) {
         status: result.code,
         success: result.success
     };
+}
+
+/**
+ * Initialize external macro callbacks for the WASM build.
+ *
+ * The WASM build cannot spawn Node subprocesses to resolve external macro
+ * packages, so JS-side callbacks must be registered via `setupExternalMacros()`.
+ * This is a no-op if the function doesn't exist (NAPI build).
+ *
+ * Call this once before any `expandSync()` that uses `/** import macro ... * /`.
+ */
+export function initExternalMacros(macroforgeModule) {
+    if (!macroforgeModule.setupExternalMacros) return;
+
+    const req = createRequire(import.meta.url);
+
+    function resolveDecoratorNames(packagePath) {
+        const candidates = [
+            packagePath,
+            path.resolve(repoRoot, packagePath),
+        ];
+        // Check known playground locations
+        for (const sub of ['tooling/playground/macro', 'playground/macro']) {
+            candidates.push(path.join(repoRoot, sub));
+        }
+        for (const id of candidates) {
+            try {
+                const pkg = req(id);
+                const names = [];
+                if (pkg.__macroforgeGetManifest) {
+                    names.push(...(pkg.__macroforgeGetManifest().decorators || []).map(d => d.export));
+                }
+                for (const key of Object.keys(pkg)) {
+                    if (key.startsWith('__macroforgeGetManifest_') && typeof pkg[key] === 'function') {
+                        names.push(...(pkg[key]().decorators || []).map(d => d.export));
+                    }
+                }
+                if (names.length > 0) return [...new Set(names)];
+            } catch {}
+        }
+        return [];
+    }
+
+    function runMacro(ctxJson) {
+        const ctx = JSON.parse(ctxJson);
+        const fnName = `__macroforgeRun${ctx.macro_name}`;
+        const candidates = [
+            ctx.module_path,
+            path.resolve(repoRoot, ctx.module_path),
+            path.join(repoRoot, 'tooling/playground/macro'),
+        ];
+        for (const id of candidates) {
+            try {
+                const pkg = req(id);
+                const fn = pkg?.[fnName] || pkg?.default?.[fnName];
+                if (typeof fn === 'function') return fn(ctxJson);
+            } catch {}
+        }
+        throw new Error(`Macro ${fnName} not found in ${ctx.module_path}`);
+    }
+
+    macroforgeModule.setupExternalMacros(resolveDecoratorNames, runMacro);
 }
 
 // Port counter for unique WebSocket ports per server instance

@@ -1,8 +1,8 @@
 //! TUI application state
 
+use crate::core::shell;
 use std::collections::VecDeque;
 use std::io::{BufRead, BufReader};
-use std::process::{Command, Stdio};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 
@@ -180,12 +180,9 @@ impl App {
             // Build the command - run mf with the task's command args
             let exe = std::env::current_exe().unwrap_or_else(|_| "mf".into());
             let args: Vec<&str> = command.split_whitespace().collect();
+            let cwd = std::env::current_dir().unwrap_or_else(|_| ".".into());
 
-            let result = Command::new(&exe)
-                .args(&args)
-                .stdout(Stdio::piped())
-                .stderr(Stdio::piped())
-                .spawn();
+            let result = shell::spawn_binary(&cwd, &exe, &args);
 
             match result {
                 Ok(mut child) => {

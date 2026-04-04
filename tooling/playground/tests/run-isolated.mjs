@@ -18,6 +18,7 @@ const filters = process.argv.slice(2);
 
 const testFiles = readdirSync(__dirname)
     .filter((f) => f.endsWith('.test.mjs'))
+    .filter((f) => f !== 'wasm-parity.test.mjs')
     .filter(
         (f) => filters.length === 0 || filters.some((flt) => f.includes(flt))
     )

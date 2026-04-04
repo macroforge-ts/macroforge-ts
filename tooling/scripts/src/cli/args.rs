@@ -250,7 +250,11 @@ pub enum DocsCommands {
 
 #[derive(clap::Args)]
 pub struct ExpandArgs {
-    /// Use CLI binary instead of Node.js API
+    /// Use Node.js binary (NAPI-RS) instead of WASM (default)
+    #[arg(long)]
+    pub use_node: bool,
+
+    /// Use CLI binary instead of JS API
     #[arg(long)]
     pub use_cli: bool,
 

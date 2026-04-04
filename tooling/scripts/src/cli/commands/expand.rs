@@ -4,12 +4,12 @@
 
 use crate::cli::ExpandArgs;
 use crate::core::config::Config;
+use crate::core::shell;
 use crate::utils::format;
 use anyhow::Result;
 use colored::Colorize;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 /// Config file names in order of precedence
 const CONFIG_FILES: &[&str] = &[
@@ -55,19 +55,21 @@ pub fn run(args: ExpandArgs) -> Result<()> {
                 continue;
             }
 
-            let result = Command::new(&cli_binary)
-                .args(["expand", "--scan", &root.to_string_lossy()])
-                .output();
+            let result = shell::run_binary(
+                root,
+                &cli_binary,
+                &["expand", "--scan", &root.to_string_lossy()],
+            );
 
             match result {
-                Ok(output) if output.status.success() => {
+                Ok(output) if output.success => {
                     println!("  {} {}", "✓".green(), root.display());
                 }
                 Ok(output) => {
                     format::error(&format!(
                         "Failed to scan {}: {}",
                         root.display(),
-                        String::from_utf8_lossy(&output.stderr)
+                        output.stderr
                     ));
                 }
                 Err(e) => {
@@ -75,8 +77,8 @@ pub fn run(args: ExpandArgs) -> Result<()> {
                 }
             }
         }
-    } else {
-        // Use Node.js API via npm script
+    } else if args.use_node {
+        // Use Node.js API (NAPI-RS) via npm script
         for root in &roots {
             if !root.exists() {
                 continue;
@@ -99,28 +101,27 @@ pub fn run(args: ExpandArgs) -> Result<()> {
 
                 let expanded_path = get_expanded_path(&path);
 
-                // Use node to run expansion
-                let result = Command::new("node")
-                    .args([
-                        "-e",
-                        &format!(
-                            r#"
-                            const {{ expandSync }} = require('{}');
-                            const fs = require('fs');
-                            const code = fs.readFileSync('{}', 'utf8');
-                            const result = expandSync(code, '{}', {{ keepDecorators: false }});
-                            fs.writeFileSync('{}', result.code);
-                            "#,
-                            config.root.join("crates/macroforge_ts").display(),
-                            path.display(),
-                            path.display(),
-                            expanded_path.display()
-                        ),
-                    ])
-                    .output();
+                let script = format!(
+                    r#"
+                    const {{ expandSync }} = require('{}');
+                    const fs = require('fs');
+                    const code = fs.readFileSync('{}', 'utf8');
+                    const result = expandSync(code, '{}', {{ keepDecorators: false }});
+                    fs.writeFileSync('{}', result.code);
+                    "#,
+                    config
+                        .root
+                        .join("crates/macroforge_ts/pkg/macroforge_ts.js")
+                        .display(),
+                    path.display(),
+                    path.display(),
+                    expanded_path.display()
+                );
+
+                let result = shell::node::eval(root, &script, &[]);
 
                 match result {
-                    Ok(output) if output.status.success() => {
+                    Ok(output) if output.success => {
                         let rel_src = path.strip_prefix(&config.root).unwrap_or(&path);
                         let rel_dst = expanded_path
                             .strip_prefix(&config.root)
@@ -131,11 +132,174 @@ pub fn run(args: ExpandArgs) -> Result<()> {
                         format::error(&format!(
                             "Failed to expand {}: {}",
                             path.display(),
-                            String::from_utf8_lossy(&output.stderr)
+                            output.stderr
                         ));
                     }
                     Err(e) => {
                         format::error(&format!("Failed to expand {}: {}", path.display(), e));
+                    }
+                }
+            }
+        }
+    } else {
+        // Use WASM (default) via Deno
+        for root in &roots {
+            if !root.exists() {
+                continue;
+            }
+
+            // Find config for this root
+            let config_path = find_config_file(root);
+            if let Some(cfg) = &config_path {
+                println!("loaded config (wasm): {}", cfg.display());
+            }
+
+            // Process TypeScript files
+            for entry in fs::read_dir(root)? {
+                let entry = entry?;
+                let path = entry.path();
+
+                if !is_source_file(&path) {
+                    continue;
+                }
+
+                let expanded_path = get_expanded_path(&path);
+
+                let script = format!(
+                    r#"
+                    const m = require('{}');
+                    const {{ readFileSync, writeFileSync, existsSync, readdirSync }} = require('node:fs');
+                    const {{ createRequire }} = require('node:module');
+                    const path = require('node:path');
+
+                    const rootDir = '{}';
+
+                    // --- External Macro Utils ---
+                    function getCandidates(id, fileName) {{
+                      const candidates = new Set();
+                      const add = (p) => {{ if (p) candidates.add(p); }};
+
+                      add(id);
+                      add(path.resolve(rootDir, id));
+
+                      // Search upward from the file's directory for node_modules
+                      if (fileName) {{
+                        let current = path.resolve(rootDir, path.dirname(fileName));
+                        const rootResolved = path.resolve(rootDir);
+                        while (true) {{
+                          add(path.join(current, 'node_modules', id));
+                          const parent = path.dirname(current);
+                          if (parent === current || !path.resolve(parent).startsWith(rootResolved)) break;
+                          current = parent;
+                        }}
+                      }}
+
+                      // Heuristic: check monorepo subpaths
+                      const playgrounds = ['macro', 'svelte', 'vanilla'];
+                      for (const pg of playgrounds) {{
+                        add(path.join(rootDir, 'tooling/playground', pg, 'node_modules', id));
+                      }}
+
+                      const packagesDir = path.join(rootDir, 'packages');
+                      if (existsSync(packagesDir)) {{
+                        for (const entry of readdirSync(packagesDir, {{ withFileTypes: true }})) {{
+                          if (entry.isDirectory()) {{
+                            add(path.join(packagesDir, entry.name, 'node_modules', id));
+                          }}
+                        }}
+                      }}
+
+                      return Array.from(candidates);
+                    }}
+
+                    function resolveDecoratorNames(packagePath) {{
+                      // Use a dummy filename if we don't have one yet, or just search from root
+                      const candidates = getCandidates(packagePath);
+                      const req = createRequire(path.join(rootDir, 'package.json'));
+
+                      for (const id of candidates) {{
+                        try {{
+                          const pkg = req(id);
+                          let found = false;
+                          const names = [];
+                          if (pkg.__macroforgeGetManifest) {{
+                            names.push(...(pkg.__macroforgeGetManifest().decorators || []).map(d => d.export));
+                            found = true;
+                          }}
+                          for (const key of Object.keys(pkg)) {{
+                            if (key.startsWith('__macroforgeGetManifest_') && typeof pkg[key] === 'function') {{
+                              names.push(...(pkg[key]().decorators || []).map(d => d.export));
+                              found = true;
+                            }}
+                          }}
+                          if (found) return [...new Set(names)];
+                        }} catch {{}}
+                      }}
+                      return [];
+                    }}
+
+                    function runMacro(ctxJson) {{
+                      const ctx = JSON.parse(ctxJson);
+                      const fnName = `__macroforgeRun${{ctx.macro_name}}`;
+                      const candidates = getCandidates(ctx.module_path, ctx.file_name);
+                      const req = createRequire(path.join(rootDir, 'package.json'));
+
+                      for (const id of candidates) {{
+                        try {{
+                          const pkg = req(id);
+                          const fn = pkg?.[fnName] || pkg?.default?.[fnName];
+                          if (typeof fn === 'function') return fn(ctxJson);
+                        }} catch {{}}
+                      }}
+                      throw new Error(`Macro ${{fnName}} not found in ${{ctx.module_path}}`);
+                    }}
+
+                    if (m.setupExternalMacros) {{
+                      m.setupExternalMacros(resolveDecoratorNames, runMacro);
+                    }}
+
+                    const code = readFileSync('{}', 'utf8');
+                    const result = m.expandSync(code, '{}', {{ keepDecorators: false }});
+                    writeFileSync('{}', result.code);
+                    "#,
+                    config
+                        .root
+                        .join("crates/macroforge_ts/pkg/macroforge_ts.js")
+                        .display(),
+                    config.root.display(),
+                    path.display(),
+                    path.display(),
+                    expanded_path.display()
+                );
+
+                // Use deno to run expansion (will pick up WASM via index.js)
+                let result = shell::deno::eval(root, &script, &["--unstable-detect-cjs"]);
+
+                match result {
+                    Ok(output) if output.success => {
+                        let rel_src = path.strip_prefix(&config.root).unwrap_or(&path);
+                        let rel_dst = expanded_path
+                            .strip_prefix(&config.root)
+                            .unwrap_or(&expanded_path);
+                        println!(
+                            "expanded (wasm) {} -> {}",
+                            rel_src.display(),
+                            rel_dst.display()
+                        );
+                    }
+                    Ok(output) => {
+                        format::error(&format!(
+                            "Failed to expand (wasm) {}: {}",
+                            path.display(),
+                            output.stderr
+                        ));
+                    }
+                    Err(e) => {
+                        format::error(&format!(
+                            "Failed to run Deno (wasm) {}: {}",
+                            path.display(),
+                            e
+                        ));
                     }
                 }
             }
@@ -153,20 +317,16 @@ pub fn run(args: ExpandArgs) -> Result<()> {
             .and_then(|n| n.to_str())
             .unwrap_or("unknown");
 
-        let result = Command::new("deno")
-            .args(["fmt", "src"])
-            .current_dir(playground_root)
-            .output();
+        let result = shell::deno::deno_fmt(playground_root, &["src"]);
 
         match result {
-            Ok(output) if output.status.success() => {
+            Ok(output) if output.success => {
                 println!("formatted playground/{}/src", playground_name);
             }
             Ok(output) => {
                 format::warning(&format!(
                     "Formatting failed in playground/{}: {}",
-                    playground_name,
-                    String::from_utf8_lossy(&output.stderr)
+                    playground_name, output.stderr
                 ));
             }
             Err(e) => {

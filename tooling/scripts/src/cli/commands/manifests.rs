@@ -6,9 +6,9 @@
 use crate::cli::ManifestArgs;
 use crate::core::config::Config;
 use crate::core::manifests;
+use crate::core::shell;
 use crate::utils::format;
 use anyhow::Result;
-use std::process::Command;
 
 pub fn run(args: ManifestArgs) -> Result<()> {
     let config = Config::load()?;
@@ -43,10 +43,7 @@ pub fn run(args: ManifestArgs) -> Result<()> {
             }
             versions.save(&config.root)?;
             // Format versions.json with deno fmt
-            let _ = Command::new("deno")
-                .args(["fmt", "tooling/versions.json"])
-                .current_dir(&config.root)
-                .output();
+            let _ = shell::deno::deno_fmt(&config.root, &["tooling/versions.json"]);
         }
 
         crate::cli::ManifestCommands::ApplyVersions { local } => {

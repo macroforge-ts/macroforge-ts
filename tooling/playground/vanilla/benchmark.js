@@ -1,67 +1,71 @@
 import pkg from 'macroforge';
-const { expandSync: expand_node } = pkg;
-import * as expand_wasm from '../../../crates/macroforge_ts/pkg-wasm/macroforge_ts.js';
+const { transformSync: transform_node_oxc } = pkg;
+import * as wasm_oxc from '../../../crates/macroforge_ts/pkg/macroforge_ts.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
 const TEST_FILE = path.join(process.cwd(), 'src/validator-form.ts');
 const code = fs.readFileSync(TEST_FILE, 'utf-8');
-const ITERATIONS = 100;
+const ITERATIONS = 1000; // Increased for better accuracy
 
 async function runBenchmark() {
     console.log(
-        `\n🚀 Benchmarking Macroforge: Node vs WASM (${ITERATIONS} iterations)`
+        `\n🚀 Benchmarking Oxc Performance: Native Node vs WASM (${ITERATIONS} iterations)`
     );
     console.log(
         `File: ${path.basename(TEST_FILE)} (${(code.length / 1024).toFixed(2)} KB)\n`
     );
 
     // Warmup
-    expand_node(code, TEST_FILE, { keep_decorators: false });
-    expand_wasm.expand_sync(code, TEST_FILE, { keep_decorators: false });
+    transform_node_oxc(code, TEST_FILE);
+    wasm_oxc.transform_sync(code, TEST_FILE);
 
-    // Node Benchmark
+    // Node (Native Oxc) Benchmark
     const startNode = performance.now();
     for (let i = 0; i < ITERATIONS; i++) {
-        expand_node(code, TEST_FILE, { keep_decorators: false });
+        transform_node_oxc(code, TEST_FILE);
     }
     const endNode = performance.now();
     const nodeTotal = endNode - startNode;
     const nodeAvg = nodeTotal / ITERATIONS;
 
-    // WASM Benchmark
-    const startWasm = performance.now();
+    // WASM (Oxc) Benchmark
+    const startWasmOxc = performance.now();
     for (let i = 0; i < ITERATIONS; i++) {
-        expand_wasm.expand_sync(code, TEST_FILE, { keep_decorators: false });
+        wasm_oxc.transform_sync(code, TEST_FILE);
     }
-    const endWasm = performance.now();
-    const wasmTotal = endWasm - startWasm;
-    const wasmAvg = wasmTotal / ITERATIONS;
+    const endWasmOxc = performance.now();
+    const wasmOxcTotal = endWasmOxc - startWasmOxc;
+    const wasmOxcAvg = wasmOxcTotal / ITERATIONS;
 
-    console.log(`--------------------------------------------------`);
-    console.log(`| Target | Total Time | Avg Time | Operations/sec |`);
-    console.log(`|--------|------------|----------|----------------|`);
     console.log(
-        `| Node   | ${nodeTotal.toFixed(2)}ms   | ${nodeAvg.toFixed(2)}ms   | ${
+        `------------------------------------------------------------------`
+    );
+    console.log(
+        `| Target           | Total Time | Avg Time | Operations/sec      |`
+    );
+    console.log(
+        `|------------------|------------|----------|---------------------|`
+    );
+    console.log(
+        `| Node (Native Oxc)| ${nodeTotal.toFixed(2)}ms   | ${nodeAvg.toFixed(3)}ms   | ${
             (1000 / nodeAvg).toFixed(2)
         } ops/s |`
     );
     console.log(
-        `| WASM   | ${wasmTotal.toFixed(2)}ms   | ${wasmAvg.toFixed(2)}ms   | ${
-            (1000 / wasmAvg).toFixed(2)
+        `| WASM (Oxc)       | ${wasmOxcTotal.toFixed(2)}ms   | ${wasmOxcAvg.toFixed(3)}ms   | ${
+            (1000 / wasmOxcAvg).toFixed(2)
         } ops/s |`
     );
-    console.log(`--------------------------------------------------`);
+    console.log(
+        `------------------------------------------------------------------`
+    );
 
-    const diff = (wasmAvg / nodeAvg).toFixed(2);
-    if (nodeAvg < wasmAvg) {
-        console.log(`\n✅ Node is ${diff}x faster than WASM`);
-    } else {
-        console.log(
-            `\n✅ WASM is ${(nodeAvg / wasmAvg).toFixed(2)}x faster than Node`
-        );
-    }
+    console.log(`\n📊 Comparison:`);
+    console.log(
+        `✅ Native Oxc is ${(wasmOxcAvg / nodeAvg).toFixed(2)}x faster than WASM Oxc`
+    );
 }
 
 runBenchmark().catch(console.error);
