@@ -4,6 +4,9 @@
 //! project root (discovered by walking up from CWD). The file is created on
 //! first write and appended to thereafter.
 //!
+//! On WASM (`wasm32-unknown-unknown`), falls back to `eprintln!` since there
+//! is no filesystem access.
+//!
 //! # Usage
 //!
 //! ```rust,ignore
@@ -21,53 +24,79 @@
 //! ```
 
 use std::fmt::Write as FmtWrite;
-use std::io::Write;
-use std::path::PathBuf;
-use std::sync::LazyLock;
 
 use crate::ts_syn::abi::{MacroContextIR, MacroResult, TargetIR};
 
-/// Resolved path to the log file (computed once per process).
-static LOG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
-    let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+#[cfg(not(target_arch = "wasm32"))]
+mod fs_log {
+    use std::io::Write;
+    use std::path::PathBuf;
+    use std::sync::LazyLock;
 
-    // Walk up from CWD looking for an existing `.macroforge` directory
-    let mut dir = cwd.as_path();
-    loop {
-        let candidate = dir.join(".macroforge");
-        if candidate.is_dir() {
-            return candidate.join("debug.log");
+    /// Resolved path to the log file (computed once per process).
+    static LOG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
+        let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+
+        // Walk up from CWD looking for an existing `.macroforge` directory
+        let mut dir = cwd.as_path();
+        loop {
+            let candidate = dir.join(".macroforge");
+            if candidate.is_dir() {
+                return candidate.join("debug.log");
+            }
+            match dir.parent() {
+                Some(parent) => dir = parent,
+                None => break,
+            }
         }
-        match dir.parent() {
-            Some(parent) => dir = parent,
-            None => break,
-        }
+
+        // Fallback: create `.macroforge` in CWD
+        let fallback = cwd.join(".macroforge");
+        let _ = std::fs::create_dir_all(&fallback);
+        fallback.join("debug.log")
+    });
+
+    pub fn write(line: &str) {
+        let _ = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(LOG_PATH.as_path())
+            .and_then(|mut f| f.write_all(line.as_bytes()));
     }
 
-    // Fallback: create `.macroforge` in CWD
-    let fallback = cwd.join(".macroforge");
-    let _ = std::fs::create_dir_all(&fallback);
-    fallback.join("debug.log")
-});
+    pub fn clear() {
+        let _ = std::fs::write(LOG_PATH.as_path(), "");
+    }
+}
 
 fn timestamp() -> String {
-    let now = std::time::SystemTime::now();
-    let dur = now
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default();
-    let secs = dur.as_secs();
-    let millis = dur.subsec_millis();
-    format!("{secs}.{millis:03}")
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let now = std::time::SystemTime::now();
+        let dur = now
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default();
+        let secs = dur.as_secs();
+        let millis = dur.subsec_millis();
+        format!("{secs}.{millis:03}")
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        "wasm".to_string()
+    }
 }
 
 /// Append a single line to the debug log.
 pub fn log(tag: &str, msg: &str) {
     let line = format!("[{}] [{}] {}\n", timestamp(), tag, msg);
-    let _ = std::fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(LOG_PATH.as_path())
-        .and_then(|mut f| f.write_all(line.as_bytes()));
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        fs_log::write(&line);
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        eprintln!("{}", line.trim_end());
+    }
 }
 
 /// Log the `MacroContextIR` summary (macro name, module, file, target kind, field count).
@@ -130,7 +159,10 @@ pub fn log_result(tag: &str, result: &MacroResult) {
 
 /// Clear the debug log (useful at the start of a build).
 pub fn clear() {
-    let _ = std::fs::write(LOG_PATH.as_path(), "");
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        fs_log::clear();
+    }
 }
 
 /// Log a formatted message.

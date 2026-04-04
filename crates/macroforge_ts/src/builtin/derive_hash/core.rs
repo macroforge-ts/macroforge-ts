@@ -73,7 +73,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     let hash = 17;
                     {#if has_fields}
                         {#for hash_expr in hash_exprs}
-                            hash = (hash * 31 + @{hash_expr}) | 0;
+                            hash = (hash * 31 + (@{hash_expr})) | 0;
                         {/for}
                     {/if}
                     return hash;
@@ -168,7 +168,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     let hash = 17;
                     {#if has_fields}
                         {#for hash_expr in hash_exprs}
-                            hash = (hash * 31 + @{hash_expr}) | 0;
+                            hash = (hash * 31 + (@{hash_expr})) | 0;
                         {/for}
                     {/if}
                     return hash;
@@ -224,7 +224,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                         let hash = 17;
                         {#if has_fields}
                             {#for hash_expr in hash_exprs}
-                                hash = (hash * 31 + @{hash_expr}) | 0;
+                                hash = (hash * 31 + (@{hash_expr})) | 0;
                             {/for}
                         {/if}
                         return hash;

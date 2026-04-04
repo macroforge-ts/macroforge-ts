@@ -33,7 +33,7 @@
 //! - The `__macroforgeGetManifest()` NAPI export
 
 mod descriptors;
-mod manifest;
+pub mod manifest;
 mod registry;
 
 pub use descriptors::*;

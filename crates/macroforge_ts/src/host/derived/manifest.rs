@@ -1,29 +1,42 @@
-use super::descriptors::{DecoratorMetadata, DerivedMacroRegistration};
+use super::descriptors::DerivedMacroRegistration;
 use super::registry::decorator_metadata;
-use crate::ts_syn::abi::MacroKind;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "node")]
+use napi_derive::napi;
 
 /// Manifest entry describing a single macro.
-///
-/// Used in [`MacroManifest`] for tooling and documentation.
-#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MacroManifestEntry {
     /// The macro name (e.g., "Debug", "Clone").
-    pub name: &'static str,
-    /// The macro kind (Derive, Attribute, Function).
-    pub kind: MacroKind,
+    pub name: String,
+    /// The macro kind (derive, attribute, function).
+    pub kind: String,
     /// Human-readable description.
-    pub description: &'static str,
+    pub description: String,
     /// The package providing this macro.
-    pub package: &'static str,
+    pub package: String,
+}
+
+/// Entry for a registered decorator in the manifest.
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DecoratorManifestEntry {
+    /// The module this decorator belongs to (e.g., "serde").
+    pub module: String,
+    /// The exported name of the decorator (e.g., "skip", "rename").
+    pub export: String,
+    /// The decorator kind: "class", "property", "method", "accessor", "parameter".
+    pub kind: String,
+    /// Documentation string for the decorator.
+    pub docs: String,
 }
 
 /// Complete manifest of all available macros and decorators.
-///
-/// This struct is returned by [`get_manifest()`] and contains everything
-/// tooling needs to understand what macros are available.
-#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "node", napi(object))]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MacroManifest {
     /// Manifest format version (currently always 1).
@@ -31,41 +44,30 @@ pub struct MacroManifest {
     /// All registered macros.
     pub macros: Vec<MacroManifestEntry>,
     /// All registered decorators.
-    pub decorators: Vec<DecoratorMetadata>,
+    pub decorators: Vec<DecoratorManifestEntry>,
 }
 
 /// Returns the complete manifest of all registered macros and decorators.
-///
-/// The manifest includes all macros discovered via the `inventory` crate
-/// at link time, along with their field-level decorators. This is the
-/// primary introspection API for tooling.
-///
-/// # Example
-///
-/// ```rust,no_run
-/// use macroforge_ts::host::derived::get_manifest;
-///
-/// let manifest = get_manifest();
-/// println!("Macroforge v{} manifest:", manifest.version);
-/// for m in &manifest.macros {
-///     println!("  @derive({}) [{}] - {}", m.name, m.package, m.description);
-/// }
-/// for d in &manifest.decorators {
-///     println!("  @{}({}) - {}", d.module, d.export, d.docs);
-/// }
-/// ```
 pub fn get_manifest() -> MacroManifest {
     let macros: Vec<MacroManifestEntry> = inventory::iter::<DerivedMacroRegistration>
         .into_iter()
         .map(|entry| MacroManifestEntry {
-            name: entry.descriptor.name,
-            kind: entry.descriptor.kind,
-            description: entry.descriptor.description,
-            package: entry.descriptor.package,
+            name: entry.descriptor.name.to_string(),
+            kind: format!("{:?}", entry.descriptor.kind).to_lowercase(),
+            description: entry.descriptor.description.to_string(),
+            package: entry.descriptor.package.to_string(),
         })
         .collect();
 
-    let decorators = decorator_metadata();
+    let decorators: Vec<DecoratorManifestEntry> = decorator_metadata()
+        .into_iter()
+        .map(|d| DecoratorManifestEntry {
+            module: d.module.to_string(),
+            export: d.export.to_string(),
+            kind: format!("{:?}", d.kind).to_lowercase(),
+            docs: d.docs.to_string(),
+        })
+        .collect();
 
     MacroManifest {
         version: 1,

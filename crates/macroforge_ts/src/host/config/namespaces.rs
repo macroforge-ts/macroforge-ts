@@ -1,3 +1,4 @@
+#![cfg(feature = "swc")]
 use swc_core::{
     common::{FileName, SourceMap, sync::Lrc},
     ecma::{

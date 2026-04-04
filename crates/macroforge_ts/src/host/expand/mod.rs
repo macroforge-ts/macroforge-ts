@@ -89,6 +89,7 @@ mod registration;
 #[cfg(test)]
 mod tests;
 
+#[cfg(feature = "swc")]
 pub use imports::{ImportCollectionResult, collect_import_sources};
 
 use std::collections::HashMap;
@@ -97,26 +98,37 @@ use crate::ts_syn::abi::{
     ClassIR, Diagnostic, DiagnosticLevel, EnumIR, InterfaceIR, MacroContextIR, MacroResult, Patch,
     PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
 };
+#[cfg(feature = "swc")]
 use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+use crate::ts_syn::{
+    lower_classes_oxc, lower_enums_oxc, lower_interfaces_oxc, lower_type_aliases_oxc,
+};
+#[cfg(any(not(target_arch = "wasm32"), feature = "swc"))]
 use anyhow::Context;
+#[cfg(feature = "swc")]
 use swc_core::ecma::ast::{ClassMember, Module, Program};
 
 use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
 };
 
-use derive_targets::{
+pub(crate) use derive_targets::{
     DeriveTargetIR, SpanKey, collect_derive_targets, diagnostic_span_for_derive,
     find_macro_name_span, span_ir_with_at,
 };
 use external_loader::{ExternalMacroLoader, resolve_external_decorator_names};
+#[cfg(feature = "swc")]
+use helpers::{MemberWithComment, parse_members_from_tokens};
 use helpers::{
-    MemberWithComment, derive_insert_pos, extract_function_names_from_patches,
-    find_macro_comment_span, generate_convenience_export, get_derive_target_end_span,
-    get_derive_target_name, get_derive_target_start_span, has_existing_namespace_or_const,
-    is_declaration_exported, parse_members_from_tokens, split_by_markers,
+    derive_insert_pos, extract_function_names_from_patches, find_macro_comment_span,
+    generate_convenience_export, get_derive_target_end_span, get_derive_target_name,
+    get_derive_target_start_span, has_existing_namespace_or_const, is_declaration_exported,
+    split_by_markers,
 };
-use imports::{check_builtin_import_warnings, external_type_function_import_patches};
+#[cfg(feature = "swc")]
+use imports::check_builtin_import_warnings;
+use imports::external_type_function_import_patches;
 use registration::register_packages;
 
 /// Default module path for built-in derive macros
@@ -126,6 +138,7 @@ const DERIVE_MODULE_PATH: &str = "@macro/derive";
 const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
 
 /// Built-in macro names that don't need to be imported
+#[cfg(feature = "swc")]
 const BUILTIN_MACRO_NAMES: &[&str] = &[
     "Debug",
     "Clone",
@@ -185,6 +198,7 @@ pub struct MacroExpander {
 type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
 
 /// Lowered IR representations of TypeScript declarations
+#[derive(Clone)]
 pub(crate) struct LoweredItems {
     pub classes: Vec<ClassIR>,
     pub interfaces: Vec<InterfaceIR>,
@@ -194,7 +208,7 @@ pub(crate) struct LoweredItems {
 }
 
 impl LoweredItems {
-    fn is_empty(&self) -> bool {
+    pub(crate) fn is_empty(&self) -> bool {
         self.classes.is_empty()
             && self.interfaces.is_empty()
             && self.enums.is_empty()
@@ -285,10 +299,7 @@ impl MacroExpander {
             config,
             keep_decorators,
             external_decorator_modules: Vec::new(),
-            #[cfg(not(target_arch = "wasm32"))]
             external_loader: Some(ExternalMacroLoader::new(root_dir)),
-            #[cfg(target_arch = "wasm32")]
-            external_loader: None,
             type_registry: None,
         })
     }
@@ -347,6 +358,76 @@ impl MacroExpander {
     }
 
     /// Expand all macros in the source code (simple API for CLI usage)
+    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+    pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
+        use oxc_allocator::Allocator;
+        use oxc_parser::Parser;
+        use oxc_span::SourceType;
+
+        let allocator = Allocator::default();
+        let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
+        let parsed = Parser::new(&allocator, source, source_type).parse();
+
+        if !parsed.errors.is_empty() {
+            return Err(MacroError::InvalidConfig(format!(
+                "Parse error: {}",
+                parsed
+                    .errors
+                    .into_iter()
+                    .map(|diagnostic| diagnostic.to_string())
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            )));
+        }
+
+        let valid_annotations = self.valid_annotation_names(source);
+        let filter = Some(&valid_annotations);
+
+        let items = LoweredItems {
+            classes: lower_classes_oxc(&parsed.program, source, filter)
+                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+            interfaces: lower_interfaces_oxc(&parsed.program, source, filter)
+                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+            enums: lower_enums_oxc(&parsed.program, source, filter)
+                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+            type_aliases: lower_type_aliases_oxc(&parsed.program, source, filter)
+                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+            imports: crate::host::import_registry::ImportRegistry::from_oxc_program(
+                &parsed.program,
+                source,
+            ),
+        };
+
+        if items.is_empty() {
+            return Ok(MacroExpansion {
+                code: source.to_string(),
+                diagnostics: Vec::new(),
+                changed: false,
+                type_output: None,
+                classes: Vec::new(),
+                interfaces: Vec::new(),
+                enums: Vec::new(),
+                type_aliases: Vec::new(),
+                source_mapping: None,
+            });
+        }
+
+        let items_clone = LoweredItems {
+            classes: items.classes.clone(),
+            interfaces: items.interfaces.clone(),
+            enums: items.enums.clone(),
+            type_aliases: items.type_aliases.clone(),
+            imports: crate::host::import_registry::ImportRegistry::new(),
+        };
+
+        let (mut collector, mut diagnostics) =
+            self.collect_macro_patches_oxc(items, file_name, source);
+
+        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, items_clone)
+    }
+
+    /// Expand all macros in the source code (simple API for CLI usage)
+    #[cfg(feature = "swc")]
     pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
         use crate::ts_syn::parse_ts_module;
 
@@ -406,6 +487,7 @@ impl MacroExpander {
     }
 
     /// Expand all macros found in the parsed program and return the updated source code.
+    #[cfg(feature = "swc")]
     pub fn expand(
         &self,
         source: &str,
@@ -443,6 +525,7 @@ impl MacroExpander {
             .map_err(anyhow::Error::from)
     }
 
+    #[cfg(feature = "swc")]
     pub(crate) fn prepare_expansion_context(
         &self,
         program: &Program,
@@ -495,12 +578,35 @@ impl MacroExpander {
         Ok(Some((module, items)))
     }
 
+    #[cfg(feature = "swc")]
     pub(crate) fn collect_macro_patches(
         &self,
         module: &Module,
         items: LoweredItems,
         file_name: &str,
         source: &str,
+    ) -> (PatchCollector, Vec<Diagnostic>) {
+        let mut diagnostics = check_builtin_import_warnings(module, source);
+        self.collect_macro_patches_inner(items, file_name, source, &mut diagnostics)
+    }
+
+    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+    pub(crate) fn collect_macro_patches_oxc(
+        &self,
+        items: LoweredItems,
+        file_name: &str,
+        source: &str,
+    ) -> (PatchCollector, Vec<Diagnostic>) {
+        let mut diagnostics = Vec::new();
+        self.collect_macro_patches_inner(items, file_name, source, &mut diagnostics)
+    }
+
+    fn collect_macro_patches_inner(
+        &self,
+        items: LoweredItems,
+        file_name: &str,
+        source: &str,
+        diagnostics: &mut Vec<Diagnostic>,
     ) -> (PatchCollector, Vec<Diagnostic>) {
         let LoweredItems {
             classes,
@@ -519,23 +625,31 @@ impl MacroExpander {
         if !existing_config_imports.is_empty() {
             registry.config_imports = existing_config_imports;
         }
+        let entries = registry.source_import_entries();
+        let mut trace_logs: Vec<String> = Vec::new();
+
+        trace_logs.push(format!(
+            "install_registry: {} source_imports for {}",
+            entries.len(),
+            file_name
+        ));
+        for e in &entries {
+            trace_logs.push(format!(
+                "  import '{}' from '{}'",
+                e.local_name, e.source_module
+            ));
+        }
         crate::host::import_registry::install_registry(registry);
 
         // Get import sources from the registry (no redundant collect_import_sources call)
         let import_sources = crate::host::import_registry::with_registry(|r| r.source_modules());
 
-        if std::env::var("MF_DEBUG_EXPAND").is_ok() {
-            eprintln!(
-                "[DEBUG] import_sources for {file_name}: {:?}",
-                import_sources
-            );
-        }
+        trace_logs.push(format!(
+            "import_sources for {}: {:?}",
+            file_name, import_sources
+        ));
 
         let mut collector = PatchCollector::new();
-        let mut diagnostics = Vec::new();
-
-        // Check for imports of built-in macros and add warnings
-        diagnostics.extend(check_builtin_import_warnings(module, source));
 
         let class_map: HashMap<SpanKey, ClassIR> = classes
             .into_iter()
@@ -557,6 +671,14 @@ impl MacroExpander {
             .map(|ta| (SpanKey::from(ta.span), ta))
             .collect();
 
+        trace_logs.push(format!(
+            "lowered items: classes={}, interfaces={}, enums={}, type_aliases={}",
+            class_map.len(),
+            interface_map.len(),
+            enum_map.len(),
+            type_alias_map.len()
+        ));
+
         let derive_targets = collect_derive_targets(
             &class_map,
             &interface_map,
@@ -565,8 +687,18 @@ impl MacroExpander {
             source,
         );
 
+        trace_logs.push(format!("derive_targets: {}", derive_targets.len()));
+        for t in &derive_targets {
+            trace_logs.push(format!(
+                "  target: macros={:?}, decorator_span={:?}",
+                t.macro_names, t.decorator_span
+            ));
+        }
+
         if derive_targets.is_empty() {
-            return (collector, diagnostics);
+            trace_logs.push("no derive targets found, returning early".to_string());
+            flush_trace(&trace_logs, diagnostics);
+            return (collector, std::mem::take(diagnostics));
         }
 
         for target in derive_targets {
@@ -673,7 +805,10 @@ impl MacroExpander {
                     DeriveTargetIR::Class(class_ir) => {
                         let span = class_ir.span;
                         let src = source
-                            .get(span.start as usize..span.end as usize)
+                            .get(
+                                span.start.saturating_sub(1) as usize
+                                    ..span.end.saturating_sub(1) as usize,
+                            )
                             .unwrap_or("")
                             .to_string();
                         let class_ir_clone = class_ir.clone();
@@ -699,7 +834,10 @@ impl MacroExpander {
                     DeriveTargetIR::Interface(interface_ir) => {
                         let span = interface_ir.span;
                         let src = source
-                            .get(span.start as usize..span.end as usize)
+                            .get(
+                                span.start.saturating_sub(1) as usize
+                                    ..span.end.saturating_sub(1) as usize,
+                            )
                             .unwrap_or("")
                             .to_string();
                         let interface_ir_clone = interface_ir.clone();
@@ -725,7 +863,10 @@ impl MacroExpander {
                     DeriveTargetIR::Enum(enum_ir) => {
                         let span = enum_ir.span;
                         let src = source
-                            .get(span.start as usize..span.end as usize)
+                            .get(
+                                span.start.saturating_sub(1) as usize
+                                    ..span.end.saturating_sub(1) as usize,
+                            )
                             .unwrap_or("")
                             .to_string();
                         let enum_ir_clone = enum_ir.clone();
@@ -751,7 +892,10 @@ impl MacroExpander {
                     DeriveTargetIR::TypeAlias(type_alias_ir) => {
                         let span = type_alias_ir.span;
                         let src = source
-                            .get(span.start as usize..span.end as usize)
+                            .get(
+                                span.start.saturating_sub(1) as usize
+                                    ..span.end.saturating_sub(1) as usize,
+                            )
                             .unwrap_or("")
                             .to_string();
                         let type_alias_ir_clone = type_alias_ir.clone();
@@ -780,6 +924,10 @@ impl MacroExpander {
             let patches_start = collector.runtime_patches_count();
 
             for (macro_name, module_path) in target.macro_names {
+                trace_logs.push(format!(
+                    "dispatching macro '{}' from module '{}'",
+                    macro_name, module_path
+                ));
                 let mut ctx = ctx_factory(macro_name.clone(), module_path.clone());
 
                 // Calculate macro_name_span
@@ -800,7 +948,26 @@ impl MacroExpander {
                     ));
                 }
 
+                trace_logs.push(format!(
+                    "registered macros: {:?}",
+                    self.dispatcher
+                        .registry()
+                        .all_macros()
+                        .iter()
+                        .map(|(k, _)| format!("{}::{}", k.module, k.name))
+                        .collect::<Vec<_>>()
+                ));
                 let mut result = self.dispatcher.dispatch(ctx.clone());
+                trace_logs.push(format!(
+                    "dispatch result: runtime={}, type={}, tokens={:?}, diags={}",
+                    result.runtime_patches.len(),
+                    result.type_patches.len(),
+                    result.tokens.as_ref().map(|t| t.len()),
+                    result.diagnostics.len()
+                ));
+                for d in &result.diagnostics {
+                    trace_logs.push(format!("  diag: {:?} - {}", d.level, d.message));
+                }
 
                 if is_macro_not_found(&result)
                     && ctx.module_path != DERIVE_MODULE_PATH
@@ -852,6 +1019,8 @@ impl MacroExpander {
                     );
                 }
 
+                trace_logs.push(format!("external loader check: module_path='{}', DERIVE_MODULE_PATH='{}', is_not_found={}, no_output={}, has_loader={}", ctx.module_path, DERIVE_MODULE_PATH, is_macro_not_found(&result), no_output, self.external_loader.is_some()));
+
                 if ctx.module_path != DERIVE_MODULE_PATH
                     && (is_macro_not_found(&result) || no_output)
                     && let Some(loader) = &self.external_loader
@@ -885,7 +1054,7 @@ impl MacroExpander {
                                     ctx.macro_name,
                                     external_result.runtime_patches.len(),
                                     external_result.type_patches.len(),
-                                    external_result.tokens.as_ref().map(|t| t.len()),
+                                    external_result.tokens.as_ref().map(|t: &String| t.len()),
                                 );
                             }
                             result = external_result;
@@ -989,7 +1158,8 @@ impl MacroExpander {
                 }
             }
         }
-        (collector, diagnostics)
+        flush_trace(&trace_logs, diagnostics);
+        (collector, std::mem::take(diagnostics))
     }
 
     pub(crate) fn process_macro_output(
@@ -1050,6 +1220,7 @@ impl MacroExpander {
                             }
                             "body" => {
                                 let insert_pos = derive_insert_pos(class_ir, source);
+                                #[cfg(feature = "swc")]
                                 match parse_members_from_tokens(&code) {
                                     Ok(members_with_comments) => {
                                         for MemberWithComment {
@@ -1154,6 +1325,33 @@ impl MacroExpander {
                                             help: None,
                                         });
                                     }
+                                }
+                                #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+                                {
+                                    let payload = if code.starts_with('\n') {
+                                        code.clone()
+                                    } else {
+                                        format!("\n{}", code)
+                                    };
+
+                                    runtime_patches.push(Patch::InsertRaw {
+                                        at: SpanIR {
+                                            start: insert_pos,
+                                            end: insert_pos,
+                                        },
+                                        code: payload.clone(),
+                                        context: Some("class body".to_string()),
+                                        source_macro: macro_name.clone(),
+                                    });
+                                    type_patches.push(Patch::InsertRaw {
+                                        at: SpanIR {
+                                            start: insert_pos,
+                                            end: insert_pos,
+                                        },
+                                        code: payload,
+                                        context: Some("class body".to_string()),
+                                        source_macro: macro_name.clone(),
+                                    });
                                 }
                             }
                             _ => {}
@@ -1364,6 +1562,19 @@ impl MacroExpander {
 impl Default for MacroExpander {
     fn default() -> Self {
         Self::new().expect("Failed to create default MacroExpander")
+    }
+}
+
+fn flush_trace(logs: &[String], diagnostics: &mut Vec<Diagnostic>) {
+    for msg in logs {
+        crate::debug::log("expand", msg);
+        diagnostics.push(Diagnostic {
+            level: DiagnosticLevel::Info,
+            message: format!("[trace] {}", msg),
+            span: None,
+            notes: vec![],
+            help: None,
+        });
     }
 }
 

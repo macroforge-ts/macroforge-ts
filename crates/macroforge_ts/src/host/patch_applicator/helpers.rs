@@ -1,6 +1,7 @@
 use crate::host::error::Result;
 use crate::ts_syn::abi::{Patch, PatchCode};
 use std::collections::HashSet;
+#[cfg(feature = "swc")]
 use swc_core::{
     common::{SourceMap, sync::Lrc},
     ecma::codegen::{Config, Emitter, Node, text_writer::JsWriter},
@@ -130,12 +131,16 @@ pub(crate) fn dedupe_imports(patches: &mut Vec<Patch>) {
 pub(crate) fn render_patch_code(code: &PatchCode) -> Result<String> {
     match code {
         PatchCode::Text(s) => Ok(s.clone()),
+        #[cfg(feature = "swc")]
         PatchCode::ClassMember(member) => emit_node(member),
+        #[cfg(feature = "swc")]
         PatchCode::Stmt(stmt) => emit_node(stmt),
+        #[cfg(feature = "swc")]
         PatchCode::ModuleItem(item) => emit_node(item),
     }
 }
 
+#[cfg(feature = "swc")]
 pub(crate) fn emit_node<N: Node>(node: &N) -> Result<String> {
     let cm: Lrc<SourceMap> = Default::default();
     let mut buf = Vec::new();

@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
 use crate::ts_syn::abi::{ClassIR, EnumIR, InterfaceIR, SpanIR, TypeAliasIR};
+#[cfg(feature = "swc")]
 use swc_core::common::Span;
 
 use super::DERIVE_MODULE_PATH;
 
 #[derive(Hash, PartialEq, Eq)]
-pub(super) struct SpanKey(u32, u32);
+pub(crate) struct SpanKey(u32, u32);
 
 impl From<SpanIR> for SpanKey {
     fn from(span: SpanIR) -> Self {
@@ -14,6 +15,7 @@ impl From<SpanIR> for SpanKey {
     }
 }
 
+#[cfg(feature = "swc")]
 impl From<Span> for SpanKey {
     fn from(span: Span) -> Self {
         SpanKey(span.lo.0, span.hi.0)
@@ -22,7 +24,7 @@ impl From<Span> for SpanKey {
 
 /// The IR for a derive target - class, interface, enum, or type alias
 #[derive(Clone)]
-pub(super) enum DeriveTargetIR {
+pub(crate) enum DeriveTargetIR {
     Class(ClassIR),
     Interface(InterfaceIR),
     Enum(EnumIR),
@@ -30,13 +32,13 @@ pub(super) enum DeriveTargetIR {
 }
 
 #[derive(Clone)]
-pub(super) struct DeriveTarget {
+pub(crate) struct DeriveTarget {
     pub macro_names: Vec<(String, String)>,
     pub decorator_span: SpanIR,
     pub target_ir: DeriveTargetIR,
 }
 
-pub(super) fn collect_derive_targets(
+pub(crate) fn collect_derive_targets(
     class_map: &HashMap<SpanKey, ClassIR>,
     interface_map: &HashMap<SpanKey, InterfaceIR>,
     enum_map: &HashMap<SpanKey, EnumIR>,
@@ -239,7 +241,7 @@ fn collect_from_type_alias(
     }
 }
 
-pub(super) fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
+pub(crate) fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
     let mut ir = span;
     let start = ir.start as usize;
     if start > 0 && start <= source.len() {
@@ -251,7 +253,7 @@ pub(super) fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
     ir
 }
 
-pub(super) fn find_macro_name_span(
+pub(crate) fn find_macro_name_span(
     source: &str,
     decorator_span: SpanIR,
     macro_name: &str,
@@ -295,7 +297,7 @@ pub(super) fn find_macro_name_span(
     None
 }
 
-pub(super) fn diagnostic_span_for_derive(span: SpanIR, source: &str) -> SpanIR {
+pub(crate) fn diagnostic_span_for_derive(span: SpanIR, source: &str) -> SpanIR {
     let start = span.start.saturating_sub(1) as usize;
     let end = span.end.saturating_sub(1) as usize;
 

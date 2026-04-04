@@ -1,5 +1,6 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
+#[cfg(feature = "swc")]
 use swc_core::common::{GLOBALS, Globals};
 
 use crate::api_types::{ExpandOptions, ExpandResult, JsDiagnostic, ProcessFileOptions};
@@ -221,10 +222,7 @@ impl NativePlugin {
         let builder = std::thread::Builder::new().stack_size(32 * 1024 * 1024);
         let handle = builder
             .spawn(move || {
-                // Set up SWC globals for this thread.
-                // SWC uses thread-local storage for some operations.
-                let globals = Globals::default();
-                GLOBALS.set(&globals, || {
+                let work = move || {
                     // Catch panics to report them gracefully instead of crashing.
                     // Common cause: stack overflow from deeply nested AST.
                     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -232,7 +230,20 @@ impl NativePlugin {
                         // The expand_inner function uses pure Rust AST operations.
                         expand_inner(&code, &filepath_for_thread, opts_clone)
                     }))
-                })
+                };
+
+                #[cfg(feature = "swc")]
+                {
+                    // Set up SWC globals for this thread.
+                    // SWC uses thread-local storage for some operations.
+                    let globals = Globals::default();
+                    GLOBALS.set(&globals, work)
+                }
+
+                #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+                {
+                    work()
+                }
             })
             .map_err(|e| {
                 Error::new(

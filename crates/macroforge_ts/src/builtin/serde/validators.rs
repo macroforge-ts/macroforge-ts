@@ -264,23 +264,35 @@ pub fn extract_validators(
     }
 
     // Parse shorthand validators: @serde(email) or @serde(minLength(2), maxLength(50))
-    for item in split_decorator_args(args) {
+    // Strip outer braces if args are an object literal: { key: value, ... }
+    let args_inner = args.trim();
+    let args_inner = if args_inner.starts_with('{') && args_inner.ends_with('}') {
+        &args_inner[1..args_inner.len() - 1]
+    } else {
+        args_inner
+    };
+    for item in split_decorator_args(args_inner) {
         let item = item.trim();
         if item.is_empty() {
             continue;
         }
 
-        // Skip known options
-        let item_lower = item.to_ascii_lowercase();
-        let base_name = item_lower.split('(').next().unwrap_or(&item_lower);
+        // Skip known options (case-insensitive comparison)
+        let base_name = item.split('(').next().unwrap_or(item);
         let base_name = base_name.split(':').next().unwrap_or(base_name).trim();
 
-        if KNOWN_OPTIONS.contains(&base_name) {
+        if KNOWN_OPTIONS
+            .iter()
+            .any(|o| o.eq_ignore_ascii_case(base_name))
+        {
             continue;
         }
 
         // Check if this looks like a validator (either a known name or has function syntax)
-        let is_likely_validator = KNOWN_VALIDATORS.contains(&base_name) || item.contains('('); // Function-like syntax suggests validator
+        let is_likely_validator = KNOWN_VALIDATORS
+            .iter()
+            .any(|v| v.eq_ignore_ascii_case(base_name))
+            || item.contains('('); // Function-like syntax suggests validator
 
         if is_likely_validator {
             match parse_validator_string(item) {

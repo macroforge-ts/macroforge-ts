@@ -422,268 +422,29 @@ export declare function __macroforgeGetManifest(): MacroManifest
  */
 export declare function __macroforgeIsMacroPackage(): boolean
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunClone(contextJson: string): string
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunDebug(contextJson: string): string
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunDefault(contextJson: string): string
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunDeserialize(contextJson: string): string
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunHash(contextJson: string): string
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunOrd(contextJson: string): string
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunPartialEq(contextJson: string): string
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunPartialOrd(contextJson: string): string
 
-/**
- * r" Run this macro with the given context.
- * r"
- * r" This function is automatically generated and exposed to JavaScript via NAPI.
- * r" It deserializes the macro context from JSON, executes the macro transformation,
- * r" and serializes the result back to JSON for the TypeScript plugin.
- * r"
- * r" # Arguments
- * r"
- * r" * `context_json` - A JSON string containing the [`MacroContextIR`] with:
- * r"   - `target_source`: The TypeScript source code to transform
- * r"   - `file_name`: The source file path for error reporting
- * r"   - Additional context metadata
- * r"
- * r" # Returns
- * r"
- * r" Returns a JSON string containing the [`MacroResult`] with the transformed code
- * r" or any diagnostic errors.
- * r"
- * r" # Errors
- * r"
- * r" Returns a NAPI error if:
- * r" - The input JSON cannot be parsed
- * r" - The `TsStream` cannot be created from the context
- * r" - The result cannot be serialized to JSON
- */
 export declare function __macroforgeRunSerialize(contextJson: string): string
 
 export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult
 
 export declare function clearConfigCache(): void
 
-/**
- * Entry for a registered decorator in the manifest.
- *
- * Used by [`MacroManifest`] to describe field-level decorators
- * that can be used with macros.
- */
+/** Entry for a registered decorator in the manifest. */
 export interface DecoratorManifestEntry {
   /** The module this decorator belongs to (e.g., "serde"). */
   module: string
@@ -863,7 +624,7 @@ export declare function loadConfig(content: string, filepath: string): LoadConfi
  * Returned by [`load_config`] after parsing a `macroforge.config.js/ts` file.
  */
 export interface LoadConfigResult {
-  /** Whether to preserve `@derive` decorators in the output code. */
+  /** Whether to preserve @derive decorators in the output code. */
   keepDecorators: boolean
   /** Whether to generate a convenience const for non-class types. */
   generateConvenienceConst: boolean
@@ -919,37 +680,25 @@ export interface MacroDiagnostic {
   end?: number
 }
 
-/**
- * Complete manifest of all available macros and decorators.
- *
- * This is returned by [`get_macro_manifest`] and is useful for:
- * - IDE autocompletion
- * - Documentation generation
- * - Tooling integration
- */
+/** Complete manifest of all available macros and decorators. */
 export interface MacroManifest {
-  /** ABI version for compatibility checking. */
+  /** Manifest format version (currently always 1). */
   version: number
-  /** All registered macros (derive, attribute, function). */
+  /** All registered macros. */
   macros: Array<MacroManifestEntry>
-  /** All registered field/class decorators. */
+  /** All registered decorators. */
   decorators: Array<DecoratorManifestEntry>
 }
 
-/**
- * Entry for a registered macro in the manifest.
- *
- * Used by [`MacroManifest`] to describe available macros to tooling
- * such as IDE extensions and documentation generators.
- */
+/** Manifest entry describing a single macro. */
 export interface MacroManifestEntry {
-  /** The macro name (e.g., "Debug", "Clone", "Serialize"). */
+  /** The macro name (e.g., "Debug", "Clone"). */
   name: string
-  /** The macro kind: "derive", "attribute", or "function". */
+  /** The macro kind (derive, attribute, function). */
   kind: string
-  /** Human-readable description of what the macro does. */
+  /** Human-readable description. */
   description: string
-  /** The package that provides this macro (e.g., "macroforge-ts"). */
+  /** The package providing this macro. */
   package: string
 }
 

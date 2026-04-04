@@ -6,41 +6,40 @@
     "dependencies": {
         "@napi-rs/cli": "^3.5.1"
     },
-    "description": "TypeScript macro expansion engine powered by Rust and SWC",
+    "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
     "engines": {
         "node": ">= 24"
     },
     "exports": {
         ".": {
-            "default": "./index.js",
-            "require": "./index.js",
-            "types": "./index.d.ts"
+            "types": "./pkg/macroforge_ts.d.ts",
+            "require": "./pkg/macroforge_ts.js",
+            "default": "./pkg/macroforge_ts.js"
         },
         "./reexports": {
-            "default": "./js/reexports/index.mjs",
+            "types": "./js/reexports/index.d.ts",
             "import": "./js/reexports/index.mjs",
-            "types": "./js/reexports/index.d.ts"
+            "default": "./js/reexports/index.mjs"
         },
         "./reexports/effect": {
-            "default": "./js/reexports/effect.mjs",
+            "types": "./js/reexports/effect.d.ts",
             "import": "./js/reexports/effect.mjs",
-            "types": "./js/reexports/effect.d.ts"
+            "default": "./js/reexports/effect.mjs"
         },
         "./serde": {
-            "default": "./js/serde/index.mjs",
+            "types": "./js/serde/index.d.ts",
             "import": "./js/serde/index.mjs",
-            "types": "./js/serde/index.d.ts"
+            "default": "./js/serde/index.mjs"
         },
         "./traits": {
-            "default": "./js/traits/index.mjs",
+            "types": "./js/traits/index.d.ts",
             "import": "./js/traits/index.mjs",
-            "types": "./js/traits/index.d.ts"
+            "default": "./js/traits/index.mjs"
         }
     },
     "files": [
-        "index.d.ts",
-        "index.js",
-        "js"
+        "js",
+        "pkg"
     ],
     "homepage": "https://github.com/macroforge-ts/core#readme",
     "keywords": [
@@ -48,12 +47,12 @@
         "macros",
         "derive",
         "codegen",
-        "swc",
+        "oxc",
         "wasm",
         "webassembly"
     ],
     "license": "MIT",
-    "main": "index.js",
+    "main": "./pkg/macroforge_ts.js",
     "name": "macroforge",
     "napi": {
         "binaryName": "macroforge",
@@ -72,6 +71,7 @@
         "@macroforge/bin-darwin-x64": "0.1.78",
         "@macroforge/bin-linux-arm64-gnu": "0.1.78",
         "@macroforge/bin-linux-x64-gnu": "0.1.78",
+        "@macroforge/bin-wasm32-wasi": "0.1.78",
         "@macroforge/bin-win32-arm64-msvc": "0.1.78",
         "@macroforge/bin-win32-x64-msvc": "0.1.78"
     },
@@ -81,16 +81,17 @@
     },
     "scripts": {
         "artifacts": "napi artifacts --npm-dir npm",
-        "build": "deno task build:node",
+        "build": "deno task build:wasm",
+        "build:all": "deno task build:wasm && deno task build:native",
         "build:js": "deno task build:serde && deno task build:traits",
-        "build:node": "deno install --node-modules-dir && deno task build:js && deno run -A npm:@napi-rs/cli/napi build --platform --release && cargo install --path . --force",
+        "build:native": "deno install --node-modules-dir && deno task build:js && deno run -A npm:@napi-rs/cli/napi build --platform --release --output-dir pkg && cargo install --path . --force",
         "build:serde": "deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm && deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
         "build:traits": "deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm && deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
-        "build:wasm": "wasm-pack build --target nodejs --out-dir pkg-wasm",
-        "clean": "rm -f macroforge.*.node || true; rm -f pkg/*.node || true; rm -rf node_modules",
+        "build:wasm": "deno install --node-modules-dir && deno task build:js && cargo build --release --target wasm32-unknown-unknown && deno run -A ../../tooling/scripts/bench.mjs --wasm-bindgen target/wasm32-unknown-unknown/release/macroforge_ts.wasm pkg",
+        "clean": "rm -rf pkg node_modules",
         "cleanbuild": "deno task clean && deno task build"
     },
     "type": "commonjs",
-    "types": "index.d.ts",
+    "types": "./pkg/macroforge_ts.d.ts",
     "version": "0.1.78"
 }

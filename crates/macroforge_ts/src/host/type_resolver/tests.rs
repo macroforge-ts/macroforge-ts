@@ -21,9 +21,11 @@ fn make_test_registry() -> TypeRegistry {
             type_params: vec![],
             heritage: vec![],
             decorators: vec![],
+            #[cfg(feature = "swc")]
             decorators_ast: vec![],
             fields: vec![],
             methods: vec![],
+            #[cfg(feature = "swc")]
             members: vec![],
         }),
         file_imports: vec![],

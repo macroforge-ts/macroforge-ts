@@ -1,3 +1,5 @@
+#![cfg(feature = "swc")]
+
 use super::applicator::PatchApplicator;
 use super::collector::PatchCollector;
 use super::helpers::{dedupe_imports, dedupe_patches, parse_import_patch};

@@ -68,13 +68,16 @@
 //! name are ignored, falling back to generic handling.
 
 mod loader;
+#[cfg(feature = "swc")]
 mod namespaces;
+#[cfg(feature = "swc")]
 mod parser;
 
 #[cfg(test)]
 mod tests;
 
 pub use loader::MacroforgeConfigLoader;
+#[cfg(feature = "swc")]
 pub use namespaces::extract_expression_namespaces;
 
 use dashmap::DashMap;

@@ -64,9 +64,11 @@ fn test_dispatch() {
             type_params: vec![],
             heritage: vec![],
             decorators: vec![],
+            #[cfg(feature = "swc")]
             decorators_ast: vec![],
             fields: vec![],
             methods: vec![],
+            #[cfg(feature = "swc")]
             members: vec![],
         }),
         target_source: "class Test {}".to_string(),

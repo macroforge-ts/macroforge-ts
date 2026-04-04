@@ -1,3 +1,4 @@
+#![cfg(feature = "swc")]
 use super::super::error::Result;
 use super::namespaces::extract_expression_namespaces;
 use macroforge_ts_syn::config::{

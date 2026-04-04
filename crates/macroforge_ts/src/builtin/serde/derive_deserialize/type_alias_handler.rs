@@ -830,6 +830,10 @@ fn handle_union_type_alias(
         .cloned()
         .collect();
 
+    // Literal types are now properly separated into `literals` via TypeMemberKind::Literal
+    // in the Oxc/SWC lowering, so this vec is unused but kept for template compatibility.
+    let literal_types: Vec<String> = Vec::new();
+
     // Generic type parameters (like T, U) - these are passed through as-is
     let generic_type_params: Vec<String> = type_refs
         .iter()
@@ -860,8 +864,17 @@ fn handle_union_type_alias(
                 .config
                 .and_then(|ft| ft.has_shape_expr.clone())
                 .map(|expr| rewrite_expression_namespaces(&expr));
+            // Strip surrounding quotes from string literal types (e.g., "\"Foo\"" -> "Foo")
+            // to prevent double-quoting in template string comparisons.
+            let clean_type = if (t.starts_with('"') && t.ends_with('"'))
+                || (t.starts_with('\'') && t.ends_with('\''))
+            {
+                t[1..t.len() - 1].to_string()
+            } else {
+                t.clone()
+            };
             SerializableTypeRef {
-                full_type: t.clone(),
+                full_type: clean_type,
                 is_foreign: ft_match.config.is_some(),
                 foreign_deserialize_inline,
                 foreign_has_shape_inline,
@@ -1109,6 +1122,11 @@ fn handle_union_type_alias(
                                     return value as @{full_type_ident};
                                 }
                             {/for}
+                            {#for lit in &literal_types}
+                                if (value === @{lit}) {
+                                    return value as @{full_type_ident};
+                                }
+                            {/for}
 
                             throw new @{deserialize_error_expr}([{
                                 field: "_root",
@@ -1338,6 +1356,11 @@ fn handle_union_type_alias(
                             {#if has_primitives}
                                 {#for prim in &primitive_types}
                                     if (typeof value === "@{prim}") {
+                                        return value as @{full_type_ident};
+                                    }
+                                {/for}
+                                {#for lit in &literal_types}
+                                    if (value === @{lit}) {
                                         return value as @{full_type_ident};
                                     }
                                 {/for}
@@ -1581,6 +1604,9 @@ fn handle_union_type_alias(
                             {#if has_primitives}
                                 {#for prim in &primitive_types}
                                     if (typeof value === "@{prim}") return true;
+                                {/for}
+                                {#for lit in &literal_types}
+                                    if (value === @{lit}) return true;
                                 {/for}
                             {/if}
                             {#if has_dates}

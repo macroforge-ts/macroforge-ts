@@ -245,15 +245,25 @@ impl<'a> PatchApplicator<'a> {
         position: usize,
         code: &PatchCode,
     ) -> String {
+        #[cfg(not(feature = "swc"))]
+        {
+            let _ = (position, code);
+            return rendered.to_string();
+        }
+
+        #[cfg(feature = "swc")]
         if !matches!(code, PatchCode::ClassMember(_)) {
             return rendered.to_string();
         }
 
+        #[cfg(feature = "swc")]
         let indent = self.detect_indentation(position);
+        #[cfg(feature = "swc")]
         format!("\n{}{}\n", indent, rendered.trim())
     }
 
     /// Detect indentation level at a given position by looking backwards
+    #[cfg(feature = "swc")]
     pub(crate) fn detect_indentation(&self, position: usize) -> String {
         let bytes = self.source.as_bytes();
         let mut search_pos = position.saturating_sub(1);

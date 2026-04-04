@@ -11,6 +11,7 @@ fn make_decorator(name: &str, args: &str) -> crate::ts_syn::abi::DecoratorIR {
         name: name.into(),
         args_src: args.into(),
         span: span(),
+        #[cfg(feature = "swc")]
         node: None,
     }
 }
@@ -241,9 +242,11 @@ fn make_registry_with_derives() -> TypeRegistry {
                 "derive",
                 "Clone, Hash, PartialEq, Debug, Default",
             )],
+            #[cfg(feature = "swc")]
             decorators_ast: vec![],
             fields: vec![],
             methods: vec![],
+            #[cfg(feature = "swc")]
             members: vec![],
         }),
         file_imports: vec![],
@@ -282,9 +285,11 @@ fn make_registry_with_derives() -> TypeRegistry {
             type_params: vec![],
             heritage: vec![],
             decorators: vec![],
+            #[cfg(feature = "swc")]
             decorators_ast: vec![],
             fields: vec![],
             methods: vec![],
+            #[cfg(feature = "swc")]
             members: vec![],
         }),
         file_imports: vec![],

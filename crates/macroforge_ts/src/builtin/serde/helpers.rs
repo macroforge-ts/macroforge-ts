@@ -39,14 +39,21 @@ pub fn extract_named_string(args: &str, name: &str) -> Option<String> {
 
             if remainder.starts_with(':') || remainder.starts_with('=') {
                 let value = remainder[1..].trim_start();
-                return parse_string_literal(value);
+                // Try string literal first, then expression value
+                if let Some(s) = parse_string_literal(value) {
+                    return Some(s);
+                }
+                return extract_expression_value(value);
             }
 
             if remainder.starts_with('(')
                 && let Some(close) = remainder.rfind(')')
             {
                 let inner = remainder[1..close].trim();
-                return parse_string_literal(inner);
+                if let Some(s) = parse_string_literal(inner) {
+                    return Some(s);
+                }
+                return extract_expression_value(inner);
             }
         }
 
@@ -55,6 +62,61 @@ pub fn extract_named_string(args: &str, name: &str) -> Option<String> {
     }
 
     None
+}
+
+/// Extract an expression value up to the next `,` or `}` at the same nesting level.
+/// Handles arrow functions, function calls, and other expressions.
+fn extract_expression_value(input: &str) -> Option<String> {
+    let trimmed = input.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    let mut paren_depth: i32 = 0;
+    let mut brace_depth: i32 = 0;
+    let mut bracket_depth: i32 = 0;
+    let mut end = trimmed.len();
+
+    for (i, c) in trimmed.char_indices() {
+        match c {
+            '(' => paren_depth += 1,
+            ')' => {
+                paren_depth -= 1;
+                if paren_depth < 0 {
+                    end = i;
+                    break;
+                }
+            }
+            '{' => brace_depth += 1,
+            '}' => {
+                brace_depth -= 1;
+                if brace_depth < 0 {
+                    end = i;
+                    break;
+                }
+            }
+            '[' => bracket_depth += 1,
+            ']' => {
+                bracket_depth -= 1;
+                if bracket_depth < 0 {
+                    end = i;
+                    break;
+                }
+            }
+            ',' if paren_depth == 0 && brace_depth == 0 && bracket_depth == 0 => {
+                end = i;
+                break;
+            }
+            _ => {}
+        }
+    }
+
+    let result = trimmed[..end].trim();
+    if result.is_empty() {
+        None
+    } else {
+        Some(result.to_string())
+    }
 }
 
 pub(crate) fn parse_string_literal(input: &str) -> Option<String> {

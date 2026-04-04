@@ -86,6 +86,7 @@ pub struct MacroDiagnostic {
 /// - Segments are non-overlapping and sorted by position
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MappingSegmentResult {
     /// Byte offset where this segment starts in the original source.
     pub original_start: u32,
@@ -109,6 +110,7 @@ pub struct MappingSegmentResult {
 /// with `source_macro = "Debug"`.
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GeneratedRegionResult {
     /// Byte offset where the generated region starts in the expanded source.
     pub start: u32,
@@ -131,6 +133,7 @@ pub struct GeneratedRegionResult {
 /// - Mapping IDE diagnostics from expanded code back to original source
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SourceMappingResult {
     /// Segments mapping preserved regions between original and expanded source.
     /// Sorted by position for efficient binary search lookups.
@@ -166,6 +169,7 @@ pub struct SourceMappingResult {
 /// ```
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ExpandResult {
     /// The expanded TypeScript code with all macros processed.
     pub code: String,
@@ -266,6 +270,7 @@ pub struct JsDiagnostic {
 /// Used by [`expand_sync`] to configure expansion behavior.
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ExpandOptions {
     /// If `true`, preserves `@derive` decorators in the output.
     /// If `false` (default), decorators are stripped after expansion.
@@ -327,6 +332,7 @@ pub struct ExpandOptions {
 /// and caching.
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProcessFileOptions {
     /// If `true`, preserves `@derive` decorators in the output.
     /// If `false` (default), decorators are stripped after expansion.
@@ -348,6 +354,7 @@ pub struct ProcessFileOptions {
 /// Options for scanning a TypeScript project for type information.
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ScanOptions {
     /// File extensions to scan (default: `[".ts", ".tsx"]`).
     pub extensions: Option<Vec<String>>,
@@ -358,6 +365,7 @@ pub struct ScanOptions {
 /// Result of scanning a project for type information.
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ScanResult {
     /// JSON-serialized [`TypeRegistry`].
     /// Pass this to `expand_sync` via `ExpandOptions.type_registry_json`.
@@ -375,8 +383,9 @@ pub struct ScanResult {
 /// Returned by [`load_config`] after parsing a `macroforge.config.js/ts` file.
 #[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LoadConfigResult {
-    /// Whether to preserve `@derive` decorators in the output code.
+    /// Whether to preserve @derive decorators in the output code.
     pub keep_decorators: bool,
     /// Whether to generate a convenience const for non-class types.
     pub generate_convenience_const: bool,
