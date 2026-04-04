@@ -29,6 +29,125 @@
 import { hasMacroAnnotations } from "@macroforge/shared";
 import type { Preprocessor, PreprocessorGroup } from "svelte/compiler";
 
+// ============================================================================
+// Source Map Generation
+// ============================================================================
+
+const VLQ_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+function vlqEncode(value: number): string {
+  let vlq = value < 0 ? (-value << 1) | 1 : value << 1;
+  let encoded = "";
+  do {
+    let digit = vlq & 0x1f;
+    vlq >>>= 5;
+    if (vlq > 0) digit |= 0x20;
+    encoded += VLQ_CHARS[digit];
+  } while (vlq > 0);
+  return encoded;
+}
+
+interface SourceMapping {
+  segments: Array<{
+    originalStart: number;
+    originalEnd: number;
+    expandedStart: number;
+    expandedEnd: number;
+  }>;
+}
+
+/** Build line offsets table: lineOffsets[i] = byte offset of the start of line i */
+function buildLineOffsets(text: string): number[] {
+  const offsets = [0];
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === "\n") offsets.push(i + 1);
+  }
+  return offsets;
+}
+
+/** Convert byte offset to { line, column } (0-based) */
+function offsetToLineCol(
+  offset: number,
+  lineOffsets: number[],
+): { line: number; column: number } {
+  let lo = 0,
+    hi = lineOffsets.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (lineOffsets[mid] <= offset) lo = mid;
+    else hi = mid - 1;
+  }
+  return { line: lo, column: offset - lineOffsets[lo] };
+}
+
+/**
+ * Build a v3 source map from macroforge's segment-based mapping.
+ * Each segment maps a byte range in the expanded code to a byte range in the original.
+ */
+function buildSourceMap(
+  original: string,
+  expanded: string,
+  mapping: SourceMapping,
+  filename: string,
+): object {
+  const origOffsets = buildLineOffsets(original);
+  const expOffsets = buildLineOffsets(expanded);
+
+  // Group segments by expanded line
+  const lineSegments = new Map<
+    number,
+    Array<{ expCol: number; origLine: number; origCol: number }>
+  >();
+
+  for (const seg of mapping.segments) {
+    const exp = offsetToLineCol(seg.expandedStart, expOffsets);
+    const orig = offsetToLineCol(seg.originalStart, origOffsets);
+    if (!lineSegments.has(exp.line)) lineSegments.set(exp.line, []);
+    lineSegments.get(exp.line)!.push({
+      expCol: exp.column,
+      origLine: orig.line,
+      origCol: orig.column,
+    });
+  }
+
+  // Encode VLQ mappings
+  const totalLines = expOffsets.length;
+  const mappingsArr: string[] = [];
+  let prevOrigLine = 0,
+    prevOrigCol = 0;
+
+  for (let line = 0; line < totalLines; line++) {
+    const segs = lineSegments.get(line);
+    if (!segs || segs.length === 0) {
+      mappingsArr.push("");
+      continue;
+    }
+    segs.sort((a, b) => a.expCol - b.expCol);
+    const parts: string[] = [];
+    let lineExpCol = 0;
+    for (const seg of segs) {
+      parts.push(
+        vlqEncode(seg.expCol - lineExpCol) +
+          vlqEncode(0) + // source index (always 0)
+          vlqEncode(seg.origLine - prevOrigLine) +
+          vlqEncode(seg.origCol - prevOrigCol),
+      );
+      lineExpCol = seg.expCol;
+      prevOrigLine = seg.origLine;
+      prevOrigCol = seg.origCol;
+    }
+    mappingsArr.push(parts.join(","));
+  }
+
+  return {
+    version: 3,
+    sources: [filename],
+    sourcesContent: [original],
+    names: [],
+    mappings: mappingsArr.join(";"),
+  };
+}
+
 /**
  * Options passed to the native macro expansion engine.
  *
@@ -395,11 +514,12 @@ export function macroforgePreprocess(
        * - map: Source map for debugging (optional, not yet implemented)
        */
       if (result.code && result.code !== content) {
-        return {
-          code: result.code,
-          // TODO: Add source map support when expandSync provides mappings
-          // map: result.source_mapping
-        };
+        const mapping = (result as any).sourceMapping as SourceMapping | undefined;
+        const map =
+          mapping?.segments?.length && filename
+            ? buildSourceMap(content, result.code, mapping, filename)
+            : undefined;
+        return { code: result.code, map };
       }
     } catch (error) {
       /*
