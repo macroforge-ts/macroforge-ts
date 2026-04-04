@@ -8,15 +8,25 @@
  * @module @macroforge/typescript-plugin/source-map
  */
 
-import type { SourceMappingResult } from 'macroforge';
-
 /**
- * Re-export of the core source mapping result type.
+ * Source mapping result from macro expansion.
  *
  * Contains the complete mapping data between original and expanded code,
  * including segment information and generated region metadata.
  */
-export type SourceMapping = SourceMappingResult;
+export interface SourceMapping {
+    segments: Array<{
+        originalStart: number;
+        originalEnd: number;
+        expandedStart: number;
+        expandedEnd: number;
+    }>;
+    generatedRegions: Array<{
+        start: number;
+        end: number;
+        sourceMacro: string;
+    }>;
+}
 
 /**
  * Interface for mapping positions between original and expanded code.

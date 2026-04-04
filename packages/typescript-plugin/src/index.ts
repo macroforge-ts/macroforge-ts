@@ -49,8 +49,30 @@
  */
 
 import type ts from 'typescript/lib/tsserverlibrary';
-import type { DecoratorManifestEntry, ExpandResult, MacroManifestEntry } from 'macroforge';
 import { __macroforgeGetManifest, loadConfig as nativeLoadConfig, NativePlugin } from 'macroforge';
+
+interface MacroManifestEntry {
+    name: string;
+    description?: string;
+}
+
+interface DecoratorManifestEntry {
+    export: string;
+    description?: string;
+    args?: string;
+    docs?: string;
+}
+
+interface ExpandResult {
+    code: string;
+    types?: string;
+    metadata?: string;
+    diagnostics: Array<{ level: string; message: string; start?: number; end?: number }>;
+    sourceMapping?: {
+        segments: Array<{ originalStart: number; originalEnd: number; expandedStart: number; expandedEnd: number }>;
+        generatedRegions: Array<{ start: number; end: number; sourceMacro: string }>;
+    };
+}
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import {
@@ -109,9 +131,9 @@ function getMacroManifest() {
     try {
         const manifest = __macroforgeGetManifest();
         macroManifestCache = {
-            macros: new Map(manifest.macros.map((m) => [m.name.toLowerCase(), m])),
+            macros: new Map(manifest.macros.map((m: { name: string }) => [m.name.toLowerCase(), m])),
             decorators: new Map(
-                manifest.decorators.map((d) => [d.export.toLowerCase(), d])
+                manifest.decorators.map((d: { export: string }) => [d.export.toLowerCase(), d])
             )
         };
         return macroManifestCache;
@@ -870,18 +892,13 @@ function init(modules: { typescript: typeof ts }) {
         // Create a config loader using the native loadConfig function
         const configLoader = (content: string, filepath: string) => {
             try {
-                const result = nativeLoadConfig(content, filepath);
-                return {
-                    ...result,
-                    returnTypes: 'vanilla' as const // TODO: Extract from config if available
-                };
+                return nativeLoadConfig(content, filepath);
             } catch {
                 return {
                     keepDecorators: false,
                     generateConvenienceConst: false,
                     hasForeignTypes: false,
                     foreignTypeCount: 0,
-                    returnTypes: 'vanilla' as const
                 };
             }
         };
@@ -1089,7 +1106,9 @@ function init(modules: { typescript: typeof ts }) {
                 const result = nativePlugin.processFile(fileName, content, {
                     keepDecorators,
                     version,
-                    configPath: macroConfig.configPath
+                    configPath: macroConfig.configPath,
+                    externalDecoratorModules: 'externalDecoratorModules' in macroConfig ? macroConfig.externalDecoratorModules : undefined,
+                    typeRegistryJson: 'typeRegistryJson' in macroConfig ? macroConfig.typeRegistryJson : undefined
                 });
 
                 // Update virtual .d.ts files
@@ -1118,7 +1137,14 @@ function init(modules: { typescript: typeof ts }) {
                         code: content,
                         types: undefined,
                         metadata: undefined,
-                        diagnostics: [],
+                        diagnostics: [
+                            {
+                                level: 'error',
+                                message: `Macro expansion failed: ${errorMessage}`,
+                                start: 0,
+                                end: 0
+                            }
+                        ],
                         sourceMapping: undefined
                     },
                     code: content
@@ -1537,7 +1563,7 @@ function init(modules: { typescript: typeof ts }) {
                     ): { start: number; length: number } => {
                         // Find the generated region containing this position
                         const region = result.sourceMapping!.generatedRegions.find(
-                            (r) => expandedPos >= r.start && expandedPos < r.end
+                            (r: { start: number; end: number }) => expandedPos >= r.start && expandedPos < r.end
                         );
 
                         if (!region) {
@@ -1610,15 +1636,16 @@ function init(modules: { typescript: typeof ts }) {
                         // If mapper didn't return a name, try to get it from the generated region
                         if (!macroName) {
                             const region = result.sourceMapping!.generatedRegions.find(
-                                (r) => diagStart >= r.start && diagStart < r.end
+                                (r: { start: number; end: number }) => diagStart >= r.start && diagStart < r.end
                             );
                             macroName = region?.sourceMacro ?? 'macro';
                         }
 
                         // Extract just the macro name if it contains a path (e.g., "derive::Debug" -> "Debug")
-                        const simpleMacroName = macroName.includes('::')
-                            ? (macroName.split('::').pop() ?? macroName)
-                            : macroName;
+                        const safeName = macroName || 'macro';
+                        const simpleMacroName = safeName.includes('::')
+                            ? (safeName.split('::').pop() ?? safeName)
+                            : safeName;
 
                         log(
                             `  -> diagnostic at ${diagStart}, macroName="${macroName}", simpleMacroName="${simpleMacroName}"`
@@ -1692,7 +1719,7 @@ function init(modules: { typescript: typeof ts }) {
                 }
 
                 const macroDiagnostics: ts.Diagnostic[] = result.diagnostics.map(
-                    (d) => {
+                    (d: { level: string; message: string; start?: number; end?: number }) => {
                         const category = d.level === 'error'
                             ? tsModule.DiagnosticCategory.Error
                             : d.level === 'warning'
@@ -2851,7 +2878,7 @@ function init(modules: { typescript: typeof ts }) {
                     // Map each hint's position back to original coordinates
                     return result.flatMap((hint) => {
                         const originalPos = mapper.expandedToOriginal(hint.position);
-                        if (originalPos === null) {
+                        if (originalPos == null) {
                             // Hint is in generated code, skip it
                             return [];
                         }
