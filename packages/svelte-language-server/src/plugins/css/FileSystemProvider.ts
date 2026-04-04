@@ -1,5 +1,5 @@
-import { readdir, stat, Stats } from 'fs';
-import { promisify } from 'util';
+import { stat, readdir } from 'fs/promises';
+import type { Stats } from 'fs';
 import {
     FileStat,
     FileSystemProvider as CSSFileSystemProvider,
@@ -14,9 +14,6 @@ interface StatLike {
 }
 
 export class FileSystemProvider implements CSSFileSystemProvider {
-    // TODO use fs/promises after we bumps the target nodejs versions
-    private promisifyStat = promisify(stat);
-    private promisifyReaddir = promisify(readdir);
 
     constructor() {
         this.readDirectory = this.readDirectory.bind(this);
@@ -32,7 +29,7 @@ export class FileSystemProvider implements CSSFileSystemProvider {
 
         let stat: Stats;
         try {
-            stat = await this.promisifyStat(path);
+            stat = await stat(path);
         } catch (error) {
             if (
                 error != null &&
@@ -85,7 +82,7 @@ export class FileSystemProvider implements CSSFileSystemProvider {
             return [];
         }
 
-        const files = await this.promisifyReaddir(path, {
+        const files = await readdir(path, {
             withFileTypes: true
         });
 

@@ -478,13 +478,10 @@ export function isInsideMoustacheTag(
         // Not inside <tag ... >
         const charactersBeforePosition = html.substring(0, position);
         return (
-            Math.max(
-                // TODO make this just check for '{'?
-                // Theoretically, someone could do {a < b} in a simple moustache tag
-                charactersBeforePosition.lastIndexOf('{#'),
-                charactersBeforePosition.lastIndexOf('{:'),
-                charactersBeforePosition.lastIndexOf('{@')
-            ) > charactersBeforePosition.lastIndexOf('}')
+            // A plain `{` expression block can also contain `<` (e.g. `{a < b}`)
+            // so check for any opening brace, not just block-level `{#`, `{:`, `{@`.
+            charactersBeforePosition.lastIndexOf('{') >
+                charactersBeforePosition.lastIndexOf('}')
         );
     } else {
         // Inside <tag ... >

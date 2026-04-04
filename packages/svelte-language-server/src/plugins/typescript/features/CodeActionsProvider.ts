@@ -61,9 +61,6 @@ import {
 } from './utils';
 import { Node } from 'vscode-html-languageservice';
 
-/**
- * TODO change this to protocol constant if it's part of the protocol
- */
 export const SORT_IMPORT_CODE_ACTION_KIND = 'source.sortImports';
 export const ADD_MISSING_IMPORTS_CODE_ACTION_KIND = 'source.addMissingImports';
 export const REMOVE_UNUSED_IMPORTS_CODE_ACTION_KIND = 'source.removeUnusedImports';

@@ -252,7 +252,6 @@ export class FindReferencesProviderImpl implements FindReferencesProvider {
             return null;
         }
 
-        // TODO we should deduplicate if we support finding references from multiple language service
         const location = convertToLocationForReferenceOrDefinition(
             snapshot,
             ref.textSpan

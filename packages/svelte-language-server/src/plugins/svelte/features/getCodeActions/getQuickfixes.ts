@@ -234,10 +234,9 @@ function getSvelteIgnoreEdit(
     const afterStartLineStart = content.slice(nodeLineStart);
     const indent = getIndent(afterStartLineStart);
 
-    // TODO: Make all code action's new line consistent
     let ignore = `${indent}// svelte-ignore ${code}${EOL}${indent}`;
     if (isHtml) {
-        ignore = `${indent}<!-- svelte-ignore ${code} -->${EOL}`;
+        ignore = `${indent}<!-- svelte-ignore ${code} -->${EOL}${indent}`;
     }
     const position = Position.create(nodeStartPosition.line, 0);
 

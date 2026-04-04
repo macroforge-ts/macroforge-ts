@@ -1071,7 +1071,6 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionRe
 
             // VSCode + tsserver won't have this pop-in effect
             // because tsserver has internal APIs for caching
-            // TODO: consider if we should adopt the internal APIs
             if (detail.sourceDisplay && !completionItem.labelDetails) {
                 completionItem.labelDetails = {
                     description: ts.displayPartsToString(detail.sourceDisplay)

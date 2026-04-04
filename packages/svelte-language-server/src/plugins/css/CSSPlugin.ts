@@ -421,7 +421,6 @@ export class CSSPlugin
                 if (!symbol.containerName) {
                     return {
                         ...symbol,
-                        // TODO: this could contain other things, e.g. style.myclass
                         containerName: 'style'
                     };
                 }
