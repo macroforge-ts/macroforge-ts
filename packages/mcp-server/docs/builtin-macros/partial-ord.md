@@ -1,17 +1,17 @@
 # PartialOrd
 
-The `PartialOrd` macro generates a `compareTo()` method for **partial ordering**
-comparison. This is analogous to Rust's `PartialOrd` trait, enabling comparison
-between values where some pairs may be incomparable.
+The `PartialOrd` macro generates a `compareTo()` method for **partial ordering** comparison. This is
+analogous to Rust's `PartialOrd` trait, enabling comparison between values where some pairs may be
+incomparable.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `classNamePartialCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
-| Enum | `enumNamePartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
-| Interface | `ifaceNamePartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
-| Type Alias | `typeNamePartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
+| Type       | Generated Code                                             | Description                                    |
+| ---------- | ---------------------------------------------------------- | ---------------------------------------------- |
+| Class      | `classNamePartialCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method    |
+| Enum       | `enumNamePartialCompare(a, b): number \| null`             | Standalone function returning `number \| null` |
+| Interface  | `ifaceNamePartialCompare(a, b): number \| null`            | Standalone function returning `number \| null` |
+| Type Alias | `typeNamePartialCompare(a, b): number \| null`             | Standalone function returning `number \| null` |
 
 Names use **camelCase** conversion (e.g., `Temperature` → `temperaturePartialCompare`).
 
@@ -45,15 +45,15 @@ Fields are compared **lexicographically** in declaration order:
 
 ## Type-Specific Comparisons
 
-| Type | Comparison Method |
-|------|-------------------|
-| `number`/`bigint` | Direct subtraction (`a - b`) |
-| `string` | `localeCompare()` |
-| `boolean` | `false < true` (cast to number) |
-| null/undefined | Returns `null` for mismatched nullability |
-| Arrays | Lexicographic, propagates `null` on incomparable elements |
-| `Date` | Timestamp comparison, `null` if invalid |
-| Objects | Delegates to `compareTo()` if available |
+| Type              | Comparison Method                                         |
+| ----------------- | --------------------------------------------------------- |
+| `number`/`bigint` | Direct subtraction (`a - b`)                              |
+| `string`          | `localeCompare()`                                         |
+| `boolean`         | `false < true` (cast to number)                           |
+| null/undefined    | Returns `null` for mismatched nullability                 |
+| Arrays            | Lexicographic, propagates `null` on incomparable elements |
+| `Date`            | Timestamp comparison, `null` if invalid                   |
+| Objects           | Delegates to `compareTo()` if available                   |
 
 ## Field-Level Options
 

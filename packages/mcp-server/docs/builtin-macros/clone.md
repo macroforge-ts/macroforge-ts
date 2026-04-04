@@ -1,20 +1,18 @@
 # Clone
 
-The `Clone` macro generates a `clone()` method for deep copying objects.
-This is analogous to Rust's `Clone` trait, providing a way to create
-independent copies of values.
+The `Clone` macro generates a `clone()` method for deep copying objects. This is analogous to Rust's
+`Clone` trait, providing a way to create independent copies of values.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `classNameClone(value)` + `static clone(value)` | Standalone function + static wrapper method |
-| Enum | `enumNameClone(value): EnumName` | Standalone function (enums are primitives, returns value as-is) |
-| Interface | `ifaceNameClone(value): InterfaceName` | Standalone function creating a new object literal |
-| Type Alias | `typeNameClone(value): TypeName` | Standalone function with spread copy for objects |
+| Type       | Generated Code                                  | Description                                                     |
+| ---------- | ----------------------------------------------- | --------------------------------------------------------------- |
+| Class      | `classNameClone(value)` + `static clone(value)` | Standalone function + static wrapper method                     |
+| Enum       | `enumNameClone(value): EnumName`                | Standalone function (enums are primitives, returns value as-is) |
+| Interface  | `ifaceNameClone(value): InterfaceName`          | Standalone function creating a new object literal               |
+| Type Alias | `typeNameClone(value): TypeName`                | Standalone function with spread copy for objects                |
 
 Names use **camelCase** conversion (e.g., `Point` -> `pointClone`).
-
 
 ## Cloning Strategy
 
@@ -58,8 +56,8 @@ export function pointClone(value: Point): Point {
 
 ## Implementation Notes
 
-- **Classes**: Uses `Object.create(Object.getPrototypeOf(value))` to preserve
-  the prototype chain, ensuring `instanceof` checks work correctly
+- **Classes**: Uses `Object.create(Object.getPrototypeOf(value))` to preserve the prototype chain,
+  ensuring `instanceof` checks work correctly
 - **Enums**: Simply returns the value (enums are primitives in TypeScript)
-- **Interfaces/Type Aliases**: Creates new object literals with spread operator
-  for union/tuple types, or field-by-field copy for object types
+- **Interfaces/Type Aliases**: Creates new object literals with spread operator for union/tuple
+  types, or field-by-field copy for object types
