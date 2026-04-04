@@ -102,6 +102,44 @@ const ts = cwdRequire('typescript');
 const macros = cwdRequire('macroforge');
 const path = require('path');
 
+// Register external macro callbacks for WASM builds
+if (macros.setupExternalMacros) {
+  const req = createRequire(process.cwd() + '/package.json');
+  function resolveDecoratorNames(packagePath) {
+    const candidates = [packagePath];
+    for (const id of candidates) {
+      try {
+        const pkg = req(id);
+        const names = [];
+        if (pkg.__macroforgeGetManifest) {
+          names.push(...(pkg.__macroforgeGetManifest().decorators || []).map(d => d.export));
+        }
+        for (const key of Object.keys(pkg)) {
+          if (key.startsWith('__macroforgeGetManifest_') && typeof pkg[key] === 'function') {
+            names.push(...(pkg[key]().decorators || []).map(d => d.export));
+          }
+        }
+        if (names.length > 0) return [...new Set(names)];
+      } catch {}
+    }
+    return [];
+  }
+  function runMacro(ctxJson) {
+    const ctx = JSON.parse(ctxJson);
+    const fnName = `__macroforgeRun${ctx.macro_name}`;
+    const candidates = [ctx.module_path];
+    for (const id of candidates) {
+      try {
+        const pkg = req(id);
+        const fn_ = pkg?.[fnName] || pkg?.default?.[fnName];
+        if (typeof fn_ === 'function') return fn_(ctxJson);
+      } catch {}
+    }
+    throw new Error(`Macro ${fnName} not found in ${ctx.module_path}`);
+  }
+  macros.setupExternalMacros(resolveDecoratorNames, runMacro);
+}
+
 const projectArg = process.argv[2] || 'tsconfig.json';
 const configPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists, projectArg);
 if (!configPath) {
@@ -177,6 +215,11 @@ const formatHost = {
   getNewLine: () => ts.sys.newLine,
 };
 
+const plugin = new macros.NativePlugin();
+const tscExpandOpts = {};
+if (macroConfigPath) tscExpandOpts.configPath = macroConfigPath;
+if (typeRegistryJson) tscExpandOpts.typeRegistryJson = typeRegistryJson;
+
 const host = ts.createCompilerHost(options);
 const origGetSourceFile = host.getSourceFile.bind(host);
 host.getSourceFile = (fileName, languageVersion, ...rest) => {
@@ -187,11 +230,8 @@ host.getSourceFile = (fileName, languageVersion, ...rest) => {
     ) {
       const sourceText = ts.sys.readFile(fileName);
       if (sourceText && sourceText.includes('@derive')) {
-        const expandOpts = {};
-        if (macroConfigPath) expandOpts.configPath = macroConfigPath;
-        if (typeRegistryJson) expandOpts.typeRegistryJson = typeRegistryJson;
-        const expanded = macros.expandSync(sourceText, fileName, expandOpts);
-        const text = expanded.code || sourceText;
+        const result = plugin.processFile(fileName, sourceText, tscExpandOpts);
+        const text = result.code || sourceText;
         return ts.createSourceFile(fileName, text, languageVersion, true);
       }
     }
@@ -290,6 +330,44 @@ try {
   process.exit(1);
 }
 
+// Register external macro callbacks for WASM builds
+if (macros.setupExternalMacros) {
+  const req = createRequire(process.cwd() + '/package.json');
+  function resolveDecoratorNames(packagePath) {
+    const candidates = [packagePath];
+    for (const id of candidates) {
+      try {
+        const pkg = req(id);
+        const names = [];
+        if (pkg.__macroforgeGetManifest) {
+          names.push(...(pkg.__macroforgeGetManifest().decorators || []).map(d => d.export));
+        }
+        for (const key of Object.keys(pkg)) {
+          if (key.startsWith('__macroforgeGetManifest_') && typeof pkg[key] === 'function') {
+            names.push(...(pkg[key]().decorators || []).map(d => d.export));
+          }
+        }
+        if (names.length > 0) return [...new Set(names)];
+      } catch {}
+    }
+    return [];
+  }
+  function runMacro(ctxJson) {
+    const ctx = JSON.parse(ctxJson);
+    const fnName = `__macroforgeRun${ctx.macro_name}`;
+    const candidates = [ctx.module_path];
+    for (const id of candidates) {
+      try {
+        const pkg = req(id);
+        const fn_ = pkg?.[fnName] || pkg?.default?.[fnName];
+        if (typeof fn_ === 'function') return fn_(ctxJson);
+      } catch {}
+    }
+    throw new Error(`Macro ${fnName} not found in ${ctx.module_path}`);
+  }
+  macros.setupExternalMacros(resolveDecoratorNames, runMacro);
+}
+
 // --- 2. Find and load macroforge config ---
 const CONFIG_FILES = [
   'macroforge.config.ts',
@@ -334,6 +412,11 @@ if (typeRegistryPath) {
 }
 
 // --- 3. Patch ts.sys.readFile to expand macros ---
+const plugin = new macros.NativePlugin();
+const expandOpts = {};
+if (macroConfigPath) expandOpts.configPath = macroConfigPath;
+if (typeRegistryJson) expandOpts.typeRegistryJson = typeRegistryJson;
+
 const origReadFile = ts.sys.readFile.bind(ts.sys);
 ts.sys.readFile = (filePath, encoding) => {
   const content = origReadFile(filePath, encoding);
@@ -344,11 +427,8 @@ ts.sys.readFile = (filePath, encoding) => {
       !filePath.endsWith('.d.ts') &&
       content.includes('@derive')
     ) {
-      const expandOpts = {};
-      if (macroConfigPath) expandOpts.configPath = macroConfigPath;
-      if (typeRegistryJson) expandOpts.typeRegistryJson = typeRegistryJson;
-      const expanded = macros.expandSync(content, filePath, expandOpts);
-      return expanded.code || content;
+      const result = plugin.processFile(filePath, content, expandOpts);
+      return result.code || content;
     }
   } catch (e) {
     // Expansion failed, fall through to original content

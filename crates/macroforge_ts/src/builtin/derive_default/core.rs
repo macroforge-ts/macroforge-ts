@@ -238,7 +238,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                 let mut props = String::new();
                 for (name_ident, value_expr) in &object_fields {
-                    let name = name_ident.sym.as_ref();
+                    let name: &str = name_ident.sym.as_ref();
                     let value = emit_expr(value_expr);
                     props.push_str(&format!("{name}: {value},\n"));
                 }
@@ -361,7 +361,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                     let mut props = String::new();
                     for (name_ident, value_expr) in &object_fields {
-                        let name = name_ident.sym.as_ref();
+                        let name: &str = name_ident.sym.as_ref();
                         let value = emit_expr(value_expr);
                         props.push_str(&format!("{name}: {value},\n"));
                     }

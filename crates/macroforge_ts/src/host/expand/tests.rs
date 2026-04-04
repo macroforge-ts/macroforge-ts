@@ -1,3 +1,5 @@
+#![cfg(feature = "swc")]
+
 #[cfg(test)]
 mod external_macro_loader_tests {
     use super::super::external_loader::ExternalMacroLoader;
@@ -132,6 +134,7 @@ export function __macroforgeRunDebug(ctxJson) {
 }
 
 #[cfg(test)]
+#[cfg(feature = "swc")]
 mod builtin_import_warning_tests {
     use super::super::imports::check_builtin_import_warnings;
     use crate::ts_syn::abi::DiagnosticLevel;

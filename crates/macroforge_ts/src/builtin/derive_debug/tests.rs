@@ -11,6 +11,7 @@ fn test_skip_flag() {
         name: "Debug".into(),
         args_src: "skip".into(),
         span: span(),
+        #[cfg(feature = "swc")]
         node: None,
     };
 
@@ -24,6 +25,7 @@ fn test_skip_false_keeps_field() {
         name: "Debug".into(),
         args_src: r#"{ skip: false }"#.into(),
         span: span(),
+        #[cfg(feature = "swc")]
         node: None,
     };
 
@@ -37,6 +39,7 @@ fn test_rename_option() {
         name: "Debug".into(),
         args_src: r#"{ rename: "identifier" }"#.into(),
         span: span(),
+        #[cfg(feature = "swc")]
         node: None,
     };
 

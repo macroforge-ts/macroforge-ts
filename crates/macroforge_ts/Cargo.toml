@@ -26,9 +26,10 @@ napi-derive = { version = "3.3.3", optional = true }
 # WASM Bindings
 wasm-bindgen = { version = "0.2.100", optional = true }
 serde-wasm-bindgen = { version = "0.6", optional = true }
+js-sys = { version = "0.3", optional = true }
 
 # SWC Core for TypeScript parsing and transformation
-swc_core = { version = "59.0.1", features = [
+swc_core = { version = "59.0.1", optional = true, features = [
     "ecma_ast",
     "ecma_parser",
     "ecma_codegen",
@@ -37,10 +38,17 @@ swc_core = { version = "59.0.1", features = [
     "common"
 ] }
 
+# Oxc for TypeScript parsing and transformation
+oxc_allocator = { version = "0.53", optional = true }
+oxc_ast = { version = "0.53", optional = true }
+oxc_parser = { version = "0.53", optional = true }
+oxc_span = { version = "0.53", optional = true }
+oxc_codegen = { version = "0.53", optional = true }
+
 # Macroforge crates (local development)
-macroforge_ts_syn = {path = "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts_syn"}
-macroforge_ts_quote = {path = "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts_quote"}
-macroforge_ts_macros = {path = "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts_macros"}
+macroforge_ts_syn = {path = "../macroforge_ts_syn"}
+macroforge_ts_quote = {path = "../macroforge_ts_quote"}
+macroforge_ts_macros = {path = "../macroforge_ts_macros"}
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -75,9 +83,19 @@ rayon = "1.10"
 libc = { version = "0.2", optional = true }
 
 [features]
-default = ["node"]
+default = ["wasm", "oxc"]
+swc = ["dep:swc_core", "macroforge_ts_syn/swc", "macroforge_ts_quote/swc"]
 node = ["dep:napi", "dep:napi-derive", "dep:napi-build"]
-wasm = ["dep:wasm-bindgen", "dep:serde-wasm-bindgen"]
+wasm = ["dep:wasm-bindgen", "dep:serde-wasm-bindgen", "dep:js-sys"]
+oxc = [
+    "dep:oxc_allocator", 
+    "dep:oxc_ast", 
+    "dep:oxc_parser", 
+    "dep:oxc_span", 
+    "dep:oxc_codegen", 
+    "macroforge_ts_syn/oxc",
+    "macroforge_ts_quote/oxc"
+]
 # Enable build script utilities (napi_auto_build)
 build = ["libc"]
 

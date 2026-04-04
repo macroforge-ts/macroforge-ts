@@ -1,3 +1,5 @@
+#![cfg(feature = "swc")]
+
 use std::path::{Path, PathBuf};
 
 use crate::cache::{CacheEntry, CacheManifest, content_hash, normalized_content_hash, warm_cache};

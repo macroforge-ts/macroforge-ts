@@ -1,3 +1,4 @@
+#![cfg(feature = "swc")]
 use std::collections::HashSet;
 
 use crate::ts_syn::abi::ir::type_registry::FileImportEntry;

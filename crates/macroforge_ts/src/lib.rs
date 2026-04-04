@@ -2,8 +2,8 @@
 //!
 //! This crate provides a TypeScript macro expansion engine that brings Rust-like derive macros
 //! to TypeScript. It supports multiple output targets via feature flags:
-//! - `node`: (Default) Native Node.js bindings via NAPI-RS for maximum performance.
-//! - `wasm`: Universal WebAssembly module via wasm-bindgen for browser and edge environments.
+//! - `wasm`: (Default) Universal WebAssembly module via wasm-bindgen for browser and edge environments.
+//! - `node`: Optional native Node.js bindings via NAPI-RS.
 //!
 //! ## Overview
 //!
@@ -27,7 +27,7 @@
 //!
 //! ## Usage
 //!
-//! ### From Node.js (Default)
+//! ### From Node.js
 //!
 //! ```javascript
 //! const { expandSync } = require('macroforge');
@@ -47,7 +47,7 @@
 //! This crate re-exports several dependencies for convenience when writing custom macros:
 //! - `ts_syn`: TypeScript syntax types for AST manipulation
 //! - `macros`: Macro attributes and quote templates
-//! - `swc_core`, `swc_common`, `swc_ecma_ast`: SWC compiler infrastructure
+//! - `swc_core`, `swc_common`, `swc_ecma_ast`: SWC compatibility infrastructure
 
 // Allow the crate to reference itself as `macroforge_ts`.
 // This self-reference is required for the macroforge_ts_macros generated code
@@ -70,6 +70,10 @@ pub extern crate napi;
 #[cfg(feature = "node")]
 pub extern crate napi_derive;
 pub extern crate serde_json;
+#[cfg(feature = "wasm")]
+pub extern crate serde_wasm_bindgen;
+#[cfg(feature = "wasm")]
+pub extern crate wasm_bindgen;
 
 /// Debug logging for external macros.
 /// Writes to `.macroforge/debug.log` relative to the project root.
@@ -91,6 +95,69 @@ pub mod macros {
 }
 
 // ============================================================================
+// Feature Dispatch Macros
+// ============================================================================
+// These macros allow generated code in dependent crates to react to the features
+// enabled in macroforge_ts without needing to define those same features themselves.
+
+#[cfg(feature = "node")]
+#[macro_export]
+macro_rules! if_node { ($($tokens:tt)*) => { $($tokens)* } }
+#[cfg(not(feature = "node"))]
+#[macro_export]
+macro_rules! if_node {
+    ($($tokens:tt)*) => {};
+}
+
+#[cfg(feature = "node")]
+#[macro_export]
+macro_rules! if_node_else {
+    ($item:expr, $else:expr) => {
+        $item
+    };
+}
+#[cfg(not(feature = "node"))]
+#[macro_export]
+macro_rules! if_node_else {
+    ($item:expr, $else:expr) => {
+        $else
+    };
+}
+
+#[cfg(feature = "wasm")]
+#[macro_export]
+macro_rules! if_wasm { ($($tokens:tt)*) => { $($tokens)* } }
+#[cfg(not(feature = "wasm"))]
+#[macro_export]
+macro_rules! if_wasm {
+    ($($tokens:tt)*) => {};
+}
+
+#[cfg(feature = "wasm")]
+#[macro_export]
+macro_rules! if_wasm_else {
+    ($item:expr, $else:expr) => {
+        $item
+    };
+}
+#[cfg(not(feature = "wasm"))]
+#[macro_export]
+macro_rules! if_wasm_else {
+    ($item:expr, $else:expr) => {
+        $else
+    };
+}
+
+#[cfg(feature = "swc")]
+#[macro_export]
+macro_rules! if_swc { ($($tokens:tt)*) => { $($tokens)* } }
+#[cfg(not(feature = "swc"))]
+#[macro_export]
+macro_rules! if_swc {
+    ($($tokens:tt)*) => {};
+}
+
+// ============================================================================
 // Wrapper macros for proper $crate resolution
 // ============================================================================
 // These wrapper macros ensure that $crate resolves to macroforge_ts (this crate)
@@ -109,6 +176,7 @@ pub mod macros {
 /// let simple = ident!("foo");
 /// let formatted = ident!("{}Bar", "foo");
 /// ```
+#[cfg(feature = "swc")]
 #[macro_export]
 macro_rules! ident {
     ($name:expr) => {
@@ -125,10 +193,22 @@ macro_rules! ident {
     };
 }
 
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+#[macro_export]
+macro_rules! ident {
+    ($name:expr) => {
+        $crate::swc_ecma_ast::Ident::new(AsRef::<str>::as_ref(&$name))
+    };
+    ($fmt:expr, $($args:expr),+ $(,)?) => {
+        $crate::swc_ecma_ast::Ident::new(format!($fmt, $($args),+))
+    };
+}
+
 /// Creates a private (marked) SWC [`Ident`](swc_core::ecma::ast::Ident).
 ///
 /// Unlike [`ident!`], this macro creates an identifier with a fresh hygiene mark,
 /// making it unique and preventing name collisions with user code.
+#[cfg(feature = "swc")]
 #[macro_export]
 macro_rules! private_ident {
     ($name:expr) => {{
@@ -141,8 +221,18 @@ macro_rules! private_ident {
     }};
 }
 
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+#[macro_export]
+macro_rules! private_ident {
+    ($name:expr) => {
+        $crate::swc_ecma_ast::Ident::new($name)
+    };
+}
+
 // Re-export swc_core and common modules (via ts_syn for version consistency)
+#[cfg(feature = "swc")]
 pub use macroforge_ts_syn::swc_common;
+#[cfg(feature = "swc")]
 pub use macroforge_ts_syn::swc_core;
 pub use macroforge_ts_syn::swc_ecma_ast;
 
@@ -213,8 +303,8 @@ pub use manifest::{
 };
 
 // Re-export internal items used by tests
-#[cfg(test)]
+#[cfg(all(test, feature = "swc"))]
 pub(crate) use expand_core::{expand_inner, has_macro_annotations};
 
-#[cfg(test)]
+#[cfg(all(test, feature = "swc"))]
 mod test;

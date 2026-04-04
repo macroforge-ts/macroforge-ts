@@ -1,3 +1,5 @@
+#![cfg(feature = "swc")]
+
 // Integration tests for ts_template! macro and derive macros
 // Migrated from tooling/playground/tests/rust-tests
 

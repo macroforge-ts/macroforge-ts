@@ -1,12 +1,17 @@
 use std::collections::HashMap;
 
-use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, SpanIR};
+#[cfg(feature = "swc")]
+use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel};
+use crate::ts_syn::abi::{Patch, SpanIR};
+#[cfg(feature = "swc")]
 use swc_core::ecma::ast::Module;
 
+#[cfg(feature = "swc")]
 use super::BUILTIN_MACRO_NAMES;
 use super::helpers::contains_identifier;
 
 /// Result of collecting import information from a module.
+#[cfg(feature = "swc")]
 pub struct ImportCollectionResult {
     /// Maps local identifier names to their module sources.
     pub sources: HashMap<String, String>,
@@ -20,6 +25,7 @@ pub struct ImportCollectionResult {
 /// Returns both:
 /// - A map of identifier name -> module source
 /// - A map of local alias name -> original imported name
+#[cfg(feature = "swc")]
 pub fn collect_import_sources(module: &Module, source: &str) -> ImportCollectionResult {
     use swc_core::ecma::ast::{
         ImportDecl, ImportSpecifier, ModuleDecl, ModuleExportName, ModuleItem,
@@ -76,6 +82,7 @@ pub fn collect_import_sources(module: &Module, source: &str) -> ImportCollection
     }
 }
 
+#[cfg(feature = "swc")]
 pub(super) fn collect_macro_import_comments(source: &str) -> HashMap<String, String> {
     let mut out = HashMap::new();
     let mut search_start = 0usize;
@@ -114,6 +121,7 @@ pub(super) fn collect_macro_import_comments(source: &str) -> HashMap<String, Str
     out
 }
 
+#[cfg(feature = "swc")]
 fn normalize_macro_import_body(body: &str) -> String {
     let mut normalized = String::new();
     for line in body.lines() {
@@ -132,6 +140,7 @@ fn normalize_macro_import_body(body: &str) -> String {
     normalized
 }
 
+#[cfg(feature = "swc")]
 fn extract_quoted_string(input: &str) -> Option<String> {
     for (idx, ch) in input.char_indices() {
         if ch == '"' || ch == '\'' {
@@ -232,6 +241,7 @@ pub(super) fn external_type_function_import_patches(
 
 /// Check for imports of built-in macros and return warnings
 /// Built-in macros like Debug, Clone, Serialize don't need to be imported
+#[cfg(feature = "swc")]
 pub(super) fn check_builtin_import_warnings(module: &Module, _source: &str) -> Vec<Diagnostic> {
     use swc_core::ecma::ast::{ImportDecl, ImportSpecifier, ModuleDecl, ModuleItem};
 

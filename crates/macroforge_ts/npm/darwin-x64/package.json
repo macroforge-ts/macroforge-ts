@@ -6,7 +6,7 @@
   "cpu": [
     "x64"
   ],
-  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "description": "TypeScript macro expansion engine powered by Rust and Oxc",
   "engines": {
     "node": ">= 24"
   },
@@ -19,7 +19,7 @@
     "macros",
     "derive",
     "codegen",
-    "swc"
+    "oxc"
   ],
   "license": "MIT",
   "main": "macroforge.darwin-x64.node",

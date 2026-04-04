@@ -26,6 +26,7 @@ mod core;
 #[cfg(test)]
 mod tests;
 
+#[cfg(feature = "swc")]
 pub use collectors::{collect_exported_names, collect_file_imports};
 pub use config::ScanConfig;
 pub use core::{ProjectScanner, ScanOutput};

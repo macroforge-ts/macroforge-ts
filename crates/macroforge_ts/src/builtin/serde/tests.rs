@@ -10,6 +10,7 @@ fn make_decorator(args: &str) -> crate::ts_syn::abi::DecoratorIR {
         name: "serde".into(),
         args_src: args.into(),
         span: span(),
+        #[cfg(feature = "swc")]
         node: None,
     }
 }

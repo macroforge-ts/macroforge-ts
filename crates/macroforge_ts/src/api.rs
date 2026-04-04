@@ -1,13 +1,11 @@
-use swc_core::{
-    common::{GLOBALS, Globals},
-    ecma::ast::Program,
-};
+#[cfg(feature = "swc")]
+use swc_core::common::{GLOBALS, Globals};
 
 use crate::api_types::{
     ExpandOptions, ExpandResult, ImportSourceResult, LoadConfigResult, MacroDiagnostic,
     ScanOptions, ScanResult, SyntaxCheckResult, TransformResult,
 };
-use crate::expand_core::{expand_inner, parse_program, transform_inner};
+use crate::expand_core::{expand_inner, transform_inner};
 
 pub trait MacroforgeApi {
     type Error;
@@ -35,15 +33,48 @@ pub struct CoreEngine;
 
 impl CoreEngine {
     pub fn check_syntax(code: &str, filepath: &str) -> Result<SyntaxCheckResult, String> {
-        match parse_program(code, filepath) {
-            Ok(_) => Ok(SyntaxCheckResult {
-                ok: true,
-                error: None,
-            }),
-            Err(err) => Ok(SyntaxCheckResult {
-                ok: false,
-                error: Some(err.to_string()),
-            }),
+        #[cfg(feature = "swc")]
+        {
+            match crate::expand_core::parse_program(code, filepath) {
+                Ok(_) => Ok(SyntaxCheckResult {
+                    ok: true,
+                    error: None,
+                }),
+                Err(err) => Ok(SyntaxCheckResult {
+                    ok: false,
+                    error: Some(err.to_string()),
+                }),
+            }
+        }
+
+        #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+        {
+            use oxc_allocator::Allocator;
+            use oxc_parser::Parser;
+            use oxc_span::SourceType;
+
+            let allocator = Allocator::default();
+            let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
+            let parsed = Parser::new(&allocator, code, source_type).parse();
+
+            if parsed.errors.is_empty() {
+                Ok(SyntaxCheckResult {
+                    ok: true,
+                    error: None,
+                })
+            } else {
+                Ok(SyntaxCheckResult {
+                    ok: false,
+                    error: Some(
+                        parsed
+                            .errors
+                            .into_iter()
+                            .map(|diagnostic| diagnostic.to_string())
+                            .collect::<Vec<_>>()
+                            .join("; "),
+                    ),
+                })
+            }
         }
     }
 
@@ -51,35 +82,79 @@ impl CoreEngine {
         code: &str,
         filepath: &str,
     ) -> Result<Vec<ImportSourceResult>, String> {
-        let (program, _cm) = parse_program(code, filepath).map_err(|e| e.to_string())?;
-        let module = match program {
-            Program::Module(module) => module,
-            Program::Script(_) => return Ok(vec![]),
-        };
+        #[cfg(feature = "swc")]
+        {
+            use swc_core::ecma::ast::Program;
 
-        let import_result = crate::host::collect_import_sources(&module, code);
-        let mut imports = Vec::with_capacity(import_result.sources.len());
-        for (local, module) in import_result.sources {
-            imports.push(ImportSourceResult { local, module });
+            let (program, _cm) =
+                crate::expand_core::parse_program(code, filepath).map_err(|e| e.to_string())?;
+            let module = match program {
+                Program::Module(module) => module,
+                Program::Script(_) => return Ok(vec![]),
+            };
+
+            let import_result = crate::host::collect_import_sources(&module, code);
+            let mut imports = Vec::with_capacity(import_result.sources.len());
+            for (local, module) in import_result.sources {
+                imports.push(ImportSourceResult { local, module });
+            }
+            Ok(imports)
         }
-        Ok(imports)
+
+        #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+        {
+            use oxc_allocator::Allocator;
+            use oxc_parser::Parser;
+            use oxc_span::SourceType;
+
+            let allocator = Allocator::default();
+            let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
+            let parsed = Parser::new(&allocator, code, source_type).parse();
+            if !parsed.errors.is_empty() {
+                return Err(parsed
+                    .errors
+                    .into_iter()
+                    .map(|diagnostic| diagnostic.to_string())
+                    .collect::<Vec<_>>()
+                    .join("; "));
+            }
+
+            let registry = crate::ts_syn::ImportRegistry::from_oxc_program(&parsed.program, code);
+            Ok(registry
+                .source_modules()
+                .into_iter()
+                .map(|(local, module)| ImportSourceResult { local, module })
+                .collect())
+        }
     }
 
     pub fn load_config(content: &str, filepath: &str) -> Result<LoadConfigResult, String> {
         use crate::host::MacroforgeConfigLoader;
+        eprintln!("[macroforge:api] load_config called for {}", filepath);
 
-        let config = MacroforgeConfigLoader::load_and_cache(content, filepath)
-            .map_err(|e| format!("Failed to parse config: {}", e))?;
+        let config = MacroforgeConfigLoader::load_and_cache(content, filepath).map_err(|e| {
+            eprintln!("[macroforge:api] load_config failed: {}", e);
+            format!("Failed to parse config: {}", e)
+        })?;
+
+        let has_foreign_types = !config.foreign_types.is_empty();
+        let foreign_type_count = config.foreign_types.len() as u32;
+
+        eprintln!(
+            "[macroforge:api] load_config success: keep_decorators={}, foreign_types={}",
+            config.keep_decorators, foreign_type_count
+        );
 
         Ok(LoadConfigResult {
             keep_decorators: config.keep_decorators,
             generate_convenience_const: config.generate_convenience_const,
-            has_foreign_types: !config.foreign_types.is_empty(),
-            foreign_type_count: config.foreign_types.len() as u32,
+            has_foreign_types,
+            foreign_type_count,
         })
     }
 
     pub fn clear_config_cache() {
+        eprintln!("[macroforge:api] clear_config_cache called");
         crate::host::clear_config_cache();
     }
 
@@ -90,12 +165,22 @@ impl CoreEngine {
             let handle = builder
                 .spawn(
                     move || -> std::thread::Result<anyhow::Result<TransformResult>> {
-                        let globals = Globals::default();
-                        GLOBALS.set(&globals, || {
+                        #[cfg(feature = "swc")]
+                        {
+                            let globals = Globals::default();
+                            return GLOBALS.set(&globals, || {
+                                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                                    transform_inner(&code, &filepath)
+                                }))
+                            });
+                        }
+
+                        #[cfg(not(feature = "swc"))]
+                        {
                             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                                 transform_inner(&code, &filepath)
                             }))
-                        })
+                        }
                     },
                 )
                 .map_err(|e| format!("Failed to spawn transform thread: {}", e))?;
@@ -106,12 +191,21 @@ impl CoreEngine {
                 .map_err(|_| "Transform panicked".to_string())?
                 .map_err(|e| e.to_string())
         }
+
         #[cfg(target_arch = "wasm32")]
         {
-            let globals = Globals::default();
-            GLOBALS.set(&globals, || {
+            #[cfg(feature = "swc")]
+            {
+                let globals = Globals::default();
+                GLOBALS.set(&globals, || {
+                    transform_inner(&code, &filepath).map_err(|e| e.to_string())
+                })
+            }
+
+            #[cfg(not(feature = "swc"))]
+            {
                 transform_inner(&code, &filepath).map_err(|e| e.to_string())
-            })
+            }
         }
     }
 
@@ -120,18 +214,38 @@ impl CoreEngine {
         filepath: String,
         options: Option<ExpandOptions>,
     ) -> Result<ExpandResult, String> {
+        eprintln!("[macroforge:api] expand_sync called for {}", filepath);
+        if let Some(ref opts) = options {
+            eprintln!(
+                "[macroforge:api] options: config_path={:?}, external_decorator_modules={:?}, has_type_registry={}",
+                opts.config_path,
+                opts.external_decorator_modules,
+                opts.type_registry_json.is_some()
+            );
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         {
             let builder = std::thread::Builder::new().stack_size(32 * 1024 * 1024);
             let handle = builder
                 .spawn(
                     move || -> std::thread::Result<anyhow::Result<ExpandResult>> {
-                        let globals = Globals::default();
-                        GLOBALS.set(&globals, || {
+                        #[cfg(feature = "swc")]
+                        {
+                            let globals = Globals::default();
+                            return GLOBALS.set(&globals, || {
+                                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                                    expand_inner(&code, &filepath, options)
+                                }))
+                            });
+                        }
+
+                        #[cfg(not(feature = "swc"))]
+                        {
                             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                                 expand_inner(&code, &filepath, options)
                             }))
-                        })
+                        }
                     },
                 )
                 .map_err(|e| format!("Failed to spawn expand thread: {}", e))?;
@@ -142,12 +256,21 @@ impl CoreEngine {
                 .map_err(|_| "Expand panicked".to_string())?
                 .map_err(|e| e.to_string())
         }
+
         #[cfg(target_arch = "wasm32")]
         {
-            let globals = Globals::default();
-            GLOBALS.set(&globals, || {
+            #[cfg(feature = "swc")]
+            {
+                let globals = Globals::default();
+                GLOBALS.set(&globals, || {
+                    expand_inner(&code, &filepath, options).map_err(|e| e.to_string())
+                })
+            }
+
+            #[cfg(not(feature = "swc"))]
+            {
                 expand_inner(&code, &filepath, options).map_err(|e| e.to_string())
-            })
+            }
         }
     }
 

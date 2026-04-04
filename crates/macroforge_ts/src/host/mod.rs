@@ -121,7 +121,9 @@ pub use config::{
 };
 pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
-pub use expand::{ImportCollectionResult, MacroExpander, MacroExpansion, collect_import_sources};
+#[cfg(feature = "swc")]
+pub use expand::{ImportCollectionResult, collect_import_sources};
+pub use expand::{MacroExpander, MacroExpansion};
 pub use import_registry::{
     ImportRegistry, clear_foreign_types, clear_registry, install_registry, set_foreign_types,
     with_foreign_types, with_foreign_types_mut, with_registry, with_registry_mut,

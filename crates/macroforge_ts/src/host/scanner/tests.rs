@@ -1,3 +1,5 @@
+#![cfg(feature = "swc")]
+
 use std::path::Path;
 
 use super::*;

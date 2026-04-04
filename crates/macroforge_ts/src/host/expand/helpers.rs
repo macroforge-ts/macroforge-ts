@@ -1,6 +1,7 @@
 use convert_case::{Case, Casing};
 
 use crate::ts_syn::abi::{ClassIR, Patch, PatchCode, SpanIR};
+#[cfg(feature = "swc")]
 use swc_core::{
     common::{FileName, SourceMap, sync::Lrc},
     ecma::{
@@ -366,6 +367,7 @@ pub(super) fn split_by_markers(
 }
 
 /// A class member with its associated leading JSDoc comment (if any).
+#[cfg(feature = "swc")]
 pub(super) struct MemberWithComment {
     /// The leading JSDoc comment text (without /** */)
     pub leading_comment: Option<String>,
@@ -373,6 +375,7 @@ pub(super) struct MemberWithComment {
     pub member: ClassMember,
 }
 
+#[cfg(feature = "swc")]
 pub(super) fn parse_members_from_tokens(tokens: &str) -> anyhow::Result<Vec<MemberWithComment>> {
     // First, extract JSDoc comments and their associated code segments
     // The body! macro outputs: /** comment */code /** comment */code ...
@@ -434,6 +437,7 @@ pub(super) fn parse_members_from_tokens(tokens: &str) -> anyhow::Result<Vec<Memb
 
 /// Extract JSDoc comments and their following code segments from body! output.
 /// Returns a vec of (Option<comment_text>, code_segment) pairs.
+#[cfg(feature = "swc")]
 pub(super) fn extract_jsdoc_segments(input: &str) -> Vec<(Option<String>, String)> {
     let mut result = Vec::new();
     let mut remaining = input;
