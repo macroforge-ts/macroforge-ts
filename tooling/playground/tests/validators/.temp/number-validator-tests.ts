@@ -1,7 +1,7 @@
-import { DeserializeContext as __mf_DeserializeContext } from 'macroforge/serde';
-import { DeserializeError as __mf_DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions as __mf_DeserializeOptions } from 'macroforge/serde';
-import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
+import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+import { PendingRef as __mf_PendingRef } from "macroforge/serde";
 /**
  * Number validator test classes for comprehensive deserializer validation testing.
  */
@@ -9,2959 +9,6467 @@ import { PendingRef as __mf_PendingRef } from 'macroforge/serde';
 // GreaterThan validator
 /** @derive(Deserialize) */
 export class GreaterThanValidator {
-    /** @serde({ validate: ["greaterThan(0)"] }) */
-    positive: number;
+  /** @serde({ validate: ["greaterThan(0)"] }) */
+  positive: number;
 
-    constructor(props: {
-        positive: number;
-    }) {
-        this.positive = props.positive;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { positive: number }) {
+            this.positive = props.positive;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: GreaterThanValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanValidator.deserializeWithContext(
-                data,
-                ctx
-            );
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'GreaterThanValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): GreaterThanValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'GreaterThanValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = GreaterThanValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GreaterThanValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('positive' in obj)) {
-            errors.push({
-                field: 'positive',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            GreaterThanValidator.prototype
-        ) as GreaterThanValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_positive = obj['positive'] as number;
-            if (__raw_positive <= 0) {
-                errors.push({
-                    field: 'positive',
-                    message: 'GreaterThanValidator.positive must be greater than 0'
-                });
-            }
-            instance.positive = __raw_positive;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof GreaterThanValidator>(
-        _field: K,
-        _value: GreaterThanValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'positive') {
-            const __val = _value as number;
-            if (__val <= 0) {
-                errors.push({
-                    field: 'positive',
-                    message: 'GreaterThanValidator.positive must be greater than 0'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<GreaterThanValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('positive' in _partial && _partial.positive !== undefined) {
-            const __val = _partial.positive as number;
-            if (__val <= 0) {
-                errors.push({
-                    field: 'positive',
-                    message: 'GreaterThanValidator.positive must be greater than 0'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'positive' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "GreaterThanValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is GreaterThanValidator {
-        if (obj instanceof GreaterThanValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("positive" in obj)) {
+                        errors.push({ field: "positive", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(GreaterThanValidator.prototype) as GreaterThanValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_positive = obj["positive"] as number;
+                                                                        if (__raw_positive <= 0) { errors.push({ field: "positive", message: "GreaterThanValidator.positive must be greater than 0" }); }
+instance.positive = __raw_positive;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!GreaterThanValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof GreaterThanValidator>(
+            _field: K,
+            _value: GreaterThanValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "positive") {
+                const __val = _value as number;
+                                                if (__val <= 0) { errors.push({ field: "positive", message: "GreaterThanValidator.positive must be greater than 0" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = GreaterThanValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<GreaterThanValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("positive" in _partial && _partial.positive !== undefined) {
+                const __val = _partial.positive as number;
+                                                if (__val <= 0) { errors.push({ field: "positive", message: "GreaterThanValidator.positive must be greater than 0" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "positive" in o;
+        }
+
+        static is(obj: unknown): obj is GreaterThanValidator {
+            if (obj instanceof GreaterThanValidator) {
+                return true;
+            }
+            if (!GreaterThanValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = GreaterThanValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function greaterThanValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: GreaterThanValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return GreaterThanValidator.deserialize(input, opts);
-}
+        export function greaterThanValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return GreaterThanValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function greaterThanValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): GreaterThanValidator | __mf_PendingRef {
-    return GreaterThanValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function greaterThanValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanValidator | __mf_PendingRef {
+            return GreaterThanValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function greaterThanValidatorIs(
-    value: unknown
-): value is GreaterThanValidator {
-    return GreaterThanValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function greaterThanValidatorIs(value: unknown): value is GreaterThanValidator {
+            return GreaterThanValidator.is(value);
+        }
 
 // GreaterThanOrEqualTo validator
 /** @derive(Deserialize) */
 export class GreaterThanOrEqualToValidator {
-    /** @serde({ validate: ["greaterThanOrEqualTo(0)"] }) */
-    nonNegative: number;
+  /** @serde({ validate: ["greaterThanOrEqualTo(0)"] }) */
+  nonNegative: number;
 
-    constructor(props: {
-        nonNegative: number;
-    }) {
-        this.nonNegative = props.nonNegative;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { nonNegative: number }) {
+            this.nonNegative = props.nonNegative;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: GreaterThanOrEqualToValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanOrEqualToValidator.deserializeWithContext(
-                data,
-                ctx
-            );
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'GreaterThanOrEqualToValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): GreaterThanOrEqualToValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message:
-                        'GreaterThanOrEqualToValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = GreaterThanOrEqualToValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "GreaterThanOrEqualToValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('nonNegative' in obj)) {
-            errors.push({
-                field: 'nonNegative',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            GreaterThanOrEqualToValidator.prototype
-        ) as GreaterThanOrEqualToValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_nonNegative = obj['nonNegative'] as number;
-            if (__raw_nonNegative < 0) {
-                errors.push({
-                    field: 'nonNegative',
-                    message:
-                        'GreaterThanOrEqualToValidator.nonNegative must be greater than or equal to 0'
-                });
-            }
-            instance.nonNegative = __raw_nonNegative;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof GreaterThanOrEqualToValidator>(
-        _field: K,
-        _value: GreaterThanOrEqualToValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'nonNegative') {
-            const __val = _value as number;
-            if (__val < 0) {
-                errors.push({
-                    field: 'nonNegative',
-                    message:
-                        'GreaterThanOrEqualToValidator.nonNegative must be greater than or equal to 0'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(
-        _partial: Partial<GreaterThanOrEqualToValidator>
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('nonNegative' in _partial && _partial.nonNegative !== undefined) {
-            const __val = _partial.nonNegative as number;
-            if (__val < 0) {
-                errors.push({
-                    field: 'nonNegative',
-                    message:
-                        'GreaterThanOrEqualToValidator.nonNegative must be greater than or equal to 0'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'nonNegative' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "GreaterThanOrEqualToValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is GreaterThanOrEqualToValidator {
-        if (obj instanceof GreaterThanOrEqualToValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("nonNegative" in obj)) {
+                        errors.push({ field: "nonNegative", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(GreaterThanOrEqualToValidator.prototype) as GreaterThanOrEqualToValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_nonNegative = obj["nonNegative"] as number;
+                                                                        if (__raw_nonNegative < 0) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative must be greater than or equal to 0" }); }
+instance.nonNegative = __raw_nonNegative;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!GreaterThanOrEqualToValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof GreaterThanOrEqualToValidator>(
+            _field: K,
+            _value: GreaterThanOrEqualToValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "nonNegative") {
+                const __val = _value as number;
+                                                if (__val < 0) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative must be greater than or equal to 0" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = GreaterThanOrEqualToValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<GreaterThanOrEqualToValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("nonNegative" in _partial && _partial.nonNegative !== undefined) {
+                const __val = _partial.nonNegative as number;
+                                                if (__val < 0) { errors.push({ field: "nonNegative", message: "GreaterThanOrEqualToValidator.nonNegative must be greater than or equal to 0" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "nonNegative" in o;
+        }
+
+        static is(obj: unknown): obj is GreaterThanOrEqualToValidator {
+            if (obj instanceof GreaterThanOrEqualToValidator) {
+                return true;
+            }
+            if (!GreaterThanOrEqualToValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = GreaterThanOrEqualToValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function greaterThanOrEqualToValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: GreaterThanOrEqualToValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return GreaterThanOrEqualToValidator.deserialize(input, opts);
-}
+        export function greaterThanOrEqualToValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return GreaterThanOrEqualToValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function greaterThanOrEqualToValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): GreaterThanOrEqualToValidator | __mf_PendingRef {
-    return GreaterThanOrEqualToValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function greaterThanOrEqualToValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToValidator | __mf_PendingRef {
+            return GreaterThanOrEqualToValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function greaterThanOrEqualToValidatorIs(
-    value: unknown
-): value is GreaterThanOrEqualToValidator {
-    return GreaterThanOrEqualToValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function greaterThanOrEqualToValidatorIs(value: unknown): value is GreaterThanOrEqualToValidator {
+            return GreaterThanOrEqualToValidator.is(value);
+        }
 
 // LessThan validator
 /** @derive(Deserialize) */
 export class LessThanValidator {
-    /** @serde({ validate: ["lessThan(100)"] }) */
-    capped: number;
+  /** @serde({ validate: ["lessThan(100)"] }) */
+  capped: number;
 
-    constructor(props: {
-        capped: number;
-    }) {
-        this.capped = props.capped;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { capped: number }) {
+            this.capped = props.capped;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: LessThanValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LessThanValidator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'LessThanValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): LessThanValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'LessThanValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = LessThanValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "LessThanValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('capped' in obj)) {
-            errors.push({
-                field: 'capped',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            LessThanValidator.prototype
-        ) as LessThanValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_capped = obj['capped'] as number;
-            if (__raw_capped >= 100) {
-                errors.push({
-                    field: 'capped',
-                    message: 'LessThanValidator.capped must be less than 100'
-                });
-            }
-            instance.capped = __raw_capped;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof LessThanValidator>(
-        _field: K,
-        _value: LessThanValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'capped') {
-            const __val = _value as number;
-            if (__val >= 100) {
-                errors.push({
-                    field: 'capped',
-                    message: 'LessThanValidator.capped must be less than 100'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<LessThanValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('capped' in _partial && _partial.capped !== undefined) {
-            const __val = _partial.capped as number;
-            if (__val >= 100) {
-                errors.push({
-                    field: 'capped',
-                    message: 'LessThanValidator.capped must be less than 100'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'capped' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "LessThanValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is LessThanValidator {
-        if (obj instanceof LessThanValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("capped" in obj)) {
+                        errors.push({ field: "capped", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(LessThanValidator.prototype) as LessThanValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_capped = obj["capped"] as number;
+                                                                        if (__raw_capped >= 100) { errors.push({ field: "capped", message: "LessThanValidator.capped must be less than 100" }); }
+instance.capped = __raw_capped;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!LessThanValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof LessThanValidator>(
+            _field: K,
+            _value: LessThanValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "capped") {
+                const __val = _value as number;
+                                                if (__val >= 100) { errors.push({ field: "capped", message: "LessThanValidator.capped must be less than 100" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = LessThanValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<LessThanValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("capped" in _partial && _partial.capped !== undefined) {
+                const __val = _partial.capped as number;
+                                                if (__val >= 100) { errors.push({ field: "capped", message: "LessThanValidator.capped must be less than 100" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "capped" in o;
+        }
+
+        static is(obj: unknown): obj is LessThanValidator {
+            if (obj instanceof LessThanValidator) {
+                return true;
+            }
+            if (!LessThanValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = LessThanValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function lessThanValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: LessThanValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return LessThanValidator.deserialize(input, opts);
-}
+        export function lessThanValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return LessThanValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function lessThanValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): LessThanValidator | __mf_PendingRef {
-    return LessThanValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function lessThanValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanValidator | __mf_PendingRef {
+            return LessThanValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lessThanValidatorIs(
-    value: unknown
-): value is LessThanValidator {
-    return LessThanValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function lessThanValidatorIs(value: unknown): value is LessThanValidator {
+            return LessThanValidator.is(value);
+        }
 
 // LessThanOrEqualTo validator
 /** @derive(Deserialize) */
 export class LessThanOrEqualToValidator {
-    /** @serde({ validate: ["lessThanOrEqualTo(100)"] }) */
-    maxed: number;
+  /** @serde({ validate: ["lessThanOrEqualTo(100)"] }) */
+  maxed: number;
 
-    constructor(props: {
-        maxed: number;
-    }) {
-        this.maxed = props.maxed;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { maxed: number }) {
+            this.maxed = props.maxed;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: LessThanOrEqualToValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LessThanOrEqualToValidator.deserializeWithContext(
-                data,
-                ctx
-            );
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'LessThanOrEqualToValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): LessThanOrEqualToValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'LessThanOrEqualToValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = LessThanOrEqualToValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "LessThanOrEqualToValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('maxed' in obj)) {
-            errors.push({
-                field: 'maxed',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            LessThanOrEqualToValidator.prototype
-        ) as LessThanOrEqualToValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_maxed = obj['maxed'] as number;
-            if (__raw_maxed > 100) {
-                errors.push({
-                    field: 'maxed',
-                    message: 'LessThanOrEqualToValidator.maxed must be less than or equal to 100'
-                });
-            }
-            instance.maxed = __raw_maxed;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof LessThanOrEqualToValidator>(
-        _field: K,
-        _value: LessThanOrEqualToValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'maxed') {
-            const __val = _value as number;
-            if (__val > 100) {
-                errors.push({
-                    field: 'maxed',
-                    message: 'LessThanOrEqualToValidator.maxed must be less than or equal to 100'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<LessThanOrEqualToValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('maxed' in _partial && _partial.maxed !== undefined) {
-            const __val = _partial.maxed as number;
-            if (__val > 100) {
-                errors.push({
-                    field: 'maxed',
-                    message: 'LessThanOrEqualToValidator.maxed must be less than or equal to 100'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'maxed' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "LessThanOrEqualToValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is LessThanOrEqualToValidator {
-        if (obj instanceof LessThanOrEqualToValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("maxed" in obj)) {
+                        errors.push({ field: "maxed", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(LessThanOrEqualToValidator.prototype) as LessThanOrEqualToValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_maxed = obj["maxed"] as number;
+                                                                        if (__raw_maxed > 100) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed must be less than or equal to 100" }); }
+instance.maxed = __raw_maxed;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!LessThanOrEqualToValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof LessThanOrEqualToValidator>(
+            _field: K,
+            _value: LessThanOrEqualToValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "maxed") {
+                const __val = _value as number;
+                                                if (__val > 100) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed must be less than or equal to 100" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = LessThanOrEqualToValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<LessThanOrEqualToValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("maxed" in _partial && _partial.maxed !== undefined) {
+                const __val = _partial.maxed as number;
+                                                if (__val > 100) { errors.push({ field: "maxed", message: "LessThanOrEqualToValidator.maxed must be less than or equal to 100" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "maxed" in o;
+        }
+
+        static is(obj: unknown): obj is LessThanOrEqualToValidator {
+            if (obj instanceof LessThanOrEqualToValidator) {
+                return true;
+            }
+            if (!LessThanOrEqualToValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = LessThanOrEqualToValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function lessThanOrEqualToValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: LessThanOrEqualToValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return LessThanOrEqualToValidator.deserialize(input, opts);
-}
+        export function lessThanOrEqualToValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanOrEqualToValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return LessThanOrEqualToValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function lessThanOrEqualToValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): LessThanOrEqualToValidator | __mf_PendingRef {
-    return LessThanOrEqualToValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function lessThanOrEqualToValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToValidator | __mf_PendingRef {
+            return LessThanOrEqualToValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lessThanOrEqualToValidatorIs(
-    value: unknown
-): value is LessThanOrEqualToValidator {
-    return LessThanOrEqualToValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function lessThanOrEqualToValidatorIs(value: unknown): value is LessThanOrEqualToValidator {
+            return LessThanOrEqualToValidator.is(value);
+        }
 
 // Between validator
 /** @derive(Deserialize) */
 export class BetweenValidator {
-    /** @serde({ validate: ["between(1, 100)"] }) */
-    ranged: number;
+  /** @serde({ validate: ["between(1, 100)"] }) */
+  ranged: number;
 
-    constructor(props: {
-        ranged: number;
-    }) {
-        this.ranged = props.ranged;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { ranged: number }) {
+            this.ranged = props.ranged;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: BetweenValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = BetweenValidator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'BetweenValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): BetweenValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'BetweenValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BetweenValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = BetweenValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "BetweenValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('ranged' in obj)) {
-            errors.push({
-                field: 'ranged',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            BetweenValidator.prototype
-        ) as BetweenValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_ranged = obj['ranged'] as number;
-            if (__raw_ranged < 1 || __raw_ranged > 100) {
-                errors.push({
-                    field: 'ranged',
-                    message: 'BetweenValidator.ranged must be between 1 and 100'
-                });
-            }
-            instance.ranged = __raw_ranged;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof BetweenValidator>(
-        _field: K,
-        _value: BetweenValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'ranged') {
-            const __val = _value as number;
-            if (__val < 1 || __val > 100) {
-                errors.push({
-                    field: 'ranged',
-                    message: 'BetweenValidator.ranged must be between 1 and 100'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<BetweenValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('ranged' in _partial && _partial.ranged !== undefined) {
-            const __val = _partial.ranged as number;
-            if (__val < 1 || __val > 100) {
-                errors.push({
-                    field: 'ranged',
-                    message: 'BetweenValidator.ranged must be between 1 and 100'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'ranged' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "BetweenValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is BetweenValidator {
-        if (obj instanceof BetweenValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("ranged" in obj)) {
+                        errors.push({ field: "ranged", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(BetweenValidator.prototype) as BetweenValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_ranged = obj["ranged"] as number;
+                                                                        if (__raw_ranged < 1 || __raw_ranged > 100) { errors.push({ field: "ranged", message: "BetweenValidator.ranged must be between 1 and 100" }); }
+instance.ranged = __raw_ranged;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!BetweenValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof BetweenValidator>(
+            _field: K,
+            _value: BetweenValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "ranged") {
+                const __val = _value as number;
+                                                if (__val < 1 || __val > 100) { errors.push({ field: "ranged", message: "BetweenValidator.ranged must be between 1 and 100" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = BetweenValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<BetweenValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("ranged" in _partial && _partial.ranged !== undefined) {
+                const __val = _partial.ranged as number;
+                                                if (__val < 1 || __val > 100) { errors.push({ field: "ranged", message: "BetweenValidator.ranged must be between 1 and 100" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "ranged" in o;
+        }
+
+        static is(obj: unknown): obj is BetweenValidator {
+            if (obj instanceof BetweenValidator) {
+                return true;
+            }
+            if (!BetweenValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = BetweenValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function betweenValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: BetweenValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return BetweenValidator.deserialize(input, opts);
-}
+        export function betweenValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BetweenValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return BetweenValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function betweenValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): BetweenValidator | __mf_PendingRef {
-    return BetweenValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function betweenValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenValidator | __mf_PendingRef {
+            return BetweenValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function betweenValidatorIs(value: unknown): value is BetweenValidator {
-    return BetweenValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function betweenValidatorIs(value: unknown): value is BetweenValidator {
+            return BetweenValidator.is(value);
+        }
 
 // Int validator
 /** @derive(Deserialize) */
 export class IntValidator {
-    /** @serde({ validate: ["int"] }) */
-    integer: number;
+  /** @serde({ validate: ["int"] }) */
+  integer: number;
 
-    constructor(props: {
-        integer: number;
-    }) {
-        this.integer = props.integer;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { integer: number }) {
+            this.integer = props.integer;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: IntValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = IntValidator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message: 'IntValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): IntValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'IntValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: IntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = IntValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "IntValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('integer' in obj)) {
-            errors.push({
-                field: 'integer',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(IntValidator.prototype) as IntValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_integer = obj['integer'] as number;
-            if (!Number.isInteger(__raw_integer)) {
-                errors.push({
-                    field: 'integer',
-                    message: 'IntValidator.integer must be an integer'
-                });
-            }
-            instance.integer = __raw_integer;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof IntValidator>(
-        _field: K,
-        _value: IntValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'integer') {
-            const __val = _value as number;
-            if (!Number.isInteger(__val)) {
-                errors.push({
-                    field: 'integer',
-                    message: 'IntValidator.integer must be an integer'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<IntValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('integer' in _partial && _partial.integer !== undefined) {
-            const __val = _partial.integer as number;
-            if (!Number.isInteger(__val)) {
-                errors.push({
-                    field: 'integer',
-                    message: 'IntValidator.integer must be an integer'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): IntValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'integer' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "IntValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is IntValidator {
-        if (obj instanceof IntValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("integer" in obj)) {
+                        errors.push({ field: "integer", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(IntValidator.prototype) as IntValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_integer = obj["integer"] as number;
+                                                                        if (!Number.isInteger(__raw_integer)) { errors.push({ field: "integer", message: "IntValidator.integer must be an integer" }); }
+instance.integer = __raw_integer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!IntValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof IntValidator>(
+            _field: K,
+            _value: IntValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "integer") {
+                const __val = _value as number;
+                                                if (!Number.isInteger(__val)) { errors.push({ field: "integer", message: "IntValidator.integer must be an integer" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = IntValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<IntValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("integer" in _partial && _partial.integer !== undefined) {
+                const __val = _partial.integer as number;
+                                                if (!Number.isInteger(__val)) { errors.push({ field: "integer", message: "IntValidator.integer must be an integer" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "integer" in o;
+        }
+
+        static is(obj: unknown): obj is IntValidator {
+            if (obj instanceof IntValidator) {
+                return true;
+            }
+            if (!IntValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = IntValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function intValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: IntValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return IntValidator.deserialize(input, opts);
-}
+        export function intValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: IntValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return IntValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function intValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): IntValidator | __mf_PendingRef {
-    return IntValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function intValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): IntValidator | __mf_PendingRef {
+            return IntValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function intValidatorIs(value: unknown): value is IntValidator {
-    return IntValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function intValidatorIs(value: unknown): value is IntValidator {
+            return IntValidator.is(value);
+        }
 
 // NonNaN validator
 /** @derive(Deserialize) */
 export class NonNaNValidator {
-    /** @serde({ validate: ["nonNaN"] }) */
-    valid: number;
+  /** @serde({ validate: ["nonNaN"] }) */
+  valid: number;
 
-    constructor(props: {
-        valid: number;
-    }) {
-        this.valid = props.valid;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { valid: number }) {
+            this.valid = props.valid;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: NonNaNValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonNaNValidator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'NonNaNValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): NonNaNValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'NonNaNValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: NonNaNValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = NonNaNValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NonNaNValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('valid' in obj)) {
-            errors.push({
-                field: 'valid',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            NonNaNValidator.prototype
-        ) as NonNaNValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_valid = obj['valid'] as number;
-            if (Number.isNaN(__raw_valid)) {
-                errors.push({
-                    field: 'valid',
-                    message: 'NonNaNValidator.valid must not be NaN'
-                });
-            }
-            instance.valid = __raw_valid;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof NonNaNValidator>(
-        _field: K,
-        _value: NonNaNValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'valid') {
-            const __val = _value as number;
-            if (Number.isNaN(__val)) {
-                errors.push({
-                    field: 'valid',
-                    message: 'NonNaNValidator.valid must not be NaN'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<NonNaNValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('valid' in _partial && _partial.valid !== undefined) {
-            const __val = _partial.valid as number;
-            if (Number.isNaN(__val)) {
-                errors.push({
-                    field: 'valid',
-                    message: 'NonNaNValidator.valid must not be NaN'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonNaNValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'valid' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "NonNaNValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is NonNaNValidator {
-        if (obj instanceof NonNaNValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("valid" in obj)) {
+                        errors.push({ field: "valid", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(NonNaNValidator.prototype) as NonNaNValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_valid = obj["valid"] as number;
+                                                                        if (Number.isNaN(__raw_valid)) { errors.push({ field: "valid", message: "NonNaNValidator.valid must not be NaN" }); }
+instance.valid = __raw_valid;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!NonNaNValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof NonNaNValidator>(
+            _field: K,
+            _value: NonNaNValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "valid") {
+                const __val = _value as number;
+                                                if (Number.isNaN(__val)) { errors.push({ field: "valid", message: "NonNaNValidator.valid must not be NaN" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = NonNaNValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<NonNaNValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("valid" in _partial && _partial.valid !== undefined) {
+                const __val = _partial.valid as number;
+                                                if (Number.isNaN(__val)) { errors.push({ field: "valid", message: "NonNaNValidator.valid must not be NaN" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "valid" in o;
+        }
+
+        static is(obj: unknown): obj is NonNaNValidator {
+            if (obj instanceof NonNaNValidator) {
+                return true;
+            }
+            if (!NonNaNValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = NonNaNValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function nonNaNValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: NonNaNValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return NonNaNValidator.deserialize(input, opts);
-}
+        export function nonNaNValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: NonNaNValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return NonNaNValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function nonNaNValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): NonNaNValidator | __mf_PendingRef {
-    return NonNaNValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function nonNaNValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonNaNValidator | __mf_PendingRef {
+            return NonNaNValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonNaNValidatorIs(value: unknown): value is NonNaNValidator {
-    return NonNaNValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function nonNaNValidatorIs(value: unknown): value is NonNaNValidator {
+            return NonNaNValidator.is(value);
+        }
 
 // Finite validator
 /** @derive(Deserialize) */
 export class FiniteValidator {
-    /** @serde({ validate: ["finite"] }) */
-    finite: number;
+  /** @serde({ validate: ["finite"] }) */
+  finite: number;
 
-    constructor(props: {
-        finite: number;
-    }) {
-        this.finite = props.finite;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { finite: number }) {
+            this.finite = props.finite;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: FiniteValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = FiniteValidator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'FiniteValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): FiniteValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'FiniteValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: FiniteValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = FiniteValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "FiniteValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('finite' in obj)) {
-            errors.push({
-                field: 'finite',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            FiniteValidator.prototype
-        ) as FiniteValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_finite = obj['finite'] as number;
-            if (!Number.isFinite(__raw_finite)) {
-                errors.push({
-                    field: 'finite',
-                    message: 'FiniteValidator.finite must be finite'
-                });
-            }
-            instance.finite = __raw_finite;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof FiniteValidator>(
-        _field: K,
-        _value: FiniteValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'finite') {
-            const __val = _value as number;
-            if (!Number.isFinite(__val)) {
-                errors.push({
-                    field: 'finite',
-                    message: 'FiniteValidator.finite must be finite'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<FiniteValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('finite' in _partial && _partial.finite !== undefined) {
-            const __val = _partial.finite as number;
-            if (!Number.isFinite(__val)) {
-                errors.push({
-                    field: 'finite',
-                    message: 'FiniteValidator.finite must be finite'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): FiniteValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'finite' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "FiniteValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is FiniteValidator {
-        if (obj instanceof FiniteValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("finite" in obj)) {
+                        errors.push({ field: "finite", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(FiniteValidator.prototype) as FiniteValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_finite = obj["finite"] as number;
+                                                                        if (!Number.isFinite(__raw_finite)) { errors.push({ field: "finite", message: "FiniteValidator.finite must be finite" }); }
+instance.finite = __raw_finite;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!FiniteValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof FiniteValidator>(
+            _field: K,
+            _value: FiniteValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "finite") {
+                const __val = _value as number;
+                                                if (!Number.isFinite(__val)) { errors.push({ field: "finite", message: "FiniteValidator.finite must be finite" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = FiniteValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<FiniteValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("finite" in _partial && _partial.finite !== undefined) {
+                const __val = _partial.finite as number;
+                                                if (!Number.isFinite(__val)) { errors.push({ field: "finite", message: "FiniteValidator.finite must be finite" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "finite" in o;
+        }
+
+        static is(obj: unknown): obj is FiniteValidator {
+            if (obj instanceof FiniteValidator) {
+                return true;
+            }
+            if (!FiniteValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = FiniteValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function finiteValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: FiniteValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return FiniteValidator.deserialize(input, opts);
-}
+        export function finiteValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: FiniteValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return FiniteValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function finiteValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): FiniteValidator | __mf_PendingRef {
-    return FiniteValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function finiteValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): FiniteValidator | __mf_PendingRef {
+            return FiniteValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function finiteValidatorIs(value: unknown): value is FiniteValidator {
-    return FiniteValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function finiteValidatorIs(value: unknown): value is FiniteValidator {
+            return FiniteValidator.is(value);
+        }
 
 // Positive validator
 /** @derive(Deserialize) */
 export class PositiveValidator {
-    /** @serde({ validate: ["positive"] }) */
-    positive: number;
+  /** @serde({ validate: ["positive"] }) */
+  positive: number;
 
-    constructor(props: {
-        positive: number;
-    }) {
-        this.positive = props.positive;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { positive: number }) {
+            this.positive = props.positive;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: PositiveValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = PositiveValidator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'PositiveValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): PositiveValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'PositiveValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = PositiveValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PositiveValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('positive' in obj)) {
-            errors.push({
-                field: 'positive',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            PositiveValidator.prototype
-        ) as PositiveValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_positive = obj['positive'] as number;
-            if (__raw_positive <= 0) {
-                errors.push({
-                    field: 'positive',
-                    message: 'PositiveValidator.positive must be positive'
-                });
-            }
-            instance.positive = __raw_positive;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof PositiveValidator>(
-        _field: K,
-        _value: PositiveValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'positive') {
-            const __val = _value as number;
-            if (__val <= 0) {
-                errors.push({
-                    field: 'positive',
-                    message: 'PositiveValidator.positive must be positive'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<PositiveValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('positive' in _partial && _partial.positive !== undefined) {
-            const __val = _partial.positive as number;
-            if (__val <= 0) {
-                errors.push({
-                    field: 'positive',
-                    message: 'PositiveValidator.positive must be positive'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): PositiveValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'positive' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "PositiveValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is PositiveValidator {
-        if (obj instanceof PositiveValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("positive" in obj)) {
+                        errors.push({ field: "positive", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(PositiveValidator.prototype) as PositiveValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_positive = obj["positive"] as number;
+                                                                        if (__raw_positive <= 0) { errors.push({ field: "positive", message: "PositiveValidator.positive must be positive" }); }
+instance.positive = __raw_positive;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!PositiveValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof PositiveValidator>(
+            _field: K,
+            _value: PositiveValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "positive") {
+                const __val = _value as number;
+                                                if (__val <= 0) { errors.push({ field: "positive", message: "PositiveValidator.positive must be positive" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = PositiveValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<PositiveValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("positive" in _partial && _partial.positive !== undefined) {
+                const __val = _partial.positive as number;
+                                                if (__val <= 0) { errors.push({ field: "positive", message: "PositiveValidator.positive must be positive" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "positive" in o;
+        }
+
+        static is(obj: unknown): obj is PositiveValidator {
+            if (obj instanceof PositiveValidator) {
+                return true;
+            }
+            if (!PositiveValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = PositiveValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function positiveValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: PositiveValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return PositiveValidator.deserialize(input, opts);
-}
+        export function positiveValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return PositiveValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function positiveValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): PositiveValidator | __mf_PendingRef {
-    return PositiveValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function positiveValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PositiveValidator | __mf_PendingRef {
+            return PositiveValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function positiveValidatorIs(
-    value: unknown
-): value is PositiveValidator {
-    return PositiveValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function positiveValidatorIs(value: unknown): value is PositiveValidator {
+            return PositiveValidator.is(value);
+        }
 
 // NonNegative validator
 /** @derive(Deserialize) */
 export class NonNegativeValidator {
-    /** @serde({ validate: ["nonNegative"] }) */
-    nonNegative: number;
+  /** @serde({ validate: ["nonNegative"] }) */
+  nonNegative: number;
 
-    constructor(props: {
-        nonNegative: number;
-    }) {
-        this.nonNegative = props.nonNegative;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { nonNegative: number }) {
+            this.nonNegative = props.nonNegative;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: NonNegativeValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonNegativeValidator.deserializeWithContext(
-                data,
-                ctx
-            );
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'NonNegativeValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): NonNegativeValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'NonNegativeValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: NonNegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = NonNegativeValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NonNegativeValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('nonNegative' in obj)) {
-            errors.push({
-                field: 'nonNegative',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            NonNegativeValidator.prototype
-        ) as NonNegativeValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_nonNegative = obj['nonNegative'] as number;
-            if (__raw_nonNegative < 0) {
-                errors.push({
-                    field: 'nonNegative',
-                    message: 'NonNegativeValidator.nonNegative must be non-negative'
-                });
-            }
-            instance.nonNegative = __raw_nonNegative;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof NonNegativeValidator>(
-        _field: K,
-        _value: NonNegativeValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'nonNegative') {
-            const __val = _value as number;
-            if (__val < 0) {
-                errors.push({
-                    field: 'nonNegative',
-                    message: 'NonNegativeValidator.nonNegative must be non-negative'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<NonNegativeValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('nonNegative' in _partial && _partial.nonNegative !== undefined) {
-            const __val = _partial.nonNegative as number;
-            if (__val < 0) {
-                errors.push({
-                    field: 'nonNegative',
-                    message: 'NonNegativeValidator.nonNegative must be non-negative'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonNegativeValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'nonNegative' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "NonNegativeValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is NonNegativeValidator {
-        if (obj instanceof NonNegativeValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("nonNegative" in obj)) {
+                        errors.push({ field: "nonNegative", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(NonNegativeValidator.prototype) as NonNegativeValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_nonNegative = obj["nonNegative"] as number;
+                                                                        if (__raw_nonNegative < 0) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative must be non-negative" }); }
+instance.nonNegative = __raw_nonNegative;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!NonNegativeValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof NonNegativeValidator>(
+            _field: K,
+            _value: NonNegativeValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "nonNegative") {
+                const __val = _value as number;
+                                                if (__val < 0) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative must be non-negative" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = NonNegativeValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<NonNegativeValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("nonNegative" in _partial && _partial.nonNegative !== undefined) {
+                const __val = _partial.nonNegative as number;
+                                                if (__val < 0) { errors.push({ field: "nonNegative", message: "NonNegativeValidator.nonNegative must be non-negative" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "nonNegative" in o;
+        }
+
+        static is(obj: unknown): obj is NonNegativeValidator {
+            if (obj instanceof NonNegativeValidator) {
+                return true;
+            }
+            if (!NonNegativeValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = NonNegativeValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function nonNegativeValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: NonNegativeValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return NonNegativeValidator.deserialize(input, opts);
-}
+        export function nonNegativeValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: NonNegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return NonNegativeValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function nonNegativeValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): NonNegativeValidator | __mf_PendingRef {
-    return NonNegativeValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function nonNegativeValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonNegativeValidator | __mf_PendingRef {
+            return NonNegativeValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonNegativeValidatorIs(
-    value: unknown
-): value is NonNegativeValidator {
-    return NonNegativeValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function nonNegativeValidatorIs(value: unknown): value is NonNegativeValidator {
+            return NonNegativeValidator.is(value);
+        }
 
 // Negative validator
 /** @derive(Deserialize) */
 export class NegativeValidator {
-    /** @serde({ validate: ["negative"] }) */
-    negative: number;
+  /** @serde({ validate: ["negative"] }) */
+  negative: number;
 
-    constructor(props: {
-        negative: number;
-    }) {
-        this.negative = props.negative;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { negative: number }) {
+            this.negative = props.negative;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: NegativeValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NegativeValidator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'NegativeValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): NegativeValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'NegativeValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: NegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = NegativeValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NegativeValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('negative' in obj)) {
-            errors.push({
-                field: 'negative',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            NegativeValidator.prototype
-        ) as NegativeValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_negative = obj['negative'] as number;
-            if (__raw_negative >= 0) {
-                errors.push({
-                    field: 'negative',
-                    message: 'NegativeValidator.negative must be negative'
-                });
-            }
-            instance.negative = __raw_negative;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof NegativeValidator>(
-        _field: K,
-        _value: NegativeValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'negative') {
-            const __val = _value as number;
-            if (__val >= 0) {
-                errors.push({
-                    field: 'negative',
-                    message: 'NegativeValidator.negative must be negative'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<NegativeValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('negative' in _partial && _partial.negative !== undefined) {
-            const __val = _partial.negative as number;
-            if (__val >= 0) {
-                errors.push({
-                    field: 'negative',
-                    message: 'NegativeValidator.negative must be negative'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NegativeValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'negative' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "NegativeValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is NegativeValidator {
-        if (obj instanceof NegativeValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("negative" in obj)) {
+                        errors.push({ field: "negative", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(NegativeValidator.prototype) as NegativeValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_negative = obj["negative"] as number;
+                                                                        if (__raw_negative >= 0) { errors.push({ field: "negative", message: "NegativeValidator.negative must be negative" }); }
+instance.negative = __raw_negative;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!NegativeValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof NegativeValidator>(
+            _field: K,
+            _value: NegativeValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "negative") {
+                const __val = _value as number;
+                                                if (__val >= 0) { errors.push({ field: "negative", message: "NegativeValidator.negative must be negative" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = NegativeValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<NegativeValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("negative" in _partial && _partial.negative !== undefined) {
+                const __val = _partial.negative as number;
+                                                if (__val >= 0) { errors.push({ field: "negative", message: "NegativeValidator.negative must be negative" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "negative" in o;
+        }
+
+        static is(obj: unknown): obj is NegativeValidator {
+            if (obj instanceof NegativeValidator) {
+                return true;
+            }
+            if (!NegativeValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = NegativeValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function negativeValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: NegativeValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return NegativeValidator.deserialize(input, opts);
-}
+        export function negativeValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: NegativeValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return NegativeValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function negativeValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): NegativeValidator | __mf_PendingRef {
-    return NegativeValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function negativeValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): NegativeValidator | __mf_PendingRef {
+            return NegativeValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function negativeValidatorIs(
-    value: unknown
-): value is NegativeValidator {
-    return NegativeValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function negativeValidatorIs(value: unknown): value is NegativeValidator {
+            return NegativeValidator.is(value);
+        }
 
 // NonPositive validator
 /** @derive(Deserialize) */
 export class NonPositiveValidator {
-    /** @serde({ validate: ["nonPositive"] }) */
-    nonPositive: number;
+  /** @serde({ validate: ["nonPositive"] }) */
+  nonPositive: number;
 
-    constructor(props: {
-        nonPositive: number;
-    }) {
-        this.nonPositive = props.nonPositive;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { nonPositive: number }) {
+            this.nonPositive = props.nonPositive;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: NonPositiveValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonPositiveValidator.deserializeWithContext(
-                data,
-                ctx
-            );
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'NonPositiveValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): NonPositiveValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'NonPositiveValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: NonPositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = NonPositiveValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "NonPositiveValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('nonPositive' in obj)) {
-            errors.push({
-                field: 'nonPositive',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            NonPositiveValidator.prototype
-        ) as NonPositiveValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_nonPositive = obj['nonPositive'] as number;
-            if (__raw_nonPositive > 0) {
-                errors.push({
-                    field: 'nonPositive',
-                    message: 'NonPositiveValidator.nonPositive must be non-positive'
-                });
-            }
-            instance.nonPositive = __raw_nonPositive;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof NonPositiveValidator>(
-        _field: K,
-        _value: NonPositiveValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'nonPositive') {
-            const __val = _value as number;
-            if (__val > 0) {
-                errors.push({
-                    field: 'nonPositive',
-                    message: 'NonPositiveValidator.nonPositive must be non-positive'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<NonPositiveValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('nonPositive' in _partial && _partial.nonPositive !== undefined) {
-            const __val = _partial.nonPositive as number;
-            if (__val > 0) {
-                errors.push({
-                    field: 'nonPositive',
-                    message: 'NonPositiveValidator.nonPositive must be non-positive'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonPositiveValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'nonPositive' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "NonPositiveValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is NonPositiveValidator {
-        if (obj instanceof NonPositiveValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("nonPositive" in obj)) {
+                        errors.push({ field: "nonPositive", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(NonPositiveValidator.prototype) as NonPositiveValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_nonPositive = obj["nonPositive"] as number;
+                                                                        if (__raw_nonPositive > 0) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive must be non-positive" }); }
+instance.nonPositive = __raw_nonPositive;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!NonPositiveValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof NonPositiveValidator>(
+            _field: K,
+            _value: NonPositiveValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "nonPositive") {
+                const __val = _value as number;
+                                                if (__val > 0) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive must be non-positive" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = NonPositiveValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<NonPositiveValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("nonPositive" in _partial && _partial.nonPositive !== undefined) {
+                const __val = _partial.nonPositive as number;
+                                                if (__val > 0) { errors.push({ field: "nonPositive", message: "NonPositiveValidator.nonPositive must be non-positive" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "nonPositive" in o;
+        }
+
+        static is(obj: unknown): obj is NonPositiveValidator {
+            if (obj instanceof NonPositiveValidator) {
+                return true;
+            }
+            if (!NonPositiveValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = NonPositiveValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function nonPositiveValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: NonPositiveValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return NonPositiveValidator.deserialize(input, opts);
-}
+        export function nonPositiveValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: NonPositiveValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return NonPositiveValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function nonPositiveValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): NonPositiveValidator | __mf_PendingRef {
-    return NonPositiveValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function nonPositiveValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): NonPositiveValidator | __mf_PendingRef {
+            return NonPositiveValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonPositiveValidatorIs(
-    value: unknown
-): value is NonPositiveValidator {
-    return NonPositiveValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function nonPositiveValidatorIs(value: unknown): value is NonPositiveValidator {
+            return NonPositiveValidator.is(value);
+        }
 
 // MultipleOf validator
 /** @derive(Deserialize) */
 export class MultipleOfValidator {
-    /** @serde({ validate: ["multipleOf(5)"] }) */
-    multiple: number;
+  /** @serde({ validate: ["multipleOf(5)"] }) */
+  multiple: number;
 
-    constructor(props: {
-        multiple: number;
-    }) {
-        this.multiple = props.multiple;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { multiple: number }) {
+            this.multiple = props.multiple;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: MultipleOfValidator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = MultipleOfValidator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'MultipleOfValidator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): MultipleOfValidator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'MultipleOfValidator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MultipleOfValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = MultipleOfValidator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "MultipleOfValidator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('multiple' in obj)) {
-            errors.push({
-                field: 'multiple',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(
-            MultipleOfValidator.prototype
-        ) as MultipleOfValidator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_multiple = obj['multiple'] as number;
-            if (__raw_multiple % 5 !== 0) {
-                errors.push({
-                    field: 'multiple',
-                    message: 'MultipleOfValidator.multiple must be a multiple of 5'
-                });
-            }
-            instance.multiple = __raw_multiple;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof MultipleOfValidator>(
-        _field: K,
-        _value: MultipleOfValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'multiple') {
-            const __val = _value as number;
-            if (__val % 5 !== 0) {
-                errors.push({
-                    field: 'multiple',
-                    message: 'MultipleOfValidator.multiple must be a multiple of 5'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<MultipleOfValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('multiple' in _partial && _partial.multiple !== undefined) {
-            const __val = _partial.multiple as number;
-            if (__val % 5 !== 0) {
-                errors.push({
-                    field: 'multiple',
-                    message: 'MultipleOfValidator.multiple must be a multiple of 5'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MultipleOfValidator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'multiple' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "MultipleOfValidator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is MultipleOfValidator {
-        if (obj instanceof MultipleOfValidator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("multiple" in obj)) {
+                        errors.push({ field: "multiple", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(MultipleOfValidator.prototype) as MultipleOfValidator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_multiple = obj["multiple"] as number;
+                                                                        if (__raw_multiple % 5 !== 0) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple must be a multiple of 5" }); }
+instance.multiple = __raw_multiple;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!MultipleOfValidator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof MultipleOfValidator>(
+            _field: K,
+            _value: MultipleOfValidator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "multiple") {
+                const __val = _value as number;
+                                                if (__val % 5 !== 0) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple must be a multiple of 5" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = MultipleOfValidator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<MultipleOfValidator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("multiple" in _partial && _partial.multiple !== undefined) {
+                const __val = _partial.multiple as number;
+                                                if (__val % 5 !== 0) { errors.push({ field: "multiple", message: "MultipleOfValidator.multiple must be a multiple of 5" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "multiple" in o;
+        }
+
+        static is(obj: unknown): obj is MultipleOfValidator {
+            if (obj instanceof MultipleOfValidator) {
+                return true;
+            }
+            if (!MultipleOfValidator.hasShape(obj)) {
+                return false;
+            }
+            const result = MultipleOfValidator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function multipleOfValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: MultipleOfValidator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return MultipleOfValidator.deserialize(input, opts);
-}
+        export function multipleOfValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MultipleOfValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return MultipleOfValidator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function multipleOfValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): MultipleOfValidator | __mf_PendingRef {
-    return MultipleOfValidator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function multipleOfValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MultipleOfValidator | __mf_PendingRef {
+            return MultipleOfValidator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function multipleOfValidatorIs(
-    value: unknown
-): value is MultipleOfValidator {
-    return MultipleOfValidator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function multipleOfValidatorIs(value: unknown): value is MultipleOfValidator {
+            return MultipleOfValidator.is(value);
+        }
 
 // Uint8 validator
 /** @derive(Deserialize) */
 export class Uint8Validator {
-    /** @serde({ validate: ["uint8"] }) */
-    byte: number;
+  /** @serde({ validate: ["uint8"] }) */
+  byte: number;
 
-    constructor(props: {
-        byte: number;
-    }) {
-        this.byte = props.byte;
-    }
-    /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors   */
+constructor(props: { byte: number }) {
+            this.byte = props.byte;
 
-    static deserialize(input: unknown, opts?: __mf_DeserializeOptions): {
-        success: true;
-        value: Uint8Validator;
-    } | {
-        success: false;
-        errors: Array<{
-            field: string;
-            message: string;
-        }>;
-    } {
-        try {
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
-            const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = Uint8Validator.deserializeWithContext(data, ctx);
-            if (__mf_PendingRef.is(resultOrRef)) {
-                return {
-                    success: false,
-                    errors: [
-                        {
-                            field: '_root',
-                            message:
-                                'Uint8Validator.deserialize: root cannot be a forward reference'
-                        }
-                    ]
-                };
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            const __errors = ctx.getErrors();
-            if (__errors.length > 0) {
-                return {
-                    success: false,
-                    errors: __errors
-                };
-            }
-            return {
-                success: true,
-                value: resultOrRef
-            };
-        } catch (e) {
-            if (e instanceof __mf_DeserializeError) {
-                return {
-                    success: false,
-                    errors: e.errors
-                };
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return {
-                success: false,
-                errors: [
-                    {
-                        field: '_root',
-                        message
-                    }
-                ]
-            };
+
         }
-    }
-    /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context   */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: __mf_DeserializeContext
-    ): Uint8Validator | __mf_PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new __mf_DeserializeError([
-                {
-                    field: '_root',
-                    message: 'Uint8Validator.deserializeWithContext: expected an object'
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Uint8Validator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = Uint8Validator.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Uint8Validator.deserialize: root cannot be a forward reference"
+	}]
+});
                 }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('byte' in obj)) {
-            errors.push({
-                field: 'byte',
-                message: 'missing required field'
-            });
-        }
-        const instance = Object.create(Uint8Validator.prototype) as Uint8Validator;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_byte = obj['byte'] as number;
-            if (!Number.isInteger(__raw_byte) || __raw_byte < 0 || __raw_byte > 255) {
-                errors.push({
-                    field: 'byte',
-                    message: 'Uint8Validator.byte must be a uint8'
-                });
-            }
-            instance.byte = __raw_byte;
-        }
-        ctx.pushErrors(errors);
-        return instance;
-    }
 
-    static validateField<K extends keyof Uint8Validator>(
-        _field: K,
-        _value: Uint8Validator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (_field === 'byte') {
-            const __val = _value as number;
-            if (!Number.isInteger(__val) || __val < 0 || __val > 255) {
-                errors.push({
-                    field: 'byte',
-                    message: 'Uint8Validator.byte must be a uint8'
-                });
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
             }
         }
-        return errors;
-    }
 
-    static validateFields(_partial: Partial<Uint8Validator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('byte' in _partial && _partial.byte !== undefined) {
-            const __val = _partial.byte as number;
-            if (!Number.isInteger(__val) || __val < 0 || __val > 255) {
-                errors.push({
-                    field: 'byte',
-                    message: 'Uint8Validator.byte must be a uint8'
-                });
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): Uint8Validator | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
             }
-        }
-        return errors;
-    }
 
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'byte' in o;
-    }
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "Uint8Validator.deserializeWithContext: expected an object" }]);
+            }
 
-    static is(obj: unknown): obj is Uint8Validator {
-        if (obj instanceof Uint8Validator) {
-            return true;
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("byte" in obj)) {
+                        errors.push({ field: "byte", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(Uint8Validator.prototype) as Uint8Validator;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_byte = obj["byte"] as number;
+                                                                        if (!Number.isInteger(__raw_byte) || __raw_byte < 0 || __raw_byte > 255) { errors.push({ field: "byte", message: "Uint8Validator.byte must be a uint8" }); }
+instance.byte = __raw_byte;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
         }
-        if (!Uint8Validator.hasShape(obj)) {
-            return false;
+
+        static validateField<K extends keyof Uint8Validator>(
+            _field: K,
+            _value: Uint8Validator[K]
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if (_field === "byte") {
+                const __val = _value as number;
+                                                if (!Number.isInteger(__val) || __val < 0 || __val > 255) { errors.push({ field: "byte", message: "Uint8Validator.byte must be a uint8" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-        const result = Uint8Validator.deserialize(obj);
-        return result.success;
-    }
-}
+
+        static validateFields(
+            _partial: Partial<Uint8Validator>
+        ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+            if ("byte" in _partial && _partial.byte !== undefined) {
+                const __val = _partial.byte as number;
+                                                if (!Number.isInteger(__val) || __val < 0 || __val > 255) { errors.push({ field: "byte", message: "Uint8Validator.byte must be a uint8" }); }
+
+
+            }
+
+
+
+
+
+
+
+            return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "byte" in o;
+        }
+
+        static is(obj: unknown): obj is Uint8Validator {
+            if (obj instanceof Uint8Validator) {
+                return true;
+            }
+            if (!Uint8Validator.hasShape(obj)) {
+                return false;
+            }
+            const result = Uint8Validator.deserialize(obj);
+            return result.success;
+        }}
 
 /** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-export function uint8ValidatorDeserialize(
-    input: unknown,
-    opts?: __mf_DeserializeOptions
-): { success: true; value: Uint8Validator } | {
-    success: false;
-    errors: Array<{ field: string; message: string }>;
-} {
-    return Uint8Validator.deserialize(input, opts);
-}
+        export function uint8ValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Uint8Validator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return Uint8Validator.deserialize(input, opts);
+        }
 
-/** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-export function uint8ValidatorDeserializeWithContext(
-    value: any,
-    ctx: __mf_DeserializeContext
-): Uint8Validator | __mf_PendingRef {
-    return Uint8Validator.deserializeWithContext(value, ctx);
-}
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function uint8ValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Uint8Validator | __mf_PendingRef {
+            return Uint8Validator.deserializeWithContext(value, ctx);
+        }
 
-/** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function uint8ValidatorIs(value: unknown): value is Uint8Validator {
-    return Uint8Validator.is(value);
-}
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function uint8ValidatorIs(value: unknown): value is Uint8Validator {
+            return Uint8Validator.is(value);
+        }

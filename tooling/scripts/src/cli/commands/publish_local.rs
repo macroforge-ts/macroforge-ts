@@ -10,7 +10,7 @@ use crate::core::config::{Config, PLATFORMS};
 use crate::core::deps;
 use crate::core::registry;
 use crate::core::repos::RepoType;
-use crate::core::shell::Shell;
+use crate::core::shell::{self, Shell};
 use crate::utils::format;
 use anyhow::{Context, Result};
 use colored::Colorize;
@@ -117,16 +117,7 @@ fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
         }
         _ => {
             format::warning("npm publish failed — possibly expired token. Please log in:");
-            let status = std::process::Command::new("npm")
-                .arg("login")
-                .stdin(std::process::Stdio::inherit())
-                .stdout(std::process::Stdio::inherit())
-                .stderr(std::process::Stdio::inherit())
-                .status()
-                .context("Failed to run npm login")?;
-            if !status.success() {
-                anyhow::bail!("npm login failed");
-            }
+            shell::npm::login()?;
 
             format::info(&format!("Retrying publish for {}...", package));
             Shell::new("npm")
@@ -173,16 +164,7 @@ fn publish_crate(dir: &Path, crate_name: &str, version: &str, dry_run: bool) -> 
         }
         _ => {
             format::warning("Publish failed — possibly expired token. Please log in:");
-            let status = std::process::Command::new("cargo")
-                .arg("login")
-                .stdin(std::process::Stdio::inherit())
-                .stdout(std::process::Stdio::inherit())
-                .stderr(std::process::Stdio::inherit())
-                .status()
-                .context("Failed to run cargo login")?;
-            if !status.success() {
-                anyhow::bail!("cargo login failed");
-            }
+            shell::cargo::login()?;
 
             // Retry
             format::info(&format!("Retrying publish for {}...", crate_name));
@@ -223,16 +205,7 @@ fn ensure_npm_auth() -> Result<()> {
         _ => {
             format::warning("Not logged in to npm");
             println!("Running `npm login`...");
-            let status = std::process::Command::new("npm")
-                .arg("login")
-                .stdin(std::process::Stdio::inherit())
-                .stdout(std::process::Stdio::inherit())
-                .stderr(std::process::Stdio::inherit())
-                .status()
-                .context("Failed to run npm login")?;
-            if !status.success() {
-                anyhow::bail!("npm login failed");
-            }
+            shell::npm::login()?;
 
             // Verify
             let verify = Shell::new("npm").args(&["whoami"]).run_checked()?;
@@ -257,16 +230,7 @@ fn ensure_cargo_auth() -> Result<()> {
         }
         _ => {
             format::warning("crates.io auth failed or expired — please log in");
-            let status = std::process::Command::new("cargo")
-                .arg("login")
-                .stdin(std::process::Stdio::inherit())
-                .stdout(std::process::Stdio::inherit())
-                .stderr(std::process::Stdio::inherit())
-                .status()
-                .context("Failed to run cargo login")?;
-            if !status.success() {
-                anyhow::bail!("cargo login failed");
-            }
+            shell::cargo::login()?;
             format::success("crates.io: logged in");
             Ok(())
         }
@@ -345,19 +309,18 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
     } else if args.dry_run {
         format::info("[dry-run] napi build --platform --release");
     } else {
-        Shell::new("deno")
-            .args(&[
+        shell::deno::run_checked(
+            &root.join("crates/macroforge_ts"),
+            &[
                 "run",
                 "-A",
                 "npm:@napi-rs/cli/napi",
                 "build",
                 "--platform",
                 "--release",
-            ])
-            .dir(&root.join("crates/macroforge_ts"))
-            .inherit()
-            .run_checked()
-            .context("napi build failed")?;
+            ],
+        )
+        .context("napi build failed")?;
         format::success("Built all platform binaries");
     }
 

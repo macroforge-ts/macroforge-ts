@@ -579,7 +579,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         // Format with deno fmt (auto-fix)
         print!("  {} deno fmt... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::deno_fmt(&tooling_path) {
+        match shell::deno::deno_fmt(&tooling_path, &[]) {
             Ok(_) => println!("{}", "ok".green()),
             Err(e) => {
                 println!("{}", "failed".red());
@@ -656,6 +656,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
         io::stdout().flush()?;
         match super::expand::run(crate::cli::ExpandArgs {
             use_cli: false,
+            use_node: false,
             path: None,
         }) {
             Ok(_) => println!("{}", "done".green()),
@@ -769,7 +770,7 @@ pub fn run(args: PrepArgs) -> Result<()> {
 
         print!("  {} deno fmt tooling/... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::deno_fmt(&tooling_path) {
+        match shell::deno::deno_fmt(&tooling_path, &[]) {
             Ok(_) => println!("{}", "ok".green()),
             Err(e) => {
                 println!("{}", "failed".red());

@@ -1,6 +1,6 @@
 import pkg from 'macroforge';
 const { expandSync: expand_node } = pkg;
-import * as expand_wasm from '../../../crates/macroforge_ts/pkg-wasm/macroforge_ts.js';
+import * as expand_wasm from '../../../crates/macroforge_ts/pkg/macroforge_ts.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert';

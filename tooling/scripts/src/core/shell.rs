@@ -40,6 +40,7 @@ impl CommandResult {
 pub struct Shell<'a> {
     program: &'a str,
     args: Vec<&'a str>,
+    envs: Vec<(String, String)>,
     cwd: Option<&'a Path>,
     inherit_stdio: bool,
 }
@@ -50,6 +51,7 @@ impl<'a> Shell<'a> {
         Self {
             program,
             args: Vec::new(),
+            envs: Vec::new(),
             cwd: None,
             inherit_stdio: false,
         }
@@ -64,6 +66,12 @@ impl<'a> Shell<'a> {
     /// Add a single argument
     pub fn arg(mut self, arg: &'a str) -> Self {
         self.args.push(arg);
+        self
+    }
+
+    /// Add environment variables
+    pub fn envs(mut self, envs: Vec<(String, String)>) -> Self {
+        self.envs.extend(envs);
         self
     }
 
@@ -83,6 +91,10 @@ impl<'a> Shell<'a> {
     pub fn run(self) -> Result<CommandResult> {
         let mut cmd = Command::new(self.program);
         cmd.args(&self.args);
+
+        for (key, value) in &self.envs {
+            cmd.env(key, value);
+        }
 
         if let Some(cwd) = self.cwd {
             cmd.current_dir(cwd);
@@ -174,6 +186,22 @@ pub mod cargo {
             .run_checked()
     }
 
+    /// Run cargo login (interactive)
+    pub fn login() -> Result<()> {
+        let status = Command::new("cargo")
+            .arg("login")
+            .stdin(Stdio::inherit())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .status()?;
+
+        if status.success() {
+            Ok(())
+        } else {
+            anyhow::bail!("cargo login failed")
+        }
+    }
+
     /// Run cargo clippy with --all-targets --all-features and warnings as errors
     pub fn clippy_all(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
@@ -260,11 +288,14 @@ pub mod deno {
     }
 
     /// Run deno fmt to format code
-    pub fn deno_fmt(cwd: &Path) -> Result<CommandResult> {
-        Shell::new("deno")
-            .args(&["fmt", "."])
-            .dir(cwd)
-            .run_checked()
+    pub fn deno_fmt(cwd: &Path, paths: &[&str]) -> Result<CommandResult> {
+        let mut shell = Shell::new("deno").arg("fmt");
+        if paths.is_empty() {
+            shell = shell.arg(".");
+        } else {
+            shell = shell.args(paths);
+        }
+        shell.dir(cwd).run()
     }
 
     /// Run deno fmt --check (fails if unformatted)
@@ -308,6 +339,100 @@ pub mod deno {
             .dir(cwd)
             .run()
     }
+
+    /// Run deno eval
+    pub fn eval(cwd: &Path, script: &str, flags: &[&str]) -> Result<CommandResult> {
+        let mut shell = Shell::new("deno").arg("eval");
+        if !flags.is_empty() {
+            shell = shell.args(flags);
+        }
+        shell.arg(script).dir(cwd).run()
+    }
+
+    /// Run arbitrary deno command
+    pub fn run(cwd: &Path, args: &[&str]) -> Result<CommandResult> {
+        Shell::new("deno").args(args).dir(cwd).run()
+    }
+
+    /// Run arbitrary deno command and check for success
+    pub fn run_checked(cwd: &Path, args: &[&str]) -> Result<CommandResult> {
+        Shell::new("deno").args(args).dir(cwd).run_checked()
+    }
+}
+
+// ============================================================================
+// node commands
+// ============================================================================
+
+pub mod node {
+    use super::*;
+
+    /// Run node -e <script>
+    pub fn eval(cwd: &Path, script: &str, flags: &[&str]) -> Result<CommandResult> {
+        let mut shell = Shell::new("node");
+        if !flags.is_empty() {
+            shell = shell.args(flags);
+        }
+        shell.arg("-e").arg(script).dir(cwd).run()
+    }
+}
+
+// ============================================================================
+// npm commands
+// ============================================================================
+
+pub mod npm {
+    use super::*;
+
+    /// Run npm command
+    pub fn run(cwd: &Path, args: &[&str]) -> Result<CommandResult> {
+        Shell::new("npm").args(args).dir(cwd).run()
+    }
+
+    /// Run npm login (interactive)
+    pub fn login() -> Result<()> {
+        let status = Command::new("npm")
+            .arg("login")
+            .stdin(Stdio::inherit())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .status()?;
+
+        if status.success() {
+            Ok(())
+        } else {
+            anyhow::bail!("npm login failed")
+        }
+    }
+}
+
+/// Run an arbitrary binary
+pub fn run_binary(cwd: &Path, binary: &Path, args: &[&str]) -> Result<CommandResult> {
+    Shell::new(&binary.to_string_lossy())
+        .args(args)
+        .dir(cwd)
+        .run()
+}
+
+/// Run a command with arguments
+pub fn run_args(cwd: &Path, program: &str, args: &[&str]) -> Result<CommandResult> {
+    if program == "sh" && !args.is_empty() && args[0] == "-c" {
+        // Special case for sh -c
+        run(args[1], cwd, false)
+    } else {
+        Shell::new(program).args(args).dir(cwd).run()
+    }
+}
+
+/// Spawn a binary and return the child process (for real-time output)
+pub fn spawn_binary(cwd: &Path, binary: &Path, args: &[&str]) -> Result<std::process::Child> {
+    Command::new(binary)
+        .args(args)
+        .current_dir(cwd)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| anyhow::anyhow!("Failed to spawn binary {}: {}", binary.display(), e))
 }
 
 // ============================================================================
@@ -324,6 +449,15 @@ pub mod git {
             .dir(cwd)
             .run()?;
         Ok(result.stdout)
+    }
+
+    /// Pull from remote
+    pub fn pull(cwd: &Path, remote: &str) -> Result<()> {
+        Shell::new("git")
+            .args(&["pull", remote])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(())
     }
 
     /// Stage all changes
@@ -427,15 +561,6 @@ pub mod git {
             .map(|r| r.success)
             .unwrap_or(false)
     }
-
-    /// Pull from remote
-    pub fn pull(cwd: &Path, remote: &str) -> Result<()> {
-        Shell::new("git")
-            .args(&["pull", remote])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
-    }
 }
 
 // ============================================================================
@@ -488,32 +613,18 @@ pub mod macroforge {
         let env_vars = load_env(root);
         let crate_path = get_crate_path(root, &env_vars);
 
-        let mut cmd = Command::new("deno");
-        cmd.args([
-            "run",
-            "-A",
-            &crate_path,
-            "tsc",
-            "-p",
-            &tsconfig.to_string_lossy(),
-        ])
-        .current_dir(root);
-
-        // Pass env vars to the command
-        for (key, value) in &env_vars {
-            cmd.env(key, value);
-        }
-
-        let output = cmd
-            .output()
-            .with_context(|| format!("Failed to run macroforge tsc on {}", tsconfig.display()))?;
-
-        Ok(CommandResult {
-            success: output.status.success(),
-            exit_code: output.status.code(),
-            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-        })
+        Shell::new("deno")
+            .args(&[
+                "run",
+                "-A",
+                &crate_path,
+                "tsc",
+                "-p",
+                &tsconfig.to_string_lossy(),
+            ])
+            .envs(env_vars)
+            .dir(root)
+            .run()
     }
 }
 

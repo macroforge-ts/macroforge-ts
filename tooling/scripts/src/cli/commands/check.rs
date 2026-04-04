@@ -4,11 +4,11 @@
 
 use crate::cli::CheckArgs;
 use crate::core::config::Config;
+use crate::core::shell;
 use crate::utils::format;
 use anyhow::{Context, Result};
 use colored::Colorize;
 use std::path::Path;
-use std::process::Command;
 
 pub fn run(args: CheckArgs) -> Result<()> {
     let config = Config::load()?;
@@ -33,21 +33,11 @@ pub fn run(args: CheckArgs) -> Result<()> {
     println!();
 
     // Run TypeScript check using macroforge tsc
-    let output = Command::new("deno")
-        .args([
-            "run",
-            "-A",
-            "npm:macroforge",
-            "tsc",
-            "-p",
-            &tsconfig.to_string_lossy(),
-        ])
-        .current_dir(&config.root)
-        .output()
-        .context("Failed to run macroforge tsc")?;
+    let output =
+        shell::macroforge::tsc(&config.root, &tsconfig).context("Failed to run macroforge tsc")?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = &output.stdout;
+    let stderr = &output.stderr;
 
     // Parse errors for the specific file
     let file_str = file_path.to_string_lossy();

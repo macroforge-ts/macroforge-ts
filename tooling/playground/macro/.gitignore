@@ -12,6 +12,7 @@ node_modules/
 
 # WASM artifacts
 pkg/
+pkg-wasm/
 *.wasm
 
 # Environment

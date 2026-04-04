@@ -131,6 +131,7 @@ fn run_playground_tests(config: &Config) -> Result<()> {
     io::stdout().flush()?;
     match super::expand::run(ExpandArgs {
         use_cli: false,
+        use_node: false,
         path: None,
     }) {
         Ok(_) => println!("{}", "done".green()),
@@ -141,9 +142,13 @@ fn run_playground_tests(config: &Config) -> Result<()> {
     }
 
     // Run deno tests (replaces node --test)
-    print!("  {} Deno tests... ", "→".blue());
-    io::stdout().flush()?;
-    match shell::deno::task(&playground_tests, "test") {
+    println!("  {} Deno tests...", "→".blue());
+    match shell::Shell::new("deno")
+        .args(&["task", "test"])
+        .dir(&playground_tests)
+        .inherit()
+        .run_checked()
+    {
         Ok(_) => println!("{}", "passed".green()),
         Err(e) => {
             println!("{}", "failed".red());

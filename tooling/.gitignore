@@ -10,6 +10,7 @@ dist/
 target/
 *.node
 *.wasm
+bench-bins/
 
 # IDE
 .vscode/

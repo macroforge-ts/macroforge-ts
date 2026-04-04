@@ -2,18 +2,20 @@
     "name": "@playground/macro",
     "version": "0.0.1",
     "private": true,
-    "main": "index.js",
-    "types": "index.d.ts",
+    "main": "pkg/playground_macros.js",
+    "types": "pkg/playground_macros.d.ts",
     "napi": {
         "binaryName": "playground-macro",
         "triples": {}
     },
-    "files": ["index.d.ts", "index.js", "*.node"],
+    "files": ["pkg", "index.d.ts", "index.js", "*.node"],
     "scripts": {
         "setup-vendor": "bash ../setup-vendor.sh && source ../../.env && mkdir -p vendor && ln -sfn \"$MACROFORGE_TS_CRATE\" vendor/macroforge_ts && ln -sfn \"$MACROFORGE_TS_MACROS_CRATE\" vendor/macroforge_ts_macros && ln -sfn \"$MACROFORGE_TS_QUOTE_CRATE\" vendor/macroforge_ts_quote && ln -sfn \"$MACROFORGE_TS_SYN_CRATE\" vendor/macroforge_ts_syn",
-        "build": "deno run -A npm:@napi-rs/cli/napi build --platform --release --package playground-macros",
+        "build": "deno task build:wasm",
+        "build:native": "deno install --node-modules-dir && deno run -A npm:@napi-rs/cli/napi build --platform --release --package playground-macros --no-default-features",
+        "build:wasm": "deno install --node-modules-dir && cargo build --release --target wasm32-unknown-unknown && deno run -A ../../../tooling/scripts/bench.mjs --wasm-bindgen target/wasm32-unknown-unknown/release/playground_macros.wasm pkg",
         "prepare": "deno task setup-vendor && deno task build",
-        "clean": "rm -f *.node || true; rm -rf target node_modules",
+        "clean": "rm -f *.node || true; rm -rf target pkg node_modules",
         "cleanbuild": "deno task clean && deno install --node-modules-dir && deno task build"
     },
     "dependencies": {},

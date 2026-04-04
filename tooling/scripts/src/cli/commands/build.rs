@@ -4,12 +4,12 @@
 
 use crate::cli::BuildArgs;
 use crate::core::config::Config;
+use crate::core::shell;
 use crate::utils::format;
 use anyhow::Result;
 use colored::Colorize;
 use std::fs;
 use std::path::Path;
-use std::process::Command;
 
 /// Type alias for build step function
 type BuildStepFn = Box<dyn Fn(&Config) -> Result<()>>;
@@ -185,23 +185,17 @@ pub fn run(args: BuildArgs) -> Result<()> {
                 continue;
             }
 
-            let result = if cmd[0] == "sh" {
-                Command::new("sh").args(&cmd[1..]).current_dir(cwd).output()
-            } else {
-                Command::new(&cmd[0])
-                    .args(&cmd[1..])
-                    .current_dir(cwd)
-                    .output()
-            };
+            let args: Vec<&str> = cmd[1..].iter().map(|s| s.as_str()).collect();
+            let result = shell::run_args(cwd, &cmd[0], &args);
 
             match result {
-                Ok(output) if output.status.success() => {
+                Ok(output) if output.success => {
                     println!("  {} {}", "✓".green(), "done".dimmed());
                 }
                 Ok(output) => {
                     println!("  {} {}", "✗".red(), "failed".red());
                     if !output.stderr.is_empty() {
-                        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+                        eprintln!("{}", output.stderr);
                     }
                     anyhow::bail!("Build step failed: {}", step.label);
                 }
