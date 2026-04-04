@@ -347,6 +347,58 @@ export async function macroforge() {
   try {
     const projectRequire = createRequire(process.cwd() + "/");
     rustTransformer = projectRequire("macroforge");
+
+    // Register external macro callbacks for WASM builds.
+    // The WASM build cannot spawn Node subprocesses to resolve external macros,
+    // so we provide JS-side resolve/run callbacks. No-op for NAPI builds.
+    if (rustTransformer.setupExternalMacros) {
+      const req = createRequire(process.cwd() + "/package.json");
+
+      function resolveDecoratorNames(packagePath) {
+        const candidates = [packagePath];
+        for (const id of candidates) {
+          try {
+            const pkg = req(id);
+            const names = [];
+            if (pkg.__macroforgeGetManifest) {
+              names.push(
+                ...(pkg.__macroforgeGetManifest().decorators || []).map(
+                  (d) => d.export,
+                ),
+              );
+            }
+            for (const key of Object.keys(pkg)) {
+              if (
+                key.startsWith("__macroforgeGetManifest_") &&
+                typeof pkg[key] === "function"
+              ) {
+                names.push(
+                  ...(pkg[key]().decorators || []).map((d) => d.export),
+                );
+              }
+            }
+            if (names.length > 0) return [...new Set(names)];
+          } catch {}
+        }
+        return [];
+      }
+
+      function runMacro(ctxJson) {
+        const ctx = JSON.parse(ctxJson);
+        const fnName = `__macroforgeRun${ctx.macro_name}`;
+        const candidates = [ctx.module_path];
+        for (const id of candidates) {
+          try {
+            const pkg = req(id);
+            const fn_ = pkg?.[fnName] || pkg?.default?.[fnName];
+            if (typeof fn_ === "function") return fn_(ctxJson);
+          } catch {}
+        }
+        throw new Error(`Macro ${fnName} not found in ${ctx.module_path}`);
+      }
+
+      rustTransformer.setupExternalMacros(resolveDecoratorNames, runMacro);
+    }
   } catch (error) {
     console.warn(
       "[@macroforge/vite-plugin] Rust binary not found. Please run `npm run build:rust` first.",
