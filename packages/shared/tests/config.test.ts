@@ -109,7 +109,6 @@ Deno.test('loadMacroConfig - uses custom loader when provided', async () => {
             generateConvenienceConst: true,
             hasForeignTypes: false,
             foreignTypeCount: 0,
-            returnTypes: 'vanilla'
         });
 
         const config = loadMacroConfig(tempDir, customLoader);

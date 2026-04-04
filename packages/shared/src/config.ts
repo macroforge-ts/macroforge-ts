@@ -19,23 +19,6 @@ export const CONFIG_FILES = [
 ] as const;
 
 /**
- * Return type style for generated macro code.
- *
- * - `'vanilla'` (default): Plain TypeScript discriminated unions
- *   - Deserialize: `{ success: true; value: T } | { success: false; errors: FieldError[] }`
- *   - PartialOrd: `number | null`
- *
- * - `'custom'`: Uses `@rydshift/mirror` types
- *   - Deserialize: `Result<T, Array<FieldError>>`
- *   - PartialOrd: `Option<number>`
- *
- * - `'effect'`: Uses Effect library types
- *   - Deserialize: `Exit<FieldError[], T>`
- *   - PartialOrd: `Option.Option<number>`
- */
-export type ReturnTypesMode = 'vanilla' | 'custom' | 'effect';
-
-/**
  * Result from parsing a config file.
  */
 export interface ConfigLoadResult {
@@ -43,8 +26,6 @@ export interface ConfigLoadResult {
     generateConvenienceConst: boolean;
     hasForeignTypes: boolean;
     foreignTypeCount: number;
-    /** Return types mode as a string. Will be "vanilla", "custom", or "effect". */
-    returnTypes: string;
 }
 
 /**
@@ -129,15 +110,6 @@ export interface MacroConfig {
      * Whether the config has foreign type handlers defined.
      */
     hasForeignTypes?: boolean;
-
-    /**
-     * Return type style for generated macro code.
-     *
-     * - `'vanilla'` (default): Plain TypeScript discriminated unions
-     * - `'custom'`: Uses `@rydshift/mirror` Result/Option types
-     * - `'effect'`: Uses Effect library Exit/Option types
-     */
-    returnTypes?: ReturnTypesMode;
 
     /**
      * Vite plugin configuration options.
@@ -230,7 +202,7 @@ export function loadMacroConfig(
     startDir: string,
     loadConfigFn?: ConfigLoader
 ): MacroConfig {
-    const fallback: MacroConfig = { keepDecorators: false };
+    const fallback: MacroConfig = { keepDecorators: false, hasForeignTypes: false };
 
     const configPath = findConfigFile(startDir);
     if (!configPath) {
@@ -242,15 +214,14 @@ export function loadMacroConfig(
         try {
             const content = fs.readFileSync(configPath, 'utf8');
             const result = loadConfigFn(content, configPath);
-
             return {
                 keepDecorators: result.keepDecorators,
                 generateConvenienceConst: result.generateConvenienceConst,
                 configPath,
                 hasForeignTypes: result.hasForeignTypes,
-                returnTypes: result.returnTypes as ReturnTypesMode
             };
-        } catch {
+        } catch (e) {
+            // console.error(`[macroforge:shared] loadMacroConfig failed for ${configPath}:`, e);
             // Fall through to fallback
         }
     }
