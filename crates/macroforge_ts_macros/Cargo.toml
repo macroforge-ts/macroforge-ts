@@ -23,3 +23,8 @@ convert_case = "0.11.0"
 
 [features]
 default = []
+
+[dev-dependencies]
+trybuild = "1.0"
+macroforge_ts = { path = "../macroforge_ts", features = ["node"] }
+napi = "3.0"

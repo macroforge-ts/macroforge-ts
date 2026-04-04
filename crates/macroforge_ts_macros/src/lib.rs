@@ -169,75 +169,145 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     // Generate the runMacro NAPI function for this specific macro
     // Use the macro name (not the struct name) for consistent naming
-    let run_macro_fn_ident = format_ident!(
-        "__ts_macro_run_{}",
+    let run_macro_inner_ident = format_ident!(
+        "__ts_macro_run_{}_inner",
         options.name.to_string().to_case(Case::Snake)
     );
     let run_macro_js_name = format!("__macroforgeRun{}", options.name);
     let run_macro_js_name_lit = LitStr::new(&run_macro_js_name, Span::call_site());
 
-    let run_macro_napi = quote! {
-        /// Run this macro with the given context.
-        ///
-        /// This function is automatically generated and exposed to JavaScript via NAPI.
-        /// It deserializes the macro context from JSON, executes the macro transformation,
-        /// and serializes the result back to JSON for the TypeScript plugin.
-        ///
-        /// # Arguments
-        ///
-        /// * `context_json` - A JSON string containing the [`MacroContextIR`] with:
-        ///   - `target_source`: The TypeScript source code to transform
-        ///   - `file_name`: The source file path for error reporting
-        ///   - Additional context metadata
-        ///
-        /// # Returns
-        ///
-        /// Returns a JSON string containing the [`MacroResult`] with the transformed code
-        /// or any diagnostic errors.
-        ///
-        /// # Errors
-        ///
-        /// Returns a NAPI error if:
-        /// - The input JSON cannot be parsed
-        /// - The `TsStream` cannot be created from the context
-        /// - The result cannot be serialized to JSON
-        #[cfg(feature = "node")]
-        #[cfg_attr(feature = "node", macroforge_ts::napi_derive::napi(js_name = #run_macro_js_name_lit))]
-        pub fn #run_macro_fn_ident(context_json: String) -> macroforge_ts::napi::Result<String> {
+    let is_macroforge_ts = std::env::var("CARGO_PKG_NAME")
+        .map(|v| v == "macroforge_ts")
+        .unwrap_or(false);
+
+    let run_macro_wasm_mod_ident = format_ident!(
+        "__ts_macro_wasm_export_{}",
+        options.name.to_string().to_case(Case::Snake)
+    );
+    let run_macro_napi_mod_ident = format_ident!(
+        "__ts_macro_napi_export_{}",
+        options.name.to_string().to_case(Case::Snake)
+    );
+
+    // Use unique manifest export names per macro to avoid collisions
+    // The engine will discover and aggregate these.
+    let get_manifest_js_name = format!("__macroforgeGetManifest_{}", options.name);
+    let get_macro_names_js_name = format!("__macroforgeGetMacroNames_{}", options.name);
+    let is_macro_package_js_name = format!("__macroforgeIsMacroPackage_{}", options.name);
+
+    let manifest_exports = if is_macroforge_ts {
+        quote! {}
+    } else {
+        quote! {
+            #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #get_manifest_js_name)]
+            pub fn get_manifest() -> macroforge_ts::wasm_bindgen::JsValue {
+                macroforge_ts::serde_wasm_bindgen::to_value(&macroforge_ts::get_macro_manifest()).unwrap()
+            }
+
+            #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #get_macro_names_js_name)]
+            pub fn get_macro_names() -> macroforge_ts::wasm_bindgen::JsValue {
+                macroforge_ts::serde_wasm_bindgen::to_value(&macroforge_ts::get_macro_names()).unwrap()
+            }
+
+            #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #is_macro_package_js_name)]
+            pub fn is_macro_package() -> bool {
+                true
+            }
+        }
+    };
+
+    let napi_manifest_exports = if is_macroforge_ts {
+        quote! {}
+    } else {
+        quote! {
+            #[macroforge_ts::napi_derive::napi(js_name = #get_manifest_js_name)]
+            pub fn get_manifest() -> macroforge_ts::host::derived::MacroManifest {
+                macroforge_ts::get_macro_manifest()
+            }
+
+            #[macroforge_ts::napi_derive::napi(js_name = #get_macro_names_js_name)]
+            pub fn get_macro_names() -> Vec<String> {
+                macroforge_ts::get_macro_names()
+            }
+
+            #[macroforge_ts::napi_derive::napi(js_name = #is_macro_package_js_name)]
+            pub fn is_macro_package() -> bool {
+                true
+            }
+        }
+    };
+
+    let run_macro_exports = quote! {
+        fn #run_macro_inner_ident(context_json: String) -> Result<String, String> {
             use macroforge_ts::host::Macroforge;
 
+            let ctx: macroforge_ts::ts_syn::MacroContextIR =
+                macroforge_ts::serde_json::from_str(&context_json)
+                    .map_err(|e| format!("Invalid context JSON: {}", e))?;
 
-            // Parse the context from JSON
-            let ctx: macroforge_ts::ts_syn::MacroContextIR = macroforge_ts::serde_json::from_str(&context_json)
-                .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::InvalidArg, format!("Invalid context JSON: {}", e)))?;
-
-            // Install the full import registry so external macros have access to
-            // source imports, config imports, and previously generated imports.
             macroforge_ts::ts_syn::import_registry::install_registry(ctx.import_registry.clone());
 
-            // Install foreign type configs so macros can match foreign types
-            // and use their default/serialize/deserialize expressions.
             if let Some(ref config) = ctx.config {
                 macroforge_ts::host::import_registry::set_foreign_types(
                     config.foreign_types.clone(),
                 );
             }
 
-            // Create TsStream from context
-            let input = macroforge_ts::ts_syn::TsStream::with_context(&ctx.target_source, &ctx.file_name, ctx.clone())
-                .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::GenericFailure, format!("Failed to create TsStream: {:?}", e)))?;
+            let input = macroforge_ts::ts_syn::TsStream::with_context(
+                &ctx.target_source,
+                &ctx.file_name,
+                ctx.clone(),
+            )
+            .map_err(|e| format!("Failed to create TsStream: {:?}", e))?;
 
-            // Run the macro
             let macro_impl = #struct_ident;
             let result = macro_impl.run(input);
 
-            // Clear the registry and foreign types after the macro has run to avoid leaking state
             macroforge_ts::ts_syn::import_registry::clear_registry();
             macroforge_ts::host::import_registry::clear_foreign_types();
 
-            // Serialize result to JSON
             macroforge_ts::serde_json::to_string(&result)
-                .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::GenericFailure, format!("Failed to serialize result: {}", e)))
+                .map_err(|e| format!("Failed to serialize result: {}", e))
+        }
+
+        // --- NAPI Bindings (Node.js) ---
+        macroforge_ts::if_node! {
+            mod #run_macro_napi_mod_ident {
+                use super::#run_macro_inner_ident;
+
+                #[macroforge_ts::napi_derive::napi(js_name = #run_macro_js_name_lit)]
+                pub fn run_macro(context_json: String) -> macroforge_ts::napi::Result<String> {
+                    #run_macro_inner_ident(context_json).map_err(|message| {
+                        macroforge_ts::napi::Error::new(
+                            macroforge_ts::napi::Status::GenericFailure,
+                            message,
+                        )
+                    })
+                }
+
+                #napi_manifest_exports
+            }
+            pub use #run_macro_napi_mod_ident::*;
+        }
+
+        // --- WASM Bindings ---
+        macroforge_ts::if_wasm! {
+            mod #run_macro_wasm_mod_ident {
+                use super::#run_macro_inner_ident;
+                use macroforge_ts::wasm_bindgen;
+
+                #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #run_macro_js_name_lit)]
+                pub fn run_macro_wasm(
+                    context_json: String,
+                ) -> Result<String, macroforge_ts::wasm_bindgen::JsValue> {
+                    #run_macro_inner_ident(context_json)
+                        .map_err(|message| macroforge_ts::wasm_bindgen::JsValue::from_str(&message))
+                }
+
+                #manifest_exports
+            }
+
+            pub use #run_macro_wasm_mod_ident::*;
         }
     };
 
@@ -307,7 +377,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
             }
         }
 
-        #run_macro_napi
+        #run_macro_exports
     };
 
     output.into()
