@@ -1,4 +1,4 @@
-//! Check documentation freshness (CI)
+//! Check documentation freshness
 //!
 //! Verifies that generated documentation is up-to-date with source files by
 //! regenerating docs into a temp directory and comparing content hashes.

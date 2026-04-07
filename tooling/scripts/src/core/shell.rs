@@ -492,7 +492,7 @@ pub mod git {
         Ok(())
     }
 
-    /// Delete a remote tag (used to force GitHub to re-trigger CI on retag)
+    /// Delete a remote tag
     pub fn delete_remote_tag(cwd: &Path, tag_name: &str) -> Result<()> {
         Shell::new("git")
             .args(&["push", "origin", "--delete", tag_name])
