@@ -793,10 +793,9 @@ pub fn run(args: PrepArgs) -> Result<()> {
             }
         }
 
-        // ALWAYS swap to registry dependencies for commit/CI
-        // (CI can't use local paths - it needs to pull from registries)
+        // Swap to registry dependencies for publishing
         println!(
-            "  {} Swapping to registry dependencies for commit...",
+            "  {} Swapping to registry dependencies for publish...",
             "→".blue()
         );
         manifests::swap_registry(&config, &versions_cache)?;

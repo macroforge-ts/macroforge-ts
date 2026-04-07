@@ -32,7 +32,7 @@ pub enum Commands {
     /// Prepare a release (bump versions, build, test, docs)
     Prep(PrepArgs),
 
-    /// Commit queue for releasing packages in dependency order
+    /// Stage and commit all changes in the monorepo
     Commit(CommitArgs),
 
     /// Manifest manipulation (versions, dependencies)
@@ -63,7 +63,7 @@ pub enum Commands {
     #[command(name = "publish-local")]
     PublishLocal(PublishLocalArgs),
 
-    /// Commit, tag, and push all repos (no registry waiting)
+    /// Tag and push the monorepo
     Push(PushArgs),
 }
 
@@ -104,14 +104,6 @@ pub struct PrepArgs {
 
 #[derive(clap::Args)]
 pub struct CommitArgs {
-    /// Repos to commit (comma-separated, or 'all', 'rust', 'ts')
-    #[arg(short, long, default_value = "all")]
-    pub repos: String,
-
-    /// Skip confirmation prompts
-    #[arg(short = 'y', long)]
-    pub yes: bool,
-
     /// Dry run - show what would be done
     #[arg(long)]
     pub dry_run: bool,
@@ -119,10 +111,6 @@ pub struct CommitArgs {
     /// Custom commit message
     #[arg(short, long)]
     pub message: Option<String>,
-
-    /// Don't cascade to dependent packages
-    #[arg(long)]
-    pub no_cascade: bool,
 }
 
 #[derive(clap::Args)]
@@ -241,7 +229,7 @@ pub enum DocsCommands {
     /// Generate README.md files
     GenerateReadmes,
 
-    /// Check if documentation is up to date (CI)
+    /// Check if documentation is up to date
     CheckFreshness,
 
     /// Run all documentation generation steps
@@ -296,10 +284,6 @@ pub struct PublishLocalArgs {
 
 #[derive(clap::Args)]
 pub struct PushArgs {
-    /// Repos to push (comma-separated, or 'all', 'rust', 'ts')
-    #[arg(short, long, default_value = "all")]
-    pub repos: String,
-
     /// Skip confirmation prompts
     #[arg(short = 'y', long)]
     pub yes: bool,
@@ -307,8 +291,4 @@ pub struct PushArgs {
     /// Dry run - show what would be done
     #[arg(long)]
     pub dry_run: bool,
-
-    /// Custom commit message (used for all repos)
-    #[arg(short, long)]
-    pub message: Option<String>,
 }
