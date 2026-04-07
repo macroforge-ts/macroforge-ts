@@ -4,38 +4,80 @@ channels = ["conda-forge"]
 name = "macroforge"
 platforms = ["osx-64"]
 version = "0.1.0"
-
 [tasks]
+# Build mf tooling binary
+"build:mf" = { cmd = "cd tooling/scripts && cargo build --release" }
+
+# Core builds
 build = { cmd = "pixi run build:rust && pixi run build:plugin" }
-"build:rust" = { cmd = "cd crates/macroforge_ts && bun x napi build --platform --release" }
-"build:website" = {cmd = "cd website && npm run build"}
-"build:plugin" = { cmd = "bun run --cwd packages/vite-plugin build" }
-"build:@playground/macro" = { cmd = "cd playground/macro && bun x napi build --platform --release -p playground-macros" }
-"build:@playground/svelte" = "cd playground/svelte && npm run build"
-"build:@playground/vanilla" = "cd playground/vanilla && npm run build"
+"build:rust" = { cmd = "cd crates/macroforge_ts && deno task build" }
+"build:website" = { cmd = "cd website && deno task build" }
+"build:plugin" = { cmd = "cd packages/vite-plugin && deno task build" }
+"build:@playground/macro" = { cmd = "cd tooling/playground/macro && deno task build" }
+"build:@playground/svelte" = "cd tooling/playground/svelte && deno task build"
+"build:@playground/vanilla" = "cd tooling/playground/vanilla && deno task build"
 "build:playground" = "pixi run build:@playground/macro && pixi run build:@playground/svelte && pixi run build:@playground/vanilla"
-"test:rust" = { cmd = "cd crates && cargo test --workspace" }
-"test:packages" = { cmd = "cd packages/typescript-plugin && bun run test && cd ../svelte-language-server && bun run test && cd ../vite-plugin && bun run test" }
-"test:playground" = { cmd = "node ./scripts/test-playground-expansion.cjs && (cd playground/tests && node --test --test-force-exit *.test.mjs) && (cd playground/tests && bun test validators/) && (cd playground/tests/rust-tests && cargo test) && (cd playground/tests && npm run test:e2e)" }
-"test:all" = { cmd = "pixi run test:rust && pixi run test:packages && pixi run test:playground" }
-"test:e2e:zed" = { cmd = "./tests/e2e/run-zed-test.sh" }
-"test:e2e:zed:verbose" = { cmd = "./tests/e2e/run-zed-test.sh --verbose" }
-"test:e2e:zed:node" = { cmd = "node --test tests/e2e/zed-extension-startup.test.js" }
-diagnostics = { cmd = "bun ./scripts/diagnostics.cjs" }
-"diagnostics:log" = { cmd = "bun ./scripts/diagnostics.cjs --log" }
+
+# Tests
+"test:rust" = { cmd = "tooling/scripts/target/release/mf test rust" }
+"test:packages" = { cmd = "tooling/scripts/target/release/mf test packages" }
+"test:playground" = { cmd = "tooling/scripts/target/release/mf test playground" }
+"test:all" = { cmd = "tooling/scripts/target/release/mf test all" }
+"test:e2e:zed" = { cmd = "./tooling/tests/e2e/run-zed-test.sh" }
+"test:e2e:zed:verbose" = { cmd = "./tooling/tests/e2e/run-zed-test.sh --verbose" }
+"test:e2e:zed:node" = { cmd = "node --test tooling/tests/e2e/zed-extension-startup.test.js" }
+
+# Diagnostics (using mf)
+diagnostics = { cmd = "tooling/scripts/target/release/mf diagnostics" }
+"diagnostics:log" = { cmd = "tooling/scripts/target/release/mf diagnostics --log" }
+"diagnostics:json" = { cmd = "tooling/scripts/target/release/mf diagnostics --json" }
+
+# Macros
 "macro:expand" = { cmd = "cargo run -p ts_macro_cli -- expand --use-node" }
 "macro:tsc" = { cmd = "cargo run -p ts_macro_cli -- tsc" }
-"expand:playground" = { cmd = "bun ./scripts/expand-playground.cjs" }
-"test:playground:expansion" = { cmd = "node ./scripts/test-playground-expansion.cjs" }
-"cleanbuild:all" = { cmd = "bun ./scripts/cleanbuild-all.cjs" }
-bump = { cmd = "node scripts/bump-version.cjs" }
-"docs:book" = { cmd = "rust-script scripts/build-docs-book.rs" }
+"expand:playground" = { cmd = "tooling/scripts/target/release/mf expand" }
+
+# Clean builds (using mf)
+"cleanbuild:all" = { cmd = "tooling/scripts/target/release/mf build --repos all" }
+"cleanbuild:ts" = { cmd = "tooling/scripts/target/release/mf build --repos ts" }
+"cleanbuild:rust" = { cmd = "tooling/scripts/target/release/mf build --repos rust" }
+
+# Version management (using mf)
+bump = { cmd = "tooling/scripts/target/release/mf prep --bump-only" }
+sync = { cmd = "tooling/scripts/target/release/mf prep --sync-versions --bump-only" }
+rebase = { cmd = "tooling/scripts/target/release/mf versions" }
+
+# Documentation (using mf)
+"docs:book" = { cmd = "tooling/scripts/target/release/mf docs build-book" }
 "docs:mcp" = { cmd = "rust-script packages/mcp-server/scripts/extract-docs.rs" }
-"docs:api" = { cmd = "rust-script scripts/extract-rust-docs.rs && rust-script scripts/extract-ts-docs.rs" }
-"docs:readmes" = { cmd = "node scripts/generate-readmes.cjs" }
-"docs:all" = { cmd = "pixi run docs:api && pixi run docs:readmes && pixi run docs:book && pixi run docs:mcp" }
-"docs:check" = { cmd = "node scripts/check-docs-freshness.cjs" }
-prep = {cmd = "node scripts/prep-for-commit.cjs"}
-"sync:website" = {cmd = "node scripts/sync-website.cjs"}
+"docs:api" = { cmd = "tooling/scripts/target/release/mf docs extract-rust && tooling/scripts/target/release/mf docs extract-ts" }
+"docs:readmes" = { cmd = "tooling/scripts/target/release/mf docs generate-readmes" }
+"docs:all" = { cmd = "tooling/scripts/target/release/mf docs all" }
+"docs:check" = { cmd = "tooling/scripts/target/release/mf docs check-freshness" }
+
+# Release workflow (using mf)
+prep = { cmd = "tooling/scripts/target/release/mf prep" }
+"prep:dry" = { cmd = "tooling/scripts/target/release/mf prep --dry-run" }
+commit = { cmd = "tooling/scripts/target/release/mf commit" }
+"commit:dry" = { cmd = "tooling/scripts/target/release/mf commit --dry-run" }
+push = { cmd = "tooling/scripts/target/release/mf push" }
+"push:dry" = { cmd = "tooling/scripts/target/release/mf push --dry-run" }
+"publish:skip-build" = { cmd = "tooling/scripts/target/release/mf publish-local --skip-build" }
+publish = { cmd = "tooling/scripts/target/release/mf publish-local" }
+"publish:dry" = { cmd = "tooling/scripts/target/release/mf publish-local --dry-run" }
+
+# Manifest manipulation (using mf)
+"manifest:list" = { cmd = "tooling/scripts/target/release/mf manifest list" }
+"manifest:swap-local" = { cmd = "tooling/scripts/target/release/mf manifest swap-local" }
+"manifest:swap-registry" = { cmd = "tooling/scripts/target/release/mf manifest swap-registry" }
+
+"install:cli" = {cmd= "cargo install --path crates/macroforge_ts"}
+bench = { cmd = "deno run -A tooling/scripts/bench.mjs" }
+"bench:all" = { cmd = "deno run -A tooling/scripts/bench.mjs --all" }
+"bench:build" = { cmd = "deno run -A tooling/scripts/bench.mjs --build" }
+"build:all-concurrent" = { cmd = "deno run -A npm:concurrently -n cli,wasm,macro 'pixi run install:cli' 'pixi run build:rust' 'pixi run build:@playground/macro'" }
+
+# TUI dashboard
+scripts = { cmd = "tooling/scripts/target/release/mf --tui" }
 
 [dependencies]
