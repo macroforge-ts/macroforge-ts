@@ -1,0 +1,113 @@
+// js/serde/index.ts
+var SerializeContext;
+((SerializeContext2) => {
+  function create() {
+    const ids = /* @__PURE__ */ new WeakMap();
+    let nextId = 0;
+    return {
+      getId: (obj) => ids.get(obj),
+      register: (obj) => {
+        const id = nextId++;
+        ids.set(obj, id);
+        return id;
+      }
+    };
+  }
+  SerializeContext2.create = create;
+})(SerializeContext || (SerializeContext = {}));
+var DeserializeContext;
+((DeserializeContext2) => {
+  function create() {
+    const registry = /* @__PURE__ */ new Map();
+    const patches = [];
+    const toFreeze = [];
+    const errors = [];
+    const scopes = [];
+    return {
+      register: (id, instance) => {
+        registry.set(id, instance);
+      },
+      getOrDefer: (refId) => {
+        if (registry.has(refId)) {
+          return registry.get(refId);
+        }
+        return PendingRef.create(refId);
+      },
+      assignOrDefer: (target, prop, value) => {
+        if (PendingRef.is(value)) {
+          target[prop] = null;
+          patches.push({ target, prop, refId: value.id });
+        } else {
+          target[prop] = value;
+        }
+      },
+      addPatch: (target, prop, refId) => {
+        patches.push({ target, prop, refId });
+      },
+      trackForFreeze: (obj) => {
+        toFreeze.push(obj);
+      },
+      applyPatches: () => {
+        for (const { target, prop, refId } of patches) {
+          if (!registry.has(refId)) {
+            throw new Error(`Unresolved reference: __ref ${refId}`);
+          }
+          target[prop] = registry.get(refId);
+        }
+      },
+      freezeAll: () => {
+        for (const obj of toFreeze) {
+          Object.freeze(obj);
+        }
+      },
+      pushScope: (name) => {
+        scopes.push(name);
+      },
+      popScope: () => {
+        scopes.pop();
+      },
+      pushErrors: (errs) => {
+        const prefix = scopes.length > 0 ? scopes.join(".") : "";
+        for (const e of errs) {
+          const field = e.field === "_root" ? prefix || "_root" : prefix ? prefix + "." + e.field : e.field;
+          errors.push({ field, message: e.message });
+        }
+      },
+      getErrors: () => errors
+    };
+  }
+  DeserializeContext2.create = create;
+})(DeserializeContext || (DeserializeContext = {}));
+var PendingRef;
+((PendingRef2) => {
+  function create(id) {
+    return { __pendingRef: true, id };
+  }
+  PendingRef2.create = create;
+  function is(value) {
+    return value !== null && typeof value === "object" && value.__pendingRef === true && typeof value.id === "number";
+  }
+  PendingRef2.is = is;
+})(PendingRef || (PendingRef = {}));
+var DeserializeError = class extends Error {
+  /**
+   * Array of field-level validation errors.
+   */
+  errors;
+  /**
+   * Creates a new deserialization error.
+   * @param errors - Array of field validation errors
+   */
+  constructor(errors) {
+    const message = errors.map((e) => `${e.field}: ${e.message}`).join("; ");
+    super(message);
+    this.name = "DeserializeError";
+    this.errors = errors;
+  }
+};
+export {
+  DeserializeContext,
+  DeserializeError,
+  PendingRef,
+  SerializeContext
+};

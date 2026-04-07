@@ -1,0 +1,14 @@
+{
+    "fmt": {
+        "useTabs": false,
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "singleQuote": true,
+        "semiColons": true,
+        "trailingCommas": "never",
+        "exclude": ["**/dist", "**/build", "**/node_modules"]
+    },
+    "lint": {
+        "exclude": ["."]
+    }
+}

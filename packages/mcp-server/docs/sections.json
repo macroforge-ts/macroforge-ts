@@ -1,0 +1,74 @@
+[
+  {
+    "id": "debug",
+    "title": "Debug",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/debug.md",
+    "use_cases": "toString, debugging, logging, output, print"
+  },
+  {
+    "id": "clone",
+    "title": "Clone",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/clone.md",
+    "use_cases": "copy, clone, duplicate, shallow copy, immutable"
+  },
+  {
+    "id": "default",
+    "title": "Default",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/default.md",
+    "use_cases": "default values, factory, initialization, constructor"
+  },
+  {
+    "id": "hash",
+    "title": "Hash",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/hash.md",
+    "use_cases": "hashCode, hashing, hash map, equality, hash function"
+  },
+  {
+    "id": "ord",
+    "title": "Ord",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/ord.md",
+    "use_cases": "compareTo, ordering, sorting, comparison, total order"
+  },
+  {
+    "id": "partial-eq",
+    "title": "PartialEq",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/partial-eq.md",
+    "use_cases": "equals, equality, comparison, value equality"
+  },
+  {
+    "id": "partial-ord",
+    "title": "PartialOrd",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/partial-ord.md",
+    "use_cases": "compareTo, partial ordering, sorting, nullable comparison"
+  },
+  {
+    "id": "serialize",
+    "title": "Serialize",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/serialize.md",
+    "use_cases": "toJSON, serialization, json, api, data transfer"
+  },
+  {
+    "id": "deserialize",
+    "title": "Deserialize",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize.md",
+    "use_cases": "fromJSON, deserialization, parsing, validation, json"
+  }
+]

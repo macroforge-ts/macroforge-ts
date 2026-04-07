@@ -1,0 +1,104 @@
+//! # Built-in Derive Macros for Macroforge
+//!
+//! This module provides the standard derive macros that ship with macroforge-ts.
+//! These macros generate common boilerplate methods for TypeScript classes,
+//! interfaces, enums, and type aliases.
+//!
+//! ## Available Macros
+//!
+//! ### Equality & Hashing
+//!
+//! | Macro | Generated Method | Description |
+//! |-------|------------------|-------------|
+//! | `PartialEq` | `static equals(a, b): boolean` | Field-by-field equality comparison |
+//! | `Hash` | `static hashCode(value): number` | Hash code generation for collections |
+//!
+//! ### Ordering
+//!
+//! | Macro | Generated Method | Description |
+//! |-------|------------------|-------------|
+//! | `PartialOrd` | `static compareTo(a, b): number \| null` | Partial ordering (can return null) |
+//! | `Ord` | `static compareTo(a, b): number` | Total ordering (never null) |
+//!
+//! ### Cloning & Debugging
+//!
+//! | Macro | Generated Method | Description |
+//! |-------|------------------|-------------|
+//! | `Clone` | `static clone(value): T` | Deep copy of the object |
+//! | `Debug` | `static toString(value): string` | Human-readable debug representation |
+//!
+//! ### Initialization
+//!
+//! | Macro | Generated Method | Description |
+//! |-------|------------------|-------------|
+//! | `Default` | `static defaultValue(): T` | Factory method with default values |
+//!
+//! ### Serialization (Serde)
+//!
+//! | Macro | Generated Method | Description |
+//! |-------|------------------|-------------|
+//! | `Serialize` | `toJSON(): Record<string, unknown>` | JSON serialization |
+//! | `Deserialize` | `static fromJSON(json): T` | JSON deserialization with validation |
+//!
+//! ## Field-Level Decorators
+//!
+//! Most macros support field-level decorators to customize behavior:
+//!
+//! ```typescript
+//! /** @derive(Debug, PartialEq, Serialize) */
+//! class User {
+//!     /** @debug({ rename: "identifier" }) */
+//!     id: number;
+//!
+//!     /** @partialEq({ skip: true }) @serde({ skipSerializing: true }) */
+//!     password: string;
+//!
+//!     /** @serde({ rename: "emailAddress" }) */
+//!     email: string;
+//! }
+//! ```
+//!
+//! ## Example Usage
+//!
+//! ```typescript
+//! /** @derive(Debug, Clone, PartialEq, Hash) */
+//! class Point {
+//!     x: number;
+//!     y: number;
+//!
+//!     constructor(x: number, y: number) {
+//!         this.x = x;
+//!         this.y = y;
+//!     }
+//! }
+//! ```
+
+/// Clone macro implementation (deep copy).
+pub mod derive_clone;
+
+/// Shared utilities for comparison macros.
+pub mod derive_common;
+
+/// Debug macro implementation (toString).
+mod derive_debug;
+
+/// Default macro implementation (factory method).
+mod derive_default;
+
+/// Hash macro implementation (hashCode).
+pub mod derive_hash;
+
+/// Ord macro implementation (total ordering).
+mod derive_ord;
+
+/// PartialEq macro implementation (equals).
+pub mod derive_partial_eq;
+
+/// PartialOrd macro implementation (partial ordering).
+mod derive_partial_ord;
+
+/// Serialization macros (Serialize, Deserialize).
+pub mod serde;
+
+/// Return type code generation helpers for Deserialize and PartialOrd macros.
+pub mod return_types;

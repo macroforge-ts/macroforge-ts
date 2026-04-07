@@ -1,0 +1,998 @@
+//! A `syn`-like parsing API for TypeScript using SWC.
+//!
+//! This module provides a [`TsStream`] type and [`ParseTs`] trait that abstract
+//! over SWC's parser, making it feel more like Rust's `syn` crate. This is the
+//! low-level parsing API; most macro authors will prefer using
+//! [`DeriveInput`](crate::DeriveInput) from the [`derive`](crate::derive) module.
+//!
+//! ## Overview
+//!
+//! - [`TsStream`] - A parsing stream wrapping SWC's parser
+//! - [`ParseTs`] - A trait for types that can be parsed from TypeScript source
+//! - [`parse_ts_str`] - Parse a string into any [`ParseTs`] type
+//! - [`parse_ts_expr`], [`parse_ts_stmt`], [`parse_ts_module`] - Convenience functions
+//! - [`format_ts_source`] - Format TypeScript code using SWC's emitter
+//!
+//! ## Basic Usage
+//!
+//! ```rust
+//! # #[cfg(feature = "swc")] {
+//! use macroforge_ts_syn::{TsStream, TsSynError, parse_ts_str};
+//! use macroforge_ts_syn::swc_ecma_ast::{Expr, Module, Stmt};
+//!
+//! let _expr: Box<Expr> = parse_ts_str("x + y")?;
+//! let _stmt: Stmt = parse_ts_str("const x = 5;")?;
+//! let _module: Module = parse_ts_str("export class Foo {}")?;
+//!
+//! let mut stream = TsStream::new("const x = 5;", "input.ts")?;
+//! let _stmt = stream.parse_stmt()?;
+//! # }
+//! # #[cfg(feature = "oxc")] {
+//! use macroforge_ts_syn::{
+//!     oxc_expr_to_string, oxc_stmt_to_string, parse_oxc_expr, parse_oxc_program,
+//!     parse_oxc_statement,
+//! };
+//!
+//! let expr = parse_oxc_expr("x + y")?;
+//! let stmt = parse_oxc_statement("const x = 5;")?;
+//! let module = parse_oxc_program("export class Foo {}")?;
+//!
+//! assert_eq!(oxc_expr_to_string(&expr), "x + y");
+//! assert_eq!(oxc_stmt_to_string(&stmt).trim(), "const x = 5;");
+//! assert_eq!(module.body.len(), 1);
+//! # }
+//! # Ok::<(), macroforge_ts_syn::TsSynError>(())
+//! ```
+//!
+//! ## Macro Context
+//!
+//! When used within the macro system, [`TsStream`] carries context information
+//! about the macro invocation:
+//!
+//! ```rust,no_run
+//! use macroforge_ts_syn::TsStream;
+//!
+//! fn example(stream: TsStream) {
+//!     // In a macro implementation
+//!     let ctx = stream.context().expect("macro context");
+//!     let decorator_span = ctx.decorator_span;
+//!     let _target = &ctx.target;
+//! }
+//! ```
+//!
+//! ## Adding Imports
+//!
+//! [`TsStream`] provides helpers for adding imports that will be inserted
+//! at the top of the file:
+//!
+//! ```rust,no_run
+//! use macroforge_ts_syn::{TsStream, TsSynError};
+//!
+//! fn main() -> Result<(), TsSynError> {
+//!     let source = "class Foo {}";
+//!     let mut stream = TsStream::new(source, "input.ts")?;
+//!
+//!     // Add a runtime import
+//!     stream.add_import("deserialize", "./runtime");
+//!
+//!     // Add a type-only import
+//!     stream.add_type_import("Options", "./types");
+//!
+//!     // Convert to result
+//!     let _result = stream.into_result();
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ## ParseTs Implementations
+//!
+//! The following SWC types implement [`ParseTs`]:
+//!
+//! - `Ident` - Single identifier
+//! - `Stmt` - Any statement
+//! - `Box<Expr>` - Any expression
+//! - `Module` - Complete module
+//!
+//! Custom types can implement [`ParseTs`] to enable parsing with [`TsStream::parse`].
+
+#[cfg(feature = "swc")]
+use swc_core::common::{FileName, SourceMap, sync::Lrc};
+#[cfg(feature = "swc")]
+use swc_core::ecma::ast::*;
+#[cfg(feature = "swc")]
+use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
+#[cfg(feature = "swc")]
+use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+
+use crate::TsSynError;
+
+/// Configuration for a single import to be added to a file.
+///
+/// Used with [`TsStream::add_imports`] to batch-add multiple imports.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::ImportConfig;
+///
+/// const MY_IMPORTS: &[ImportConfig] = &[
+///     ImportConfig::value("ok", "__mf_ok", "macroforge/reexports"),
+///     ImportConfig::type_only("Result", "__mf_Result", "macroforge/reexports"),
+/// ];
+///
+/// stream.add_imports(MY_IMPORTS);
+/// ```
+#[derive(Debug, Clone, Copy)]
+pub struct ImportConfig {
+    /// The original export name from the source module
+    pub name: &'static str,
+    /// The alias to use in the generated import (typically `__mf_` prefixed)
+    pub alias: &'static str,
+    /// The module path to import from
+    pub module: &'static str,
+    /// Whether this is a type-only import (`import type { ... }`)
+    pub is_type: bool,
+}
+
+impl ImportConfig {
+    /// Create a value import config (runtime import).
+    pub const fn value(name: &'static str, alias: &'static str, module: &'static str) -> Self {
+        Self {
+            name,
+            alias,
+            module,
+            is_type: false,
+        }
+    }
+
+    /// Create a type-only import config.
+    pub const fn type_only(name: &'static str, alias: &'static str, module: &'static str) -> Self {
+        Self {
+            name,
+            alias,
+            module,
+            is_type: true,
+        }
+    }
+}
+
+/// A parsing stream that wraps SWC's parser, analogous to `syn::parse::ParseBuffer`.
+///
+/// `TsStream` manages the parsing context for TypeScript source code. It holds:
+/// - The source code being parsed
+/// - An optional macro context with span information
+/// - Accumulated runtime patches (imports, etc.)
+///
+/// # Creating a TsStream
+///
+/// ```rust
+/// use macroforge_ts_syn::{TsStream, TsSynError};
+///
+/// fn main() -> Result<(), TsSynError> {
+///     // From source code
+///     let _stream = TsStream::new("const x = 5;", "input.ts")?;
+///
+///     // From an owned string
+///     let generated_code = "const y = 10;".to_string();
+///     let _stream = TsStream::from_string(generated_code);
+///     Ok(())
+/// }
+/// ```
+///
+/// With macro context (typically used by the host system):
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::{TsStream, TsSynError, MacroContextIR, SpanIR, ClassIR};
+///
+/// // MacroContextIR requires a target type - this is typically provided by the host
+/// let source = "class Foo {}";
+/// let ctx = MacroContextIR::new_derive_class(/* ... */);
+/// let stream = TsStream::with_context(source, "input.ts", ctx)?;
+/// ```
+///
+/// # Parsing
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::{TsStream, TsSynError};
+///
+/// fn main() -> Result<(), TsSynError> {
+///     let mut stream = TsStream::new("const x = 5;", "input.ts")?;
+///     // Parse specific constructs
+///     let _stmt = stream.parse_stmt()?;
+///     Ok(())
+/// }
+/// ```
+///
+/// # Working with Imports
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::{TsStream, TsSynError};
+///
+/// fn main() -> Result<(), TsSynError> {
+///     let source = "class Foo {}";
+///     let mut stream = TsStream::new(source, "file.ts")?;
+///
+///     // These imports will be added to the file
+///     stream.add_import("deserialize", "./runtime");
+///     stream.add_type_import("Options", "./types");
+///
+///     // Get the result with accumulated patches
+///     let _result = stream.into_result();
+///     Ok(())
+/// }
+/// ```
+pub struct TsStream {
+    #[cfg(feature = "swc")]
+    source_map: swc_core::common::sync::Lrc<swc_core::common::SourceMap>,
+    source: String,
+    file_name: String,
+    /// Macro context data (decorator span, target span, etc.)
+    /// This is populated when TsStream is created by the macro host
+    pub ctx: Option<crate::abi::MacroContextIR>,
+    /// Runtime patches to apply (e.g., imports at file level)
+    pub runtime_patches: Vec<crate::abi::Patch>,
+    /// Where this stream's code should be inserted relative to the target.
+    /// Defaults to `Below` (after the target declaration).
+    pub insert_pos: crate::abi::InsertPos,
+    /// Cross-module function suffixes for auto-import resolution.
+    /// External macros register suffixes here so the framework can resolve
+    /// cross-module references following the `{camelCaseTypeName}{Suffix}` pattern.
+    pub cross_module_suffixes: Vec<String>,
+    /// Cross-module type suffixes for auto-import resolution.
+    /// These resolve `{PascalCaseTypeName}{Suffix}` type references and generate
+    /// `import type` statements. Used for types like `ColorsErrors`, `ColorsTainted`.
+    pub cross_module_type_suffixes: Vec<String>,
+}
+
+#[cfg(feature = "oxc")]
+impl TsStream {
+    /// Create a temporary parser for a parsing operation with Oxc.
+    pub fn parse_stmt_oxc<'a>(
+        &'a self,
+        allocator: &'a oxc::allocator::Allocator,
+    ) -> Result<oxc::ast::ast::Statement<'a>, TsSynError> {
+        let source_type = oxc::span::SourceType::ts()
+            .with_typescript(true)
+            .with_jsx(self.file_name.ends_with(".tsx"));
+        let ret = oxc::parser::Parser::new(allocator, &self.source, source_type).parse();
+        if !ret.errors.is_empty() {
+            return Err(TsSynError::Parse(format!(
+                "Oxc parse errors: {:?}",
+                ret.errors
+            )));
+        }
+
+        ret.program
+            .body
+            .into_iter()
+            .next()
+            .ok_or_else(|| TsSynError::Parse("No statement found".to_string()))
+    }
+}
+
+/// Formats TypeScript source code using SWC's emitter.
+///
+/// Attempts to parse and re-emit the code with consistent formatting. This is
+/// useful for normalizing generated code output.
+///
+/// # Parsing Strategy
+///
+/// The function tries two parsing approaches:
+/// 1. Parse as a complete module (for full file content)
+/// 2. If that fails, wrap in a class and extract (for class members)
+///
+/// # Example
+///
+/// ```rust
+/// use macroforge_ts_syn::format_ts_source;
+///
+/// let messy = "function foo(){return 42}";
+/// let formatted = format_ts_source(messy);
+/// assert!(formatted.contains("function foo()"));
+/// assert!(formatted.contains("return 42"));
+/// ```
+///
+/// # Fallback
+///
+/// If parsing fails entirely, returns the original source unchanged.
+#[cfg(feature = "swc")]
+pub fn format_ts_source(source: &str) -> String {
+    let cm = Lrc::new(SourceMap::default());
+
+    // 1. Try parsing as a valid module (e.g. full file content or statements)
+    let fm = cm.new_source_file(FileName::Custom("fmt.ts".into()).into(), source.to_string());
+    let syntax = Syntax::Typescript(TsSyntax {
+        tsx: true,
+        decorators: true,
+        ..Default::default()
+    });
+
+    let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
+    let mut parser = Parser::new_from(lexer);
+
+    if let Ok(module) = parser.parse_module() {
+        let mut buf = vec![];
+        {
+            let mut emitter = Emitter {
+                cfg: Config::default().with_minify(false),
+                cm: cm.clone(),
+                comments: None,
+                wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+            };
+
+            if emitter.emit_module(&module).is_ok() {
+                return String::from_utf8(buf).unwrap_or_else(|_| source.to_string());
+            }
+        }
+    }
+
+    // 2. If failed, try wrapping in a class (common for macro output generating methods/fields)
+    let wrapped_source = format!("class __FmtWrapper {{ {} }}", source);
+    let fm_wrapped = cm.new_source_file(
+        FileName::Custom("fmt_wrapped.ts".into()).into(),
+        wrapped_source,
+    );
+
+    let lexer = Lexer::new(
+        syntax,
+        EsVersion::latest(),
+        StringInput::from(&*fm_wrapped),
+        None,
+    );
+    let mut parser = Parser::new_from(lexer);
+
+    if let Ok(module) = parser.parse_module() {
+        let mut buf = vec![];
+        {
+            let mut emitter = Emitter {
+                cfg: Config::default().with_minify(false),
+                cm: cm.clone(),
+                comments: None,
+                wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+            };
+
+            if emitter.emit_module(&module).is_ok() {
+                let full_output = String::from_utf8(buf).unwrap_or_default();
+                // Extract content between class braces
+                // Output format: class __FmtWrapper {\n    content...\n}
+                if let (Some(start), Some(end)) = (full_output.find('{'), full_output.rfind('}')) {
+                    let content = &full_output[start + 1..end];
+                    // Simple unindent: remove first newline and 4 spaces of indentation if present
+                    let lines: Vec<&str> = content.lines().collect();
+                    let mut result = String::new();
+                    for line in lines {
+                        // Naive unindent
+                        let trimmed = line.strip_prefix("    ").unwrap_or(line);
+                        if !trimmed.trim().is_empty() {
+                            result.push_str(trimmed);
+                            result.push('\n');
+                        }
+                    }
+                    return result.trim().to_string();
+                }
+            }
+        }
+    }
+    source.to_string()
+}
+
+impl TsStream {
+    /// Create a new parsing stream from source code.
+    pub fn new(source: &str, file_name: &str) -> Result<Self, TsSynError> {
+        Ok(TsStream {
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
+            source: source.to_string(),
+            file_name: file_name.to_string(),
+            ctx: None,
+            runtime_patches: vec![],
+            insert_pos: crate::abi::InsertPos::default(),
+            cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
+        })
+    }
+
+    /// Create a new parsing stream from an owned string.
+    pub fn from_string(source: String) -> Self {
+        TsStream {
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
+            source,
+            file_name: "macro_output.ts".to_string(),
+            ctx: None,
+            runtime_patches: vec![],
+            insert_pos: crate::abi::InsertPos::default(),
+            cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
+        }
+    }
+
+    /// Create a new parsing stream with a specific insert position.
+    pub fn with_insert_pos(source: String, insert_pos: crate::abi::InsertPos) -> Self {
+        TsStream {
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
+            source,
+            file_name: "macro_output.ts".to_string(),
+            ctx: None,
+            runtime_patches: vec![],
+            insert_pos,
+            cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
+        }
+    }
+
+    /// Create a new parsing stream with a specific insert position and runtime patches.
+    /// Used by `ts_template!` to collect patches from embedded TsStreams.
+    pub fn with_insert_pos_and_patches(
+        source: String,
+        insert_pos: crate::abi::InsertPos,
+        runtime_patches: Vec<crate::abi::Patch>,
+    ) -> Self {
+        TsStream {
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
+            source,
+            file_name: "macro_output.ts".to_string(),
+            ctx: None,
+            runtime_patches,
+            insert_pos,
+            cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
+        }
+    }
+
+    /// Get the source code of the stream.
+    pub fn source(&self) -> &str {
+        &self.source
+    }
+
+    /// Create a new parsing stream with macro context attached.
+    /// This is used by the macro host to provide context to macros.
+    pub fn with_context(
+        source: &str,
+        file_name: &str,
+        ctx: crate::abi::MacroContextIR,
+    ) -> Result<Self, TsSynError> {
+        Ok(TsStream {
+            #[cfg(feature = "swc")]
+            source_map: swc_core::common::sync::Lrc::new(Default::default()),
+            source: source.to_string(),
+            file_name: file_name.to_string(),
+            ctx: Some(ctx),
+            runtime_patches: vec![],
+            insert_pos: crate::abi::InsertPos::default(),
+            cross_module_suffixes: vec![],
+            cross_module_type_suffixes: vec![],
+        })
+    }
+
+    /// Get the macro context if available
+    pub fn context(&self) -> Option<&crate::abi::MacroContextIR> {
+        self.ctx.as_ref()
+    }
+
+    /// Convert the stream into a MacroResult.
+    /// Captures any imports registered via `add_import()` etc. from the thread-local
+    /// registry so they survive serialization across process boundaries.
+    pub fn into_result(self) -> crate::abi::MacroResult {
+        let imports = crate::import_registry::with_registry_mut(|r| r.take_generated_imports());
+        crate::abi::MacroResult {
+            runtime_patches: self.runtime_patches,
+            type_patches: vec![],
+            diagnostics: vec![],
+            tokens: Some(self.source),
+            insert_pos: self.insert_pos,
+            debug: None,
+            cross_module_suffixes: self.cross_module_suffixes,
+            cross_module_type_suffixes: self.cross_module_type_suffixes,
+            imports,
+        }
+    }
+
+    /// Add an import statement. Registers in the [`ImportRegistry`](crate::ImportRegistry)
+    /// for idempotent deduplication — no patches are emitted; the registry emits all
+    /// generated imports at the end of expansion.
+    pub fn add_import(&mut self, specifier: &str, module: &str) {
+        let (original, local) = parse_import_specifier(specifier);
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(&local, original.as_deref(), module, false);
+        });
+    }
+
+    /// Add a type-only import statement. Registers in the [`ImportRegistry`](crate::ImportRegistry).
+    pub fn add_type_import(&mut self, specifier: &str, module: &str) {
+        let (original, local) = parse_import_specifier(specifier);
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(&local, original.as_deref(), module, true);
+        });
+    }
+
+    /// Add an import with automatic `__mf_` alias to avoid collisions with user imports.
+    ///
+    /// # Example
+    /// ```ignore
+    /// stream.add_aliased_import("DeserializeContext", "macroforge/serde");
+    /// // Generates: import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+    /// ```
+    pub fn add_aliased_import(&mut self, name: &str, module: &str) {
+        let alias = format!("__mf_{name}");
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(&alias, Some(name), module, false);
+        });
+    }
+
+    /// Add a type-only import with automatic `__mf_` alias.
+    ///
+    /// # Example
+    /// ```ignore
+    /// stream.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
+    /// // Generates: import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+    /// ```
+    pub fn add_aliased_type_import(&mut self, name: &str, module: &str) {
+        let alias = format!("__mf_{name}");
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(&alias, Some(name), module, true);
+        });
+    }
+
+    /// Add an import with a custom alias.
+    ///
+    /// # Example
+    /// ```ignore
+    /// stream.add_import_as("resultOk", "__mf_resultOk", "macroforge/reexports");
+    /// // Generates: import { resultOk as __mf_resultOk } from "macroforge/reexports";
+    /// ```
+    pub fn add_import_as(&mut self, name: &str, alias: &str, module: &str) {
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(alias, Some(name), module, false);
+        });
+    }
+
+    /// Add a type-only import with a custom alias.
+    ///
+    /// # Example
+    /// ```ignore
+    /// stream.add_type_import_as("Result", "__mf_Result", "macroforge/reexports");
+    /// // Generates: import type { Result as __mf_Result } from "macroforge/reexports";
+    /// ```
+    pub fn add_type_import_as(&mut self, name: &str, alias: &str, module: &str) {
+        crate::import_registry::with_registry_mut(|r| {
+            r.request_import(alias, Some(name), module, true);
+        });
+    }
+
+    /// Add multiple imports from a slice of [`ImportConfig`].
+    ///
+    /// This is the preferred way to add macro-related imports, as it handles
+    /// both value and type imports with proper aliasing.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use macroforge_ts_syn::ImportConfig;
+    ///
+    /// const SERDE_IMPORTS: &[ImportConfig] = &[
+    ///     ImportConfig::value("DeserializeContext", "__mf_DeserializeContext", "macroforge/serde"),
+    ///     ImportConfig::type_only("DeserializeOptions", "__mf_DeserializeOptions", "macroforge/serde"),
+    /// ];
+    ///
+    /// stream.add_imports(SERDE_IMPORTS);
+    /// ```
+    pub fn add_imports(&mut self, imports: &[ImportConfig]) {
+        crate::import_registry::with_registry_mut(|r| {
+            for import in imports {
+                r.request_import(
+                    import.alias,
+                    Some(import.name),
+                    import.module,
+                    import.is_type,
+                );
+            }
+        });
+    }
+
+    /// Register a cross-module function suffix for auto-import resolution.
+    ///
+    /// When the generated code references a function like `companyNameGetFields()`,
+    /// the framework needs to know that `GetFields` is a valid suffix to resolve
+    /// against imported types. Built-in macros (Default, Serialize, etc.) have
+    /// their suffixes hardcoded; external macros use this method to register theirs.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // In your macro's generate function:
+    /// output.add_cross_module_suffix("GetFields");
+    /// // Now if the file imports `CompanyName` from `./account.svelte`,
+    /// // and the generated code references `companyNameGetFields()`,
+    /// // the framework will auto-add: import { companyNameGetFields } from "./account.svelte";
+    /// ```
+    pub fn add_cross_module_suffix(&mut self, suffix: &str) {
+        self.cross_module_suffixes.push(suffix.to_string());
+    }
+
+    /// Register a cross-module type suffix for PascalCase type reference auto-import.
+    ///
+    /// Unlike `add_cross_module_suffix` (which resolves `{camelCase}{Suffix}` function calls),
+    /// this resolves `{PascalCase}{Suffix}` type references and generates `import type` statements.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// // In your macro's generate function:
+    /// output.add_cross_module_type_suffix("Errors");
+    /// // Now if the file imports `Colors` from `./shared.svelte`,
+    /// // and the generated code references `ColorsErrors` (type position),
+    /// // the framework will auto-add: import type { ColorsErrors } from "./shared.svelte";
+    /// ```
+    pub fn add_cross_module_type_suffix(&mut self, suffix: &str) {
+        self.cross_module_type_suffixes.push(suffix.to_string());
+    }
+
+    /// Merge another TsStream into this one.
+    ///
+    /// Combines the source code and runtime patches from both streams.
+    /// The insert position of `self` is preserved.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let standalone = ts_template! { export function foo() {} };
+    /// let class_body = ts_template!(Within { static bar() {} });
+    ///
+    /// // Instead of: ts_template! { {$typescript standalone} {$typescript class_body} }
+    /// let combined = standalone.merge(class_body);
+    /// ```
+    pub fn merge(mut self, other: Self) -> Self {
+        // Combine source code with a separator only when needed.
+        if !self.source.is_empty() && !other.source.is_empty() {
+            let left_ends_ws = self
+                .source
+                .chars()
+                .last()
+                .map(|c| c.is_whitespace())
+                .unwrap_or(false);
+            let right_starts_ws = other
+                .source
+                .chars()
+                .next()
+                .map(|c| c.is_whitespace())
+                .unwrap_or(false);
+            if !(left_ends_ws || right_starts_ws) {
+                self.source.push('\n');
+            }
+        }
+        self.source.push_str(&other.source);
+
+        // Merge runtime patches
+        self.runtime_patches.extend(other.runtime_patches);
+
+        // Merge cross-module suffixes
+        self.cross_module_suffixes
+            .extend(other.cross_module_suffixes);
+        self.cross_module_type_suffixes
+            .extend(other.cross_module_type_suffixes);
+
+        self
+    }
+
+    /// Merge multiple TsStreams into one.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let combined = TsStream::merge_all([stream1, stream2, stream3]);
+    /// ```
+    pub fn merge_all(streams: impl IntoIterator<Item = Self>) -> Self {
+        let mut iter = streams.into_iter();
+        match iter.next() {
+            Some(first) => iter.fold(first, |acc, stream| acc.merge(stream)),
+            None => Self::from_string(String::new()),
+        }
+    }
+
+    /// Create a temporary parser for a parsing operation.
+    /// This is an internal helper that manages SWC's complex lifetimes.
+    #[cfg(feature = "swc")]
+    fn with_parser<F, T>(&self, f: F) -> Result<T, TsSynError>
+    where
+        F: for<'a> FnOnce(
+            &mut swc_core::ecma::parser::Parser<swc_core::ecma::parser::lexer::Lexer<'a>>,
+        ) -> swc_core::ecma::parser::PResult<T>,
+    {
+        let fm = self.source_map.new_source_file(
+            swc_core::common::FileName::Custom(self.file_name.clone()).into(),
+            self.source.clone(),
+        );
+
+        let syntax = swc_core::ecma::parser::Syntax::Typescript(swc_core::ecma::parser::TsSyntax {
+            tsx: self.file_name.ends_with(".tsx"),
+            decorators: true,
+            ..Default::default()
+        });
+
+        let lexer = swc_core::ecma::parser::lexer::Lexer::new(
+            syntax,
+            swc_core::ecma::ast::EsVersion::latest(),
+            swc_core::ecma::parser::StringInput::from(&*fm),
+            None,
+        );
+
+        let mut parser = swc_core::ecma::parser::Parser::new_from(lexer);
+        f(&mut parser).map_err(|e| TsSynError::Parse(format!("{:?}", e)))
+    }
+
+    /// Parse a value of type T from the stream.
+    /// This is analogous to `syn::ParseBuffer::parse::<T>()`.
+    #[cfg(feature = "swc")]
+    pub fn parse<T: ParseTs>(&mut self) -> Result<T, TsSynError> {
+        T::parse(self)
+    }
+
+    /// Parse an identifier.
+    #[cfg(feature = "swc")]
+    pub fn parse_ident(&self) -> Result<swc_core::ecma::ast::Ident, TsSynError> {
+        self.with_parser(|parser| {
+            use swc_core::common::DUMMY_SP;
+            use swc_core::ecma::parser::error::{Error, SyntaxError};
+            // Parse as expression and extract identifier
+            parser.parse_expr().and_then(|expr| match *expr {
+                swc_core::ecma::ast::Expr::Ident(ident) => Ok(ident),
+                _ => Err(Error::new(DUMMY_SP, SyntaxError::TS1003)),
+            })
+        })
+    }
+
+    /// Parse a statement.
+    #[cfg(feature = "swc")]
+    pub fn parse_stmt(&self) -> Result<swc_core::ecma::ast::Stmt, TsSynError> {
+        self.with_parser(|parser| parser.parse_stmt_list_item())
+    }
+
+    /// Parse an expression.
+    #[cfg(feature = "swc")]
+    pub fn parse_expr(&self) -> Result<Box<swc_core::ecma::ast::Expr>, TsSynError> {
+        self.with_parser(|parser| parser.parse_expr())
+    }
+
+    /// Parse a module (useful for parsing complete TypeScript files).
+    #[cfg(feature = "swc")]
+    pub fn parse_module(&self) -> Result<swc_core::ecma::ast::Module, TsSynError> {
+        self.with_parser(|parser| parser.parse_module())
+    }
+}
+
+/// A trait for types that can be parsed from TypeScript source, analogous to `syn::parse::Parse`.
+///
+/// Implement this trait to enable parsing your custom types with [`TsStream::parse`]
+/// and [`parse_ts_str`] when the `swc` feature is enabled.
+///
+/// # Built-in Implementations
+///
+/// The following SWC types already implement `ParseTs`:
+/// - `Ident` - A single identifier
+/// - `Stmt` - Any statement
+/// - `Box<Expr>` - Any expression
+/// - `Module` - A complete module
+///
+/// # Implementing ParseTs
+///
+/// ```rust
+/// # #[cfg(feature = "swc")] {
+/// use macroforge_ts_syn::{ParseTs, TsStream, TsSynError, parse_ts_str};
+/// use macroforge_ts_syn::swc_ecma_ast::Ident;
+///
+/// struct MyType {
+///     name: String,
+/// }
+///
+/// impl ParseTs for MyType {
+///     fn parse(input: &mut TsStream) -> Result<Self, TsSynError> {
+///         let ident: Ident = input.parse()?;
+///         Ok(MyType { name: ident.sym.to_string() })
+///     }
+/// }
+///
+/// let value: MyType = parse_ts_str("identifier")?;
+/// assert_eq!(value.name, "identifier");
+/// # }
+/// # #[cfg(feature = "oxc")] {
+/// use macroforge_ts_syn::{oxc_expr_to_string, parse_oxc_expr};
+///
+/// let expr = parse_oxc_expr("identifier")?;
+/// assert_eq!(oxc_expr_to_string(&expr), "identifier");
+/// # }
+/// # Ok::<(), macroforge_ts_syn::TsSynError>(())
+/// ```
+///
+/// # Using with DeriveInput
+///
+/// [`DeriveInput`](crate::DeriveInput) implements `ParseTs`, allowing it to be
+/// parsed from a `TsStream` using the `parse_ts_macro_input!` macro.
+pub trait ParseTs: Sized {
+    /// Parse a value of this type from a parsing stream.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`TsSynError::Parse`] if the source code doesn't match the
+    /// expected syntax for this type.
+    fn parse(input: &mut TsStream) -> Result<Self, TsSynError>;
+}
+
+// Implement ParseTs for common SWC types
+#[cfg(feature = "swc")]
+impl ParseTs for Ident {
+    fn parse(input: &mut TsStream) -> Result<Self, TsSynError> {
+        input.parse_ident()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ParseTs for Stmt {
+    fn parse(input: &mut TsStream) -> Result<Self, TsSynError> {
+        input.parse_stmt()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ParseTs for Box<Expr> {
+    fn parse(input: &mut TsStream) -> Result<Self, TsSynError> {
+        input.parse_expr()
+    }
+}
+
+#[cfg(feature = "swc")]
+impl ParseTs for Module {
+    fn parse(input: &mut TsStream) -> Result<Self, TsSynError> {
+        input.parse_module()
+    }
+}
+
+/// Parse a string of TypeScript code into a specific type.
+/// This is analogous to `syn::parse_str`.
+///
+/// # Example
+/// ```ignore
+/// let ident: Ident = parse_ts_str("myVariable")?;
+/// let expr: Box<Expr> = parse_ts_str("x + y")?;
+/// let stmt: Stmt = parse_ts_str("const x = 5;")?;
+/// ```
+#[cfg(feature = "swc")]
+pub fn parse_ts_str<T: ParseTs>(code: &str) -> Result<T, TsSynError> {
+    let mut stream = TsStream::new(code, "input.ts")?;
+    stream.parse()
+}
+
+/// Parse a snippet of TypeScript code as an expression.
+#[cfg(feature = "swc")]
+pub fn parse_ts_expr(code: &str) -> Result<Box<Expr>, TsSynError> {
+    parse_ts_str(code)
+}
+
+/// Parse a snippet of TypeScript code as a statement.
+#[cfg(feature = "swc")]
+pub fn parse_ts_stmt(code: &str) -> Result<Stmt, TsSynError> {
+    parse_ts_str(code)
+}
+
+#[cfg(all(feature = "oxc", not(feature = "swc")))]
+pub fn parse_ts_stmt(code: &str) -> Result<oxc::ast::ast::Statement<'static>, TsSynError> {
+    crate::parse_oxc_statement(code)
+}
+
+/// Parse a snippet of TypeScript code as a module.
+#[cfg(feature = "swc")]
+pub fn parse_ts_module(code: &str) -> Result<Module, TsSynError> {
+    parse_ts_str(code)
+}
+
+/// Parse a snippet of TypeScript code as a type annotation.
+#[cfg(feature = "swc")]
+pub fn parse_ts_type(code: &str) -> Result<TsType, TsSynError> {
+    use swc_core::ecma::ast::{Decl, ModuleItem, Stmt};
+
+    // Wrap as `type __T = <type>;` for parsing
+    let wrapped = format!("type __T = {};", code);
+    let module: Module = parse_ts_str(&wrapped)?;
+
+    // Extract the type from the alias declaration
+    for item in module.body {
+        if let ModuleItem::Stmt(Stmt::Decl(Decl::TsTypeAlias(alias))) = item {
+            return Ok(*alias.type_ann);
+        }
+    }
+
+    Err(TsSynError::Parse(format!("Failed to parse type: {}", code)))
+}
+
+/// Parse an import specifier like `"Foo as Bar"` into `(Some("Foo"), "Bar")`,
+/// or `"Foo"` into `(None, "Foo")`.
+fn parse_import_specifier(specifier: &str) -> (Option<String>, String) {
+    if let Some(idx) = specifier.find(" as ") {
+        let original = specifier[..idx].trim().to_string();
+        let local = specifier[idx + 4..].trim().to_string();
+        (Some(original), local)
+    } else {
+        (None, specifier.trim().to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn test_parse_ident() {
+        let result: Result<Ident, _> = parse_ts_str("myVariable");
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().sym.as_ref(), "myVariable");
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn test_parse_expr() {
+        let result = parse_ts_expr("1 + 2");
+        assert!(result.is_ok());
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn test_parse_stmt() {
+        let result = parse_ts_stmt("const x = 5;");
+        assert!(result.is_ok(), "parse_ts_stmt failed: {:?}", result.err());
+    }
+
+    #[test]
+    fn test_add_cross_module_suffix() {
+        let mut stream = TsStream::from_string("export function foo() {}".to_string());
+        assert!(stream.cross_module_suffixes.is_empty());
+
+        stream.add_cross_module_suffix("GetFields");
+        assert_eq!(stream.cross_module_suffixes, vec!["GetFields"]);
+
+        stream.add_cross_module_suffix("CustomSuffix");
+        assert_eq!(
+            stream.cross_module_suffixes,
+            vec!["GetFields", "CustomSuffix"]
+        );
+    }
+
+    #[test]
+    fn test_cross_module_suffixes_propagate_to_result() {
+        let mut stream = TsStream::from_string("export function foo() {}".to_string());
+        stream.add_cross_module_suffix("GetFields");
+        stream.add_cross_module_suffix("OtherSuffix");
+
+        let result = stream.into_result();
+        assert_eq!(
+            result.cross_module_suffixes,
+            vec!["GetFields", "OtherSuffix"]
+        );
+    }
+
+    #[test]
+    fn test_merge_combines_cross_module_suffixes() {
+        let mut a = TsStream::from_string("export function a() {}".to_string());
+        a.add_cross_module_suffix("GetFields");
+
+        let mut b = TsStream::from_string("export function b() {}".to_string());
+        b.add_cross_module_suffix("CustomSuffix");
+
+        let merged = a.merge(b);
+        assert_eq!(
+            merged.cross_module_suffixes,
+            vec!["GetFields", "CustomSuffix"]
+        );
+    }
+
+    #[test]
+    fn test_empty_cross_module_suffixes_by_default() {
+        let stream = TsStream::from_string("const x = 1;".to_string());
+        assert!(stream.cross_module_suffixes.is_empty());
+
+        let result = stream.into_result();
+        assert!(result.cross_module_suffixes.is_empty());
+    }
+}

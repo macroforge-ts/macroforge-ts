@@ -1,0 +1,17 @@
+2025-11-28T18:59:48-05:00 INFO  [zed] ========== starting zed version 0.214.6, sha f22590d ==========
+2025-11-28T18:59:48-05:00 INFO  [crashes] spawning crash handler process
+2025-11-28T18:59:48-05:00 INFO  [crashes] connected to crash handler process after 100ms
+2025-11-28T18:59:48-05:00 INFO  [crashes] crash handler registered
+2025-11-28T18:59:48-05:00 INFO  [zed] Using git binary path: "/Applications/Zed.app/Contents/MacOS/git"
+2025-11-28T18:59:48-05:00 INFO  [util] set environment variables from shell:/bin/zsh, path:/Users/jakoblochinski/.pixi/envs/nodejs/bin/:/Users/jakoblochinski/.pixi/bin/:/Users/jakoblochinski/.local/bin:/Users/jakoblochinski/.codeium/windsurf/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/pmk/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/MacGPG2/bin:/Applications/VMware Fusion.app/Contents/Public:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Users/jakoblochinski/.pixi/envs/nodejs/bin/:/Users/jakoblochinski/.pixi/bin/:/Users/jakoblochinski/.local/bin:/Users/jakoblochinski/.codeium/windsurf/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/Users/jakoblochinski/.cargo/bin
+2025-11-28T18:59:49-05:00 INFO  [extension_host] extensions updated. loading 25, reloading 0, unloading 0
+2025-11-28T18:59:49-05:00 INFO  [auto_update] Auto Update: checking for updates
+2025-11-28T18:59:49-05:00 ERROR [crates/theme/src/registry.rs:225] missing field `author` at line 294 column 1
+2025-11-28T18:59:49-05:00 INFO  [worktree] inserting parent git repo for this worktree: "tests/e2e/fixtures/ts-project"
+2025-11-28T18:59:49-05:00 INFO  [worktree] inserting parent git repo for this worktree: "tests/e2e/fixtures/ts-project"
+2025-11-28T18:59:49-05:00 ERROR [extension_host] Cannot load snippets: Loading snippets from "/home/runner/work/extensions/extensions/extensions/ruby/snippets.json": No such file or directory (os error 2)
+2025-11-28T18:59:49-05:00 INFO  [workspace] Rendered first frame
+2025-11-28T18:59:49-05:00 INFO  [client] set status on client 0: Authenticating
+2025-11-28T18:59:49-05:00 INFO  [client] set status on client 174709: Authenticated
+2025-11-28T18:59:50-05:00 INFO  [node_runtime] using Node.js found on PATH: SystemNodeRuntime { node: "/Users/jakoblochinski/.pixi/envs/nodejs/bin/node", npm: "/Users/jakoblochinski/.pixi/envs/nodejs/bin/npm", global_node_modules: "/Users/jakoblochinski/.pixi/envs/nodejs/lib/node_modules\n", scratch_dir: "/Users/jakoblochinski/Library/Application Support/Zed/node" }
+2025-11-28T18:59:52-05:00 INFO  [lsp] starting language server process. binary path: "/Users/jakoblochinski/.pixi/envs/nodejs/bin/node", working directory: "/Users/jakoblochinski/Softworks/GitHub/macroforge", args: ["/Users/jakoblochinski/Library/Application Support/Zed/languages/vtsls/node_modules/@vtsls/language-server/bin/vtsls.js", "--stdio"]
