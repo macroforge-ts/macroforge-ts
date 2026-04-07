@@ -1,15 +1,10 @@
-# NOTE: Each crate is now standalone and can be published independently.
-# This workspace is kept for convenience when developing in the monorepo.
-# Each crate has its own explicit version/metadata and uses published
-# crates.io versions for dependencies on other macroforge crates.
-
 [workspace]
 members = [
     "macroforge_ts",
-    "extensions/vtsls-macroforge",
-    "extensions/svelte-macroforge",
-    "macroforge_ts_syn",
-    "macroforge_ts_quote",
     "macroforge_ts_macros",
+    "macroforge_ts_quote",
+    "macroforge_ts_syn",
+    "extensions/svelte-macroforge",
+    "extensions/vtsls-macroforge",
 ]
-resolver = "2"
+resolver = "3"
