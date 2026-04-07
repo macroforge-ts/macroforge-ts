@@ -1,0 +1,51 @@
+name: CI
+
+env:
+    DEBUG: napi:*
+    APP_NAME: macroforge
+    MACOSX_DEPLOYMENT_TARGET: '10.13'
+
+permissions:
+    contents: write
+    id-token: write
+
+on:
+    push:
+        branches: [main]
+        tags:
+            - 'v*'
+        paths-ignore:
+            - '**/*.md'
+            - LICENSE
+            - '**/*.gitignore'
+    pull_request: null
+
+jobs:
+    clippy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  components: clippy
+
+            - name: Cache Rust
+              uses: Swatinem/rust-cache@v2
+
+            - name: Run clippy
+              run: cargo clippy --all-targets --all-features -- -D warnings
+
+    fmt:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  components: rustfmt
+
+            - name: Format check
+              run: cargo fmt --all -- --check

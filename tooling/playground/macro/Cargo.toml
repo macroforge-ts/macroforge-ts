@@ -1,0 +1,27 @@
+[package]
+name = "playground-macros"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[package.metadata.cargo-machete]
+# napi is required: napi_derive::napi generates code referencing ::napi
+ignored = ["napi"]
+
+[lib]
+name = "playground_macros"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+# Core macro framework - re-exports macroforge_ts_syn, macroforge_ts_quote, macroforge_ts_macros, inventory, serde_json
+# Uses vendor symlink - run `deno task setup-vendor` to create symlinks from env vars
+macroforge_ts = { path = "vendor/macroforge_ts" }
+
+# Serialization for parsing decorator options
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+convert_case = "0.10.0"
+
+[build-dependencies]
+macroforge_ts = { path = "vendor/macroforge_ts", features = ["build"] }

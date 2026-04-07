@@ -1,0 +1,35 @@
+{
+  "author": "macroforge contributors",
+  "bugs": {
+    "url": "https://github.com/macroforge-ts/core/issues"
+  },
+  "cpu": [
+    "arm64"
+  ],
+  "description": "TypeScript macro expansion engine powered by Rust and Oxc",
+  "engines": {
+    "node": ">= 24"
+  },
+  "files": [
+    "macroforge.win32-arm64-msvc.node"
+  ],
+  "homepage": "https://github.com/macroforge-ts/core#readme",
+  "keywords": [
+    "typescript",
+    "macros",
+    "derive",
+    "codegen",
+    "oxc"
+  ],
+  "license": "MIT",
+  "main": "macroforge.win32-arm64-msvc.node",
+  "name": "@macroforge/bin-win32-arm64-msvc",
+  "os": [
+    "win32"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macroforge-ts/core.git"
+  },
+  "version": "0.1.79"
+}

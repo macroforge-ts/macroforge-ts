@@ -1,0 +1,13 @@
+error: kind must be one of 'derive', 'attribute', or 'function'
+ --> tests/ui/fail_invalid_kind.rs:4:35
+  |
+4 | #[ts_macro_derive(MyMacro, kind = "invalid")]
+  |                                   ^^^^^^^^^
+
+warning: unused imports: `MacroforgeError` and `TsStream`
+ --> tests/ui/fail_invalid_kind.rs:2:29
+  |
+2 | use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
+  |                             ^^^^^^^^  ^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default

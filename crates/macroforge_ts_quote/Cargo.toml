@@ -1,0 +1,46 @@
+[package]
+name = "macroforge_ts_quote"
+description = "Quote macro for generating TypeScript code at compile time"
+version = "0.1.81"
+edition = "2024"
+authors = ["macroforge contributors"]
+license = "MIT"
+repository = "https://github.com/macroforge-ts/core"
+homepage = "https://github.com/macroforge-ts/core"
+keywords = ["typescript", "macros", "codegen", "derive"]
+categories = ["development-tools::procedural-macro-helpers"]
+readme = "README.md"
+
+[lib]
+proc-macro = true
+
+[features]
+default = ["oxc"]
+swc = ["dep:swc_core", "dep:swc_macros_common"]
+oxc = ["dep:oxc"]
+# Enable the AST-based compiler for ts_template! macro
+# This provides compile-time AST validation but has more complex parsing
+compiler = []
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(swc_ast_unknown)'] }
+
+[dependencies]
+proc-macro2 = { version = "1.0.95", features = ["proc-macro", "span-locations"] }
+quote = "1.0.40"
+syn = { version = "2.0.104", features = ["full"] }
+convert_case = "0.11.0"
+rowan = "0.16.1"
+anyhow = "1.0"
+rustc-hash = "2.1.1"
+smallvec = "1.13"
+
+swc_macros_common = { version = "1.0", optional = true }
+swc_core = { version = "59.0.1", optional = true, default-features = false, features = [
+  "common",
+  "ecma_ast",
+  "ecma_parser",
+  "ecma_visit",
+] }
+
+oxc = { version = "0.123", optional = true, features = ["codegen"] }
