@@ -1,1 +1,0 @@
-{"rustc":488544866541264853,"features":"[]","declared_features":"[\"old_rust\", \"rustversion\"]","target":14884704115639668045,"profile":1369601567987815722,"path":16610136485411387442,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/self_cell-67a7ad54c381253d/dep-lib-self_cell","checksum":false}}],"rustflags":[],"config":8247474407144887393,"compile_kind":0}

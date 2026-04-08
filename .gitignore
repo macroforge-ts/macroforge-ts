@@ -1,2 +1,5 @@
 tooling/bench-bins/
 **/.DS_Store
+**/target/
+**/node_modules/
+**/.pixi/
