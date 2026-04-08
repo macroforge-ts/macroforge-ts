@@ -1,7 +1,7 @@
 {
   "author": "macroforge contributors",
   "bugs": {
-    "url": "https://github.com/rymskip/macroforge-ts/issues"
+    "url": "https://github.com/macroforge-ts/macroforge-ts/issues"
   },
   "dependencies": {
     "@macroforge/shared": "file:../shared",
@@ -15,7 +15,7 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://github.com/rymskip/macroforge-ts#readme",
+  "homepage": "https://github.com/macroforge-ts/macroforge-ts#readme",
   "keywords": [
     "typescript",
     "tsserver",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/macroforge-ts/typescript-plugin.git"
+    "url": "git+https://github.com/macroforge-ts/macroforge-ts.git"
   },
   "scripts": {
     "build": "deno install --node-modules-dir --quiet && node ./scripts/link-workspace-deps.mjs && deno run -A npm:typescript@5/tsc -p tsconfig.json",

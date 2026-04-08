@@ -1,7 +1,7 @@
 {
   "author": "macroforge contributors",
   "bugs": {
-    "url": "https://github.com/macroforge-ts/core/issues"
+    "url": "https://github.com/macroforge-ts/macroforge-ts/issues"
   },
   "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
   "exports": {
@@ -35,7 +35,7 @@
     "js",
     "pkg"
   ],
-  "homepage": "https://github.com/macroforge-ts/core#readme",
+  "homepage": "https://github.com/macroforge-ts/macroforge-ts#readme",
   "keywords": [
     "typescript",
     "macros",
@@ -50,7 +50,7 @@
   "name": "macroforge",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/macroforge-ts/core.git"
+    "url": "git+https://github.com/macroforge-ts/macroforge-ts.git"
   },
   "scripts": {
     "build": "deno task build:wasm",

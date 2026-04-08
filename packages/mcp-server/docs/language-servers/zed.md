@@ -22,7 +22,7 @@ extensions.
 Bash
 
 ```
-git clone https://github.com/rymskip/macroforge-ts.git
+git clone https://github.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts
 ```
 

@@ -21,7 +21,7 @@ Or build from source:
 Bash
 
 ```
-git clone https://github.com/rymskip/macroforge-ts.git
+git clone https://github.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts/crates
 cargo build --release --bin macroforge
 

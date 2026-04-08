@@ -4,7 +4,7 @@
     "svelteserver": "bin/server.js"
   },
   "bugs": {
-    "url": "https://github.com/macroforge-ts/svelte-language-server/issues"
+    "url": "https://github.com/macroforge-ts/macroforge-ts/issues"
   },
   "dependencies": {
     "@jridgewell/trace-mapping": "^0.3.25",
@@ -55,7 +55,7 @@
     "dist",
     "bin"
   ],
-  "homepage": "https://github.com/macroforge-ts/svelte-language-server#readme",
+  "homepage": "https://github.com/macroforge-ts/macroforge-ts#readme",
   "keywords": [
     "svelte",
     "vscode",
@@ -67,7 +67,7 @@
   "name": "@macroforge/svelte-language-server",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/macroforge-ts/svelte-language-server.git"
+    "url": "git+https://github.com/macroforge-ts/macroforge-ts.git"
   },
   "scripts": {
     "build": "deno task clean && deno install --node-modules-dir --quiet && deno run -A npm:typescript@5/tsc",
