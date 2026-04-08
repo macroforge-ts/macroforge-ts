@@ -947,44 +947,88 @@ fn handle_union_type_alias(
         tag_value: String,
         fields: Vec<crate::ts_syn::abi::ir::interface::InterfaceFieldIR>,
     }
-    let object_variants: Vec<ObjectVariant> = members
-        .iter()
-        .filter_map(|m| {
-            if let crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Object { fields } = &m.kind {
-                // Find the tag field's literal value
-                let tag_value = fields.iter().find_map(|f| {
+
+    // Collect intersection variants (e.g., { variant: 'AppRoles' } & AppRoles)
+    // These have a tag in the inline object part and delegate to a type ref for the data.
+    struct IntersectionVariant {
+        tag_value: String,
+        type_ref: String,
+        is_serializable: bool,
+    }
+
+    let mut object_variants: Vec<ObjectVariant> = Vec::new();
+    let mut intersection_variants: Vec<IntersectionVariant> = Vec::new();
+
+    for m in members {
+        match &m.kind {
+            crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Object { fields } => {
+                if let Some(tag_value) = fields.iter().find_map(|f| {
                     if f.name == tag_field {
-                        // The type is a string literal like "'GlobalAdmin'"
                         let t = f.ts_type.trim().trim_matches('\'').trim_matches('"');
                         Some(t.to_string())
                     } else {
                         None
                     }
-                })?;
-                Some(ObjectVariant {
-                    tag_value,
-                    fields: fields.clone(),
-                })
-            } else {
-                None
+                }) {
+                    object_variants.push(ObjectVariant {
+                        tag_value,
+                        fields: fields.clone(),
+                    });
+                }
             }
-        })
-        .collect();
-    let has_object_variants = !object_variants.is_empty();
+            crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Intersection(sub_members) => {
+                // Look for { tag: 'Value' } & TypeRef pattern
+                let mut tag_value = None;
+                let mut ref_type = None;
 
-    let is_literal_only = !literals.is_empty() && type_refs.is_empty() && !has_object_variants;
+                for sub in sub_members {
+                    match &sub.kind {
+                        crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Object { fields } => {
+                            tag_value = fields.iter().find_map(|f| {
+                                if f.name == tag_field {
+                                    let t = f.ts_type.trim().trim_matches('\'').trim_matches('"');
+                                    Some(t.to_string())
+                                } else {
+                                    None
+                                }
+                            });
+                        }
+                        crate::ts_syn::abi::ir::type_alias::TypeMemberKind::TypeRef(t) => {
+                            ref_type = Some(t.clone());
+                        }
+                        _ => {}
+                    }
+                }
+
+                if let (Some(tv), Some(rt)) = (tag_value, ref_type) {
+                    let is_ser = serializable_types.iter().any(|s| s.full_type == rt);
+                    intersection_variants.push(IntersectionVariant {
+                        tag_value: tv,
+                        type_ref: rt,
+                        is_serializable: is_ser,
+                    });
+                }
+            }
+            _ => {}
+        }
+    }
+    let has_object_variants = !object_variants.is_empty();
+    let has_intersection_variants = !intersection_variants.is_empty();
+
+    let has_tagged_variants = has_object_variants || has_intersection_variants;
+    let is_literal_only = !literals.is_empty() && type_refs.is_empty() && !has_tagged_variants;
     let is_primitive_only = has_primitives
         && !has_serializables
         && !has_dates
         && !has_generic_params
         && literals.is_empty()
-        && !has_object_variants;
+        && !has_tagged_variants;
     let is_serializable_only = !has_primitives
         && !has_dates
         && !has_generic_params
         && has_serializables
         && literals.is_empty()
-        && !has_object_variants;
+        && !has_tagged_variants;
     let has_literals = !literals.is_empty();
 
     // Pre-compute the expected types string for error messages
@@ -997,6 +1041,9 @@ fn handle_union_type_alias(
         }
         for ov in &object_variants {
             parts.push(format!("{{ {}: '{}' }}", tag_field, ov.tag_value));
+        }
+        for iv in &intersection_variants {
+            parts.push(format!("{{ {}: '{}' }} & {}", tag_field, iv.tag_value, iv.type_ref));
         }
         if parts.is_empty() {
             literals.join(", ")
@@ -1367,6 +1414,18 @@ fn handle_union_type_alias(
                                                 return __result as @{full_type_ident};
                                             }
                                         {/for}
+                                        {#for iv in &intersection_variants}
+                                            if (__typeName === "@{iv.tag_value}") {
+                                                // Intersection variant — deserialize the type ref and merge with tag
+                                                {#if iv.is_serializable}
+                                                    {$let iv_deser_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&iv.type_ref))).into()}
+                                                    const __inner = @{iv_deser_fn}(value, ctx);
+                                                    return { ...(__inner as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
+                                                {:else}
+                                                    return { ...(value as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
+                                                {/if}
+                                            }
+                                        {/for}
 
                                         throw new @{deserialize_error_expr}([{
                                             field: "_root",
@@ -1619,8 +1678,8 @@ fn handle_union_type_alias(
                                 return value as @{full_type_ident};
                             {/if}
 
-                            {#if has_object_variants}
-                                // Inline object variants with tag-based discrimination
+                            {#if has_object_variants || has_intersection_variants}
+                                // Tagged variants with tag-based discrimination
                                 if (typeof value === "object" && value !== null) {
                                     const __typeName = (value as any)["@{tag_field}"];
                                     if (typeof __typeName === "string") {
@@ -1633,6 +1692,17 @@ fn handle_union_type_alias(
                                                     {/if}
                                                 {/for}
                                                 return __result as @{full_type_ident};
+                                            }
+                                        {/for}
+                                        {#for iv in &intersection_variants}
+                                            if (__typeName === "@{iv.tag_value}") {
+                                                {#if iv.is_serializable}
+                                                    {$let iv_deser_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&iv.type_ref))).into()}
+                                                    const __inner = @{iv_deser_fn}(value, ctx);
+                                                    return { ...(__inner as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
+                                                {:else}
+                                                    return { ...(value as any), "@{tag_field}": "@{iv.tag_value}" } as @{full_type_ident};
+                                                {/if}
                                             }
                                         {/for}
                                     }
@@ -1785,11 +1855,11 @@ fn handle_union_type_alias(
                                     {/if}
                                 {/for}
                             {/if}
-                            {#if has_object_variants}
+                            {#if has_object_variants || has_intersection_variants}
                                 if (typeof value === "object" && value !== null) {
                                     const __typeName = (value as any)["@{tag_field}"];
-                                    {%let ov_values: Vec<String> = object_variants.iter().map(|ov| format!("\"{}\"", ov.tag_value)).collect()}
-                                    if ([@{ov_values.join(", ")}].includes(__typeName)) return true;
+                                    {%let all_tag_values: Vec<String> = object_variants.iter().map(|ov| format!("\"{}\"", ov.tag_value)).chain(intersection_variants.iter().map(|iv| format!("\"{}\"", iv.tag_value))).collect()}
+                                    if ([@{all_tag_values.join(", ")}].includes(__typeName)) return true;
                                 }
                             {/if}
                             {#if has_generic_params}

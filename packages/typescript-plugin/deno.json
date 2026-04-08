@@ -1,4 +1,19 @@
 {
+    "name": "@macroforge/typescript-plugin",
+    "version": "0.1.79",
+    "license": "MIT",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "imports": {
+        "typescript/lib/tsserverlibrary": "npm:typescript@^5.9.3/lib/tsserverlibrary",
+        "macroforge": "npm:macroforge@^0.1.79",
+        "@macroforge/shared": "npm:@macroforge/shared@^0.1.79"
+    },
+    "unstable": ["sloppy-imports"],
+    "publish": {
+        "exclude": ["tests/", "dist/", "scripts/", "node_modules/"]
+    },
     "fmt": {
         "useTabs": false,
         "indentWidth": 4,

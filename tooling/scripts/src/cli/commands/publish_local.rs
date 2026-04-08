@@ -1,7 +1,7 @@
 //! Publish-local command
 //!
-//! Publishes all packages to their registries (npm + crates.io) from a local
-//! machine. Builds WASM, publishes in dependency order (topological sort),
+//! Publishes all packages to their registries (npm, crates.io, JSR) from a
+//! local machine. Builds WASM, publishes in dependency order (topological sort),
 //! and polls registries to ensure each package is available before publishing
 //! dependents.
 
@@ -35,6 +35,28 @@ fn crate_already_published(crate_name: &str, version: &str) -> bool {
         .flatten()
         .as_deref()
         == Some(version)
+}
+
+fn jsr_already_published(package: &str, version: &str) -> bool {
+    if package.is_empty() {
+        return false;
+    }
+    registry::jsr_version(package).ok().flatten().as_deref() == Some(version)
+}
+
+/// Read the JSR package name from deno.json in a directory
+fn jsr_name(dir: &Path) -> String {
+    let path = dir.join("deno.json");
+    if let Ok(content) = std::fs::read_to_string(&path)
+        && let Ok(jsr) = serde_json::from_str::<serde_json::Value>(&content)
+    {
+        jsr.get("name")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string()
+    } else {
+        String::new()
+    }
 }
 
 fn wait_for_npm(package: &str, version: &str) -> Result<()> {
@@ -112,7 +134,7 @@ fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
 
     match result {
         Ok(r) if r.success => {
-            format::success(&format!("Published {}@{}", package, version));
+            format::success(&format!("Published {}@{} to npm", package, version));
             Ok(true)
         }
         _ => {
@@ -126,7 +148,7 @@ fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
                 .inherit()
                 .run_checked()
                 .with_context(|| format!("npm publish failed for {} (after re-auth)", package))?;
-            format::success(&format!("Published {}@{}", package, version));
+            format::success(&format!("Published {}@{} to npm", package, version));
             Ok(true)
         }
     }
@@ -150,7 +172,6 @@ fn publish_crate(dir: &Path, crate_name: &str, version: &str, dry_run: bool) -> 
         return Ok(false);
     }
 
-    // Try publish, re-auth on 403, retry once
     let result = Shell::new("cargo")
         .args(&["publish", "--allow-dirty"])
         .dir(dir)
@@ -159,14 +180,13 @@ fn publish_crate(dir: &Path, crate_name: &str, version: &str, dry_run: bool) -> 
 
     match result {
         Ok(r) if r.success => {
-            format::success(&format!("Published {}@{}", crate_name, version));
+            format::success(&format!("Published {}@{} to crates.io", crate_name, version));
             Ok(true)
         }
         _ => {
             format::warning("Publish failed — possibly expired token. Please log in:");
             shell::cargo::login()?;
 
-            // Retry
             format::info(&format!("Retrying publish for {}...", crate_name));
             Shell::new("cargo")
                 .args(&["publish", "--allow-dirty"])
@@ -176,10 +196,37 @@ fn publish_crate(dir: &Path, crate_name: &str, version: &str, dry_run: bool) -> 
                 .with_context(|| {
                     format!("cargo publish failed for {} (after re-auth)", crate_name)
                 })?;
-            format::success(&format!("Published {}@{}", crate_name, version));
+            format::success(&format!("Published {}@{} to crates.io", crate_name, version));
             Ok(true)
         }
     }
+}
+
+/// Returns true if actually published, false if skipped.
+fn publish_jsr(dir: &Path, package: &str, version: &str, dry_run: bool) -> Result<bool> {
+    if !dir.join("deno.json").exists() {
+        return Ok(false);
+    }
+    if jsr_already_published(package, version) {
+        format::warning(&format!(
+            "{}@{} already on JSR, skipping",
+            package, version
+        ));
+        return Ok(false);
+    }
+    if dry_run {
+        format::info(&format!(
+            "[dry-run] deno publish {} from {}",
+            package,
+            dir.display()
+        ));
+        return Ok(false);
+    }
+
+    shell::deno::publish(dir)
+        .with_context(|| format!("JSR publish failed for {}", package))?;
+    format::success(&format!("Published {}@{} to JSR", package, version));
+    Ok(true)
 }
 
 fn confirm(message: &str) -> Result<bool> {
@@ -207,7 +254,6 @@ fn ensure_npm_auth() -> Result<()> {
             println!("Running `npm login`...");
             shell::npm::login()?;
 
-            // Verify
             let verify = Shell::new("npm").args(&["whoami"]).run_checked()?;
             format::success(&format!("npm: logged in as {}", verify.output().trim()));
             Ok(())
@@ -219,6 +265,7 @@ fn ensure_npm_auth() -> Result<()> {
 fn ensure_cargo_auth() -> Result<()> {
     let check = Shell::new("cargo")
         .args(&["owner", "--list", "-q", "macroforge_ts_syn"])
+        .inherit()
         .run();
 
     match check {
@@ -230,6 +277,22 @@ fn ensure_cargo_auth() -> Result<()> {
             format::warning("crates.io auth failed or expired — please log in");
             shell::cargo::login()?;
             format::success("crates.io: logged in");
+            Ok(())
+        }
+    }
+}
+
+/// Verify JSR auth by running a quiet dry-run publish.
+fn ensure_jsr_auth(jsr_dir: &Path) -> Result<()> {
+    let result = shell::deno::publish_dry_run(jsr_dir);
+
+    match result {
+        Ok(r) if r.success => {
+            format::success("jsr: authenticated");
+            Ok(())
+        }
+        _ => {
+            format::warning("JSR auth check failed — you may be prompted to log in during publish");
             Ok(())
         }
     }
@@ -259,32 +322,132 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
     println!("Version: {}", version.cyan());
     println!();
 
-    // Check registry auth before doing anything
-    if !args.dry_run {
-        format::step(0, 0, "Checking registry authentication");
-        ensure_npm_auth()?;
-        ensure_cargo_auth()?;
+    // Pre-check registries to filter out already-published packages
+    // (repo_name, pkg_version, needs_crate, needs_npm, needs_jsr)
+    let mut to_publish: Vec<(&str, String, bool, bool, bool)> = Vec::new();
+    let mut already_published: Vec<String> = Vec::new();
+
+    for name in &dep_order {
+        let Some(repo) = config.repos.get(name.as_str()) else {
+            continue;
+        };
+        let pkg_version = versions
+            .get_local(name)
+            .unwrap_or(&version)
+            .to_string();
+        let has_jsr = repo.abs_path.join("deno.json").exists();
+
+        match repo.repo_type {
+            RepoType::Rust => {
+                let needs_crate = repo
+                    .crate_name
+                    .as_deref()
+                    .is_some_and(|c| !crate_already_published(c, &pkg_version));
+                let needs_npm = repo
+                    .npm_name
+                    .as_deref()
+                    .is_some_and(|n| !npm_already_published(n, &pkg_version));
+                let needs_jsr = has_jsr
+                    && !jsr_already_published(&jsr_name(&repo.abs_path), &pkg_version);
+
+                if !needs_crate && !needs_npm && !needs_jsr {
+                    let label = repo
+                        .crate_name
+                        .as_deref()
+                        .or(repo.npm_name.as_deref())
+                        .unwrap_or(name);
+                    already_published.push(format!("{}@{}", label, pkg_version));
+                } else {
+                    to_publish.push((name, pkg_version, needs_crate, needs_npm, needs_jsr));
+                }
+            }
+            RepoType::Ts => {
+                let needs_npm = repo
+                    .npm_name
+                    .as_deref()
+                    .is_some_and(|n| !npm_already_published(n, &pkg_version));
+                let needs_jsr = has_jsr
+                    && repo
+                        .npm_name
+                        .as_deref()
+                        .is_some_and(|n| !jsr_already_published(n, &pkg_version));
+
+                if !needs_npm && !needs_jsr {
+                    let label = repo.npm_name.as_deref().unwrap_or(name);
+                    already_published.push(format!("{}@{}", label, pkg_version));
+                } else {
+                    to_publish.push((name, pkg_version, false, needs_npm, needs_jsr));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if !already_published.is_empty() {
+        println!("{}", "Already published:".dimmed());
+        for item in &already_published {
+            println!("  {} {}", "✓".green(), item.dimmed());
+        }
         println!();
     }
 
-    // Print plan
-    println!("{}", "Publish order:".bold());
-    for (i, name) in dep_order.iter().enumerate() {
-        if let Some(repo) = config.repos.get(name.as_str()) {
-            let registry_name = repo
-                .crate_name
-                .as_deref()
-                .or(repo.npm_name.as_deref())
-                .unwrap_or(&repo.name);
-            let kind = match repo.repo_type {
-                RepoType::Rust => "crate + npm",
-                RepoType::Ts => "npm",
-                _ => "skip",
-            };
-            println!("  {}. {} ({})", i + 1, registry_name, kind);
+    if to_publish.is_empty() {
+        format::success("Everything is already published");
+        return Ok(());
+    }
+
+    println!("{}", "Will publish:".bold());
+    for (i, (name, pkg_version, needs_crate, needs_npm, needs_jsr)) in
+        to_publish.iter().enumerate()
+    {
+        let repo = &config.repos[*name];
+        let registry_name = repo
+            .crate_name
+            .as_deref()
+            .or(repo.npm_name.as_deref())
+            .unwrap_or(name);
+        let mut targets = Vec::new();
+        if *needs_crate {
+            targets.push("crate");
         }
+        if *needs_npm {
+            targets.push("npm");
+        }
+        if *needs_jsr {
+            targets.push("jsr");
+        }
+        println!(
+            "  {}. {} @ {} ({})",
+            i + 1,
+            registry_name.bold(),
+            pkg_version.green(),
+            targets.join(" + ")
+        );
     }
     println!();
+
+    // Check registry auth before doing anything
+    if !args.dry_run {
+        format::step(0, 0, "Checking registry authentication");
+        let has_npm = to_publish.iter().any(|(_, _, _, npm, _)| *npm);
+        let has_crate = to_publish.iter().any(|(_, _, crate_, _, _)| *crate_);
+        let has_jsr = to_publish.iter().any(|(_, _, _, _, jsr)| *jsr);
+        if has_npm {
+            ensure_npm_auth()?;
+        }
+        if has_crate {
+            ensure_cargo_auth()?;
+        }
+        if has_jsr {
+            if let Some((jsr_name, _, _, _, _)) =
+                to_publish.iter().find(|(_, _, _, _, jsr)| *jsr)
+            {
+                let jsr_dir = &config.repos[*jsr_name].abs_path;
+                ensure_jsr_auth(jsr_dir)?;
+            }
+        }
+        println!();
+    }
 
     if !args.yes && !args.dry_run && !confirm("Proceed?")? {
         format::warning("Aborted");
@@ -294,96 +457,80 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
     let mut published: Vec<String> = Vec::new();
     let mut skipped: Vec<String> = Vec::new();
 
-    // Total steps: build + each repo in dep_order
-    let total = 1 + dep_order.len();
+    // Only build WASM if core needs publishing to npm or JSR
+    let core_needs_publish = to_publish
+        .iter()
+        .any(|(name, _, _, needs_npm, needs_jsr)| *name == "core" && (*needs_npm || *needs_jsr));
+    let needs_wasm_build = core_needs_publish && !args.skip_build;
+
+    let total = if needs_wasm_build { 1 } else { 0 } + to_publish.len();
     let mut step = 0;
 
-    // ── Step 1: Build WASM ────────────────────────────���─────────────────
-    step += 1;
-    format::step(step, total, "Building WASM");
-
-    if args.skip_build {
-        format::warning("Skipping (--skip-build)");
-    } else if args.dry_run {
-        format::info("[dry-run] deno task build:wasm");
-    } else {
-        shell::deno::task(&root.join("crates/macroforge_ts"), "build:wasm")
-            .context("WASM build failed")?;
-        format::success("Built WASM package");
+    if needs_wasm_build {
+        step += 1;
+        format::step(step, total, "Building WASM");
+        if args.dry_run {
+            format::info("[dry-run] deno task build:wasm");
+        } else {
+            shell::deno::task_inherit(&root.join("crates/macroforge_ts"), "build:wasm")
+                .context("WASM build failed")?;
+            format::success("Built WASM package");
+        }
+    } else if core_needs_publish && args.skip_build {
+        format::warning("Skipping WASM build (--skip-build)");
     }
 
     // ── Steps 2+: Publish in dependency order ────────────────────────────
-    for repo_name in &dep_order {
+    for (repo_name, pkg_version, needs_crate, needs_npm, needs_jsr) in &to_publish {
         step += 1;
-        let repo = match config.repos.get(repo_name.as_str()) {
-            Some(r) => r,
-            None => continue,
-        };
+        let repo = &config.repos[*repo_name];
+        let display_name = repo
+            .crate_name
+            .as_deref()
+            .or(repo.npm_name.as_deref())
+            .unwrap_or(repo_name);
+        format::step(step, total, &format!("Publishing {}", display_name));
 
-        let pkg_version = versions
-            .get_local(repo_name)
-            .unwrap_or(&version)
-            .to_string();
-
-        match repo.repo_type {
-            RepoType::Rust => {
-                // Publish crate if it has a crate name
-                if let Some(crate_name) = &repo.crate_name {
-                    format::step(step, total, &format!("Publishing crate {}", crate_name));
-                    match publish_crate(&repo.abs_path, crate_name, &pkg_version, args.dry_run)? {
-                        true => {
-                            if !args.dry_run {
-                                wait_for_crate(crate_name, &pkg_version)?;
-                            }
-                            published.push(format!("{}@{}", crate_name, pkg_version));
+        // crates.io
+        if *needs_crate {
+            if let Some(crate_name) = &repo.crate_name {
+                match publish_crate(&repo.abs_path, crate_name, pkg_version, args.dry_run)? {
+                    true => {
+                        if !args.dry_run {
+                            wait_for_crate(crate_name, pkg_version)?;
                         }
-                        false => skipped.push(format!("{}@{}", crate_name, pkg_version)),
+                        published.push(format!("{}@{} (crates.io)", crate_name, pkg_version));
                     }
-                }
-
-                // Also publish npm if it has an npm name
-                if let Some(npm_name) = &repo.npm_name {
-                    format::info(&format!(
-                        "Publishing npm {}@{}...",
-                        npm_name.cyan(),
-                        pkg_version
-                    ));
-                    match publish_npm(&repo.abs_path, npm_name, &pkg_version, args.dry_run)? {
-                        true => {
-                            if !args.dry_run {
-                                wait_for_npm(npm_name, &pkg_version)?;
-                            }
-                            published.push(format!("{}@{}", npm_name, pkg_version));
-                        }
-                        false => skipped.push(format!("{}@{}", npm_name, pkg_version)),
-                    }
+                    false => skipped.push(format!("{}@{} (crates.io)", crate_name, pkg_version)),
                 }
             }
-            RepoType::Ts => {
-                if let Some(npm_name) = &repo.npm_name {
-                    format::step(step, total, &format!("Publishing npm {}", npm_name));
-                    match publish_npm(&repo.abs_path, npm_name, &pkg_version, args.dry_run)? {
-                        true => {
-                            if !args.dry_run {
-                                wait_for_npm(npm_name, &pkg_version)?;
-                            }
-                            published.push(format!("{}@{}", npm_name, pkg_version));
-                        }
-                        false => skipped.push(format!("{}@{}", npm_name, pkg_version)),
+        }
+
+        // npm
+        if *needs_npm {
+            let npm_name = repo.npm_name.as_deref().unwrap_or(repo_name);
+            match publish_npm(&repo.abs_path, npm_name, pkg_version, args.dry_run)? {
+                true => {
+                    if !args.dry_run {
+                        wait_for_npm(npm_name, pkg_version)?;
                     }
+                    published.push(format!("{}@{} (npm)", npm_name, pkg_version));
                 }
+                false => skipped.push(format!("{}@{} (npm)", npm_name, pkg_version)),
             }
-            _ => {
-                format::step(
-                    step,
-                    total,
-                    &format!("Skipping {} (no registry)", repo_name),
-                );
+        }
+
+        // JSR
+        if *needs_jsr {
+            let name = jsr_name(&repo.abs_path);
+            match publish_jsr(&repo.abs_path, &name, pkg_version, args.dry_run)? {
+                true => published.push(format!("{}@{} (jsr)", name, pkg_version)),
+                false => {}
             }
         }
     }
 
-    // ── Summary ─────────────────────────────────���────────────────────────
+    // ── Summary ─────────────────────────────────────────────────────────
     println!();
     format::header("Summary");
 

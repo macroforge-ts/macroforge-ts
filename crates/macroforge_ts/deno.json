@@ -1,4 +1,21 @@
 {
+    "name": "@macroforge/core",
+    "version": "0.1.79",
+    "exports": {
+        ".": "./pkg/macroforge_ts.js",
+        "./serde": "./js/serde/index.ts",
+        "./traits": "./js/traits/index.ts"
+    },
+    "publish": {
+        "include": [
+            "pkg/",
+            "js/serde/",
+            "js/traits/",
+            "deno.json",
+            "LICENSE",
+            "README.md"
+        ]
+    },
     "fmt": {
         "useTabs": false,
         "indentWidth": 4,

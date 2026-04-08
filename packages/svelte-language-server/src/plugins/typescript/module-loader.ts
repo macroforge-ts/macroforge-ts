@@ -126,11 +126,10 @@ class ImpliedNodeFormatResolver {
         entry: string | ts.FileReference,
         sourceFile: ts.SourceFile | undefined
     ) {
-        let mode = undefined;
         if (sourceFile) {
-            mode = ts.getModeForFileReference(entry, sourceFile?.impliedNodeFormat);
+            return ts.getModeForFileReference(entry, sourceFile?.impliedNodeFormat);
         }
-        return mode;
+        return undefined;
     }
 }
 
@@ -186,6 +185,7 @@ export function createSvelteModuleLoader(
     const resolutionWithFailedLookup = new Set<
         ts.ResolvedModuleWithFailedLookupLocations & {
             files?: Set<string>;
+            failedLookupLocations?: string[];
         }
     >();
     const failedLocationInvalidated = new FileSet(
@@ -361,6 +361,7 @@ export function createSvelteModuleLoader(
     function cacheResolutionWithFailedLookup(
         resolvedModule: ts.ResolvedModuleWithFailedLookupLocations & {
             files?: Set<string>;
+            failedLookupLocations?: string[];
         },
         containingFile: string
     ) {

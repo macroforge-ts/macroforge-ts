@@ -71,37 +71,23 @@ export interface LanguageServiceContainer {
     dispose(): void;
 }
 
-declare module 'typescript' {
-    interface LanguageServiceHost {
-        /**
-         * @internal
-         * This is needed for the languageService program to know that there is a new file
-         * that might change the module resolution results
-         */
-        hasInvalidatedResolutions?: (sourceFile: string) => boolean;
-
-        /**
-         * @internal
-         */
-        getModuleResolutionCache?(): ts.ModuleResolutionCache;
-        /** @internal */
-        setCompilerHost?(host: ts.CompilerHost): void;
-    }
-
-    interface ResolvedModuleWithFailedLookupLocations {
-        /** @internal */
-        failedLookupLocations?: string[];
-        /** @internal */
-        affectingLocations?: string[];
-        /** @internal */
-        resolutionDiagnostics?: ts.Diagnostic[];
-        /**
-         * @internal
-         * Used to issue a better diagnostic when an unresolvable module may
-         * have been resolvable under different module resolution settings.
-         */
-        alternateResult?: string;
-    }
+// TypeScript internal augmentations - used via type assertions at call sites
+// (declare module not allowed on JSR)
+/** @internal LanguageServiceHost extensions */
+interface TSInternalLanguageServiceHost {
+    hasInvalidatedResolutions?: (sourceFile: string) => boolean;
+    getModuleResolutionCache?(): ts.ModuleResolutionCache;
+    setCompilerHost?(host: ts.CompilerHost): void;
+    useSourceOfProjectReferenceRedirect?(): boolean;
+    getModuleSpecifierCache?(): { clear(): void } | undefined;
+    getCompilerHost?(): { getModuleResolutionCache?(): unknown } | undefined;
+}
+/** @internal ResolvedModuleWithFailedLookupLocations extensions */
+interface TSInternalResolvedModule {
+    failedLookupLocations?: string[];
+    affectingLocations?: string[];
+    resolutionDiagnostics?: ts.Diagnostic[];
+    alternateResult?: string;
 }
 
 export interface TsConfigInfo {
@@ -447,7 +433,7 @@ async function createLanguageService(
     let dirty = projectConfig.fileNames.length > 0;
     let skipSvelteInputCheck = !tsconfigPath;
 
-    const host: ts.LanguageServiceHost = {
+    const host: ts.LanguageServiceHost & TSInternalLanguageServiceHost = {
         log: (message) => Logger.debug(`[ts] ${message}`),
         getCompilationSettings: () => compilerOptions,
         getScriptFileNames,
@@ -1235,7 +1221,7 @@ async function createLanguageService(
                 .some((file) => file.fileName.includes(dir));
 
             if (inProgram) {
-                host.getModuleSpecifierCache?.().clear();
+                host.getModuleSpecifierCache?.()?.clear();
             }
         }
     }

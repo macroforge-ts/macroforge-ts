@@ -24,7 +24,7 @@ export class Document extends WritableDocument {
      * Compute and cache directly because of performance reasons
      * and it will be called anyway.
      */
-    private path = urlToPath(this.url);
+    private path: string | null;
 
     private _compiler: typeof import('svelte/compiler') | undefined;
     get compiler() {
@@ -41,6 +41,7 @@ export class Document extends WritableDocument {
         public content: string
     ) {
         super();
+        this.path = urlToPath(this.url);
         this.configPromise = configLoader.awaitConfig(this.getFilePath() || '');
         this.updateDocInfo();
     }

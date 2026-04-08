@@ -1,0 +1,16 @@
+{
+    "name": "@macroforge/svelte-preprocessor",
+    "version": "0.1.79",
+    "license": "MIT",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "imports": {
+        "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
+        "macroforge": "npm:macroforge@^0.1.79",
+        "svelte/compiler": "npm:svelte@^5.43.8/compiler"
+    },
+    "publish": {
+        "exclude": ["tests/", "dist/", "node_modules/"]
+    }
+}

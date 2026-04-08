@@ -13,26 +13,10 @@ import { ModuleSpecifierCache } from 'typescript-auto-import-cache/out/5_0/modul
 import { SymlinkCache } from 'typescript-auto-import-cache/out/5_0/symlinkCache';
 import { ProjectPackageJsonInfo } from 'typescript-auto-import-cache/out/5_0/packageJsonCache';
 
-export { ProjectService };
+export type { ProjectService };
 
-declare module 'typescript' {
-    interface LanguageServiceHost {
-        /** @internal */ getCachedExportInfoMap?(): ExportInfoMap;
-        /** @internal */ getModuleSpecifierCache?(): ModuleSpecifierCache;
-        /** @internal */ getGlobalTypingsCacheLocation?(): string | undefined;
-        /** @internal */ getSymlinkCache?(
-            files: readonly ts.SourceFile[]
-        ): SymlinkCache;
-        /** @internal */ getPackageJsonsVisibleToFile?(
-            fileName: string,
-            rootDir?: string
-        ): readonly ProjectPackageJsonInfo[];
-        /** @internal */ getPackageJsonAutoImportProvider?():
-            | ts.Program
-            | undefined;
-        /** @internal */ useSourceOfProjectReferenceRedirect?(): boolean;
-    }
-}
+// TypeScript internal LanguageServiceHost extensions
+// (declare module not allowed on JSR - these are applied via (host as any) at runtime)
 
 export function createProjectService(
     system: ts.System,

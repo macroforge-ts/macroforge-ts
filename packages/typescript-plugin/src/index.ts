@@ -819,7 +819,7 @@ function hasMacroDirectives(text: string) {
  * @see {@link shouldProcess} - File filtering logic
  * @see {@link processFile} - Main macro expansion entry point
  */
-function init(modules: { typescript: typeof ts }) {
+function init(modules: { typescript: typeof ts }): { create: (info: ts.server.PluginCreateInfo) => ts.LanguageService } {
     /**
      * Creates the plugin instance for a TypeScript project.
      *

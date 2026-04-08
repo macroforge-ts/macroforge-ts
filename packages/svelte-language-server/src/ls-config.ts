@@ -740,7 +740,7 @@ export class LSConfigManager {
         };
     }
 
-    private scheduledUpdate: NodeJS.Timeout | undefined;
+    private scheduledUpdate: ReturnType<typeof setTimeout> | undefined;
     private notifyListeners() {
         if (this.scheduledUpdate) {
             clearTimeout(this.scheduledUpdate);

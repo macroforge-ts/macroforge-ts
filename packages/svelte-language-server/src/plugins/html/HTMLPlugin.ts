@@ -58,11 +58,7 @@ export class HTMLPlugin
         FoldingRangeProvider,
         DocumentHighlightProvider {
     __name = 'html';
-    private lang = getLanguageService({
-        customDataProviders: this.getCustomDataProviders(),
-        useDefaultDataProvider: false,
-        clientCapabilities: this.configManager.getClientCapabilities()
-    });
+    private lang: ReturnType<typeof getLanguageService>;
     private documents = new WeakMap<Document, HTMLDocument>();
     private styleScriptTemplate = new Set(['template', 'style', 'script']);
 
@@ -72,6 +68,11 @@ export class HTMLPlugin
         docManager: DocumentManager,
         private configManager: LSConfigManager
     ) {
+        this.lang = getLanguageService({
+            customDataProviders: this.getCustomDataProviders(),
+            useDefaultDataProvider: false,
+            clientCapabilities: this.configManager.getClientCapabilities()
+        });
         configManager.onChange(() =>
             this.lang.setDataProviders(false, this.getCustomDataProviders())
         );

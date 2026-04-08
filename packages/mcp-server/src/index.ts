@@ -81,7 +81,7 @@ async function main(): Promise<void> {
     registerTools(server);
 
     // Set up error handling
-    server.onerror = (error) => {
+    server.onerror = (error: unknown) => {
         console.error('[MCP Error]', error);
     };
 

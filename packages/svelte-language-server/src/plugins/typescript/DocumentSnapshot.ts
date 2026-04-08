@@ -321,10 +321,10 @@ function preprocessSvelteFile(
 export class SvelteDocumentSnapshot implements DocumentSnapshot {
     private mapper?: DocumentMapper;
     private lineOffsets?: number[];
-    private url = pathToUrl(this.filePath);
+    private url: string;
 
-    version = this.parent.version;
-    isSvelte5Plus = Number(this.svelteVersion?.split('.')[0]) >= 5;
+    version: number;
+    isSvelte5Plus: boolean;
 
     constructor(
         public readonly parent: Document,
@@ -338,6 +338,9 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
         private readonly htmlAst?: TemplateNode,
         private readonly macroforgeConfig?: MacroforgeAugmentationConfig
     ) {
+        this.url = pathToUrl(this.filePath);
+        this.version = this.parent.version;
+        this.isSvelte5Plus = Number(this.svelteVersion?.split('.')[0]) >= 5;
         this.applyMacroforgeAugmentation();
     }
 
@@ -508,9 +511,9 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
  * If it's a SvelteKit file (e.g. +page.ts), types will be auto-added if not explicitly typed.
  */
 export class JSOrTSDocumentSnapshot extends IdentityMapper implements DocumentSnapshot {
-    scriptKind = getScriptKindFromFileName(this.filePath);
+    scriptKind: ts.ScriptKind;
     scriptInfo = null;
-    originalText = this.text;
+    originalText: string;
     kitFile = false;
     private lineOffsets?: number[];
     private internalLineOffsets?: number[];
@@ -539,6 +542,8 @@ export class JSOrTSDocumentSnapshot extends IdentityMapper implements DocumentSn
         private readonly macroforgeConfig?: MacroforgeAugmentationConfig
     ) {
         super(pathToUrl(filePath));
+        this.scriptKind = getScriptKindFromFileName(this.filePath);
+        this.originalText = this.text;
         this.adjustText();
     }
 

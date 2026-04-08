@@ -1,4 +1,9 @@
 {
+    "name": "@macroforge/shared",
+    "version": "0.1.79",
+    "exports": {
+        ".": "./src/index.ts"
+    },
     "fmt": {
         "useTabs": false,
         "indentWidth": 4,

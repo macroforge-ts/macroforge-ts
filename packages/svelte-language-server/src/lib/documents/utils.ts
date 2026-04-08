@@ -196,7 +196,7 @@ export function extractTemplateTag(
 export function positionAt(
     offset: number,
     text: string,
-    lineOffsets = getLineOffsets(text)
+    lineOffsets: number[] = getLineOffsets(text)
 ): Position {
     offset = clamp(offset, 0, text.length);
 
@@ -234,7 +234,7 @@ export function positionAt(
 export function offsetAt(
     position: Position,
     text: string,
-    lineOffsets = getLineOffsets(text)
+    lineOffsets: number[] = getLineOffsets(text)
 ): number {
     if (position.line >= lineOffsets.length) {
         return text.length;
@@ -250,8 +250,8 @@ export function offsetAt(
     return clamp(nextLineOffset, lineOffset, lineOffset + position.character);
 }
 
-export function getLineOffsets(text: string) {
-    const lineOffsets = [];
+export function getLineOffsets(text: string): number[] {
+    const lineOffsets: number[] = [];
     let isLineStart = true;
 
     for (let i = 0; i < text.length; i++) {
