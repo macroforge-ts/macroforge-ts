@@ -45,12 +45,13 @@ export class SvelteDocument {
     public style: TagInformation | null;
     public languageId = 'svelte';
     public version = 0;
-    public uri = this.parent.uri;
+    public uri: string;
     public get config() {
         return this.parent.configPromise;
     }
 
     constructor(private parent: Document) {
+        this.uri = this.parent.uri;
         this.script = this.parent.scriptInfo;
         this.moduleScript = this.parent.moduleScriptInfo;
         this.style = this.parent.styleInfo;
@@ -199,19 +200,21 @@ export class FallbackTranspiledSvelteDocument implements ITranspiledSvelteDocume
         );
     }
 
-    private fragmentInfos = [
-        this.scriptMapper?.fragmentInfo,
-        this.styleMapper?.fragmentInfo
-    ]
-        .filter(isNotNullOrUndefined)
-        .sort((i1, i2) => i1.end - i2.end);
+    private fragmentInfos: { end: number; diff: number }[];
 
     private constructor(
         private parent: Document,
         private transpiled: string,
         public scriptMapper: SvelteFragmentMapper | null,
         public styleMapper: SvelteFragmentMapper | null
-    ) {}
+    ) {
+        this.fragmentInfos = [
+            this.scriptMapper?.fragmentInfo,
+            this.styleMapper?.fragmentInfo
+        ]
+            .filter(isNotNullOrUndefined)
+            .sort((i1, i2) => i1.end - i2.end);
+    }
 
     getOriginalPosition(generatedPosition: Position): Position {
         if (this.scriptMapper?.isInTranspiledFragment(generatedPosition)) {

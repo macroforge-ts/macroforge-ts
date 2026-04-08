@@ -353,6 +353,32 @@ pub mod deno {
     pub fn run_checked(cwd: &Path, args: &[&str]) -> Result<CommandResult> {
         Shell::new("deno").args(args).dir(cwd).run_checked()
     }
+
+    /// Run deno task with live output
+    pub fn task_inherit(cwd: &Path, task_name: &str) -> Result<CommandResult> {
+        Shell::new("deno")
+            .args(&["task", task_name])
+            .dir(cwd)
+            .inherit()
+            .run_checked()
+    }
+
+    /// Run deno publish to JSR with live output (auto-discovers deno.json)
+    pub fn publish(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("deno")
+            .args(&["publish", "--allow-dirty"])
+            .dir(cwd)
+            .inherit()
+            .run_checked()
+    }
+
+    /// Run deno publish --dry-run quietly (for auth checks)
+    pub fn publish_dry_run(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("deno")
+            .args(&["publish", "--dry-run", "--allow-dirty", "--quiet"])
+            .dir(cwd)
+            .run()
+    }
 }
 
 // ============================================================================

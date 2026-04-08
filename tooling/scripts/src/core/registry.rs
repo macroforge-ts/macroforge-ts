@@ -50,6 +50,31 @@ pub fn npm_version(package_name: &str) -> Result<Option<String>> {
     }
 }
 
+/// JSR API response for package metadata
+#[derive(Deserialize)]
+struct JsrPackageResponse {
+    latest: Option<String>,
+}
+
+/// Get the latest version of a JSR package via API
+pub fn jsr_version(package_name: &str) -> Result<Option<String>> {
+    // JSR API expects @scope/name -> @scope%2Fname in URL path,
+    // but the meta endpoint uses @scope/name directly
+    let url = format!("https://jsr.io/{}/meta.json", package_name);
+
+    match agent().get(&url).call() {
+        Ok(resp) => {
+            if resp.status() == 404 {
+                return Ok(None);
+            }
+            let pkg: JsrPackageResponse = resp.into_body().read_json()?;
+            Ok(pkg.latest)
+        }
+        Err(ureq::Error::StatusCode(404)) => Ok(None),
+        Err(e) => Err(e.into()),
+    }
+}
+
 /// Get the latest version of a crates.io package via API
 pub fn crates_version(crate_name: &str) -> Result<Option<String>> {
     let url = format!("https://crates.io/api/v1/crates/{}", crate_name);

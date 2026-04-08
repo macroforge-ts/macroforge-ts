@@ -26,5 +26,5 @@ default = []
 
 [dev-dependencies]
 trybuild = "1.0"
-macroforge_ts = { path = "../macroforge_ts", features = ["node"] }
+macroforge_ts = { version = "0.1.79", path = "../macroforge_ts", features = ["node"] }
 napi = "3.0"

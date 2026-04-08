@@ -7,7 +7,7 @@ const PREFIX = '__ {';
 const SUFFIX = '}';
 
 export class StyleAttributeDocument extends ReadableDocument implements DocumentMapper {
-    readonly version = this.parent.version;
+    readonly version: number;
 
     public stylesheet: Stylesheet;
     public languageId = 'css';
@@ -19,6 +19,7 @@ export class StyleAttributeDocument extends ReadableDocument implements Document
         languageServices: CSSLanguageServices
     ) {
         super();
+        this.version = this.parent.version;
 
         this.stylesheet = getLanguageService(languageServices).parseStylesheet(
             this

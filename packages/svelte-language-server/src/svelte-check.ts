@@ -351,7 +351,7 @@ export class SvelteCheck {
             return Object.entries(grouped).map(([filePath, errors]) => ({
                 filePath,
                 text: '',
-                diagnostics: errors.map((diagnostic) => map(diagnostic))
+                diagnostics: (errors as ts.Diagnostic[]).map((diagnostic) => map(diagnostic))
             }));
         }
     }

@@ -55,8 +55,10 @@ pub fn is_using_local_paths(config: &Config) -> bool {
     false
 }
 
-/// Swap internal crate dependencies to local paths
+/// Swap internal crate dependencies to use workspace-relative paths with version.
+/// Cargo uses the path locally and the version when publishing.
 pub fn swap_local(config: &Config) -> Result<()> {
+    let versions = &config.versions;
     for (repo_name, deps) in CARGO_SWAP_CONFIGS {
         let Some(repo) = config.repos.get(*repo_name) else {
             continue;
@@ -67,17 +69,26 @@ pub fn swap_local(config: &Config) -> Result<()> {
         if !cargo_path.exists() {
             continue;
         }
+        let cargo_dir = cargo_path.parent().unwrap();
 
         let content = fs::read_to_string(cargo_path)?;
         let lines: Vec<String> = content
             .lines()
             .map(|line| {
                 for (crate_name, target_repo) in *deps {
-                    if line.trim().starts_with(&format!("{} = \"", crate_name)) {
-                        // Use absolute path from config (supports env vars)
+                    let trimmed = line.trim();
+                    // Match version-only dep: `crate = "0.1.81"`
+                    if trimmed.starts_with(&format!("{} = \"", crate_name)) {
                         if let Some(target) = config.repos.get(*target_repo) {
-                            let abs_path = target.abs_path.display();
-                            return format!("{} = {{path = \"{}\"}}", crate_name, abs_path);
+                            let rel_path = pathdiff_relative(cargo_dir, &target.abs_path);
+                            let v = versions
+                                .get_local(target_repo)
+                                .map(|s| s.to_string())
+                                .unwrap_or_else(|| "0.1.0".to_string());
+                            return format!(
+                                "{} = {{ version = \"{}\", path = \"{}\" }}",
+                                crate_name, v, rel_path
+                            );
                         }
                     }
                 }
@@ -90,7 +101,7 @@ pub fn swap_local(config: &Config) -> Result<()> {
     Ok(())
 }
 
-/// Swap internal crate dependencies back to registry versions
+/// Swap internal crate dependencies back to registry versions (remove path).
 pub fn swap_registry(config: &Config, versions: &VersionsCache) -> Result<()> {
     for (repo_name, deps) in CARGO_SWAP_CONFIGS {
         let Some(repo) = config.repos.get(*repo_name) else {
@@ -109,7 +120,7 @@ pub fn swap_registry(config: &Config, versions: &VersionsCache) -> Result<()> {
             .map(|line| {
                 for (crate_name, version_repo) in *deps {
                     let trimmed = line.trim();
-                    // Match any path dependency for this crate
+                    // Match any inline-table dependency for this crate
                     if (trimmed.starts_with(&format!("{} = {{", crate_name))
                         || trimmed.starts_with(&format!("{} = {{ ", crate_name)))
                         && trimmed.contains("path")
@@ -331,8 +342,26 @@ pub fn set_version(
         if let Some(cargo_path) = &r.cargo_toml {
             update_cargo_toml(cargo_path, version, versions)?;
         }
+        update_jsr_json(&r.abs_path, version)?;
     }
     versions.set_local(repo, version);
+    Ok(())
+}
+
+/// Update JSR version in deno.json if it has a "name" field (JSR package)
+fn update_jsr_json(dir: &Path, version: &str) -> Result<()> {
+    let path = dir.join("deno.json");
+    if !path.exists() {
+        return Ok(());
+    }
+    let content = fs::read_to_string(&path)?;
+    let mut deno: Value = serde_json::from_str(&content)?;
+    // Only update version if this deno.json is a JSR package (has "name" field)
+    if deno.get("name").is_some() {
+        deno["version"] = json!(version);
+        fs::write(&path, serde_json::to_string_pretty(&deno)? + "\n")?;
+        format::success(&format!("Updated {}", path.display()));
+    }
     Ok(())
 }
 

@@ -1,4 +1,21 @@
 {
+    "name": "@macroforge/mcp-server",
+    "version": "0.1.79",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "imports": {
+        "@modelcontextprotocol/sdk/server/index.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/index.js",
+        "@modelcontextprotocol/sdk/server/stdio.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/stdio.js",
+        "@modelcontextprotocol/sdk/types.js": "npm:@modelcontextprotocol/sdk@^1.11.1/types.js"
+    },
+    "compilerOptions": {
+        "lib": ["esnext", "deno.window"]
+    },
+    "unstable": ["sloppy-imports"],
+    "publish": {
+        "exclude": ["tests/", "scripts/", "dist/", "node_modules/"]
+    },
     "fmt": {
         "useTabs": false,
         "indentWidth": 4,

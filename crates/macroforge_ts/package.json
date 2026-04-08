@@ -6,29 +6,29 @@
   "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
   "exports": {
     ".": {
-      "default": "./pkg/macroforge_ts.js",
+      "types": "./pkg/macroforge_ts.d.ts",
       "require": "./pkg/macroforge_ts.js",
-      "types": "./pkg/macroforge_ts.d.ts"
+      "default": "./pkg/macroforge_ts.js"
     },
     "./reexports": {
-      "default": "./js/reexports/index.mjs",
+      "types": "./js/reexports/index.d.ts",
       "import": "./js/reexports/index.mjs",
-      "types": "./js/reexports/index.d.ts"
+      "default": "./js/reexports/index.mjs"
     },
     "./reexports/effect": {
-      "default": "./js/reexports/effect.mjs",
+      "types": "./js/reexports/effect.d.ts",
       "import": "./js/reexports/effect.mjs",
-      "types": "./js/reexports/effect.d.ts"
+      "default": "./js/reexports/effect.mjs"
     },
     "./serde": {
-      "default": "./js/serde/index.mjs",
+      "types": "./js/serde/index.d.ts",
       "import": "./js/serde/index.mjs",
-      "types": "./js/serde/index.d.ts"
+      "default": "./js/serde/index.mjs"
     },
     "./traits": {
-      "default": "./js/traits/index.mjs",
+      "types": "./js/traits/index.d.ts",
       "import": "./js/traits/index.mjs",
-      "types": "./js/traits/index.d.ts"
+      "default": "./js/traits/index.mjs"
     }
   },
   "files": [
