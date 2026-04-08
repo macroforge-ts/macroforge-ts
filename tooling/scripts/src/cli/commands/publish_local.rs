@@ -1,12 +1,12 @@
 //! Publish-local command
 //!
 //! Publishes all packages to their registries (npm + crates.io) from a local
-//! machine. Builds native binaries, publishes in dependency order (using the
-//! same topological sort as the commit command), and polls registries to ensure
-//! each package is available before publishing dependents.
+//! machine. Builds WASM, publishes in dependency order (topological sort),
+//! and polls registries to ensure each package is available before publishing
+//! dependents.
 
 use crate::cli::PublishLocalArgs;
-use crate::core::config::{Config, PLATFORMS};
+use crate::core::config::Config;
 use crate::core::deps;
 use crate::core::registry;
 use crate::core::repos::RepoType;
@@ -215,10 +215,8 @@ fn ensure_npm_auth() -> Result<()> {
     }
 }
 
-/// Check if logged in to crates.io by calling `cargo login --help` won't work,
-/// so we use `cargo owner --list` on a known crate to verify the token is valid.
+/// Check if logged in to crates.io by verifying the token works.
 fn ensure_cargo_auth() -> Result<()> {
-    // Try listing owners of one of our crates to verify the token works
     let check = Shell::new("cargo")
         .args(&["owner", "--list", "-q", "macroforge_ts_syn"])
         .run();
@@ -251,7 +249,7 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         .context("No local version for 'core'")?
         .to_string();
 
-    // Dependency-ordered queue (same algorithm as commit command)
+    // Dependency-ordered queue
     let dep_order = deps::topo_order(&config.deps)?;
 
     format::header("Publish Local");
@@ -296,86 +294,25 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
     let mut published: Vec<String> = Vec::new();
     let mut skipped: Vec<String> = Vec::new();
 
-    // Total steps: build + platforms + each repo in dep_order
-    let total = 2 + dep_order.len();
+    // Total steps: build + each repo in dep_order
+    let total = 1 + dep_order.len();
     let mut step = 0;
 
-    // ── Step 1: Build native binaries ────────────────────────────────────
+    // ── Step 1: Build WASM ────────────────────────────���─────────────────
     step += 1;
-    format::step(step, total, "Building native binaries");
+    format::step(step, total, "Building WASM");
 
     if args.skip_build {
         format::warning("Skipping (--skip-build)");
     } else if args.dry_run {
-        format::info("[dry-run] napi build --platform --release");
+        format::info("[dry-run] deno task build:wasm");
     } else {
-        shell::deno::run_checked(
-            &root.join("crates/macroforge_ts"),
-            &[
-                "run",
-                "-A",
-                "npm:@napi-rs/cli/napi",
-                "build",
-                "--platform",
-                "--release",
-            ],
-        )
-        .context("napi build failed")?;
-        format::success("Built all platform binaries");
+        shell::deno::task(&root.join("crates/macroforge_ts"), "build:wasm")
+            .context("WASM build failed")?;
+        format::success("Built WASM package");
     }
 
-    // ── Step 2: Publish platform npm packages ────────────────────────────
-    step += 1;
-    format::step(step, total, "Publishing platform npm packages");
-
-    for platform in PLATFORMS {
-        let dir = root.join(format!("crates/macroforge_ts/npm/{}", platform));
-        let pkg_json = dir.join("package.json");
-        if !pkg_json.exists() {
-            continue;
-        }
-
-        let content = std::fs::read_to_string(&pkg_json)?;
-        let pkg: serde_json::Value = serde_json::from_str(&content)?;
-        let name = pkg.get("name").and_then(|v| v.as_str()).unwrap_or("");
-        let ver = pkg
-            .get("version")
-            .and_then(|v| v.as_str())
-            .unwrap_or(&version);
-
-        if name.is_empty() {
-            continue;
-        }
-
-        match publish_npm(&dir, name, ver, args.dry_run)? {
-            true => published.push(format!("{}@{}", name, ver)),
-            false => skipped.push(format!("{}@{}", name, ver)),
-        }
-    }
-
-    // Wait for all platform packages
-    if !args.dry_run {
-        for platform in PLATFORMS {
-            let pkg_json = root.join(format!(
-                "crates/macroforge_ts/npm/{}/package.json",
-                platform
-            ));
-            if let Ok(content) = std::fs::read_to_string(&pkg_json)
-                && let Ok(pkg) = serde_json::from_str::<serde_json::Value>(&content)
-            {
-                let name = pkg.get("name").and_then(|v| v.as_str()).unwrap_or("");
-                let ver = pkg
-                    .get("version")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or(&version);
-                if !name.is_empty() {
-                    wait_for_npm(name, ver)?;
-                }
-            }
-        }
-    }
-
-    // ── Steps 3+: Publish in dependency order ────────────────────────────
+    // ── Steps 2+: Publish in dependency order ────────────────────────────
     for repo_name in &dep_order {
         step += 1;
         let repo = match config.repos.get(repo_name.as_str()) {
@@ -446,7 +383,7 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         }
     }
 
-    // ── Summary ──────────────────────────────────────────────────────────
+    // ── Summary ─────────────────────────────────���────────────────────────
     println!();
     format::header("Summary");
 

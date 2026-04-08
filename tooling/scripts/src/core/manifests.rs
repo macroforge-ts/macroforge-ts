@@ -3,7 +3,7 @@
 //! Handles reading/writing versions to package.json and Cargo.toml,
 //! managing versions.json cache, and swapping dependency paths.
 
-use crate::core::config::{self, Config, PLATFORMS};
+use crate::core::config::{self, Config};
 use crate::core::versions::VersionsCache;
 use crate::utils::format;
 use anyhow::{Context, Result};
@@ -331,9 +331,6 @@ pub fn set_version(
         if let Some(cargo_path) = &r.cargo_toml {
             update_cargo_toml(cargo_path, version, versions)?;
         }
-        if repo == "core" {
-            update_core_platform_packages(&config.root, version)?;
-        }
     }
     versions.set_local(repo, version);
     Ok(())
@@ -404,19 +401,6 @@ fn update_package_json(path: &Path, version: &str, versions: &VersionsCache) -> 
         update_dep(deps, "macroforge", "core");
     }
 
-    // Update optionalDependencies for platform binaries
-    if let Some(deps) = pkg
-        .get_mut("optionalDependencies")
-        .and_then(|v| v.as_object_mut())
-    {
-        for platform in PLATFORMS {
-            let key = format!("@macroforge/bin-{}", platform);
-            if deps.contains_key(&key) {
-                deps[&key] = json!(version);
-            }
-        }
-    }
-
     fs::write(path, serde_json::to_string_pretty(&pkg)? + "\n")?;
     format::success(&format!("Updated {}", path.display()));
 
@@ -471,24 +455,6 @@ fn update_cargo_toml(path: &Path, version: &str, versions: &VersionsCache) -> Re
     Ok(())
 }
 
-/// Update platform-specific npm packages in core crate
-fn update_core_platform_packages(root: &Path, version: &str) -> Result<()> {
-    for platform in PLATFORMS {
-        let path = root.join(format!(
-            "crates/macroforge_ts/npm/{}/package.json",
-            platform
-        ));
-        if path.exists() {
-            let content = fs::read_to_string(&path)?;
-            let mut pkg: Value = serde_json::from_str(&content)?;
-            pkg["version"] = json!(version);
-            fs::write(&path, serde_json::to_string_pretty(&pkg)? + "\n")?;
-            format::success(&format!("Updated {}", path.display()));
-        }
-    }
-    Ok(())
-}
-
 /// Helper to replace a const value in Rust source
 fn replace_const(content: &str, name: &str, val: &str) -> String {
     let had_trailing_newline = content.ends_with('\n');
@@ -528,11 +494,6 @@ pub fn apply_versions(config: &Config, versions: &VersionsCache) -> Result<()> {
                         cargo_path.display(),
                         e
                     );
-                });
-            }
-            if repo.name == "core" {
-                update_core_platform_packages(&config.root, ver).unwrap_or_else(|e| {
-                    eprintln!("  Warning: Failed to update platform packages: {}", e);
                 });
             }
         }

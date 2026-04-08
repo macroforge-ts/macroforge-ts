@@ -112,12 +112,3 @@ pub fn crate_package_names() -> HashMap<&'static str, &'static str> {
     .collect()
 }
 
-/// Platform-specific binary package names
-pub const PLATFORMS: &[&str] = &[
-    "darwin-x64",
-    "darwin-arm64",
-    "linux-x64-gnu",
-    "linux-arm64-gnu",
-    "win32-x64-msvc",
-    "win32-arm64-msvc",
-];

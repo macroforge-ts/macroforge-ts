@@ -849,81 +849,31 @@ export async function macroforge() {
     },
 
     /**
-     * Pre-scan the project to build a type registry for compile-time type awareness.
+     * Load the type registry from the CLI cache for compile-time type awareness.
      * The registry is passed to every expandSync call so macros can introspect
-     * any type in the project (Zig-style type awareness).
+     * any type in the project.
      */
     buildStart() {
-      if (!rustTransformer || !rustTransformer.scanProjectSync) {
-        return;
-      }
-
-      try {
-        const scanStart = performance.now();
-        const scanResult = rustTransformer.scanProjectSync(projectRoot, {
-          exportedOnly: false,
-        });
-        const scanTime = (performance.now() - scanStart).toFixed(0);
-
-        typeRegistryJson = scanResult.registryJson;
-
-        console.log(
-          `[@macroforge/vite-plugin] Type scan: ${scanResult.typesFound} types from ${scanResult.filesScanned} files (${scanTime}ms)`,
-        );
-
-        // WASM builds (wasm32-unknown-unknown) have no filesystem access,
-        // so scanProjectSync returns 0 files. Fall back to the CLI-built
-        // type registry at .macroforge/type-registry.json (written by
-        // `macroforge watch` / `macroforge cache` / `macroforge expand`).
-        if (scanResult.filesScanned === 0) {
-          // Prefer project-local .macroforge/ cache
-          const localRegistry = path.join(
-            projectRoot,
-            ".macroforge",
-            "type-registry.json",
+      const localRegistry = path.join(
+        projectRoot,
+        ".macroforge",
+        "type-registry.json",
+      );
+      if (fs.existsSync(localRegistry)) {
+        typeRegistryJson = fs.readFileSync(localRegistry, "utf-8");
+        try {
+          const parsed = JSON.parse(typeRegistryJson);
+          const count = Object.keys(parsed.types ?? parsed).length;
+          console.log(
+            `[@macroforge/vite-plugin] Type registry loaded: ${count} types`,
           );
-          // Legacy fallback: global /tmp path (for older CLI versions)
-          const tmpRegistry = path.join(
-            os.tmpdir(),
-            "macroforge-cli",
-            "type-registry.json",
-          );
-          const registryPath = fs.existsSync(localRegistry)
-            ? localRegistry
-            : fs.existsSync(tmpRegistry)
-            ? tmpRegistry
-            : null;
-          if (registryPath) {
-            typeRegistryJson = fs.readFileSync(registryPath, "utf-8");
-            try {
-              const parsed = JSON.parse(typeRegistryJson);
-              const count = Object.keys(parsed).length;
-              console.log(
-                `[@macroforge/vite-plugin] Type registry loaded from CLI cache: ${count} types`,
-              );
-            } catch {
-              // JSON is passed as-is to expandSync, no need to parse here
-            }
-          } else {
-            console.warn(
-              `[@macroforge/vite-plugin] No type registry available (WASM scan returned 0 files and no CLI cache found). Generic type resolution will be disabled.`,
-            );
-          }
+        } catch {
+          // JSON is passed as-is to expandSync, no need to parse here
         }
-
-        for (const diag of scanResult.diagnostics) {
-          if (diag.level === "error") {
-            console.error(
-              `[@macroforge/vite-plugin] Scan error: ${diag.message}`,
-            );
-          }
-        }
-      } catch (error) {
+      } else {
         console.warn(
-          `[@macroforge/vite-plugin] Type scan failed, macros will run without type awareness:`,
-          error.message || error,
+          `[@macroforge/vite-plugin] No type registry found at .macroforge/type-registry.json. Run \`macroforge watch\` to generate it.`,
         );
-        typeRegistryJson = undefined;
       }
     },
 
@@ -993,7 +943,6 @@ export async function macroforge() {
           if (cached) {
             let cachedCode = cached.code;
 
-            // Apply same post-processing as the normal path
             cachedCode = cachedCode.replace(
               /\/\*\*\s*import\s+macro[\s\S]*?\*\/\s*/gi,
               "",
@@ -1003,18 +952,6 @@ export async function macroforge() {
                 /\/\*\*\s*@derive\b[^*]*\*\//g,
                 "",
               );
-            }
-
-            // Generate type definitions from cached expanded code
-            if (generateTypes) {
-              const emitted = emitDeclarationsFromCode(
-                cachedCode,
-                id,
-                projectRoot,
-              );
-              if (emitted) {
-                writeTypeDefinitions(id, emitted);
-              }
             }
 
             return {
