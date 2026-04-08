@@ -160,9 +160,11 @@ pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, import_mo
             }
         }
 
-        let type_name = ft.get_type_name();
-        if !r.is_available(&ft.name) && !r.is_available(type_name) && !ft.from.is_empty() {
-            r.request_type_import(type_name, &ft.from[0]);
+        // For dotted names like "DateTime.Utc", import the namespace root ("DateTime")
+        // since the leaf ("Utc") isn't a standalone export — it's accessed via the namespace.
+        let import_name = ft.get_namespace().unwrap_or_else(|| ft.get_type_name());
+        if !r.is_available(&ft.name) && !r.is_available(import_name) && !ft.from.is_empty() {
+            r.request_type_import(import_name, &ft.from[0]);
         }
     });
 }

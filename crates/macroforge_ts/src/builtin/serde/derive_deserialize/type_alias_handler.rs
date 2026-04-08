@@ -1043,7 +1043,10 @@ fn handle_union_type_alias(
             parts.push(format!("{{ {}: '{}' }}", tag_field, ov.tag_value));
         }
         for iv in &intersection_variants {
-            parts.push(format!("{{ {}: '{}' }} & {}", tag_field, iv.tag_value, iv.type_ref));
+            parts.push(format!(
+                "{{ {}: '{}' }} & {}",
+                tag_field, iv.tag_value, iv.type_ref
+            ));
         }
         if parts.is_empty() {
             literals.join(", ")
