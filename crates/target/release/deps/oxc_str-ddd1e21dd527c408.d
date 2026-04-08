@@ -1,0 +1,10 @@
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/oxc_str-ddd1e21dd527c408.d: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/compact_str.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/ident.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/str.rs
+
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/liboxc_str-ddd1e21dd527c408.rlib: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/compact_str.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/ident.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/str.rs
+
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/liboxc_str-ddd1e21dd527c408.rmeta: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/compact_str.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/ident.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/str.rs
+
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/lib.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/compact_str.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/ident.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_str-0.123.0/src/str.rs:

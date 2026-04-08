@@ -1,0 +1,10 @@
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/oxc_index-2d2068dc4b90dcd7.d: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/idxslice.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/indexing.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/macros.rs
+
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/liboxc_index-2d2068dc4b90dcd7.rlib: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/idxslice.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/indexing.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/macros.rs
+
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/liboxc_index-2d2068dc4b90dcd7.rmeta: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/idxslice.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/indexing.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/macros.rs
+
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/lib.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/idxslice.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/indexing.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/oxc_index-4.1.0/src/macros.rs:

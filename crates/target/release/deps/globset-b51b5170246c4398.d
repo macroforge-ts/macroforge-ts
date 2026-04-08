@@ -1,0 +1,10 @@
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/globset-b51b5170246c4398.d: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/fnv.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/glob.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/pathutil.rs
+
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/libglobset-b51b5170246c4398.rlib: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/fnv.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/glob.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/pathutil.rs
+
+/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/target/release/deps/libglobset-b51b5170246c4398.rmeta: /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/lib.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/fnv.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/glob.rs /Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/pathutil.rs
+
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/lib.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/fnv.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/glob.rs:
+/Users/jakoblochinski/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/globset-0.4.18/src/pathutil.rs:
