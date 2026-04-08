@@ -1,0 +1,94 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_debug_clone.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Debug, Clone) */
+class User {
+    id: number;
+    name: string;
+
+    constructor(id: number, name: string) {
+        this.id = id;
+        this.name = name;
+    }
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class User {
+    id: number;
+    name: string;
+
+    constructor(id: number, name: string) {
+        this.id = id;
+        this.name = name;
+    }
+
+static toString(value: User): string {
+                    return userToString(value);
+                }
+static clone(value: User): User {
+                    return userClone(value);
+                }}
+
+export function userToString(value: User): string {
+                        const parts: string[] = [];
+                        parts.push("id: " + value.id);
+parts.push("name: " + value.name);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
+
+export function userClone(value: User): User {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.id = value.id;
+cloned.name = value.name;
+
+                    return cloned;
+                }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class User {
+    id: number;
+    name: string;
+
+    constructor(id: number, name: string);
+
+static toString(value: User): string {
+                    return userToString(value);
+                }
+static clone(value: User): User {
+                    return userClone(value);
+                }}
+
+export function userToString(value: User): string {
+                        const parts: string[] = [];
+                        parts.push("id: " + value.id);
+parts.push("name: " + value.name);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
+
+export function userClone(value: User): User {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.id = value.id;
+cloned.name = value.name;
+
+                    return cloned;
+                }
+
+## Diagnostics
+
+(none)

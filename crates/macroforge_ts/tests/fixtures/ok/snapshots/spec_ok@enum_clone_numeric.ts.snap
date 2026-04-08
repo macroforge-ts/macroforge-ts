@@ -1,0 +1,49 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/enum_clone_numeric.ts
+---
+## Input
+
+/** @derive(Clone) */
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3
+}
+
+## Output
+
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3
+}
+
+export function priorityClone(value: Priority): Priority {
+                    return value;
+                }
+
+namespace Priority {
+  export const clone = priorityClone;
+}
+
+## DTS
+
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3
+}
+
+export function priorityClone(value: Priority): Priority {
+                    return value;
+                }
+
+namespace Priority {
+  export const clone = priorityClone;
+}
+
+## Diagnostics
+
+(none)

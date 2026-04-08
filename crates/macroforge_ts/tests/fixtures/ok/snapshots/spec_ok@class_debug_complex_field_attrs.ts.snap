@@ -1,0 +1,121 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_debug_complex_field_attrs.ts
+---
+## Input
+
+/** @derive(Debug) */
+class MacroUser {
+  /** @debug({ rename: "userId" }) */
+  id: string;
+
+  name: string;
+  role: string;
+  favoriteMacro: "Derive" | "JsonNative";
+  since: string;
+
+  /** @debug({ skip: true }) */
+  apiToken: string;
+
+  constructor(
+    id: string,
+    name: string,
+    role: string,
+    favoriteMacro: "Derive" | "JsonNative",
+    since: string,
+    apiToken: string,
+  ) {
+    this.id = id;
+    this.name = name;
+    this.role = role;
+    this.favoriteMacro = favoriteMacro;
+    this.since = since;
+    this.apiToken = apiToken;
+  }
+}
+
+## Output
+
+class MacroUser {
+  
+  id: string;
+
+  name: string;
+  role: string;
+  favoriteMacro: "Derive" | "JsonNative";
+  since: string;
+
+  
+  apiToken: string;
+
+  constructor(
+    id: string,
+    name: string,
+    role: string,
+    favoriteMacro: "Derive" | "JsonNative",
+    since: string,
+    apiToken: string,
+  ) {
+    this.id = id;
+    this.name = name;
+    this.role = role;
+    this.favoriteMacro = favoriteMacro;
+    this.since = since;
+    this.apiToken = apiToken;
+  }
+
+static toString(value: MacroUser): string {
+                    return macroUserToString(value);
+                }}
+
+export function macroUserToString(value: MacroUser): string {
+                        const parts: string[] = [];
+                        parts.push("userId: " + value.id);
+parts.push("name: " + value.name);
+parts.push("role: " + value.role);
+parts.push("favoriteMacro: " + value.favoriteMacro);
+parts.push("since: " + value.since);
+
+                        return "MacroUser { " + parts.join(", ") + " }";
+                    }
+
+## DTS
+
+class MacroUser {
+  
+  id: string;
+
+  name: string;
+  role: string;
+  favoriteMacro: "Derive" | "JsonNative";
+  since: string;
+
+  
+  apiToken: string;
+
+  constructor(id: string,
+    name: string,
+    role: string,
+    favoriteMacro: "Derive" | "JsonNative",
+    since: string,
+    apiToken: string,);
+
+static toString(value: MacroUser): string {
+                    return macroUserToString(value);
+                }}
+
+export function macroUserToString(value: MacroUser): string {
+                        const parts: string[] = [];
+                        parts.push("userId: " + value.id);
+parts.push("name: " + value.name);
+parts.push("role: " + value.role);
+parts.push("favoriteMacro: " + value.favoriteMacro);
+parts.push("since: " + value.since);
+
+                        return "MacroUser { " + parts.join(", ") + " }";
+                    }
+
+## Diagnostics
+
+(none)

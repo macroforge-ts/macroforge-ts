@@ -1,0 +1,55 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_debug_data.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Debug) */
+class Data {
+    val: number;
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class Data {
+    val: number;
+
+static toString(value: Data): string {
+                    return dataToString(value);
+                }}
+
+export function dataToString(value: Data): string {
+                        const parts: string[] = [];
+                        parts.push("val: " + value.val);
+
+                        return "Data { " + parts.join(", ") + " }";
+                    }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class Data {
+    val: number;
+
+static toString(value: Data): string {
+                    return dataToString(value);
+                }}
+
+export function dataToString(value: Data): string {
+                        const parts: string[] = [];
+                        parts.push("val: " + value.val);
+
+                        return "Data { " + parts.join(", ") + " }";
+                    }
+
+## Diagnostics
+
+(none)

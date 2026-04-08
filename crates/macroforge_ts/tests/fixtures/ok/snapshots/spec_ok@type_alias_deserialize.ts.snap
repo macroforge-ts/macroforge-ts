@@ -1,0 +1,1815 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_deserialize.ts
+---
+## Input
+
+/** @derive(Deserialize) */
+type Settings = {
+    theme: string;
+    language: string;
+};
+
+## Output
+
+import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+
+type Settings = {
+    theme: string;
+    language: string;
+};
+
+/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function settingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = settingsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Settings.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function settingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Settings | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Settings.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("theme" in obj)) {
+                            errors.push({ field: "theme", message: "missing required field" });
+                        }if (!("language" in obj)) {
+                            errors.push({ field: "language", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_theme = obj["theme"] as string;instance.theme = __raw_theme;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_language = obj["language"] as string;instance.language = __raw_language;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Settings;
+            }
+
+            export function settingsValidateField<K extends keyof Settings>(
+                _field: K,
+                _value: Settings[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function settingsValidateFields(
+                _partial: Partial<Settings>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function settingsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }const o = obj as Record<string, unknown>;
+                    return "theme" in o && "language" in o;
+
+
+
+
+
+            }
+
+            export function settingsIs(obj: unknown): obj is Settings {
+                return settingsHasShape(obj);
+            }
+
+const Settings = {
+  deserialize: settingsDeserialize,
+  deserializeWithContext: settingsDeserializeWithContext,
+  validateFields: settingsValidateFields,
+  hasShape: settingsHasShape,
+  is: settingsIs
+} as const;
+
+## DTS
+
+type Settings = {
+    theme: string;
+    language: string;
+};
+
+/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function settingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = settingsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Settings.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function settingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Settings | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref) as Settings | __mf_PendingRef;
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Settings.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("theme" in obj)) {
+                            errors.push({ field: "theme", message: "missing required field" });
+                        }if (!("language" in obj)) {
+                            errors.push({ field: "language", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_theme = obj["theme"] as string;instance.theme = __raw_theme;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_language = obj["language"] as string;instance.language = __raw_language;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Settings;
+            }
+
+            export function settingsValidateField<K extends keyof Settings>(
+                _field: K,
+                _value: Settings[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function settingsValidateFields(
+                _partial: Partial<Settings>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function settingsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }const o = obj as Record<string, unknown>;
+                    return "theme" in o && "language" in o;
+
+
+
+
+
+            }
+
+            export function settingsIs(obj: unknown): obj is Settings {
+                return settingsHasShape(obj);
+            }
+
+const Settings = {
+  deserialize: settingsDeserialize,
+  deserializeWithContext: settingsDeserializeWithContext,
+  validateFields: settingsValidateFields,
+  hasShape: settingsHasShape,
+  is: settingsIs
+} as const;
+
+## Diagnostics
+
+(none)

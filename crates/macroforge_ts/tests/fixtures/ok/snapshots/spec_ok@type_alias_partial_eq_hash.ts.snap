@@ -1,0 +1,71 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_partial_eq_hash.ts
+---
+## Input
+
+/** @derive(PartialEq, Hash) */
+type Vector = {
+    x: number;
+    y: number;
+    z: number;
+};
+
+## Output
+
+type Vector = {
+    x: number;
+    y: number;
+    z: number;
+};
+
+export function vectorEquals(a: Vector, b: Vector): boolean {
+                        if (a === b) return true;
+                        return a.x === b.x && a.y === b.y && a.z === b.z;
+                    }
+
+export function vectorHashCode(value: Vector): number {
+                        let hash = 17;hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.z) ? value.z | 0 : value.z.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                        return hash;
+                    }
+
+const Vector = {
+  equals: vectorEquals,
+  hashCode: vectorHashCode
+} as const;
+
+## DTS
+
+type Vector = {
+    x: number;
+    y: number;
+    z: number;
+};
+
+export function vectorEquals(a: Vector, b: Vector): boolean {
+                        if (a === b) return true;
+                        return a.x === b.x && a.y === b.y && a.z === b.z;
+                    }
+
+export function vectorHashCode(value: Vector): number {
+                        let hash = 17;hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.z) ? value.z | 0 : value.z.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                        return hash;
+                    }
+
+const Vector = {
+  equals: vectorEquals,
+  hashCode: vectorHashCode
+} as const;
+
+## Diagnostics
+
+(none)

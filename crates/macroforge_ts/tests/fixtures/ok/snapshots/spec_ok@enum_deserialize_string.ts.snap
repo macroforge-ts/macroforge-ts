@@ -1,0 +1,99 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/enum_deserialize_string.ts
+---
+## Input
+
+/** @derive(Deserialize) */
+enum Role {
+    Admin = "admin",
+    User = "user",
+    Guest = "guest"
+}
+
+## Output
+
+import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+
+enum Role {
+    Admin = "admin",
+    User = "user",
+    Guest = "guest"
+}
+
+/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function roleDeserialize(input: unknown): Role {
+            return roleDeserializeWithContext(input);
+        }
+
+        /** Deserializes with an existing context (for consistency with other types).  */
+        export function roleDeserializeWithContext(data: unknown): Role {
+            for (const key of Object.keys(Role)) {
+                const enumValue = Role[key as keyof typeof Role];
+                if (enumValue === data) {
+                    return data as Role;
+                }
+            }
+            throw new Error("Invalid Role value: " + JSON.stringify(data));
+        }
+
+        export function roleIs(value: unknown): value is Role {
+            for (const key of Object.keys(Role)) {
+                const enumValue = Role[key as keyof typeof Role];
+                if (enumValue === value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+namespace Role {
+  export const deserialize = roleDeserialize;
+  export const deserializeWithContext = roleDeserializeWithContext;
+  export const is = roleIs;
+}
+
+## DTS
+
+enum Role {
+    Admin = "admin",
+    User = "user",
+    Guest = "guest"
+}
+
+/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function roleDeserialize(input: unknown): Role {
+            return roleDeserializeWithContext(input);
+        }
+
+        /** Deserializes with an existing context (for consistency with other types).  */
+        export function roleDeserializeWithContext(data: unknown): Role {
+            for (const key of Object.keys(Role)) {
+                const enumValue = Role[key as keyof typeof Role];
+                if (enumValue === data) {
+                    return data as Role;
+                }
+            }
+            throw new Error("Invalid Role value: " + JSON.stringify(data));
+        }
+
+        export function roleIs(value: unknown): value is Role {
+            for (const key of Object.keys(Role)) {
+                const enumValue = Role[key as keyof typeof Role];
+                if (enumValue === value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+namespace Role {
+  export const deserialize = roleDeserialize;
+  export const deserializeWithContext = roleDeserializeWithContext;
+  export const is = roleIs;
+}
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,30 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/no_derive.ts
+---
+## Input
+
+class User {
+    name: string;
+    constructor(name: string) {
+        this.name = name;
+    }
+}
+
+## Output
+
+class User {
+    name: string;
+    constructor(name: string) {
+        this.name = name;
+    }
+}
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

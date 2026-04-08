@@ -99,3 +99,4 @@ libc = "0.2"
 
 [dev-dependencies]
 trybuild = "1.0"
+insta = { version = "1.42", features = ["glob"] }

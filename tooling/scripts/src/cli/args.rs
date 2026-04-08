@@ -29,8 +29,8 @@ pub enum Commands {
     /// Interactive TUI dashboard
     Tui,
 
-    /// Prepare a release (bump versions, build, test, docs)
-    Prep(PrepArgs),
+    /// Verify a release (bump versions, build, test, docs)
+    Verify(VerifyArgs),
 
     /// Stage and commit all changes in the monorepo
     Commit(CommitArgs),
@@ -68,7 +68,7 @@ pub enum Commands {
 }
 
 #[derive(clap::Args)]
-pub struct PrepArgs {
+pub struct VerifyArgs {
     /// Repos to update (comma-separated, or 'all', 'rust', 'ts')
     #[arg(default_value = "all")]
     pub repos: String,

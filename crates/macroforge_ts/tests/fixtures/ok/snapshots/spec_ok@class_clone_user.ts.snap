@@ -1,0 +1,55 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_clone_user.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Clone) */
+class User {
+    name: string;
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+
+static clone(value: User): User {
+                    return userClone(value);
+                }}
+
+export function userClone(value: User): User {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.name = value.name;
+
+                    return cloned;
+                }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+
+static clone(value: User): User {
+                    return userClone(value);
+                }}
+
+export function userClone(value: User): User {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.name = value.name;
+
+                    return cloned;
+                }
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,26 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/empty_derive.ts
+---
+## Input
+
+/** @derive() */
+class User {
+    name: string;
+}
+
+## Output
+
+/** @derive() */
+class User {
+    name: string;
+}
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,28 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/only_comments.ts
+---
+## Input
+
+// This is a comment
+/* Another comment */
+/**
+ * JSDoc comment without derive
+ */
+
+## Output
+
+// This is a comment
+/* Another comment */
+/**
+ * JSDoc comment without derive
+ */
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

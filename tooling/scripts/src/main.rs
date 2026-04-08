@@ -44,7 +44,7 @@ fn run_cli(cli: Cli) -> Result<()> {
             // Already handled above
             unreachable!()
         }
-        Some(Commands::Prep(args)) => cli::commands::prep::run(args),
+        Some(Commands::Verify(args)) => cli::commands::verify::run(args),
         Some(Commands::Commit(args)) => cli::commands::commit::run(args),
         Some(Commands::Manifest(args)) => cli::commands::manifests::run(args),
         Some(Commands::Versions(args)) => cli::commands::versions::run(args),

@@ -1,0 +1,54 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_clone.ts
+---
+## Input
+
+/** @derive(Clone) */
+type Config = {
+    host: string;
+    port: number;
+};
+
+## Output
+
+type Config = {
+    host: string;
+    port: number;
+};
+
+export function configClone(value: Config): Config {
+                        const result = {} as any;
+                        result.host = value.host;
+result.port = value.port;
+
+                        return result as Config;
+                    }
+
+const Config = {
+  clone: configClone
+} as const;
+
+## DTS
+
+type Config = {
+    host: string;
+    port: number;
+};
+
+export function configClone(value: Config): Config {
+                        const result = {} as any;
+                        result.host = value.host;
+result.port = value.port;
+
+                        return result as Config;
+                    }
+
+const Config = {
+  clone: configClone
+} as const;
+
+## Diagnostics
+
+(none)

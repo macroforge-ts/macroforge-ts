@@ -1,0 +1,54 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_intersection.ts
+---
+## Input
+
+interface UnknownRecord { source: string }
+interface PersonRecord { name: string }
+
+/** @derive(Default) */
+export type EntityRecord =
+  | /** @default */ ({ variant: 'Unknown' } & UnknownRecord)
+  | ({ variant: 'Person' } & PersonRecord);
+
+## Output
+
+interface UnknownRecord { source: string }
+interface PersonRecord { name: string }
+
+
+export type EntityRecord =
+  | /** @default */ ({ variant: 'Unknown' } & UnknownRecord)
+  | ({ variant: 'Person' } & PersonRecord);
+
+export function entityRecordDefaultValue(): EntityRecord {
+                            return ({ variant: "Unknown" });
+                        }
+
+export const EntityRecord = {
+  defaultValue: entityRecordDefaultValue
+} as const;
+
+## DTS
+
+interface UnknownRecord { source: string }
+interface PersonRecord { name: string }
+
+
+export type EntityRecord =
+  | /** @default */ ({ variant: 'Unknown' } & UnknownRecord)
+  | ({ variant: 'Person' } & PersonRecord);
+
+export function entityRecordDefaultValue(): EntityRecord {
+                            return ({ variant: "Unknown" });
+                        }
+
+export const EntityRecord = {
+  defaultValue: entityRecordDefaultValue
+} as const;
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,47 @@
+import type { Option } from "effect";
+import { Exit } from "effect";
+import type { Utc } from "effect/DateTime";
+
+/** Deserialize result format from @derive(Deserialize) */
+export type DeserializeResult<T> =
+  | { success: true; value: T }
+  | { success: false; errors: Array<{ field: string; message: string }> };
+
+/** Converts a deserialize result to an Effect Exit */
+export function toExit<T>(
+  result: DeserializeResult<T>,
+): Exit.Exit<T, Array<{ field: string; message: string }>> {
+  if (result.success) {
+    return Exit.succeed(result.value);
+  } else {
+    return Exit.fail(result.errors);
+  }
+}
+
+/** Base interface for field controllers */
+export interface FieldController<T> {
+  readonly path: ReadonlyArray<string | number>;
+  readonly name: string;
+  readonly constraints: Record<string, unknown>;
+  readonly label?: string;
+  readonly description?: string;
+  readonly placeholder?: string;
+  readonly disabled?: boolean;
+  readonly readonly?: boolean;
+  get(): T;
+  set(value: T): void;
+  /** Transform input value before setting (applies configured format like uppercase, trim, etc.) */
+  transform(value: T): T;
+  getError(): Option.Option<Array<string>>;
+  setError(value: Option.Option<Array<string>>): void;
+  getTainted(): Option.Option<boolean>;
+  setTainted(value: Option.Option<boolean>): void;
+  validate(): Array<string>;
+}
+
+/** Number field controller with numeric constraints */
+export interface NumberFieldController extends FieldController<number | null> {
+  readonly min?: number;
+  readonly max?: number;
+  readonly step?: number;
+}

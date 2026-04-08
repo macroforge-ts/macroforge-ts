@@ -1,0 +1,91 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_singleton_private_constructor.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Debug) */
+class Singleton {
+    private static instance: Singleton;
+
+    private constructor() {
+        // Private constructor
+    }
+
+    static getInstance(): Singleton {
+        if (!Singleton.instance) {
+            Singleton.instance = new Singleton();
+        }
+        return Singleton.instance;
+    }
+
+    reset(): void {
+        // Reset logic
+    }
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class Singleton {
+    private static instance: Singleton;
+
+    private constructor() {
+        // Private constructor
+    }
+
+    static getInstance(): Singleton {
+        if (!Singleton.instance) {
+            Singleton.instance = new Singleton();
+        }
+        return Singleton.instance;
+    }
+
+    reset(): void {
+        // Reset logic
+    }
+
+static toString(value: Singleton): string {
+                    return singletonToString(value);
+                }}
+
+export function singletonToString(value: Singleton): string {
+                        const parts: string[] = [];
+                        parts.push("instance: " + value.instance);
+
+                        return "Singleton { " + parts.join(", ") + " }";
+                    }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class Singleton {
+    private static instance: Singleton;
+
+    private constructor();
+
+    static getInstance(): Singleton;
+
+    reset(): void;
+
+static toString(value: Singleton): string {
+                    return singletonToString(value);
+                }}
+
+export function singletonToString(value: Singleton): string {
+                        const parts: string[] = [];
+                        parts.push("instance: " + value.instance);
+
+                        return "Singleton { " + parts.join(", ") + " }";
+                    }
+
+## Diagnostics
+
+(none)

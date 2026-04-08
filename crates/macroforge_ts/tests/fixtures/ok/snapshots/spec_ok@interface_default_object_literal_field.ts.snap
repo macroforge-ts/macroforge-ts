@@ -1,0 +1,57 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/interface_default_object_literal_field.ts
+---
+## Input
+
+/** @derive(Default) */
+export interface Assignment {
+    name: string;
+    scores: { [key: string]: number };
+    active: boolean;
+}
+
+## Output
+
+export interface Assignment {
+    name: string;
+    scores: { [key: string]: number };
+    active: boolean;
+}
+
+export function assignmentDefaultValue(): Assignment {
+                        return {
+name: "",
+scores: ({}),
+active: false,
+} as Assignment;
+                    }
+
+export const Assignment = {
+  defaultValue: assignmentDefaultValue
+} as const;
+
+## DTS
+
+export interface Assignment {
+    name: string;
+    scores: { [key: string]: number };
+    active: boolean;
+}
+
+export function assignmentDefaultValue(): Assignment {
+                        return {
+name: "",
+scores: ({}),
+active: false,
+} as Assignment;
+                    }
+
+export const Assignment = {
+  defaultValue: assignmentDefaultValue
+} as const;
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,26 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/derive_in_string_literal.ts
+---
+## Input
+
+const msg = "Use @derive to add methods";
+class User {
+    name: string;
+}
+
+## Output
+
+const msg = "Use @derive to add methods";
+class User {
+    name: string;
+}
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

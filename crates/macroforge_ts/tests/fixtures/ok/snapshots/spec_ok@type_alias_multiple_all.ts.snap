@@ -1,0 +1,1978 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_multiple_all.ts
+---
+## Input
+
+/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+type Coordinate = {
+    lat: number;
+    lng: number;
+};
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+
+type Coordinate = {
+    lat: number;
+    lng: number;
+};
+
+export function coordinateToString(value: Coordinate): string {
+                            const parts: string[] = [];
+                            parts.push("lat: " + value.lat);
+parts.push("lng: " + value.lng);
+
+                            return "Coordinate { " + parts.join(", ") + " }";
+                        }
+
+export function coordinateClone(value: Coordinate): Coordinate {
+                        const result = {} as any;
+                        result.lat = value.lat;
+result.lng = value.lng;
+
+                        return result as Coordinate;
+                    }
+
+export function coordinateEquals(a: Coordinate, b: Coordinate): boolean {
+                        if (a === b) return true;
+                        return a.lat === b.lat && a.lng === b.lng;
+                    }
+
+export function coordinateHashCode(value: Coordinate): number {
+                        let hash = 17;hash = (hash * 31 + (Number.isInteger(value.lat) ? value.lat | 0 : value.lat.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.lng) ? value.lng | 0 : value.lng.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                        return hash;
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function coordinateSerialize(value: Coordinate, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = coordinateSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function coordinateSerializeWithContext(value: Coordinate, ctx: __mf_SerializeContext): Record<string, unknown> {
+                            const existingId = ctx.getId(value);
+                            if (existingId !== undefined) {
+                                return { __ref: existingId };
+                            }
+
+                            const __id = ctx.register(value);
+                            const result: Record<string, unknown> = {
+                                "__type": "Coordinate",
+                                __id,
+                            };result.lat = value.lat;result.lng = value.lng;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            return result;
+                        }
+
+/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function coordinateDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = coordinateDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Coordinate.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function coordinateDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Coordinate | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref) as Coordinate | __mf_PendingRef;
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Coordinate.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("lat" in obj)) {
+                            errors.push({ field: "lat", message: "missing required field" });
+                        }if (!("lng" in obj)) {
+                            errors.push({ field: "lng", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_lat = obj["lat"] as number;instance.lat = __raw_lat;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Coordinate;
+            }
+
+            export function coordinateValidateField<K extends keyof Coordinate>(
+                _field: K,
+                _value: Coordinate[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function coordinateValidateFields(
+                _partial: Partial<Coordinate>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function coordinateHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }const o = obj as Record<string, unknown>;
+                    return "lat" in o && "lng" in o;
+
+
+
+
+
+            }
+
+            export function coordinateIs(obj: unknown): obj is Coordinate {
+                return coordinateHasShape(obj);
+            }
+
+const Coordinate = {
+  toString: coordinateToString,
+  clone: coordinateClone,
+  equals: coordinateEquals,
+  hashCode: coordinateHashCode,
+  serialize: coordinateSerialize,
+  serializeWithContext: coordinateSerializeWithContext,
+  deserialize: coordinateDeserialize,
+  deserializeWithContext: coordinateDeserializeWithContext,
+  validateFields: coordinateValidateFields,
+  hasShape: coordinateHasShape,
+  is: coordinateIs
+} as const;
+
+## DTS
+
+type Coordinate = {
+    lat: number;
+    lng: number;
+};
+
+export function coordinateToString(value: Coordinate): string {
+                            const parts: string[] = [];
+                            parts.push("lat: " + value.lat);
+parts.push("lng: " + value.lng);
+
+                            return "Coordinate { " + parts.join(", ") + " }";
+                        }
+
+export function coordinateClone(value: Coordinate): Coordinate {
+                        const result = {} as any;
+                        result.lat = value.lat;
+result.lng = value.lng;
+
+                        return result as Coordinate;
+                    }
+
+export function coordinateEquals(a: Coordinate, b: Coordinate): boolean {
+                        if (a === b) return true;
+                        return a.lat === b.lat && a.lng === b.lng;
+                    }
+
+export function coordinateHashCode(value: Coordinate): number {
+                        let hash = 17;hash = (hash * 31 + (Number.isInteger(value.lat) ? value.lat | 0 : value.lat.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.lng) ? value.lng | 0 : value.lng.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                        return hash;
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function coordinateSerialize(value: Coordinate, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = coordinateSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function coordinateSerializeWithContext(value: Coordinate, ctx: __mf_SerializeContext): Record<string, unknown> {
+                            const existingId = ctx.getId(value);
+                            if (existingId !== undefined) {
+                                return { __ref: existingId };
+                            }
+
+                            const __id = ctx.register(value);
+                            const result: Record<string, unknown> = {
+                                "__type": "Coordinate",
+                                __id,
+                            };result.lat = value.lat;result.lng = value.lng;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            return result;
+                        }
+
+/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function coordinateDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = coordinateDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Coordinate.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function coordinateDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Coordinate | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref) as Coordinate | __mf_PendingRef;
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Coordinate.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("lat" in obj)) {
+                            errors.push({ field: "lat", message: "missing required field" });
+                        }if (!("lng" in obj)) {
+                            errors.push({ field: "lng", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_lat = obj["lat"] as number;instance.lat = __raw_lat;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Coordinate;
+            }
+
+            export function coordinateValidateField<K extends keyof Coordinate>(
+                _field: K,
+                _value: Coordinate[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function coordinateValidateFields(
+                _partial: Partial<Coordinate>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function coordinateHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }const o = obj as Record<string, unknown>;
+                    return "lat" in o && "lng" in o;
+
+
+
+
+
+            }
+
+            export function coordinateIs(obj: unknown): obj is Coordinate {
+                return coordinateHasShape(obj);
+            }
+
+const Coordinate = {
+  toString: coordinateToString,
+  clone: coordinateClone,
+  equals: coordinateEquals,
+  hashCode: coordinateHashCode,
+  serialize: coordinateSerialize,
+  serializeWithContext: coordinateSerializeWithContext,
+  deserialize: coordinateDeserialize,
+  deserializeWithContext: coordinateDeserializeWithContext,
+  validateFields: coordinateValidateFields,
+  hasShape: coordinateHasShape,
+  is: coordinateIs
+} as const;
+
+## Diagnostics
+
+(none)
