@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/macroforge-ts/shared.git"
+    "url": "git+https://github.com/macroforge-ts/macroforge-ts.git"
   },
   "scripts": {
     "build": "deno install --node-modules-dir --quiet && deno run -A npm:typescript@5/tsc -p tsconfig.json",

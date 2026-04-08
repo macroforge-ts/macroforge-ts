@@ -54,7 +54,7 @@
 <h3>1. Clone the Repository</h3>
 
 <CodeBlock
-    code={`git clone https://github.com/macroforge-ts/zed-extensions.git
+    code={`git clone https://github.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts`}
     lang="bash"
 />

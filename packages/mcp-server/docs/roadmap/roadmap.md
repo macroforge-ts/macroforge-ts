@@ -73,7 +73,7 @@ Improvements to the developer experience.
 
 Interested in helping? We welcome contributions of all kinds:
 
-- Feature requests and feedback on [GitHub Issues](https://github.com/rymskip/macroforge-ts/issues)
+- Feature requests and feedback on [GitHub Issues](https://github.com/macroforge-ts/macroforge-ts/issues)
 - Pull requests for new macros or improvements
 - Documentation improvements
 - Framework integrations

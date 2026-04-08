@@ -25,7 +25,7 @@ This package is not yet published as an official extension. You'll need to build
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/rymskip/macroforge-ts.git
+git clone https://github.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts
 ```
 

@@ -33,7 +33,7 @@
 <p>Or build from source:</p>
 
 <CodeBlock
-    code={`git clone https://github.com/macroforge-ts/zed-extensions.git
+    code={`git clone https://github.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts/crates
 cargo build --release --bin macroforge
 

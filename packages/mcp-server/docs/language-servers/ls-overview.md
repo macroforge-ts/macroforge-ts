@@ -25,7 +25,7 @@ and editors.
 The language servers are functional and used during development of macroforge itself. However, they
 require manual installation:
 
-1. Fork or clone the [macroforge-ts repository](https://github.com/rymskip/macroforge-ts)
+1. Fork or clone the [macroforge-ts repository](https://github.com/macroforge-ts/macroforge-ts)
 2. Build the extension you need
 3. Install it as a developer extension in your editor
 

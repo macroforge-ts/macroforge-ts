@@ -20,7 +20,7 @@ These extensions are not yet in the Zed extension registry. You'll need to insta
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/rymskip/macroforge-ts.git
+git clone https://github.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts
 ```
 
