@@ -1,0 +1,30 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/svelte_runes.svelte.ts
+---
+## Input
+
+let count = $state(0);
+let double = $derived(count * 2);
+
+function increment() {
+    count++;
+}
+
+## Output
+
+let count = $state(0);
+let double = $derived(count * 2);
+
+function increment() {
+    count++;
+}
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

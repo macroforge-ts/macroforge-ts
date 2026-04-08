@@ -1,0 +1,89 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_field_decorators.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Debug) */
+class ValidationExample {
+    /** @debug({ rename: "userId" }) */
+    id: string;
+
+    name: string;
+
+    /** @debug({ skip: true }) */
+    internalFlag: boolean;
+
+    constructor(id: string, name: string, internalFlag: boolean) {
+        this.id = id;
+        this.name = name;
+        this.internalFlag = internalFlag;
+    }
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class ValidationExample {
+    
+    id: string;
+
+    name: string;
+
+    
+    internalFlag: boolean;
+
+    constructor(id: string, name: string, internalFlag: boolean) {
+        this.id = id;
+        this.name = name;
+        this.internalFlag = internalFlag;
+    }
+
+static toString(value: ValidationExample): string {
+                    return validationExampleToString(value);
+                }}
+
+export function validationExampleToString(value: ValidationExample): string {
+                        const parts: string[] = [];
+                        parts.push("userId: " + value.id);
+parts.push("name: " + value.name);
+
+                        return "ValidationExample { " + parts.join(", ") + " }";
+                    }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class ValidationExample {
+    
+    id: string;
+
+    name: string;
+
+    
+    internalFlag: boolean;
+
+    constructor(id: string, name: string, internalFlag: boolean);
+
+static toString(value: ValidationExample): string {
+                    return validationExampleToString(value);
+                }}
+
+export function validationExampleToString(value: ValidationExample): string {
+                        const parts: string[] = [];
+                        parts.push("userId: " + value.id);
+parts.push("name: " + value.name);
+
+                        return "ValidationExample { " + parts.join(", ") + " }";
+                    }
+
+## Diagnostics
+
+(none)

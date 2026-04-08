@@ -1,0 +1,68 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/interface_partial_eq_hash.ts
+---
+## Input
+
+/** @derive(PartialEq, Hash) */
+interface Point {
+    x: number;
+    y: number;
+}
+
+## Output
+
+interface Point {
+    x: number;
+    y: number;
+}
+
+export function pointEquals(a: Point, b: Point): boolean {
+                    if (a === b) return true;
+                    return a.x === b.x && a.y === b.y;
+                }
+
+export function pointHashCode(value: Point): number {
+                    let hash = 17;hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                    return hash;
+                }
+
+const Point = {
+  equals: pointEquals,
+  hashCode: pointHashCode
+} as const;
+
+## DTS
+
+interface Point {
+    x: number;
+    y: number;
+}
+
+export function pointEquals(a: Point, b: Point): boolean {
+                    if (a === b) return true;
+                    return a.x === b.x && a.y === b.y;
+                }
+
+export function pointHashCode(value: Point): number {
+                    let hash = 17;hash = (hash * 31 + (Number.isInteger(value.x) ? value.x | 0 : value.x.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.y) ? value.y | 0 : value.y.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                    return hash;
+                }
+
+const Point = {
+  equals: pointEquals,
+  hashCode: pointHashCode
+} as const;
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,1766 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_object.ts
+---
+## Input
+
+/** @derive(Default, Serialize, Deserialize) */
+/** @serde({ tag: "type", content: "value" }) */
+export type PropValue = /** @default */ { type: 'String'; value: string } | { type: 'Number'; value: number } | { type: 'Boolean'; value: boolean } | { type: 'Json'; value: string } | { type: 'Asset'; value: string } | { type: 'Page'; value: string } | { type: 'Expression'; value: string };
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+
+export type PropValue = /** @default */ { type: 'String'; value: string } | { type: 'Number'; value: number } | { type: 'Boolean'; value: boolean } | { type: 'Json'; value: string } | { type: 'Asset'; value: string } | { type: 'Page'; value: string } | { type: 'Expression'; value: string };
+
+export function propValueDefaultValue(): PropValue {
+                            return ({
+	type: "String",
+	value: ""
+});
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function propValueSerialize(value: PropValue, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = propValueSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function propValueSerializeWithContext(value: PropValue, ctx: __mf_SerializeContext): unknown {
+                            const __variant = typeof (value as any)?.serializeWithContext === "function"
+                                ? (value as any).serializeWithContext(ctx)
+                                : value;if (typeof __variant !== "object" || __variant === null) return __variant;
+                                const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+                                if (typeof __typeName !== "string") return __variant;const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+        export function propValueDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = propValueDeserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PropValue.deserialize: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function propValueDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PropValue | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as PropValue | __mf_PendingRef;
+                        }if (typeof value === "object" && value !== null) {
+                                    const __typeName = (value as any)["type"];
+                                    if (typeof __typeName === "string") {
+                                        if (__typeName === "String") {
+                                                const __result: Record<string, unknown> = { "type": "String" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Number") {
+                                                const __result: Record<string, unknown> = { "type": "Number" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Boolean") {
+                                                const __result: Record<string, unknown> = { "type": "Boolean" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Json") {
+                                                const __result: Record<string, unknown> = { "type": "Json" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Asset") {
+                                                const __result: Record<string, unknown> = { "type": "Asset" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Page") {
+                                                const __result: Record<string, unknown> = { "type": "Page" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Expression") {
+                                                const __result: Record<string, unknown> = { "type": "Expression" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+
+
+
+
+
+
+
+
+
+
+                                    }
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            throw new __mf_DeserializeError([{
+                                field: "_root",
+                                message: "PropValue.deserializeWithContext: value does not match any union member"
+                            }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
+                                    const __typeName = (value as any)["type"];
+                                    if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
+                                }return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function propValueIs(value: unknown): value is PropValue {
+            return propValueHasShape(value);
+        }
+
+export const PropValue = {
+  defaultValue: propValueDefaultValue,
+  serialize: propValueSerialize,
+  serializeWithContext: propValueSerializeWithContext,
+  deserialize: propValueDeserialize,
+  deserializeWithContext: propValueDeserializeWithContext,
+  hasShape: propValueHasShape,
+  is: propValueIs
+} as const;
+
+## DTS
+
+export type PropValue = /** @default */ { type: 'String'; value: string } | { type: 'Number'; value: number } | { type: 'Boolean'; value: boolean } | { type: 'Json'; value: string } | { type: 'Asset'; value: string } | { type: 'Page'; value: string } | { type: 'Expression'; value: string };
+
+export function propValueDefaultValue(): PropValue {
+                            return ({
+	type: "String",
+	value: ""
+});
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function propValueSerialize(value: PropValue, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = propValueSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function propValueSerializeWithContext(value: PropValue, ctx: __mf_SerializeContext): unknown {
+                            const __variant = typeof (value as any)?.serializeWithContext === "function"
+                                ? (value as any).serializeWithContext(ctx)
+                                : value;if (typeof __variant !== "object" || __variant === null) return __variant;
+                                const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+                                if (typeof __typeName !== "string") return __variant;const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+        export function propValueDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = propValueDeserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PropValue.deserialize: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function propValueDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PropValue | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as PropValue | __mf_PendingRef;
+                        }if (typeof value === "object" && value !== null) {
+                                    const __typeName = (value as any)["type"];
+                                    if (typeof __typeName === "string") {
+                                        if (__typeName === "String") {
+                                                const __result: Record<string, unknown> = { "type": "String" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Number") {
+                                                const __result: Record<string, unknown> = { "type": "Number" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Boolean") {
+                                                const __result: Record<string, unknown> = { "type": "Boolean" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Json") {
+                                                const __result: Record<string, unknown> = { "type": "Json" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Asset") {
+                                                const __result: Record<string, unknown> = { "type": "Asset" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Page") {
+                                                const __result: Record<string, unknown> = { "type": "Page" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+                                        if (__typeName === "Expression") {
+                                                const __result: Record<string, unknown> = { "type": "Expression" };
+                                                
+                                                __result["value"] = (value as any)["value"] ?? null;
+
+
+
+
+                                                return __result as PropValue;
+                                            }
+
+
+
+
+
+
+
+
+
+
+                                    }
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            throw new __mf_DeserializeError([{
+                                field: "_root",
+                                message: "PropValue.deserializeWithContext: value does not match any union member"
+                            }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
+                                    const __typeName = (value as any)["type"];
+                                    if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
+                                }return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function propValueIs(value: unknown): value is PropValue {
+            return propValueHasShape(value);
+        }
+
+export const PropValue = {
+  defaultValue: propValueDefaultValue,
+  serialize: propValueSerialize,
+  serializeWithContext: propValueSerializeWithContext,
+  deserialize: propValueDeserialize,
+  deserializeWithContext: propValueDeserializeWithContext,
+  hasShape: propValueHasShape,
+  is: propValueIs
+} as const;
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,20 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/empty_file.ts
+---
+## Input
+
+
+
+## Output
+
+
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

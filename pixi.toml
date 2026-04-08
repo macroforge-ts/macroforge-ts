@@ -56,8 +56,8 @@ rebase = { cmd = "tooling/scripts/target/release/mf versions" }
 "docs:check" = { cmd = "tooling/scripts/target/release/mf docs check-freshness" }
 
 # Release workflow (using mf)
-prep = { cmd = "tooling/scripts/target/release/mf prep" }
-"prep:dry" = { cmd = "tooling/scripts/target/release/mf prep --dry-run" }
+verify = { cmd = "tooling/scripts/target/release/mf verify" }
+"verify:dry" = { cmd = "tooling/scripts/target/release/mf verify --dry-run" }
 commit = { cmd = "tooling/scripts/target/release/mf commit" }
 "commit:dry" = { cmd = "tooling/scripts/target/release/mf commit --dry-run" }
 push = { cmd = "tooling/scripts/target/release/mf push" }

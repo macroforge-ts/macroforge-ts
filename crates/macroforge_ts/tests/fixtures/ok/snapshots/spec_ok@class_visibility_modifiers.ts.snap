@@ -1,0 +1,109 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_visibility_modifiers.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Clone) */
+class Account {
+    public username: string;
+    protected password: string;
+    private apiKey: string;
+
+    constructor(username: string, password: string, apiKey: string) {
+        this.username = username;
+        this.password = password;
+        this.apiKey = apiKey;
+    }
+
+    public login(): boolean {
+        return true;
+    }
+
+    protected validatePassword(input: string): boolean {
+        return this.password === input;
+    }
+
+    private getApiKey(): string {
+        return this.apiKey;
+    }
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class Account {
+    public username: string;
+    protected password: string;
+    private apiKey: string;
+
+    constructor(username: string, password: string, apiKey: string) {
+        this.username = username;
+        this.password = password;
+        this.apiKey = apiKey;
+    }
+
+    public login(): boolean {
+        return true;
+    }
+
+    protected validatePassword(input: string): boolean {
+        return this.password === input;
+    }
+
+    private getApiKey(): string {
+        return this.apiKey;
+    }
+
+static clone(value: Account): Account {
+                    return accountClone(value);
+                }}
+
+export function accountClone(value: Account): Account {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.username = value.username;
+cloned.password = value.password;
+cloned.apiKey = value.apiKey;
+
+                    return cloned;
+                }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class Account {
+    public username: string;
+    protected password: string;
+    private apiKey: string;
+
+    constructor(username: string, password: string, apiKey: string);
+
+    login(): boolean;
+
+    protected validatePassword(input: string): boolean;
+
+    private getApiKey(): string;
+
+static clone(value: Account): Account {
+                    return accountClone(value);
+                }}
+
+export function accountClone(value: Account): Account {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.username = value.username;
+cloned.password = value.password;
+cloned.apiKey = value.apiKey;
+
+                    return cloned;
+                }
+
+## Diagnostics
+
+(none)

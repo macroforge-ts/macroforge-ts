@@ -1,0 +1,40 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_multiline.ts
+---
+## Input
+
+/**
+ * @derive(Default)
+ * @default(TypeA.defaultValue())
+ */
+export type MultilineUnion = TypeA | TypeB | TypeC;
+
+## Output
+
+export type MultilineUnion = TypeA | TypeB | TypeC;
+
+export function multilineUnionDefaultValue(): MultilineUnion {
+                            return TypeA.defaultValue();
+                        }
+
+export const MultilineUnion = {
+  defaultValue: multilineUnionDefaultValue
+} as const;
+
+## DTS
+
+export type MultilineUnion = TypeA | TypeB | TypeC;
+
+export function multilineUnionDefaultValue(): MultilineUnion {
+                            return TypeA.defaultValue();
+                        }
+
+export const MultilineUnion = {
+  defaultValue: multilineUnionDefaultValue
+} as const;
+
+## Diagnostics
+
+(none)

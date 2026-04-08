@@ -1,0 +1,43 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_object_nonfirst.ts
+---
+## Input
+
+/** @derive(Default) */
+export type PropValue = { type: 'String'; value: string } | /** @default */ { type: 'Number'; value: number };
+
+## Output
+
+export type PropValue = { type: 'String'; value: string } | /** @default */ { type: 'Number'; value: number };
+
+export function propValueDefaultValue(): PropValue {
+                            return ({
+	type: "Number",
+	value: 0
+});
+                        }
+
+export const PropValue = {
+  defaultValue: propValueDefaultValue
+} as const;
+
+## DTS
+
+export type PropValue = { type: 'String'; value: string } | /** @default */ { type: 'Number'; value: number };
+
+export function propValueDefaultValue(): PropValue {
+                            return ({
+	type: "Number",
+	value: 0
+});
+                        }
+
+export const PropValue = {
+  defaultValue: propValueDefaultValue
+} as const;
+
+## Diagnostics
+
+(none)

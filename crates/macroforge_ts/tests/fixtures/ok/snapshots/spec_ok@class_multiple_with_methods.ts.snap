@@ -1,0 +1,172 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_multiple_with_methods.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Debug, Clone, PartialEq, Hash) */
+class Product {
+    id: string;
+    name: string;
+    price: number;
+    private secret: string;
+
+    constructor(id: string, name: string, price: number, secret: string) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.secret = secret;
+    }
+
+    getDisplayName(): string {
+        return `${this.name} - $${this.price}`;
+    }
+
+    static fromJSON(json: any): Product {
+        return new Product(json.id, json.name, json.price, json.secret);
+    }
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class Product {
+    id: string;
+    name: string;
+    price: number;
+    private secret: string;
+
+    constructor(id: string, name: string, price: number, secret: string) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.secret = secret;
+    }
+
+    getDisplayName(): string {
+        return `${this.name} - $${this.price}`;
+    }
+
+    static fromJSON(json: any): Product {
+        return new Product(json.id, json.name, json.price, json.secret);
+    }
+
+static toString(value: Product): string {
+                    return productToString(value);
+                }
+static clone(value: Product): Product {
+                    return productClone(value);
+                }
+static equals(a: Product, b: Product): boolean {
+                    return productEquals(a, b);
+                }
+static hashCode(value: Product): number {
+                    return productHashCode(value);
+                }}
+
+export function productToString(value: Product): string {
+                        const parts: string[] = [];
+                        parts.push("id: " + value.id);
+parts.push("name: " + value.name);
+parts.push("price: " + value.price);
+parts.push("secret: " + value.secret);
+
+                        return "Product { " + parts.join(", ") + " }";
+                    }
+
+export function productClone(value: Product): Product {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.id = value.id;
+cloned.name = value.name;
+cloned.price = value.price;
+cloned.secret = value.secret;
+
+                    return cloned;
+                }
+
+export function productEquals(a: Product, b: Product): boolean {
+                    if (a === b) return true;
+                    return a.id === b.id && a.name === b.name && a.price === b.price && a.secret === b.secret;
+                }
+
+export function productHashCode(value: Product): number {
+                    let hash = 17;hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.price) ? value.price | 0 : value.price.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.secret ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                    return hash;
+                }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class Product {
+    id: string;
+    name: string;
+    price: number;
+    private secret: string;
+
+    constructor(id: string, name: string, price: number, secret: string);
+
+    getDisplayName(): string;
+
+    static fromJSON(json: any): Product;
+
+static toString(value: Product): string {
+                    return productToString(value);
+                }
+static clone(value: Product): Product {
+                    return productClone(value);
+                }
+static equals(a: Product, b: Product): boolean {
+                    return productEquals(a, b);
+                }
+static hashCode(value: Product): number {
+                    return productHashCode(value);
+                }}
+
+export function productToString(value: Product): string {
+                        const parts: string[] = [];
+                        parts.push("id: " + value.id);
+parts.push("name: " + value.name);
+parts.push("price: " + value.price);
+parts.push("secret: " + value.secret);
+
+                        return "Product { " + parts.join(", ") + " }";
+                    }
+
+export function productClone(value: Product): Product {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.id = value.id;
+cloned.name = value.name;
+cloned.price = value.price;
+cloned.secret = value.secret;
+
+                    return cloned;
+                }
+
+export function productEquals(a: Product, b: Product): boolean {
+                    if (a === b) return true;
+                    return a.id === b.id && a.name === b.name && a.price === b.price && a.secret === b.secret;
+                }
+
+export function productHashCode(value: Product): number {
+                    let hash = 17;hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (Number.isInteger(value.price) ? value.price | 0 : value.price.toString().split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.secret ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                    return hash;
+                }
+
+## Diagnostics
+
+(none)

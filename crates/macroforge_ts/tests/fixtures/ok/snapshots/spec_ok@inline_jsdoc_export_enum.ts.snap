@@ -1,0 +1,58 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_enum.ts
+---
+## Input
+
+/** @derive(Debug) */ export enum Status { Active, Inactive }
+
+## Output
+
+export enum Status { Active, Inactive }
+
+export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
+                        if (key !== undefined) {
+                            return "Status." + key;
+                        }
+                        return "Status(" + String(value) + ")";
+
+
+
+
+
+
+
+
+                }
+
+export namespace Status {
+  export const toString = statusToString;
+}
+
+## DTS
+
+export enum Status { Active, Inactive }
+
+export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
+                        if (key !== undefined) {
+                            return "Status." + key;
+                        }
+                        return "Status(" + String(value) + ")";
+
+
+
+
+
+
+
+
+                }
+
+export namespace Status {
+  export const toString = statusToString;
+}
+
+## Diagnostics
+
+(none)

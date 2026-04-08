@@ -1,0 +1,97 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/interface_multiple_all.ts
+---
+## Input
+
+/** @derive(Debug, Clone, PartialEq, Hash) */
+interface Status {
+    active: boolean;
+}
+
+## Output
+
+interface Status {
+    active: boolean;
+}
+
+export function statusToString(value: Status): string {
+                        const parts: string[] = [];
+                        parts.push("active: " + value.active);
+
+                        return "Status { " + parts.join(", ") + " }";
+                    }
+
+export function statusClone(value: Status): Status {
+                    const result = {} as any;
+                    result.active = value.active;
+
+                    return result as Status;
+                }
+
+export function statusEquals(a: Status, b: Status): boolean {
+                    if (a === b) return true;
+                    return a.active === b.active;
+                }
+
+export function statusHashCode(value: Status): number {
+                    let hash = 17;hash = (hash * 31 + (value.active ? 1231 : 1237)) | 0;
+
+
+
+
+                    return hash;
+                }
+
+const Status = {
+  toString: statusToString,
+  clone: statusClone,
+  equals: statusEquals,
+  hashCode: statusHashCode
+} as const;
+
+## DTS
+
+interface Status {
+    active: boolean;
+}
+
+export function statusToString(value: Status): string {
+                        const parts: string[] = [];
+                        parts.push("active: " + value.active);
+
+                        return "Status { " + parts.join(", ") + " }";
+                    }
+
+export function statusClone(value: Status): Status {
+                    const result = {} as any;
+                    result.active = value.active;
+
+                    return result as Status;
+                }
+
+export function statusEquals(a: Status, b: Status): boolean {
+                    if (a === b) return true;
+                    return a.active === b.active;
+                }
+
+export function statusHashCode(value: Status): number {
+                    let hash = 17;hash = (hash * 31 + (value.active ? 1231 : 1237)) | 0;
+
+
+
+
+                    return hash;
+                }
+
+const Status = {
+  toString: statusToString,
+  clone: statusClone,
+  equals: statusEquals,
+  hashCode: statusHashCode
+} as const;
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,54 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/interface_clone.ts
+---
+## Input
+
+/** @derive(Clone) */
+interface UserData {
+    name: string;
+    age: number;
+}
+
+## Output
+
+interface UserData {
+    name: string;
+    age: number;
+}
+
+export function userDataClone(value: UserData): UserData {
+                    const result = {} as any;
+                    result.name = value.name;
+result.age = value.age;
+
+                    return result as UserData;
+                }
+
+const UserData = {
+  clone: userDataClone
+} as const;
+
+## DTS
+
+interface UserData {
+    name: string;
+    age: number;
+}
+
+export function userDataClone(value: UserData): UserData {
+                    const result = {} as any;
+                    result.name = value.name;
+result.age = value.age;
+
+                    return result as UserData;
+                }
+
+const UserData = {
+  clone: userDataClone
+} as const;
+
+## Diagnostics
+
+(none)

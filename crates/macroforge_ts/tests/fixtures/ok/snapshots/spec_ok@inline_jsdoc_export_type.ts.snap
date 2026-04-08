@@ -1,0 +1,44 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_type.ts
+---
+## Input
+
+/** @derive(Debug) */ export type Point = { x: number; y: number; }
+
+## Output
+
+export type Point = { x: number; y: number; }
+
+export function pointToString(value: Point): string {
+                            const parts: string[] = [];
+                            parts.push("x: " + value.x);
+parts.push("y: " + value.y);
+
+                            return "Point { " + parts.join(", ") + " }";
+                        }
+
+export const Point = {
+  toString: pointToString
+} as const;
+
+## DTS
+
+export type Point = { x: number; y: number; }
+
+export function pointToString(value: Point): string {
+                            const parts: string[] = [];
+                            parts.push("x: " + value.x);
+parts.push("y: " + value.y);
+
+                            return "Point { " + parts.join(", ") + " }";
+                        }
+
+export const Point = {
+  toString: pointToString
+} as const;
+
+## Diagnostics
+
+(none)

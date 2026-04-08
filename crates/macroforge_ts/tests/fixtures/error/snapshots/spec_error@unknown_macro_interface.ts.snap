@@ -1,0 +1,30 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/unknown_macro_interface.ts
+---
+## Input
+
+/** @derive(Serializable) */
+interface Config {
+    host: string;
+    port: number;
+}
+
+## Output
+
+interface Config {
+    host: string;
+    port: number;
+}
+
+## DTS
+
+interface Config {
+    host: string;
+    port: number;
+}
+
+## Diagnostics
+
+Error: Macro 'Serializable' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.

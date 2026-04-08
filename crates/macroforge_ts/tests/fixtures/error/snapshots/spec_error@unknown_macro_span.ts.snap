@@ -1,0 +1,27 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/unknown_macro_span.ts
+---
+## Input
+
+/** @derive(NonExistent) */
+interface Data {
+    value: string;
+}
+
+## Output
+
+interface Data {
+    value: string;
+}
+
+## DTS
+
+interface Data {
+    value: string;
+}
+
+## Diagnostics
+
+Error: Macro 'NonExistent' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.

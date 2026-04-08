@@ -1,0 +1,54 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_intersection_fallback.ts
+---
+## Input
+
+interface ActiveData { since: string }
+interface InactiveData { reason: string }
+
+/** @derive(Default) */
+export type Status =
+  | ({ kind: 'Active' } & ActiveData)
+  | ({ kind: 'Inactive' } & InactiveData);
+
+## Output
+
+interface ActiveData { since: string }
+interface InactiveData { reason: string }
+
+
+export type Status =
+  | ({ kind: 'Active' } & ActiveData)
+  | ({ kind: 'Inactive' } & InactiveData);
+
+export function statusDefaultValue(): Status {
+                            return ({ kind: "Active" });
+                        }
+
+export const Status = {
+  defaultValue: statusDefaultValue
+} as const;
+
+## DTS
+
+interface ActiveData { since: string }
+interface InactiveData { reason: string }
+
+
+export type Status =
+  | ({ kind: 'Active' } & ActiveData)
+  | ({ kind: 'Inactive' } & InactiveData);
+
+export function statusDefaultValue(): Status {
+                            return ({ kind: "Active" });
+                        }
+
+export const Status = {
+  defaultValue: statusDefaultValue
+} as const;
+
+## Diagnostics
+
+(none)

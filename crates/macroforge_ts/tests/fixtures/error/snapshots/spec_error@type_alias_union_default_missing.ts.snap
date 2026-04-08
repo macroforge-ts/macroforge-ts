@@ -1,0 +1,21 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/type_alias_union_default_missing.ts
+---
+## Input
+
+/** @derive(Default) */
+export type UnionType = VariantA | VariantB;
+
+## Output
+
+export type UnionType = VariantA | VariantB;
+
+## DTS
+
+export type UnionType = VariantA | VariantB;
+
+## Diagnostics
+
+Error: @derive(Default) on union type 'UnionType' requires @default on one variant or @default(VariantName.defaultValue()) on the type.

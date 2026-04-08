@@ -1,0 +1,66 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/enum_serialize.ts
+---
+## Input
+
+/** @derive(Serialize) */
+enum Direction {
+    North,
+    South,
+    East,
+    West
+}
+
+## Output
+
+enum Direction {
+    North,
+    South,
+    East,
+    West
+}
+
+/** Serializes this enum value to a JSON string.  */
+                export function directionSerialize(value: Direction): string {
+                    return JSON.stringify(value);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs.  */
+                export function directionSerializeWithContext(value: Direction, _ctx: __mf_SerializeContext): string | number {
+                    return value;
+                }
+
+namespace Direction {
+  export const serialize = directionSerialize;
+  export const serializeWithContext = directionSerializeWithContext;
+}
+
+## DTS
+
+enum Direction {
+    North,
+    South,
+    East,
+    West
+}
+
+/** Serializes this enum value to a JSON string.  */
+                export function directionSerialize(value: Direction): string {
+                    return JSON.stringify(value);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs.  */
+                export function directionSerializeWithContext(value: Direction, _ctx: __mf_SerializeContext): string | number {
+                    return value;
+                }
+
+namespace Direction {
+  export const serialize = directionSerialize;
+  export const serializeWithContext = directionSerializeWithContext;
+}
+
+## Diagnostics
+
+(none)

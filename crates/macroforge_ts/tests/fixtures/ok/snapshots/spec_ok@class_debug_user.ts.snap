@@ -1,0 +1,55 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_debug_user.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Debug) */
+class User {
+    name: string;
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+
+static toString(value: User): string {
+                    return userToString(value);
+                }}
+
+export function userToString(value: User): string {
+                        const parts: string[] = [];
+                        parts.push("name: " + value.name);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+
+static toString(value: User): string {
+                    return userToString(value);
+                }}
+
+export function userToString(value: User): string {
+                        const parts: string[] = [];
+                        parts.push("name: " + value.name);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
+
+## Diagnostics
+
+(none)

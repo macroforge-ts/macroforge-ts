@@ -1,0 +1,27 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/error/unknown_macro_class.ts
+---
+## Input
+
+/** @derive(NonExistentMacro) */
+class User {
+    name: string;
+}
+
+## Output
+
+class User {
+    name: string;
+}
+
+## DTS
+
+class User {
+    name: string;
+}
+
+## Diagnostics
+
+Error: Macro 'NonExistentMacro' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.

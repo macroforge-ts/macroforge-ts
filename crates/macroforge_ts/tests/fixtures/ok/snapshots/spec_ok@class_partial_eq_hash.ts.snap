@@ -1,0 +1,75 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_partial_eq_hash.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(PartialEq, Hash) */
+class User {
+    name: string;
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+
+static equals(a: User, b: User): boolean {
+                    return userEquals(a, b);
+                }
+static hashCode(value: User): number {
+                    return userHashCode(value);
+                }}
+
+export function userEquals(a: User, b: User): boolean {
+                    if (a === b) return true;
+                    return a.name === b.name;
+                }
+
+export function userHashCode(value: User): number {
+                    let hash = 17;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                    return hash;
+                }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+
+static equals(a: User, b: User): boolean {
+                    return userEquals(a, b);
+                }
+static hashCode(value: User): number {
+                    return userHashCode(value);
+                }}
+
+export function userEquals(a: User, b: User): boolean {
+                    if (a === b) return true;
+                    return a.name === b.name;
+                }
+
+export function userHashCode(value: User): number {
+                    let hash = 17;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;
+
+
+
+
+                    return hash;
+                }
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,143 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_optional_readonly_fields.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Debug, PartialEq, Hash) */
+class Config {
+    readonly id: string;
+    name: string;
+    description?: string;
+    readonly createdAt: Date;
+    updatedAt?: Date;
+
+    constructor(id: string, name: string, createdAt: Date) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
+
+    update(name: string, description?: string): void {
+        this.name = name;
+        this.description = description;
+        this.updatedAt = new Date();
+    }
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class Config {
+    readonly id: string;
+    name: string;
+    description?: string;
+    readonly createdAt: Date;
+    updatedAt?: Date;
+
+    constructor(id: string, name: string, createdAt: Date) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
+
+    update(name: string, description?: string): void {
+        this.name = name;
+        this.description = description;
+        this.updatedAt = new Date();
+    }
+
+static toString(value: Config): string {
+                    return configToString(value);
+                }
+static equals(a: Config, b: Config): boolean {
+                    return configEquals(a, b);
+                }
+static hashCode(value: Config): number {
+                    return configHashCode(value);
+                }}
+
+export function configToString(value: Config): string {
+                        const parts: string[] = [];
+                        parts.push("id: " + value.id);
+parts.push("name: " + value.name);
+parts.push("description: " + value.description);
+parts.push("createdAt: " + value.createdAt);
+parts.push("updatedAt: " + value.updatedAt);
+
+                        return "Config { " + parts.join(", ") + " }";
+                    }
+
+export function configEquals(a: Config, b: Config): boolean {
+                    if (a === b) return true;
+                    return a.id === b.id && a.name === b.name && a.description === b.description && (a.createdAt instanceof Date && b.createdAt instanceof Date ? a.createdAt.getTime() === b.createdAt.getTime() : a.createdAt === b.createdAt) && (a.updatedAt instanceof Date && b.updatedAt instanceof Date ? a.updatedAt.getTime() === b.updatedAt.getTime() : a.updatedAt === b.updatedAt);
+                }
+
+export function configHashCode(value: Config): number {
+                    let hash = 17;hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.description ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (value.createdAt instanceof Date ? value.createdAt.getTime() | 0 : 0)) | 0;hash = (hash * 31 + (value.updatedAt instanceof Date ? value.updatedAt.getTime() | 0 : 0)) | 0;
+
+
+
+
+                    return hash;
+                }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class Config {
+    readonly id: string;
+    name: string;
+    description?: string;
+    readonly createdAt: Date;
+    updatedAt?: Date;
+
+    constructor(id: string, name: string, createdAt: Date);
+
+    update(name: string, description?: string): void;
+
+static toString(value: Config): string {
+                    return configToString(value);
+                }
+static equals(a: Config, b: Config): boolean {
+                    return configEquals(a, b);
+                }
+static hashCode(value: Config): number {
+                    return configHashCode(value);
+                }}
+
+export function configToString(value: Config): string {
+                        const parts: string[] = [];
+                        parts.push("id: " + value.id);
+parts.push("name: " + value.name);
+parts.push("description: " + value.description);
+parts.push("createdAt: " + value.createdAt);
+parts.push("updatedAt: " + value.updatedAt);
+
+                        return "Config { " + parts.join(", ") + " }";
+                    }
+
+export function configEquals(a: Config, b: Config): boolean {
+                    if (a === b) return true;
+                    return a.id === b.id && a.name === b.name && a.description === b.description && (a.createdAt instanceof Date && b.createdAt instanceof Date ? a.createdAt.getTime() === b.createdAt.getTime() : a.createdAt === b.createdAt) && (a.updatedAt instanceof Date && b.updatedAt instanceof Date ? a.updatedAt.getTime() === b.updatedAt.getTime() : a.updatedAt === b.updatedAt);
+                }
+
+export function configHashCode(value: Config): number {
+                    let hash = 17;hash = (hash * 31 + ((value.id ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.name ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + ((value.description ?? "").split("").reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 0))) | 0;hash = (hash * 31 + (value.createdAt instanceof Date ? value.createdAt.getTime() | 0 : 0)) | 0;hash = (hash * 31 + (value.updatedAt instanceof Date ? value.updatedAt.getTime() | 0 : 0)) | 0;
+
+
+
+
+                    return hash;
+                }
+
+## Diagnostics
+
+(none)

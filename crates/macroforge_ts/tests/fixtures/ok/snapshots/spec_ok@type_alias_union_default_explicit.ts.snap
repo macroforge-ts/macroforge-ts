@@ -1,0 +1,37 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_explicit.ts
+---
+## Input
+
+/** @derive(Default) @default(VariantA.defaultValue()) */
+export type UnionType = VariantA | VariantB;
+
+## Output
+
+export type UnionType = VariantA | VariantB;
+
+export function unionTypeDefaultValue(): UnionType {
+                            return VariantA.defaultValue();
+                        }
+
+export const UnionType = {
+  defaultValue: unionTypeDefaultValue
+} as const;
+
+## DTS
+
+export type UnionType = VariantA | VariantB;
+
+export function unionTypeDefaultValue(): UnionType {
+                            return VariantA.defaultValue();
+                        }
+
+export const UnionType = {
+  defaultValue: unionTypeDefaultValue
+} as const;
+
+## Diagnostics
+
+(none)

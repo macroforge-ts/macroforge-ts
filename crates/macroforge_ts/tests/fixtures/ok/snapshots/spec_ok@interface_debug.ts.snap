@@ -1,0 +1,49 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/interface_debug.ts
+---
+## Input
+
+/** @derive(Debug) */
+interface Status {
+    active: boolean;
+}
+
+## Output
+
+interface Status {
+    active: boolean;
+}
+
+export function statusToString(value: Status): string {
+                        const parts: string[] = [];
+                        parts.push("active: " + value.active);
+
+                        return "Status { " + parts.join(", ") + " }";
+                    }
+
+const Status = {
+  toString: statusToString
+} as const;
+
+## DTS
+
+interface Status {
+    active: boolean;
+}
+
+export function statusToString(value: Status): string {
+                        const parts: string[] = [];
+                        parts.push("active: " + value.active);
+
+                        return "Status { " + parts.join(", ") + " }";
+                    }
+
+const Status = {
+  toString: statusToString
+} as const;
+
+## Diagnostics
+
+(none)

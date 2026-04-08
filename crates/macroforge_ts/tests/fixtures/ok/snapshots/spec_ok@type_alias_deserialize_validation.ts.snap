@@ -1,0 +1,1918 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_deserialize_validation.ts
+---
+## Input
+
+/** @derive(Deserialize) */
+type ContactInfo = {
+    /** @serde(email) */
+    primaryEmail: string;
+
+    /** @serde(minLength(1), maxLength(100)) */
+    address: string;
+};
+
+## Output
+
+import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+
+type ContactInfo = {
+    /** @serde(email) */
+    primaryEmail: string;
+
+    /** @serde(minLength(1), maxLength(100)) */
+    address: string;
+};
+
+/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function contactInfoDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ContactInfo } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = contactInfoDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ContactInfo.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function contactInfoDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ContactInfo | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref) as ContactInfo | __mf_PendingRef;
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "ContactInfo.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("primaryEmail" in obj)) {
+                            errors.push({ field: "primaryEmail", message: "missing required field" });
+                        }if (!("address" in obj)) {
+                            errors.push({ field: "address", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_primaryEmail = obj["primaryEmail"] as string;
+                                                                            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+instance.primaryEmail = __raw_primaryEmail;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_address = obj["address"] as string;
+                                                                            if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+                                if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+instance.address = __raw_address;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as ContactInfo;
+            }
+
+            export function contactInfoValidateField<K extends keyof ContactInfo>(
+                _field: K,
+                _value: ContactInfo[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "primaryEmail") {
+                    const __val = _value as string;
+                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+
+
+                }
+                if (_field === "address") {
+                    const __val = _value as string;
+                                                    if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+                                if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function contactInfoValidateFields(
+                _partial: Partial<ContactInfo>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("primaryEmail" in _partial && _partial.primaryEmail !== undefined) {
+                    const __val = _partial.primaryEmail as string;
+                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+
+
+                }
+                if ("address" in _partial && _partial.address !== undefined) {
+                    const __val = _partial.address as string;
+                                                    if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+                                if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function contactInfoHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }const o = obj as Record<string, unknown>;
+                    return "primaryEmail" in o && "address" in o;
+
+
+
+
+
+            }
+
+            export function contactInfoIs(obj: unknown): obj is ContactInfo {
+                return contactInfoHasShape(obj);
+            }
+
+const ContactInfo = {
+  deserialize: contactInfoDeserialize,
+  deserializeWithContext: contactInfoDeserializeWithContext,
+  validateFields: contactInfoValidateFields,
+  hasShape: contactInfoHasShape,
+  is: contactInfoIs
+} as const;
+
+## DTS
+
+type ContactInfo = {
+    /** @serde(email) */
+    primaryEmail: string;
+
+    /** @serde(minLength(1), maxLength(100)) */
+    address: string;
+};
+
+/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function contactInfoDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ContactInfo } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = contactInfoDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ContactInfo.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function contactInfoDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ContactInfo | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref) as ContactInfo | __mf_PendingRef;
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "ContactInfo.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("primaryEmail" in obj)) {
+                            errors.push({ field: "primaryEmail", message: "missing required field" });
+                        }if (!("address" in obj)) {
+                            errors.push({ field: "address", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_primaryEmail = obj["primaryEmail"] as string;
+                                                                            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+instance.primaryEmail = __raw_primaryEmail;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_address = obj["address"] as string;
+                                                                            if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+                                if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+instance.address = __raw_address;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as ContactInfo;
+            }
+
+            export function contactInfoValidateField<K extends keyof ContactInfo>(
+                _field: K,
+                _value: ContactInfo[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "primaryEmail") {
+                    const __val = _value as string;
+                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+
+
+                }
+                if (_field === "address") {
+                    const __val = _value as string;
+                                                    if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+                                if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function contactInfoValidateFields(
+                _partial: Partial<ContactInfo>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("primaryEmail" in _partial && _partial.primaryEmail !== undefined) {
+                    const __val = _partial.primaryEmail as string;
+                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+
+
+                }
+                if ("address" in _partial && _partial.address !== undefined) {
+                    const __val = _partial.address as string;
+                                                    if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+                                if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function contactInfoHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }const o = obj as Record<string, unknown>;
+                    return "primaryEmail" in o && "address" in o;
+
+
+
+
+
+            }
+
+            export function contactInfoIs(obj: unknown): obj is ContactInfo {
+                return contactInfoHasShape(obj);
+            }
+
+const ContactInfo = {
+  deserialize: contactInfoDeserialize,
+  deserializeWithContext: contactInfoDeserializeWithContext,
+  validateFields: contactInfoValidateFields,
+  hasShape: contactInfoHasShape,
+  is: contactInfoIs
+} as const;
+
+## Diagnostics
+
+(none)

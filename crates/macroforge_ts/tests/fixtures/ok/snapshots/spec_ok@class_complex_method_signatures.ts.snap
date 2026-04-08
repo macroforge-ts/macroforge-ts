@@ -1,0 +1,102 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/class_complex_method_signatures.ts
+---
+## Input
+
+import { Derive } from "@macro/derive";
+
+/** @derive(Debug) */
+class API {
+    endpoint: string;
+
+    constructor(endpoint: string) {
+        this.endpoint = endpoint;
+    }
+
+    async fetch<T>(
+        path: string,
+        options?: { method?: string; body?: any }
+    ): Promise<T> {
+        return {} as T;
+    }
+
+    subscribe(
+        event: "data" | "error",
+        callback: (data: any) => void,
+        thisArg?: any
+    ): () => void {
+        return () => {};
+    }
+}
+
+## Output
+
+import { Derive } from "@macro/derive";
+
+
+class API {
+    endpoint: string;
+
+    constructor(endpoint: string) {
+        this.endpoint = endpoint;
+    }
+
+    async fetch<T>(
+        path: string,
+        options?: { method?: string; body?: any }
+    ): Promise<T> {
+        return {} as T;
+    }
+
+    subscribe(
+        event: "data" | "error",
+        callback: (data: any) => void,
+        thisArg?: any
+    ): () => void {
+        return () => {};
+    }
+
+static toString(value: API): string {
+                    return apiToString(value);
+                }}
+
+export function apiToString(value: API): string {
+                        const parts: string[] = [];
+                        parts.push("endpoint: " + value.endpoint);
+
+                        return "API { " + parts.join(", ") + " }";
+                    }
+
+## DTS
+
+import { Derive } from "@macro/derive";
+
+
+class API {
+    endpoint: string;
+
+    constructor(endpoint: string);
+
+    async fetch<T>(path: string,
+        options?: { method?: string; body?: any }): Promise<T>;
+
+    subscribe(event: "data" | "error",
+        callback: (data: any) => void,
+        thisArg?: any): () => void;
+
+static toString(value: API): string {
+                    return apiToString(value);
+                }}
+
+export function apiToString(value: API): string {
+                        const parts: string[] = [];
+                        parts.push("endpoint: " + value.endpoint);
+
+                        return "API { " + parts.join(", ") + " }";
+                    }
+
+## Diagnostics
+
+(none)

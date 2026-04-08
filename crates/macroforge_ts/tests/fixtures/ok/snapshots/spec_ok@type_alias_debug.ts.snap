@@ -1,0 +1,54 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_debug.ts
+---
+## Input
+
+/** @derive(Debug) */
+type Point = {
+    x: number;
+    y: number;
+};
+
+## Output
+
+type Point = {
+    x: number;
+    y: number;
+};
+
+export function pointToString(value: Point): string {
+                            const parts: string[] = [];
+                            parts.push("x: " + value.x);
+parts.push("y: " + value.y);
+
+                            return "Point { " + parts.join(", ") + " }";
+                        }
+
+const Point = {
+  toString: pointToString
+} as const;
+
+## DTS
+
+type Point = {
+    x: number;
+    y: number;
+};
+
+export function pointToString(value: Point): string {
+                            const parts: string[] = [];
+                            parts.push("x: " + value.x);
+parts.push("y: " + value.y);
+
+                            return "Point { " + parts.join(", ") + " }";
+                        }
+
+const Point = {
+  toString: pointToString
+} as const;
+
+## Diagnostics
+
+(none)

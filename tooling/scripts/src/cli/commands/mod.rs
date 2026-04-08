@@ -7,7 +7,7 @@ pub mod diagnostics;
 pub mod docs;
 pub mod expand;
 pub mod manifests;
-pub mod prep;
+pub mod verify;
 pub mod publish_local;
 pub mod push;
 pub mod test;

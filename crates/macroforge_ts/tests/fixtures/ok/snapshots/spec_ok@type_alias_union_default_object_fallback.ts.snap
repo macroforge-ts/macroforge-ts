@@ -1,0 +1,43 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_object_fallback.ts
+---
+## Input
+
+/** @derive(Default) */
+export type Status = { kind: 'Active'; data: string } | { kind: 'Inactive'; reason: string };
+
+## Output
+
+export type Status = { kind: 'Active'; data: string } | { kind: 'Inactive'; reason: string };
+
+export function statusDefaultValue(): Status {
+                            return ({
+	kind: "Active",
+	data: ""
+});
+                        }
+
+export const Status = {
+  defaultValue: statusDefaultValue
+} as const;
+
+## DTS
+
+export type Status = { kind: 'Active'; data: string } | { kind: 'Inactive'; reason: string };
+
+export function statusDefaultValue(): Status {
+                            return ({
+	kind: "Active",
+	data: ""
+});
+                        }
+
+export const Status = {
+  defaultValue: statusDefaultValue
+} as const;
+
+## Diagnostics
+
+(none)

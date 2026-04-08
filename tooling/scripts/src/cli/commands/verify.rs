@@ -1,8 +1,8 @@
-//! Prepare release command
+//! Verify release command
 //!
 //! Bumps versions, builds packages, runs tests, and generates documentation.
 
-use crate::cli::PrepArgs;
+use crate::cli::VerifyArgs;
 use crate::cli::commands::docs::{build_book, extract_rust, extract_ts};
 use crate::core::config::{self, Config};
 use crate::core::deps;
@@ -126,7 +126,7 @@ fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
     Ok(())
 }
 
-pub fn run(args: PrepArgs) -> Result<()> {
+pub fn run(args: VerifyArgs) -> Result<()> {
     let config = Config::load()?;
     let verbose = std::env::var("VERBOSE").is_ok() || std::env::var("DEBUG").is_ok();
 

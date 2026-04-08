@@ -1,0 +1,67 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/enum_partial_eq_hash_string.ts
+---
+## Input
+
+/** @derive(PartialEq, Hash) */
+enum Color {
+    Red = "red",
+    Green = "green",
+    Blue = "blue"
+}
+
+## Output
+
+enum Color {
+    Red = "red",
+    Green = "green",
+    Blue = "blue"
+}
+
+export function colorEquals(a: Color, b: Color): boolean {
+                    return a === b;
+                }
+
+export function colorHashCode(value: Color): number {
+                        let hash = 0;
+                        for (let i = 0; i < value.length; i++) {
+                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
+                        }
+                        return hash;
+                    }
+
+namespace Color {
+  export const equals = colorEquals;
+  export const hashCode = colorHashCode;
+}
+
+## DTS
+
+enum Color {
+    Red = "red",
+    Green = "green",
+    Blue = "blue"
+}
+
+export function colorEquals(a: Color, b: Color): boolean {
+                    return a === b;
+                }
+
+export function colorHashCode(value: Color): number {
+                        let hash = 0;
+                        for (let i = 0; i < value.length; i++) {
+                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
+                        }
+                        return hash;
+                    }
+
+namespace Color {
+  export const equals = colorEquals;
+  export const hashCode = colorHashCode;
+}
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,37 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_inline.ts
+---
+## Input
+
+/** @derive(Default) */
+export type ActivityType = /** @default */ Created | Edited | Sent;
+
+## Output
+
+export type ActivityType = /** @default */ Created | Edited | Sent;
+
+export function activityTypeDefaultValue(): ActivityType {
+                            return createdDefaultValue();
+                        }
+
+export const ActivityType = {
+  defaultValue: activityTypeDefaultValue
+} as const;
+
+## DTS
+
+export type ActivityType = /** @default */ Created | Edited | Sent;
+
+export function activityTypeDefaultValue(): ActivityType {
+                            return createdDefaultValue();
+                        }
+
+export const ActivityType = {
+  defaultValue: activityTypeDefaultValue
+} as const;
+
+## Diagnostics
+
+(none)

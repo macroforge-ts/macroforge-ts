@@ -1,0 +1,190 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/enum_multiple_all.ts
+---
+## Input
+
+/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+enum Status {
+    Active = "active",
+    Inactive = "inactive"
+}
+
+## Output
+
+import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+
+enum Status {
+    Active = "active",
+    Inactive = "inactive"
+}
+
+export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
+                        if (key !== undefined) {
+                            return "Status." + key;
+                        }
+                        return "Status(" + String(value) + ")";
+
+
+
+
+
+
+
+
+                }
+
+export function statusClone(value: Status): Status {
+                    return value;
+                }
+
+export function statusEquals(a: Status, b: Status): boolean {
+                    return a === b;
+                }
+
+export function statusHashCode(value: Status): number {
+                        let hash = 0;
+                        for (let i = 0; i < value.length; i++) {
+                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
+                        }
+                        return hash;
+                    }
+
+/** Serializes this enum value to a JSON string.  */
+                export function statusSerialize(value: Status): string {
+                    return JSON.stringify(value);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs.  */
+                export function statusSerializeWithContext(value: Status, _ctx: __mf_SerializeContext): string | number {
+                    return value;
+                }
+
+/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function statusDeserialize(input: unknown): Status {
+            return statusDeserializeWithContext(input);
+        }
+
+        /** Deserializes with an existing context (for consistency with other types).  */
+        export function statusDeserializeWithContext(data: unknown): Status {
+            for (const key of Object.keys(Status)) {
+                const enumValue = Status[key as keyof typeof Status];
+                if (enumValue === data) {
+                    return data as Status;
+                }
+            }
+            throw new Error("Invalid Status value: " + JSON.stringify(data));
+        }
+
+        export function statusIs(value: unknown): value is Status {
+            for (const key of Object.keys(Status)) {
+                const enumValue = Status[key as keyof typeof Status];
+                if (enumValue === value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+namespace Status {
+  export const toString = statusToString;
+  export const clone = statusClone;
+  export const equals = statusEquals;
+  export const hashCode = statusHashCode;
+  export const serialize = statusSerialize;
+  export const serializeWithContext = statusSerializeWithContext;
+  export const deserialize = statusDeserialize;
+  export const deserializeWithContext = statusDeserializeWithContext;
+  export const is = statusIs;
+}
+
+## DTS
+
+enum Status {
+    Active = "active",
+    Inactive = "inactive"
+}
+
+export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
+                        if (key !== undefined) {
+                            return "Status." + key;
+                        }
+                        return "Status(" + String(value) + ")";
+
+
+
+
+
+
+
+
+                }
+
+export function statusClone(value: Status): Status {
+                    return value;
+                }
+
+export function statusEquals(a: Status, b: Status): boolean {
+                    return a === b;
+                }
+
+export function statusHashCode(value: Status): number {
+                        let hash = 0;
+                        for (let i = 0; i < value.length; i++) {
+                            hash = (hash * 31 + value.charCodeAt(i)) | 0;
+                        }
+                        return hash;
+                    }
+
+/** Serializes this enum value to a JSON string.  */
+                export function statusSerialize(value: Status): string {
+                    return JSON.stringify(value);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs.  */
+                export function statusSerializeWithContext(value: Status, _ctx: __mf_SerializeContext): string | number {
+                    return value;
+                }
+
+/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function statusDeserialize(input: unknown): Status {
+            return statusDeserializeWithContext(input);
+        }
+
+        /** Deserializes with an existing context (for consistency with other types).  */
+        export function statusDeserializeWithContext(data: unknown): Status {
+            for (const key of Object.keys(Status)) {
+                const enumValue = Status[key as keyof typeof Status];
+                if (enumValue === data) {
+                    return data as Status;
+                }
+            }
+            throw new Error("Invalid Status value: " + JSON.stringify(data));
+        }
+
+        export function statusIs(value: unknown): value is Status {
+            for (const key of Object.keys(Status)) {
+                const enumValue = Status[key as keyof typeof Status];
+                if (enumValue === value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+namespace Status {
+  export const toString = statusToString;
+  export const clone = statusClone;
+  export const equals = statusEquals;
+  export const hashCode = statusHashCode;
+  export const serialize = statusSerialize;
+  export const serializeWithContext = statusSerializeWithContext;
+  export const deserialize = statusDeserialize;
+  export const deserializeWithContext = statusDeserializeWithContext;
+  export const is = statusIs;
+}
+
+## Diagnostics
+
+(none)
