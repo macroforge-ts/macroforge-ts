@@ -716,6 +716,24 @@ export function propValueDefaultValue(): PropValue {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -872,11 +890,52 @@ export function propValueDefaultValue(): PropValue {
 
 
 
+
+
+
+
+
+
         }
 
         export function propValueIs(value: unknown): value is PropValue {
             return propValueHasShape(value);
         }
+export function propValueStringIs(__v: unknown): __v is Extract<PropValue, { type: 'String' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "String";
+                }
+export function propValueNumberIs(__v: unknown): __v is Extract<PropValue, { type: 'Number' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Number";
+                }
+export function propValueBooleanIs(__v: unknown): __v is Extract<PropValue, { type: 'Boolean' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Boolean";
+                }
+export function propValueJsonIs(__v: unknown): __v is Extract<PropValue, { type: 'Json' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Json";
+                }
+export function propValueAssetIs(__v: unknown): __v is Extract<PropValue, { type: 'Asset' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Asset";
+                }
+export function propValuePageIs(__v: unknown): __v is Extract<PropValue, { type: 'Page' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Page";
+                }
+export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, { type: 'Expression' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Expression";
+                }
 
 export const PropValue = {
   defaultValue: propValueDefaultValue,
@@ -885,7 +944,14 @@ export const PropValue = {
   deserialize: propValueDeserialize,
   deserializeWithContext: propValueDeserializeWithContext,
   hasShape: propValueHasShape,
-  is: propValueIs
+  is: propValueIs,
+  stringIs: propValueStringIs,
+  numberIs: propValueNumberIs,
+  booleanIs: propValueBooleanIs,
+  jsonIs: propValueJsonIs,
+  assetIs: propValueAssetIs,
+  pageIs: propValuePageIs,
+  expressionIs: propValueExpressionIs
 } as const;
 
 ## DTS
@@ -1589,6 +1655,24 @@ export function propValueDefaultValue(): PropValue {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
@@ -1745,11 +1829,52 @@ export function propValueDefaultValue(): PropValue {
 
 
 
+
+
+
+
+
+
         }
 
         export function propValueIs(value: unknown): value is PropValue {
             return propValueHasShape(value);
         }
+export function propValueStringIs(__v: unknown): __v is Extract<PropValue, { type: 'String' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "String";
+                }
+export function propValueNumberIs(__v: unknown): __v is Extract<PropValue, { type: 'Number' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Number";
+                }
+export function propValueBooleanIs(__v: unknown): __v is Extract<PropValue, { type: 'Boolean' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Boolean";
+                }
+export function propValueJsonIs(__v: unknown): __v is Extract<PropValue, { type: 'Json' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Json";
+                }
+export function propValueAssetIs(__v: unknown): __v is Extract<PropValue, { type: 'Asset' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Asset";
+                }
+export function propValuePageIs(__v: unknown): __v is Extract<PropValue, { type: 'Page' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Page";
+                }
+export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, { type: 'Expression' }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["type"] === "Expression";
+                }
 
 export const PropValue = {
   defaultValue: propValueDefaultValue,
@@ -1758,7 +1883,14 @@ export const PropValue = {
   deserialize: propValueDeserialize,
   deserializeWithContext: propValueDeserializeWithContext,
   hasShape: propValueHasShape,
-  is: propValueIs
+  is: propValueIs,
+  stringIs: propValueStringIs,
+  numberIs: propValueNumberIs,
+  booleanIs: propValueBooleanIs,
+  jsonIs: propValueJsonIs,
+  assetIs: propValueAssetIs,
+  pageIs: propValuePageIs,
+  expressionIs: propValueExpressionIs
 } as const;
 
 ## Diagnostics

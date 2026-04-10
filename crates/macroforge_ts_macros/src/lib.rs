@@ -250,6 +250,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                     .map_err(|e| format!("Invalid context JSON: {}", e))?;
 
             macroforge_ts::ts_syn::import_registry::install_registry(ctx.import_registry.clone());
+            macroforge_ts::ts_syn::context_registry::install_context(ctx.clone());
 
             if let Some(ref config) = ctx.config {
                 macroforge_ts::host::import_registry::set_foreign_types(
@@ -268,6 +269,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
             let result = macro_impl.run(input);
 
             macroforge_ts::ts_syn::import_registry::clear_registry();
+            macroforge_ts::ts_syn::context_registry::clear_context();
             macroforge_ts::host::import_registry::clear_foreign_types();
 
             macroforge_ts::serde_json::to_string(&result)

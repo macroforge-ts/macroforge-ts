@@ -20,8 +20,9 @@
 //!
 //! ```javascript
 //! import { DateTime } from "effect";
+//! import { defineConfig } from "macroforge/config";
 //!
-//! export default {
+//! export default defineConfig({
 //!   keepDecorators: false,
 //!   generateConvenienceConst: true,
 //!   foreignTypes: {
@@ -32,10 +33,11 @@
 //!       ],
 //!       serialize: (v) => DateTime.formatIso(v),
 //!       deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
-//!       default: () => DateTime.unsafeNow()
+//!       default: () => DateTime.unsafeNow(),
+//!       hasShape: (v) => v instanceof Date || typeof v === "string"
 //!     }
 //!   }
-//! }
+//! })
 //! ```
 //!
 //! ## Configuration Caching

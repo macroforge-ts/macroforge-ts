@@ -33,7 +33,7 @@
 //!
 //! ## Module Organization
 //!
-//! - [`config`] - Configuration loading and management (`macroforge.json`)
+//! - [`config`] - Configuration loading and management (`macroforge.config.ts`)
 //! - [`derived`] - Inventory-based registration for built-in derive macros
 //! - [`dispatch`] - Macro call routing and ABI version checking
 //! - [`error`] - Error types (`MacroError`) and `Result` type alias

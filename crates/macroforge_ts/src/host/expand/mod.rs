@@ -948,6 +948,11 @@ impl MacroExpander {
                     ));
                 }
 
+                // Install the fully-enriched context as the active thread-local
+                // so TsStream import-resolution helpers can read it without
+                // every consumer plumbing the context through their own builders.
+                crate::ts_syn::context_registry::install_context(ctx.clone());
+
                 trace_logs.push(format!(
                     "registered macros: {:?}",
                     self.dispatcher
@@ -1123,6 +1128,9 @@ impl MacroExpander {
 
                 collector.add_runtime_patches(result.runtime_patches);
                 collector.add_type_patches(result.type_patches);
+
+                // Tear down the per-macro thread-local context.
+                crate::ts_syn::context_registry::clear_context();
             }
 
             // Generate convenience const for non-class types (Prefix style)
@@ -1551,7 +1559,7 @@ impl MacroExpander {
                 span: None,
                 notes: vec![],
                 help: Some(
-                    "Adjust `limits.maxDiagnostics` in macroforge.json to see all diagnostics"
+                    "Adjust `limits.maxDiagnostics` in macroforge.config.ts to see all diagnostics"
                         .to_string(),
                 ),
             });

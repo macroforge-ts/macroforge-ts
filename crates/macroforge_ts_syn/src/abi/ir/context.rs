@@ -390,4 +390,195 @@ impl MacroContextIR {
             resolved_fields: None,
         }
     }
+
+    /// Returns the module specifier the current file should use to `import`
+    /// `type_name`. Returns `None` when the type is co-located, unknown, or
+    /// the path arithmetic fails.
+    ///
+    /// Resolution order:
+    /// 1. If the current file already imports `type_name`, return its existing
+    ///    specifier (preserves aliases and the user's chosen path style).
+    /// 2. Otherwise look up `type_name` in `self.type_registry`.
+    /// 3. If the type lives in `self.file_name`, return `None` (no import needed).
+    /// 4. Compute the relative path from the current file's directory to
+    ///    `entry.file_path`, strip TypeScript file extensions, and prepend
+    ///    `./` if needed.
+    pub fn import_specifier_for(&self, type_name: &str) -> Option<String> {
+        if let Some(existing) = self.import_registry.get_source(type_name)
+            && !existing.is_empty()
+        {
+            return Some(existing.to_string());
+        }
+        let registry = self.type_registry.as_ref()?;
+        let entry = registry.types.get(type_name)?;
+        if entry.file_path == self.file_name {
+            return None;
+        }
+        relative_module_specifier(&self.file_name, &entry.file_path)
+    }
+}
+
+/// Computes a TypeScript module specifier for `target_file` relative to the
+/// directory containing `current_file`. Strips `.svelte.ts` → `.svelte`,
+/// `.tsx` → empty, `.ts` → empty, and prepends `./` for sibling/descendant
+/// paths.
+fn relative_module_specifier(current_file: &str, target_file: &str) -> Option<String> {
+    use std::path::Path;
+    let from = Path::new(current_file).parent()?;
+    let to = Path::new(target_file);
+    let rel = pathdiff::diff_paths(to, from)?;
+    let mut s = rel.to_string_lossy().replace('\\', "/");
+
+    if let Some(stripped) = s.strip_suffix(".svelte.ts") {
+        s = format!("{stripped}.svelte");
+    } else if let Some(stripped) = s.strip_suffix(".tsx") {
+        s = stripped.to_string();
+    } else if let Some(stripped) = s.strip_suffix(".ts") {
+        s = stripped.to_string();
+    }
+
+    if !s.starts_with('.') && !s.starts_with('/') {
+        s = format!("./{s}");
+    }
+    Some(s)
+}
+
+#[cfg(test)]
+mod import_specifier_tests {
+    use super::*;
+    use crate::SpanIR;
+    use crate::abi::ir::interface::InterfaceIR;
+    use crate::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
+
+    fn empty_interface(name: &str) -> InterfaceIR {
+        InterfaceIR {
+            name: name.to_string(),
+            span: SpanIR::new(0, 0),
+            body_span: SpanIR::new(0, 0),
+            type_params: vec![],
+            heritage: vec![],
+            fields: vec![],
+            methods: vec![],
+            decorators: vec![],
+        }
+    }
+
+    fn make_ctx(file_name: &str) -> MacroContextIR {
+        MacroContextIR {
+            abi_version: 1,
+            macro_kind: MacroKind::Derive,
+            macro_name: "Test".to_string(),
+            module_path: "@test".to_string(),
+            decorator_span: SpanIR::new(0, 0),
+            macro_name_span: None,
+            target_span: SpanIR::new(0, 0),
+            file_name: file_name.to_string(),
+            target: TargetIR::Interface(empty_interface("Probe")),
+            target_source: String::new(),
+            import_registry: ImportRegistry::new(),
+            config: None,
+            type_registry: None,
+            resolved_fields: None,
+        }
+    }
+
+    fn registry_with(name: &str, file_path: &str) -> TypeRegistry {
+        let mut reg = TypeRegistry {
+            types: HashMap::new(),
+            qualified_types: HashMap::new(),
+            ambiguous_names: vec![],
+        };
+        reg.types.insert(
+            name.to_string(),
+            TypeRegistryEntry {
+                name: name.to_string(),
+                file_path: file_path.to_string(),
+                is_exported: true,
+                definition: TypeDefinitionIR::Interface(empty_interface(name)),
+                file_imports: vec![],
+            },
+        );
+        reg
+    }
+
+    #[test]
+    fn existing_import_takes_priority() {
+        let mut ctx = make_ctx("/foo/order.svelte.ts");
+        ctx.import_registry.install_source_imports(vec![
+            crate::import_registry::SourceImportEntry {
+                local_name: "Customer".to_string(),
+                source_module: "./customer.svelte".to_string(),
+                original_name: None,
+                is_type_only: true,
+            },
+        ]);
+        ctx.type_registry = Some(registry_with(
+            "Customer",
+            "/totally/different/path.svelte.ts",
+        ));
+        assert_eq!(
+            ctx.import_specifier_for("Customer"),
+            Some("./customer.svelte".to_string())
+        );
+    }
+
+    #[test]
+    fn co_located_returns_none() {
+        let mut ctx = make_ctx("/foo/bar.svelte.ts");
+        ctx.type_registry = Some(registry_with("Bar", "/foo/bar.svelte.ts"));
+        assert_eq!(ctx.import_specifier_for("Bar"), None);
+    }
+
+    #[test]
+    fn sibling_file() {
+        let mut ctx = make_ctx("/foo/order.svelte.ts");
+        ctx.type_registry = Some(registry_with("Customer", "/foo/customer.svelte.ts"));
+        assert_eq!(
+            ctx.import_specifier_for("Customer"),
+            Some("./customer.svelte".to_string())
+        );
+    }
+
+    #[test]
+    fn nested_subdir() {
+        let mut ctx = make_ctx("/foo/order.svelte.ts");
+        ctx.type_registry = Some(registry_with("Customer", "/foo/sub/customer.svelte.ts"));
+        assert_eq!(
+            ctx.import_specifier_for("Customer"),
+            Some("./sub/customer.svelte".to_string())
+        );
+    }
+
+    #[test]
+    fn parent_dir() {
+        let mut ctx = make_ctx("/foo/sub/order.svelte.ts");
+        ctx.type_registry = Some(registry_with("Customer", "/foo/customer.svelte.ts"));
+        assert_eq!(
+            ctx.import_specifier_for("Customer"),
+            Some("../customer.svelte".to_string())
+        );
+    }
+
+    #[test]
+    fn unknown_type() {
+        let ctx = make_ctx("/foo/order.svelte.ts");
+        assert_eq!(ctx.import_specifier_for("Customer"), None);
+    }
+
+    #[test]
+    fn plain_ts_file() {
+        let mut ctx = make_ctx("/foo/order.svelte.ts");
+        ctx.type_registry = Some(registry_with("Util", "/foo/util.ts"));
+        assert_eq!(ctx.import_specifier_for("Util"), Some("./util".to_string()));
+    }
+
+    #[test]
+    fn tsx_file() {
+        let mut ctx = make_ctx("/foo/order.svelte.ts");
+        ctx.type_registry = Some(registry_with("Component", "/foo/component.tsx"));
+        assert_eq!(
+            ctx.import_specifier_for("Component"),
+            Some("./component".to_string())
+        );
+    }
 }

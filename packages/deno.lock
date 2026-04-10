@@ -1,6 +1,8 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/assert@1": "1.0.16",
+    "jsr:@std/internal@^1.0.12": "1.0.12",
     "npm:@jridgewell/trace-mapping@~0.3.25": "0.3.31",
     "npm:@modelcontextprotocol/sdk@^1.11.1": "1.25.1_zod@4.3.6_hono@4.11.3",
     "npm:@types/estree@^0.0.42": "0.0.42",
@@ -37,6 +39,17 @@
     "npm:vscode-languageserver-types@3.17.5": "3.17.5",
     "npm:vscode-languageserver@9.0.1": "9.0.1",
     "npm:vscode-uri@3.1": "3.1.0"
+  },
+  "jsr": {
+    "@std/assert@1.0.16": {
+      "integrity": "6a7272ed1eaa77defe76e5ff63ca705d9c495077e2d5fd0126d2b53fc5bd6532",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
+    }
   },
   "npm": {
     "@ampproject/remapping@2.3.0": {
@@ -1447,6 +1460,9 @@
   "workspace": {
     "members": {
       "mcp-server": {
+        "dependencies": [
+          "npm:@modelcontextprotocol/sdk@^1.11.1"
+        ],
         "packageJson": {
           "dependencies": [
             "npm:@modelcontextprotocol/sdk@^1.11.1",
@@ -1464,6 +1480,31 @@
         }
       },
       "svelte-language-server": {
+        "dependencies": [
+          "npm:@jridgewell/trace-mapping@~0.3.25",
+          "npm:@macroforge/shared@~0.1.79",
+          "npm:@macroforge/typescript-plugin@~0.1.79",
+          "npm:@types/estree@^0.0.42",
+          "npm:@vscode/emmet-helper@2.8.4",
+          "npm:chokidar@^4.0.1",
+          "npm:estree-walker@^2.0.1",
+          "npm:fdir@^6.2.0",
+          "npm:globrex@~0.1.2",
+          "npm:lodash@^4.17.21",
+          "npm:macroforge@~0.1.79",
+          "npm:prettier-plugin-svelte@^3.4.0",
+          "npm:prettier@~3.3.3",
+          "npm:svelte2tsx@~0.7.45",
+          "npm:svelte@^4.2.19",
+          "npm:typescript-auto-import-cache@~0.3.6",
+          "npm:typescript@^5.9.2",
+          "npm:vscode-css-languageservice@~6.3.5",
+          "npm:vscode-html-languageservice@5.4",
+          "npm:vscode-languageserver-protocol@3.17.5",
+          "npm:vscode-languageserver-types@3.17.5",
+          "npm:vscode-languageserver@9.0.1",
+          "npm:vscode-uri@3.1"
+        ],
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/trace-mapping@~0.3.25",
@@ -1499,6 +1540,11 @@
         }
       },
       "svelte-preprocessor": {
+        "dependencies": [
+          "npm:@macroforge/shared@~0.1.79",
+          "npm:macroforge@~0.1.79",
+          "npm:svelte@^5.43.8"
+        ],
         "packageJson": {
           "dependencies": [
             "npm:svelte@^5.43.8",
@@ -1507,6 +1553,11 @@
         }
       },
       "typescript-plugin": {
+        "dependencies": [
+          "npm:@macroforge/shared@~0.1.79",
+          "npm:macroforge@~0.1.79",
+          "npm:typescript@^5.9.3"
+        ],
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^18.19.130",
@@ -1515,6 +1566,11 @@
         }
       },
       "vite-plugin": {
+        "dependencies": [
+          "npm:@macroforge/shared@~0.1.79",
+          "npm:typescript@^5.9.3",
+          "npm:vite@6"
+        ],
         "packageJson": {
           "dependencies": [
             "npm:@types/node@22"

@@ -1,5 +1,5 @@
 /**
- * Tests for configuration loading (macroforge.json, tsconfig.json).
+ * Tests for configuration loading (macroforge.config.ts, tsconfig.json).
  */
 
 import test from "node:test";
@@ -16,16 +16,16 @@ import {
   writeTestFile,
 } from "./test-utils.js";
 
-test("loads macroforge.json from project root", async (t) => {
+test("loads macroforge.config.ts from project root", async (t) => {
   const tempDir = createTempDir();
 
   t.after(() => cleanupTempDir(tempDir));
 
-  // Create macroforge.json with keepDecorators: true
+  // Create macroforge.config.ts with keepDecorators: true
   writeTestFile(
     tempDir,
-    "macroforge.json",
-    JSON.stringify({ keepDecorators: true }),
+    "macroforge.config.ts",
+    `export default { keepDecorators: true };`,
   );
 
   // Create a source file with macro
@@ -55,12 +55,12 @@ export { User };`,
   }
 });
 
-test("falls back to default config when macroforge.json not found", async (t) => {
+test("falls back to default config when macroforge.config.ts not found", async (t) => {
   const tempDir = createTempDir();
 
   t.after(() => cleanupTempDir(tempDir));
 
-  // No macroforge.json - should use default config
+  // No macroforge.config.ts - should use default config
 
   // Create a source file
   writeTestFile(
@@ -84,13 +84,13 @@ export { PlainClass };`,
   assert.equal(error, null);
 });
 
-test("handles malformed macroforge.json gracefully", async (t) => {
+test("handles malformed macroforge.config.ts gracefully", async (t) => {
   const tempDir = createTempDir();
 
   t.after(() => cleanupTempDir(tempDir));
 
-  // Create invalid JSON
-  writeTestFile(tempDir, "macroforge.json", "{ invalid json }");
+  // Create invalid JS
+  writeTestFile(tempDir, "macroforge.config.ts", "export default { invalid syntax");
 
   // Create a source file
   writeTestFile(
@@ -114,13 +114,13 @@ export { PlainClass };`,
   assert.equal(error, null);
 });
 
-test("handles empty macroforge.json gracefully", async (t) => {
+test("handles empty macroforge.config.ts gracefully", async (t) => {
   const tempDir = createTempDir();
 
   t.after(() => cleanupTempDir(tempDir));
 
   // Create empty file
-  writeTestFile(tempDir, "macroforge.json", "");
+  writeTestFile(tempDir, "macroforge.config.ts", "");
 
   // Create a source file
   writeTestFile(
@@ -144,16 +144,16 @@ export { PlainClass };`,
   assert.equal(error, null);
 });
 
-test("searches parent directories for macroforge.json", async (t) => {
+test("searches parent directories for macroforge.config.ts", async (t) => {
   const tempDir = createTempDir();
 
   t.after(() => cleanupTempDir(tempDir));
 
-  // Create macroforge.json in parent directory
+  // Create macroforge.config.ts in parent directory
   writeTestFile(
     tempDir,
-    "macroforge.json",
-    JSON.stringify({ keepDecorators: true }),
+    "macroforge.config.ts",
+    `export default { keepDecorators: true };`,
   );
 
   // Create nested project structure

@@ -271,7 +271,7 @@ test('Macro Host reports diagnostics for invalid usage', async () => {
         class Foo {}
     `;
 
-    // The host will look for macroforge.json in CWD.
+    // The host will look for macroforge.config.ts in CWD.
     // We are running from root so it should find the root config which allows native macros.
     const result = expandSync(code, 'test.ts');
 

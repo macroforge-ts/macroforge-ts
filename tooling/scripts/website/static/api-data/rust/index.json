@@ -1,14 +1,14 @@
 {
   "builtinMacros": [
-    "partial_eq",
-    "deserialize",
-    "partial_ord",
-    "hash",
-    "default",
-    "ord",
     "debug",
+    "ord",
+    "partial_ord",
+    "serialize",
+    "default",
     "clone",
-    "serialize"
+    "deserialize",
+    "hash",
+    "partial_eq"
   ],
   "crates": [
     {
@@ -32,5 +32,5 @@
       "version": "0.1.81"
     }
   ],
-  "generated": "2026-04-09T00:36:19.566046+00:00"
+  "generated": "2026-04-09T00:33:54.488506+00:00"
 }
