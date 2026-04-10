@@ -90,7 +90,7 @@ pub enum MacroError {
     /// The macro configuration is invalid or malformed.
     ///
     /// This occurs when:
-    /// - `macroforge.json` contains invalid JSON
+    /// - `macroforge.config.ts` contains invalid syntax
     /// - Required configuration options are missing
     /// - Configuration values are out of valid ranges
     ///
@@ -144,7 +144,7 @@ pub enum MacroError {
     /// JSON serialization or deserialization failed.
     ///
     /// This occurs when:
-    /// - Parsing `macroforge.json` configuration
+    /// - Parsing `macroforge.config.ts` configuration
     /// - Serializing metadata output
     /// - Processing JSON in macro logic
     #[error("JSON error: {0}")]

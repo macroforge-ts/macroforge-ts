@@ -959,8 +959,22 @@ fn handle_union_type_alias(
     let mut object_variants: Vec<ObjectVariant> = Vec::new();
     let mut intersection_variants: Vec<IntersectionVariant> = Vec::new();
 
+    struct ExternalObjectVariant {
+        name: String,
+        fields: Vec<crate::ts_syn::abi::ir::interface::InterfaceFieldIR>,
+    }
+    let mut external_object_variants: Vec<ExternalObjectVariant> = Vec::new();
+
     for m in members {
         match &m.kind {
+            crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Object { fields }
+                if is_externally_tagged && !fields.is_empty() =>
+            {
+                external_object_variants.push(ExternalObjectVariant {
+                    name: fields[0].name.clone(),
+                    fields: fields.clone(),
+                });
+            }
             crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Object { fields } => {
                 if let Some(tag_value) = fields.iter().find_map(|f| {
                     if f.name == tag_field {
@@ -1015,6 +1029,79 @@ fn handle_union_type_alias(
     let has_object_variants = !object_variants.is_empty();
     let has_intersection_variants = !intersection_variants.is_empty();
 
+    // Per-variant `Is` type guards for inline variants. Type ref variants
+    // (regular_serializables) already expose their own `*Is` from their own
+    // `@derive(Deserialize)`, so we only synthesize guards for the inline
+    // shapes that have nowhere else to live: internally tagged objects,
+    // `{ tag: 'X' } & TypeRef` intersections, and externally tagged objects.
+    //
+    // Naming follows `{typeCamel}{TagPascal}Is` so downstream consumers can
+    // derive the function name from the union and tag value alone, without
+    // needing any extra metadata from this crate.
+    let per_variant_is_stream = {
+        let camel_name = type_name.to_case(Case::Camel);
+        let mut guards: Vec<TsStream> = Vec::new();
+
+        // Internally tagged inline object variants — discriminate by the tag
+        // field equalling the variant's discriminant value.
+        for ov in &object_variants {
+            let variant_pascal = ov.tag_value.to_case(Case::Pascal);
+            let fn_ident = ts_ident!("{}{}Is", camel_name, variant_pascal);
+            let extract_ident = ts_ident!(format!(
+                "Extract<{full_type_name}, {{ {tag_field}: '{}' }}>",
+                ov.tag_value
+            ));
+            let tag = tag_field;
+            let value = ov.tag_value.as_str();
+            guards.push(ts_template! {
+                export function @{fn_ident}(__v: unknown): __v is @{extract_ident} {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["@{tag}"] === "@{value}";
+                }
+            });
+        }
+
+        // Intersection variants (`{ tag: 'X' } & TypeRef`) — same shape, the
+        // tag field discriminates among union members.
+        for iv in &intersection_variants {
+            let variant_pascal = iv.tag_value.to_case(Case::Pascal);
+            let fn_ident = ts_ident!("{}{}Is", camel_name, variant_pascal);
+            let extract_ident = ts_ident!(format!(
+                "Extract<{full_type_name}, {{ {tag_field}: '{}' }}>",
+                iv.tag_value
+            ));
+            let tag = tag_field;
+            let value = iv.tag_value.as_str();
+            guards.push(ts_template! {
+                export function @{fn_ident}(__v: unknown): __v is @{extract_ident} {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && (__v as Record<string, unknown>)["@{tag}"] === "@{value}";
+                }
+            });
+        }
+
+        // Externally tagged inline objects (`{ TypeName: { ...fields } }`) —
+        // discriminate on whether the variant's key is present.
+        for ov in &external_object_variants {
+            let variant_pascal = ov.name.to_case(Case::Pascal);
+            let fn_ident = ts_ident!("{}{}Is", camel_name, variant_pascal);
+            let extract_ident =
+                ts_ident!(format!("Extract<{full_type_name}, {{ {}: any }}>", ov.name));
+            let key = ov.name.as_str();
+            guards.push(ts_template! {
+                export function @{fn_ident}(__v: unknown): __v is @{extract_ident} {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && "@{key}" in __v;
+                }
+            });
+        }
+
+        TsStream::merge_all(guards)
+    };
+
     let has_tagged_variants = has_object_variants || has_intersection_variants;
     let is_literal_only = !literals.is_empty() && type_refs.is_empty() && !has_tagged_variants;
     let is_primitive_only = has_primitives
@@ -1041,6 +1128,9 @@ fn handle_union_type_alias(
         }
         for ov in &object_variants {
             parts.push(format!("{{ {}: '{}' }}", tag_field, ov.tag_value));
+        }
+        for ov in &external_object_variants {
+            parts.push(format!("{{ {}: any }}", ov.name));
         }
         for iv in &intersection_variants {
             parts.push(format!(
@@ -1207,7 +1297,7 @@ fn handle_union_type_alias(
             .expect("data init expr should parse")
     };
 
-    let mut result = ts_template! {
+    let result = ts_template! {
         /** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors */
         export function @{fn_deserialize_ident}(input: unknown, opts?: @{deserialize_options_ident}): @{return_type_ident} {
             try {
@@ -1283,6 +1373,15 @@ fn handle_union_type_alias(
                                     if (__keys.length >= 1) {
                                         const __variantName = __keys[0];
                                         const __inner = (value as any)[__variantName];
+                                        {#for ov in &external_object_variants}
+                                            if (__variantName === "@{ov.name}") {
+                                                const __result: Record<string, unknown> = {};
+                                                {#for field in &ov.fields}
+                                                    __result["@{field.name}"] = __inner["@{field.name}"] ?? null;
+                                                {/for}
+                                                return __result as @{full_type_ident};
+                                            }
+                                        {/for}
                                         {#for type_ref in &regular_serializables}
                                             {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
                                             if (__variantName === "@{type_ref.full_type}") {
@@ -1540,7 +1639,16 @@ fn handle_union_type_alias(
                                         if (__keys.length >= 1) {
                                             const __variantName = __keys[0];
                                             const __inner = (value as any)[__variantName];
-                                            {#for type_ref in &regular_serializables}
+                                            {#for ov in &external_object_variants}
+                                            if (__variantName === "@{ov.name}") {
+                                                const __result: Record<string, unknown> = {};
+                                                {#for field in &ov.fields}
+                                                    __result["@{field.name}"] = __inner["@{field.name}"] ?? null;
+                                                {/for}
+                                                return __result as @{full_type_ident};
+                                            }
+                                        {/for}
+                                        {#for type_ref in &regular_serializables}
                                                 {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
                                                 if (__variantName === "@{type_ref.full_type}") {
                                                     return @{deserialize_with_context_fn}(__inner != null && typeof __inner === "object" ? __inner : {}, ctx) as @{full_type_ident};
@@ -1740,7 +1848,10 @@ fn handle_union_type_alias(
                                     const __keys = Object.keys(value);
                                     if (__keys.length >= 1) {
                                         const __variantName = __keys[0];
-                                        if (@{serializable_type_check_condition.replace("__typeName", "__variantName")}) return true;
+                                        {#for ov in &external_object_variants}
+                                        if (__variantName === "@{ov.name}") return true;
+                                    {/for}
+                                    if (@{serializable_type_check_condition.replace("__typeName", "__variantName")}) return true;
                                     }
                                 }
                                 if (typeof value === "string") {
@@ -1804,7 +1915,10 @@ fn handle_union_type_alias(
                                         const __keys = Object.keys(value);
                                         if (__keys.length >= 1) {
                                             const __variantName = __keys[0];
-                                            if (@{serializable_type_check_condition.replace("__typeName", "__variantName")}) return true;
+                                            {#for ov in &external_object_variants}
+                                        if (__variantName === "@{ov.name}") return true;
+                                    {/for}
+                                    if (@{serializable_type_check_condition.replace("__typeName", "__variantName")}) return true;
                                         }
                                     }
                                     if (typeof value === "string") {
@@ -1877,6 +1991,7 @@ fn handle_union_type_alias(
             return @{fn_has_shape_expr}(value);
         }
     };
+    let mut result = result.merge(per_variant_is_stream);
     result.add_aliased_import("DeserializeContext", "macroforge/serde");
     result.add_aliased_import("DeserializeError", "macroforge/serde");
     result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");

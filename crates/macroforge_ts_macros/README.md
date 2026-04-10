@@ -5,6 +5,8 @@ Derive macros for TypeScript compile-time code generation
 [![Crates.io](https://img.shields.io/crates/v/macroforge_ts_macros.svg)](https://crates.io/crates/macroforge_ts_macros)
 [![Documentation](https://docs.rs/macroforge_ts_macros/badge.svg)](https://docs.rs/macroforge_ts_macros)
 
+## Overview
+
 This crate provides procedural macros for generating TypeScript macro infrastructure
 in the Macroforge ecosystem. It simplifies the creation of derive macros that can
 transform TypeScript classes at compile time.
@@ -46,7 +48,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-macroforge_ts_macros = "0.1.38"
+macroforge_ts_macros = "0.1.81"
 ```
 
 ## Key Exports
@@ -57,7 +59,8 @@ macroforge_ts_macros = "0.1.38"
 
 ## API Reference
 
-See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_macros) on the Macroforge website.
+See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_macros) on
+the Macroforge website.
 
 ## License
 

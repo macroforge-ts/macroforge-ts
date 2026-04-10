@@ -32,3 +32,4 @@ oxc = { version = "0.123", optional = true, features = ["codegen"] }
 
 thiserror = "2.0.17"
 indexmap = { version = "2.7", features = ["serde"] }
+pathdiff = "0.2"

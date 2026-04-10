@@ -105,6 +105,7 @@
 
 pub mod abi;
 pub mod config;
+pub mod context_registry;
 pub mod derive;
 pub mod errors;
 pub mod import_registry;

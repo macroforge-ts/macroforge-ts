@@ -1,114 +1,88 @@
 # Configuration
 
-Macroforge can be configured with a `macroforge.json` file in your project root.
+Macroforge can be configured with a `macroforge.config.ts` (or `.js`) file in your project root.
 
 ## Configuration File
 
-Create a `macroforge.json` file:
+Macroforge searches for config files in the following order, walking up from the input file's directory:
 
-macroforge.json
+*   `macroforge.config.ts`
+*   `macroforge.config.mts`
+*   `macroforge.config.js`
+*   `macroforge.config.mjs`
+*   `macroforge.config.cjs`
 
-```
-{
-  "allowNativeMacros": true,
-  "macroPackages": [],
-  "keepDecorators": false,
-  "limits": {
-    "maxExecutionTimeMs": 5000,
-    "maxMemoryBytes": 104857600,
-    "maxOutputSize": 10485760,
-    "maxDiagnostics": 100
-  }
-}
+Create a `macroforge.config.ts` file:
+
+```typescript
+import { defineConfig } from "macroforge/config";
+
+export default defineConfig({
+  keepDecorators: false,
+  generateConvenienceConst: true,
+});
 ```
 
 ## Options Reference
-
-### allowNativeMacros
-
-| Type | `boolean` | | Default | `true` |
-
-Enable or disable native (Rust) macro packages. Set to `false` to only allow built-in macros.
-
-### macroPackages
-
-| Type | `string[]` | | Default | `[]` |
-
-List of npm packages that provide macros. Macroforge will look for macros in these packages.
-
-JSON
-
-```
-{
-  "macroPackages": [
-    "@my-org/custom-macros",
-    "community-macros"
-  ]
-}
-```
 
 ### keepDecorators
 
 | Type | `boolean` | | Default | `false` |
 
-Keep `@derive` decorators in the output. Useful for debugging.
+Whether to preserve `@derive` decorators in the output code after macro expansion.
+When `false`, decorators are removed after expansion since they serve only as compile-time directives. When `true`, decorators are kept in the output, which can be useful for debugging or when using runtime reflection.
 
-### limits
+### generateConvenienceConst
 
-Configure resource limits for macro expansion:
+| Type | `boolean` | | Default | `true` |
 
-JSON
+Whether to generate a convenience const for non-class types. When `true`, generates an `export const TypeName = { ... } as const;` that groups all generated functions for a type into a single namespace-like object. For example: `export const User = { clone: userClone, serialize: userSerialize } as const;`.
 
-```
-{
-  "limits": {
-    // Maximum time for a single macro expansion (ms)
-    "maxExecutionTimeMs": 5000,
+### foreignTypes
 
-    // Maximum memory usage (bytes)
-    "maxMemoryBytes": 104857600,  // 100MB
+| Type | `Record<string, ForeignTypeHandler>` |
 
-    // Maximum size of generated code (bytes)
-    "maxOutputSize": 10485760,    // 10MB
+Configuration files can define foreign type handlers for external types like Effect's `DateTime`. When a matching type is found during expansion, the configured handlers are used automatically.
 
-    // Maximum number of diagnostics per file
-    "maxDiagnostics": 100
-  }
-}
-```
+```typescript
+// macroforge.config.ts
+import { DateTime } from "effect";
+import { defineConfig } from "macroforge/config";
 
-## Macro Runtime Overrides
-
-Override settings for specific macros:
-
-JSON
-
-```
-{
-  "macroRuntimeOverrides": {
-    "@my-org/macros": {
-      "maxExecutionTimeMs": 10000
-    }
-  }
-}
+export default defineConfig({
+  foreignTypes: {
+    "DateTime.DateTime": {
+      from: ["effect"],
+      serialize: (v) => DateTime.formatIso(v),
+      deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+      default: () => DateTime.unsafeNow()
+    }
+  }
+});
 ```
 
-Warning
+### vite
 
-Be careful when increasing limits, as this could allow malicious macros to consume excessive
-resources.
+| Type | `VitePluginConfig` |
 
-## Environment Variables
+These options configure the `@macroforge/vite-plugin` behavior.
 
-Some settings can be overridden with environment variables:
+```typescript
+// macroforge.config.ts
+import { defineConfig } from "macroforge/config";
 
-| Variable              | Description          |
-| --------------------- | -------------------- |
-| `MACROFORGE_DEBUG`    | Enable debug logging |
-| `MACROFORGE_LOG_FILE` | Write logs to a file |
+export default defineConfig({
+  vite: {
+    // Whether to generate .d.ts type definition files from expanded code
+    generateTypes: true,
+    typesOutputDir: ".macroforge/types",
 
-Bash
+    // Whether to emit macro IR metadata as JSON files
+    emitMetadata: true,
+    metadataOutputDir: ".macroforge/meta",
 
-```
-MACROFORGE_DEBUG=1 npm run dev
+    // Enable disk-based expansion cache in dev mode (vite dev)
+    devCache: true
+  }
+});
 ```

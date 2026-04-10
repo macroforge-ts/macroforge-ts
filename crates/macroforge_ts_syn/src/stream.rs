@@ -508,6 +508,56 @@ impl TsStream {
         });
     }
 
+    /// Returns the module specifier this stream would use to import `type_name`,
+    /// without emitting an import. Resolution comes from the attached or
+    /// thread-local [`MacroContextIR`](crate::abi::ir::context::MacroContextIR).
+    /// Returns `None` if the type is co-located, unknown, or no context is available.
+    pub fn module_specifier_for(&self, type_name: &str) -> Option<String> {
+        if let Some(ctx) = self.ctx.as_ref() {
+            return ctx.import_specifier_for(type_name);
+        }
+        crate::context_registry::with_context(|ctx| {
+            ctx.and_then(|c| c.import_specifier_for(type_name))
+        })
+    }
+
+    /// Resolves the module for `type_name` and emits a value import for
+    /// `local_name` from that module. Returns `true` when an import was queued.
+    /// No-op when the type can't be resolved (e.g. co-located or unknown).
+    pub fn add_import_for(&mut self, local_name: &str, type_name: &str) -> bool {
+        let Some(module) = self.module_specifier_for(type_name) else {
+            return false;
+        };
+        self.add_import(local_name, &module);
+        true
+    }
+
+    /// Type-only variant of [`Self::add_import_for`].
+    pub fn add_type_import_for(&mut self, local_name: &str, type_name: &str) -> bool {
+        let Some(module) = self.module_specifier_for(type_name) else {
+            return false;
+        };
+        self.add_type_import(local_name, &module);
+        true
+    }
+
+    /// Batch helper: emits N imports for the same `type_name`, resolving the
+    /// module exactly once. Each entry is `(local_name, is_type_only)`.
+    /// Returns `true` when imports were queued.
+    pub fn add_helpers_for(&mut self, type_name: &str, helpers: &[(&str, bool)]) -> bool {
+        let Some(module) = self.module_specifier_for(type_name) else {
+            return false;
+        };
+        for (name, is_type) in helpers {
+            if *is_type {
+                self.add_type_import(name, &module);
+            } else {
+                self.add_import(name, &module);
+            }
+        }
+        true
+    }
+
     /// Add an import with automatic `__mf_` alias to avoid collisions with user imports.
     ///
     /// # Example
@@ -994,5 +1044,175 @@ mod tests {
 
         let result = stream.into_result();
         assert!(result.cross_module_suffixes.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod import_for_tests {
+    use super::*;
+    use crate::abi::ir::context::{MacroContextIR, MacroKind, TargetIR};
+    use crate::abi::ir::interface::InterfaceIR;
+    use crate::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
+    use crate::import_registry::{ImportRegistry, take_registry};
+    use crate::{SpanIR, context_registry};
+
+    fn empty_interface(name: &str) -> InterfaceIR {
+        InterfaceIR {
+            name: name.to_string(),
+            span: SpanIR::new(0, 0),
+            body_span: SpanIR::new(0, 0),
+            type_params: vec![],
+            heritage: vec![],
+            fields: vec![],
+            methods: vec![],
+            decorators: vec![],
+        }
+    }
+
+    fn make_ctx_with_registry(file_name: &str, type_name: &str, type_path: &str) -> MacroContextIR {
+        let mut registry = TypeRegistry {
+            types: std::collections::HashMap::new(),
+            qualified_types: std::collections::HashMap::new(),
+            ambiguous_names: vec![],
+        };
+        registry.types.insert(
+            type_name.to_string(),
+            TypeRegistryEntry {
+                name: type_name.to_string(),
+                file_path: type_path.to_string(),
+                is_exported: true,
+                definition: TypeDefinitionIR::Interface(empty_interface(type_name)),
+                file_imports: vec![],
+            },
+        );
+        MacroContextIR {
+            abi_version: 1,
+            macro_kind: MacroKind::Derive,
+            macro_name: "Test".to_string(),
+            module_path: "@test".to_string(),
+            decorator_span: SpanIR::new(0, 0),
+            macro_name_span: None,
+            target_span: SpanIR::new(0, 0),
+            file_name: file_name.to_string(),
+            target: TargetIR::Interface(empty_interface("Probe")),
+            target_source: String::new(),
+            import_registry: ImportRegistry::new(),
+            config: None,
+            type_registry: Some(registry),
+            resolved_fields: None,
+        }
+    }
+
+    /// Helper that resets the thread-local registries before each test runs
+    /// (the tests in this module share thread-local state).
+    fn reset_thread_locals() {
+        context_registry::clear_context();
+        let _ = take_registry();
+        crate::import_registry::install_registry(ImportRegistry::new());
+    }
+
+    #[test]
+    fn add_import_for_resolves_via_thread_local_context() {
+        reset_thread_locals();
+        let ctx = make_ctx_with_registry(
+            "/proj/src/order.svelte.ts",
+            "Customer",
+            "/proj/src/customer.svelte.ts",
+        );
+        context_registry::install_context(ctx);
+
+        let mut stream = TsStream::from_string(String::new());
+        let added = stream.add_import_for("customerDefaultValue", "Customer");
+        assert!(added);
+
+        let result = stream.into_result();
+        let customer = result
+            .imports
+            .iter()
+            .find(|i| i.local_name == "customerDefaultValue")
+            .expect("expected customerDefaultValue import to be queued");
+        assert_eq!(customer.source_module, "./customer.svelte");
+        assert!(!customer.is_type_only);
+
+        context_registry::clear_context();
+    }
+
+    #[test]
+    fn add_helpers_for_batches_correctly() {
+        reset_thread_locals();
+        let ctx = make_ctx_with_registry(
+            "/proj/src/order.svelte.ts",
+            "Customer",
+            "/proj/src/customer.svelte.ts",
+        );
+        context_registry::install_context(ctx);
+
+        let mut stream = TsStream::from_string(String::new());
+        let added = stream.add_helpers_for(
+            "Customer",
+            &[
+                ("customerDefaultValue", false),
+                ("CustomerErrors", true),
+                ("customerHasShape", false),
+            ],
+        );
+        assert!(added);
+
+        let result = stream.into_result();
+
+        let value = result
+            .imports
+            .iter()
+            .find(|i| i.local_name == "customerDefaultValue")
+            .expect("value import missing");
+        assert_eq!(value.source_module, "./customer.svelte");
+        assert!(!value.is_type_only);
+
+        let type_import = result
+            .imports
+            .iter()
+            .find(|i| i.local_name == "CustomerErrors")
+            .expect("type import missing");
+        assert_eq!(type_import.source_module, "./customer.svelte");
+        assert!(type_import.is_type_only);
+
+        let has_shape = result
+            .imports
+            .iter()
+            .find(|i| i.local_name == "customerHasShape")
+            .expect("has_shape import missing");
+        assert_eq!(has_shape.source_module, "./customer.svelte");
+        assert!(!has_shape.is_type_only);
+
+        context_registry::clear_context();
+    }
+
+    #[test]
+    fn add_import_for_returns_false_without_context() {
+        reset_thread_locals();
+        let mut stream = TsStream::from_string(String::new());
+        let added = stream.add_import_for("customerDefaultValue", "Customer");
+        assert!(!added);
+        let result = stream.into_result();
+        assert!(result.imports.is_empty());
+    }
+
+    #[test]
+    fn add_import_for_returns_false_for_co_located_type() {
+        reset_thread_locals();
+        let ctx = make_ctx_with_registry(
+            "/proj/src/customer.svelte.ts",
+            "Customer",
+            "/proj/src/customer.svelte.ts",
+        );
+        context_registry::install_context(ctx);
+
+        let mut stream = TsStream::from_string(String::new());
+        let added = stream.add_import_for("customerDefaultValue", "Customer");
+        assert!(!added);
+        let result = stream.into_result();
+        assert!(result.imports.is_empty());
+
+        context_registry::clear_context();
     }
 }

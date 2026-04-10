@@ -110,7 +110,7 @@ fn get_use_cases_map() -> HashMap<&'static str, &'static str> {
     m.insert("/docs/integration/vite-plugin", "vite, build, bundler, react, svelte, sveltekit");
     m.insert("/docs/integration/svelte-preprocessor", "svelte, preprocessor, svelte components, .svelte files, sveltekit");
     m.insert("/docs/integration/mcp-server", "mcp, ai, claude, llm, model context protocol, assistant");
-    m.insert("/docs/integration/configuration", "macroforge.json, config, settings, options");
+    m.insert("/docs/integration/configuration", "macroforge.config.ts, config, settings, options");
 
     // Language Servers
     m.insert("/docs/language-servers", "lsp, language server, editor support");

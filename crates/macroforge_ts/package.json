@@ -57,7 +57,7 @@
     "build:js": "deno task build:serde && deno task build:traits",
     "build:serde": "deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm && deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
     "build:traits": "deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm && deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
-    "build:wasm": "deno install --node-modules-dir && deno task build:js && cargo build --release --target wasm32-unknown-unknown && deno run -A ../../tooling/scripts/bench.mjs --wasm-bindgen target/wasm32-unknown-unknown/release/macroforge_ts.wasm pkg",
+    "build:wasm": "deno install --node-modules-dir && deno task build:js && cargo build --release --target wasm32-unknown-unknown && deno run -A ../../tooling/scripts/bench.mjs --wasm-bindgen ../target/wasm32-unknown-unknown/release/macroforge_ts.wasm pkg",
     "clean": "rm -rf pkg node_modules",
     "cleanbuild": "deno task clean && deno task build"
   },

@@ -202,6 +202,7 @@ pub(super) fn external_type_function_import_patches(
             (format!("{camel}ValidateField"), false),
             (format!("{camel}ValidateFields"), false),
             (format!("{camel}HasShape"), false),
+            (format!("{camel}Is"), false),
         ];
 
         // Append camelCase suffixes registered by external macros via add_cross_module_suffix()

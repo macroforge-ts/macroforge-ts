@@ -19,7 +19,7 @@ export const repoRoot = process.env.MACROFORGE_ROOT ||
     path.resolve(__dirname, '..', '..', '..');
 export const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 export const svelteRoot = path.join(playgroundRoot, 'svelte');
-export const rootConfigPath = path.join(repoRoot, 'macroforge.json');
+export const rootConfigPath = path.join(repoRoot, 'macroforge.config.ts');
 
 // Path to the macroforge CLI binary
 export const cliBinary = (() => {
@@ -187,14 +187,14 @@ function buildMacroforgeViteConfig() {
 }
 
 /**
- * Manage cwd, macroforge.json copying, and cleanup around a server lifecycle.
+ * Manage cwd, macroforge.config.ts copying, and cleanup around a server lifecycle.
  */
 async function withManagedEnv(rootDir, options, serverFactory) {
     const { useProjectCwd = true } = options ?? {};
     const previousCwd = process.cwd();
     let server;
     let copiedConfig = false;
-    const localConfigPath = path.join(rootDir, 'macroforge.json');
+    const localConfigPath = path.join(rootDir, 'macroforge.config.ts');
 
     try {
         if (useProjectCwd) {

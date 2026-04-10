@@ -593,7 +593,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.78"
+version = "0.1.79"
 dependencies = [
  "anyhow",
  "clap",
@@ -622,7 +622,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.80"
+version = "0.1.81"
 dependencies = [
  "convert_case 0.11.0",
  "proc-macro2",
@@ -632,7 +632,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.80"
+version = "0.1.81"
 dependencies = [
  "anyhow",
  "convert_case 0.11.0",
@@ -647,10 +647,11 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.80"
+version = "0.1.81"
 dependencies = [
  "indexmap",
  "oxc",
+ "pathdiff",
  "serde",
  "thiserror",
 ]
@@ -1065,6 +1066,12 @@ dependencies = [
  "smallvec",
  "windows-link",
 ]
+
+[[package]]
+name = "pathdiff"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 
 [[package]]
 name = "percent-encoding"
