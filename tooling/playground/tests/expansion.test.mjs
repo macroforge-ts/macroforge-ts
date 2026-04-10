@@ -76,3 +76,56 @@ test('svelte: decorators stripped and methods generated', () => {
     // svelte uses @derive(Serialize) which generates serialize()
     assertMethodsGenerated(code, 'svelte/macro-user.ts', 'serialize');
 });
+
+test('declarative macros: $vec expands inline at call sites', () => {
+    const source = `import { macroRules } from "macroforge/rules";
+
+const $vec = macroRules\`
+  () => []
+  ($($x:Expr),+) => [$($x),+]
+\`;
+
+const empty = $vec();
+const xs = $vec(1, 2, 3);
+`;
+    const { code } = expandSync(source, '/tmp/decl.ts', {
+        keepDecorators: false,
+    });
+    assert.ok(
+        !code.includes('const $vec = macroRules'),
+        'macro definition should be stripped'
+    );
+    assert.ok(
+        code.includes('const empty = [];'),
+        `$vec() should expand to [], got: ${code}`
+    );
+    assert.ok(
+        code.includes('const xs = [1,2,3];'),
+        `$vec(1,2,3) should expand to [1,2,3], got: ${code}`
+    );
+});
+
+test('declarative macros: hygiene renames __ identifiers', () => {
+    const source = `import { macroRules } from "macroforge/rules";
+
+const $withTemp = macroRules\`
+  ($x:Expr) => {
+    const __v = $x;
+    __v + 1
+  }
+\`;
+
+const result = $withTemp(10);
+`;
+    const { code } = expandSync(source, '/tmp/decl_hygiene.ts', {
+        keepDecorators: false,
+    });
+    assert.ok(
+        code.includes('__v$1'),
+        `expected hygienic rename __v$1 in output: ${code}`
+    );
+    assert.ok(
+        code.includes('(() =>'),
+        `expected IIFE wrap for block in expression position: ${code}`
+    );
+});

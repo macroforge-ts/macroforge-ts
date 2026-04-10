@@ -637,3 +637,113 @@ describe('Plugin Options', () => {
         });
     });
 });
+
+// =============================================================================
+// Declarative Macros (pattern-matching `$name` macros)
+// =============================================================================
+
+describe('Declarative Macros', () => {
+    test(
+        'vite transform expands $vec and $id call sites',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                const result = await server.transformRequest(
+                    '/src/declarative-macros.ts'
+                );
+                assert.ok(result, 'Transform should return a result');
+                assert.ok(result.code, 'Result should have code');
+
+                const code = result.code;
+
+                // The macro definitions must be stripped.
+                assert.ok(
+                    !code.includes('const $vec = macro'),
+                    '$vec macro definition should be erased'
+                );
+                assert.ok(
+                    !code.includes('const $id = macro'),
+                    '$id macro definition should be erased'
+                );
+                assert.ok(
+                    !code.includes('const $withTemp = macro'),
+                    '$withTemp macro definition should be erased'
+                );
+
+                // Call sites must have been rewritten. Note that Vite strips
+                // type annotations and may reformat whitespace, so we check
+                // for the expression content rather than exact source.
+                assert.ok(
+                    /emptyVec\s*=\s*\[\s*\]/.test(code),
+                    `$vec() should expand to []; got: ${code}`
+                );
+                assert.ok(
+                    /threeVec\s*=\s*\[\s*1\s*,\s*2\s*,\s*3\s*\]/.test(code),
+                    `$vec(1,2,3) should expand to [1,2,3]; got: ${code}`
+                );
+                assert.ok(
+                    /identityCall\s*=\s*42/.test(code),
+                    `$id(42) should expand to 42; got: ${code}`
+                );
+
+                // Hygiene: $withTemp introduces __acc, which must be renamed
+                // so it doesn't collide with call-site names.
+                assert.ok(
+                    /__acc\$\d+/.test(code),
+                    `$withTemp should rename __acc hygienically; got: ${code}`
+                );
+                // Block-body in expression position must be IIFE-wrapped.
+                assert.ok(
+                    /withTempResult\s*=\s*\(\s*\(\s*\)\s*=>/.test(code),
+                    `$withTemp expansion should be IIFE-wrapped; got: ${code}`
+                );
+            });
+        }
+    );
+
+    test(
+        'ssrLoadModule runs expanded declarative-macros.ts at runtime',
+        { timeout: 30000 },
+        async () => {
+            await withViteServer(vanillaRoot, async (server) => {
+                // SSR-loading the module proves the expansion produced valid
+                // JavaScript that V8 can actually execute, and that the
+                // runtime values match what the macros should produce.
+                const mod = await server.ssrLoadModule(
+                    '/src/declarative-macros.ts'
+                );
+
+                assert.ok(
+                    mod.declarativeMacrosErased,
+                    'module should load without `macro` runtime stub throwing'
+                );
+
+                assert.deepEqual(
+                    mod.emptyVec,
+                    [],
+                    '$vec() should yield an empty array at runtime'
+                );
+                assert.deepEqual(
+                    mod.threeVec,
+                    [1, 2, 3],
+                    '$vec(1,2,3) should yield [1,2,3] at runtime'
+                );
+                assert.deepEqual(
+                    mod.exprVec,
+                    [11, 15, 14],
+                    '$vec with expressions should evaluate each element'
+                );
+                assert.equal(
+                    mod.identityCall,
+                    42,
+                    '$id(42) should yield 42 at runtime'
+                );
+                assert.equal(
+                    mod.withTempResult,
+                    11,
+                    '$withTemp(10) should yield 11 at runtime'
+                );
+            });
+        }
+    );
+});

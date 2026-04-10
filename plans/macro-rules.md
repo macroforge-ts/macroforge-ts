@@ -17,9 +17,9 @@ The plan also integrates **reverse monomorphization** — the dev/prod two-mode 
 ### Macro Definition
 
 ```ts
-import { macro } from "macroforge/rules";
+import { macroRules } from "macroforge/rules";
 
-const $vec = macro`
+const $vec = macroRules`
   () => []
 
   ($($x:Expr),+ $(,)?) => {
@@ -58,7 +58,7 @@ This means:
 ### Multi-arm dispatch
 
 ```ts
-const $opt = macro`
+const $opt = macroRules`
   ()                            => undefined
   ($x:Expr)                     => $x
   ($x:Expr, $default:Expr)      => ($x ?? $default)
@@ -101,7 +101,7 @@ $( <pattern> )<separator><kind>
 | `?` | zero or one |
 
 ```ts
-const $sum = macro`
+const $sum = macroRules`
   ($($x:Expr),+) => {
     let __acc = 0;
     $( __acc += $x; )+
@@ -153,7 +153,7 @@ This is the meaningful new feature. Macros can declare a **mode** that controls 
 ### The four modes
 
 ```ts
-const $serialize = macro({
+const $serialize = macroRules({
   mode: "auto",  // default: dev expands, prod shares
 
   // Required for `auto` and `expand-only`
@@ -241,11 +241,11 @@ In dev builds the prod step is skipped, so map B doesn't exist and stack traces 
 **New files:**
 
 - `crates/macroforge_ts/js/rules/index.mjs` — runtime stubs that throw at runtime ("macros are compile-time only")
-- `crates/macroforge_ts/js/rules/index.d.ts` — TypeScript types for the `macro` tag function and the configuration object
+- `crates/macroforge_ts/js/rules/index.d.ts` — TypeScript types for the `macroRules` tag function and the configuration object
 
 The package exports:
 
-- `macro` — the sentinel tag function (throws at runtime, recognized by macroforge at build time)
+- `macroRules` — the sentinel tag function (throws at runtime, recognized by macroforge at build time)
 - Type definitions for `MacroConfig` (the object form: `{ expand, runtime, call, mode, megamorphismThreshold }`)
 - Type-level fragment kind markers for IDE autocomplete (not used by the engine, but useful for editor experience)
 
@@ -514,7 +514,7 @@ if !code.contains("@derive") {
 
 // After:
 let has_derive = code.contains("@derive");
-let has_macro_def = code.contains("= macro`");
+let has_macro_def = code.contains("= macroRules`");
 let has_macro_call = MACRO_CALL_RE.is_match(code);  // /\$[A-Za-z_][\w]*\(/
 if !has_derive && !has_macro_def && !has_macro_call {
     return Ok(ExpandResult::unchanged(code));
@@ -637,7 +637,7 @@ Phases 1-8 ship a working declarative macro system. Phases 9-10 add the reverse-
 2. **Type-position macros are harder.** TS types and TS values use different parser entry points; a macro that expands to a `TSType` (`type Foo = $RecordOf(...)`) needs a separate dispatch path. **Punt to a follow-up** — value/expression/statement position covers ~95% of real macro use.
 3. **Recursive expansion needs a depth limit.** Set it to something generous (256?) and emit a diagnostic at the limit.
 4. **Compile-time evaluation order** matters when one macro definition references another. Topological sort the macro registry; cycles are an error.
-5. **`macro` as a tag name might collide** with someone's existing local variable. Mitigated by requiring an explicit `import { macro } from "macroforge/rules"` — the import is the signal.
+5. **`macroRules` as a tag name might collide** with someone's existing local variable. Mitigated by requiring an explicit `import { macroRules } from "macroforge/rules"` — the import is the signal.
 6. **Megamorphism is a footgun if ignored.** Without the analyzer, an unwary macro author can ship a "shared runtime" that's actually slower than the inline form. The analyzer is critical, not optional. Default-on warnings.
 7. **Source map B adds complexity to debugging.** Three layers of source maps means more places things can break. The error reporter must walk all three. Add a `macroforge trace --map-stack` mode that shows every layer of the map composition for a given line number, for debugging.
 8. **Tree-shaking the runtime.** If the bundler ships the shared runtime even when nothing uses it, the prod form is bigger than the dev form. Standard ESM tree-shakers handle this as long as the runtime is emitted as a top-level `export function`. The framework needs an integration test that imports a macro without calling it and verifies the runtime is gone from the output.

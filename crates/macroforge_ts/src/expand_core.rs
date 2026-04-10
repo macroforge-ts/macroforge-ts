@@ -182,13 +182,76 @@ impl CompilerBackend for OxcBackend {
         filepath: &str,
         options: &Option<ExpandOptions>,
     ) -> Result<ExpandResult> {
-        let allocator = Allocator::default();
         let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
 
+        // --- Declarative macro pre-pass (OXC-only path) ---
+        //
+        // Run an early parse + discover + rewrite pass in its own allocator
+        // scope. If any declarative macros produced patches, `rewritten`
+        // holds the new source; otherwise it's `None` and we use the input
+        // unchanged. Diagnostics from the pre-pass are merged into the
+        // final result below.
+        #[cfg(not(feature = "swc"))]
+        let (rewritten, decl_diagnostics) = {
+            let allocator = Allocator::default();
+            let ret = OxcParser::new(&allocator, code, source_type).parse();
+            if !ret.errors.is_empty() {
+                return Err(anyhow!("Oxc parse errors: {:?}", ret.errors));
+            }
+            let discovered = crate::host::declarative::discover(&ret.program, code)
+                .map_err(|e| anyhow!("Declarative macro error: {}", e))?;
+            if discovered.is_empty() {
+                (None::<String>, Vec::<crate::ts_syn::abi::Diagnostic>::new())
+            } else {
+                let mut registry = crate::host::declarative::DeclarativeMacroRegistry::new();
+                for dm in &discovered {
+                    registry
+                        .register(dm.def.clone())
+                        .map_err(|e| anyhow!("Declarative macro error: {}", e))?;
+                }
+                let rewrite_out =
+                    crate::host::declarative::rewrite(&ret.program, code, &registry, &discovered);
+                let diagnostics = rewrite_out.diagnostics;
+                let source = if rewrite_out.patches.is_empty() {
+                    None
+                } else {
+                    let applicator = crate::host::patch_applicator::PatchApplicator::new(
+                        code,
+                        rewrite_out.patches,
+                    );
+                    Some(
+                        applicator
+                            .apply()
+                            .map_err(|e| anyhow!("Patch apply failed: {}", e))?,
+                    )
+                };
+                (source, diagnostics)
+            }
+        };
+
+        // After the pre-pass block, the first allocator + ret are dropped.
+        // `code` for the rest of the function is either the original input
+        // (no declarative macros) or the rewritten source (some).
+        #[cfg(not(feature = "swc"))]
+        let code_owned = rewritten;
+        #[cfg(not(feature = "swc"))]
+        let code: &str = code_owned.as_deref().unwrap_or(code);
+        #[cfg(not(feature = "swc"))]
+        let changed_by_decl = code_owned.is_some();
+
+        let allocator = Allocator::default();
         let ret = OxcParser::new(&allocator, code, source_type).parse();
 
         if !ret.errors.is_empty() {
-            return Err(anyhow!("Oxc parse errors: {:?}", ret.errors));
+            #[cfg(not(feature = "swc"))]
+            let ctx = if changed_by_decl {
+                "Oxc parse errors after declarative macro expansion"
+            } else {
+                "Oxc parse errors"
+            };
+            #[cfg(feature = "swc")]
+            let ctx = "Oxc parse errors";
+            return Err(anyhow!("{}: {:?}", ctx, ret.errors));
         }
 
         #[cfg(feature = "swc")]
@@ -215,7 +278,28 @@ impl CompilerBackend for OxcBackend {
             };
 
             if items.is_empty() {
-                return Ok(ExpandResult::unchanged(code));
+                // No derive targets, but we might still have declarative
+                // rewrites or diagnostics to surface.
+                if !changed_by_decl && decl_diagnostics.is_empty() {
+                    return Ok(ExpandResult::unchanged(code));
+                }
+                let mut result = ExpandResult {
+                    code: code.to_string(),
+                    types: None,
+                    metadata: None,
+                    diagnostics: decl_diagnostics
+                        .iter()
+                        .map(|d| MacroDiagnostic {
+                            level: format!("{:?}", d.level).to_lowercase(),
+                            message: d.message.clone(),
+                            start: d.span.map(|s| s.start),
+                            end: d.span.map(|s| s.end),
+                        })
+                        .collect(),
+                    source_mapping: None,
+                };
+                inject_log_comments(&mut result);
+                return Ok(result);
             }
 
             let items_clone = items.clone();
@@ -226,20 +310,31 @@ impl CompilerBackend for OxcBackend {
                 .apply_and_finalize_expansion(code, &mut collector, &mut diagnostics, items_clone)
                 .map_err(anyhow::Error::from)?;
 
+            let mut result_diagnostics: Vec<MacroDiagnostic> = expansion
+                .diagnostics
+                .into_iter()
+                .map(|d| MacroDiagnostic {
+                    level: format!("{:?}", d.level).to_lowercase(),
+                    message: d.message,
+                    start: d.span.map(|s| s.start),
+                    end: d.span.map(|s| s.end),
+                })
+                .collect();
+            // Merge declarative-pass diagnostics.
+            for d in &decl_diagnostics {
+                result_diagnostics.push(MacroDiagnostic {
+                    level: format!("{:?}", d.level).to_lowercase(),
+                    message: d.message.clone(),
+                    start: d.span.map(|s| s.start),
+                    end: d.span.map(|s| s.end),
+                });
+            }
+
             let mut result = ExpandResult {
                 code: expansion.code,
                 types: expansion.type_output,
                 metadata: serialize_metadata(&expansion.classes),
-                diagnostics: expansion
-                    .diagnostics
-                    .into_iter()
-                    .map(|d| MacroDiagnostic {
-                        level: format!("{:?}", d.level).to_lowercase(),
-                        message: d.message,
-                        start: d.span.map(|s| s.start),
-                        end: d.span.map(|s| s.end),
-                    })
-                    .collect(),
+                diagnostics: result_diagnostics,
                 source_mapping: expansion.source_mapping.map(|mapping| SourceMappingResult {
                     segments: mapping
                         .segments
@@ -545,8 +640,15 @@ fn inject_log_comments(result: &mut ExpandResult) {
 // Inner Logic (Optimized)
 // ============================================================================
 
-/// Check if source code contains `@derive(` as a standalone JSDoc directive.
+/// Check if source code contains `@derive(` as a standalone JSDoc directive,
+/// or imports the declarative macro module (`"macroforge/rules"`).
 pub(crate) fn has_macro_annotations(source: &str) -> bool {
+    // Declarative macros are signalled by importing `macro` from the rules
+    // module. If present, the expand pipeline must run so the pre-pass can
+    // discover and rewrite call sites.
+    if source.contains("macroforge/rules") {
+        return true;
+    }
     if !source.contains("@derive") {
         return false;
     }

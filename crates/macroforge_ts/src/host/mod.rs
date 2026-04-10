@@ -78,6 +78,9 @@
 /// Configuration loading and management.
 pub mod config;
 
+/// Declarative (pattern-matching) macros — the `$name(...)` macro system.
+pub mod declarative;
+
 /// Inventory-based registration for built-in derive macros.
 pub mod derived;
 

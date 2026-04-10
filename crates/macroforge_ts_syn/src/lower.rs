@@ -465,10 +465,10 @@ impl<'a> Visit for ClassCollector<'a> {
         }
 
         let mut heritage = Vec::new();
-        if let Some(super_class) = &n.class.super_class {
-            if let Expr::Ident(ident) = &**super_class {
-                heritage.push(ident.sym.to_string());
-            }
+        if let Some(super_class) = &n.class.super_class
+            && let Expr::Ident(ident) = &**super_class
+        {
+            heritage.push(ident.sym.to_string());
         }
         for item in &n.class.implements {
             let TsExprWithTypeArgs { expr, .. } = item;

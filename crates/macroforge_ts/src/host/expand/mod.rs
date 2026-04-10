@@ -357,6 +357,60 @@ impl MacroExpander {
         set
     }
 
+    /// Run the declarative macro pre-pass on an OXC-parsed program.
+    ///
+    /// Discovers `const $name = macro\`...\`` definitions, matches
+    /// `$name(...)` call sites against their arms, and returns a rewritten
+    /// source string plus any diagnostics.
+    ///
+    /// Returns `Ok((None, diagnostics))` if the file has no declarative
+    /// macros, which is the common-case fast path. Otherwise returns
+    /// `Ok((Some(new_source), diagnostics))` with the rewritten source.
+    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+    fn declarative_prepass_oxc(
+        &self,
+        source: &str,
+    ) -> Result<(Option<String>, Vec<crate::ts_syn::abi::Diagnostic>)> {
+        use oxc::allocator::Allocator;
+        use oxc::parser::Parser;
+        use oxc::span::SourceType;
+
+        let allocator = Allocator::default();
+        // The pre-pass uses plain TS — JSX doesn't affect the constructs
+        // we care about (top-level `const` declarations and bare identifier
+        // calls), so we don't need to thread the JSX flag through here.
+        let source_type = SourceType::ts();
+        let parsed = Parser::new(&allocator, source, source_type).parse();
+        if !parsed.errors.is_empty() {
+            // Parse errors are surfaced by the main path — don't duplicate.
+            return Ok((None, Vec::new()));
+        }
+
+        let discovered = crate::host::declarative::discover(&parsed.program, source)
+            .map_err(|e| MacroError::InvalidConfig(format!("Declarative macro error: {}", e)))?;
+        if discovered.is_empty() {
+            return Ok((None, Vec::new()));
+        }
+
+        let mut registry = crate::host::declarative::DeclarativeMacroRegistry::new();
+        for dm in &discovered {
+            registry.register(dm.def.clone()).map_err(|e| {
+                MacroError::InvalidConfig(format!("Declarative macro error: {}", e))
+            })?;
+        }
+        let output =
+            crate::host::declarative::rewrite(&parsed.program, source, &registry, &discovered);
+
+        if output.patches.is_empty() {
+            return Ok((None, output.diagnostics));
+        }
+
+        let applicator =
+            crate::host::patch_applicator::PatchApplicator::new(source, output.patches);
+        let new_source = applicator.apply()?;
+        Ok((Some(new_source), output.diagnostics))
+    }
+
     /// Expand all macros in the source code (simple API for CLI usage)
     #[cfg(all(not(feature = "swc"), feature = "oxc"))]
     pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
@@ -364,13 +418,35 @@ impl MacroExpander {
         use oxc::parser::Parser;
         use oxc::span::SourceType;
 
+        // --- Declarative macro pre-pass ---
+        //
+        // Discover any `const $name = macro\`...\`` definitions in the file,
+        // rewrite matching call sites, and strip the original declarations.
+        // If the pre-pass produces any patches we use the rewritten source
+        // for the rest of the pipeline so downstream IR lowering sees clean
+        // TypeScript.
+        //
+        // Files without declarative macros take the fast path: discovery
+        // checks for the `macroforge/rules` import and returns empty after
+        // a brief AST scan.
+        let (rewritten, decl_diagnostics) = self.declarative_prepass_oxc(source)?;
+        let owned_source = rewritten;
+        let source: &str = owned_source.as_deref().unwrap_or(source);
+        let changed_by_decl = owned_source.is_some();
+
         let allocator = Allocator::default();
         let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
         let parsed = Parser::new(&allocator, source, source_type).parse();
 
         if !parsed.errors.is_empty() {
+            let context = if changed_by_decl {
+                "Parse error after declarative macro expansion: "
+            } else {
+                "Parse error: "
+            };
             return Err(MacroError::InvalidConfig(format!(
-                "Parse error: {}",
+                "{}{}",
+                context,
                 parsed
                     .errors
                     .into_iter()
@@ -399,10 +475,12 @@ impl MacroExpander {
         };
 
         if items.is_empty() {
+            // Even with no derive targets, we might have declarative-macro
+            // diagnostics to surface and/or a rewritten source to return.
             return Ok(MacroExpansion {
                 code: source.to_string(),
-                diagnostics: Vec::new(),
-                changed: false,
+                diagnostics: decl_diagnostics,
+                changed: changed_by_decl,
                 type_output: None,
                 classes: Vec::new(),
                 interfaces: Vec::new(),
@@ -423,7 +501,19 @@ impl MacroExpander {
         let (mut collector, mut diagnostics) =
             self.collect_macro_patches_oxc(items, file_name, source);
 
-        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, items_clone)
+        // Merge declarative-pass diagnostics with derive-pass diagnostics.
+        diagnostics.extend(decl_diagnostics);
+
+        let mut result = self.apply_and_finalize_expansion(
+            source,
+            &mut collector,
+            &mut diagnostics,
+            items_clone,
+        )?;
+        if changed_by_decl {
+            result.changed = true;
+        }
+        Ok(result)
     }
 
     /// Expand all macros in the source code (simple API for CLI usage)

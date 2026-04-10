@@ -3,3 +3,4 @@ tooling/bench-bins/
 **/target/
 **/node_modules/
 **/.pixi/
+.claude/
