@@ -40,6 +40,11 @@ const aliases = [
         replacement: MACROFORGE_TS_CRATE &&
             `${MACROFORGE_TS_CRATE}/js/reexports/index.mjs`
     },
+    {
+        find: 'macroforge/rules',
+        replacement: MACROFORGE_TS_CRATE &&
+            `${MACROFORGE_TS_CRATE}/js/rules/index.mjs`
+    },
     { find: 'macroforge', replacement: MACROFORGE_TS_CRATE },
     { find: '@playground/macro', replacement: PLAYGROUND_MACRO },
     { find: '@macroforge/vite-plugin', replacement: VITE_PLUGIN_PKG },

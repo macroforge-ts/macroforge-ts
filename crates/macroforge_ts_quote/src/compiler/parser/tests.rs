@@ -1289,7 +1289,7 @@ fn test_parse_if_expression_debug() {
     let result = Parser::try_new(input);
     match result {
         Err(e) => panic!("Lexer error: {:?}", e),
-        Ok(mut parser) => {
+        Ok(parser) => {
             let parse_result = parser.parse();
             match parse_result {
                 Ok(ir) => {

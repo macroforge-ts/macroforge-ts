@@ -1,0 +1,69 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/declarative/declarative_and_derive.ts
+---
+## Input
+
+import { macroRules } from "macroforge/rules";
+
+const $identity = macroRules`
+  ($x:Expr) => $x
+`;
+
+/** @derive(Debug) */
+class User {
+    name: string;
+}
+
+const greeting = $identity("hello");
+
+## Output
+
+import { macroRules } from "macroforge/rules";
+
+
+
+
+class User {
+    name: string;
+
+static toString(value: User): string {
+                    return userToString(value);
+                }}
+
+export function userToString(value: User): string {
+                        const parts: string[] = [];
+                        parts.push("name: " + value.name);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
+
+const greeting = "hello";
+
+## DTS
+
+import { macroRules } from "macroforge/rules";
+
+
+
+
+class User {
+    name: string;
+
+static toString(value: User): string {
+                    return userToString(value);
+                }}
+
+export function userToString(value: User): string {
+                        const parts: string[] = [];
+                        parts.push("name: " + value.name);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
+
+const greeting = "hello";
+
+## Diagnostics
+
+(none)

@@ -141,6 +141,7 @@ impl Parser {
                                 span: IrSpan::new(named_spec_start, self.current_byte_offset()),
                                 local: Box::new(local),
                                 imported: imported_name,
+                                type_only: false,
                             });
 
                             self.skip_whitespace();
@@ -422,6 +423,7 @@ impl Parser {
                         value: "*".to_string(),
                     }),
                     exported: Some(Box::new(ns_name)),
+                    type_only: false,
                 }],
                 src: Some(src),
                 type_only: false,

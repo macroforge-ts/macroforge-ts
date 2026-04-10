@@ -1,0 +1,32 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/declarative/id_single_arm.ts
+---
+## Input
+
+import { macroRules } from "macroforge/rules";
+
+const $id = macroRules`
+  ($x:Expr) => $x
+`;
+
+const a = $id(1 + 2);
+const b = $id(someFunction(arg1, arg2));
+
+## Output
+
+import { macroRules } from "macroforge/rules";
+
+
+
+const a = 1 + 2;
+const b = someFunction(arg1, arg2);
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

@@ -1,0 +1,36 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/declarative/hygiene.ts
+---
+## Input
+
+import { macroRules } from "macroforge/rules";
+
+const $withTemp = macroRules`
+  ($x:Expr) => {
+    const __v = $x;
+    __v + 1
+  }
+`;
+
+const result = $withTemp(10);
+
+## Output
+
+import { macroRules } from "macroforge/rules";
+
+
+
+const result = (() => {
+    const __v$1 = 10;
+    __v$1 + 1
+  })();
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

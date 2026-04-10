@@ -2096,14 +2096,12 @@ impl Parser {
 
         self.skip_whitespace();
 
-        // Parse modifiers
+        // Parse modifiers. `abstract` and `override` are consumed but not
+        // yet threaded through to the IR — the parser accepts them for
+        // forward compatibility without recording them on the node.
         let mut is_static = false;
         let mut accessibility = None;
-        #[allow(unused_variables)]
-        let mut is_abstract = false;
         let mut is_readonly = false;
-        #[allow(unused_variables)]
-        let mut is_override = false;
 
         loop {
             self.skip_whitespace();
@@ -2122,13 +2120,11 @@ impl Parser {
                 accessibility = Some(crate::compiler::ir::Accessibility::Protected);
             } else if self.at(SyntaxKind::AbstractKw) {
                 self.consume();
-                is_abstract = true;
             } else if self.at(SyntaxKind::ReadonlyKw) {
                 self.consume();
                 is_readonly = true;
             } else if self.at_text("override") {
                 self.consume();
-                is_override = true;
             } else {
                 break;
             }
