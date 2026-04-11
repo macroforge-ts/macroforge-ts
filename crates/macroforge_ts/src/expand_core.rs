@@ -193,6 +193,8 @@ impl CompilerBackend for OxcBackend {
         // final result below.
         #[cfg(not(feature = "swc"))]
         let (rewritten, decl_diagnostics) = {
+            use std::path::PathBuf;
+
             let allocator = Allocator::default();
             let ret = OxcParser::new(&allocator, code, source_type).parse();
             if !ret.errors.is_empty() {
@@ -200,8 +202,24 @@ impl CompilerBackend for OxcBackend {
             }
             let discovered = crate::host::declarative::discover(&ret.program, code)
                 .map_err(|e| anyhow!("Declarative macro error: {}", e))?;
-            if discovered.is_empty() {
-                (None::<String>, Vec::<crate::ts_syn::abi::Diagnostic>::new())
+
+            // Load the project-wide declarative registry (if provided via
+            // ExpandOptions) and resolve cross-file imports against it.
+            let project_registry = options
+                .as_ref()
+                .and_then(|o| o.declarative_registry_json.as_ref())
+                .and_then(|json| {
+                    crate::host::declarative::ProjectDeclarativeRegistry::from_json(json).ok()
+                });
+            let file_path = PathBuf::from(filepath);
+            let resolved_imports = if let Some(ref pr) = project_registry {
+                crate::host::declarative::resolve_cross_file_imports(code, &file_path, pr)
+            } else {
+                crate::host::declarative::ResolvedImports::default()
+            };
+
+            if discovered.is_empty() && resolved_imports.imported.is_empty() {
+                (None::<String>, resolved_imports.diagnostics)
             } else {
                 let mut registry = crate::host::declarative::DeclarativeMacroRegistry::new();
                 for dm in &discovered {
@@ -209,9 +227,36 @@ impl CompilerBackend for OxcBackend {
                         .register(dm.def.clone())
                         .map_err(|e| anyhow!("Declarative macro error: {}", e))?;
                 }
-                let rewrite_out =
-                    crate::host::declarative::rewrite(&ret.program, code, &registry, &discovered);
-                let diagnostics = rewrite_out.diagnostics;
+                for imported in &resolved_imports.imported {
+                    registry.register(imported.def.clone()).map_err(|e| {
+                        anyhow!(
+                            "Declarative macro error (imported from {}): {}",
+                            imported.source_file.display(),
+                            e
+                        )
+                    })?;
+                }
+                let build_mode = crate::host::declarative::BuildMode::from_option(
+                    options.as_ref().and_then(|o| o.build_mode.as_deref()),
+                );
+                // Phase 14: parse and thread the project-wide type
+                // registry into the declarative rewriter so the
+                // megamorphism analyzer can attach structural
+                // fingerprints to each call site's argument shape.
+                let type_registry = options
+                    .as_ref()
+                    .and_then(|o| o.type_registry_json.as_ref())
+                    .and_then(|json| get_or_parse_registry(json));
+                let rewrite_out = crate::host::declarative::rewrite(
+                    &ret.program,
+                    code,
+                    &registry,
+                    &discovered,
+                    build_mode,
+                    type_registry.as_ref(),
+                );
+                let mut diagnostics = resolved_imports.diagnostics;
+                diagnostics.extend(rewrite_out.diagnostics);
                 let source = if rewrite_out.patches.is_empty() {
                     None
                 } else {
@@ -403,6 +448,12 @@ fn apply_options(macro_host: &mut MacroExpander, options: &Option<ExpandOptions>
             }
             macro_host.set_type_registry(registry);
         }
+        // Note: `declarative_registry_json` is read directly by the
+        // declarative pre-pass in OxcBackend::expand without going through
+        // macro_host, because that pre-pass runs before macro_host is
+        // constructed. The CLI path (`MacroExpander::expand_source`) reads
+        // the registry from `self.declarative_registry` instead and its
+        // caller must call `set_declarative_registry` explicitly.
         if let Some(path) = opts.config_path.as_ref() {
             if let Some(config) = CONFIG_CACHE.get(path) {
                 eprintln!("[macroforge:expand] Applying config from cache: {}", path);
@@ -641,12 +692,17 @@ fn inject_log_comments(result: &mut ExpandResult) {
 // ============================================================================
 
 /// Check if source code contains `@derive(` as a standalone JSDoc directive,
-/// or imports the declarative macro module (`"macroforge/rules"`).
+/// or imports the declarative macro module (`"macroforge/rules"`), or uses
+/// a `/** import macro { $name } from "..." */` JSDoc comment for
+/// cross-file declarative macro imports.
 pub(crate) fn has_macro_annotations(source: &str) -> bool {
-    // Declarative macros are signalled by importing `macro` from the rules
-    // module. If present, the expand pipeline must run so the pre-pass can
-    // discover and rewrite call sites.
+    // Declarative macros: the defining file imports `macroRules` from the
+    // rules module; consuming files use a JSDoc `/** import macro */`
+    // comment. Either signal means the pre-pass must run.
     if source.contains("macroforge/rules") {
+        return true;
+    }
+    if source.contains("import macro") {
         return true;
     }
     if !source.contains("@derive") {

@@ -20,12 +20,14 @@
 //! println!("Found {} types", output.registry.len());
 //! ```
 
+pub mod cache;
 mod collectors;
 mod config;
 mod core;
 #[cfg(test)]
 mod tests;
 
+pub use cache::{CacheEntry, ScanCache};
 #[cfg(feature = "swc")]
 pub use collectors::{collect_exported_names, collect_file_imports};
 pub use config::ScanConfig;

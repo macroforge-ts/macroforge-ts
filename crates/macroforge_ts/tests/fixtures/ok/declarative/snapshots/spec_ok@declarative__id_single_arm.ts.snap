@@ -16,10 +16,6 @@ const b = $id(someFunction(arg1, arg2));
 
 ## Output
 
-import { macroRules } from "macroforge/rules";
-
-
-
 const a = 1 + 2;
 const b = someFunction(arg1, arg2);
 

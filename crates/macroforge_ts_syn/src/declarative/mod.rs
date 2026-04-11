@@ -23,6 +23,6 @@ mod tests;
 pub use errors::DeclarativeError;
 pub use parser::parse_macro_def;
 pub use types::{
-    Body, BodyToken, FragmentKind, MacroArm, MacroDef, MacroMode, Pattern, PatternElement,
-    RepetitionKind,
+    Body, BodyToken, FragmentKind, MacroArm, MacroDef, MacroKind, MacroMode, Pattern,
+    PatternElement, RepetitionKind,
 };

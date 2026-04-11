@@ -121,6 +121,8 @@ impl NativePlugin {
             external_decorator_modules: o.external_decorator_modules,
             config_path: o.config_path,
             type_registry_json: o.type_registry_json,
+            declarative_registry_json: o.declarative_registry_json,
+            build_mode: o.build_mode,
         });
 
         let result = CoreEngine::expand_sync(code, filepath.clone(), expand_opts)
@@ -315,6 +317,20 @@ pub fn scan_project_sync(root_dir: String, options: JsValue) -> Result<JsValue, 
     let result =
         CoreEngine::scan_project_sync(root_dir, opts).map_err(|e| JsValue::from_str(&e))?;
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
+}
+
+/// Phase 17 — scan cache invalidation. WASM cannot access the
+/// filesystem, so there is no scan cache to invalidate on that
+/// target. These shims are here so the JS side of the plugin can
+/// call them uniformly across NAPI and WASM backends.
+#[wasm_bindgen(js_name = "invalidateScanCacheEntry")]
+pub fn invalidate_scan_cache_entry_wasm(path: String) -> bool {
+    CoreEngine::invalidate_scan_cache_entry(&path)
+}
+
+#[wasm_bindgen(js_name = "clearScanCache")]
+pub fn clear_scan_cache_wasm() {
+    CoreEngine::clear_scan_cache();
 }
 
 #[wasm_bindgen(js_name = "__macroforgeGetManifest")]

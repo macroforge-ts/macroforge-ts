@@ -20,11 +20,6 @@ const greeting = $identity("hello");
 
 ## Output
 
-import { macroRules } from "macroforge/rules";
-
-
-
-
 class User {
     name: string;
 
@@ -42,11 +37,6 @@ export function userToString(value: User): string {
 const greeting = "hello";
 
 ## DTS
-
-import { macroRules } from "macroforge/rules";
-
-
-
 
 class User {
     name: string;

@@ -49,12 +49,12 @@ pub fn parse_macro_def(
         ));
     }
 
-    Ok(MacroDef {
-        name: String::new(),
-        arms: parsed_arms,
-        mode: MacroMode::ExpandOnly,
-        span: template_span,
-    })
+    Ok(MacroDef::from_arms(
+        String::new(),
+        parsed_arms,
+        MacroMode::ExpandOnly,
+        template_span,
+    ))
 }
 
 // ---------------------------------------------------------------------------
@@ -563,7 +563,26 @@ impl<'a> BodyParser<'a> {
                         self.flush_literal(&mut tokens, literal_start, self.pos);
                         self.pos += 1; // consume `$`
                         let name = self.consume_ident();
-                        tokens.push(BodyToken::Substitution(name));
+                        // Phase 12: if the next non-whitespace char is `(`,
+                        // this is a macro call, not a substitution. Consume
+                        // the balanced arg list and emit a MacroCall token.
+                        if self.peek_after_ws() == Some(b'(') {
+                            self.skip_ws();
+                            self.pos += 1; // consume `(`
+                            let args = self.parse_call_args()?;
+                            match self.peek() {
+                                Some(b')') => self.pos += 1,
+                                _ => {
+                                    return Err(DeclarativeError::new(
+                                        self.span_at(self.pos, self.pos),
+                                        "expected `)` closing macro call in body",
+                                    ));
+                                }
+                            }
+                            tokens.push(BodyToken::MacroCall { name, args });
+                        } else {
+                            tokens.push(BodyToken::Substitution(name));
+                        }
                         literal_start = self.pos;
                         continue;
                     }
@@ -577,6 +596,98 @@ impl<'a> BodyParser<'a> {
 
         self.flush_literal(&mut tokens, literal_start, self.pos);
         Ok(tokens)
+    }
+
+    /// Peek past ASCII whitespace and return the next non-whitespace byte.
+    /// Does not advance `self.pos`.
+    fn peek_after_ws(&self) -> Option<u8> {
+        let mut j = self.pos;
+        while j < self.src.len() && matches!(self.src[j], b' ' | b'\t' | b'\r' | b'\n') {
+            j += 1;
+        }
+        self.src.get(j).copied()
+    }
+
+    fn skip_ws(&mut self) {
+        while self.pos < self.src.len()
+            && matches!(self.src[self.pos], b' ' | b'\t' | b'\r' | b'\n')
+        {
+            self.pos += 1;
+        }
+    }
+
+    /// Parse the contents of a macro call's argument list — the body
+    /// tokens between `(` and the matching `)`. Nested `()` are tracked
+    /// so e.g. `$outer(foo($x))` is parsed as one `MacroCall` containing
+    /// a literal `foo(` + substitution + literal `)`.
+    fn parse_call_args(&mut self) -> Result<Vec<BodyToken>, DeclarativeError> {
+        let mut tokens: Vec<BodyToken> = Vec::new();
+        let mut literal_start = self.pos;
+        let mut paren_depth: i32 = 0;
+
+        while self.pos < self.src.len() {
+            let c = self.src[self.pos];
+            if c == b')' && paren_depth == 0 {
+                self.flush_literal(&mut tokens, literal_start, self.pos);
+                return Ok(tokens);
+            }
+            if c == b'(' {
+                paren_depth += 1;
+                self.pos += 1;
+                continue;
+            }
+            if c == b')' {
+                paren_depth -= 1;
+                self.pos += 1;
+                continue;
+            }
+            if c == b'$' {
+                match self.peek_n(1) {
+                    Some(b'$') => {
+                        self.flush_literal(&mut tokens, literal_start, self.pos);
+                        tokens.push(BodyToken::Literal("$".to_string()));
+                        self.pos += 2;
+                        literal_start = self.pos;
+                        continue;
+                    }
+                    Some(c) if is_ident_start(c) => {
+                        self.flush_literal(&mut tokens, literal_start, self.pos);
+                        self.pos += 1; // consume `$`
+                        let name = self.consume_ident();
+                        // Nested macro call inside arg list.
+                        if self.peek_after_ws() == Some(b'(') {
+                            self.skip_ws();
+                            self.pos += 1;
+                            let nested_args = self.parse_call_args()?;
+                            match self.peek() {
+                                Some(b')') => self.pos += 1,
+                                _ => {
+                                    return Err(DeclarativeError::new(
+                                        self.span_at(self.pos, self.pos),
+                                        "expected `)` closing nested macro call in arg list",
+                                    ));
+                                }
+                            }
+                            tokens.push(BodyToken::MacroCall {
+                                name,
+                                args: nested_args,
+                            });
+                        } else {
+                            tokens.push(BodyToken::Substitution(name));
+                        }
+                        literal_start = self.pos;
+                        continue;
+                    }
+                    _ => {}
+                }
+            }
+            self.pos += 1;
+        }
+
+        Err(DeclarativeError::new(
+            self.span_at(self.pos, self.pos),
+            "unterminated macro call in body (no matching `)`)",
+        ))
     }
 
     fn parse_repetition_inner(&mut self) -> Result<Vec<BodyToken>, DeclarativeError> {
@@ -638,7 +749,34 @@ impl<'a> BodyParser<'a> {
                         self.flush_literal(&mut tokens, literal_start, self.pos);
                         self.pos += 1;
                         let name = self.consume_ident();
-                        tokens.push(BodyToken::Substitution(name));
+                        // Phase 12: macro call inside a repetition body —
+                        // `$( $double($x); )+` → MacroCall inside the
+                        // repetition.
+                        if self.peek_after_ws() == Some(b'(') {
+                            self.skip_ws();
+                            self.pos += 1;
+                            // Note: we re-use parse_call_args here even
+                            // though we're inside a repetition body. The
+                            // call args are balanced on their own `()`;
+                            // the repetition's outer `)` is handled by
+                            // the paren_depth counter above.
+                            let call_args = self.parse_call_args()?;
+                            match self.peek() {
+                                Some(b')') => self.pos += 1,
+                                _ => {
+                                    return Err(DeclarativeError::new(
+                                        self.span_at(self.pos, self.pos),
+                                        "expected `)` closing macro call in repetition body",
+                                    ));
+                                }
+                            }
+                            tokens.push(BodyToken::MacroCall {
+                                name,
+                                args: call_args,
+                            });
+                        } else {
+                            tokens.push(BodyToken::Substitution(name));
+                        }
                         literal_start = self.pos;
                         continue;
                     }

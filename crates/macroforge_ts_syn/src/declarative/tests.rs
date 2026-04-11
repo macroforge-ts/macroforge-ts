@@ -198,6 +198,74 @@ fn parses_body_with_repetition() {
 }
 
 #[test]
+fn parses_body_with_macro_call() {
+    // `$double($x)` inside a body should parse as MacroCall, not
+    // Substitution of `double` followed by literal `($x)`.
+    let def = parse("($x:Expr) => $double($x)");
+    let tokens = &def.arms[0].body.0;
+    let mut found = false;
+    for t in tokens {
+        if let BodyToken::MacroCall { name, args } = t {
+            assert_eq!(name, "double");
+            // `args` should contain a Substitution of `x`.
+            let inner_sub = args
+                .iter()
+                .any(|a| matches!(a, BodyToken::Substitution(s) if s == "x"));
+            assert!(inner_sub, "expected $x substitution inside call args");
+            found = true;
+        }
+    }
+    assert!(found, "expected a MacroCall token in body: {:?}", tokens);
+}
+
+#[test]
+fn parses_body_with_nested_macro_calls() {
+    // `$outer($inner($x))` — two levels of MacroCall.
+    let def = parse("($x:Expr) => $outer($inner($x))");
+    let tokens = &def.arms[0].body.0;
+    let outer = tokens
+        .iter()
+        .find_map(|t| match t {
+            BodyToken::MacroCall { name, args } if name == "outer" => Some(args),
+            _ => None,
+        })
+        .expect("outer MacroCall");
+    let inner = outer
+        .iter()
+        .find_map(|t| match t {
+            BodyToken::MacroCall { name, args } if name == "inner" => Some(args),
+            _ => None,
+        })
+        .expect("inner MacroCall");
+    let has_x = inner
+        .iter()
+        .any(|t| matches!(t, BodyToken::Substitution(s) if s == "x"));
+    assert!(has_x);
+}
+
+#[test]
+fn parses_macro_call_inside_repetition() {
+    // `$( $double($x); )+` — repetition over a MacroCall.
+    let def = parse("($($x:Expr),+) => { $( $double($x); )+ }");
+    let tokens = &def.arms[0].body.0;
+    let rep_body = tokens
+        .iter()
+        .find_map(|t| match t {
+            BodyToken::Repetition { body, .. } => Some(body),
+            _ => None,
+        })
+        .expect("repetition in body");
+    let has_call = rep_body
+        .iter()
+        .any(|t| matches!(t, BodyToken::MacroCall { name, .. } if name == "double"));
+    assert!(
+        has_call,
+        "expected $double call inside repetition, got: {:?}",
+        rep_body
+    );
+}
+
+#[test]
 fn parses_vec_example_from_design_doc() {
     let src = "
         () => []

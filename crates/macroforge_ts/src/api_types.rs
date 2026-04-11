@@ -324,6 +324,40 @@ pub struct ExpandOptions {
     /// expandSync(code, filepath, { typeRegistryJson: scan.registryJson });
     /// ```
     pub type_registry_json: Option<String>,
+
+    /// Pre-built project-wide declarative macro registry JSON from
+    /// [`scan_project_sync`]. Built during the same file-tree walk as
+    /// `type_registry_json` — no extra I/O is needed to produce it.
+    ///
+    /// When provided, the declarative macro pre-pass resolves
+    /// `/** import macro { $vec, $sum } from "./macros" */` comments by
+    /// looking up the target file in this registry. Without it,
+    /// cross-file macro imports are unresolved and the pre-pass emits
+    /// a diagnostic at each unresolved call site.
+    ///
+    /// # Example
+    ///
+    /// ```javascript
+    /// const scan = scanProjectSync(projectRoot);
+    /// expandSync(code, filepath, {
+    ///   typeRegistryJson: scan.registryJson,
+    ///   declarativeRegistryJson: scan.declarativeRegistryJson,
+    /// });
+    /// ```
+    pub declarative_registry_json: Option<String>,
+
+    /// Build mode — `"dev"` or `"prod"`. Controls how
+    /// reverse-monomorphization declarative macros emit.
+    ///
+    /// In `dev`, all modes (including `Auto`) behave like `ExpandOnly`
+    /// for precise diagnostics and type-checking. In `prod`, `ShareOnly`
+    /// and `ShareAnyway` emit a shared runtime helper once per file, and
+    /// `Auto` consults the megamorphism analyzer to pick share vs.
+    /// cluster vs. expand.
+    ///
+    /// Defaults to `"dev"` when absent. The Vite plugin wires this from
+    /// `config.command` — `serve` → `"dev"`, `build` → `"prod"`.
+    pub build_mode: Option<String>,
 }
 
 /// Options for processing a file through the macro system.
@@ -349,6 +383,12 @@ pub struct ProcessFileOptions {
     /// Pre-built type registry JSON from [`scan_project_sync`].
     /// See [`ExpandOptions::type_registry_json`] for details.
     pub type_registry_json: Option<String>,
+    /// Pre-built declarative macro registry JSON from [`scan_project_sync`].
+    /// See [`ExpandOptions::declarative_registry_json`] for details.
+    pub declarative_registry_json: Option<String>,
+    /// Build mode for reverse-monomorphization. See
+    /// [`ExpandOptions::build_mode`] for details.
+    pub build_mode: Option<String>,
 }
 
 /// Options for scanning a TypeScript project for type information.
@@ -370,10 +410,17 @@ pub struct ScanResult {
     /// JSON-serialized [`TypeRegistry`].
     /// Pass this to `expand_sync` via `ExpandOptions.type_registry_json`.
     pub registry_json: String,
+    /// JSON-serialized
+    /// [`ProjectDeclarativeRegistry`](crate::host::declarative::ProjectDeclarativeRegistry)
+    /// produced by the same walk as `registry_json`. Pass to `expand_sync`
+    /// via `ExpandOptions.declarative_registry_json`.
+    pub declarative_registry_json: String,
     /// Number of files scanned.
     pub files_scanned: u32,
     /// Number of types found.
     pub types_found: u32,
+    /// Number of declarative macros found across the project.
+    pub declarative_macros_found: u32,
     /// Diagnostics from scanning (e.g., files that failed to parse).
     pub diagnostics: Vec<MacroDiagnostic>,
 }

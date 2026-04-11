@@ -108,6 +108,14 @@ if (typeRegistryPath) {
     typeRegistryJson = fs.readFileSync(typeRegistryPath, "utf8");
   } catch {}
 }
+const declarativeRegistryPath =
+  process.env.MACROFORGE_DECLARATIVE_REGISTRY_PATH;
+let declarativeRegistryJson = void 0;
+if (declarativeRegistryPath) {
+  try {
+    declarativeRegistryJson = fs.readFileSync(declarativeRegistryPath, "utf8");
+  } catch {}
+}
 const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
 if (configFile.error) {
   console.error(
@@ -134,8 +142,25 @@ const plugin = new macros.NativePlugin();
 const tscExpandOpts = {};
 if (macroConfigPath) tscExpandOpts.configPath = macroConfigPath;
 if (typeRegistryJson) tscExpandOpts.typeRegistryJson = typeRegistryJson;
+if (declarativeRegistryJson) {
+  tscExpandOpts.declarativeRegistryJson = declarativeRegistryJson;
+}
 const host = ts.createCompilerHost(options);
 const origGetSourceFile = host.getSourceFile.bind(host);
+// Text-level fast path: skip files that don't contain any macro markers.
+// Matches:
+//   - `@derive` (derive macros)
+//   - `macroforge/rules` (declarative-macro-defining files that
+//     `import { macroRules } from "macroforge/rules"`)
+//   - `import macro` inside a JSDoc comment (declarative-macro-consuming
+//     files that use `/** import macro { $name } from "./file" */`)
+function hasMacroMarkers(sourceText) {
+  if (!sourceText) return false;
+  if (sourceText.includes("@derive")) return true;
+  if (sourceText.includes("macroforge/rules")) return true;
+  if (sourceText.includes("import macro")) return true;
+  return false;
+}
 host.getSourceFile = (fileName, languageVersion, ...rest) => {
   try {
     if (
@@ -143,13 +168,20 @@ host.getSourceFile = (fileName, languageVersion, ...rest) => {
       !fileName.endsWith(".d.ts")
     ) {
       const sourceText = ts.sys.readFile(fileName);
-      if (sourceText && sourceText.includes("@derive")) {
+      if (hasMacroMarkers(sourceText)) {
         const result = plugin.processFile(fileName, sourceText, tscExpandOpts);
         const text = result.code || sourceText;
         return ts.createSourceFile(fileName, text, languageVersion, true);
       }
     }
-  } catch {}
+  } catch (e) {
+    if (process.env.MACROFORGE_DEBUG_WRAPPER) {
+      console.error(
+        `[macroforge tsc wrapper] expand failed for ${fileName}:`,
+        e,
+      );
+    }
+  }
   return origGetSourceFile(fileName, languageVersion, ...rest);
 };
 const program = ts.createProgram(parsed.fileNames, options, host);

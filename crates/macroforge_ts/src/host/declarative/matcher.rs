@@ -4,11 +4,18 @@
 //! walk the arms in source order and return the first one whose pattern
 //! is satisfied by the arguments. Binds fragments to the verbatim source
 //! slices of the matched arguments.
+//!
+//! Phase 13 added a sibling path: [`match_type_invocation_against_arms`]
+//! takes a slice of `TSType` nodes (from a `TSTypeReference`'s type
+//! parameters) and runs the same pattern-matching loop, but only accepts
+//! the `Type` fragment kind. The bindings it produces are shape-identical
+//! to the value-position path, so the expander doesn't need to know
+//! which walker invoked it.
 
 use std::collections::HashMap;
 
 use oxc::allocator::Vec as OxcVec;
-use oxc::ast::ast::{Argument, Expression};
+use oxc::ast::ast::{Argument, Expression, TSType};
 use oxc::span::GetSpan;
 
 use crate::ts_syn::abi::SpanIR;
@@ -83,21 +90,39 @@ impl std::error::Error for MatchError {}
 
 /// Match the call's arguments against the macro's arms and return the first
 /// successful match (or [`MatchError::NoArmMatched`] if none fit).
+///
+/// Thin wrapper around [`match_invocation_against_arms`] that uses
+/// `def.arms` — the dev-form / expand-mode arms.
 pub fn match_invocation<'a>(
     def: &MacroDef,
     call_args: &'a OxcVec<'a, Argument<'a>>,
     source: &str,
 ) -> Result<MatchResult, MatchError> {
-    let mut tried = Vec::with_capacity(def.arms.len());
-    for (arm_index, arm) in def.arms.iter().enumerate() {
+    match_invocation_against_arms(&def.arms, call_args, source).map(|(arm_index, bindings)| {
+        MatchResult {
+            arm_index,
+            bindings,
+        }
+    })
+}
+
+/// Match the call's arguments against an arbitrary slice of arms, returning
+/// the matched arm index and its bindings.
+///
+/// Used by the rewriter to dispatch between `def.arms` (expand mode) and
+/// `def.call_arms` (share mode) without duplicating the matching loop.
+pub fn match_invocation_against_arms<'a>(
+    arms: &[crate::ts_syn::declarative::MacroArm],
+    call_args: &'a OxcVec<'a, Argument<'a>>,
+    source: &str,
+) -> Result<(usize, HashMap<String, Binding>), MatchError> {
+    let mut tried = Vec::with_capacity(arms.len());
+    for (arm_index, arm) in arms.iter().enumerate() {
         let mut bindings: HashMap<String, Binding> = HashMap::new();
         let mut cursor = 0usize;
         let matched = match_pattern(&arm.pattern, call_args, &mut cursor, &mut bindings, source)?;
         if matched && cursor == call_args.len() {
-            return Ok(MatchResult {
-                arm_index,
-                bindings,
-            });
+            return Ok((arm_index, bindings));
         }
         tried.push(describe_pattern(&arm.pattern));
     }
@@ -257,6 +282,159 @@ fn bind_fragment(
         kind,
         source: source_text,
         // Store in 1-based SpanIR convention so it aligns with patches.
+        span: SpanIR::new(span.start + 1, span.end + 1),
+    }))
+}
+
+// ---------------------------------------------------------------------------
+// Phase 13 — type-position matcher
+// ---------------------------------------------------------------------------
+//
+// Mirrors the value-position match logic but walks `TSType` nodes
+// instead of `Argument`s. The only fragment kind accepted in
+// type-position matching is `Type` (and `Tt` as a structural fallback);
+// other kinds produce `UnsupportedFragmentKind`.
+
+/// Match a type-position invocation (`$name<T1, T2, ...>`) against a
+/// macro's expand-mode arms. Returns the matched arm index and its
+/// bindings.
+pub fn match_type_invocation_against_arms<'a>(
+    arms: &[crate::ts_syn::declarative::MacroArm],
+    type_args: &'a OxcVec<'a, TSType<'a>>,
+    source: &str,
+) -> Result<(usize, HashMap<String, Binding>), MatchError> {
+    let mut tried = Vec::with_capacity(arms.len());
+    for (arm_index, arm) in arms.iter().enumerate() {
+        let mut bindings: HashMap<String, Binding> = HashMap::new();
+        let mut cursor = 0usize;
+        let matched =
+            match_type_pattern(&arm.pattern, type_args, &mut cursor, &mut bindings, source)?;
+        if matched && cursor == type_args.len() {
+            return Ok((arm_index, bindings));
+        }
+        tried.push(describe_pattern(&arm.pattern));
+    }
+    Err(MatchError::NoArmMatched { tried })
+}
+
+fn match_type_pattern<'a>(
+    pattern: &Pattern,
+    args: &'a OxcVec<'a, TSType<'a>>,
+    cursor: &mut usize,
+    bindings: &mut HashMap<String, Binding>,
+    source: &str,
+) -> Result<bool, MatchError> {
+    match pattern {
+        Pattern::Empty => Ok(*cursor == 0 && args.is_empty()),
+        Pattern::Sequence(elements) => {
+            match_type_elements(elements, args, cursor, bindings, source)
+        }
+    }
+}
+
+fn match_type_elements<'a>(
+    elements: &[PatternElement],
+    args: &'a OxcVec<'a, TSType<'a>>,
+    cursor: &mut usize,
+    bindings: &mut HashMap<String, Binding>,
+    source: &str,
+) -> Result<bool, MatchError> {
+    let mut i = 0usize;
+    while i < elements.len() {
+        let elem = &elements[i];
+        match elem {
+            PatternElement::Literal(_) => {
+                // Literal separators (commas) are implicit between type
+                // params — skip them just like the value-position path does.
+            }
+            PatternElement::Fragment { name, kind } => {
+                if *cursor >= args.len() {
+                    return Ok(false);
+                }
+                let Some(fragment) = bind_type_fragment(&args[*cursor], *kind, source)? else {
+                    return Ok(false);
+                };
+                bindings.insert(name.clone(), Binding::Single(fragment));
+                *cursor += 1;
+            }
+            PatternElement::Repetition {
+                pattern,
+                separator: _,
+                kind,
+            } => {
+                let mut collected: HashMap<String, Vec<BoundFragment>> = HashMap::new();
+                let mut count = 0usize;
+                loop {
+                    let saved_cursor = *cursor;
+                    let mut temp_bindings: HashMap<String, Binding> = HashMap::new();
+                    let inner_match =
+                        match_type_pattern(pattern, args, cursor, &mut temp_bindings, source)?;
+                    if !inner_match {
+                        *cursor = saved_cursor;
+                        break;
+                    }
+                    for (name, binding) in temp_bindings {
+                        let bucket = collected.entry(name).or_default();
+                        match binding {
+                            Binding::Single(frag) => bucket.push(frag),
+                            Binding::Sequence(frags) => bucket.extend(frags),
+                        }
+                    }
+                    count += 1;
+
+                    if *kind == RepetitionKind::ZeroOrOne && count >= 1 {
+                        break;
+                    }
+                    if *cursor == saved_cursor {
+                        break;
+                    }
+                }
+
+                match kind {
+                    RepetitionKind::ZeroOrMore => {}
+                    RepetitionKind::OneOrMore => {
+                        if count == 0 {
+                            return Ok(false);
+                        }
+                    }
+                    RepetitionKind::ZeroOrOne => {
+                        if count > 1 {
+                            return Ok(false);
+                        }
+                    }
+                }
+
+                for (name, frags) in collected {
+                    bindings.insert(name, Binding::Sequence(frags));
+                }
+            }
+        }
+        i += 1;
+    }
+    Ok(true)
+}
+
+fn bind_type_fragment(
+    ty: &TSType<'_>,
+    kind: FragmentKind,
+    source: &str,
+) -> Result<Option<BoundFragment>, MatchError> {
+    // Type-position matching only accepts `Type` and `Tt` (the
+    // structural fallback) — Rust's `macro_rules!` in type position
+    // works the same way: you only bind to type tokens, not to
+    // expressions or identifiers.
+    match kind {
+        FragmentKind::Type | FragmentKind::Tt => {}
+        _ => return Err(MatchError::UnsupportedFragmentKind(kind)),
+    }
+
+    let span = ty.span();
+    let start = span.start as usize;
+    let end = span.end as usize;
+    let source_text = source.get(start..end).unwrap_or("").to_string();
+    Ok(Some(BoundFragment {
+        kind,
+        source: source_text,
         span: SpanIR::new(span.start + 1, span.end + 1),
     }))
 }
