@@ -44,11 +44,130 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { encode as encodeVlq } from "@jridgewell/sourcemap-codec";
 import {
   collectExternalDecoratorModules,
   hasMacroAnnotations,
   loadMacroConfig,
 } from "@macroforge/shared";
+
+/**
+ * Precompute a line-offset table for `source`: `lineStarts[i]` is the
+ * byte offset where line `i` (0-indexed) begins. Used to convert byte
+ * offsets to (line, column) in O(log n) per lookup instead of scanning
+ * the full source each time.
+ *
+ * @param {string} source
+ * @returns {number[]}
+ */
+function buildLineStarts(source) {
+  const starts = [0];
+  for (let i = 0; i < source.length; i++) {
+    if (source.charCodeAt(i) === 10 /* \n */) {
+      starts.push(i + 1);
+    }
+  }
+  return starts;
+}
+
+/**
+ * Convert a 0-based byte offset to (line, column) using a precomputed
+ * line-starts table. Both line and column are 0-based as required by
+ * Source Map v3.
+ *
+ * @param {number} offset
+ * @param {number[]} lineStarts
+ * @returns {[number, number]}
+ */
+function offsetToLineColumn(offset, lineStarts) {
+  // Binary search for the largest lineStarts[i] that is <= offset.
+  let lo = 0;
+  let hi = lineStarts.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >>> 1;
+    if (lineStarts[mid] <= offset) {
+      lo = mid;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  return [lo, offset - lineStarts[lo]];
+}
+
+/**
+ * Convert a macroforge `SourceMappingResult` into a Source Map v3 JSON
+ * object suitable for return from Vite's `transform` hook.
+ *
+ * The engine's `SourceMapping` tracks segments of the form
+ * `{ original_start, original_end, expanded_start, expanded_end }` —
+ * byte-offset ranges in the original and expanded source. Source Map
+ * v3 wants `(generated_line, generated_column, source_index,
+ * original_line, original_column)` per-segment tuples, VLQ-encoded.
+ *
+ * The original offsets are in the pre-expansion source (`originalCode`),
+ * the expanded offsets are in the post-expansion source (`expandedCode`).
+ * Note that the engine's offsets are 0-based from a patch-applicator
+ * standpoint even though `SpanIR` uses 1-based storage internally —
+ * `SourceMappingResult` emits 0-based values across the ABI boundary.
+ *
+ * We only emit one source entry (`sources: [sourcePath]`). If other
+ * plugins in the chain produced maps, Vite composes them automatically.
+ *
+ * @param {{ segments: Array<{ originalStart: number, originalEnd: number, expandedStart: number, expandedEnd: number }> }} mapping
+ * @param {string} sourcePath
+ * @param {string} originalCode
+ * @param {string} expandedCode
+ * @returns {{ version: 3, sources: string[], sourcesContent: string[], mappings: string, names: string[] } | null}
+ */
+function sourceMappingToV3(mapping, sourcePath, originalCode, expandedCode) {
+  if (
+    !mapping ||
+    !Array.isArray(mapping.segments) ||
+    mapping.segments.length === 0
+  ) {
+    return null;
+  }
+
+  const originalLineStarts = buildLineStarts(originalCode);
+  const expandedLineStarts = buildLineStarts(expandedCode);
+
+  // Per-line buckets: index = generated line, value = array of
+  // unencoded 5-tuples sorted by generatedColumn.
+  /** @type {Array<Array<[number, number, number, number]>>} */
+  const lines = [];
+
+  for (const seg of mapping.segments) {
+    const [genLine, genCol] = offsetToLineColumn(
+      seg.expandedStart,
+      expandedLineStarts,
+    );
+    const [origLine, origCol] = offsetToLineColumn(
+      seg.originalStart,
+      originalLineStarts,
+    );
+
+    while (lines.length <= genLine) lines.push([]);
+    lines[genLine].push([genCol, 0, origLine, origCol]);
+  }
+
+  // Sort each line's segments by generated column.
+  for (const line of lines) {
+    line.sort((a, b) => a[0] - b[0]);
+  }
+
+  // Encode with @jridgewell/sourcemap-codec. The encoder takes a
+  // nested array of [[genCol, srcIdx, origLine, origCol], ...] per
+  // line and returns the VLQ-encoded mappings string.
+  const mappings = encodeVlq(lines);
+
+  return {
+    version: 3,
+    sources: [sourcePath],
+    sourcesContent: [originalCode],
+    mappings,
+    names: [],
+  };
+}
 
 /** @type {typeof import('typescript') | undefined} */
 let tsModule;
@@ -333,7 +452,7 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
 export async function macroforge() {
   /**
    * Reference to the loaded Macroforge Rust binary module.
-   * @type {{ expandSync: Function, loadConfig?: (content: string, filepath: string) => any, scanProjectSync?: Function } | undefined}
+   * @type {{ expandSync: Function, loadConfig?: (content: string, filepath: string) => any, scanProjectSync?: Function, invalidateScanCacheEntry?: (path: string) => boolean, clearScanCache?: () => void } | undefined}
    */
   let rustTransformer;
 
@@ -343,6 +462,15 @@ export async function macroforge() {
    * @type {string | undefined}
    */
   let typeRegistryJson;
+
+  /**
+   * Cached declarative macro registry JSON from project scanning.
+   * Enables cross-file `/** import macro { $name } from "./file" *\/`
+   * resolution. Loaded from `.macroforge/declarative-registry.json` which
+   * is written by `macroforge watch` / `ensureTypeRegistryCache`.
+   * @type {string | undefined}
+   */
+  let declarativeRegistryJson;
 
   // Load the Rust binary first
   try {
@@ -875,6 +1003,33 @@ export async function macroforge() {
           `[@macroforge/vite-plugin] No type registry found at .macroforge/type-registry.json. Run \`macroforge watch\` to generate it.`,
         );
       }
+
+      // Load the declarative macro registry alongside the type registry.
+      // Produced by the same project scan, so if one exists the other
+      // almost certainly does too. Missing file is a no-op: cross-file
+      // declarative macro imports simply won't resolve.
+      const localDeclarativeRegistry = path.join(
+        projectRoot,
+        ".macroforge",
+        "declarative-registry.json",
+      );
+      if (fs.existsSync(localDeclarativeRegistry)) {
+        declarativeRegistryJson = fs.readFileSync(
+          localDeclarativeRegistry,
+          "utf-8",
+        );
+        try {
+          const parsed = JSON.parse(declarativeRegistryJson);
+          const fileCount = Object.keys(parsed.by_file ?? {}).length;
+          if (fileCount > 0) {
+            console.log(
+              `[@macroforge/vite-plugin] Declarative macro registry loaded: ${fileCount} file(s)`,
+            );
+          }
+        } catch {
+          // JSON is passed as-is to expandSync.
+        }
+      }
     },
 
     /**
@@ -978,6 +1133,12 @@ export async function macroforge() {
           externalDecoratorModules,
           configPath: macroConfig.configPath,
           typeRegistryJson,
+          declarativeRegistryJson,
+          // Reverse-monomorphization build mode. Dev (serve) runs all
+          // declarative macros as if they were expand-only for precise
+          // diagnostics; prod (build) emits share-mode helpers for
+          // `share-only`, `share-anyway`, and `auto` macros.
+          buildMode: isDevMode ? "dev" : "prod",
         });
 
         // Report diagnostics from macro expansion
@@ -1035,9 +1196,17 @@ export async function macroforge() {
             writeMetadata(id, result.metadata);
           }
 
+          // Convert macroforge's internal SourceMapping to a v3 map
+          // that Vite / the downstream plugin chain understands.
+          // Engine already produced the segments during patch
+          // application; we only encode them here.
+          const map = result.sourceMapping
+            ? sourceMappingToV3(result.sourceMapping, id, code, result.code)
+            : null;
+
           return {
             code: result.code,
-            map: null,
+            map,
           };
         }
       } catch (error) {
@@ -1051,6 +1220,46 @@ export async function macroforge() {
       }
 
       return null;
+    },
+
+    /**
+     * Phase 17 — HMR invalidation for the native scan cache.
+     *
+     * Vite fires `handleHotUpdate` on every file that changed on
+     * disk. We forward the path to the Rust scanner's singleton
+     * cache so the next call that reads `typeRegistryJson` /
+     * `declarativeRegistryJson` sees fresh IR. For configuration
+     * files we clear the whole cache since any cached entry may now
+     * be stale.
+     *
+     * The hook returns `undefined` so Vite uses its default module-
+     * graph invalidation logic — we're only piggy-backing on the
+     * notification, not trying to control what reloads.
+     *
+     * @param {{ file: string, modules: any[] }} ctx
+     */
+    handleHotUpdate(ctx) {
+      if (!rustTransformer) return;
+      const file = ctx.file;
+      // Config files invalidate the entire cache (matches the
+      // `clear_cache` path in the Rust singleton).
+      if (
+        file.endsWith("macroforge.config.ts") ||
+        file.endsWith("macroforge.config.js") ||
+        file.endsWith("macroforge.config.mjs") ||
+        file.endsWith("tsconfig.json")
+      ) {
+        if (typeof rustTransformer.clearScanCache === "function") {
+          rustTransformer.clearScanCache();
+        }
+        return;
+      }
+      // Source file change — drop the single entry. The next
+      // `scanProjectSync` call (either from buildStart or a future
+      // HMR refresh) will re-parse it.
+      if (typeof rustTransformer.invalidateScanCacheEntry === "function") {
+        rustTransformer.invalidateScanCacheEntry(file);
+      }
     },
 
     /**
