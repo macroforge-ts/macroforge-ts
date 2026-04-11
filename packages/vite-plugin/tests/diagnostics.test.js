@@ -382,7 +382,7 @@ export { DecoratedClass };`,
   assert.equal(error, null);
 });
 
-test("transform returns null source map", async () => {
+test("transform returns a source map when code is expanded", async () => {
   const plugin = await macroforge();
   initializePlugin(plugin, FIXTURES_DIR);
 
@@ -392,8 +392,10 @@ test("transform returns null source map", async () => {
   const { result, error } = await invokeTransform(plugin, code, id);
 
   assert.equal(error, null);
-  if (result) {
-    // Source maps are not yet generated
-    assert.equal(result.map, null);
+  if (result && result.code && result.code !== code) {
+    // Phase 16: the plugin now forwards a real v3 source map.
+    assert.ok(result.map, "expanded files should carry a source map");
+    assert.equal(result.map.version, 3);
+    assert.equal(typeof result.map.mappings, "string");
   }
 });
