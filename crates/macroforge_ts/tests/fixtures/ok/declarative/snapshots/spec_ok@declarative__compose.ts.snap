@@ -1,0 +1,32 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/declarative/compose.ts
+---
+## Input
+
+import { macroRules } from "macroforge/rules";
+
+const $double = macroRules`
+  ($x:Expr) => ($x * 2)
+`;
+
+const $quad = macroRules`
+  ($x:Expr) => $double($double($x))
+`;
+
+const a = $double(5);
+const b = $quad(3);
+
+## Output
+
+const a = (5 * 2);
+const b = ((3 * 2) * 2);
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

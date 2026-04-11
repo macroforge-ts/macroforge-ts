@@ -115,12 +115,32 @@ if (typeRegistryPath) {
     typeRegistryJson = fs.readFileSync(typeRegistryPath, "utf8");
   } catch {}
 }
+const declarativeRegistryPath =
+  process.env.MACROFORGE_DECLARATIVE_REGISTRY_PATH;
+let declarativeRegistryJson = void 0;
+if (declarativeRegistryPath) {
+  try {
+    declarativeRegistryJson = fs.readFileSync(declarativeRegistryPath, "utf8");
+  } catch {}
+}
 const plugin = new macros.NativePlugin();
 const expandOpts = {};
 if (macroConfigPath) expandOpts.configPath = macroConfigPath;
 if (typeRegistryJson) expandOpts.typeRegistryJson = typeRegistryJson;
+if (declarativeRegistryJson) {
+  expandOpts.declarativeRegistryJson = declarativeRegistryJson;
+}
 const tsSys = ts.sys;
 const origReadFile = tsSys.readFile.bind(tsSys);
+// Text-level fast path matching the tsc wrapper — covers derive macros
+// plus both sides of the declarative macro system (defining and consuming).
+function hasMacroMarkers(sourceText) {
+  if (!sourceText) return false;
+  if (sourceText.includes("@derive")) return true;
+  if (sourceText.includes("macroforge/rules")) return true;
+  if (sourceText.includes("import macro")) return true;
+  return false;
+}
 tsSys.readFile = (filePath, encoding) => {
   const content = origReadFile(filePath, encoding);
   if (content == null) return content;
@@ -128,7 +148,7 @@ tsSys.readFile = (filePath, encoding) => {
     if (
       (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) &&
       !filePath.endsWith(".d.ts") &&
-      content.includes("@derive")
+      hasMacroMarkers(content)
     ) {
       const result = plugin.processFile(filePath, content, expandOpts);
       return result.code || content;

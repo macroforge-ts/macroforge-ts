@@ -1,16 +1,23 @@
 //! Walk an OXC program, rewrite calls to registered declarative macros,
 //! and emit the patches that strip out the original macroRules definitions.
 
+use std::collections::HashSet;
+
 use oxc::ast::ast::{
     BindingPattern, Expression, ObjectPropertyKind, Program, Statement, VariableDeclarationKind,
 };
 use oxc::span::GetSpan;
 
 use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, PatchCode, SpanIR};
+use crate::ts_syn::declarative::{MacroArm, MacroDef, MacroMode};
 
-use super::discovery::{DiscoveredMacro, MACRO_RULES_IDENT};
-use super::expander::{ExpansionContext, expand_body};
-use super::matcher::{MatchError, match_invocation};
+use super::BuildMode;
+use super::discovery::{DiscoveredMacro, MACRO_RULES_IDENT, find_macro_rules_import_span};
+use super::expander::{ExpansionContext, expand_body_with_registry};
+use super::matcher::{MatchError, match_invocation_against_arms};
+use super::megamorph::{
+    self, MegamorphReport, Recommendation, ResolvedCallSite, extract_type_shape,
+};
 use super::registry::DeclarativeMacroRegistry;
 
 /// Collected output of the rewriter pass.
@@ -27,17 +34,91 @@ pub struct RewriteOutput {
 /// match them, expand them, and emit patches. Also emits `Patch::Delete`
 /// patches for every discovered macro's declaration span so the original
 /// `` const $name = macroRules`...` `` is stripped from the output.
+///
+/// `build_mode` controls reverse-monomorphization: in `Dev`, all modes
+/// behave like `ExpandOnly`; in `Prod`, `ShareOnly` / `ShareAnyway`
+/// emit a top-of-file runtime helper and each call site becomes a call
+/// to it. `Auto` in `Prod` is a stub for Phase 9c — it currently falls
+/// back to `ExpandOnly` behavior until the megamorphism analyzer lands.
 pub fn rewrite(
     program: &Program<'_>,
     source: &str,
     registry: &DeclarativeMacroRegistry,
     discovered: &[DiscoveredMacro],
+    build_mode: BuildMode,
+    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
 ) -> RewriteOutput {
     let mut out = RewriteOutput::default();
 
     // Strip each discovered macro's declaration.
     for dm in discovered {
         out.patches.push(Patch::Delete { span: dm.def_span });
+    }
+
+    // Strip the `import { macroRules } from "macroforge/rules"` statement
+    // too — after all declarations are deleted the import is dead code and
+    // `noUnusedLocals` would flag it. This only runs when the import is
+    // present; files that only consume macros via `/** import macro */`
+    // JSDoc (and never import `macroRules` as a value) are untouched.
+    if let Some(import_span) = find_macro_rules_import_span(program) {
+        out.patches.push(Patch::Delete { span: import_span });
+    }
+
+    // Phase 9c: if any `Auto`-mode macros are registered AND we're in
+    // prod, run the megamorphism analyzer over a first-pass walk of the
+    // program. The resulting report is consulted in `try_rewrite_call`
+    // to pick share vs. cluster vs. expand on a per-macro basis.
+    //
+    // Phase 14: when the project-wide type registry is available, pass
+    // it through so each recorded call site captures a structural
+    // fingerprint (sorted field names) for the Jaccard-similarity
+    // clusterer.
+    //
+    // In dev, or when no Auto macros are registered, we skip the first
+    // pass entirely — the second pass (the existing rewrite walk) does
+    // all the work in one go.
+    let has_auto = registry.iter().any(|(_, def)| def.mode == MacroMode::Auto);
+    let megamorph_report = if has_auto && build_mode == BuildMode::Prod {
+        let sites = collect_auto_call_sites(program, registry, type_registry);
+        Some(megamorph::analyze(registry, &sites, 4))
+    } else {
+        None
+    };
+
+    // Emit non-fatal diagnostics for any Auto macro the analyzer
+    // flagged as megamorphic.
+    if let Some(report) = &megamorph_report {
+        for (name, info) in &report.per_macro {
+            match &info.recommendation {
+                Recommendation::Cluster(clusters) => {
+                    out.diagnostics.push(Diagnostic {
+                        level: DiagnosticLevel::Warning,
+                        message: format!(
+                            "macro `${}` is called with {} distinct argument shapes; shared runtime would be megamorphic. Partitioned into {} clusters. Use `mode: \"share-anyway\"` to silence.",
+                            name,
+                            info.distinct_shapes,
+                            clusters.len()
+                        ),
+                        span: None,
+                        notes: vec![],
+                        help: None,
+                    });
+                }
+                Recommendation::ForceExpand => {
+                    out.diagnostics.push(Diagnostic {
+                        level: DiagnosticLevel::Warning,
+                        message: format!(
+                            "macro `${}` has {} distinct argument shapes, clustered too coarsely to share. Falling back to inline expansion at every call site.",
+                            name, info.distinct_shapes
+                        ),
+                        span: None,
+                        notes: vec![],
+                        help: None,
+                    });
+                }
+                Recommendation::Share => {}
+            }
+        }
     }
 
     // Walk statements looking for macro call sites. The expansion counter
@@ -48,11 +129,170 @@ pub fn rewrite(
         source,
         output: &mut out,
         counter: 0,
+        build_mode,
+        emitted_runtimes: HashSet::new(),
+        megamorph_report: megamorph_report.as_ref(),
     };
     for stmt in &program.body {
         walk_statement(stmt, &mut ctx);
     }
+
+    // Phase 13: second pass — type-position macros. Runs after the
+    // value-position walk because both contribute to the same patch
+    // list, and type-position patches need to land in the same order
+    // as value-position patches before the applicator sorts by span.
+    super::type_walker::walk_type_positions(program, source, registry, &mut out);
+
     out
+}
+
+/// First-pass walk for the megamorphism analyzer: collect a
+/// [`ResolvedCallSite`] for every call expression that resolves to an
+/// `Auto`-mode macro. No patches, no diagnostics — just recording.
+fn collect_auto_call_sites(
+    program: &Program<'_>,
+    registry: &DeclarativeMacroRegistry,
+    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+) -> Vec<ResolvedCallSite> {
+    let mut out: Vec<ResolvedCallSite> = Vec::new();
+    for stmt in &program.body {
+        collect_stmt(stmt, registry, type_registry, &mut out);
+    }
+    out
+}
+
+fn collect_stmt(
+    stmt: &Statement<'_>,
+    registry: &DeclarativeMacroRegistry,
+    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    out: &mut Vec<ResolvedCallSite>,
+) {
+    match stmt {
+        Statement::BlockStatement(block) => {
+            for s in &block.body {
+                collect_stmt(s, registry, type_registry, out);
+            }
+        }
+        Statement::ExpressionStatement(es) => {
+            collect_expr(&es.expression, registry, type_registry, out)
+        }
+        Statement::IfStatement(i) => {
+            collect_expr(&i.test, registry, type_registry, out);
+            collect_stmt(&i.consequent, registry, type_registry, out);
+            if let Some(alt) = &i.alternate {
+                collect_stmt(alt, registry, type_registry, out);
+            }
+        }
+        Statement::ReturnStatement(r) => {
+            if let Some(arg) = &r.argument {
+                collect_expr(arg, registry, type_registry, out);
+            }
+        }
+        Statement::VariableDeclaration(v) => {
+            if is_macro_definition_declaration(v) {
+                return;
+            }
+            for decl in &v.declarations {
+                if let Some(init) = &decl.init {
+                    collect_expr(init, registry, type_registry, out);
+                }
+            }
+        }
+        Statement::ExportNamedDeclaration(export) => {
+            if let Some(decl) = &export.declaration
+                && let oxc::ast::ast::Declaration::VariableDeclaration(v) = decl
+            {
+                if is_macro_definition_declaration(v) {
+                    return;
+                }
+                for d in &v.declarations {
+                    if let Some(init) = &d.init {
+                        collect_expr(init, registry, type_registry, out);
+                    }
+                }
+            }
+        }
+        Statement::ExportDefaultDeclaration(export) => {
+            if let Some(expr) = export.declaration.as_expression() {
+                collect_expr(expr, registry, type_registry, out);
+            }
+        }
+        Statement::ForStatement(f) => {
+            collect_stmt(&f.body, registry, type_registry, out);
+        }
+        Statement::WhileStatement(w) => collect_stmt(&w.body, registry, type_registry, out),
+        Statement::FunctionDeclaration(f) => {
+            if let Some(body) = &f.body {
+                for s in &body.statements {
+                    collect_stmt(s, registry, type_registry, out);
+                }
+            }
+        }
+        _ => {}
+    }
+}
+
+fn collect_expr(
+    expr: &Expression<'_>,
+    registry: &DeclarativeMacroRegistry,
+    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    out: &mut Vec<ResolvedCallSite>,
+) {
+    if let Expression::CallExpression(call) = expr
+        && let Expression::Identifier(callee) = &call.callee
+        && let Some(name) = callee.name.as_str().strip_prefix('$')
+        && let Some(def) = registry.lookup(name)
+        && def.mode == MacroMode::Auto
+    {
+        // Record the site. For multi-arg macros we use the first arg's
+        // shape as the representative; a more precise analyzer would
+        // combine shapes across args.
+        let shape = if let Some(arg) = call.arguments.first() {
+            extract_type_shape(arg, type_registry)
+        } else {
+            super::megamorph::TypeShape::Opaque
+        };
+        out.push(ResolvedCallSite {
+            macro_name: name.to_string(),
+            call_span: SpanIR::new(call.span.start + 1, call.span.end + 1),
+            arg_shape: shape,
+        });
+    }
+    // Recurse into sub-expressions so we catch nested calls.
+    match expr {
+        Expression::CallExpression(call) => {
+            collect_expr(&call.callee, registry, type_registry, out);
+            for arg in &call.arguments {
+                if let Some(e) = arg.as_expression() {
+                    collect_expr(e, registry, type_registry, out);
+                }
+            }
+        }
+        Expression::BinaryExpression(b) => {
+            collect_expr(&b.left, registry, type_registry, out);
+            collect_expr(&b.right, registry, type_registry, out);
+        }
+        Expression::LogicalExpression(b) => {
+            collect_expr(&b.left, registry, type_registry, out);
+            collect_expr(&b.right, registry, type_registry, out);
+        }
+        Expression::ConditionalExpression(c) => {
+            collect_expr(&c.test, registry, type_registry, out);
+            collect_expr(&c.consequent, registry, type_registry, out);
+            collect_expr(&c.alternate, registry, type_registry, out);
+        }
+        Expression::ArrayExpression(arr) => {
+            for elem in &arr.elements {
+                if let Some(e) = elem.as_expression() {
+                    collect_expr(e, registry, type_registry, out);
+                }
+            }
+        }
+        Expression::ParenthesizedExpression(p) => {
+            collect_expr(&p.expression, registry, type_registry, out)
+        }
+        _ => {}
+    }
 }
 
 struct WalkCtx<'a> {
@@ -60,6 +300,15 @@ struct WalkCtx<'a> {
     source: &'a str,
     output: &'a mut RewriteOutput,
     counter: u32,
+    build_mode: BuildMode,
+    /// Set of macro names whose shared runtime has already been emitted
+    /// in this file. Used by `ShareOnly` / `ShareAnyway` / `Auto` to
+    /// deduplicate the top-of-file `Patch::Insert` for the helper.
+    emitted_runtimes: HashSet<String>,
+    /// Optional megamorphism report from the first-pass walk. Populated
+    /// only when at least one `Auto`-mode macro is registered and we're
+    /// building for prod — see [`rewrite`].
+    megamorph_report: Option<&'a MegamorphReport>,
 }
 
 impl WalkCtx<'_> {
@@ -190,10 +439,46 @@ fn walk_statement(stmt: &Statement<'_>, ctx: &mut WalkCtx<'_>) {
                 }
             }
         }
-        // Import, export, interface, type-alias, enum, class declarations don't
+        Statement::ExportNamedDeclaration(export) => {
+            // `export const x = $macro(...)` wraps the variable declaration
+            // in an ExportNamedDeclaration; recurse into the inner decl so
+            // the call site gets rewritten.
+            if let Some(declaration) = &export.declaration {
+                match declaration {
+                    oxc::ast::ast::Declaration::VariableDeclaration(v) => {
+                        // Re-use the same skip for declarative macro defs
+                        // in case someone writes `export const $name = macroRules\`...\``.
+                        if is_macro_definition_declaration(v) {
+                            return;
+                        }
+                        for decl in &v.declarations {
+                            if let Some(init) = &decl.init {
+                                walk_expression(init, ctx, ExpansionContext::Expression);
+                            }
+                        }
+                    }
+                    oxc::ast::ast::Declaration::FunctionDeclaration(f) => {
+                        if let Some(body) = &f.body {
+                            for s in &body.statements {
+                                walk_statement(s, ctx);
+                            }
+                        }
+                    }
+                    // Class/type/interface/enum exports don't contain
+                    // value-position macro calls at the outer level.
+                    _ => {}
+                }
+            }
+        }
+        Statement::ExportDefaultDeclaration(export) => {
+            // `export default $macro(...)` — the declaration is the
+            // expression itself.
+            if let Some(expr) = export.declaration.as_expression() {
+                walk_expression(expr, ctx, ExpansionContext::Expression);
+            }
+        }
+        // Import, interface, type-alias, enum, class declarations don't
         // contain value-position macro calls at the outer level in typical code.
-        // We skip them for MVP; if users need macros in those positions we can
-        // extend the walker.
         _ => {}
     }
 }
@@ -337,6 +622,61 @@ fn walk_expression(expr: &Expression<'_>, ctx: &mut WalkCtx<'_>, context: Expans
     }
 }
 
+/// Decide which arms (`arms` vs `call_arms`) the rewriter should expand
+/// for a given macro, based on its mode and the current build mode.
+///
+/// Returns `(arms_to_use, should_emit_runtime)`. `should_emit_runtime` is
+/// `true` when the rewriter should also emit the shared runtime helper
+/// once per file on the first call site.
+fn resolve_emission_strategy<'a>(
+    def: &'a MacroDef,
+    build_mode: BuildMode,
+    report: Option<&MegamorphReport>,
+) -> (&'a [MacroArm], bool) {
+    match def.mode {
+        MacroMode::ExpandOnly => (def.arms.as_slice(), false),
+        MacroMode::ShareOnly | MacroMode::ShareAnyway => {
+            // Always share regardless of build mode. Fall back to
+            // expand if `call_arms`/`runtime` are missing — validation in
+            // discovery prevents that, but we stay defensive.
+            if let Some(call_arms) = def.call_arms.as_deref() {
+                (call_arms, def.runtime.is_some())
+            } else {
+                (def.arms.as_slice(), false)
+            }
+        }
+        MacroMode::Auto => match build_mode {
+            // Dev: always expand inline so the type checker sees real
+            // per-call code, not opaque calls to a helper.
+            BuildMode::Dev => (def.arms.as_slice(), false),
+            // Prod: consult the megamorphism report.
+            //   Share       → emit the shared runtime + call_arms
+            //   Cluster     → emit shared runtime + call_arms (cluster
+            //                  partitioning is a follow-up; for now
+            //                  we emit ONE runtime and let V8 handle it,
+            //                  with the warning already logged to the
+            //                  user so they know it's not ideal)
+            //   ForceExpand → inline expand at every call site
+            //   (no report  → fall back to sharing, matching Phase 9b)
+            BuildMode::Prod => {
+                let decision = report
+                    .and_then(|r| r.lookup(&def.name))
+                    .map(|info| info.recommendation.clone());
+                match decision {
+                    Some(Recommendation::Share) | Some(Recommendation::Cluster(_)) | None => {
+                        if let Some(call_arms) = def.call_arms.as_deref() {
+                            (call_arms, def.runtime.is_some())
+                        } else {
+                            (def.arms.as_slice(), false)
+                        }
+                    }
+                    Some(Recommendation::ForceExpand) => (def.arms.as_slice(), false),
+                }
+            }
+        },
+    }
+}
+
 /// If `call` is a `$name(...)` invocation of a registered macro, emit a
 /// `Patch::Replace` for the call site and return `true`. Returns `false`
 /// if the callee isn't a registered macro; the caller will then descend
@@ -359,11 +699,38 @@ fn try_rewrite_call(
     };
     let def = def_arc.as_ref();
 
-    // Match call args against arms.
-    match match_invocation(def, &call.arguments, ctx.source) {
-        Ok(result) => {
-            let arm = &def.arms[result.arm_index];
-            match expand_body(&arm.body, &result.bindings, ctx.next_id(), context) {
+    // Pick which arms to expand based on the macro's mode, the current
+    // build mode, and (for Auto in Prod) the megamorphism report. May
+    // also signal that we should emit the shared runtime helper once
+    // per file.
+    let (arms, should_emit_runtime) =
+        resolve_emission_strategy(def, ctx.build_mode, ctx.megamorph_report);
+
+    // First call site of a sharing-mode macro → emit the runtime helper.
+    if should_emit_runtime
+        && !ctx.emitted_runtimes.contains(name)
+        && let Some(runtime_src) = def.runtime.as_deref()
+    {
+        ctx.output.patches.push(Patch::Insert {
+            at: SpanIR::new(1, 1),
+            code: PatchCode::Text(format!("{}\n", runtime_src.trim())),
+            source_macro: Some(format!("${}", name)),
+        });
+        ctx.emitted_runtimes.insert(name.to_string());
+    }
+
+    // Match call args against the selected arm set.
+    match match_invocation_against_arms(arms, &call.arguments, ctx.source) {
+        Ok((arm_index, bindings)) => {
+            let arm = &arms[arm_index];
+            match expand_body_with_registry(
+                &arm.body,
+                &bindings,
+                ctx.next_id(),
+                context,
+                0,
+                Some(ctx.registry),
+            ) {
                 Ok(expanded) => {
                     let span = call.span;
                     let span_ir = SpanIR::new(span.start + 1, span.end + 1);

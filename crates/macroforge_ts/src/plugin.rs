@@ -73,6 +73,8 @@ pub(crate) fn option_expand_options(opts: Option<ProcessFileOptions>) -> Option<
         external_decorator_modules: o.external_decorator_modules,
         config_path: o.config_path,
         type_registry_json: o.type_registry_json,
+        declarative_registry_json: o.declarative_registry_json,
+        build_mode: o.build_mode,
     })
 }
 

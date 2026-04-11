@@ -29,6 +29,32 @@ pub trait MacroforgeApi {
     ) -> Result<ScanResult, Self::Error>;
 }
 
+// ---------------------------------------------------------------------------
+// Singleton scanner (Phase 17)
+// ---------------------------------------------------------------------------
+//
+// The Vite plugin and long-lived hosts want to reuse a single scanner
+// across calls so the per-file scan cache persists between HMR events.
+// We keep a process-global `Mutex<Option<CachedScanner>>` keyed on the
+// `root_dir`; on `scan_project_sync` we consult it, reusing the
+// existing scanner when the root matches and rebuilding from scratch
+// otherwise. Native-only — WASM has no filesystem access.
+
+#[cfg(not(target_arch = "wasm32"))]
+struct CachedScanner {
+    root_dir: std::path::PathBuf,
+    scanner: crate::host::scanner::ProjectScanner,
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+static SINGLETON_SCANNER: std::sync::OnceLock<std::sync::Mutex<Option<CachedScanner>>> =
+    std::sync::OnceLock::new();
+
+#[cfg(not(target_arch = "wasm32"))]
+fn singleton() -> &'static std::sync::Mutex<Option<CachedScanner>> {
+    SINGLETON_SCANNER.get_or_init(|| std::sync::Mutex::new(None))
+}
+
 pub struct CoreEngine;
 
 impl CoreEngine {
@@ -274,6 +300,46 @@ impl CoreEngine {
         }
     }
 
+    /// Invalidate a single file in the singleton scan cache. Called
+    /// by the Vite plugin's `handleHotUpdate` hook so the next
+    /// [`Self::scan_project_sync`] re-parses the changed file instead
+    /// of serving stale IR. Returns `true` when an entry was actually
+    /// dropped, `false` when the cache was empty or the path wasn't
+    /// cached. No-op on WASM.
+    pub fn invalidate_scan_cache_entry(path: &str) -> bool {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let guard = singleton().lock().ok();
+            if let Some(guard) = guard
+                && let Some(cs) = guard.as_ref()
+            {
+                return cs
+                    .scanner
+                    .invalidate_cache_entry(std::path::Path::new(path));
+            }
+            false
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            let _ = path;
+            false
+        }
+    }
+
+    /// Clear the entire singleton scan cache. Called when
+    /// `macroforge.config.ts` or `tsconfig.json` changes — anything
+    /// that could invalidate previously-lowered IR.
+    pub fn clear_scan_cache() {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            if let Ok(guard) = singleton().lock()
+                && let Some(cs) = guard.as_ref()
+            {
+                cs.scanner.clear_cache();
+            }
+        }
+    }
+
     pub fn scan_project_sync(
         root_dir: String,
         options: Option<ScanOptions>,
@@ -315,14 +381,48 @@ impl CoreEngine {
             }
         }
 
-        let scanner = ProjectScanner::new(config);
-        let output = scanner
-            .scan()
-            .map_err(|e| format!("Project scan failed: {}", e))?;
+        // Phase 17: reuse the singleton scanner when the root matches
+        // so the per-file cache carries over between scans. On a root
+        // mismatch we drop the old scanner and start fresh.
+        #[cfg(not(target_arch = "wasm32"))]
+        let output = {
+            let root_path = config.root_dir.clone();
+            let mut guard = singleton()
+                .lock()
+                .map_err(|_| "singleton scanner mutex poisoned".to_string())?;
+            let needs_rebuild = match guard.as_ref() {
+                Some(cs) => cs.root_dir != root_path,
+                None => true,
+            };
+            if needs_rebuild {
+                let mut scanner = ProjectScanner::new(config);
+                scanner.enable_cache();
+                *guard = Some(CachedScanner {
+                    root_dir: root_path,
+                    scanner,
+                });
+            }
+            let cs = guard.as_ref().unwrap();
+            cs.scanner
+                .scan()
+                .map_err(|e| format!("Project scan failed: {}", e))?
+        };
+        #[cfg(target_arch = "wasm32")]
+        let output = {
+            let scanner = ProjectScanner::new(config);
+            scanner
+                .scan()
+                .map_err(|e| format!("Project scan failed: {}", e))?
+        };
 
         let types_found = output.registry.len() as u32;
+        let declarative_macros_found = output.declarative_registry.macro_count() as u32;
         let registry_json = serde_json::to_string(&output.registry)
             .map_err(|e| format!("Failed to serialize registry: {}", e))?;
+        let declarative_registry_json = output
+            .declarative_registry
+            .to_json()
+            .map_err(|e| format!("Failed to serialize declarative registry: {}", e))?;
 
         let diagnostics = output
             .warnings
@@ -337,8 +437,10 @@ impl CoreEngine {
 
         Ok(ScanResult {
             registry_json,
+            declarative_registry_json,
             files_scanned: output.files_scanned,
             types_found,
+            declarative_macros_found,
             diagnostics,
         })
     }

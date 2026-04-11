@@ -8,7 +8,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::wrappers::{TYPE_REGISTRY_CACHE_PATH, ensure_type_registry_cache};
+use crate::wrappers::{
+    DECLARATIVE_REGISTRY_CACHE_PATH, TYPE_REGISTRY_CACHE_PATH, ensure_type_registry_cache,
+};
 
 /// Cache manifest stored at `.macroforge/cache/manifest.json`.
 ///
@@ -296,10 +298,15 @@ pub(crate) fn collect_watch_files(root: &Path) -> Vec<PathBuf> {
 /// stripping `/**`, `*/`, `*`, and whitespace). Skips `@derive` embedded in prose
 /// (e.g., `"result from @derive(Deserialize)"`) and inside fenced code blocks.
 pub(crate) fn has_macro_annotations(source: &str) -> bool {
-    // Declarative macros (`const $name = macro\`...\``) opt in via an import
-    // from `"macroforge/rules"`. If that import is present we must run the
-    // full expand pipeline so the declarative pre-pass can fire.
+    // Declarative macros:
+    //   - defining files import `macroRules` from `"macroforge/rules"`
+    //   - consuming files use a `/** import macro { $name } from "..." */`
+    //     JSDoc comment
+    // Either signal means the pre-pass must run.
     if source.contains("macroforge/rules") {
+        return true;
+    }
+    if source.contains("import macro") {
         return true;
     }
     if !source.contains("@derive") {
@@ -355,6 +362,17 @@ pub(crate) fn expand_for_cache(path: &Path, source: &str) -> Result<Option<Strin
         >(&json)
     {
         expander.set_type_registry(Some(registry));
+    }
+
+    // Also load the declarative macro registry so cross-file
+    // `/** import macro { $foo } from "./bar" */` comments resolve.
+    let declarative_registry_path = DECLARATIVE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
+    if let Some(ref dp) = declarative_registry_path
+        && let Ok(json) = fs::read_to_string(dp)
+        && let Ok(registry) =
+            macroforge_ts::host::declarative::ProjectDeclarativeRegistry::from_json(&json)
+    {
+        expander.set_declarative_registry(Some(registry));
     }
 
     let expansion = expander

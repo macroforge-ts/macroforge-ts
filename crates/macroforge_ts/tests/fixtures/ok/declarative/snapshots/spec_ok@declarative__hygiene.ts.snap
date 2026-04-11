@@ -18,10 +18,6 @@ const result = $withTemp(10);
 
 ## Output
 
-import { macroRules } from "macroforge/rules";
-
-
-
 const result = (() => {
     const __v$1 = 10;
     __v$1 + 1

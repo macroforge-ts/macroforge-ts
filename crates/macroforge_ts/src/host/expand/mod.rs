@@ -193,6 +193,14 @@ pub struct MacroExpander {
     /// Project-wide type registry for compile-time type awareness.
     /// When set, macros receive type information about all types in the project.
     type_registry: Option<crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    /// Project-wide declarative macro registry for cross-file
+    /// `/** import macro */` resolution. Built during the same project
+    /// scan as `type_registry`.
+    declarative_registry: Option<crate::host::declarative::ProjectDeclarativeRegistry>,
+    /// Build mode for reverse-monomorphization. Defaults to `Dev`.
+    /// Controls whether `ShareOnly` / `ShareAnyway` / `Auto` macros
+    /// emit their shared runtime form or inline expand form.
+    build_mode: crate::host::declarative::BuildMode,
 }
 
 type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
@@ -301,6 +309,8 @@ impl MacroExpander {
             external_decorator_modules: Vec::new(),
             external_loader: Some(ExternalMacroLoader::new(root_dir)),
             type_registry: None,
+            declarative_registry: None,
+            build_mode: crate::host::declarative::BuildMode::Dev,
         })
     }
 
@@ -326,6 +336,23 @@ impl MacroExpander {
         registry: Option<crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
     ) {
         self.type_registry = registry;
+    }
+
+    /// Set the project-wide declarative macro registry.
+    ///
+    /// When set, the declarative pre-pass resolves `/** import macro */`
+    /// comments against this registry so definitions in other files are
+    /// visible at each call site.
+    pub fn set_declarative_registry(
+        &mut self,
+        registry: Option<crate::host::declarative::ProjectDeclarativeRegistry>,
+    ) {
+        self.declarative_registry = registry;
+    }
+
+    /// Set the reverse-monomorphization build mode.
+    pub fn set_build_mode(&mut self, mode: crate::host::declarative::BuildMode) {
+        self.build_mode = mode;
     }
 
     /// Build the complete set of valid annotation names for lowering.
@@ -359,18 +386,22 @@ impl MacroExpander {
 
     /// Run the declarative macro pre-pass on an OXC-parsed program.
     ///
-    /// Discovers `const $name = macro\`...\`` definitions, matches
-    /// `$name(...)` call sites against their arms, and returns a rewritten
-    /// source string plus any diagnostics.
+    /// Discovers `const $name = macroRules\`...\`` definitions in the
+    /// current file, resolves cross-file `/** import macro */` comments
+    /// against the project-wide declarative registry (if provided), and
+    /// matches `$name(...)` call sites against the merged set of arms.
     ///
-    /// Returns `Ok((None, diagnostics))` if the file has no declarative
-    /// macros, which is the common-case fast path. Otherwise returns
-    /// `Ok((Some(new_source), diagnostics))` with the rewritten source.
+    /// Returns `Ok((None, diagnostics))` if no declarative work fires in
+    /// this file (fast path). Otherwise returns `Ok((Some(new_source),
+    /// diagnostics))` with the rewritten source.
     #[cfg(all(not(feature = "swc"), feature = "oxc"))]
     fn declarative_prepass_oxc(
         &self,
         source: &str,
+        file_name: &str,
     ) -> Result<(Option<String>, Vec<crate::ts_syn::abi::Diagnostic>)> {
+        use std::path::PathBuf;
+
         use oxc::allocator::Allocator;
         use oxc::parser::Parser;
         use oxc::span::SourceType;
@@ -388,8 +419,23 @@ impl MacroExpander {
 
         let discovered = crate::host::declarative::discover(&parsed.program, source)
             .map_err(|e| MacroError::InvalidConfig(format!("Declarative macro error: {}", e)))?;
-        if discovered.is_empty() {
-            return Ok((None, Vec::new()));
+
+        // Resolve cross-file `/** import macro { $name } from "..." */`
+        // comments against the project-wide registry if one was installed.
+        let file_path = PathBuf::from(file_name);
+        let resolved_imports = if let Some(project_registry) = &self.declarative_registry {
+            crate::host::declarative::resolve_cross_file_imports(
+                source,
+                &file_path,
+                project_registry,
+            )
+        } else {
+            crate::host::declarative::ResolvedImports::default()
+        };
+
+        // Fast path: nothing declarative in this file.
+        if discovered.is_empty() && resolved_imports.imported.is_empty() {
+            return Ok((None, resolved_imports.diagnostics));
         }
 
         let mut registry = crate::host::declarative::DeclarativeMacroRegistry::new();
@@ -398,17 +444,36 @@ impl MacroExpander {
                 MacroError::InvalidConfig(format!("Declarative macro error: {}", e))
             })?;
         }
-        let output =
-            crate::host::declarative::rewrite(&parsed.program, source, &registry, &discovered);
+        for imported in &resolved_imports.imported {
+            registry.register(imported.def.clone()).map_err(|e| {
+                MacroError::InvalidConfig(format!(
+                    "Declarative macro error (imported from {}): {}",
+                    imported.source_file.display(),
+                    e
+                ))
+            })?;
+        }
+
+        let output = crate::host::declarative::rewrite(
+            &parsed.program,
+            source,
+            &registry,
+            &discovered,
+            self.build_mode,
+            self.type_registry.as_ref(),
+        );
+
+        let mut diagnostics = resolved_imports.diagnostics;
+        diagnostics.extend(output.diagnostics);
 
         if output.patches.is_empty() {
-            return Ok((None, output.diagnostics));
+            return Ok((None, diagnostics));
         }
 
         let applicator =
             crate::host::patch_applicator::PatchApplicator::new(source, output.patches);
         let new_source = applicator.apply()?;
-        Ok((Some(new_source), output.diagnostics))
+        Ok((Some(new_source), diagnostics))
     }
 
     /// Expand all macros in the source code (simple API for CLI usage)
@@ -429,7 +494,7 @@ impl MacroExpander {
         // Files without declarative macros take the fast path: discovery
         // checks for the `macroforge/rules` import and returns empty after
         // a brief AST scan.
-        let (rewritten, decl_diagnostics) = self.declarative_prepass_oxc(source)?;
+        let (rewritten, decl_diagnostics) = self.declarative_prepass_oxc(source, file_name)?;
         let owned_source = rewritten;
         let source: &str = owned_source.as_deref().unwrap_or(source);
         let changed_by_decl = owned_source.is_some();

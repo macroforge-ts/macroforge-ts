@@ -1215,4 +1215,135 @@ mod import_for_tests {
 
         context_registry::clear_context();
     }
+
+    /// Regression test for a dealdraft bug. When the Gigaform `@enumFieldsetController`
+    /// pipeline pre-registers a cross-file variant's source module via
+    /// `install_source_imports`, that pre-registration permanently shadows any
+    /// later `add_type_import` for the same name — `request_import` skips
+    /// because `source_imports.contains_key(local_name)` is true. The downstream
+    /// effect: the bare variant type (e.g. `LinkedUser`, `CustomerReferral`) is
+    /// referenced in the generated code but never imported.
+    ///
+    /// The bug fix removed the harmful pre-registration call. This test pins
+    /// the *root cause* — that pre-registering a variant in `source_imports`
+    /// causes the bare type import for the same name to be silently dropped
+    /// — so a future "smart caching" change can't accidentally re-introduce
+    /// the same misuse.
+    #[test]
+    fn add_helpers_for_emits_bare_variant_type_import() {
+        reset_thread_locals();
+        let ctx = make_ctx_with_registry(
+            "/proj/src/employee.svelte.ts",
+            "LinkedUser",
+            "/proj/src/linked-user.svelte.ts",
+        );
+        context_registry::install_context(ctx);
+
+        // Simulate the buggy pre-registration: pretend something put
+        // `LinkedUser` into `source_imports` before the helper batch ran.
+        crate::import_registry::with_registry_mut(|r| {
+            r.install_source_imports(vec![crate::import_registry::SourceImportEntry {
+                local_name: "LinkedUser".to_string(),
+                source_module: "./linked-user.svelte".to_string(),
+                original_name: None,
+                is_type_only: true,
+            }]);
+        });
+
+        let mut stream = TsStream::from_string(String::new());
+        let added = stream.add_helpers_for(
+            "LinkedUser",
+            &[
+                ("LinkedUserFieldControllers", true),
+                ("LinkedUser", true),
+                ("linkedUserGetControllers", false),
+                ("linkedUserDefaultErrors", false),
+                ("linkedUserDefaultTainted", false),
+                ("linkedUserDefaultValue", false),
+                ("linkedUserIs", false),
+            ],
+        );
+        assert!(added, "add_helpers_for should have resolved LinkedUser");
+
+        let result = stream.into_result();
+
+        // The derived `FieldControllers` helper should be present.
+        let field_controllers = result
+            .imports
+            .iter()
+            .find(|i| i.local_name == "LinkedUserFieldControllers")
+            .expect("LinkedUserFieldControllers type import missing");
+        assert_eq!(field_controllers.source_module, "./linked-user.svelte");
+        assert!(field_controllers.is_type_only);
+
+        // The dedup correctly skips re-emitting `LinkedUser` because it's
+        // already in `source_imports`. This is the *intended* behavior for
+        // request_import — the bug was using `install_source_imports` to
+        // shortcut module resolution for variants. Document the dedup
+        // behavior here so a future regression in either direction is caught.
+        let bare = result.imports.iter().find(|i| i.local_name == "LinkedUser");
+        assert!(
+            bare.is_none(),
+            "bare LinkedUser should be dedup'd against source_imports — \
+             callers must NOT pre-register variant types in source_imports \
+             if they also want a generated `import type {{ LinkedUser }}` line"
+        );
+
+        // All five value helpers should still be present (they have distinct
+        // local names that aren't dedup'd against the source-imports entry).
+        for name in [
+            "linkedUserGetControllers",
+            "linkedUserDefaultErrors",
+            "linkedUserDefaultTainted",
+            "linkedUserDefaultValue",
+            "linkedUserIs",
+        ] {
+            let entry = result
+                .imports
+                .iter()
+                .find(|i| i.local_name == name)
+                .unwrap_or_else(|| panic!("{name} value import missing"));
+            assert_eq!(entry.source_module, "./linked-user.svelte");
+            assert!(!entry.is_type_only);
+        }
+
+        context_registry::clear_context();
+    }
+
+    /// Companion to `add_helpers_for_emits_bare_variant_type_import`: shows
+    /// that without the buggy pre-registration, the bare type import is
+    /// emitted normally. This is the post-fix behavior the dealdraft
+    /// `lead_source_transitive` fixture relies on.
+    #[test]
+    fn add_helpers_for_emits_bare_type_when_source_imports_clean() {
+        reset_thread_locals();
+        let ctx = make_ctx_with_registry(
+            "/proj/src/entry.svelte.ts",
+            "CustomerReferral",
+            "/proj/src/customer-referral.svelte.ts",
+        );
+        context_registry::install_context(ctx);
+
+        let mut stream = TsStream::from_string(String::new());
+        let added = stream.add_helpers_for(
+            "CustomerReferral",
+            &[
+                ("CustomerReferralFieldControllers", true),
+                ("CustomerReferral", true),
+                ("customerReferralIs", false),
+            ],
+        );
+        assert!(added);
+
+        let result = stream.into_result();
+        let bare = result
+            .imports
+            .iter()
+            .find(|i| i.local_name == "CustomerReferral")
+            .expect("bare CustomerReferral type import missing");
+        assert_eq!(bare.source_module, "./customer-referral.svelte");
+        assert!(bare.is_type_only);
+
+        context_registry::clear_context();
+    }
 }

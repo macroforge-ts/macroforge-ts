@@ -58,3 +58,20 @@ pub fn scan_project_sync(root_dir: String, options: Option<ScanOptions>) -> Resu
     CoreEngine::scan_project_sync(root_dir, options)
         .map_err(|e| Error::new(Status::GenericFailure, e))
 }
+
+/// Phase 17 — drop a single file from the singleton scan cache.
+/// Called by the Vite plugin's HMR hook when a file changes on disk.
+/// The next `scanProjectSync` call will re-parse the invalidated file
+/// and serve fresh IR to the rest of the pipeline.
+#[napi]
+pub fn invalidate_scan_cache_entry(path: String) -> bool {
+    CoreEngine::invalidate_scan_cache_entry(&path)
+}
+
+/// Phase 17 — drop the entire scan cache. Called when config files
+/// (`macroforge.config.ts`, `tsconfig.json`) change, since lowered IR
+/// can depend on config-driven options.
+#[napi]
+pub fn clear_scan_cache() {
+    CoreEngine::clear_scan_cache();
+}
