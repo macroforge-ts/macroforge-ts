@@ -363,20 +363,21 @@ fn expand_value_macro_call(
             reason: "wrapper did not produce a call expression".to_string(),
         });
     };
-    let (arm_index, callee_bindings) =
-        match_invocation_against_arms(&callee_def.arms, &call.arguments, &wrapper_source)
-            .map_err(|e| match e {
-                super::matcher::MatchError::NoArmMatched { tried } => {
-                    ExpandError::NestedMatchFailure {
-                        callee: callee_name.to_string(),
-                        tried,
-                    }
-                }
-                other => ExpandError::MalformedMacroCallArgs {
-                    callee: callee_name.to_string(),
-                    reason: other.to_string(),
-                },
-            })?;
+    let (arm_index, callee_bindings) = match_invocation_against_arms(
+        &callee_def.arms,
+        &call.arguments,
+        &wrapper_source,
+    )
+    .map_err(|e| match e {
+        super::matcher::MatchError::NoArmMatched { tried } => ExpandError::NestedMatchFailure {
+            callee: callee_name.to_string(),
+            tried,
+        },
+        other => ExpandError::MalformedMacroCallArgs {
+            callee: callee_name.to_string(),
+            reason: other.to_string(),
+        },
+    })?;
     expand_body_with_registry(
         &callee_def.arms[arm_index].body,
         &callee_bindings,
