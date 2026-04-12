@@ -25,6 +25,8 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/concepts');
         case '/docs/concepts/derive-system':
             return resolve('/docs/concepts/derive-system');
+        case '/docs/concepts/declarative-macros':
+            return resolve('/docs/concepts/declarative-macros');
         case '/docs/concepts/architecture':
             return resolve('/docs/concepts/architecture');
 
@@ -124,6 +126,7 @@ export const navigation: NavSection[] = [
         items: [
             { title: 'How Macros Work', href: '/docs/concepts' },
             { title: 'The Derive System', href: '/docs/concepts/derive-system' },
+            { title: 'Declarative Macros', href: '/docs/concepts/declarative-macros' },
             { title: 'Architecture', href: '/docs/concepts/architecture' }
         ]
     },
