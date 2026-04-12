@@ -1,5 +1,5 @@
 /** @derive(Default) */
 export type UnionWithVariantDefault =
-  | /** @default */ VariantA
-  | VariantB
-  | VariantC;
+    | /** @default */ VariantA
+    | VariantB
+    | VariantC;

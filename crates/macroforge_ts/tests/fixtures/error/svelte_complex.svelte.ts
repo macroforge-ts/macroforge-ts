@@ -6,7 +6,7 @@ interface Props {
 let { items, selected = '' }: Props = $props();
 
 let filteredItems = $derived(
-    items.filter(item => item.includes(selected))
+    items.filter((item) => item.includes(selected))
 );
 
 let count = $state(0);

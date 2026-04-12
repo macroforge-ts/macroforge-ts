@@ -1,4 +1,4 @@
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Debug, Clone, PartialEq, Hash) */
 class Product {

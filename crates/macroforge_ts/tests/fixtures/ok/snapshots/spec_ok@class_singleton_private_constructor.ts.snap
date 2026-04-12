@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_singleton_private_constructor.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Debug) */
 class Singleton {
@@ -29,7 +30,7 @@ class Singleton {
 
 ## Output
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Singleton {
@@ -63,7 +64,7 @@ export function singletonToString(value: Singleton): string {
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Singleton {

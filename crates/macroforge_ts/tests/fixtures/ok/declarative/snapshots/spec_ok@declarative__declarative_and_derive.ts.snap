@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/declarative/declarative_and_derive.ts
 ---
 ## Input
 
-import { macroRules } from "macroforge/rules";
+import { macroRules } from 'macroforge/rules';
 
 const $identity = macroRules`
   ($x:Expr) => $x
@@ -16,7 +17,7 @@ class User {
     name: string;
 }
 
-const greeting = $identity("hello");
+const greeting = $identity('hello');
 
 ## Output
 
@@ -34,7 +35,7 @@ export function userToString(value: User): string {
                         return "User { " + parts.join(", ") + " }";
                     }
 
-const greeting = "hello";
+const greeting = 'hello';
 
 ## DTS
 
@@ -52,7 +53,7 @@ export function userToString(value: User): string {
                         return "User { " + parts.join(", ") + " }";
                     }
 
-const greeting = "hello";
+const greeting = 'hello';
 
 ## Diagnostics
 

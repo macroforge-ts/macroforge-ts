@@ -1,4 +1,4 @@
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Debug) */
 class API {
@@ -16,7 +16,7 @@ class API {
     }
 
     subscribe(
-        event: "data" | "error",
+        event: 'data' | 'error',
         callback: (data: any) => void,
         thisArg?: any
     ): () => void {

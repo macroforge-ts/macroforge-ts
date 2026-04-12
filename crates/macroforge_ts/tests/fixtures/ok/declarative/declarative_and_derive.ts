@@ -1,4 +1,4 @@
-import { macroRules } from "macroforge/rules";
+import { macroRules } from 'macroforge/rules';
 
 const $identity = macroRules`
   ($x:Expr) => $x
@@ -9,4 +9,4 @@ class User {
     name: string;
 }
 
-const greeting = $identity("hello");
+const greeting = $identity('hello');

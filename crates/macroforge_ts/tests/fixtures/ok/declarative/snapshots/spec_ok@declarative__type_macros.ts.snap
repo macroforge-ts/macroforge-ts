@@ -1,31 +1,32 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/declarative/type_macros.ts
 ---
 ## Input
 
-import { macroRules } from "macroforge/rules";
+import { macroRules } from 'macroforge/rules';
 
 // Type-position macro: wrap a type in a readonly mapped type.
 const $ReadOnly = macroRules({
-  kind: "type",
-  expand: macroRules`
+    kind: 'type',
+    expand: macroRules`
     ($t:Type) => { readonly [K in keyof $t]: $t[K] }
-  `,
+  `
 });
 
 // Type-position macro with repetition: build a tuple of types.
 const $Tuple = macroRules({
-  kind: "type",
-  expand: macroRules`
+    kind: 'type',
+    expand: macroRules`
     ($($t:Type),+) => [$($t),+]
-  `,
+  `
 });
 
 interface User {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 }
 
 type StrictUser = $ReadOnly<User>;
@@ -41,8 +42,8 @@ type Triple = $Tuple<string, number, boolean>;
 
 
 interface User {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 }
 
 type StrictUser = { readonly [K in keyof User]: User[K] };

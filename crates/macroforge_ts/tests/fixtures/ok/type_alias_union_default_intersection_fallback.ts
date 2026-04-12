@@ -1,7 +1,11 @@
-interface ActiveData { since: string }
-interface InactiveData { reason: string }
+interface ActiveData {
+    since: string;
+}
+interface InactiveData {
+    reason: string;
+}
 
 /** @derive(Default) */
 export type Status =
-  | ({ kind: 'Active' } & ActiveData)
-  | ({ kind: 'Inactive' } & InactiveData);
+    | ({ kind: 'Active' } & ActiveData)
+    | ({ kind: 'Inactive' } & InactiveData);

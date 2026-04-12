@@ -22,4 +22,4 @@ function createUser(name: string): User {
 
 const users: Map<string, User> = new Map();
 
-export { User, Role, Status, createUser, users };
+export { createUser, Role, Status, User, users };

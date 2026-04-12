@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_multiple_with_methods.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Debug, Clone, PartialEq, Hash) */
 class Product {
@@ -32,7 +33,7 @@ class Product {
 
 ## Output
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Product {
@@ -105,7 +106,7 @@ export function productHashCode(value: Product): number {
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Product {

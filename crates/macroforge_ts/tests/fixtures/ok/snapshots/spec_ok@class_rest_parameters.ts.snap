@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_rest_parameters.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Clone) */
 class EventEmitter {
@@ -22,13 +23,13 @@ class EventEmitter {
 
     emit(event: string, ...args: any[]): void {
         const callbacks = this.listeners.get(event) || [];
-        callbacks.forEach(cb => cb(...args));
+        callbacks.forEach((cb) => cb(...args));
     }
 }
 
 ## Output
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class EventEmitter {
@@ -45,7 +46,7 @@ class EventEmitter {
 
     emit(event: string, ...args: any[]): void {
         const callbacks = this.listeners.get(event) || [];
-        callbacks.forEach(cb => cb(...args));
+        callbacks.forEach((cb) => cb(...args));
     }
 
 static clone(value: EventEmitter): EventEmitter {
@@ -61,7 +62,7 @@ export function eventEmitterClone(value: EventEmitter): EventEmitter {
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class EventEmitter {

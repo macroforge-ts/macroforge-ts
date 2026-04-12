@@ -1,6 +1,6 @@
 /** @derive(PartialEq, Hash) */
 enum Color {
-    Red = "red",
-    Green = "green",
-    Blue = "blue"
+    Red = 'red',
+    Green = 'green',
+    Blue = 'blue'
 }

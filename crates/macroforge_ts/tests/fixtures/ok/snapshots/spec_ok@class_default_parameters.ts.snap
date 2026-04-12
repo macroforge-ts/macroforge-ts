@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_default_parameters.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Debug) */
 class ServerConfig {
@@ -13,7 +14,7 @@ class ServerConfig {
     port: number;
 
     constructor(
-        host: string = "localhost",
+        host: string = 'localhost',
         port: number = 8080,
         secure: boolean = false
     ) {
@@ -31,7 +32,7 @@ class ServerConfig {
 
     static create(
         config: Partial<ServerConfig> = {},
-        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }
+        defaults: { host?: string; port?: number } = { host: '0.0.0.0', port: 3000 }
     ): ServerConfig {
         return new ServerConfig();
     }
@@ -39,7 +40,7 @@ class ServerConfig {
 
 ## Output
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class ServerConfig {
@@ -47,7 +48,7 @@ class ServerConfig {
     port: number;
 
     constructor(
-        host: string = "localhost",
+        host: string = 'localhost',
         port: number = 8080,
         secure: boolean = false
     ) {
@@ -65,7 +66,7 @@ class ServerConfig {
 
     static create(
         config: Partial<ServerConfig> = {},
-        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }
+        defaults: { host?: string; port?: number } = { host: '0.0.0.0', port: 3000 }
     ): ServerConfig {
         return new ServerConfig();
     }
@@ -84,14 +85,14 @@ parts.push("port: " + value.port);
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class ServerConfig {
     host: string;
     port: number;
 
-    constructor(host: string = "localhost",
+    constructor(host: string = 'localhost',
         port: number = 8080,
         secure: boolean = false);
 
@@ -100,7 +101,7 @@ class ServerConfig {
         onError?: (err: Error) => void): Promise<void>;
 
     static create(config: Partial<ServerConfig> = {},
-        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }): ServerConfig;
+        defaults: { host?: string; port?: number } = { host: '0.0.0.0', port: 3000 }): ServerConfig;
 
 static toString(value: ServerConfig): string {
                     return serverConfigToString(value);

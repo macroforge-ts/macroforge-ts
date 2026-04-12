@@ -1,16 +1,17 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_debug.ts
 ---
 ## Input
 
 /** @derive(Debug, PartialEq, Hash) */
-type Status = "active" | "inactive" | "pending";
+type Status = 'active' | 'inactive' | 'pending';
 
 ## Output
 
-type Status = "active" | "inactive" | "pending";
+type Status = 'active' | 'inactive' | 'pending';
 
 export function statusToString(value: Status): string {
                         return "Status(" + JSON.stringify(value) + ")";
@@ -41,7 +42,7 @@ const Status = {
 
 ## DTS
 
-type Status = "active" | "inactive" | "pending";
+type Status = 'active' | 'inactive' | 'pending';
 
 export function statusToString(value: Status): string {
                         return "Status(" + JSON.stringify(value) + ")";

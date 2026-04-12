@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_serialize_data.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Serialize) */
 class Data {
@@ -15,7 +16,7 @@ class Data {
 ## Output
 
 import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Data {
@@ -146,7 +147,7 @@ class Data {
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Data {

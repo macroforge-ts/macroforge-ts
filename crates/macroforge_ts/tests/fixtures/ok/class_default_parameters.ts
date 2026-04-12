@@ -1,4 +1,4 @@
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Debug) */
 class ServerConfig {
@@ -6,7 +6,7 @@ class ServerConfig {
     port: number;
 
     constructor(
-        host: string = "localhost",
+        host: string = 'localhost',
         port: number = 8080,
         secure: boolean = false
     ) {
@@ -24,7 +24,7 @@ class ServerConfig {
 
     static create(
         config: Partial<ServerConfig> = {},
-        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }
+        defaults: { host?: string; port?: number } = { host: '0.0.0.0', port: 3000 }
     ): ServerConfig {
         return new ServerConfig();
     }

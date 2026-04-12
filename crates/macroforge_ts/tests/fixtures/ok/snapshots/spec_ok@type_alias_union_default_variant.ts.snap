@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_variant.ts
 ---
@@ -7,16 +8,16 @@ input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_variant.ts
 
 /** @derive(Default) */
 export type UnionWithVariantDefault =
-  | /** @default */ VariantA
-  | VariantB
-  | VariantC;
+    | /** @default */ VariantA
+    | VariantB
+    | VariantC;
 
 ## Output
 
 export type UnionWithVariantDefault =
-  | /** @default */ VariantA
-  | VariantB
-  | VariantC;
+    | /** @default */ VariantA
+    | VariantB
+    | VariantC;
 
 export function unionWithVariantDefaultDefaultValue(): UnionWithVariantDefault {
                             return variantADefaultValue();
@@ -29,9 +30,9 @@ export const UnionWithVariantDefault = {
 ## DTS
 
 export type UnionWithVariantDefault =
-  | /** @default */ VariantA
-  | VariantB
-  | VariantC;
+    | /** @default */ VariantA
+    | VariantB
+    | VariantC;
 
 export function unionWithVariantDefaultDefaultValue(): UnionWithVariantDefault {
                             return variantADefaultValue();
