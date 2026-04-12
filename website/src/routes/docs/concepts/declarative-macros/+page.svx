@@ -1,0 +1,291 @@
+<svelte:head>
+	<title>Declarative Macros - Macroforge Documentation</title>
+	<meta name="description" content="Define pattern-matching macros in pure TypeScript with macroRules. No Rust required." />
+</svelte:head>
+
+# Declarative Macros
+
+Declarative macros let you define compile-time code transformations entirely in TypeScript. They use pattern-matching syntax inspired by Rust's `macro_rules!`, adapted for TypeScript's grammar. No Rust knowledge required — you define the macro in the same `.ts` file where you use it.
+
+## Quick Example
+
+```typescript
+import { macroRules } from "macroforge/rules";
+
+const $vec = macroRules`
+  () => []
+
+  ($($x:Expr),+) => {
+    const __v: unknown[] = [];
+    $( __v.push($x); )+
+    __v
+  }
+`;
+
+// Usage — expanded at compile time:
+const empty = $vec();           // → []
+const xs = $vec(1, 2, 3);      // → { const __v$1 = []; __v$1.push(1); __v$1.push(2); __v$1.push(3); __v$1 }
+```
+
+The `$vec` definition is erased from the output. Every `$vec(...)` call site is replaced with the matched arm's expansion. The `$` prefix on the binding name is convention — it signals "this is a macro, not a function."
+
+## Defining a Macro
+
+### Tag Form (simple)
+
+The simplest way to define a macro:
+
+```typescript
+import { macroRules } from "macroforge/rules";
+
+const $name = macroRules`
+  (pattern) => body
+`;
+```
+
+- **`import { macroRules }`** — required. The import from `"macroforge/rules"` is the signal that activates the declarative macro pipeline. Without it, `macroRules` is treated as a regular identifier.
+- **`` macroRules`...` ``** — a tagged template literal. The body between backticks is the macro's definition in a mini-language (not TypeScript).
+- **`const $name`** — the macro's name. Must start with `$`.
+
+### Object Form (advanced)
+
+For macros that use reverse monomorphization (shared runtime helpers):
+
+```typescript
+const $serialize = macroRules({
+  mode: "auto",
+  kind: "value",
+  expand: macroRules`($x:Expr) => __inline_serialize($x)`,
+  runtime: "function __serialize(value, schema) { return JSON.stringify(value); }",
+  call: macroRules`($x:Expr) => __serialize($x, [])`,
+  runtimeName: "__serialize_$__cluster__",
+  megamorphismThreshold: 4,
+});
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `expand` | Yes | The expansion template (same syntax as the tag form). Used in dev mode for inline expansion. |
+| `mode` | No | `"expand-only"` (default for tag form), `"share-only"`, `"share-anyway"`, or `"auto"`. Controls whether a shared runtime helper is emitted. |
+| `kind` | No | `"value"` (default) or `"type"`. Type-position macros expand inside type annotations. |
+| `runtime` | For sharing modes | A string of TypeScript source that becomes the shared runtime helper, emitted once per file. |
+| `call` | For sharing modes | Template for each call site when in sharing mode. References the runtime helper by name. |
+| `runtimeName` | No | Template for cluster-specialized helper names. Must contain `$__cluster__`. |
+| `megamorphismThreshold` | No | Max distinct argument shapes before the analyzer clusters the macro (default: 4). |
+
+## Arms and Pattern Matching
+
+A macro has one or more **arms**, each of the form `(pattern) => body`. Arms are tried in source order; the first match wins.
+
+```typescript
+const $opt = macroRules`
+  ()                       => undefined
+  ($x:Expr)                => $x
+  ($x:Expr, $default:Expr) => ($x ?? $default)
+`;
+
+$opt()              // → undefined
+$opt(user.name)     // → user.name
+$opt(config.port, 3000)  // → (config.port ?? 3000)
+```
+
+### Fragment Specifiers
+
+Each pattern variable is `$name:Kind`, where `Kind` controls what the argument must look like:
+
+| Fragment | Matches | Example |
+|----------|---------|---------|
+| `$x:Expr` | Any expression | `1 + 2`, `foo()`, `obj.prop` |
+| `$x:Ident` | A bare identifier | `foo`, `myVar` |
+| `$x:Lit` | A literal value | `"hello"`, `42`, `true` |
+| `$x:Path` | An identifier or dotted name | `foo`, `a.b.c` |
+| `$x:Block` | An arrow function expression | `() => { ... }` |
+| `$x:Type` | A TypeScript type (type-position macros only) | `string`, `User` |
+| `$x:Tt` | Structural fallback — matches anything | Any expression or type |
+
+### Repetitions
+
+Patterns and bodies can use repetitions to match variable-length argument lists:
+
+```typescript
+const $sum = macroRules`
+  ($($x:Expr),+) => ($($x)+*)
+`;
+
+$sum(1, 2, 3)  // → (1+2+3)
+```
+
+**Pattern syntax**: `$( inner ),separator kind`
+
+- `$( ... ),*` — zero or more, comma-separated
+- `$( ... ),+` — one or more, comma-separated
+- `$( ... );+` — one or more, semicolon-separated
+- `$( ... )?` — zero or one (optional)
+
+**Body syntax**: `$( inner ),separator kind` — iterates the sequence bindings captured by the pattern repetition.
+
+### Bounded Backtracking
+
+The matcher supports bounded backtracking: a pattern like `$( $x:Expr ),* $last:Expr` correctly matches `(1, 2, 3)` by trying progressively shorter repetition counts until the tail `$last` fits. The greedy pass tries count=3 first (fails — nothing left for `$last`), then count=2 (`$x = [1, 2]`, `$last = 3` — success).
+
+## Hygiene
+
+Identifiers starting with `__` (double underscore) inside a macro body are treated as **macro-internal temporaries** and get a unique per-expansion suffix so they don't collide with the call site's identifiers:
+
+```typescript
+const $vec = macroRules`
+  ($($x:Expr),+) => {
+    const __v = [];
+    $( __v.push($x); )+
+    __v
+  }
+`;
+
+// Each expansion gets its own __v:
+const a = $vec(1, 2);  // __v$1
+const b = $vec(3, 4);  // __v$2
+```
+
+The hygiene rewriter is **lexically aware** — it respects string literals, comments, regex literals, and template-literal text portions. A `"__v"` inside a string is never renamed. Unicode identifiers (`__cafe`, `__中文`) are handled correctly.
+
+## Type-Position Macros
+
+Macros declared with `kind: "type"` expand inside TypeScript type annotations:
+
+```typescript
+const $Nullable = macroRules({
+  kind: "type",
+  expand: macroRules`($t:Type) => $t | null | undefined`,
+});
+
+// Usage in type position:
+type MaybeUser = $Nullable<User>;
+// Expands to: type MaybeUser = User | null | undefined;
+```
+
+Type-position macros use angle brackets (`$Macro<T1, T2>`) instead of parentheses. They can compose — a type macro's body can reference another type macro via `$Other<args>`, and the inner call expands recursively.
+
+Type-position macros cannot use sharing modes (`share-only`, `share-anyway`, `auto`) because TypeScript types have no runtime representation.
+
+## Inter-Macro Composition
+
+A macro's body can call another macro:
+
+```typescript
+const $double = macroRules`($x:Expr) => ($x * 2)`;
+const $quad = macroRules`($x:Expr) => $double($double($x))`;
+
+$quad(3)  // → (((3) * 2) * 2)
+```
+
+The body parser recognizes `$callee(args)` as an inter-macro call. The expander resolves the callee, re-parses the rendered args through OXC, matches against the callee's arms, and recursively expands. Recursion depth is capped at 256 levels.
+
+Composition works inside repetitions too:
+
+```typescript
+const $double = macroRules`($x:Expr) => ($x * 2)`;
+const $double_each = macroRules`
+  ($($x:Expr),+) => [$( $double($x) ),+]
+`;
+
+$double_each(1, 2, 3)  // → [(1 * 2), (2 * 2), (3 * 2)]
+```
+
+## Cross-File Imports
+
+Declarative macros can be imported across files using the `/** import macro */` JSDoc comment:
+
+```typescript
+/** import macro { $vec } from "./macros"; */
+
+const xs = $vec(1, 2, 3);
+```
+
+The project scanner discovers macros in all `.ts` / `.tsx` files during the build pass and populates a project-wide registry. The `/** import macro */` comment resolves the specifier (`"./macros"`) relative to the importing file and looks up the named macro (`$vec`) in the registry.
+
+## Nested Definitions
+
+Macros can be defined inside function bodies and block scopes. Nested declarations are lexically scoped — a macro defined inside a function is only visible within that function. If a nested macro shares a name with an outer-scope macro, the nested one shadows the outer one at call sites within the inner scope:
+
+```typescript
+const $foo = macroRules`($x:Expr) => ($x + 1)`;
+const outer = $foo(10);  // → (10 + 1)
+
+function inner() {
+  const $foo = macroRules`($x:Expr) => ($x * 100)`;
+  return $foo(2);  // → (2 * 100) — inner $foo shadows outer
+}
+```
+
+## Reverse Monomorphization (Sharing Modes)
+
+For macros that generate non-trivial code at every call site, the **object form** lets you split the expansion into a shared runtime helper (emitted once per file) and a per-call-site stub:
+
+```typescript
+const $serialize = macroRules({
+  mode: "auto",
+  expand: macroRules`($x:Expr) => __inline_serialize($x)`,
+  runtime: "function __serialize(value) { return JSON.stringify(value); }",
+  call: macroRules`($x:Expr) => __serialize($x)`,
+});
+```
+
+### Modes
+
+| Mode | Behavior |
+|------|----------|
+| `expand-only` | Always inline-expand at every call site (the default). |
+| `share-only` | Always emit the shared runtime helper + per-call stubs. |
+| `share-anyway` | Like `share-only` but silences the megamorphism warning. |
+| `auto` | In dev: inline-expand for precise type checking. In prod: the megamorphism analyzer decides whether to share, cluster, or force-expand based on the argument shapes at all call sites. |
+
+### Megamorphism Analysis
+
+When an `auto`-mode macro's call sites pass more distinct argument shapes than the threshold (default: 4), V8's inline caches would go megamorphic with a single shared helper. The analyzer partitions call sites into **clusters** of structurally similar shapes (using Jaccard similarity on field-name fingerprints) and emits one helper per cluster. Each call site is dispatched to its cluster's helper.
+
+Use `$__cluster__` in `runtimeName` and `call` templates to embed the cluster discriminator:
+
+```typescript
+const $serialize = macroRules({
+  mode: "auto",
+  runtimeName: "__serialize_$__cluster__",
+  call: macroRules`($x:Expr) => __serialize_$__cluster__($x)`,
+  // ...
+});
+```
+
+### Dev-Mode Share Testing
+
+To test the share-mode code path in development without building for production, set `force_share: true` in the build options:
+
+```typescript
+// In your macroforge config or expand options:
+buildMode: { dev: true, forceShare: true }
+```
+
+This makes `auto`-mode macros emit the shared runtime + call stubs just like prod, so share-mode bugs surface early.
+
+## String-Literal Awareness
+
+The body parser respects JavaScript string delimiters. `$name` inside a string literal is literal text, not a substitution:
+
+```typescript
+const $greet = macroRules`
+  ($name:Expr) => console.log("Hello, $name is a literal dollar-name", $name)
+`;
+
+$greet("world")
+// → console.log("Hello, $name is a literal dollar-name", "world")
+```
+
+Similarly, `$$` inside a string literal is two dollar signs, not the macro's literal-dollar escape. Template-literal expression slots (`${...}`) return to code context, so `$x` inside `${$x}` IS a substitution.
+
+## Pipeline Order
+
+Declarative macros run as a **pre-pass** before derive macros:
+
+1. **Declarative pre-pass** — discovers `macroRules` definitions, rewrites call sites, strips declarations.
+2. **Derive expansion** — processes `@derive(...)` decorators on classes / interfaces / enums / type aliases.
+3. **Codegen** — the patched source is handed to the bundler.
+
+This means declarative macros can generate code that derive macros then process, but not the reverse.
