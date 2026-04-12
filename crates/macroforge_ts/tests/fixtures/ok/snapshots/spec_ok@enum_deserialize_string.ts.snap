@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/enum_deserialize_string.ts
 ---
@@ -7,9 +8,9 @@ input_file: macroforge_ts/tests/fixtures/ok/enum_deserialize_string.ts
 
 /** @derive(Deserialize) */
 enum Role {
-    Admin = "admin",
-    User = "user",
-    Guest = "guest"
+    Admin = 'admin',
+    User = 'user',
+    Guest = 'guest'
 }
 
 ## Output
@@ -17,9 +18,9 @@ enum Role {
 import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
 
 enum Role {
-    Admin = "admin",
-    User = "user",
-    Guest = "guest"
+    Admin = 'admin',
+    User = 'user',
+    Guest = 'guest'
 }
 
 /** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
@@ -57,9 +58,9 @@ namespace Role {
 ## DTS
 
 enum Role {
-    Admin = "admin",
-    User = "user",
-    Guest = "guest"
+    Admin = 'admin',
+    User = 'user',
+    Guest = 'guest'
 }
 
 /** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */

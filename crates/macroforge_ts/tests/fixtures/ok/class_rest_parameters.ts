@@ -1,4 +1,4 @@
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Clone) */
 class EventEmitter {
@@ -15,6 +15,6 @@ class EventEmitter {
 
     emit(event: string, ...args: any[]): void {
         const callbacks = this.listeners.get(event) || [];
-        callbacks.forEach(cb => cb(...args));
+        callbacks.forEach((cb) => cb(...args));
     }
 }

@@ -1,4 +1,4 @@
-import { macroRules } from "macroforge/rules";
+import { macroRules } from 'macroforge/rules';
 
 const $id = macroRules`
   ($x:Expr) => $x

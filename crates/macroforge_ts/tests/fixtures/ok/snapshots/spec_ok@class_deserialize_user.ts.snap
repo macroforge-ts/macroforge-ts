@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_deserialize_user.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Deserialize) */
 class User {
@@ -19,7 +20,7 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class User {
@@ -693,7 +694,7 @@ constructor(props: { name: string; age: number }) {
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class User {

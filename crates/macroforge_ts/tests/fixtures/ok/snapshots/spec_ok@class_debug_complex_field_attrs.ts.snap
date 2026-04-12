@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_debug_complex_field_attrs.ts
 ---
@@ -7,63 +8,63 @@ input_file: macroforge_ts/tests/fixtures/ok/class_debug_complex_field_attrs.ts
 
 /** @derive(Debug) */
 class MacroUser {
-  /** @debug({ rename: "userId" }) */
-  id: string;
+    /** @debug({ rename: "userId" }) */
+    id: string;
 
-  name: string;
-  role: string;
-  favoriteMacro: "Derive" | "JsonNative";
-  since: string;
+    name: string;
+    role: string;
+    favoriteMacro: 'Derive' | 'JsonNative';
+    since: string;
 
-  /** @debug({ skip: true }) */
-  apiToken: string;
+    /** @debug({ skip: true }) */
+    apiToken: string;
 
-  constructor(
-    id: string,
-    name: string,
-    role: string,
-    favoriteMacro: "Derive" | "JsonNative",
-    since: string,
-    apiToken: string,
-  ) {
-    this.id = id;
-    this.name = name;
-    this.role = role;
-    this.favoriteMacro = favoriteMacro;
-    this.since = since;
-    this.apiToken = apiToken;
-  }
+    constructor(
+        id: string,
+        name: string,
+        role: string,
+        favoriteMacro: 'Derive' | 'JsonNative',
+        since: string,
+        apiToken: string
+    ) {
+        this.id = id;
+        this.name = name;
+        this.role = role;
+        this.favoriteMacro = favoriteMacro;
+        this.since = since;
+        this.apiToken = apiToken;
+    }
 }
 
 ## Output
 
 class MacroUser {
-  
-  id: string;
+    
+    id: string;
 
-  name: string;
-  role: string;
-  favoriteMacro: "Derive" | "JsonNative";
-  since: string;
+    name: string;
+    role: string;
+    favoriteMacro: 'Derive' | 'JsonNative';
+    since: string;
 
-  
-  apiToken: string;
+    
+    apiToken: string;
 
-  constructor(
-    id: string,
-    name: string,
-    role: string,
-    favoriteMacro: "Derive" | "JsonNative",
-    since: string,
-    apiToken: string,
-  ) {
-    this.id = id;
-    this.name = name;
-    this.role = role;
-    this.favoriteMacro = favoriteMacro;
-    this.since = since;
-    this.apiToken = apiToken;
-  }
+    constructor(
+        id: string,
+        name: string,
+        role: string,
+        favoriteMacro: 'Derive' | 'JsonNative',
+        since: string,
+        apiToken: string
+    ) {
+        this.id = id;
+        this.name = name;
+        this.role = role;
+        this.favoriteMacro = favoriteMacro;
+        this.since = since;
+        this.apiToken = apiToken;
+    }
 
 static toString(value: MacroUser): string {
                     return macroUserToString(value);
@@ -83,23 +84,23 @@ parts.push("since: " + value.since);
 ## DTS
 
 class MacroUser {
-  
-  id: string;
+    
+    id: string;
 
-  name: string;
-  role: string;
-  favoriteMacro: "Derive" | "JsonNative";
-  since: string;
+    name: string;
+    role: string;
+    favoriteMacro: 'Derive' | 'JsonNative';
+    since: string;
 
-  
-  apiToken: string;
+    
+    apiToken: string;
 
-  constructor(id: string,
-    name: string,
-    role: string,
-    favoriteMacro: "Derive" | "JsonNative",
-    since: string,
-    apiToken: string,);
+    constructor(id: string,
+        name: string,
+        role: string,
+        favoriteMacro: 'Derive' | 'JsonNative',
+        since: string,
+        apiToken: string);
 
 static toString(value: MacroUser): string {
                     return macroUserToString(value);

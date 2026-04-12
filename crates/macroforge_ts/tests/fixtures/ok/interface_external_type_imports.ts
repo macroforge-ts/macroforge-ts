@@ -1,4 +1,4 @@
-import { Metadata } from "./metadata.svelte";
+import { Metadata } from './metadata.svelte';
 
 /** @derive(Default, Serialize, Deserialize) */
 export interface User {

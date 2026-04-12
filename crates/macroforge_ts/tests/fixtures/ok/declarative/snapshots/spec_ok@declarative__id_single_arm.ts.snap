@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/declarative/id_single_arm.ts
 ---
 ## Input
 
-import { macroRules } from "macroforge/rules";
+import { macroRules } from 'macroforge/rules';
 
 const $id = macroRules`
   ($x:Expr) => $x

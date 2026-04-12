@@ -4,21 +4,21 @@
 // the megamorphism analyzer, sees 1 distinct shape, and shares via the
 // runtime helper. Both expansions must log the same final value.
 
-import { macroRules } from "macroforge/rules";
+import { macroRules } from 'macroforge/rules';
 
 class User {
-  constructor(public id: number) {}
+    constructor(public id: number) {}
 }
 
 const $wrap = macroRules({
-  mode: "auto",
-  expand: macroRules`
+    mode: 'auto',
+    expand: macroRules`
     ($x:Expr) => ({ wrapped: $x })
   `,
-  runtime: "function __wrap(v) { return { wrapped: v }; }",
-  call: macroRules`
+    runtime: 'function __wrap(v) { return { wrapped: v }; }',
+    call: macroRules`
     ($x:Expr) => __wrap($x)
-  `,
+  `
 });
 
 const a = $wrap(User);

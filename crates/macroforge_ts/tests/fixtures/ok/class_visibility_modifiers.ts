@@ -1,4 +1,4 @@
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Clone) */
 class Account {

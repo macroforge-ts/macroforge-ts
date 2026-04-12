@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_visibility_modifiers.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Clone) */
 class Account {
@@ -34,7 +35,7 @@ class Account {
 
 ## Output
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Account {
@@ -75,7 +76,7 @@ cloned.apiKey = value.apiKey;
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Account {

@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/enum_partial_eq_hash_string.ts
 ---
@@ -7,17 +8,17 @@ input_file: macroforge_ts/tests/fixtures/ok/enum_partial_eq_hash_string.ts
 
 /** @derive(PartialEq, Hash) */
 enum Color {
-    Red = "red",
-    Green = "green",
-    Blue = "blue"
+    Red = 'red',
+    Green = 'green',
+    Blue = 'blue'
 }
 
 ## Output
 
 enum Color {
-    Red = "red",
-    Green = "green",
-    Blue = "blue"
+    Red = 'red',
+    Green = 'green',
+    Blue = 'blue'
 }
 
 export function colorEquals(a: Color, b: Color): boolean {
@@ -40,9 +41,9 @@ namespace Color {
 ## DTS
 
 enum Color {
-    Red = "red",
-    Green = "green",
-    Blue = "blue"
+    Red = 'red',
+    Green = 'green',
+    Blue = 'blue'
 }
 
 export function colorEquals(a: Color, b: Color): boolean {

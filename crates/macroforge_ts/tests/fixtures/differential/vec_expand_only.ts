@@ -4,7 +4,7 @@
 // outputs should be byte-identical, but the harness runs them both
 // through Deno anyway as a regression guard.
 
-import { macroRules } from "macroforge/rules";
+import { macroRules } from 'macroforge/rules';
 
 const $vec = macroRules`
   () => []

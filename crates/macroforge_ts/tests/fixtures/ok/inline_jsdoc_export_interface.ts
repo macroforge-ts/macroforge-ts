@@ -1,1 +1,4 @@
-/** @derive(Deserialize) */ export interface User { name: string; age: number; }
+/** @derive(Deserialize) */ export interface User {
+    name: string;
+    age: number;
+}

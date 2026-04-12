@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 101
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/error/regular_typescript.ts
 ---
@@ -29,7 +30,7 @@ function createUser(name: string): User {
 
 const users: Map<string, User> = new Map();
 
-export { User, Role, Status, createUser, users };
+export { createUser, Role, Status, User, users };
 
 ## Output
 
@@ -57,7 +58,7 @@ function createUser(name: string): User {
 
 const users: Map<string, User> = new Map();
 
-export { User, Role, Status, createUser, users };
+export { createUser, Role, Status, User, users };
 
 ## DTS
 

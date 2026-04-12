@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_complex_method_signatures.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Debug) */
 class API {
@@ -23,7 +24,7 @@ class API {
     }
 
     subscribe(
-        event: "data" | "error",
+        event: 'data' | 'error',
         callback: (data: any) => void,
         thisArg?: any
     ): () => void {
@@ -33,7 +34,7 @@ class API {
 
 ## Output
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class API {
@@ -51,7 +52,7 @@ class API {
     }
 
     subscribe(
-        event: "data" | "error",
+        event: 'data' | 'error',
         callback: (data: any) => void,
         thisArg?: any
     ): () => void {
@@ -71,7 +72,7 @@ export function apiToString(value: API): string {
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class API {
@@ -82,7 +83,7 @@ class API {
     async fetch<T>(path: string,
         options?: { method?: string; body?: any }): Promise<T>;
 
-    subscribe(event: "data" | "error",
+    subscribe(event: 'data' | 'error',
         callback: (data: any) => void,
         thisArg?: any): () => void;
 

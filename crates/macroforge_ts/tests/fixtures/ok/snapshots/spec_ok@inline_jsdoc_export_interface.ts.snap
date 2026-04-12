@@ -1,11 +1,15 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_interface.ts
 ---
 ## Input
 
-/** @derive(Deserialize) */ export interface User { name: string; age: number; }
+/** @derive(Deserialize) */ export interface User {
+    name: string;
+    age: number;
+}
 
 ## Output
 
@@ -13,7 +17,10 @@ import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde"
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
- export interface User { name: string; age: number; }
+ export interface User {
+    name: string;
+    age: number;
+}
 
 /** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
             export function userDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
@@ -1115,7 +1122,10 @@ export const User = {
 
 ## DTS
 
-export interface User { name: string; age: number; }
+export interface User {
+    name: string;
+    age: number;
+}
 
 /** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
             export function userDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {

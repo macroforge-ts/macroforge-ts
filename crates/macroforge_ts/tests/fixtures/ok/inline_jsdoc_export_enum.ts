@@ -1,1 +1,4 @@
-/** @derive(Debug) */ export enum Status { Active, Inactive }
+/** @derive(Debug) */ export enum Status {
+    Active,
+    Inactive
+}

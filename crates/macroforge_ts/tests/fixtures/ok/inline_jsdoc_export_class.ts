@@ -1,1 +1,3 @@
-/** @derive(Debug) */ export class User { name: string; }
+/** @derive(Debug) */ export class User {
+    name: string;
+}

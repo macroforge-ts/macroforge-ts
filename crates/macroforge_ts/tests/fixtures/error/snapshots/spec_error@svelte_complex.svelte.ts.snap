@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 101
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/error/svelte_complex.svelte.ts
 ---
@@ -13,7 +14,7 @@ interface Props {
 let { items, selected = '' }: Props = $props();
 
 let filteredItems = $derived(
-    items.filter(item => item.includes(selected))
+    items.filter((item) => item.includes(selected))
 );
 
 let count = $state(0);
@@ -40,7 +41,7 @@ interface Props {
 let { items, selected = '' }: Props = $props();
 
 let filteredItems = $derived(
-    items.filter(item => item.includes(selected))
+    items.filter((item) => item.includes(selected))
 );
 
 let count = $state(0);

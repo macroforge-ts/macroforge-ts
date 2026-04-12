@@ -1,2 +1,2 @@
 /** @derive(Debug, PartialEq, Hash) */
-type Status = "active" | "inactive" | "pending";
+type Status = 'active' | 'inactive' | 'pending';

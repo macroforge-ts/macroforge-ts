@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/enum_multiple_all.ts
 ---
@@ -7,8 +8,8 @@ input_file: macroforge_ts/tests/fixtures/ok/enum_multiple_all.ts
 
 /** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 enum Status {
-    Active = "active",
-    Inactive = "inactive"
+    Active = 'active',
+    Inactive = 'inactive'
 }
 
 ## Output
@@ -16,8 +17,8 @@ enum Status {
 import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
 
 enum Status {
-    Active = "active",
-    Inactive = "inactive"
+    Active = 'active',
+    Inactive = 'inactive'
 }
 
 export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];
@@ -102,8 +103,8 @@ namespace Status {
 ## DTS
 
 enum Status {
-    Active = "active",
-    Inactive = "inactive"
+    Active = 'active',
+    Inactive = 'inactive'
 }
 
 export function statusToString(value: Status): string {const key = Status[value as unknown as keyof typeof Status];

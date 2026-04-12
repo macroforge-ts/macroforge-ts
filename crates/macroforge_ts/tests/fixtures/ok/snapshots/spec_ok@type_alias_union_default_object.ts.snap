@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_object.ts
 ---
@@ -7,7 +8,14 @@ input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_object.ts
 
 /** @derive(Default, Serialize, Deserialize) */
 /** @serde({ tag: "type", content: "value" }) */
-export type PropValue = /** @default */ { type: 'String'; value: string } | { type: 'Number'; value: number } | { type: 'Boolean'; value: boolean } | { type: 'Json'; value: string } | { type: 'Asset'; value: string } | { type: 'Page'; value: string } | { type: 'Expression'; value: string };
+export type PropValue =
+    | /** @default */ { type: 'String'; value: string }
+    | { type: 'Number'; value: number }
+    | { type: 'Boolean'; value: boolean }
+    | { type: 'Json'; value: string }
+    | { type: 'Asset'; value: string }
+    | { type: 'Page'; value: string }
+    | { type: 'Expression'; value: string };
 
 ## Output
 
@@ -17,7 +25,14 @@ import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
 
-export type PropValue = /** @default */ { type: 'String'; value: string } | { type: 'Number'; value: number } | { type: 'Boolean'; value: boolean } | { type: 'Json'; value: string } | { type: 'Asset'; value: string } | { type: 'Page'; value: string } | { type: 'Expression'; value: string };
+export type PropValue =
+    | /** @default */ { type: 'String'; value: string }
+    | { type: 'Number'; value: number }
+    | { type: 'Boolean'; value: boolean }
+    | { type: 'Json'; value: string }
+    | { type: 'Asset'; value: string }
+    | { type: 'Page'; value: string }
+    | { type: 'Expression'; value: string };
 
 export function propValueDefaultValue(): PropValue {
                             return ({
@@ -956,7 +971,14 @@ export const PropValue = {
 
 ## DTS
 
-export type PropValue = /** @default */ { type: 'String'; value: string } | { type: 'Number'; value: number } | { type: 'Boolean'; value: boolean } | { type: 'Json'; value: string } | { type: 'Asset'; value: string } | { type: 'Page'; value: string } | { type: 'Expression'; value: string };
+export type PropValue =
+    | /** @default */ { type: 'String'; value: string }
+    | { type: 'Number'; value: number }
+    | { type: 'Boolean'; value: boolean }
+    | { type: 'Json'; value: string }
+    | { type: 'Asset'; value: string }
+    | { type: 'Page'; value: string }
+    | { type: 'Expression'; value: string };
 
 export function propValueDefaultValue(): PropValue {
                             return ({

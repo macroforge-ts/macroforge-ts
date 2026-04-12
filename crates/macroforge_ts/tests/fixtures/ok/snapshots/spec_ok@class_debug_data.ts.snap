@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/class_debug_data.ts
 ---
 ## Input
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 /** @derive(Debug) */
 class Data {
@@ -14,7 +15,7 @@ class Data {
 
 ## Output
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Data {
@@ -33,7 +34,7 @@ export function dataToString(value: Data): string {
 
 ## DTS
 
-import { Derive } from "@macro/derive";
+import { Derive } from '@macro/derive';
 
 
 class Data {

@@ -1,11 +1,12 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
+assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/interface_external_type_imports.ts
 ---
 ## Input
 
-import { Metadata } from "./metadata.svelte";
+import { Metadata } from './metadata.svelte';
 
 /** @derive(Default, Serialize, Deserialize) */
 export interface User {
@@ -22,7 +23,7 @@ import { PendingRef as __mf_PendingRef } from "macroforge/serde";
 import { metadataDefaultValue } from "./metadata.svelte";
 import { metadataSerializeWithContext } from "./metadata.svelte";
 import { metadataDeserializeWithContext } from "./metadata.svelte";
-import { Metadata } from "./metadata.svelte";
+import { Metadata } from './metadata.svelte';
 
 
 export interface User {
@@ -1053,7 +1054,7 @@ export const User = {
 import { metadataDefaultValue } from "./metadata.svelte";
 import { metadataSerializeWithContext } from "./metadata.svelte";
 import { metadataDeserializeWithContext } from "./metadata.svelte";
-import { Metadata } from "./metadata.svelte";
+import { Metadata } from './metadata.svelte';
 
 
 export interface User {
