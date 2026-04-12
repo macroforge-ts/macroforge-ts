@@ -1,7 +1,7 @@
 # Vite Plugin
 
-The Vite plugin provides build-time macro expansion, transforming your code during development and
-production builds.
+The Vite plugin provides build-time macro expansion, transforming your code
+during development and production builds.
 
 ## Installation
 
@@ -99,8 +99,8 @@ export default defineConfig({
 
 Note
 
-Always place the Macroforge plugin before other framework plugins to ensure macros are expanded
-first.
+Always place the Macroforge plugin before other framework plugins to ensure
+macros are expanded first.
 
 ## Development Server
 
@@ -112,10 +112,11 @@ During development, the plugin:
 
 ### Custom Macro Packages with `file:` Dependencies
 
-If your custom macro package is a local `file:` dependency (e.g. `"@my/macros": "file:./macros"`),
-the expanded code may contain runtime imports pointing to files inside that package. Vite's dev
-server restricts filesystem access to a set of allowed directories (`src/`, `.svelte-kit/`,
-`node_modules/`, etc.), and local `file:` dependencies outside those paths will be blocked.
+If your custom macro package is a local `file:` dependency (e.g.
+`"@my/macros": "file:./macros"`), the expanded code may contain runtime imports
+pointing to files inside that package. Vite's dev server restricts filesystem
+access to a set of allowed directories (`src/`, `.svelte-kit/`, `node_modules/`,
+etc.), and local `file:` dependencies outside those paths will be blocked.
 
 You must add the package directory to `server.fs.allow`:
 
@@ -132,8 +133,9 @@ export default defineConfig({
 });
 ```
 
-The macro package also needs a `package.json` `exports` field so Vite can resolve subpath imports.
-For example, if expanded code imports from `@my/macros/helpers`:
+The macro package also needs a `package.json` `exports` field so Vite can
+resolve subpath imports. For example, if expanded code imports from
+`@my/macros/helpers`:
 
 macros/package.json
 
@@ -147,8 +149,9 @@ macros/package.json
 }
 ```
 
-Without this, Vite's dev server will fail with `Pre-transform error: Failed to load url ...` even
-though the file exists on disk.
+Without this, Vite's dev server will fail with
+`Pre-transform error: Failed to load url ...` even though the file exists on
+disk.
 
 ## Production Build
 

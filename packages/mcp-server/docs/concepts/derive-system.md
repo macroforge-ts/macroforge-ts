@@ -1,12 +1,13 @@
 # The Derive System
 
-The derive system is inspired by Rust's derive macros. It allows you to automatically implement
-common patterns by annotating your classes with `@derive`.
+The derive system is inspired by Rust's derive macros. It allows you to
+automatically implement common patterns by annotating your classes with
+`@derive`.
 
 ## Syntax Reference
 
-Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard
-TypeScript tooling.
+Macroforge uses JSDoc comments for all macro annotations. This ensures
+compatibility with standard TypeScript tooling.
 
 ### The @derive Statement
 
@@ -74,8 +75,8 @@ class User {
 
 Built-in macros
 
-Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do
-not require an import statement.
+Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd,
+Serialize, Deserialize) do not require an import statement.
 
 ### Field Attributes
 
@@ -204,8 +205,8 @@ The derive system works on:
 
 ## Built-in vs Custom Macros
 
-Macroforge comes with built-in macros that work out of the box. You can also create custom macros in
-Rust and use them via the `import macro` statement.
+Macroforge comes with built-in macros that work out of the box. You can also
+create custom macros in Rust and use them via the `import macro` statement.
 
 | Type     | Import Required | Examples                                                                        |
 | -------- | --------------- | ------------------------------------------------------------------------------- |

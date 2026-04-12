@@ -12,7 +12,8 @@ npm install @macroforge/vite-plugin
 
 ### Functions
 
-- **`macroforge`** - Creates a Vite plugin for Macroforge compile-time macro expansion.
+- **`macroforge`** - Creates a Vite plugin for Macroforge compile-time macro
+  expansion.
 
 ### Constants
 
@@ -20,8 +21,9 @@ npm install @macroforge/vite-plugin
 
 ## Documentation
 
-See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/vite-plugin) on
-the Macroforge website.
+See the
+[full documentation](https://macroforge.dev/docs/api/reference/typescript/vite-plugin)
+on the Macroforge website.
 
 ## License
 

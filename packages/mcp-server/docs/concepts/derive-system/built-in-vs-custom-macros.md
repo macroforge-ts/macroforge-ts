@@ -1,7 +1,7 @@
 ## Built-in vs Custom Macros
 
-Macroforge comes with built-in macros that work out of the box. You can also create custom macros in
-Rust and use them via the `import macro` statement.
+Macroforge comes with built-in macros that work out of the box. You can also
+create custom macros in Rust and use them via the `import macro` statement.
 
 | Type     | Import Required | Examples                                                                        |
 | -------- | --------------- | ------------------------------------------------------------------------------- |

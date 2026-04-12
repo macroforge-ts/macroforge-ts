@@ -1,10 +1,10 @@
 {
-    "workspace": [
-        "./shared",
-        "./mcp-server",
-        "./svelte-language-server",
-        "./typescript-plugin",
-        "./vite-plugin",
-        "./svelte-preprocessor"
-    ]
+  "workspace": [
+    "./shared",
+    "./mcp-server",
+    "./svelte-language-server",
+    "./typescript-plugin",
+    "./vite-plugin",
+    "./svelte-preprocessor"
+  ]
 }

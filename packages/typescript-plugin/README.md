@@ -4,7 +4,8 @@
 
 ## Overview
 
-TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.
+TypeScript language service plugin that augments classes decorated with @derive to include
+macro-generated methods.
 
 ## Installation
 
@@ -20,8 +21,8 @@ npm install @macroforge/typescript-plugin
 
 ## Documentation
 
-See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/typescript-plugin) on
-the Macroforge website.
+See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/typescript-plugin)
+on the Macroforge website.
 
 ## License
 

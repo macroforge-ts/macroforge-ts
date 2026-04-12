@@ -1,8 +1,8 @@
 # PartialEq
 
-The `PartialEq` macro generates an `equals()` method for field-by-field structural equality
-comparison. This is analogous to Rust's `PartialEq` trait, enabling value-based equality semantics
-instead of reference equality.
+The `PartialEq` macro generates an `equals()` method for field-by-field
+structural equality comparison. This is analogous to Rust's `PartialEq` trait,
+enabling value-based equality semantics instead of reference equality.
 
 ## Generated Output
 

@@ -69,14 +69,17 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 ## How It Works
 
 1. **Compile-Time:** The template is parsed during macro expansion
-2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
-3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
+2. **String Building:** Generates Rust code that builds a TypeScript string at
+   runtime
+3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed
+   AST
 4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
 
 ## Return Type
 
-`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and
-provides helpful error messages showing the generated TypeScript code if parsing fails:
+`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro
+automatically unwraps and provides helpful error messages showing the generated
+TypeScript code if parsing fails:
 
 Text
 
@@ -91,7 +94,8 @@ This shows you exactly what was generated, making debugging easy!
 
 ## Nesting and Regular TypeScript
 
-You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
+You can mix template syntax with regular TypeScript. Braces `{}` are recognized
+as either:
 
 - **Template tags** if they start with `#`, `$`, `:`, or `/`
 - **Regular TypeScript blocks** otherwise

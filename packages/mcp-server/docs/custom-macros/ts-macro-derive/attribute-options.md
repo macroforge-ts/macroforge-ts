@@ -42,4 +42,5 @@ pub fn derive_debug(...)
 
 Note
 
-Declared attributes become available as `@attributeName({ options })` decorators in TypeScript.
+Declared attributes become available as `@attributeName({ options })` decorators
+in TypeScript.

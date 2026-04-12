@@ -7,15 +7,16 @@ code={`/** @derive(Deserialize) */
 class User {
   name: string;
   email: string;
-}`} />
+}`}
+/>
 
 ```typescript
 // Missing required field
-User.fromJSON({ name: 'Alice' });
+User.fromJSON({ name: "Alice" });
 // Error: User.fromJSON: missing required field "email"
 
 // Wrong type
-User.fromJSON('not an object');
+User.fromJSON("not an object");
 // Error: User.fromJSON: expected an object, got string
 
 // Array instead of object

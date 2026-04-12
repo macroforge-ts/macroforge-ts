@@ -1,11 +1,12 @@
 # Your First Macro
 
-Let's create a class that uses Macroforge's derive macros to automatically generate useful methods.
+Let's create a class that uses Macroforge's derive macros to automatically
+generate useful methods.
 
 ## Creating a Class with Derive Macros
 
-Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate
-methods.
+Start by creating a simple `User` class. We'll use the `@derive` decorator to
+automatically generate methods.
 
 Before (Your Code)
 
@@ -97,7 +98,8 @@ console.log(user.equals(different)); // false
 
 ## Customizing Behavior
 
-You can customize how macros work using field-level decorators. For example, with the Debug macro:
+You can customize how macros work using field-level decorators. For example,
+with the Debug macro:
 
 Before (Your Code)
 
@@ -160,7 +162,8 @@ console.log(user.toString());
 
 Field-level decorators
 
-Field-level decorators let you control exactly how each field is handled by the macro.
+Field-level decorators let you control exactly how each field is handled by the
+macro.
 
 ## Next Steps
 

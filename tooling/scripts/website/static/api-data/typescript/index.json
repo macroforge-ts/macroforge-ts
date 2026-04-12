@@ -1,40 +1,40 @@
 {
-  "generated": "2026-04-09T00:33:54.811748+00:00",
-  "packages": [
-    {
-      "exportCount": 0,
-      "name": "macroforge",
-      "version": "0.1.79"
-    },
-    {
-      "exportCount": 19,
-      "name": "@macroforge/shared",
-      "version": "0.1.79"
-    },
-    {
-      "exportCount": 2,
-      "name": "@macroforge/vite-plugin",
-      "version": "0.1.79"
-    },
-    {
-      "exportCount": 1,
-      "name": "@macroforge/typescript-plugin",
-      "version": "0.1.79"
-    },
-    {
-      "exportCount": 5,
-      "name": "@macroforge/svelte-language-server",
-      "version": "0.1.79"
-    },
-    {
-      "exportCount": 3,
-      "name": "@macroforge/svelte-preprocessor",
-      "version": "0.1.79"
-    },
-    {
-      "exportCount": 1,
-      "name": "@macroforge/mcp-server",
-      "version": "0.1.79"
-    }
-  ]
+    "generated": "2026-04-09T00:33:54.811748+00:00",
+    "packages": [
+        {
+            "exportCount": 0,
+            "name": "macroforge",
+            "version": "0.1.79"
+        },
+        {
+            "exportCount": 19,
+            "name": "@macroforge/shared",
+            "version": "0.1.79"
+        },
+        {
+            "exportCount": 2,
+            "name": "@macroforge/vite-plugin",
+            "version": "0.1.79"
+        },
+        {
+            "exportCount": 1,
+            "name": "@macroforge/typescript-plugin",
+            "version": "0.1.79"
+        },
+        {
+            "exportCount": 5,
+            "name": "@macroforge/svelte-language-server",
+            "version": "0.1.79"
+        },
+        {
+            "exportCount": 3,
+            "name": "@macroforge/svelte-preprocessor",
+            "version": "0.1.79"
+        },
+        {
+            "exportCount": 1,
+            "name": "@macroforge/mcp-server",
+            "version": "0.1.79"
+        }
+    ]
 }

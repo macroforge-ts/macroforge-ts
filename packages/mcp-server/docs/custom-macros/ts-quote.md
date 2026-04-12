@@ -1,8 +1,9 @@
 # Template Syntax
 
-The `macroforge_ts_quote` crate provides template-based code generation for TypeScript. The
-`ts_template!` macro uses Svelte + Rust-inspired syntax for control flow and interpolation, making
-it easy to generate complex TypeScript code.
+The `macroforge_ts_quote` crate provides template-based code generation for
+TypeScript. The `ts_template!` macro uses Svelte + Rust-inspired syntax for
+control flow and interpolation, making it easy to generate complex TypeScript
+code.
 
 ## Available Macros
 
@@ -35,8 +36,8 @@ it easy to generate complex TypeScript code.
 | `{$do expr}`                                                   | Execute a side-effectful expression                                                     |
 | `{$typescript stream}`                                         | Inject a TsStream, preserving its source and runtime_patches (imports)                  |
 
-**Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works
-as expected).
+**Note:** A single `@` not followed by `{` passes through unchanged (e.g.,
+`email@domain.com` works as expected).
 
 ## Interpolation: `@{expr}`
 
@@ -67,8 +68,8 @@ User.prototype.toString = function () {
 
 ## Identifier Concatenation: `content`
 
-When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block
-syntax. Everything inside `` is concatenated without spaces:
+When you need to build identifiers dynamically (like `getUser`, `setName`), use
+the ident block syntax. Everything inside `` is concatenated without spaces:
 
 Rust
 
@@ -92,8 +93,8 @@ function getUser() {
 }
 ```
 
-Without ident blocks, `@{}` always adds a space after for readability. Use `` when you explicitly
-want concatenation:
+Without ident blocks, `@{}` always adds a space after for readability. Use ``
+when you explicitly want concatenation:
 
 Rust
 
@@ -120,8 +121,8 @@ ts_template! { @{entity}_@{action} }  // → "user_create"
 
 ## Comments: `{> "..." <}` and `{>> "..." <<}`
 
-Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve
-exact spacing in comments:
+Since Rust's tokenizer strips whitespace before macros see them, use string
+literals to preserve exact spacing in comments:
 
 ### Block Comments
 
@@ -201,7 +202,8 @@ function getUser(userId: number) {}
 
 ## String Interpolation: `"text @{expr}"`
 
-Interpolation works automatically inside string literals - no `format!()` needed:
+Interpolation works automatically inside string literals - no `format!()`
+needed:
 
 Rust
 
@@ -238,8 +240,9 @@ let code = ts_template! {
 
 ## Backtick Template Literals: `"'^...^'"`
 
-For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual
-backticks and passes through `${"${}"}` for JS interpolation:
+For JavaScript template literals (backtick strings), use the `'^...^'` syntax.
+This outputs actual backticks and passes through `${"${}"}` for JS
+interpolation:
 
 Rust
 
@@ -259,8 +262,8 @@ TypeScript
 const html = `<div>${content}</div>`;
 ```
 
-You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS `${"${}"}`
-interpolation (evaluated at runtime):
+You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS
+`${"${}"}` interpolation (evaluated at runtime):
 
 Rust
 
@@ -554,7 +557,8 @@ console.log("b");
 console.log("c");
 ```
 
-This is especially useful when working with iterators or consuming optional values:
+This is especially useful when working with iterators or consuming optional
+values:
 
 Rust
 
@@ -584,11 +588,13 @@ let code = ts_template! {
 };
 ```
 
-This is useful for computing derived values inside loops without cluttering the Rust code.
+This is useful for computing derived values inside loops without cluttering the
+Rust code.
 
 ## Mutable Variables: `{$let mut}`
 
-When you need to modify a variable within the template (e.g., in a `while` loop), use `{$let mut}`:
+When you need to modify a variable within the template (e.g., in a `while`
+loop), use `{$let mut}`:
 
 Rust
 
@@ -605,8 +611,8 @@ let code = ts_template! {
 
 ## Side Effects: `{$do}`
 
-Execute an expression for its side effects without producing output. This is commonly used with
-mutable variables:
+Execute an expression for its side effects without producing output. This is
+commonly used with mutable variables:
 
 Rust
 
@@ -629,8 +635,8 @@ Common uses for `{$do}`:
 
 ## TsStream Injection: `{$typescript}`
 
-Inject another TsStream into your template, preserving both its source code and runtime patches
-(like imports added via `add_import()`):
+Inject another TsStream into your template, preserving both its source code and
+runtime patches (like imports added via `add_import()`):
 
 Rust
 
@@ -654,7 +660,8 @@ let result = body! {
 // result now includes helper's source AND its Result import
 ```
 
-This is essential for composing multiple macro outputs while preserving imports and patches:
+This is essential for composing multiple macro outputs while preserving imports
+and patches:
 
 Rust
 
@@ -769,14 +776,17 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 ## How It Works
 
 1. **Compile-Time:** The template is parsed during macro expansion
-2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
-3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
+2. **String Building:** Generates Rust code that builds a TypeScript string at
+   runtime
+3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed
+   AST
 4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
 
 ## Return Type
 
-`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and
-provides helpful error messages showing the generated TypeScript code if parsing fails:
+`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro
+automatically unwraps and provides helpful error messages showing the generated
+TypeScript code if parsing fails:
 
 Text
 
@@ -791,7 +801,8 @@ This shows you exactly what was generated, making debugging easy!
 
 ## Nesting and Regular TypeScript
 
-You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
+You can mix template syntax with regular TypeScript. Braces `{}` are recognized
+as either:
 
 - **Template tags** if they start with `#`, `$`, `:`, or `/`
 - **Regular TypeScript blocks** otherwise

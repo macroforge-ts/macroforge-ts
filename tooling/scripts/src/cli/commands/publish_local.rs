@@ -180,7 +180,10 @@ fn publish_crate(dir: &Path, crate_name: &str, version: &str, dry_run: bool) -> 
 
     match result {
         Ok(r) if r.success => {
-            format::success(&format!("Published {}@{} to crates.io", crate_name, version));
+            format::success(&format!(
+                "Published {}@{} to crates.io",
+                crate_name, version
+            ));
             Ok(true)
         }
         _ => {
@@ -196,7 +199,10 @@ fn publish_crate(dir: &Path, crate_name: &str, version: &str, dry_run: bool) -> 
                 .with_context(|| {
                     format!("cargo publish failed for {} (after re-auth)", crate_name)
                 })?;
-            format::success(&format!("Published {}@{} to crates.io", crate_name, version));
+            format::success(&format!(
+                "Published {}@{} to crates.io",
+                crate_name, version
+            ));
             Ok(true)
         }
     }
@@ -208,10 +214,7 @@ fn publish_jsr(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
         return Ok(false);
     }
     if jsr_already_published(package, version) {
-        format::warning(&format!(
-            "{}@{} already on JSR, skipping",
-            package, version
-        ));
+        format::warning(&format!("{}@{} already on JSR, skipping", package, version));
         return Ok(false);
     }
     if dry_run {
@@ -223,8 +226,7 @@ fn publish_jsr(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
         return Ok(false);
     }
 
-    shell::deno::publish(dir)
-        .with_context(|| format!("JSR publish failed for {}", package))?;
+    shell::deno::publish(dir).with_context(|| format!("JSR publish failed for {}", package))?;
     format::success(&format!("Published {}@{} to JSR", package, version));
     Ok(true)
 }
@@ -331,10 +333,7 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         let Some(repo) = config.repos.get(name.as_str()) else {
             continue;
         };
-        let pkg_version = versions
-            .get_local(name)
-            .unwrap_or(&version)
-            .to_string();
+        let pkg_version = versions.get_local(name).unwrap_or(&version).to_string();
         let has_jsr = repo.abs_path.join("deno.json").exists();
 
         match repo.repo_type {
@@ -347,8 +346,8 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
                     .npm_name
                     .as_deref()
                     .is_some_and(|n| !npm_already_published(n, &pkg_version));
-                let needs_jsr = has_jsr
-                    && !jsr_already_published(&jsr_name(&repo.abs_path), &pkg_version);
+                let needs_jsr =
+                    has_jsr && !jsr_already_published(&jsr_name(&repo.abs_path), &pkg_version);
 
                 if !needs_crate && !needs_npm && !needs_jsr {
                     let label = repo
@@ -397,8 +396,7 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
     }
 
     println!("{}", "Will publish:".bold());
-    for (i, (name, pkg_version, needs_crate, needs_npm, needs_jsr)) in
-        to_publish.iter().enumerate()
+    for (i, (name, pkg_version, needs_crate, needs_npm, needs_jsr)) in to_publish.iter().enumerate()
     {
         let repo = &config.repos[*name];
         let registry_name = repo
@@ -439,9 +437,7 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
             ensure_cargo_auth()?;
         }
         if has_jsr {
-            if let Some((jsr_name, _, _, _, _)) =
-                to_publish.iter().find(|(_, _, _, _, jsr)| *jsr)
-            {
+            if let Some((jsr_name, _, _, _, _)) = to_publish.iter().find(|(_, _, _, _, jsr)| *jsr) {
                 let jsr_dir = &config.repos[*jsr_name].abs_path;
                 ensure_jsr_auth(jsr_dir)?;
             }

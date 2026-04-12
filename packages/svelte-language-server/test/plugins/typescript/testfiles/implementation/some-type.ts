@@ -1,9 +1,9 @@
 export interface SomeType {
-    hi: string;
+  hi: string;
 }
 
 export function getDefaultSomeType(): SomeType {
-    return {
-        hi: 'foo'
-    };
+  return {
+    hi: "foo",
+  };
 }

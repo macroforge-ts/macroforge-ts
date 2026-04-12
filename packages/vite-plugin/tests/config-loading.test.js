@@ -90,7 +90,11 @@ test("handles malformed macroforge.config.ts gracefully", async (t) => {
   t.after(() => cleanupTempDir(tempDir));
 
   // Create invalid JS
-  writeTestFile(tempDir, "macroforge.config.ts", "export default { invalid syntax");
+  writeTestFile(
+    tempDir,
+    "macroforge.config.ts",
+    "export default { invalid syntax",
+  );
 
   // Create a source file
   writeTestFile(

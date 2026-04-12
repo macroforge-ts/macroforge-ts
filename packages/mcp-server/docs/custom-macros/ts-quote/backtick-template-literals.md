@@ -1,7 +1,8 @@
 ## Backtick Template Literals: `"'^...^'"`
 
-For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual
-backticks and passes through `${"${}"}` for JS interpolation:
+For JavaScript template literals (backtick strings), use the `'^...^'` syntax.
+This outputs actual backticks and passes through `${"${}"}` for JS
+interpolation:
 
 Rust
 
@@ -21,8 +22,8 @@ TypeScript
 const html = `<div>${content}</div>`;
 ```
 
-You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS `${"${}"}`
-interpolation (evaluated at runtime):
+You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS
+`${"${}"}` interpolation (evaluated at runtime):
 
 Rust
 

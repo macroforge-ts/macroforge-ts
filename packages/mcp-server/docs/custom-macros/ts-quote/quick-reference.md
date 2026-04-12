@@ -22,8 +22,8 @@
 | `{$do expr}`                                                   | Execute a side-effectful expression                                                     |
 | `{$typescript stream}`                                         | Inject a TsStream, preserving its source and runtime\_patches (imports)                 |
 
-**Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works
-as expected).
+**Note:** A single `@` not followed by `{` passes through unchanged (e.g.,
+`email@domain.com` works as expected).
 
 ## Interpolation: `@{expr}`
 

@@ -1,11 +1,13 @@
 # MCP Server
 
-The MCP (Model Context Protocol) server enables AI assistants to understand and work with Macroforge
-macros, providing documentation lookup, code validation, and macro expansion.
+The MCP (Model Context Protocol) server enables AI assistants to understand and
+work with Macroforge macros, providing documentation lookup, code validation,
+and macro expansion.
 
 The local (stdio) version of the MCP server is available via the
-[`@macroforge/mcp-server`](https://www.npmjs.com/package/@macroforge/mcp-server) npm package. You
-can either install it globally and then reference it in your configuration or run it with `npx`:
+[`@macroforge/mcp-server`](https://www.npmjs.com/package/@macroforge/mcp-server)
+npm package. You can either install it globally and then reference it in your
+configuration or run it with `npx`:
 
 Bash
 
@@ -17,7 +19,8 @@ Here's how to set it up in some common MCP clients:
 
 ## Claude Code
 
-To include the local MCP version in Claude Code, simply run the following command:
+To include the local MCP version in Claude Code, simply run the following
+command:
 
 Bash
 
@@ -29,8 +32,9 @@ The `[scope]` must be `user`, `project` or `local`.
 
 ## Claude Desktop
 
-In the Settings > Developer section, click on Edit Config. It will open the folder with a
-`claude_desktop_config.json` file in it. Edit the file to include the following configuration:
+In the Settings > Developer section, click on Edit Config. It will open the
+folder with a `claude_desktop_config.json` file in it. Edit the file to include
+the following configuration:
 
 claude\_desktop\_config.json
 
@@ -47,9 +51,10 @@ claude\_desktop\_config.json
 
 ## Codex CLI
 
-Add the following to your `config.toml` (which defaults to `~/.codex/config.toml`, but refer to
-[the configuration documentation](https://github.com/openai/codex/blob/main/docs/config.md) for more
-advanced setups):
+Add the following to your `config.toml` (which defaults to
+`~/.codex/config.toml`, but refer to
+[the configuration documentation](https://github.com/openai/codex/blob/main/docs/config.md)
+for more advanced setups):
 
 config.toml
 
@@ -61,7 +66,8 @@ args = ["-y", "@macroforge/mcp-server"]
 
 ## Gemini CLI
 
-To include the local MCP version in Gemini CLI, simply run the following command:
+To include the local MCP version in Gemini CLI, simply run the following
+command:
 
 Bash
 
@@ -73,8 +79,9 @@ The `[scope]` must be `user`, `project` or `local`.
 
 ## Other Clients
 
-If we didn't include the MCP client you are using, refer to their documentation for `stdio` servers
-and use `npx` as the command and `-y @macroforge/mcp-server` as the arguments.
+If we didn't include the MCP client you are using, refer to their documentation
+for `stdio` servers and use `npx` as the command and `-y @macroforge/mcp-server`
+as the arguments.
 
 ## Available Tools
 
@@ -90,6 +97,6 @@ The MCP server provides five tools for AI assistants:
 
 Note
 
-For code validation and expansion features (`macroforge-autofixer`, `expand-code`,
-`get-macro-info`), the MCP server requires `macroforge` as a peer dependency. Install it in your
-project with `npm install macroforge`.
+For code validation and expansion features (`macroforge-autofixer`,
+`expand-code`, `get-macro-info`), the MCP server requires `macroforge` as a peer
+dependency. Install it in your project with `npm install macroforge`.

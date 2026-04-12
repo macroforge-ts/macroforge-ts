@@ -13,8 +13,16 @@ const mockManifest = {
         { name: 'Debug', description: 'Debug implementation macro' }
     ],
     decorators: [
-        { export: 'hiddenController', module: 'hiddenController', description: 'Hidden field' },
-        { export: 'fieldController', module: 'fieldController', description: 'Field controller' }
+        {
+            export: 'hiddenController',
+            module: 'hiddenController',
+            description: 'Hidden field'
+        },
+        {
+            export: 'fieldController',
+            module: 'fieldController',
+            description: 'Field controller'
+        }
     ]
 };
 
@@ -136,7 +144,11 @@ Deno.test('getExternalMacroInfo - returns null for unknown macro', () => {
 Deno.test('getExternalMacroInfo - returns null for missing package', () => {
     clearExternalManifestCache();
 
-    const result = getExternalMacroInfo('JSON', 'missing-package', failingRequire);
+    const result = getExternalMacroInfo(
+        'JSON',
+        'missing-package',
+        failingRequire
+    );
     assertEquals(result, null);
 });
 
@@ -144,7 +156,11 @@ Deno.test('getExternalDecoratorInfo - finds decorator by name', () => {
     clearExternalManifestCache();
     const mockRequire = createMockRequire(mockManifest);
 
-    const result = getExternalDecoratorInfo('hiddenController', 'test-package', mockRequire);
+    const result = getExternalDecoratorInfo(
+        'hiddenController',
+        'test-package',
+        mockRequire
+    );
 
     assertEquals(result?.export, 'hiddenController');
     assertEquals(result?.module, 'hiddenController');
@@ -154,7 +170,11 @@ Deno.test('getExternalDecoratorInfo - case insensitive lookup', () => {
     clearExternalManifestCache();
     const mockRequire = createMockRequire(mockManifest);
 
-    const result = getExternalDecoratorInfo('HIDDENCONTROLLER', 'test-package', mockRequire);
+    const result = getExternalDecoratorInfo(
+        'HIDDENCONTROLLER',
+        'test-package',
+        mockRequire
+    );
 
     assertEquals(result?.export, 'hiddenController');
 });
@@ -163,13 +183,21 @@ Deno.test('getExternalDecoratorInfo - returns null for unknown decorator', () =>
     clearExternalManifestCache();
     const mockRequire = createMockRequire(mockManifest);
 
-    const result = getExternalDecoratorInfo('unknownDecorator', 'test-package', mockRequire);
+    const result = getExternalDecoratorInfo(
+        'unknownDecorator',
+        'test-package',
+        mockRequire
+    );
     assertEquals(result, null);
 });
 
 Deno.test('getExternalDecoratorInfo - returns null for missing package', () => {
     clearExternalManifestCache();
 
-    const result = getExternalDecoratorInfo('hiddenController', 'missing-package', failingRequire);
+    const result = getExternalDecoratorInfo(
+        'hiddenController',
+        'missing-package',
+        failingRequire
+    );
     assertEquals(result, null);
 });

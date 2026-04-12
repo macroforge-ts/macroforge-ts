@@ -3,16 +3,16 @@
 ```typescript before
 /** @derive(Deserialize) @serde({ denyUnknownFields: true }) */
 class User {
-    id: number;
+  id: number;
 
-    /** @serde({ validate: { email: true, maxLength: 255 } }) */
-    email: string;
+  /** @serde({ validate: { email: true, maxLength: 255 } }) */
+  email: string;
 
-    /** @serde({ default: "guest" }) */
-    name: string;
+  /** @serde({ default: "guest" }) */
+  name: string;
 
-    /** @serde({ validate: { positive: true } }) */
-    age?: number;
+  /** @serde({ validate: { positive: true } }) */
+  age?: number;
 }
 ```
 

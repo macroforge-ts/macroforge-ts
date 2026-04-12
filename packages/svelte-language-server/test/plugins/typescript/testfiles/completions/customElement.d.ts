@@ -1,9 +1,9 @@
 declare global {
-    namespace svelteHTML {
-        interface IntrinsicElements {
-            'custom-element': any;
-        }
+  namespace svelteHTML {
+    interface IntrinsicElements {
+      "custom-element": any;
     }
+  }
 }
 
 export {};

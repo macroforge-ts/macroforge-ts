@@ -1,7 +1,7 @@
 # Rust Setup
 
-Create a new Rust crate that will contain your custom macros. This crate compiles to a native
-Node.js addon.
+Create a new Rust crate that will contain your custom macros. This crate
+compiles to a native Node.js addon.
 
 ## Prerequisites
 

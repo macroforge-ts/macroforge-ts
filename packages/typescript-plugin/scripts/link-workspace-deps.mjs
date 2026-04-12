@@ -24,7 +24,11 @@ async function linkDependency(specifier, target) {
         return;
     }
 
-    const linkPath = path.resolve(packageRoot, 'node_modules', ...specifier.split('/'));
+    const linkPath = path.resolve(
+        packageRoot,
+        'node_modules',
+        ...specifier.split('/')
+    );
     await mkdir(path.dirname(linkPath), { recursive: true });
     await rm(linkPath, { force: true, recursive: true });
     await symlink(target, linkPath, 'dir');

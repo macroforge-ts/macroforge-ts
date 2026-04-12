@@ -28,7 +28,10 @@ export class GreaterThanValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanValidator.deserializeWithContext(data, ctx);
+            const resultOrRef = GreaterThanValidator.deserializeWithContext(
+                data,
+                ctx
+            );
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -98,7 +101,9 @@ export class GreaterThanValidator {
             errors.push({ field: 'positive', message: 'missing required field' });
         }
 
-        const instance = Object.create(GreaterThanValidator.prototype) as GreaterThanValidator;
+        const instance = Object.create(
+            GreaterThanValidator.prototype
+        ) as GreaterThanValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -196,7 +201,9 @@ export function greaterThanValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function greaterThanValidatorIs(value: unknown): value is GreaterThanValidator {
+export function greaterThanValidatorIs(
+    value: unknown
+): value is GreaterThanValidator {
     return GreaterThanValidator.is(value);
 }
 
@@ -222,7 +229,10 @@ export class GreaterThanOrEqualToValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanOrEqualToValidator.deserializeWithContext(data, ctx);
+            const resultOrRef = GreaterThanOrEqualToValidator.deserializeWithContext(
+                data,
+                ctx
+            );
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -492,7 +502,9 @@ export class LessThanValidator {
             errors.push({ field: 'capped', message: 'missing required field' });
         }
 
-        const instance = Object.create(LessThanValidator.prototype) as LessThanValidator;
+        const instance = Object.create(
+            LessThanValidator.prototype
+        ) as LessThanValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -590,7 +602,9 @@ export function lessThanValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lessThanValidatorIs(value: unknown): value is LessThanValidator {
+export function lessThanValidatorIs(
+    value: unknown
+): value is LessThanValidator {
     return LessThanValidator.is(value);
 }
 
@@ -616,7 +630,10 @@ export class LessThanOrEqualToValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LessThanOrEqualToValidator.deserializeWithContext(data, ctx);
+            const resultOrRef = LessThanOrEqualToValidator.deserializeWithContext(
+                data,
+                ctx
+            );
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -786,7 +803,9 @@ export function lessThanOrEqualToValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lessThanOrEqualToValidatorIs(value: unknown): value is LessThanOrEqualToValidator {
+export function lessThanOrEqualToValidatorIs(
+    value: unknown
+): value is LessThanOrEqualToValidator {
     return LessThanOrEqualToValidator.is(value);
 }
 
@@ -881,7 +900,9 @@ export class BetweenValidator {
             errors.push({ field: 'ranged', message: 'missing required field' });
         }
 
-        const instance = Object.create(BetweenValidator.prototype) as BetweenValidator;
+        const instance = Object.create(
+            BetweenValidator.prototype
+        ) as BetweenValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -1267,7 +1288,9 @@ export class NonNaNValidator {
             errors.push({ field: 'valid', message: 'missing required field' });
         }
 
-        const instance = Object.create(NonNaNValidator.prototype) as NonNaNValidator;
+        const instance = Object.create(
+            NonNaNValidator.prototype
+        ) as NonNaNValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -1277,7 +1300,10 @@ export class NonNaNValidator {
         {
             const __raw_valid = obj['valid'] as number;
             if (Number.isNaN(__raw_valid)) {
-                errors.push({ field: 'valid', message: 'NonNaNValidator.valid must not be NaN' });
+                errors.push({
+                    field: 'valid',
+                    message: 'NonNaNValidator.valid must not be NaN'
+                });
             }
             instance.valid = __raw_valid;
         }
@@ -1295,7 +1321,10 @@ export class NonNaNValidator {
         if (_field === 'valid') {
             const __val = _value as number;
             if (Number.isNaN(__val)) {
-                errors.push({ field: 'valid', message: 'NonNaNValidator.valid must not be NaN' });
+                errors.push({
+                    field: 'valid',
+                    message: 'NonNaNValidator.valid must not be NaN'
+                });
             }
         }
 
@@ -1309,7 +1338,10 @@ export class NonNaNValidator {
         if ('valid' in _partial && _partial.valid !== undefined) {
             const __val = _partial.valid as number;
             if (Number.isNaN(__val)) {
-                errors.push({ field: 'valid', message: 'NonNaNValidator.valid must not be NaN' });
+                errors.push({
+                    field: 'valid',
+                    message: 'NonNaNValidator.valid must not be NaN'
+                });
             }
         }
 
@@ -1451,7 +1483,9 @@ export class FiniteValidator {
             errors.push({ field: 'finite', message: 'missing required field' });
         }
 
-        const instance = Object.create(FiniteValidator.prototype) as FiniteValidator;
+        const instance = Object.create(
+            FiniteValidator.prototype
+        ) as FiniteValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -1461,7 +1495,10 @@ export class FiniteValidator {
         {
             const __raw_finite = obj['finite'] as number;
             if (!Number.isFinite(__raw_finite)) {
-                errors.push({ field: 'finite', message: 'FiniteValidator.finite must be finite' });
+                errors.push({
+                    field: 'finite',
+                    message: 'FiniteValidator.finite must be finite'
+                });
             }
             instance.finite = __raw_finite;
         }
@@ -1479,7 +1516,10 @@ export class FiniteValidator {
         if (_field === 'finite') {
             const __val = _value as number;
             if (!Number.isFinite(__val)) {
-                errors.push({ field: 'finite', message: 'FiniteValidator.finite must be finite' });
+                errors.push({
+                    field: 'finite',
+                    message: 'FiniteValidator.finite must be finite'
+                });
             }
         }
 
@@ -1493,7 +1533,10 @@ export class FiniteValidator {
         if ('finite' in _partial && _partial.finite !== undefined) {
             const __val = _partial.finite as number;
             if (!Number.isFinite(__val)) {
-                errors.push({ field: 'finite', message: 'FiniteValidator.finite must be finite' });
+                errors.push({
+                    field: 'finite',
+                    message: 'FiniteValidator.finite must be finite'
+                });
             }
         }
 
@@ -1635,7 +1678,9 @@ export class PositiveValidator {
             errors.push({ field: 'positive', message: 'missing required field' });
         }
 
-        const instance = Object.create(PositiveValidator.prototype) as PositiveValidator;
+        const instance = Object.create(
+            PositiveValidator.prototype
+        ) as PositiveValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -1733,7 +1778,9 @@ export function positiveValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function positiveValidatorIs(value: unknown): value is PositiveValidator {
+export function positiveValidatorIs(
+    value: unknown
+): value is PositiveValidator {
     return PositiveValidator.is(value);
 }
 
@@ -1759,7 +1806,10 @@ export class NonNegativeValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonNegativeValidator.deserializeWithContext(data, ctx);
+            const resultOrRef = NonNegativeValidator.deserializeWithContext(
+                data,
+                ctx
+            );
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -1829,7 +1879,9 @@ export class NonNegativeValidator {
             errors.push({ field: 'nonNegative', message: 'missing required field' });
         }
 
-        const instance = Object.create(NonNegativeValidator.prototype) as NonNegativeValidator;
+        const instance = Object.create(
+            NonNegativeValidator.prototype
+        ) as NonNegativeValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -1927,7 +1979,9 @@ export function nonNegativeValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonNegativeValidatorIs(value: unknown): value is NonNegativeValidator {
+export function nonNegativeValidatorIs(
+    value: unknown
+): value is NonNegativeValidator {
     return NonNegativeValidator.is(value);
 }
 
@@ -2022,7 +2076,9 @@ export class NegativeValidator {
             errors.push({ field: 'negative', message: 'missing required field' });
         }
 
-        const instance = Object.create(NegativeValidator.prototype) as NegativeValidator;
+        const instance = Object.create(
+            NegativeValidator.prototype
+        ) as NegativeValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -2120,7 +2176,9 @@ export function negativeValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function negativeValidatorIs(value: unknown): value is NegativeValidator {
+export function negativeValidatorIs(
+    value: unknown
+): value is NegativeValidator {
     return NegativeValidator.is(value);
 }
 
@@ -2146,7 +2204,10 @@ export class NonPositiveValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = NonPositiveValidator.deserializeWithContext(data, ctx);
+            const resultOrRef = NonPositiveValidator.deserializeWithContext(
+                data,
+                ctx
+            );
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -2216,7 +2277,9 @@ export class NonPositiveValidator {
             errors.push({ field: 'nonPositive', message: 'missing required field' });
         }
 
-        const instance = Object.create(NonPositiveValidator.prototype) as NonPositiveValidator;
+        const instance = Object.create(
+            NonPositiveValidator.prototype
+        ) as NonPositiveValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -2314,7 +2377,9 @@ export function nonPositiveValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function nonPositiveValidatorIs(value: unknown): value is NonPositiveValidator {
+export function nonPositiveValidatorIs(
+    value: unknown
+): value is NonPositiveValidator {
     return NonPositiveValidator.is(value);
 }
 
@@ -2410,7 +2475,9 @@ export class MultipleOfValidator {
             errors.push({ field: 'multiple', message: 'missing required field' });
         }
 
-        const instance = Object.create(MultipleOfValidator.prototype) as MultipleOfValidator;
+        const instance = Object.create(
+            MultipleOfValidator.prototype
+        ) as MultipleOfValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -2508,7 +2575,9 @@ export function multipleOfValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function multipleOfValidatorIs(value: unknown): value is MultipleOfValidator {
+export function multipleOfValidatorIs(
+    value: unknown
+): value is MultipleOfValidator {
     return MultipleOfValidator.is(value);
 }
 
@@ -2613,7 +2682,10 @@ export class Uint8Validator {
         {
             const __raw_byte = obj['byte'] as number;
             if (!Number.isInteger(__raw_byte) || __raw_byte < 0 || __raw_byte > 255) {
-                errors.push({ field: 'byte', message: 'Uint8Validator.byte must be a uint8' });
+                errors.push({
+                    field: 'byte',
+                    message: 'Uint8Validator.byte must be a uint8'
+                });
             }
             instance.byte = __raw_byte;
         }
@@ -2631,7 +2703,10 @@ export class Uint8Validator {
         if (_field === 'byte') {
             const __val = _value as number;
             if (!Number.isInteger(__val) || __val < 0 || __val > 255) {
-                errors.push({ field: 'byte', message: 'Uint8Validator.byte must be a uint8' });
+                errors.push({
+                    field: 'byte',
+                    message: 'Uint8Validator.byte must be a uint8'
+                });
             }
         }
 
@@ -2645,7 +2720,10 @@ export class Uint8Validator {
         if ('byte' in _partial && _partial.byte !== undefined) {
             const __val = _partial.byte as number;
             if (!Number.isInteger(__val) || __val < 0 || __val > 255) {
-                errors.push({ field: 'byte', message: 'Uint8Validator.byte must be a uint8' });
+                errors.push({
+                    field: 'byte',
+                    message: 'Uint8Validator.byte must be a uint8'
+                });
             }
         }
 

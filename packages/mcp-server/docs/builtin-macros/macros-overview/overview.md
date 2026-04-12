@@ -1,7 +1,8 @@
 # Built-in Macros
 
-Macroforge comes with built-in derive macros that cover the most common code generation needs. All
-macros work with classes, interfaces, enums, and type aliases.
+Macroforge comes with built-in derive macros that cover the most common code
+generation needs. All macros work with classes, interfaces, enums, and type
+aliases.
 
 ## Overview
 

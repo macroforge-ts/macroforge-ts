@@ -1,20 +1,20 @@
 {
-    "name": "@macroforge/vite-plugin",
-    "version": "0.1.79",
-    "license": "MIT",
-    "exports": {
-        ".": "./src/index.js"
-    },
-    "imports": {
-        "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
-        "typescript": "npm:typescript@^5.9.3",
-        "vite": "npm:vite@^6.0.0"
-    },
-    "compilerOptions": {
-        "lib": ["esnext", "deno.window"],
-        "skipLibCheck": true
-    },
-    "publish": {
-        "exclude": ["tests/", "node_modules/"]
-    }
+  "name": "@macroforge/vite-plugin",
+  "version": "0.1.79",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "imports": {
+    "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
+    "typescript": "npm:typescript@^5.9.3",
+    "vite": "npm:vite@^6.0.0"
+  },
+  "compilerOptions": {
+    "lib": ["esnext", "deno.window"],
+    "skipLibCheck": true
+  },
+  "publish": {
+    "exclude": ["tests/", "node_modules/"]
+  }
 }

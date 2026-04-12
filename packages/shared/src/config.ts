@@ -202,7 +202,10 @@ export function loadMacroConfig(
     startDir: string,
     loadConfigFn?: ConfigLoader
 ): MacroConfig {
-    const fallback: MacroConfig = { keepDecorators: false, hasForeignTypes: false };
+    const fallback: MacroConfig = {
+        keepDecorators: false,
+        hasForeignTypes: false
+    };
 
     const configPath = findConfigFile(startDir);
     if (!configPath) {
