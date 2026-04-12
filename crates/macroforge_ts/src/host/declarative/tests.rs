@@ -2436,8 +2436,7 @@ const r = $apply_each(1, 2, 3);
         .find_map(|p| match p {
             crate::ts_syn::abi::Patch::Replace {
                 code, source_macro, ..
-            } if source_macro.as_deref() == Some("$apply_each") =>
-            {
+            } if source_macro.as_deref() == Some("$apply_each") => {
                 let crate::ts_syn::abi::PatchCode::Text(t) = code;
                 Some(t.as_str())
             }
