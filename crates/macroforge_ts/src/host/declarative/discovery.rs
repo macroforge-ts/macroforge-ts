@@ -18,8 +18,8 @@
 use std::path::{Path, PathBuf};
 
 use oxc::ast::ast::{
-    BindingPattern, Declaration, Expression, ImportDeclarationSpecifier, Program, Statement,
-    TemplateLiteral, VariableDeclarationKind,
+    BindingPattern, Expression, ImportDeclarationSpecifier, Program, Statement, TemplateLiteral,
+    VariableDeclarationKind,
 };
 use oxc::span::GetSpan;
 
@@ -40,6 +40,17 @@ pub struct DiscoveredMacro {
     /// Span covering the full `const $name = macroRules\`...\`;` declaration,
     /// in the **1-based SpanIR convention** used by the patch applicator.
     pub def_span: SpanIR,
+    /// Span of the smallest enclosing lexical scope — the program
+    /// span for top-level declarations, or the block / function body
+    /// span for nested declarations (PR 11).
+    ///
+    /// The registry uses this field to scope lookups: a call site
+    /// inside the same block only sees macros whose `scope_span`
+    /// contains the call site's position, allowing shadowing of an
+    /// outer declaration by a nested one with the same name. For
+    /// top-level declarations the scope span equals the program's
+    /// span, so they're visible from every position in the file.
+    pub scope_span: SpanIR,
 }
 
 /// Module specifier that must be imported for declarative macros to activate.
@@ -63,81 +74,154 @@ pub fn discover(
         return Ok(Vec::new());
     }
 
-    let mut out = Vec::new();
-    for stmt in &program.body {
-        // Support both `const $x = macroRules\`...\`` at the top level and
-        // `export const $x = macroRules\`...\``.
-        let var_decl = match stmt {
-            Statement::VariableDeclaration(decl) => Some(decl.as_ref()),
-            Statement::ExportNamedDeclaration(export) => {
-                export.declaration.as_ref().and_then(|decl| match decl {
-                    Declaration::VariableDeclaration(var) => Some(var.as_ref()),
-                    _ => None,
-                })
-            }
-            _ => None,
-        };
-        let Some(var_decl) = var_decl else {
-            continue;
-        };
+    // PR 11: walk nested scopes via an OXC visitor so declarations
+    // inside function bodies, block statements, and arrow-function
+    // bodies are discovered alongside top-level ones. Each discovered
+    // macro is tagged with the span of its enclosing lexical scope
+    // so the registry can do scoped lookups and support shadowing.
+    let file_scope = SpanIR::new(1, program.span.end + 1);
+    let mut visitor = DiscoveryVisitor {
+        source,
+        scope_stack: vec![file_scope],
+        discovered: Vec::new(),
+        error: None,
+    };
+    oxc::ast_visit::Visit::visit_program(&mut visitor, program);
+    if let Some(err) = visitor.error {
+        return Err(err);
+    }
+    Ok(visitor.discovered)
+}
+
+/// Visitor that walks the program, tracks the enclosing lexical
+/// scope as it descends through function bodies and blocks, and
+/// records each `const $name = macroRules\`...\`` declaration it
+/// encounters.
+///
+/// Scope tracking: every time the visitor enters a block statement,
+/// function body, or arrow-function body, it pushes that node's
+/// span onto `scope_stack`. The top of the stack is the "current
+/// innermost scope" and is what we tag each discovered macro with.
+/// On leaving the node, we pop.
+///
+/// Error handling: OXC's `Visit` trait has no `Result` return type,
+/// so parse errors from `parse_tag_form_macro` / `parse_object_form_macro`
+/// are stashed into `self.error`. The first error short-circuits
+/// further work via a flag check at every visitor entry — we can't
+/// actually stop the walker, so we silently no-op until the caller
+/// retrieves the error.
+struct DiscoveryVisitor<'s> {
+    source: &'s str,
+    scope_stack: Vec<SpanIR>,
+    discovered: Vec<DiscoveredMacro>,
+    error: Option<DeclarativeError>,
+}
+
+impl<'s> DiscoveryVisitor<'s> {
+    fn current_scope(&self) -> SpanIR {
+        *self
+            .scope_stack
+            .last()
+            .expect("scope stack must never be empty")
+    }
+
+    /// Try to match a variable declaration against the
+    /// `const $name = macroRules\`...\`` shape and, on a hit,
+    /// push a `DiscoveredMacro` into `self.discovered`. No-op if
+    /// the declaration isn't a macro or if an earlier error has
+    /// already been recorded.
+    fn try_collect_decl(
+        &mut self,
+        var_decl: &oxc::ast::ast::VariableDeclaration<'_>,
+        stmt_span: oxc::span::Span,
+    ) {
+        if self.error.is_some() {
+            return;
+        }
         if var_decl.kind != VariableDeclarationKind::Const {
-            continue;
+            return;
         }
         if var_decl.declarations.len() != 1 {
-            continue;
+            return;
         }
         let declarator = &var_decl.declarations[0];
-
-        // Extract binding identifier.
         let BindingPattern::BindingIdentifier(binding) = &declarator.id else {
-            continue;
+            return;
         };
         let binding_name = binding.name.as_str();
         if !binding_name.starts_with('$') {
-            continue;
+            return;
         }
-
         let Some(init) = &declarator.init else {
-            continue;
+            return;
         };
 
-        // Compute spans. Patch spans are 1-based; OXC is 0-based.
-        let decl_span = oxc_span_to_ir(stmt.span());
-        // Account for the trailing semicolon if present in the source.
-        let def_span = extend_to_semicolon(decl_span, source);
+        let decl_span = oxc_span_to_ir(stmt_span);
+        let def_span = extend_to_semicolon(decl_span, self.source);
 
-        // Two supported shapes:
-        //   1. Tag form:    `macroRules\`...\``
-        //   2. Object form: `macroRules({ expand, runtime, call, mode })`
-        let mut def = match init {
+        let def_result = match init {
             Expression::TaggedTemplateExpression(tagged) => {
                 let Expression::Identifier(tag_ident) = &tagged.tag else {
-                    continue;
+                    return;
                 };
                 if tag_ident.name.as_str() != MACRO_RULES_IDENT {
-                    continue;
+                    return;
                 }
-                parse_tag_form_macro(tagged, source)?
+                parse_tag_form_macro(tagged, self.source)
             }
             Expression::CallExpression(call) => {
                 let Expression::Identifier(callee) = &call.callee else {
-                    continue;
+                    return;
                 };
                 if callee.name.as_str() != MACRO_RULES_IDENT {
-                    continue;
+                    return;
                 }
-                parse_object_form_macro(call, source)?
+                parse_object_form_macro(call, self.source)
             }
-            _ => continue,
+            _ => return,
         };
 
-        // Populate the name from the surrounding binding (sans the `$`).
+        let mut def = match def_result {
+            Ok(def) => def,
+            Err(e) => {
+                self.error = Some(e);
+                return;
+            }
+        };
         def.name = binding_name[1..].to_string();
 
-        out.push(DiscoveredMacro { def, def_span });
+        self.discovered.push(DiscoveredMacro {
+            def,
+            def_span,
+            scope_span: self.current_scope(),
+        });
+    }
+}
+
+impl<'a> oxc::ast_visit::Visit<'a> for DiscoveryVisitor<'_> {
+    fn visit_variable_declaration(&mut self, decl: &oxc::ast::ast::VariableDeclaration<'a>) {
+        self.try_collect_decl(decl, decl.span);
+        // Don't descend — a `const $name = macroRules\`...\``'s
+        // template body is a string literal to us, not nested code.
     }
 
-    Ok(out)
+    fn visit_block_statement(&mut self, block: &oxc::ast::ast::BlockStatement<'a>) {
+        self.scope_stack.push(oxc_span_to_ir(block.span));
+        oxc::ast_visit::walk::walk_block_statement(self, block);
+        self.scope_stack.pop();
+    }
+
+    fn visit_function_body(&mut self, body: &oxc::ast::ast::FunctionBody<'a>) {
+        self.scope_stack.push(oxc_span_to_ir(body.span));
+        oxc::ast_visit::walk::walk_function_body(self, body);
+        self.scope_stack.pop();
+    }
+
+    fn visit_static_block(&mut self, block: &oxc::ast::ast::StaticBlock<'a>) {
+        self.scope_stack.push(oxc_span_to_ir(block.span));
+        oxc::ast_visit::walk::walk_static_block(self, block);
+        self.scope_stack.pop();
+    }
 }
 
 /// Parse a tag-form declaration: `` macroRules`...` ``. Extracts the
@@ -195,6 +279,7 @@ fn parse_object_form_macro(
     let mut runtime: Option<String> = None;
     let mut call_arms: Option<Vec<MacroArm>> = None;
     let mut megamorphism_threshold: Option<u8> = None;
+    let mut runtime_name_template: Option<String> = None;
 
     for prop in &obj.properties {
         use oxc::ast::ast::{ObjectPropertyKind, PropertyKey};
@@ -327,11 +412,31 @@ fn parse_object_form_macro(
                 }
                 megamorphism_threshold = Some(v as u8);
             }
+            "runtimeName" | "runtime_name" => {
+                // Template that controls how the shared runtime
+                // helper's name is specialized per cluster (Phase E
+                // of the production-hardening plan). Must be a
+                // string literal; we don't accept template literals
+                // here because the value is itself a simple
+                // substitution template that the rewriter interprets
+                // at emission time.
+                let text = extract_plain_string(&p.value)?;
+                if !text.contains("$__cluster__") {
+                    return Err(DeclarativeError::new(
+                        oxc_span_to_ir(p.value.span()),
+                        "`runtimeName` must contain the literal token `$__cluster__` exactly once; the rewriter substitutes it with the cluster id per call site",
+                    )
+                    .with_help(
+                        "example: `runtimeName: \"__serialize_$__cluster__\"` — the `$__cluster__` placeholder is replaced with the cluster id (e.g. `a`, `struct_User_Person`) per cluster variant.",
+                    ));
+                }
+                runtime_name_template = Some(text);
+            }
             other => {
                 return Err(DeclarativeError::new(
                     oxc_span_to_ir(p.key.span()),
                     format!(
-                        "unknown macroRules option `{}`; expected one of: mode, kind, expand, runtime, call, megamorphismThreshold",
+                        "unknown macroRules option `{}`; expected one of: mode, kind, expand, runtime, call, megamorphismThreshold, runtimeName",
                         other
                     ),
                 ));
@@ -361,6 +466,9 @@ fn parse_object_form_macro(
         return Err(DeclarativeError::new(
             oxc_span_to_ir(obj.span),
             "macroRules object form requires an `expand` template",
+        )
+        .with_help(
+            "add `expand: macroRules`(args) => body`` to the object passed to `macroRules({...})`",
         ));
     };
     if effective_mode.is_sharing() && (runtime.is_none() || call_arms.is_none()) {
@@ -370,6 +478,9 @@ fn parse_object_form_macro(
                 "mode `{:?}` requires both `runtime` and `call` to be set",
                 effective_mode
             ),
+        )
+        .with_help(
+            "sharing-mode macros need a `runtime` string (the shared helper body) AND a `call` template (how each call site invokes the helper). Add both to the `macroRules({...})` object, or switch to `mode: \"expand-only\"` if inline expansion is what you want.",
         ));
     }
 
@@ -382,12 +493,18 @@ fn parse_object_form_macro(
             return Err(DeclarativeError::new(
                 oxc_span_to_ir(obj.span),
                 "type-position macros cannot use sharing modes (share-only / share-anyway / auto); type expansions have no runtime",
+            )
+            .with_help(
+                "type-position macros expand into TypeScript types, which don't exist at runtime, so there's nothing to share. Remove `mode` (defaulting to `expand-only`) or drop `kind: \"type\"` if you meant a value-position macro.",
             ));
         }
         if runtime.is_some() || call_arms.is_some() {
             return Err(DeclarativeError::new(
                 oxc_span_to_ir(obj.span),
                 "type-position macros cannot declare `runtime` or `call` — those fields only apply in value position",
+            )
+            .with_help(
+                "remove the `runtime` and `call` fields, or drop `kind: \"type\"` if you're writing a value-position macro.",
             ));
         }
     }
@@ -399,6 +516,7 @@ fn parse_object_form_macro(
     if let Some(t) = megamorphism_threshold {
         def.megamorphism_threshold = t;
     }
+    def.runtime_name_template = runtime_name_template;
     Ok(def)
 }
 

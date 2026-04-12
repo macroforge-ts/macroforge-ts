@@ -54,7 +54,17 @@ pub enum MatchError {
         tried: Vec<String>,
     },
     /// An unsupported fragment kind was used in call-argument position.
-    UnsupportedFragmentKind(FragmentKind),
+    ///
+    /// The `reason` field carries a concrete explanation of why the
+    /// kind is impossible in call-argument position — e.g. "`Stmt`
+    /// is a declaration or control-flow node; JavaScript doesn't
+    /// allow statements as call arguments". PR 9 added this so
+    /// users see a grammatical explanation rather than a bare
+    /// "not supported" message.
+    UnsupportedFragmentKind {
+        kind: FragmentKind,
+        reason: &'static str,
+    },
     /// Two sequence bindings in the same body would need different lengths.
     InconsistentSequenceLength,
 }
@@ -67,13 +77,27 @@ impl std::fmt::Display for MatchError {
                 if !tried.is_empty() {
                     write!(f, ": {}", tried.join(" | "))?;
                 }
+                // PR 9 note: after PR 9 the matcher does bounded
+                // backtracking, so patterns like `$( $x:Expr ),* $last:Expr`
+                // CAN match. If we still end up here with a
+                // repetition-containing arm, the match genuinely
+                // failed for other reasons. We keep the hint so
+                // users understand repetition+tail patterns are
+                // expected to work — if they don't, it's likely a
+                // legitimate mismatch on the tail fragment kinds.
+                if tried.iter().any(|p| p.contains("$(...)")) {
+                    write!(
+                        f,
+                        " (note: repetitions `$(...)*` / `$(...)+` / `$(...)?` are matched with bounded backtracking — the matcher tries decreasing counts until the tail elements fit; if you expected a match here, double-check that the fragment kinds after the repetition are compatible with the remaining call arguments)"
+                    )?;
+                }
                 Ok(())
             }
-            MatchError::UnsupportedFragmentKind(k) => {
+            MatchError::UnsupportedFragmentKind { kind, reason } => {
                 write!(
                     f,
-                    "fragment kind `{:?}` is not supported in call-argument position",
-                    k
+                    "fragment kind `{:?}` cannot appear in call-argument position: {}",
+                    kind, reason
                 )
             }
             MatchError::InconsistentSequenceLength => {
@@ -149,9 +173,7 @@ fn match_elements<'a>(
     bindings: &mut HashMap<String, Binding>,
     source: &str,
 ) -> Result<bool, MatchError> {
-    let mut i = 0usize;
-    while i < elements.len() {
-        let elem = &elements[i];
+    for (idx, elem) in elements.iter().enumerate() {
         match elem {
             PatternElement::Literal(lit) => {
                 // Literal separators like `,` are implicitly consumed between
@@ -174,62 +196,173 @@ fn match_elements<'a>(
                 separator: _,
                 kind,
             } => {
-                // Greedily match as many inner patterns as possible.
-                let mut collected: HashMap<String, Vec<BoundFragment>> = HashMap::new();
-                let mut count = 0usize;
-                loop {
-                    let saved_cursor = *cursor;
-                    let mut temp_bindings: HashMap<String, Binding> = HashMap::new();
-                    let inner_match =
-                        match_pattern(pattern, args, cursor, &mut temp_bindings, source)?;
-                    if !inner_match {
-                        *cursor = saved_cursor;
-                        break;
-                    }
-                    // Fold the inner bindings into accumulators.
-                    for (name, binding) in temp_bindings {
-                        let bucket = collected.entry(name).or_default();
-                        match binding {
-                            Binding::Single(frag) => bucket.push(frag),
-                            Binding::Sequence(frags) => bucket.extend(frags),
-                        }
-                    }
-                    count += 1;
-
-                    // Enforce repetition upper bound for `?`.
-                    if *kind == RepetitionKind::ZeroOrOne && count >= 1 {
-                        break;
-                    }
-
-                    // If we didn't advance, abort to avoid an infinite loop.
-                    if *cursor == saved_cursor {
-                        break;
-                    }
-                }
-
-                match kind {
-                    RepetitionKind::ZeroOrMore => {}
-                    RepetitionKind::OneOrMore => {
-                        if count == 0 {
-                            return Ok(false);
-                        }
-                    }
-                    RepetitionKind::ZeroOrOne => {
-                        if count > 1 {
-                            return Ok(false);
-                        }
-                    }
-                }
-
-                // Record the collected sequences as Sequence bindings.
-                for (name, frags) in collected {
-                    bindings.insert(name, Binding::Sequence(frags));
-                }
+                // PR 9: bounded backtracking. We delegate to a helper
+                // that (a) runs the greedy pass capturing a snapshot
+                // after each iteration, then (b) tries to match the
+                // tail elements (everything after this Repetition)
+                // against each snapshot from greediest down to the
+                // minimum required by `kind`, returning on the first
+                // count that leads to a complete match.
+                //
+                // Returning from here unconditionally is correct
+                // because [`match_elements_with_repetition_backtrack`]
+                // handles the tail itself — control does not come
+                // back to this loop.
+                let tail = &elements[idx + 1..];
+                return match_elements_with_repetition_backtrack(
+                    pattern, *kind, tail, args, cursor, bindings, source,
+                );
             }
         }
-        i += 1;
     }
     Ok(true)
+}
+
+/// Handle a [`PatternElement::Repetition`] with bounded backtracking.
+///
+/// Called from [`match_elements`] when a Repetition is encountered.
+/// The caller passes the repetition's inner pattern and kind, plus
+/// the `tail` of elements that come AFTER the repetition in the
+/// outer pattern. This function:
+///
+/// 1. Runs the greedy pass — keep matching `inner` against `args`
+///    until it fails or stops advancing, remembering a snapshot
+///    `(cursor, collected_bindings)` after each successful iteration.
+/// 2. Iterates candidate counts from the greedy maximum down to the
+///    minimum allowed by `kind` (0 for `*`/`?`, 1 for `+`). For each
+///    candidate, it restores the snapshot's cursor position,
+///    splices the collected bindings into `outer_bindings` as
+///    `Binding::Sequence`s, and recursively calls [`match_elements`]
+///    on `tail`. If the tail match succeeds AND the cursor ends up
+///    at `args.len()` (full consumption), the function returns
+///    `Ok(true)` with all bindings committed.
+/// 3. If no candidate count produces a complete match, the function
+///    returns `Ok(false)` and leaves `cursor` / `bindings` in a
+///    neutral state (the caller's next action is to return
+///    `Ok(false)` itself or advance to the next arm).
+///
+/// Cost. Snapshot storage is `O(args.len() × keys_in_inner_pattern)`
+/// and the backtracking loop is `O(args.len())` retries, each
+/// running `match_elements` on the tail. For realistic macros the
+/// tail is a small constant-sized pattern, so the total work per
+/// arm is still linear in the number of call arguments.
+#[allow(clippy::too_many_arguments)]
+fn match_elements_with_repetition_backtrack<'a>(
+    inner: &Pattern,
+    kind: RepetitionKind,
+    tail: &[PatternElement],
+    args: &'a OxcVec<'a, Argument<'a>>,
+    cursor: &mut usize,
+    outer_bindings: &mut HashMap<String, Binding>,
+    source: &str,
+) -> Result<bool, MatchError> {
+    // --- Phase 1: greedy pass collecting per-count snapshots. ---
+    //
+    // `snapshots[k]` holds the state AFTER `k` successful iterations
+    // of the inner pattern. `snapshots[0]` is the pre-repetition
+    // state (empty bindings, cursor where we started). Each entry
+    // pairs the cursor position with the set of collected inner
+    // bindings accumulated so far.
+    let mut snapshots: Vec<(usize, HashMap<String, Vec<BoundFragment>>)> = Vec::new();
+    snapshots.push((*cursor, HashMap::new()));
+
+    let mut collected: HashMap<String, Vec<BoundFragment>> = HashMap::new();
+    let mut count = 0usize;
+    loop {
+        let saved_cursor = *cursor;
+        let mut temp_bindings: HashMap<String, Binding> = HashMap::new();
+        let inner_match = match_pattern(inner, args, cursor, &mut temp_bindings, source)?;
+        if !inner_match {
+            *cursor = saved_cursor;
+            break;
+        }
+        // Fold the inner bindings into the running accumulator.
+        for (name, binding) in temp_bindings {
+            let bucket = collected.entry(name).or_default();
+            match binding {
+                Binding::Single(frag) => bucket.push(frag),
+                Binding::Sequence(frags) => bucket.extend(frags),
+            }
+        }
+        count += 1;
+        // Record snapshot AFTER this successful iteration.
+        snapshots.push((*cursor, collected.clone()));
+
+        // `?` has max count 1.
+        if kind == RepetitionKind::ZeroOrOne && count >= 1 {
+            break;
+        }
+        // Guard against zero-width inner patterns that would loop
+        // forever.
+        if *cursor == saved_cursor {
+            break;
+        }
+    }
+
+    // --- Phase 2: try each candidate count from greediest to min. ---
+    //
+    // The minimum allowed count is determined by `kind`. We also
+    // cap at `count` (the greedy maximum) because nothing past that
+    // can match anyway.
+    let min_count: usize = match kind {
+        RepetitionKind::ZeroOrMore | RepetitionKind::ZeroOrOne => 0,
+        RepetitionKind::OneOrMore => 1,
+    };
+
+    // Remember which keys this Repetition contributes so we can
+    // clean them up between tail attempts.
+    let rep_keys: Vec<String> = collected.keys().cloned().collect();
+
+    for try_count in (min_count..=count).rev() {
+        // ZeroOrOne caps at 1 — don't try counts above it.
+        if kind == RepetitionKind::ZeroOrOne && try_count > 1 {
+            continue;
+        }
+
+        let (snap_cursor, snap_bindings) = &snapshots[try_count];
+        *cursor = *snap_cursor;
+
+        // Splice this count's collected bindings into outer_bindings.
+        for (name, frags) in snap_bindings {
+            outer_bindings.insert(name.clone(), Binding::Sequence(frags.clone()));
+        }
+
+        // For repetitions that referenced metavariables not bound
+        // on this iteration (can happen when the candidate count is
+        // 0 and the metavariable was in the inner pattern), make
+        // sure every `rep_keys` entry has AT LEAST a (possibly
+        // empty) Sequence binding so body expansion doesn't hit
+        // UnboundName.
+        for key in &rep_keys {
+            outer_bindings
+                .entry(key.clone())
+                .or_insert_with(|| Binding::Sequence(Vec::new()));
+        }
+
+        // Snapshot the outer bindings BEFORE tail matching so we
+        // can roll back if the tail fails. This is necessary
+        // because `match_elements` mutates `bindings` in-place
+        // (e.g. inserts `Fragment` matches) as it goes.
+        let bindings_before_tail = outer_bindings.clone();
+        let cursor_before_tail = *cursor;
+
+        let tail_matched = match_elements(tail, args, cursor, outer_bindings, source)?;
+        if tail_matched && *cursor == args.len() {
+            return Ok(true);
+        }
+
+        // Tail failed at this count. Roll back and try a smaller
+        // count. We also clear out any rep_keys that the snapshot
+        // contributed, since a smaller count will rewrite them.
+        *outer_bindings = bindings_before_tail;
+        *cursor = cursor_before_tail;
+        for key in &rep_keys {
+            outer_bindings.remove(key);
+        }
+    }
+
+    // No count produced a full match.
+    Ok(false)
 }
 
 fn bind_fragment(
@@ -261,13 +394,40 @@ fn bind_fragment(
             Expression::Identifier(_) | Expression::StaticMemberExpression(_)
         ),
         FragmentKind::Block => matches!(expr, Expression::ArrowFunctionExpression(_)),
-        // Not supported in call-arg position in MVP.
-        FragmentKind::Stmt
-        | FragmentKind::Type
-        | FragmentKind::Pat
-        | FragmentKind::Item
-        | FragmentKind::Decorator => {
-            return Err(MatchError::UnsupportedFragmentKind(kind));
+        // The kinds below are semantically impossible in
+        // call-argument position — JavaScript's grammar only allows
+        // expressions as call arguments, and the rejection reasons
+        // below explain the mismatch so users don't mistake it for
+        // "not implemented yet".
+        FragmentKind::Stmt => {
+            return Err(MatchError::UnsupportedFragmentKind {
+                kind,
+                reason: "`Stmt` matches control-flow or declaration statements; JavaScript's grammar only allows expressions as call arguments. Wrap the statement in an arrow function if you need to pass it in: `$macro(() => { ...stmts })`.",
+            });
+        }
+        FragmentKind::Type => {
+            return Err(MatchError::UnsupportedFragmentKind {
+                kind,
+                reason: "`Type` matches TypeScript type annotations, which only appear in type position (type aliases, parameter annotations, return types). For a value-position macro, use `Expr`; for a type-position macro, declare the macro with `kind: \"type\"`.",
+            });
+        }
+        FragmentKind::Pat => {
+            return Err(MatchError::UnsupportedFragmentKind {
+                kind,
+                reason: "`Pat` matches destructuring patterns, which can only appear in binding position (function parameters, `let`/`const` LHS). If you need to pass a pattern-like shape into a macro, capture the whole object expression with `Expr` instead.",
+            });
+        }
+        FragmentKind::Item => {
+            return Err(MatchError::UnsupportedFragmentKind {
+                kind,
+                reason: "`Item` matches top-level declarations (class, function, interface, enum). Declarations cannot appear in call-argument position in JavaScript. Use `Expr` to capture a function expression or class expression instead.",
+            });
+        }
+        FragmentKind::Decorator => {
+            return Err(MatchError::UnsupportedFragmentKind {
+                kind,
+                reason: "`Decorator` matches `@decorator(...)` annotations, which can only attach to classes, methods, and fields — not appear as call arguments. If you need a decorator-shaped expression as an argument, capture the call itself with `Expr`.",
+            });
         }
     };
     if !shape_ok {
@@ -425,7 +585,12 @@ fn bind_type_fragment(
     // expressions or identifiers.
     match kind {
         FragmentKind::Type | FragmentKind::Tt => {}
-        _ => return Err(MatchError::UnsupportedFragmentKind(kind)),
+        _ => {
+            return Err(MatchError::UnsupportedFragmentKind {
+                kind,
+                reason: "type-position macros only bind `Type` (or `Tt` as the structural fallback) metavariables. Expressions, identifiers, literals, patterns, and statements don't exist in TypeScript type position.",
+            });
+        }
     }
 
     let span = ty.span();

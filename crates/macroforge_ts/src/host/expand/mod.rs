@@ -310,7 +310,7 @@ impl MacroExpander {
             external_loader: Some(ExternalMacroLoader::new(root_dir)),
             type_registry: None,
             declarative_registry: None,
-            build_mode: crate::host::declarative::BuildMode::Dev,
+            build_mode: crate::host::declarative::BuildMode::dev(),
         })
     }
 
@@ -440,11 +440,21 @@ impl MacroExpander {
 
         let mut registry = crate::host::declarative::DeclarativeMacroRegistry::new();
         for dm in &discovered {
-            registry.register(dm.def.clone()).map_err(|e| {
-                MacroError::InvalidConfig(format!("Declarative macro error: {}", e))
-            })?;
+            // PR 11: register with the discovered macro's scope
+            // span so nested declarations get lexical-shadowing
+            // semantics. Top-level declarations have `scope_span`
+            // covering the whole program, which matches the
+            // pre-PR-11 behaviour of flat registration.
+            registry
+                .register_scoped(dm.def.clone(), dm.scope_span)
+                .map_err(|e| {
+                    MacroError::InvalidConfig(format!("Declarative macro error: {}", e))
+                })?;
         }
         for imported in &resolved_imports.imported {
+            // Cross-file imports are always registered at the
+            // file-global scope; the import mechanism has no
+            // concept of nested scopes.
             registry.register(imported.def.clone()).map_err(|e| {
                 MacroError::InvalidConfig(format!(
                     "Declarative macro error (imported from {}): {}",
@@ -472,7 +482,28 @@ impl MacroExpander {
 
         let applicator =
             crate::host::patch_applicator::PatchApplicator::new(source, output.patches);
-        let new_source = applicator.apply()?;
+
+        // Phase H: post-validation. In dev builds, re-parse the
+        // applied source and attribute any parse errors back to the
+        // originating macro via the applicator's source mapping. In
+        // prod builds, skip the extra parse — the downstream lowering
+        // parser will catch the error anyway, just with a less
+        // targeted message. Tests run under Dev, so they exercise the
+        // validation path without extra wiring.
+        let validate = self.build_mode.is_dev();
+        let jsx = file_name.ends_with(".tsx");
+        let new_source = if validate {
+            let applied = applicator.apply_with_mapping(None)?;
+            let validation = crate::host::declarative::validate_expanded_source(
+                &applied.code,
+                &applied.mapping,
+                jsx,
+            );
+            diagnostics.extend(validation);
+            applied.code
+        } else {
+            applicator.apply()?
+        };
         Ok((Some(new_source), diagnostics))
     }
 

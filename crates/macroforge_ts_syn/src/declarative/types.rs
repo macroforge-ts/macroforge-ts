@@ -79,6 +79,26 @@ pub struct MacroDef {
     #[serde(default = "default_megamorphism_threshold")]
     pub megamorphism_threshold: u8,
 
+    /// Template used to specialize the shared-runtime helper's name
+    /// when the megamorph analyzer partitions this macro's call sites
+    /// into clusters. When `Some`, the string should contain the
+    /// literal token `$__cluster__` exactly once; the rewriter
+    /// substitutes it with each cluster's id (e.g. `"a"`,
+    /// `"struct_User_Person"`) to produce distinct helper names per
+    /// cluster. The double-underscore convention makes the reserved
+    /// name unambiguous and keeps the short `cluster` identifier free
+    /// for user macros.
+    ///
+    /// When `None`, the rewriter auto-suffixes `__{cluster_id}` to the
+    /// helper name parsed from the `runtime` field's `function __NAME(`
+    /// declaration. Users who want a specific naming scheme should set
+    /// this explicitly; the auto-suffix is a conservative fallback.
+    ///
+    /// Only meaningful for `Auto` / sharing-mode macros with a
+    /// non-empty `runtime` body.
+    #[serde(default)]
+    pub runtime_name_template: Option<String>,
+
     /// Span of the template body (relative to the original source file),
     /// set by the host during discovery. The parser records spans inside
     /// each arm relative to the same coordinate system.
@@ -89,20 +109,42 @@ fn default_megamorphism_threshold() -> u8 {
     4
 }
 
+impl Default for MacroDef {
+    /// Produce an empty [`MacroDef`] with conservative defaults for
+    /// every field. This is the single source of truth for the
+    /// "reasonable zero state" — [`MacroDef::from_arms`] delegates to
+    /// it so adding a new field to the struct only requires updating
+    /// `Default`, not every constructor. Zero arms, `ExpandOnly` mode,
+    /// `Value` kind, empty span. Overlay the three meaningful fields
+    /// via `from_arms` or by direct assignment at the discovery site.
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            arms: Vec::new(),
+            mode: MacroMode::ExpandOnly,
+            kind: MacroKind::Value,
+            runtime: None,
+            call_arms: None,
+            megamorphism_threshold: default_megamorphism_threshold(),
+            runtime_name_template: None,
+            span: SpanIR::new(0, 0),
+        }
+    }
+}
+
 impl MacroDef {
     /// Construct a `MacroDef` from just the expand-mode arms, with the
     /// reverse-mono fields defaulted. Used by tests and by the tag-form
-    /// path in [`crate::declarative::parse_macro_def`].
+    /// path in [`crate::declarative::parse_macro_def`]. Delegates to
+    /// [`MacroDef::default`] for every field not overridden here so
+    /// future field additions pick up their default automatically.
     pub fn from_arms(name: String, arms: Vec<MacroArm>, mode: MacroMode, span: SpanIR) -> Self {
         Self {
             name,
             arms,
             mode,
-            kind: MacroKind::Value,
-            runtime: None,
-            call_arms: None,
-            megamorphism_threshold: default_megamorphism_threshold(),
             span,
+            ..Self::default()
         }
     }
 }
