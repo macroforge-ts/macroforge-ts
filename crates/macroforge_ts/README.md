@@ -7,28 +7,29 @@ TypeScript macro expansion engine - write compile-time macros in Rust
 
 ## Overview
 
-This crate provides a TypeScript macro expansion engine that brings Rust-like derive macros
-to TypeScript. It supports multiple output targets via feature flags:
+This crate provides a TypeScript macro expansion engine that brings Rust-like derive macros to
+TypeScript. It supports multiple output targets via feature flags:
+
 - `wasm`: (Default) Universal WebAssembly module via wasm-bindgen for browser and edge environments.
 - `node`: Optional native Node.js bindings via NAPI-RS.
 
 ## Overview
 
-Macroforge processes TypeScript source files containing `@derive` decorators and expands them
-into concrete implementations. For example, a class decorated with `@derive(Debug, Clone)`
-will have `toString()` and `clone()` methods automatically generated.
+Macroforge processes TypeScript source files containing `@derive` decorators and expands them into
+concrete implementations. For example, a class decorated with `@derive(Debug, Clone)` will have
+`toString()` and `clone()` methods automatically generated.
 
 ## Architecture
 
 The crate is organized into several key components:
 
-- **Unified API** (`api` module): An output-agnostic trait-based interface (`MacroforgeApi`)
-  that defines all macro operations.
+- **Unified API** (`api` module): An output-agnostic trait-based interface (`MacroforgeApi`) that
+  defines all macro operations.
 - **Target Bindings**:
   - `bindings_napi`: Node.js specific entry points using NAPI-RS.
   - `bindings_wasm`: Universal entry points using `wasm-bindgen`.
-- **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping
-  for IDE integration.
+- **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping for IDE
+  integration.
 - **Macro Host** (`host` module): Core expansion engine with registry and dispatcher.
 - **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Serialize, etc.).
 
@@ -52,6 +53,7 @@ const result = expand_sync(code, filepath, { keep_decorators: false });
 ## Re-exports for Macro Authors
 
 This crate re-exports several dependencies for convenience when writing custom macros:
+
 - `ts_syn`: TypeScript syntax types for AST manipulation
 - `macros`: Macro attributes and quote templates
 - `swc_core`, `swc_common`, `swc_ecma_ast`: SWC compatibility infrastructure

@@ -277,11 +277,7 @@ mod tests {
                 .as_nanos()
         ));
         std::fs::create_dir_all(&dir).unwrap();
-        std::fs::write(
-            dir.join("a.ts"),
-            "export interface A { id: string; }\n",
-        )
-        .unwrap();
+        std::fs::write(dir.join("a.ts"), "export interface A { id: string; }\n").unwrap();
         std::fs::write(dir.join("b.ts"), "export class B { name = \"\"; }\n").unwrap();
 
         let mut scanner = ProjectScanner::new(ScanConfig {
