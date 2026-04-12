@@ -23,6 +23,23 @@ use super::types::{
     RepetitionKind,
 };
 
+/// Metavariable name reserved by the cluster-aware runtime-name
+/// template feature (Phase E of the production-hardening plan).
+///
+/// When the body parser sees `$__cluster__` it always emits a
+/// [`BodyToken::Substitution`], even if the identifier is followed by
+/// `(` — normally that combination is a macro-call token, but
+/// `__cluster__` is special so users can write the natural form
+/// `__helper_$__cluster__($args)` in a `call_arms` body without it
+/// being mis-parsed as a call to a macro named `__cluster__`. The
+/// double-underscore suffix matches the conventional "system reserved"
+/// naming convention and is vanishingly unlikely to collide with a
+/// user-defined metavariable name or a user-declared macro called
+/// `$cluster` (which IS now allowed — the earlier total reservation
+/// of the short `cluster` name was dropped in PR 12 of the
+/// production-hardening plan).
+const RESERVED_CLUSTER_NAME: &str = "__cluster__";
+
 /// Parse a macro template body into a [`MacroDef`].
 ///
 /// `template_body` is the static text between the `` macro` `` and the
@@ -488,6 +505,151 @@ fn parse_body(src: &str, span: SpanIR) -> Result<Body, DeclarativeError> {
     Ok(Body(tokens))
 }
 
+/// Which kind of string literal, if any, the parser is currently inside.
+///
+/// The body parser is lexically shallow — it only understands three things
+/// it needs to avoid eating: single-quoted strings, double-quoted strings,
+/// and template literals. Inside `Single`, `Double`, or the text portion
+/// of `Template`, a bare `$` is always literal text, never the start of a
+/// substitution or macro escape. Template-expression slots (`${...}`) are
+/// a return-trip: we push the enclosing `Template` onto the stack and
+/// parse the expression in `Code` mode, so `${$x}` still sees `$x` as a
+/// substitution.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum StringCtx {
+    /// Normal macro-body code. `$ident` is a substitution/call, `$$` is
+    /// an escape.
+    Code,
+    /// Inside `'...'`. `$` is literal.
+    Single,
+    /// Inside `"..."`. `$` is literal.
+    Double,
+    /// Inside `` `...` `` template literal, in the string-text portion
+    /// (not currently inside a `${}` expression slot).
+    Template,
+}
+
+/// Incremental string-context tracker. The three body-parsing loops
+/// (`parse_until`, `parse_call_args`, `parse_repetition_inner`) each
+/// instantiate one of these and call [`StringState::advance`] on every
+/// byte as the cursor walks forward. Between advances, callers consult
+/// [`StringState::in_string`] to decide whether to treat `$` as special
+/// at the current position.
+///
+/// The state machine handles:
+///
+/// - `\\` escapes inside single/double/template strings (next byte is
+///   literal regardless of what it is).
+/// - Entry to and exit from each string kind.
+/// - Template-expression slots: when a `$` immediately followed by `{`
+///   appears in `Template` context, the state pushes `Template` onto
+///   `stack`, switches to `Code`, and resets `brace_depth`. The first
+///   `{` seen in the new `Code` region is special-cased (it's the
+///   opener of the `${...}` slot, not a nested block), so a
+///   `pending_open_brace` flag absorbs it. Subsequent `{` / `}` inside
+///   the slot increment and decrement `brace_depth` normally; when
+///   `brace_depth` is 0 and a `}` arrives, the stack is popped and we
+///   return to `Template`.
+#[derive(Debug, Clone)]
+struct StringState {
+    ctx: StringCtx,
+    /// Next byte is an escape target (already saw `\` inside a string).
+    escape_next: bool,
+    /// Stack of saved contexts — one entry per nested template-expression
+    /// slot. Each entry is the context to return to (always `Template`
+    /// in practice, since only template literals have expression slots).
+    stack: Vec<StringCtx>,
+    /// `{`/`}` nesting depth within the current template-expression slot.
+    /// Only meaningful when `stack` is non-empty (i.e., we're inside one).
+    brace_depth: u32,
+    /// The next `{` seen in `Code` context is the opener of a
+    /// `${...}` slot — absorb it without touching `brace_depth`.
+    pending_open_brace: bool,
+}
+
+impl StringState {
+    fn new() -> Self {
+        Self {
+            ctx: StringCtx::Code,
+            escape_next: false,
+            stack: Vec::new(),
+            brace_depth: 0,
+            pending_open_brace: false,
+        }
+    }
+
+    /// Returns `true` iff the position **before** the next `advance` call
+    /// is inside a string literal text region where `$` must be treated
+    /// as a literal character. Template-expression slots return `false`
+    /// because they're code, not string text.
+    fn in_string(&self) -> bool {
+        matches!(
+            self.ctx,
+            StringCtx::Single | StringCtx::Double | StringCtx::Template
+        )
+    }
+
+    /// Walk the state forward by one byte. `b` is the byte at the
+    /// current cursor position; `next` is the byte immediately after
+    /// (used to detect `${` in template context — the `$` needs to know
+    /// whether a `{` follows before it decides to open an expression
+    /// slot).
+    fn advance(&mut self, b: u8, next: Option<u8>) {
+        if self.escape_next {
+            self.escape_next = false;
+            return;
+        }
+        match self.ctx {
+            StringCtx::Code => match b {
+                b'\'' => self.ctx = StringCtx::Single,
+                b'"' => self.ctx = StringCtx::Double,
+                b'`' => self.ctx = StringCtx::Template,
+                b'{' if !self.stack.is_empty() => {
+                    if self.pending_open_brace {
+                        self.pending_open_brace = false;
+                    } else {
+                        self.brace_depth += 1;
+                    }
+                }
+                b'}' if !self.stack.is_empty() => {
+                    if self.brace_depth == 0 {
+                        // Closing `}` of the surrounding `${...}` slot —
+                        // pop back to the enclosing template literal.
+                        self.ctx = self.stack.pop().unwrap_or(StringCtx::Code);
+                    } else {
+                        self.brace_depth -= 1;
+                    }
+                }
+                _ => {}
+            },
+            StringCtx::Single => match b {
+                b'\\' => self.escape_next = true,
+                b'\'' => self.ctx = StringCtx::Code,
+                _ => {}
+            },
+            StringCtx::Double => match b {
+                b'\\' => self.escape_next = true,
+                b'"' => self.ctx = StringCtx::Code,
+                _ => {}
+            },
+            StringCtx::Template => match b {
+                b'\\' => self.escape_next = true,
+                b'`' => self.ctx = StringCtx::Code,
+                b'$' if next == Some(b'{') => {
+                    // Enter an expression slot. The next byte will be
+                    // the `{`, which `pending_open_brace` causes us to
+                    // absorb without a depth bump.
+                    self.stack.push(StringCtx::Template);
+                    self.ctx = StringCtx::Code;
+                    self.brace_depth = 0;
+                    self.pending_open_brace = true;
+                }
+                _ => {}
+            },
+        }
+    }
+}
+
 struct BodyParser<'a> {
     src: &'a [u8],
     base: u32,
@@ -522,10 +684,13 @@ impl<'a> BodyParser<'a> {
     fn parse_until(&mut self, _stop: Option<u8>) -> Result<Vec<BodyToken>, DeclarativeError> {
         let mut tokens: Vec<BodyToken> = Vec::new();
         let mut literal_start = self.pos;
+        let mut str_state = StringState::new();
 
         while self.pos < self.src.len() {
             let c = self.src[self.pos];
-            if c == b'$' {
+            // Inside a string literal, `$` is always literal text — skip
+            // special handling and let the cursor advance naturally.
+            if !str_state.in_string() && c == b'$' {
                 // Could be `$ident` substitution, `$(...)rep` repetition, or `$$` escape.
                 match self.peek_n(1) {
                     Some(b'$') => {
@@ -533,6 +698,10 @@ impl<'a> BodyParser<'a> {
                         // Flush literal up to here, then push `$` as its own literal.
                         self.flush_literal(&mut tokens, literal_start, self.pos);
                         tokens.push(BodyToken::Literal("$".to_string()));
+                        // Tick the state machine past both consumed bytes
+                        // so the context reflects two forward steps.
+                        str_state.advance(c, self.peek_n(1));
+                        str_state.advance(b'$', self.peek_n(2));
                         self.pos += 2;
                         literal_start = self.pos;
                         continue;
@@ -556,6 +725,10 @@ impl<'a> BodyParser<'a> {
                             separator,
                             kind,
                         });
+                        // The repetition sub-parser maintains its own
+                        // string state; we treat the whole `$(...)+`
+                        // as one opaque step and reset ours to Code.
+                        str_state = StringState::new();
                         literal_start = self.pos;
                         continue;
                     }
@@ -563,11 +736,37 @@ impl<'a> BodyParser<'a> {
                         self.flush_literal(&mut tokens, literal_start, self.pos);
                         self.pos += 1; // consume `$`
                         let name = self.consume_ident();
-                        // Phase 12: if the next non-whitespace char is `(`,
-                        // this is a macro call, not a substitution. Consume
-                        // the balanced arg list and emit a MacroCall token.
-                        if self.peek_after_ws() == Some(b'(') {
-                            self.skip_ws();
+                        // Phase 12: if the next non-whitespace char on the
+                        // SAME LINE is `(`, this is a macro call, not a
+                        // substitution. Newlines break the association so
+                        // `$foo\n(stmt)` stays a substitution followed by a
+                        // parenthesized expression — the same rule Rust's
+                        // `macro_rules!` uses.
+                        //
+                        // Phase E exception: `$__cluster__` is a reserved
+                        // substitution name used by the cluster-aware
+                        // runtime-name template feature. It must always
+                        // parse as a substitution so `__h_$__cluster__($y)`
+                        // renders correctly as `__h_<id>($y)` instead of
+                        // being misread as a call to a macro named
+                        // `__cluster__`.
+                        //
+                        // Type-position composition: `$ident<args>` with
+                        // **strict adjacency** (no whitespace between
+                        // ident and `<`) is parsed as a macro call too,
+                        // so type macros can naturally compose:
+                        // `$Result<T, E> => $Box<T> | E`. The strict-
+                        // adjacency rule prevents value-position bodies
+                        // from misreading `$x < $y` (with whitespace) as
+                        // a call.
+                        let is_value_call = name != RESERVED_CLUSTER_NAME
+                            && self.peek_after_horizontal_ws() == Some(b'(');
+                        let is_type_call = name != RESERVED_CLUSTER_NAME
+                            && !is_value_call
+                            && self.peek() == Some(b'<')
+                            && self.angle_args_balance_ok();
+                        if is_value_call {
+                            self.skip_horizontal_ws();
                             self.pos += 1; // consume `(`
                             let args = self.parse_call_args()?;
                             match self.peek() {
@@ -580,9 +779,26 @@ impl<'a> BodyParser<'a> {
                                 }
                             }
                             tokens.push(BodyToken::MacroCall { name, args });
+                        } else if is_type_call {
+                            self.pos += 1; // consume `<`
+                            let args = self.parse_type_call_args()?;
+                            match self.peek() {
+                                Some(b'>') => self.pos += 1,
+                                _ => {
+                                    return Err(DeclarativeError::new(
+                                        self.span_at(self.pos, self.pos),
+                                        "expected `>` closing type-position macro call in body",
+                                    ));
+                                }
+                            }
+                            tokens.push(BodyToken::MacroCall { name, args });
                         } else {
                             tokens.push(BodyToken::Substitution(name));
                         }
+                        // The sub-parse may have walked through strings
+                        // itself; reset our tracker to Code for whatever
+                        // follows.
+                        str_state = StringState::new();
                         literal_start = self.pos;
                         continue;
                     }
@@ -591,6 +807,9 @@ impl<'a> BodyParser<'a> {
                     }
                 }
             }
+            // Default fall-through: advance the cursor and the string
+            // state machine by one byte.
+            str_state.advance(c, self.peek_n(1));
             self.pos += 1;
         }
 
@@ -598,46 +817,124 @@ impl<'a> BodyParser<'a> {
         Ok(tokens)
     }
 
-    /// Peek past ASCII whitespace and return the next non-whitespace byte.
-    /// Does not advance `self.pos`.
-    fn peek_after_ws(&self) -> Option<u8> {
+    /// Peek past **horizontal** ASCII whitespace (spaces and tabs only) and
+    /// return the next byte. Used by `$ident` → macro-call disambiguation
+    /// so that a newline between the identifier and a following `(` breaks
+    /// the association — `$foo\n(stmt)` parses as substitution + paren
+    /// expression, not as `$foo(stmt)`.
+    fn peek_after_horizontal_ws(&self) -> Option<u8> {
         let mut j = self.pos;
-        while j < self.src.len() && matches!(self.src[j], b' ' | b'\t' | b'\r' | b'\n') {
+        while j < self.src.len() && matches!(self.src[j], b' ' | b'\t') {
             j += 1;
         }
         self.src.get(j).copied()
     }
 
-    fn skip_ws(&mut self) {
-        while self.pos < self.src.len()
-            && matches!(self.src[self.pos], b' ' | b'\t' | b'\r' | b'\n')
-        {
+    /// Skip only spaces and tabs — not newlines. Paired with
+    /// [`Self::peek_after_horizontal_ws`] for the newline-sensitive
+    /// `$ident ( args )` disambiguation.
+    fn skip_horizontal_ws(&mut self) {
+        while self.pos < self.src.len() && matches!(self.src[self.pos], b' ' | b'\t') {
             self.pos += 1;
         }
     }
 
-    /// Parse the contents of a macro call's argument list — the body
-    /// tokens between `(` and the matching `)`. Nested `()` are tracked
-    /// so e.g. `$outer(foo($x))` is parsed as one `MacroCall` containing
-    /// a literal `foo(` + substitution + literal `)`.
-    fn parse_call_args(&mut self) -> Result<Vec<BodyToken>, DeclarativeError> {
+    /// Look ahead from `self.pos` (which must point at `<`) to verify
+    /// that the angle-bracket span balances cleanly — i.e. there's a
+    /// matching `>` at the same depth, no unbalanced parens / braces
+    /// inside, and the contents look like a comma-separated argument
+    /// list rather than a chained comparison expression.
+    ///
+    /// Used by the body parser to disambiguate `$ident<args>` (a
+    /// type-position macro call) from `$x < $y > z` (a chain of
+    /// comparison operators that should fall through to substitution
+    /// + literal). The lookahead is read-only and does not advance
+    /// `self.pos`.
+    ///
+    /// Conservative: returns `false` whenever the lookahead is
+    /// ambiguous, so the parser falls back to the substitution path
+    /// and the user can always disambiguate by inserting whitespace
+    /// (`$x < $y` is never a macro call because it has space before
+    /// the `<`).
+    fn angle_args_balance_ok(&self) -> bool {
+        if self.peek() != Some(b'<') {
+            return false;
+        }
+        let mut depth: i32 = 0;
+        let mut paren: i32 = 0;
+        let mut brace: i32 = 0;
+        let mut bracket: i32 = 0;
+        let mut j = self.pos;
+        let mut in_string: Option<u8> = None;
+        let mut escape_next = false;
+        while j < self.src.len() {
+            let c = self.src[j];
+            if let Some(quote) = in_string {
+                if escape_next {
+                    escape_next = false;
+                } else if c == b'\\' {
+                    escape_next = true;
+                } else if c == quote {
+                    in_string = None;
+                }
+                j += 1;
+                continue;
+            }
+            match c {
+                b'\'' | b'"' | b'`' => {
+                    in_string = Some(c);
+                }
+                b'(' => paren += 1,
+                b')' => paren -= 1,
+                b'{' => brace += 1,
+                b'}' => brace -= 1,
+                b'[' => bracket += 1,
+                b']' => bracket -= 1,
+                b'<' => depth += 1,
+                b'>' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        // Balanced — make sure paren/brace/bracket are
+                        // also balanced inside the angle span.
+                        return paren == 0 && brace == 0 && bracket == 0;
+                    }
+                }
+                // A semicolon or end-of-line inside the angles
+                // strongly suggests we're not in a type argument
+                // list. Bail out conservatively.
+                b';' | b'\n' => return false,
+                _ => {}
+            }
+            j += 1;
+        }
+        false
+    }
+
+    /// Parse the contents of a type-position macro call's argument
+    /// list — the body tokens between `<` and the matching `>`.
+    /// Tracks `<`/`>` depth so nested generic args (e.g.
+    /// `$Outer<$Inner<$x>>`) parse correctly. Body substitutions
+    /// (`$ident`) and nested macro calls (`$other(...)` or
+    /// `$other<...>`) are recognized inside the type-arg list the
+    /// same way they are inside parenthesized arg lists.
+    fn parse_type_call_args(&mut self) -> Result<Vec<BodyToken>, DeclarativeError> {
         let mut tokens: Vec<BodyToken> = Vec::new();
         let mut literal_start = self.pos;
-        let mut paren_depth: i32 = 0;
+        let mut depth: i32 = 0;
 
         while self.pos < self.src.len() {
             let c = self.src[self.pos];
-            if c == b')' && paren_depth == 0 {
+            if c == b'>' && depth == 0 {
                 self.flush_literal(&mut tokens, literal_start, self.pos);
                 return Ok(tokens);
             }
-            if c == b'(' {
-                paren_depth += 1;
+            if c == b'<' {
+                depth += 1;
                 self.pos += 1;
                 continue;
             }
-            if c == b')' {
-                paren_depth -= 1;
+            if c == b'>' {
+                depth -= 1;
                 self.pos += 1;
                 continue;
             }
@@ -654,9 +951,18 @@ impl<'a> BodyParser<'a> {
                         self.flush_literal(&mut tokens, literal_start, self.pos);
                         self.pos += 1; // consume `$`
                         let name = self.consume_ident();
-                        // Nested macro call inside arg list.
-                        if self.peek_after_ws() == Some(b'(') {
-                            self.skip_ws();
+                        // Inside a type-arg list we ALSO recognize
+                        // nested type-call shapes for the natural
+                        // form `$Outer<$Inner<$x>>`. Strict
+                        // adjacency on `<` to avoid false positives.
+                        let nested_value_call = name != RESERVED_CLUSTER_NAME
+                            && self.peek_after_horizontal_ws() == Some(b'(');
+                        let nested_type_call = name != RESERVED_CLUSTER_NAME
+                            && !nested_value_call
+                            && self.peek() == Some(b'<')
+                            && self.angle_args_balance_ok();
+                        if nested_value_call {
+                            self.skip_horizontal_ws();
                             self.pos += 1;
                             let nested_args = self.parse_call_args()?;
                             match self.peek() {
@@ -664,7 +970,23 @@ impl<'a> BodyParser<'a> {
                                 _ => {
                                     return Err(DeclarativeError::new(
                                         self.span_at(self.pos, self.pos),
-                                        "expected `)` closing nested macro call in arg list",
+                                        "expected `)` closing nested macro call in type arg list",
+                                    ));
+                                }
+                            }
+                            tokens.push(BodyToken::MacroCall {
+                                name,
+                                args: nested_args,
+                            });
+                        } else if nested_type_call {
+                            self.pos += 1; // consume `<`
+                            let nested_args = self.parse_type_call_args()?;
+                            match self.peek() {
+                                Some(b'>') => self.pos += 1,
+                                _ => {
+                                    return Err(DeclarativeError::new(
+                                        self.span_at(self.pos, self.pos),
+                                        "expected `>` closing nested type-macro call in type arg list",
                                     ));
                                 }
                             }
@@ -686,6 +1008,97 @@ impl<'a> BodyParser<'a> {
 
         Err(DeclarativeError::new(
             self.span_at(self.pos, self.pos),
+            "unterminated type-position macro call in body (no matching `>`)",
+        ))
+    }
+
+    /// Parse the contents of a macro call's argument list — the body
+    /// tokens between `(` and the matching `)`. Nested `()` are tracked
+    /// so e.g. `$outer(foo($x))` is parsed as one `MacroCall` containing
+    /// a literal `foo(` + substitution + literal `)`.
+    fn parse_call_args(&mut self) -> Result<Vec<BodyToken>, DeclarativeError> {
+        let mut tokens: Vec<BodyToken> = Vec::new();
+        let mut literal_start = self.pos;
+        let mut paren_depth: i32 = 0;
+        let mut str_state = StringState::new();
+
+        while self.pos < self.src.len() {
+            let c = self.src[self.pos];
+            // `)` and `(` inside string literals don't affect call
+            // argument balancing — they're just text.
+            if !str_state.in_string() {
+                if c == b')' && paren_depth == 0 {
+                    self.flush_literal(&mut tokens, literal_start, self.pos);
+                    return Ok(tokens);
+                }
+                if c == b'(' {
+                    paren_depth += 1;
+                    str_state.advance(c, self.peek_n(1));
+                    self.pos += 1;
+                    continue;
+                }
+                if c == b')' {
+                    paren_depth -= 1;
+                    str_state.advance(c, self.peek_n(1));
+                    self.pos += 1;
+                    continue;
+                }
+                if c == b'$' {
+                    match self.peek_n(1) {
+                        Some(b'$') => {
+                            self.flush_literal(&mut tokens, literal_start, self.pos);
+                            tokens.push(BodyToken::Literal("$".to_string()));
+                            str_state.advance(c, self.peek_n(1));
+                            str_state.advance(b'$', self.peek_n(2));
+                            self.pos += 2;
+                            literal_start = self.pos;
+                            continue;
+                        }
+                        Some(c) if is_ident_start(c) => {
+                            self.flush_literal(&mut tokens, literal_start, self.pos);
+                            self.pos += 1; // consume `$`
+                            let name = self.consume_ident();
+                            // Nested macro call inside arg list. Newlines
+                            // between the identifier and `(` break the
+                            // association, mirroring `parse_until`.
+                            // `$cluster` is reserved — see the
+                            // [`RESERVED_CLUSTER_NAME`] constant.
+                            if name != RESERVED_CLUSTER_NAME
+                                && self.peek_after_horizontal_ws() == Some(b'(')
+                            {
+                                self.skip_horizontal_ws();
+                                self.pos += 1;
+                                let nested_args = self.parse_call_args()?;
+                                match self.peek() {
+                                    Some(b')') => self.pos += 1,
+                                    _ => {
+                                        return Err(DeclarativeError::new(
+                                            self.span_at(self.pos, self.pos),
+                                            "expected `)` closing nested macro call in arg list",
+                                        ));
+                                    }
+                                }
+                                tokens.push(BodyToken::MacroCall {
+                                    name,
+                                    args: nested_args,
+                                });
+                            } else {
+                                tokens.push(BodyToken::Substitution(name));
+                            }
+                            str_state = StringState::new();
+                            literal_start = self.pos;
+                            continue;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            str_state.advance(c, self.peek_n(1));
+            self.pos += 1;
+        }
+
+        Err(DeclarativeError::new(
+            self.span_at(self.pos, self.pos),
             "unterminated macro call in body (no matching `)`)",
         ))
     }
@@ -697,92 +1110,107 @@ impl<'a> BodyParser<'a> {
         let mut tokens: Vec<BodyToken> = Vec::new();
         let mut literal_start = self.pos;
         let mut paren_depth: i32 = 0;
+        let mut str_state = StringState::new();
 
         while self.pos < self.src.len() {
             let c = self.src[self.pos];
-            if c == b')' && paren_depth == 0 {
-                self.flush_literal(&mut tokens, literal_start, self.pos);
-                return Ok(tokens);
-            }
-            if c == b'(' {
-                paren_depth += 1;
-                self.pos += 1;
-                continue;
-            }
-            if c == b')' {
-                paren_depth -= 1;
-                self.pos += 1;
-                continue;
-            }
-            if c == b'$' {
-                match self.peek_n(1) {
-                    Some(b'$') => {
-                        self.flush_literal(&mut tokens, literal_start, self.pos);
-                        tokens.push(BodyToken::Literal("$".to_string()));
-                        self.pos += 2;
-                        literal_start = self.pos;
-                        continue;
-                    }
-                    Some(b'(') => {
-                        self.flush_literal(&mut tokens, literal_start, self.pos);
-                        self.pos += 2;
-                        let inner = self.parse_repetition_inner()?;
-                        match self.peek() {
-                            Some(b')') => self.pos += 1,
-                            _ => {
-                                return Err(DeclarativeError::new(
-                                    self.span_at(self.pos, self.pos),
-                                    "expected `)` closing nested repetition in body",
-                                ));
-                            }
+            if !str_state.in_string() {
+                if c == b')' && paren_depth == 0 {
+                    self.flush_literal(&mut tokens, literal_start, self.pos);
+                    return Ok(tokens);
+                }
+                if c == b'(' {
+                    paren_depth += 1;
+                    str_state.advance(c, self.peek_n(1));
+                    self.pos += 1;
+                    continue;
+                }
+                if c == b')' {
+                    paren_depth -= 1;
+                    str_state.advance(c, self.peek_n(1));
+                    self.pos += 1;
+                    continue;
+                }
+                if c == b'$' {
+                    match self.peek_n(1) {
+                        Some(b'$') => {
+                            self.flush_literal(&mut tokens, literal_start, self.pos);
+                            tokens.push(BodyToken::Literal("$".to_string()));
+                            str_state.advance(c, self.peek_n(1));
+                            str_state.advance(b'$', self.peek_n(2));
+                            self.pos += 2;
+                            literal_start = self.pos;
+                            continue;
                         }
-                        let (separator, kind) = self.parse_rep_suffix()?;
-                        tokens.push(BodyToken::Repetition {
-                            body: inner,
-                            separator,
-                            kind,
-                        });
-                        literal_start = self.pos;
-                        continue;
-                    }
-                    Some(c) if is_ident_start(c) => {
-                        self.flush_literal(&mut tokens, literal_start, self.pos);
-                        self.pos += 1;
-                        let name = self.consume_ident();
-                        // Phase 12: macro call inside a repetition body —
-                        // `$( $double($x); )+` → MacroCall inside the
-                        // repetition.
-                        if self.peek_after_ws() == Some(b'(') {
-                            self.skip_ws();
-                            self.pos += 1;
-                            // Note: we re-use parse_call_args here even
-                            // though we're inside a repetition body. The
-                            // call args are balanced on their own `()`;
-                            // the repetition's outer `)` is handled by
-                            // the paren_depth counter above.
-                            let call_args = self.parse_call_args()?;
+                        Some(b'(') => {
+                            self.flush_literal(&mut tokens, literal_start, self.pos);
+                            self.pos += 2;
+                            let inner = self.parse_repetition_inner()?;
                             match self.peek() {
                                 Some(b')') => self.pos += 1,
                                 _ => {
                                     return Err(DeclarativeError::new(
                                         self.span_at(self.pos, self.pos),
-                                        "expected `)` closing macro call in repetition body",
+                                        "expected `)` closing nested repetition in body",
                                     ));
                                 }
                             }
-                            tokens.push(BodyToken::MacroCall {
-                                name,
-                                args: call_args,
+                            let (separator, kind) = self.parse_rep_suffix()?;
+                            tokens.push(BodyToken::Repetition {
+                                body: inner,
+                                separator,
+                                kind,
                             });
-                        } else {
-                            tokens.push(BodyToken::Substitution(name));
+                            str_state = StringState::new();
+                            literal_start = self.pos;
+                            continue;
                         }
-                        literal_start = self.pos;
-                        continue;
+                        Some(c) if is_ident_start(c) => {
+                            self.flush_literal(&mut tokens, literal_start, self.pos);
+                            self.pos += 1;
+                            let name = self.consume_ident();
+                            // Phase 12: macro call inside a repetition
+                            // body — `$( $double($x); )+`. Newline-
+                            // sensitive disambiguation matches the
+                            // top-level rule. `$cluster` is reserved —
+                            // see [`RESERVED_CLUSTER_NAME`].
+                            if name != RESERVED_CLUSTER_NAME
+                                && self.peek_after_horizontal_ws() == Some(b'(')
+                            {
+                                self.skip_horizontal_ws();
+                                self.pos += 1;
+                                // Note: we re-use parse_call_args here
+                                // even though we're inside a repetition
+                                // body. The call args are balanced on
+                                // their own `()`; the repetition's outer
+                                // `)` is handled by the paren_depth
+                                // counter above.
+                                let call_args = self.parse_call_args()?;
+                                match self.peek() {
+                                    Some(b')') => self.pos += 1,
+                                    _ => {
+                                        return Err(DeclarativeError::new(
+                                            self.span_at(self.pos, self.pos),
+                                            "expected `)` closing macro call in repetition body",
+                                        ));
+                                    }
+                                }
+                                tokens.push(BodyToken::MacroCall {
+                                    name,
+                                    args: call_args,
+                                });
+                            } else {
+                                tokens.push(BodyToken::Substitution(name));
+                            }
+                            str_state = StringState::new();
+                            literal_start = self.pos;
+                            continue;
+                        }
+                        _ => {}
                     }
-                    _ => {}
                 }
             }
+            str_state.advance(c, self.peek_n(1));
             self.pos += 1;
         }
 

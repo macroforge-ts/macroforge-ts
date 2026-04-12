@@ -327,23 +327,30 @@ impl<'a> PatchApplicator<'a> {
         });
     }
 
+    /// Check that no two patches cover overlapping regions of the
+    /// source. This assumes [`Self::sort_patches`] has already been
+    /// called, so patches appear in ascending `span.start` order; a
+    /// linear sweep of adjacent pairs is sufficient (if two patches
+    /// overlap, the earlier one's `end` will be greater than the
+    /// next one's `start`, and that pair will be adjacent in the
+    /// sorted list because any patch between them would have to
+    /// start somewhere in `[earlier.start, earlier.end]`, which
+    /// means it overlaps earlier too and we'd catch it on the
+    /// previous iteration).
+    ///
+    /// Pre-PR 15 this was `O(n²)` (a nested loop). The linear sweep
+    /// is a pure perf fix — same diagnostics, same public API.
     fn validate_no_overlaps(&self) -> Result<()> {
-        for i in 0..self.patches.len() {
-            for j in i + 1..self.patches.len() {
-                if self.patches_overlap(&self.patches[i], &self.patches[j]) {
-                    return Err(MacroError::Other(anyhow::anyhow!(
-                        "Overlapping patches detected: patches cannot modify the same region"
-                    )));
-                }
+        for pair in self.patches.windows(2) {
+            let a = self.get_patch_span(&pair[0]);
+            let b = self.get_patch_span(&pair[1]);
+            if a.end > b.start {
+                return Err(MacroError::Other(anyhow::anyhow!(
+                    "Overlapping patches detected: patches cannot modify the same region"
+                )));
             }
         }
         Ok(())
-    }
-
-    fn patches_overlap(&self, a: &Patch, b: &Patch) -> bool {
-        let a_span = self.get_patch_span(a);
-        let b_span = self.get_patch_span(b);
-        !(a_span.end <= b_span.start || b_span.end <= a_span.start)
     }
 
     fn get_patch_span(&self, patch: &Patch) -> SpanIR {
@@ -354,5 +361,97 @@ impl<'a> PatchApplicator<'a> {
             Patch::ReplaceRaw { span, .. } => *span,
             Patch::Delete { span } => *span,
         }
+    }
+}
+
+#[cfg(test)]
+mod overlap_tests {
+    //! Overlap-detection regression guards. These cover the linear
+    //! sweep introduced in PR 15 of the production-hardening plan
+    //! (replacing the prior `O(n²)` nested loop).
+
+    use super::*;
+    use crate::ts_syn::abi::{Patch, SpanIR};
+
+    fn delete_patch(start: u32, end: u32) -> Patch {
+        Patch::Delete {
+            span: SpanIR::new(start, end),
+        }
+    }
+
+    #[test]
+    fn non_overlapping_patches_pass_validation() {
+        let source = "x".repeat(100);
+        let patches = vec![
+            delete_patch(1, 10),
+            delete_patch(10, 20),
+            delete_patch(20, 30),
+        ];
+        let applicator = PatchApplicator::new(&source, patches);
+        assert!(applicator.apply().is_ok());
+    }
+
+    #[test]
+    fn overlapping_patches_are_rejected() {
+        let source = "x".repeat(100);
+        let patches = vec![
+            delete_patch(1, 15),
+            // Overlaps the first patch — second span starts before
+            // the first ends.
+            delete_patch(10, 20),
+        ];
+        let applicator = PatchApplicator::new(&source, patches);
+        let err = applicator.apply().unwrap_err();
+        assert!(
+            err.to_string().contains("Overlapping patches"),
+            "got: {}",
+            err
+        );
+    }
+
+    #[test]
+    fn overlap_detected_across_non_adjacent_pairs_after_sort() {
+        // Regression guard for the linear sweep's correctness: if
+        // three patches are in an order where a non-adjacent overlap
+        // exists before sorting, sorting must bring the overlapping
+        // pair next to each other so the adjacent-pair check catches
+        // them.
+        let source = "x".repeat(100);
+        let patches = vec![
+            delete_patch(1, 5),   // Sorts first.
+            delete_patch(20, 30), // Sorts third.
+            delete_patch(3, 25),  // Overlaps both; sorts second.
+        ];
+        let applicator = PatchApplicator::new(&source, patches);
+        assert!(applicator.apply().is_err());
+    }
+
+    #[test]
+    fn ten_thousand_non_overlapping_patches_validate_quickly() {
+        // Stress test: with 10k disjoint patches the old `O(n²)`
+        // check would do ~50 million comparisons. The linear sweep
+        // does ~10k. The bound is deliberately generous (2 seconds)
+        // to catch orders-of-magnitude regressions without flaking
+        // on slow / heavily-parallel test runs. In practice the
+        // sweep itself is sub-millisecond; most of the elapsed time
+        // is the patch application work (deleting 60k bytes from a
+        // 200k source).
+        let source = "x".repeat(200_000);
+        let patches: Vec<Patch> = (0..10_000)
+            .map(|i| {
+                let start = (i * 10 + 1) as u32;
+                delete_patch(start, start + 5)
+            })
+            .collect();
+        let applicator = PatchApplicator::new(&source, patches);
+        let start = std::time::Instant::now();
+        let result = applicator.apply();
+        let elapsed = start.elapsed();
+        assert!(result.is_ok(), "apply failed: {:?}", result);
+        assert!(
+            elapsed.as_millis() < 2000,
+            "10k-patch validate+apply took {} ms — orders-of-magnitude regression?",
+            elapsed.as_millis()
+        );
     }
 }

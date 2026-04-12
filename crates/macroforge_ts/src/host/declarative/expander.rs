@@ -4,12 +4,16 @@
 //! fragments and unrolling repetitions. Identifiers inside the body that
 //! start with `__` (double underscore) are treated as macro-introduced
 //! and get a unique per-expansion suffix (`__v` → `__v$7`) so they
-//! don't collide with call-site identifiers.
+//! don't collide with call-site identifiers. The actual hygiene rewrite
+//! is delegated to [`super::hygiene`], which uses a context-aware
+//! lexical cursor so string literals, comments, regex literals, and
+//! template-literal text portions are never falsely rewritten.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::ts_syn::declarative::{Body, BodyToken};
 
+use super::hygiene;
 use super::matcher::{Binding, match_invocation_against_arms};
 use super::registry::DeclarativeMacroRegistry;
 
@@ -124,11 +128,25 @@ pub fn expand_body(
     context: ExpansionContext,
     depth: u32,
 ) -> Result<String, ExpandError> {
-    expand_body_with_registry(body, bindings, expansion_id, context, depth, None)
+    expand_body_with_registry(body, bindings, expansion_id, context, depth, None, None)
 }
 
-/// Same as [`expand_body`] but takes an optional registry reference
-/// used to resolve `BodyToken::MacroCall` tokens to other macros.
+/// Expand `body` with a registry reference (for inter-macro
+/// composition) and an optional cluster id (for the Phase E
+/// cluster-aware runtime-name template feature).
+///
+/// When `cluster_id` is `Some(id)`, the expander injects a synthetic
+/// binding `"__cluster__" → Binding::Single(id)` into the scope before
+/// rendering, so a body that references `$__cluster__` receives the
+/// cluster discriminator as its value. The body parser reserves the
+/// `__cluster__` name (see `ts_syn::declarative::parser`), so
+/// `__helper_$__cluster__($args)` parses as Literal + Substitution +
+/// Literal + Substitution + Literal and expands to
+/// `__helper_<id>(<args-expansion>)` at the call site.
+///
+/// `cluster_id == None` leaves the bindings untouched — behaviour
+/// matches the old API exactly. A body that references `$__cluster__`
+/// without a cluster id in scope produces `ExpandError::UnboundName`.
 pub fn expand_body_with_registry(
     body: &Body,
     bindings: &HashMap<String, Binding>,
@@ -136,12 +154,39 @@ pub fn expand_body_with_registry(
     context: ExpansionContext,
     depth: u32,
     registry: Option<&DeclarativeMacroRegistry>,
+    cluster_id: Option<&str>,
 ) -> Result<String, ExpandError> {
     if depth > MAX_EXPANSION_DEPTH {
         return Err(ExpandError::RecursionLimit(MAX_EXPANSION_DEPTH));
     }
+    // If a cluster id was provided, splice in a synthetic `__cluster__`
+    // binding so Substitution tokens with name="__cluster__" resolve.
+    // We take a local clone to avoid mutating the caller's map — the
+    // cluster binding is scope-local to this single expansion.
+    let mut effective_bindings;
+    let bindings_ref: &HashMap<String, Binding> = if let Some(id) = cluster_id {
+        effective_bindings = bindings.clone();
+        effective_bindings.insert(
+            "__cluster__".to_string(),
+            Binding::Single(super::matcher::BoundFragment {
+                kind: crate::ts_syn::declarative::FragmentKind::Ident,
+                source: id.to_string(),
+                span: crate::ts_syn::abi::SpanIR::new(0, 0),
+            }),
+        );
+        &effective_bindings
+    } else {
+        bindings
+    };
     let mut out = String::new();
-    render_tokens(&body.0, bindings, expansion_id, depth, registry, &mut out)?;
+    render_tokens(
+        &body.0,
+        bindings_ref,
+        expansion_id,
+        depth,
+        registry,
+        &mut out,
+    )?;
     let rewritten = rewrite_hygiene(out, expansion_id);
     Ok(maybe_wrap_iife(rewritten, context))
 }
@@ -244,15 +289,52 @@ fn expand_macro_call(
         &mut rendered_args,
     )?;
 
-    // Wrap in a dummy call so OXC can give us a real `CallExpression`
-    // with a proper `Argument` list.
-    let wrapper_source = format!("__m4cr0f0rg3_dummy__({});", rendered_args.trim());
+    // Dispatch on the callee macro's kind. Value-position macros use
+    // the `__m4cr0f0rg3_dummy__(...)` call wrapper and the value-arg
+    // matcher; type-position macros use a `type __dummy = __helper<...>`
+    // wrapper and the type-arg matcher. The two paths produce
+    // identical bindings shapes (sequence of fragments → values), so
+    // the recursive expansion at the bottom is shared.
+    let nested = match callee_def.kind {
+        crate::ts_syn::declarative::MacroKind::Value => expand_value_macro_call(
+            callee_name,
+            &callee_def,
+            &rendered_args,
+            expansion_id,
+            depth,
+            registry,
+        )?,
+        crate::ts_syn::declarative::MacroKind::Type => expand_type_macro_call(
+            callee_name,
+            &callee_def,
+            &rendered_args,
+            expansion_id,
+            depth,
+            registry,
+        )?,
+    };
+    out.push_str(&nested);
+    Ok(())
+}
 
+/// Expand a value-position inter-macro call. Wraps the rendered args
+/// in `__m4cr0f0rg3_dummy__(...)` so OXC produces a real
+/// `CallExpression`, runs the value-arg matcher against the callee's
+/// arms, and recursively expands the matched arm's body.
+fn expand_value_macro_call(
+    callee_name: &str,
+    callee_def: &crate::ts_syn::declarative::MacroDef,
+    rendered_args: &str,
+    expansion_id: u32,
+    depth: u32,
+    registry: &DeclarativeMacroRegistry,
+) -> Result<String, ExpandError> {
     use oxc::allocator::Allocator;
     use oxc::ast::ast::{Expression, Statement};
     use oxc::parser::Parser;
     use oxc::span::SourceType;
 
+    let wrapper_source = format!("__m4cr0f0rg3_dummy__({});", rendered_args.trim());
     let allocator = Allocator::default();
     let parsed = Parser::new(&allocator, &wrapper_source, SourceType::ts()).parse();
     if !parsed.errors.is_empty() {
@@ -266,8 +348,6 @@ fn expand_macro_call(
                 .join("; "),
         });
     }
-
-    // Find the call expression.
     let call = parsed.program.body.iter().find_map(|stmt| {
         if let Statement::ExpressionStatement(es) = stmt
             && let Expression::CallExpression(call) = &es.expression
@@ -283,11 +363,107 @@ fn expand_macro_call(
             reason: "wrapper did not produce a call expression".to_string(),
         });
     };
+    let (arm_index, callee_bindings) =
+        match_invocation_against_arms(&callee_def.arms, &call.arguments, &wrapper_source)
+            .map_err(|e| match e {
+                super::matcher::MatchError::NoArmMatched { tried } => {
+                    ExpandError::NestedMatchFailure {
+                        callee: callee_name.to_string(),
+                        tried,
+                    }
+                }
+                other => ExpandError::MalformedMacroCallArgs {
+                    callee: callee_name.to_string(),
+                    reason: other.to_string(),
+                },
+            })?;
+    expand_body_with_registry(
+        &callee_def.arms[arm_index].body,
+        &callee_bindings,
+        expansion_id.wrapping_add(depth + 1),
+        ExpansionContext::Statement,
+        depth + 1,
+        Some(registry),
+        None,
+    )
+}
 
-    // Match call args against the callee's arms.
-    let (arm_index, callee_bindings) = match_invocation_against_arms(
+/// Expand a type-position inter-macro call. Wraps the rendered args
+/// in `type __m4cr0f0rg3_dummy__ = __m4cr0f0rg3_helper__<...>` so
+/// OXC produces a real `TSTypeReference` with a type-argument list,
+/// runs the type-arg matcher against the callee's arms, and
+/// recursively expands the matched arm's body in `Type` context.
+fn expand_type_macro_call(
+    callee_name: &str,
+    callee_def: &crate::ts_syn::declarative::MacroDef,
+    rendered_args: &str,
+    expansion_id: u32,
+    depth: u32,
+    registry: &DeclarativeMacroRegistry,
+) -> Result<String, ExpandError> {
+    use oxc::allocator::Allocator;
+    use oxc::ast::ast::{Statement, TSType};
+    use oxc::parser::Parser;
+    use oxc::span::SourceType;
+
+    let wrapper_source = format!(
+        "type __m4cr0f0rg3_dummy__ = __m4cr0f0rg3_helper__<{}>;",
+        rendered_args.trim()
+    );
+    let allocator = Allocator::default();
+    let parsed = Parser::new(&allocator, &wrapper_source, SourceType::ts()).parse();
+    if !parsed.errors.is_empty() {
+        return Err(ExpandError::MalformedMacroCallArgs {
+            callee: callee_name.to_string(),
+            reason: parsed
+                .errors
+                .iter()
+                .map(|e| e.to_string())
+                .collect::<Vec<_>>()
+                .join("; "),
+        });
+    }
+    // Find the type-alias declaration and pull the TSTypeReference
+    // off the RHS.
+    let type_ref = parsed.program.body.iter().find_map(|stmt| {
+        if let Statement::TSTypeAliasDeclaration(alias) = stmt
+            && let TSType::TSTypeReference(tr) = &alias.type_annotation
+        {
+            Some(tr)
+        } else {
+            None
+        }
+    });
+    let Some(type_ref) = type_ref else {
+        return Err(ExpandError::MalformedMacroCallArgs {
+            callee: callee_name.to_string(),
+            reason: "type-position wrapper did not produce a type reference".to_string(),
+        });
+    };
+    let Some(type_args) = type_ref.type_arguments.as_ref() else {
+        // Zero-arg call: dispatch via the empty-pattern match path
+        // mirror of what the type walker does.
+        let arm_index = callee_def
+            .arms
+            .iter()
+            .position(|a| matches!(a.pattern, crate::ts_syn::declarative::Pattern::Empty))
+            .ok_or_else(|| ExpandError::NestedMatchFailure {
+                callee: callee_name.to_string(),
+                tried: vec!["()".to_string()],
+            })?;
+        return expand_body_with_registry(
+            &callee_def.arms[arm_index].body,
+            &HashMap::new(),
+            expansion_id.wrapping_add(depth + 1),
+            ExpansionContext::Type,
+            depth + 1,
+            Some(registry),
+            None,
+        );
+    };
+    let (arm_index, callee_bindings) = super::matcher::match_type_invocation_against_arms(
         &callee_def.arms,
-        &call.arguments,
+        &type_args.params,
         &wrapper_source,
     )
     .map_err(|e| match e {
@@ -300,24 +476,15 @@ fn expand_macro_call(
             reason: other.to_string(),
         },
     })?;
-
-    // Recursively expand the callee's body with its own bindings and
-    // depth + 1. Statement context here — the caller is already
-    // splicing text into a larger surrounding context, and wrapping in
-    // an IIFE per composition step would clutter the output.
-    //
-    let nested = expand_body_with_registry(
+    expand_body_with_registry(
         &callee_def.arms[arm_index].body,
         &callee_bindings,
-        // Use a fresh expansion id for the nested scope so hygiene
-        // renames don't collide with the caller's.
         expansion_id.wrapping_add(depth + 1),
-        ExpansionContext::Statement,
+        ExpansionContext::Type,
         depth + 1,
         Some(registry),
-    )?;
-    out.push_str(&nested);
-    Ok(())
+        None,
+    )
 }
 
 fn expand_repetition(
@@ -408,102 +575,32 @@ fn collect_substitutions(tokens: &[BodyToken]) -> Vec<&String> {
 /// get a unique per-expansion suffix.
 ///
 /// Only identifiers that are *declared* within the macro body get
-/// renamed — i.e., names on the left of `const __x`, `let __x`,
-/// or `var __x`. Pure references to externally-declared `__`-prefixed
+/// renamed — i.e., names on the left of `const __x`, `let __x`, or
+/// `var __x`. Pure references to externally-declared `__`-prefixed
 /// names (such as a shared runtime helper emitted by a share-mode
 /// macro) are left untouched, because renaming them would break the
 /// link between the call site and the helper.
 ///
-/// This is a simple, approximate form of hygiene: it catches the common
-/// pattern of macro-internal temporaries (e.g., `const __v = ...; __v.push`)
-/// while leaving everything else alone. It can be fooled by `__`-prefixed
-/// identifiers that appear inside string literals or comments — that's
-/// an accepted MVP limitation and is called out in the execution plan.
+/// Delegates to [`hygiene::collect_declared_underscore_names`] and
+/// [`hygiene::rewrite_identifiers`], which use a lexical cursor that
+/// respects JS/TS string literals, comments, regex literals, and
+/// template-literal text portions — so an expansion that mentions
+/// `__v` inside a `console.log("__v")` or `/* __v note */` comment is
+/// no longer corrupted.
 fn rewrite_hygiene(source: String, expansion_id: u32) -> String {
-    // First pass: collect only `__`-prefixed identifiers that are the
-    // BINDING NAME of a `const` / `let` / `var` declaration. Scan for
-    // the keywords and look at the identifier immediately following.
-    let declared = collect_declared_underscore_names(&source);
+    let declared = hygiene::collect_declared_underscore_names(&source);
+    // Restrict renames to `__`-prefixed names — the cursor returns
+    // every declared identifier; we only rename the ones the hygiene
+    // policy targets.
+    let declared: std::collections::HashSet<String> = declared
+        .into_iter()
+        .filter(|n| n.starts_with("__") && !n.contains('$'))
+        .collect();
     if declared.is_empty() {
         return source;
     }
-
-    // Second pass: build a new string, replacing only occurrences of
-    // the declared names with the suffixed form.
     let suffix = format!("${}", expansion_id);
-    let mut out = String::with_capacity(source.len() + declared.len() * suffix.len());
-    let bytes = source.as_bytes();
-    let mut i = 0;
-    while i < bytes.len() {
-        let c = bytes[i];
-        if is_ident_start(c) {
-            let start = i;
-            while i < bytes.len() && is_ident_continue(bytes[i]) {
-                i += 1;
-            }
-            let ident = &source[start..i];
-            if declared.contains(ident) {
-                out.push_str(ident);
-                out.push_str(&suffix);
-            } else {
-                out.push_str(ident);
-            }
-        } else {
-            out.push(c as char);
-            i += 1;
-        }
-    }
-    out
-}
-
-/// Scan `source` for `const __x`, `let __x`, and `var __x` declarations
-/// and collect the `__`-prefixed binding names. Only exact whole-word
-/// matches of the keywords count, so `const_something` doesn't trigger.
-fn collect_declared_underscore_names(source: &str) -> HashSet<&str> {
-    let mut out: HashSet<&str> = HashSet::new();
-    let bytes = source.as_bytes();
-    let len = bytes.len();
-    let mut i = 0;
-    while i < len {
-        // Only look at keywords at token boundaries.
-        let at_token_boundary = i == 0 || !is_ident_continue(bytes[i - 1]);
-        if at_token_boundary {
-            let tail = &bytes[i..];
-            let consumed = if tail.starts_with(b"const ") || tail.starts_with(b"const\t") {
-                Some(5)
-            } else if tail.starts_with(b"let ")
-                || tail.starts_with(b"let\t")
-                || tail.starts_with(b"var ")
-                || tail.starts_with(b"var\t")
-            {
-                Some(3)
-            } else {
-                None
-            };
-            if let Some(kw_len) = consumed {
-                let mut j = i + kw_len;
-                // Skip whitespace between keyword and identifier.
-                while j < len && matches!(bytes[j], b' ' | b'\t') {
-                    j += 1;
-                }
-                // Read the identifier if one follows.
-                if j < len && is_ident_start(bytes[j]) {
-                    let start = j;
-                    while j < len && is_ident_continue(bytes[j]) {
-                        j += 1;
-                    }
-                    let ident = &source[start..j];
-                    if ident.starts_with("__") && !ident.contains('$') {
-                        out.insert(ident);
-                    }
-                }
-                i = j;
-                continue;
-            }
-        }
-        i += 1;
-    }
-    out
+    hygiene::rewrite_identifiers(&source, &declared, &suffix)
 }
 
 fn maybe_wrap_iife(source: String, context: ExpansionContext) -> String {
@@ -518,12 +615,4 @@ fn maybe_wrap_iife(source: String, context: ExpansionContext) -> String {
             }
         }
     }
-}
-
-fn is_ident_start(c: u8) -> bool {
-    c.is_ascii_alphabetic() || c == b'_' || c == b'$'
-}
-
-fn is_ident_continue(c: u8) -> bool {
-    is_ident_start(c) || c.is_ascii_digit()
 }

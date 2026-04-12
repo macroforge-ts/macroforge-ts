@@ -39,7 +39,7 @@ swc_core = { version = "59.0.1", optional = true, features = [
 ] }
 
 # Oxc for TypeScript parsing and transformation
-oxc = { version = "0.123", optional = true, features = ["codegen"] }
+oxc = { version = "0.123", optional = true, features = ["codegen", "ast_visit"] }
 
 # Macroforge crates
 macroforge_ts_syn = { version = "0.1.81", path = "../macroforge_ts_syn" }
@@ -72,6 +72,13 @@ tempfile = "3.13.0"
 # Ordered maps
 indexmap = "2.7"
 
+# Unicode-aware identifier classification (UAX #31). Used by the
+# declarative macro hygiene cursor to recognize identifier boundaries
+# including non-ASCII characters like `__café` or `__中文`. Already
+# transitively present via `oxc_syntax`; pulled in directly here so
+# the dependency surface is explicit.
+unicode-ident = "1"
+
 # Concurrency
 dashmap = "6.1"
 rayon = "1.10"
@@ -100,3 +107,14 @@ libc = "0.2"
 [dev-dependencies]
 trybuild = "1.0"
 insta = { version = "1.42", features = ["glob"] }
+
+# Criterion for microbenchmarking the declarative macro hot paths
+# (PR 16). The `html_reports` feature generates an HTML report with
+# throughput charts so regressions are easier to spot than raw
+# stdout numbers.
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "declarative_composition"
+harness = false
+required-features = ["oxc"]

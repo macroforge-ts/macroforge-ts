@@ -95,7 +95,7 @@ fn run_differential(path: &Path) {
         .expect("fixture path")
         .to_string();
 
-    let dev_code = expand_with_mode(&input, &file_name, BuildMode::Dev)
+    let dev_code = expand_with_mode(&input, &file_name, BuildMode::dev())
         .unwrap_or_else(|e| panic!("{:?}: {}", path, e));
     let prod_code = expand_with_mode(&input, &file_name, BuildMode::Prod)
         .unwrap_or_else(|e| panic!("{:?}: {}", path, e));
