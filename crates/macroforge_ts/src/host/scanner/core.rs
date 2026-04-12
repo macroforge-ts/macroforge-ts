@@ -272,10 +272,7 @@ impl ProjectScanner {
                 match crate::host::declarative::discover(&ret.program, &source) {
                     Ok(discovered) => discovered.into_iter().map(|dm| dm.def).collect(),
                     Err(e) => {
-                        return Err(anyhow::anyhow!(
-                            "Declarative macro discovery failed: {}",
-                            e
-                        ));
+                        return Err(anyhow::anyhow!("Declarative macro discovery failed: {}", e));
                     }
                 };
             if !declarative_macros.is_empty() {

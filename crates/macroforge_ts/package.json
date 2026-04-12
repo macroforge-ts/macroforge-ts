@@ -1,73 +1,73 @@
 {
-  "author": "macroforge contributors",
-  "bugs": {
-    "url": "https://github.com/macroforge-ts/macroforge-ts/issues"
-  },
-  "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
-  "exports": {
-    ".": {
-      "types": "./pkg/macroforge_ts.d.ts",
-      "require": "./pkg/macroforge_ts.js",
-      "default": "./pkg/macroforge_ts.js"
+    "author": "macroforge contributors",
+    "bugs": {
+        "url": "https://github.com/macroforge-ts/macroforge-ts/issues"
     },
-    "./reexports": {
-      "types": "./js/reexports/index.d.ts",
-      "import": "./js/reexports/index.mjs",
-      "default": "./js/reexports/index.mjs"
+    "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
+    "exports": {
+        ".": {
+            "types": "./pkg/macroforge_ts.d.ts",
+            "require": "./pkg/macroforge_ts.js",
+            "default": "./pkg/macroforge_ts.js"
+        },
+        "./reexports": {
+            "types": "./js/reexports/index.d.ts",
+            "import": "./js/reexports/index.mjs",
+            "default": "./js/reexports/index.mjs"
+        },
+        "./reexports/effect": {
+            "types": "./js/reexports/effect.d.ts",
+            "import": "./js/reexports/effect.mjs",
+            "default": "./js/reexports/effect.mjs"
+        },
+        "./rules": {
+            "types": "./js/rules/index.d.ts",
+            "import": "./js/rules/index.mjs",
+            "default": "./js/rules/index.mjs"
+        },
+        "./serde": {
+            "types": "./js/serde/index.d.ts",
+            "import": "./js/serde/index.mjs",
+            "default": "./js/serde/index.mjs"
+        },
+        "./traits": {
+            "types": "./js/traits/index.d.ts",
+            "import": "./js/traits/index.mjs",
+            "default": "./js/traits/index.mjs"
+        }
     },
-    "./reexports/effect": {
-      "types": "./js/reexports/effect.d.ts",
-      "import": "./js/reexports/effect.mjs",
-      "default": "./js/reexports/effect.mjs"
+    "files": [
+        "js",
+        "pkg"
+    ],
+    "homepage": "https://github.com/macroforge-ts/macroforge-ts#readme",
+    "keywords": [
+        "typescript",
+        "macros",
+        "derive",
+        "codegen",
+        "oxc",
+        "wasm",
+        "webassembly"
+    ],
+    "license": "MIT",
+    "main": "./pkg/macroforge_ts.js",
+    "name": "macroforge",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/macroforge-ts/macroforge-ts.git"
     },
-    "./rules": {
-      "types": "./js/rules/index.d.ts",
-      "import": "./js/rules/index.mjs",
-      "default": "./js/rules/index.mjs"
+    "scripts": {
+        "build": "deno task build:wasm",
+        "build:js": "deno task build:serde && deno task build:traits && deno task build:rules",
+        "build:rules": "deno run -A npm:esbuild js/rules/index.ts --bundle --outfile=js/rules/index.mjs --format=esm && deno run -A npm:typescript/tsc js/rules/index.ts --declaration --emitDeclarationOnly --outDir js/rules --lib ES2024 --skipLibCheck",
+        "build:serde": "deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm && deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
+        "build:traits": "deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm && deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
+        "build:wasm": "deno install --node-modules-dir && deno task build:js && cargo build --release --target wasm32-unknown-unknown && deno run -A ../../tooling/scripts/bench.mjs --wasm-bindgen ../target/wasm32-unknown-unknown/release/macroforge_ts.wasm pkg",
+        "clean": "rm -rf pkg node_modules",
+        "cleanbuild": "deno task clean && deno task build"
     },
-    "./serde": {
-      "types": "./js/serde/index.d.ts",
-      "import": "./js/serde/index.mjs",
-      "default": "./js/serde/index.mjs"
-    },
-    "./traits": {
-      "types": "./js/traits/index.d.ts",
-      "import": "./js/traits/index.mjs",
-      "default": "./js/traits/index.mjs"
-    }
-  },
-  "files": [
-    "js",
-    "pkg"
-  ],
-  "homepage": "https://github.com/macroforge-ts/macroforge-ts#readme",
-  "keywords": [
-    "typescript",
-    "macros",
-    "derive",
-    "codegen",
-    "oxc",
-    "wasm",
-    "webassembly"
-  ],
-  "license": "MIT",
-  "main": "./pkg/macroforge_ts.js",
-  "name": "macroforge",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/macroforge-ts/macroforge-ts.git"
-  },
-  "scripts": {
-    "build": "deno task build:wasm",
-    "build:js": "deno task build:serde && deno task build:traits && deno task build:rules",
-    "build:rules": "deno run -A npm:esbuild js/rules/index.ts --bundle --outfile=js/rules/index.mjs --format=esm && deno run -A npm:typescript/tsc js/rules/index.ts --declaration --emitDeclarationOnly --outDir js/rules --lib ES2024 --skipLibCheck",
-    "build:serde": "deno run -A npm:esbuild js/serde/index.ts --bundle --outfile=js/serde/index.mjs --format=esm && deno run -A npm:typescript/tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
-    "build:traits": "deno run -A npm:esbuild js/traits/index.ts --bundle --outfile=js/traits/index.mjs --format=esm && deno run -A npm:typescript/tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
-    "build:wasm": "deno install --node-modules-dir && deno task build:js && cargo build --release --target wasm32-unknown-unknown && deno run -A ../../tooling/scripts/bench.mjs --wasm-bindgen ../target/wasm32-unknown-unknown/release/macroforge_ts.wasm pkg",
-    "clean": "rm -rf pkg node_modules",
-    "cleanbuild": "deno task clean && deno task build"
-  },
-  "type": "commonjs",
-  "types": "./pkg/macroforge_ts.d.ts",
-  "version": "0.1.79"
+    "type": "commonjs",
+    "types": "./pkg/macroforge_ts.d.ts",
+    "version": "0.1.79"
 }
