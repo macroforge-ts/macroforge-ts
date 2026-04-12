@@ -3,5 +3,5 @@
  * @author John
  */
 export function foo() {
-    return false;
+  return false;
 }

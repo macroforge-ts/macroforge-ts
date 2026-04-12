@@ -1,11 +1,12 @@
 # Custom Macros
 
-Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the
-class AST and can generate any TypeScript code.
+Macroforge allows you to create custom derive macros in Rust. Your macros have
+full access to the class AST and can generate any TypeScript code.
 
 ## Overview
 
-Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
+Custom macros are written in Rust and compiled to native Node.js addons. The
+process involves:
 
 1. Creating a Rust crate with NAPI bindings
 2. Defining macro functions with `#[ts_macro_derive]`
@@ -77,8 +78,9 @@ The `import macro` comment tells Macroforge which package provides the macro.
 
 ## Vite Dev Server
 
-When using a custom macro package as a local `file:` dependency, you may need to configure Vite's
-`server.fs.allow` and add `exports` to your package's `package.json` for dev mode to work. See the
+When using a custom macro package as a local `file:` dependency, you may need to
+configure Vite's `server.fs.allow` and add `exports` to your package's
+`package.json` for dev mode to work. See the
 [Vite Plugin integration guide](../integration/vite-plugin.md#custom-macro-packages-with-file-dependencies)
 for details.
 

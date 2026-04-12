@@ -1,18 +1,17 @@
 # Ord
 
-The `Ord` macro generates a `compareTo()` method for **total ordering** comparison.
-This is analogous to Rust's `Ord` trait, enabling objects to be sorted and
-compared with a guaranteed ordering relationship.
+The `Ord` macro generates a `compareTo()` method for **total ordering**
+comparison. This is analogous to Rust's `Ord` trait, enabling objects to be
+sorted and compared with a guaranteed ordering relationship.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `classNameCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
-| Enum | `enumNameCompare(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
-| Interface | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
-| Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
-
+| Type       | Generated Code                                                     | Description                                          |
+| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
+| Class      | `classNameCompare(a, b)` + `static compareTo(a, b)`                | Standalone function + static wrapper method          |
+| Enum       | `enumNameCompare(a: EnumName, b: EnumName): number`                | Standalone function comparing enum values            |
+| Interface  | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields                 |
+| Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number`                | Standalone function with type-appropriate comparison |
 
 ## Return Values
 
@@ -36,14 +35,14 @@ Fields are compared **lexicographically** in declaration order:
 
 ## Type-Specific Comparisons
 
-| Type | Comparison Method |
-|------|-------------------|
-| `number`/`bigint` | Direct `<` and `>` comparison |
-| `string` | `localeCompare()` (clamped to -1, 0, 1) |
-| `boolean` | false &lt; true |
-| Arrays | Lexicographic element-by-element |
-| `Date` | `getTime()` timestamp comparison |
-| Objects | Calls `compareTo()` if available, else 0 |
+| Type              | Comparison Method                        |
+| ----------------- | ---------------------------------------- |
+| `number`/`bigint` | Direct `<` and `>` comparison            |
+| `string`          | `localeCompare()` (clamped to -1, 0, 1)  |
+| `boolean`         | false &lt; true                          |
+| Arrays            | Lexicographic element-by-element         |
+| `Date`            | `getTime()` timestamp comparison         |
+| Objects           | Calls `compareTo()` if available, else 0 |
 
 ## Field-Level Options
 
@@ -56,36 +55,37 @@ The `@ord` decorator supports:
 ```typescript before
 /** @derive(Ord) */
 class Version {
-    major: number;
-    minor: number;
-    patch: number;
+  major: number;
+  minor: number;
+  patch: number;
 }
 ```
 
 ```typescript after
 class Version {
-    major: number;
-    minor: number;
-    patch: number;
+  major: number;
+  minor: number;
+  patch: number;
 
-    static compareTo(a: Version, b: Version): number {
-        return versionCompare(a, b);
-    }
+  static compareTo(a: Version, b: Version): number {
+    return versionCompare(a, b);
+  }
 }
 
 export function versionCompare(a: Version, b: Version): number {
-    if (a === b) return 0;
-    const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
-    if (cmp0 !== 0) return cmp0;
-    const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
-    if (cmp1 !== 0) return cmp1;
-    const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
-    if (cmp2 !== 0) return cmp2;
-    return 0;
+  if (a === b) return 0;
+  const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+  if (cmp0 !== 0) return cmp0;
+  const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+  if (cmp1 !== 0) return cmp1;
+  const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
+  if (cmp2 !== 0) return cmp2;
+  return 0;
 }
 ```
 
 ## Ord vs PartialOrd
 
 - Use **Ord** when all values are comparable (total ordering)
-- Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)
+- Use **PartialOrd** when some values may be incomparable (returns
+  `Option<number>`)

@@ -1,16 +1,19 @@
 # How Macros Work
 
-Macroforge performs compile-time code generation by parsing your TypeScript, expanding macros, and
-outputting transformed code. This happens before your code runs, resulting in zero runtime overhead.
+Macroforge performs compile-time code generation by parsing your TypeScript,
+expanding macros, and outputting transformed code. This happens before your code
+runs, resulting in zero runtime overhead.
 
 ## Compile-Time Expansion
 
-Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at compile time:
+Unlike runtime solutions that use reflection or proxies, Macroforge expands
+macros at compile time:
 
 1. **Parse**: Your TypeScript code is parsed into an AST using SWC
 2. **Find**: Macroforge finds `@derive` decorators and their associated items
 3. **Expand**: Each macro generates new code based on the class structure
-4. **Output**: The transformed TypeScript is written out, ready for normal compilation
+4. **Output**: The transformed TypeScript is written out, ready for normal
+   compilation
 
 Before (Your Code)
 
@@ -52,7 +55,8 @@ The generated code is plain TypeScript that compiles to efficient JavaScript.
 
 ## Source Mapping
 
-Macroforge tracks the relationship between your source code and the expanded output. This means:
+Macroforge tracks the relationship between your source code and the expanded
+output. This means:
 
 - Errors in generated code point back to your source
 - Debugging works correctly
@@ -60,8 +64,8 @@ Macroforge tracks the relationship between your source code and the expanded out
 
 Error positioning
 
-The TypeScript plugin uses source mapping to show errors at the `@derive` decorator position, not in
-the generated code.
+The TypeScript plugin uses source mapping to show errors at the `@derive`
+decorator position, not in the generated code.
 
 ## Execution Flow
 

@@ -16,12 +16,14 @@ npm install @macroforge/mcp-server
 
 ### Functions
 
-- **`registerTools`** - Registers all Macroforge MCP tools with the server instance.
+- **`registerTools`** - Registers all Macroforge MCP tools with the server
+  instance.
 
 ## Documentation
 
-See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/mcp-server) on
-the Macroforge website.
+See the
+[full documentation](https://macroforge.dev/docs/api/reference/typescript/mcp-server)
+on the Macroforge website.
 
 ## License
 

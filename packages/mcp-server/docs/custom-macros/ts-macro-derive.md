@@ -1,7 +1,7 @@
 # ts\_macro\_derive
 
-The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a
-Macroforge derive macro.
+The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers
+your function as a Macroforge derive macro.
 
 ## Basic Syntax
 
@@ -61,7 +61,8 @@ pub fn derive_debug(...)
 
 Note
 
-Declared attributes become available as `@attributeName({ options })` decorators in TypeScript.
+Declared attributes become available as `@attributeName({ options })` decorators
+in TypeScript.
 
 ## Function Signature
 
@@ -231,12 +232,14 @@ struct DecoratorIR {
 
 Note
 
-To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing
-options, you can write helper functions like the built-in macros do.
+To check for decorators, iterate through `field.decorators` and check
+`decorator.name`. For parsing options, you can write helper functions like the
+built-in macros do.
 
 ## Adding Imports
 
-If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
+If your macro generates code that requires imports, use the `add_import` method
+on `TsStream`:
 
 Rust
 
@@ -257,8 +260,8 @@ Ok(output)
 
 Note
 
-Imports are automatically deduplicated. If the same import already exists in the file, it won't be
-added again.
+Imports are automatically deduplicated. If the same import already exists in the
+file, it won't be added again.
 
 ## Returning Errors
 

@@ -1,7 +1,7 @@
 # Architecture
 
-Macroforge is built as a native Node.js module using Rust and NAPI-RS. It leverages SWC for fast
-TypeScript parsing and code generation.
+Macroforge is built as a native Node.js module using Rust and NAPI-RS. It
+leverages SWC for fast TypeScript parsing and code generation.
 
 ## Overview
 

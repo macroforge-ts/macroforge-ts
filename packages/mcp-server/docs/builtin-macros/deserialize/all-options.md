@@ -14,6 +14,7 @@
 
 | `skip_deserializing` | `boolean` | Exclude from deserialization only
 
-| `default` | `boolean | string` | Use TypeScript default or custom expression if missing
+| `default` | `boolean | string` | Use TypeScript default or custom expression
+if missing
 
 | `flatten` | `boolean` | Merge nested object fields from parent

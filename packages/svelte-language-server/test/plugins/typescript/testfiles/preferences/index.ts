@@ -1,2 +1,2 @@
-import { definition } from './definition';
+import { definition } from "./definition";
 definition();

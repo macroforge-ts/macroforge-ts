@@ -635,7 +635,12 @@ export async function macroforge() {
     try {
       return JSON.parse(
         fs.readFileSync(
-          path.join(process.cwd(), "node_modules", "macroforge", "package.json"),
+          path.join(
+            process.cwd(),
+            "node_modules",
+            "macroforge",
+            "package.json",
+          ),
           "utf-8",
         ),
       ).version;

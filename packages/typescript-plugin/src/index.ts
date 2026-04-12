@@ -67,7 +67,9 @@ interface ExpandResult {
     code: string;
     types?: string;
     metadata?: string;
-    diagnostics: Array<{ level: string; message: string; start?: number; end?: number }>;
+    diagnostics: Array<
+        { level: string; message: string; start?: number; end?: number }
+    >;
     sourceMapping?: {
         segments: Array<
             {
@@ -77,7 +79,9 @@ interface ExpandResult {
                 expandedEnd: number;
             }
         >;
-        generatedRegions: Array<{ start: number; end: number; sourceMacro: string }>;
+        generatedRegions: Array<
+            { start: number; end: number; sourceMacro: string }
+        >;
     };
 }
 import { createRequire } from 'node:module';
@@ -142,7 +146,9 @@ function getMacroManifest() {
                 manifest.macros.map((m: { name: string }) => [m.name.toLowerCase(), m])
             ),
             decorators: new Map(
-                manifest.decorators.map((d: { export: string }) => [d.export.toLowerCase(), d])
+                manifest.decorators.map((
+                    d: { export: string }
+                ) => [d.export.toLowerCase(), d])
             )
         };
         return macroManifestCache;
@@ -819,7 +825,9 @@ function hasMacroDirectives(text: string) {
  * @see {@link shouldProcess} - File filtering logic
  * @see {@link processFile} - Main macro expansion entry point
  */
-function init(modules: { typescript: typeof ts }): { create: (info: ts.server.PluginCreateInfo) => ts.LanguageService } {
+function init(
+    modules: { typescript: typeof ts }
+): { create: (info: ts.server.PluginCreateInfo) => ts.LanguageService } {
     /**
      * Creates the plugin instance for a TypeScript project.
      *
@@ -1734,7 +1742,9 @@ function init(modules: { typescript: typeof ts }): { create: (info: ts.server.Pl
                 }
 
                 const macroDiagnostics: ts.Diagnostic[] = result.diagnostics.map(
-                    (d: { level: string; message: string; start?: number; end?: number }) => {
+                    (
+                        d: { level: string; message: string; start?: number; end?: number }
+                    ) => {
                         const category = d.level === 'error'
                             ? tsModule.DiagnosticCategory.Error
                             : d.level === 'warning'

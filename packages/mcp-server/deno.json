@@ -1,48 +1,48 @@
 {
-    "name": "@macroforge/mcp-server",
-    "version": "0.1.79",
-    "exports": {
-        ".": "./src/index.ts"
-    },
-    "imports": {
-        "@modelcontextprotocol/sdk/server/index.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/index.js",
-        "@modelcontextprotocol/sdk/server/stdio.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/stdio.js",
-        "@modelcontextprotocol/sdk/types.js": "npm:@modelcontextprotocol/sdk@^1.11.1/types.js"
-    },
-    "compilerOptions": {
-        "lib": ["esnext", "deno.window"]
-    },
-    "unstable": ["sloppy-imports"],
-    "publish": {
-        "exclude": ["tests/", "scripts/", "dist/", "node_modules/"]
-    },
-    "fmt": {
-        "useTabs": false,
-        "indentWidth": 4,
-        "lineWidth": 100,
-        "singleQuote": true,
-        "semiColons": true,
-        "trailingCommas": "never",
-        "exclude": ["**/dist", "**/build", "**/node_modules"]
-    },
-    "lint": {
-        "exclude": [
-            "**/dist",
-            "**/build",
-            "**/node_modules",
-            "**/*.test.ts",
-            "**/*.spec.ts",
-            "**/*.config.ts",
-            "**/*.config.js"
-        ],
-        "rules": {
-            "tags": ["recommended"],
-            "include": ["eqeqeq"],
-            "exclude": [
-                "require-await",
-                "no-process-global",
-                "no-node-globals"
-            ]
-        }
+  "name": "@macroforge/mcp-server",
+  "version": "0.1.79",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "imports": {
+    "@modelcontextprotocol/sdk/server/index.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/index.js",
+    "@modelcontextprotocol/sdk/server/stdio.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/stdio.js",
+    "@modelcontextprotocol/sdk/types.js": "npm:@modelcontextprotocol/sdk@^1.11.1/types.js"
+  },
+  "compilerOptions": {
+    "lib": ["esnext", "deno.window"]
+  },
+  "unstable": ["sloppy-imports"],
+  "publish": {
+    "exclude": ["tests/", "scripts/", "dist/", "node_modules/"]
+  },
+  "fmt": {
+    "useTabs": false,
+    "indentWidth": 4,
+    "lineWidth": 100,
+    "singleQuote": true,
+    "semiColons": true,
+    "trailingCommas": "never",
+    "exclude": ["**/dist", "**/build", "**/node_modules"]
+  },
+  "lint": {
+    "exclude": [
+      "**/dist",
+      "**/build",
+      "**/node_modules",
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "**/*.config.ts",
+      "**/*.config.js"
+    ],
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["eqeqeq"],
+      "exclude": [
+        "require-await",
+        "no-process-global",
+        "no-node-globals"
+      ]
     }
+  }
 }

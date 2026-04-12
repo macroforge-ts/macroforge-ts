@@ -1,7 +1,7 @@
 ## Side Effects: `{$do}`
 
-Execute an expression for its side effects without producing output. This is commonly used with
-mutable variables:
+Execute an expression for its side effects without producing output. This is
+commonly used with mutable variables:
 
 Rust
 

@@ -1,6 +1,7 @@
 ## String Interpolation: `"text @&#123;expr&#125;"`
 
-Interpolation works automatically inside string literals - no `format!()` needed:
+Interpolation works automatically inside string literals - no `format!()`
+needed:
 
 ```rust
 let name = "World";
@@ -15,8 +16,8 @@ let code = ts_template! {
 **Generates:**
 
 ```typescript
-console.log('Hello World!');
-console.log('Count: 42, doubled: 84');
+console.log("Hello World!");
+console.log("Count: 42, doubled: 84");
 ```
 
 This also works with method calls and complex expressions:

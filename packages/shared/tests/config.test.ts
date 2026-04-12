@@ -59,8 +59,14 @@ Deno.test('findConfigFile - prefers .ts over .js', async () => {
     const tempDir = await Deno.makeTempDir();
     try {
         await Deno.writeTextFile(`${tempDir}/package.json`, '{}');
-        await Deno.writeTextFile(`${tempDir}/macroforge.config.js`, 'export default {};');
-        await Deno.writeTextFile(`${tempDir}/macroforge.config.ts`, 'export default {};');
+        await Deno.writeTextFile(
+            `${tempDir}/macroforge.config.js`,
+            'export default {};'
+        );
+        await Deno.writeTextFile(
+            `${tempDir}/macroforge.config.ts`,
+            'export default {};'
+        );
 
         const result = findConfigFile(tempDir);
         assertExists(result);
@@ -87,7 +93,10 @@ Deno.test('loadMacroConfig - sets configPath when config found', async () => {
     const tempDir = await Deno.makeTempDir();
     try {
         await Deno.writeTextFile(`${tempDir}/package.json`, '{}');
-        await Deno.writeTextFile(`${tempDir}/macroforge.config.js`, 'export default {};');
+        await Deno.writeTextFile(
+            `${tempDir}/macroforge.config.js`,
+            'export default {};'
+        );
 
         const config = loadMacroConfig(tempDir);
         assertEquals(config.keepDecorators, false);
@@ -102,7 +111,10 @@ Deno.test('loadMacroConfig - uses custom loader when provided', async () => {
     const tempDir = await Deno.makeTempDir();
     try {
         await Deno.writeTextFile(`${tempDir}/package.json`, '{}');
-        await Deno.writeTextFile(`${tempDir}/macroforge.config.js`, 'keepDecorators: true');
+        await Deno.writeTextFile(
+            `${tempDir}/macroforge.config.js`,
+            'keepDecorators: true'
+        );
 
         const customLoader = (_content: string, _filepath: string) => ({
             keepDecorators: true,

@@ -7,7 +7,7 @@ Use the `@serde` decorator to customize deserialization:
 <MacroExample before={data.examples.rename.before} after={data.examples.rename.after} />
 
 ```typescript
-const user = User.fromJSON({ user_id: '123', full_name: 'Alice' });
+const user = User.fromJSON({ user_id: "123", full_name: "Alice" });
 console.log(user.id); // "123"
 console.log(user.name); // "Alice"
 ```
@@ -17,14 +17,15 @@ console.log(user.name); // "Alice"
 <MacroExample before={data.examples.default.before} after={data.examples.default.after} />
 
 ```typescript
-const config = Config.fromJSON({ host: 'localhost' });
+const config = Config.fromJSON({ host: "localhost" });
 console.log(config.port); // "3000"
 console.log(config.debug); // false
 ```
 
 ### Skipping Fields
 
-<InteractiveMacro code={`/** @derive(Deserialize) */ class User { name: string; email: string;
+<InteractiveMacro code={`/** @derive(Deserialize) */ class User { name: string;
+email: string;
 
 /** @serde({ skip: true }) */ cachedData: unknown;
 
@@ -48,13 +49,14 @@ class StrictUser {
 
 ```typescript
 // This will throw an error
-StrictUser.fromJSON({ name: 'Alice', email: 'a@b.com', extra: 'field' });
+StrictUser.fromJSON({ name: "Alice", email: "a@b.com", extra: "field" });
 // Error: StrictUser.fromJSON: unknown field "extra"
 ```
 
 ### Flatten Nested Objects
 
-<InteractiveMacro code={`/** @derive(Deserialize) */ class Address { city: string; zip: string; }
+<InteractiveMacro code={`/** @derive(Deserialize) */ class Address { city:
+string; zip: string; }
 
 /** @derive(Deserialize) */ class User { name: string;
 
@@ -63,9 +65,9 @@ StrictUser.fromJSON({ name: 'Alice', email: 'a@b.com', extra: 'field' });
 ```typescript
 // Flat JSON structure
 const user = User.fromJSON({
-    name: 'Alice',
-    city: 'NYC',
-    zip: '10001'
+  name: "Alice",
+  city: "NYC",
+  zip: "10001",
 });
 console.log(user.address.city); // "NYC"
 ```

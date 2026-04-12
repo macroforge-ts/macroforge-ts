@@ -133,7 +133,10 @@ export function getExternalManifest(
         // console.log(`[macroforge:shared] Discovering manifests in ${modulePath}, found keys:`, keys);
 
         for (const key of keys) {
-            if (key.startsWith('__macroforgeGetManifest_') && typeof pkg[key] === 'function') {
+            if (
+                key.startsWith('__macroforgeGetManifest_') &&
+                typeof pkg[key] === 'function'
+            ) {
                 const fn = (pkg as Record<string, unknown>)[key] as () => MacroManifest;
                 const m = fn();
                 manifest.macros.push(...(m.macros || []));
@@ -145,7 +148,9 @@ export function getExternalManifest(
 
         if (found) {
             // Deduplicate macros and decorators by name/export
-            manifest.macros = Array.from(new Map(manifest.macros.map((m) => [m.name, m])).values());
+            manifest.macros = Array.from(
+                new Map(manifest.macros.map((m) => [m.name, m])).values()
+            );
             manifest.decorators = Array.from(
                 new Map(manifest.decorators.map((d) => [d.export, d])).values()
             );

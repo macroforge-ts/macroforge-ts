@@ -1,7 +1,7 @@
 ## TsStream Injection: `{$typescript}`
 
-Inject another TsStream into your template, preserving both its source code and runtime patches
-(like imports added via `add_import()`):
+Inject another TsStream into your template, preserving both its source code and
+runtime patches (like imports added via `add_import()`):
 
 Rust
 
@@ -25,7 +25,8 @@ let result = body! {
 // result now includes helper's source AND its Result import
 ```
 
-This is essential for composing multiple macro outputs while preserving imports and patches:
+This is essential for composing multiple macro outputs while preserving imports
+and patches:
 
 Rust
 

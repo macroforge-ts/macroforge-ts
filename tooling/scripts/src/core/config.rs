@@ -111,4 +111,3 @@ pub fn crate_package_names() -> HashMap<&'static str, &'static str> {
     .into_iter()
     .collect()
 }
-

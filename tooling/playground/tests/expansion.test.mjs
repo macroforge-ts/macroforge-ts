@@ -89,7 +89,7 @@ const empty = $vec();
 const xs = $vec(1, 2, 3);
 `;
     const { code } = expandSync(source, '/tmp/decl.ts', {
-        keepDecorators: false,
+        keepDecorators: false
     });
     assert.ok(
         !code.includes('const $vec = macroRules'),
@@ -118,7 +118,7 @@ const $withTemp = macroRules\`
 const result = $withTemp(10);
 `;
     const { code } = expandSync(source, '/tmp/decl_hygiene.ts', {
-        keepDecorators: false,
+        keepDecorators: false
     });
     assert.ok(
         code.includes('__v$1'),
@@ -161,9 +161,11 @@ test('declarative macros: project-wide registry file lists macro-defining files'
     const files = Object.keys(parsed.by_file ?? {});
     assert.ok(
         files.some((f) => f.includes('_decl_macros_lib')),
-        `expected _decl_macros_lib.ts in registry files, got: ${files.join(
-            ', '
-        )}`
+        `expected _decl_macros_lib.ts in registry files, got: ${
+            files.join(
+                ', '
+            )
+        }`
     );
     // _decl_macros_lib.ts defines $vec and $identity; declarative-macros.ts
     // defines $vec, $id, $withTemp. Total = 5 macros across 2 files.
@@ -195,7 +197,7 @@ test('declarative macros: cross-file imports resolve at expand time', () => {
 
     const { code, diagnostics } = expandSync(source, consumerPath, {
         keepDecorators: false,
-        declarativeRegistryJson,
+        declarativeRegistryJson
     });
 
     // No error diagnostics — imports resolved cleanly.

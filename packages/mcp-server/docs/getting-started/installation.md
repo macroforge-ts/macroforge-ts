@@ -1,7 +1,7 @@
 # Installation
 
-Get started with Macroforge in just a few minutes. Install the package and configure your project to
-start using TypeScript macros.
+Get started with Macroforge in just a few minutes. Install the package and
+configure your project to start using TypeScript macros.
 
 ## Requirements
 
@@ -32,13 +32,13 @@ pnpm add macroforge
 
 Info
 
-Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and
-Windows (x64, arm64).
+Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux
+(x64, arm64), and Windows (x64, arm64).
 
 ## Basic Usage
 
-The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment
-decorator to your class:
+The simplest way to use Macroforge is with the built-in derive macros. Add a
+`@derive` comment decorator to your class:
 
 user.ts
 
@@ -62,7 +62,8 @@ class User {
 
 ## IDE Integration
 
-For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
+For the best development experience, add the TypeScript plugin to your
+`tsconfig.json`:
 
 tsconfig.json
 
@@ -86,7 +87,8 @@ This enables features like:
 
 ## Build Integration (Vite)
 
-If you're using Vite, add the plugin to your config for automatic macro expansion during build:
+If you're using Vite, add the plugin to your config for automatic macro
+expansion during build:
 
 vite.config.ts
 

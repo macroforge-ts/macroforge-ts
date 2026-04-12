@@ -10,8 +10,8 @@
 | Nullable   | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `SerializeWithContext` checks |
 | Objects    | Call `SerializeWithContext(ctx)` if available (to support user-defined implementations)                                    |
 
-Note: the generator specializes some code paths based on the declared TypeScript type to avoid
-runtime feature detection on primitives and literal unions.
+Note: the generator specializes some code paths based on the declared TypeScript
+type to avoid runtime feature detection on primitives and literal unions.
 
 ## Field-Level Options
 

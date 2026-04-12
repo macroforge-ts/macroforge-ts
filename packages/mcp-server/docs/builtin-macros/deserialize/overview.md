@@ -1,8 +1,8 @@
 # Deserialize
 
-The `Deserialize` macro generates JSON deserialization methods with **cycle and forward-reference
-support**, plus comprehensive runtime validation. This enables safe parsing of complex JSON
-structures including circular references.
+The `Deserialize` macro generates JSON deserialization methods with **cycle and
+forward-reference support**, plus comprehensive runtime validation. This enables
+safe parsing of complex JSON structures including circular references.
 
 ## Generated Output
 
@@ -15,7 +15,9 @@ structures including circular references.
 
 ## Return Type
 
-All public deserialization methods return `Result<T, Array<{ field: string; message: string }>>`:
+All public deserialization methods return
+`Result<T, Array<{ field: string; message: string }>>`:
 
 - `Result.ok(value)` - Successfully deserialized value
-- `Result.err(errors)` - Array of validation errors with field names and messages
+- `Result.err(errors)` - Array of validation errors with field names and
+  messages

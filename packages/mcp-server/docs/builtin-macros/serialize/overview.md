@@ -1,8 +1,8 @@
 # Serialize
 
-The `Serialize` macro generates JSON serialization methods with **cycle detection** and object
-identity tracking. This enables serialization of complex object graphs including circular
-references.
+The `Serialize` macro generates JSON serialization methods with **cycle
+detection** and object identity tracking. This enables serialization of complex
+object graphs including circular references.
 
 ## Generated Methods
 
@@ -19,10 +19,10 @@ The generated code handles circular references using `__id` and `__ref` markers:
 
 ```json
 {
-    "__type": "User",
-    "__id": 1,
-    "name": "Alice",
-    "friend": { "__ref": 2 } // Reference to object with __id: 2
+  "__type": "User",
+  "__id": 1,
+  "name": "Alice",
+  "friend": { "__ref": 2 } // Reference to object with __id: 2
 }
 ```
 

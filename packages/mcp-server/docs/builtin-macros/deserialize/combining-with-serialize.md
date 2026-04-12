@@ -15,7 +15,7 @@ class UserProfile {
 ```typescript
 // Create and serialize
 const profile = new UserProfile();
-profile.user_name = 'Alice';
+profile.user_name = "Alice";
 profile.created_at = new Date();
 profile.is_active = true;
 

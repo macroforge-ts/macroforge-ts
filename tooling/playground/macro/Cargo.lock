@@ -617,6 +617,7 @@ dependencies = [
  "sha2",
  "tempfile",
  "thiserror",
+ "unicode-ident",
  "wasm-bindgen",
 ]
 
@@ -780,6 +781,7 @@ checksum = "0b1230c7eec5665eab1703cad92ce652e664c1abdfc4db0132e427f179cc0780"
 dependencies = [
  "oxc_allocator",
  "oxc_ast",
+ "oxc_ast_visit",
  "oxc_codegen",
  "oxc_diagnostics",
  "oxc_parser",

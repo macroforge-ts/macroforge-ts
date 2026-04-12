@@ -20,7 +20,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "fs";
 import path from "path";
-import { TraceMap, originalPositionFor } from "@jridgewell/trace-mapping";
+import { originalPositionFor, TraceMap } from "@jridgewell/trace-mapping";
 import macroforge from "../src/index.js";
 import {
   cleanupTempDir,

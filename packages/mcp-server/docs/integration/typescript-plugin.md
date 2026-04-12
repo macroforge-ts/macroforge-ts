@@ -1,7 +1,7 @@
 # TypeScript Plugin
 
-The TypeScript plugin provides IDE integration for Macroforge, including error reporting,
-completions, and type checking for generated code.
+The TypeScript plugin provides IDE integration for Macroforge, including error
+reporting, completions, and type checking for generated code.
 
 ## Installation
 
@@ -31,8 +31,8 @@ tsconfig.json
 
 ## VS Code Setup
 
-VS Code uses its own TypeScript version by default. To use the workspace version (which includes
-plugins):
+VS Code uses its own TypeScript version by default. To use the workspace version
+(which includes plugins):
 
 1. Open the Command Palette (`Cmd/Ctrl + Shift + P`)
 2. Search for "TypeScript: Select TypeScript Version"
@@ -93,7 +93,8 @@ const copy = user.clone();
 ### Plugin Not Loading
 
 1. Ensure you're using the workspace TypeScript version
-2. Restart the TypeScript server (Command Palette → "TypeScript: Restart TS Server")
+2. Restart the TypeScript server (Command Palette → "TypeScript: Restart TS
+   Server")
 3. Check that the plugin is listed in `tsconfig.json`
 
 ### Errors Not Showing
