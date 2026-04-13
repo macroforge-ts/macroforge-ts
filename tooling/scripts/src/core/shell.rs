@@ -349,11 +349,6 @@ pub mod deno {
         shell.arg(script).dir(cwd).run()
     }
 
-    /// Run arbitrary deno command and check for success
-    pub fn run_checked(cwd: &Path, args: &[&str]) -> Result<CommandResult> {
-        Shell::new("deno").args(args).dir(cwd).run_checked()
-    }
-
     /// Run deno task with live output
     pub fn task_inherit(cwd: &Path, task_name: &str) -> Result<CommandResult> {
         Shell::new("deno")

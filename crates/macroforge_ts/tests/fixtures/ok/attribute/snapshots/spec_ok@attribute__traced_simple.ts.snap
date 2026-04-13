@@ -1,0 +1,37 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/attribute/traced_simple.ts
+---
+## Input
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+/** @traced */
+export function add(a: number, b: number): number {
+    return a + b;
+}
+
+## Output
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+
+export function add(a: number, b: number): number {
+    (globalThis as any).__traced ??= {};
+    (globalThis as any).__traced["add"] = ((globalThis as any).__traced["add"] || 0) + 1;
+    return a + b;
+}
+
+## DTS
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+
+export function add(a: number, b: number): number {
+    return a + b;
+}
+
+## Diagnostics
+
+(none)

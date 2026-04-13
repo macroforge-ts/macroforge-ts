@@ -1,17 +1,18 @@
 # Hash
 
-The `Hash` macro generates a `hashCode()` method for computing numeric hash
-codes. This is analogous to Rust's `Hash` trait and Java's `hashCode()` method,
-enabling objects to be used as keys in hash-based collections.
+The `Hash` macro generates a `hashCode()` method for computing numeric hash codes.
+This is analogous to Rust's `Hash` trait and Java's `hashCode()` method, enabling
+objects to be used as keys in hash-based collections.
 
 ## Generated Output
 
-| Type       | Generated Code                                        | Description                                 |
-| ---------- | ----------------------------------------------------- | ------------------------------------------- |
-| Class      | `classNameHashCode(value)` + `static hashCode(value)` | Standalone function + static wrapper method |
-| Enum       | `enumNameHashCode(value: EnumName): number`           | Standalone function hashing by enum value   |
-| Interface  | `interfaceNameHashCode(value: InterfaceName): number` | Standalone function computing hash          |
-| Type Alias | `typeNameHashCode(value: TypeName): number`           | Standalone function computing hash          |
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `classNameHashCode(value)` + `static hashCode(value)` | Standalone function + static wrapper method |
+| Enum | `enumNameHashCode(value: EnumName): number` | Standalone function hashing by enum value |
+| Interface | `interfaceNameHashCode(value: InterfaceName): number` | Standalone function computing hash |
+| Type Alias | `typeNameHashCode(value: TypeName): number` | Standalone function computing hash |
+
 
 ## Hash Algorithm
 
@@ -23,24 +24,24 @@ for each field:
     hash = (hash * 31 + fieldHash) | 0
 ```
 
-The `| 0` (bitwise OR with zero) at the end of each step coerces the result to a
-32-bit signed integer, preventing floating-point drift from repeated
+The `| 0` (bitwise OR with zero) at the end of each step coerces the result
+to a 32-bit signed integer, preventing floating-point drift from repeated
 multiplication. This is equivalent to casting to `i32` in Rust and consistent
 with Java's `Objects.hash()` implementation.
 
 ## Type-Specific Hashing
 
-| Type      | Hash Strategy                                          |
-| --------- | ------------------------------------------------------ |
-| `number`  | Integer: direct value; Float: string hash of decimal   |
-| `bigint`  | String hash of decimal representation                  |
-| `string`  | Character-by-character polynomial hash                 |
-| `boolean` | 1231 for true, 1237 for false (Java convention)        |
-| `Date`    | `getTime()` timestamp                                  |
-| Arrays    | Element-by-element hash combination                    |
-| `Map`     | Entry-by-entry key+value hash                          |
-| `Set`     | Element-by-element hash                                |
-| Objects   | Calls `hashCode()` if available, else JSON string hash |
+| Type | Hash Strategy |
+|------|---------------|
+| `number` | Integer: direct value; Float: string hash of decimal |
+| `bigint` | String hash of decimal representation |
+| `string` | Character-by-character polynomial hash |
+| `boolean` | 1231 for true, 1237 for false (Java convention) |
+| `Date` | `getTime()` timestamp |
+| Arrays | Element-by-element hash combination |
+| `Map` | Entry-by-entry key+value hash |
+| `Set` | Element-by-element hash |
+| Objects | Calls `hashCode()` if available, else JSON string hash |
 
 ## Field-Level Options
 
@@ -53,46 +54,47 @@ The `@hash` decorator supports:
 ```typescript before
 /** @derive(Hash) */
 class User {
-  id: number;
-  name: string;
+    id: number;
+    name: string;
 
-  /** @hash({ skip: true }) */
-  cachedScore: number;
+    /** @hash({ skip: true }) */
+    cachedScore: number;
 }
 ```
 
 ```typescript after
 class User {
-  id: number;
-  name: string;
+    id: number;
+    name: string;
 
-  cachedScore: number;
+    cachedScore: number;
 
-  static hashCode(value: User): number {
-    return userHashCode(value);
-  }
+    static hashCode(value: User): number {
+        return userHashCode(value);
+    }
 }
 
 export function userHashCode(value: User): number {
-  let hash = 17;
-  hash = (hash * 31 +
-    (Number.isInteger(value.id) ? value.id | 0 : value.id
-      .toString()
-      .split("")
-      .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-    0;
-  hash = (hash * 31 +
-    (value.name ?? "").split("").reduce(
-      (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
-      0,
-    )) |
-    0;
-  return hash;
+    let hash = 17;
+    hash =
+        (hash * 31 +
+            (Number.isInteger(value.id)
+                ? value.id | 0
+                : value.id
+                      .toString()
+                      .split('')
+                      .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        0;
+    hash =
+        (hash * 31 +
+            (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        0;
+    return hash;
 }
 ```
 
 ## Hash Contract
 
-Objects that are equal (`PartialEq`) should produce the same hash code. When
-using `@hash(skip)`, ensure the same fields are skipped in both `Hash` and
-`PartialEq` to maintain this contract.
+Objects that are equal (`PartialEq`) should produce the same hash code.
+When using `@hash(skip)`, ensure the same fields are skipped in both
+`Hash` and `PartialEq` to maintain this contract.

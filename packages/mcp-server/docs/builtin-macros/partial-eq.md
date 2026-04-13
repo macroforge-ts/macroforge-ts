@@ -6,12 +6,12 @@ enabling value-based equality semantics instead of reference equality.
 
 ## Generated Output
 
-| Type       | Generated Code                                                     | Description                                          |
-| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
-| Class      | `classNameEquals(a, b)` + `static equals(a, b)`                    | Standalone function + static wrapper method          |
-| Enum       | `enumNameEquals(a: EnumName, b: EnumName): boolean`                | Standalone function using strict equality            |
-| Interface  | `interfaceNameEquals(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields                 |
-| Type Alias | `typeNameEquals(a: TypeName, b: TypeName): boolean`                | Standalone function with type-appropriate comparison |
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `classNameEquals(a, b)` + `static equals(a, b)` | Standalone function + static wrapper method |
+| Enum | `enumNameEquals(a: EnumName, b: EnumName): boolean` | Standalone function using strict equality |
+| Interface | `interfaceNameEquals(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields |
+| Type Alias | `typeNameEquals(a: TypeName, b: TypeName): boolean` | Standalone function with type-appropriate comparison |
 
 ## Comparison Strategy
 
@@ -22,14 +22,14 @@ The generated equality check:
 
 ## Type-Specific Comparisons
 
-| Type       | Comparison Method                         |
-| ---------- | ----------------------------------------- |
-| Primitives | Strict equality (`===`)                   |
-| Arrays     | Length + element-by-element (recursive)   |
-| `Date`     | `getTime()` comparison                    |
-| `Map`      | Size + entry-by-entry comparison          |
-| `Set`      | Size + membership check                   |
-| Objects    | Calls `equals()` if available, else `===` |
+| Type | Comparison Method |
+|------|-------------------|
+| Primitives | Strict equality (`===`) |
+| Arrays | Length + element-by-element (recursive) |
+| `Date` | `getTime()` comparison |
+| `Map` | Size + entry-by-entry comparison |
+| `Set` | Size + membership check |
+| Objects | Calls `equals()` if available, else `===` |
 
 ## Field-Level Options
 
@@ -42,29 +42,29 @@ The `@partialEq` decorator supports:
 ```typescript before
 /** @derive(PartialEq) */
 class User {
-  id: number;
-  name: string;
+    id: number;
+    name: string;
 
-  /** @partialEq({ skip: true }) */
-  cachedScore: number;
+    /** @partialEq({ skip: true }) */
+    cachedScore: number;
 }
 ```
 
 ```typescript after
 class User {
-  id: number;
-  name: string;
+    id: number;
+    name: string;
 
-  cachedScore: number;
+    cachedScore: number;
 
-  static equals(a: User, b: User): boolean {
-    return userEquals(a, b);
-  }
+    static equals(a: User, b: User): boolean {
+        return userEquals(a, b);
+    }
 }
 
 export function userEquals(a: User, b: User): boolean {
-  if (a === b) return true;
-  return a.id === b.id && a.name === b.name;
+    if (a === b) return true;
+    return a.id === b.id && a.name === b.name;
 }
 ```
 
@@ -76,6 +76,5 @@ When implementing `PartialEq`, consider also implementing `Hash`:
 - **Symmetry**: `a.equals(b)` implies `b.equals(a)`
 - **Hash consistency**: Equal objects must have equal hash codes
 
-To maintain the hash contract, skip the same fields in both `PartialEq` and
-`Hash`, as shown in the example above using
-`@partialEq({ skip: true }) @hash({ skip: true })`.
+To maintain the hash contract, skip the same fields in both `PartialEq` and `Hash`,
+as shown in the example above using `@partialEq({ skip: true }) @hash({ skip: true })`.

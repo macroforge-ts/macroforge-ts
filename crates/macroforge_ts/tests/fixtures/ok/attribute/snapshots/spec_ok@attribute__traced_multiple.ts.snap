@@ -1,0 +1,66 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/attribute/traced_multiple.ts
+---
+## Input
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+/** @traced */
+export function first(x: number): number {
+    return x * 2;
+}
+
+/** @traced */
+export function second(x: number): number {
+    return x + 10;
+}
+
+function untouched(x: number): number {
+    return x;
+}
+
+## Output
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+
+export function first(x: number): number {
+    (globalThis as any).__traced ??= {};
+    (globalThis as any).__traced["first"] = ((globalThis as any).__traced["first"] || 0) + 1;
+    return x * 2;
+}
+
+
+export function second(x: number): number {
+    (globalThis as any).__traced ??= {};
+    (globalThis as any).__traced["second"] = ((globalThis as any).__traced["second"] || 0) + 1;
+    return x + 10;
+}
+
+function untouched(x: number): number {
+    return x;
+}
+
+## DTS
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+
+export function first(x: number): number {
+    return x * 2;
+}
+
+
+export function second(x: number): number {
+    return x + 10;
+}
+
+function untouched(x: number): number {
+    return x;
+}
+
+## Diagnostics
+
+(none)

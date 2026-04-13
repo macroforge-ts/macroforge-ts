@@ -189,11 +189,11 @@ describe("CallHierarchyProvider", function () {
           fromRanges: [
             {
               end: {
-                character: 14,
+                character: 12,
                 line: 3,
               },
               start: {
-                character: 4,
+                character: 2,
                 line: 3,
               },
             },

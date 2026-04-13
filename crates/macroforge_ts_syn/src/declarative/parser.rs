@@ -849,7 +849,7 @@ impl<'a> BodyParser<'a> {
     /// type-position macro call) from `$x < $y > z` (a chain of
     /// comparison operators that should fall through to substitution
     /// + literal). The lookahead is read-only and does not advance
-    /// `self.pos`.
+    ///   `self.pos`.
     ///
     /// Conservative: returns `false` whenever the lookahead is
     /// ambiguous, so the parser falls back to the substitution path

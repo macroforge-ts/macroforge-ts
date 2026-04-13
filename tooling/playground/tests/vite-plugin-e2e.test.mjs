@@ -31,7 +31,7 @@ describe('Vite Plugin Initialization', () => {
         'plugin loads correctly in vanilla project',
         { timeout: 30000 },
         async () => {
-            await withViteServer(vanillaRoot, async (server) => {
+            await withViteServer(vanillaRoot, (server) => {
                 assert.ok(server, 'Vite server should be created');
                 assert.ok(server.config, 'Server should have config');
 
@@ -51,7 +51,7 @@ describe('Vite Plugin Initialization', () => {
             await withViteServer(
                 svelteRoot,
                 { useProjectCwd: true },
-                async (server) => {
+                (server) => {
                     assert.ok(server, 'Vite server should be created');
 
                     const macroforgePlugin = server.config.plugins.find(

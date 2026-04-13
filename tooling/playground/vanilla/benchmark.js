@@ -5,11 +5,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
-const TEST_FILE = path.join(process.cwd(), 'src/validator-form.ts');
+const TEST_FILE = path.join(globalThis.process.cwd(), 'src/validator-form.ts');
 const code = fs.readFileSync(TEST_FILE, 'utf-8');
 const ITERATIONS = 1000; // Increased for better accuracy
 
-async function runBenchmark() {
+function runBenchmark() {
     console.log(
         `\n🚀 Benchmarking Oxc Performance: Native Node vs WASM (${ITERATIONS} iterations)`
     );

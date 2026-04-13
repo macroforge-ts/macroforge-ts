@@ -100,6 +100,12 @@ pub struct VerifyArgs {
     /// Don't cascade version bumps to dependents
     #[arg(long)]
     pub no_cascade: bool,
+
+    /// Reuse incremental cargo/deno caches — skip the `rm -rf` / cleanbuild
+    /// step and build in place. Much faster on iterative verify runs when
+    /// you haven't touched lockfiles or dependency graphs.
+    #[arg(long)]
+    pub cache_build: bool,
 }
 
 #[derive(clap::Args)]

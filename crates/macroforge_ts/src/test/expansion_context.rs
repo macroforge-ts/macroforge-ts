@@ -269,6 +269,7 @@ fn test_apply_and_finalize_expansion_no_type_patches() {
                 interfaces: Vec::new(),
                 enums: Vec::new(),
                 type_aliases: Vec::new(),
+                functions: Vec::new(),
                 imports: crate::host::import_registry::ImportRegistry::new(),
             },
         )

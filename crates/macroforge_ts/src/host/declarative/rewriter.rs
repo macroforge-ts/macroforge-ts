@@ -42,6 +42,15 @@ use super::megamorph::{
 };
 use super::registry::DeclarativeMacroRegistry;
 
+/// Optional proc macro integration for the rewriter. When provided, the
+/// rewriter dispatches `$name(...)` calls that don't match any declarative
+/// macro through the proc macro pipeline as a fallback.
+pub struct ProcMacroFallback<'a> {
+    pub(crate) dispatcher: &'a crate::host::MacroDispatcher,
+    pub(crate) import_sources: &'a std::collections::HashMap<String, String>,
+    pub(crate) external_loader: Option<&'a crate::host::expand::ExternalMacroLoader>,
+}
+
 /// Collected output of the rewriter pass.
 #[derive(Debug, Default, Clone)]
 pub struct RewriteOutput {
@@ -69,6 +78,7 @@ pub fn rewrite(
     discovered: &[DiscoveredMacro],
     build_mode: BuildMode,
     type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    proc_fallback: Option<ProcMacroFallback<'_>>,
 ) -> RewriteOutput {
     let mut out = RewriteOutput::default();
 
@@ -209,6 +219,9 @@ pub fn rewrite(
         megamorph_report: megamorph_report.as_ref(),
         type_rewritten: HashSet::new(),
         type_registry,
+        proc_dispatcher: proc_fallback.as_ref().map(|f| f.dispatcher),
+        import_sources: proc_fallback.as_ref().map(|f| f.import_sources),
+        external_loader: proc_fallback.as_ref().and_then(|f| f.external_loader),
     };
     visitor.visit_program(program);
 
@@ -308,6 +321,15 @@ pub(super) struct RewriteVisitor<'a> {
     /// `None`-fingerprint lookups and `resolve_cluster_id` would
     /// silently fall through to the defensive single-helper path.
     type_registry: Option<&'a crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    /// Optional proc macro dispatcher for function-like proc macros.
+    /// When a `$name(...)` call doesn't resolve in the declarative
+    /// registry, this dispatcher is consulted as a fallback.
+    pub(super) proc_dispatcher: Option<&'a crate::host::MacroDispatcher>,
+    /// Import sources from `/** import macro { $name } from "..." */`
+    /// comments. Used to resolve proc macro module paths.
+    pub(super) import_sources: Option<&'a std::collections::HashMap<String, String>>,
+    /// Optional external macro loader for proc macros in separate packages.
+    pub(super) external_loader: Option<&'a crate::host::expand::ExternalMacroLoader>,
 }
 
 impl RewriteVisitor<'_> {
@@ -623,9 +645,12 @@ pub(super) fn try_rewrite_call(
     // `const $foo` inside a function body shadows the outer one
     // at call sites within the same function.
     let call_pos = call.span.start + 1;
-    let Some(def_arc) = visitor.registry.lookup_at(name, call_pos) else {
-        return false;
-    };
+    let def_arc = visitor.registry.lookup_at(name, call_pos);
+    if def_arc.is_none() {
+        // Not a declarative macro — try proc macro dispatch.
+        return try_dispatch_proc_call(call, callee_name, visitor, context);
+    }
+    let def_arc = def_arc.unwrap();
     let def = def_arc.as_ref();
 
     // Pick which arms to expand based on the macro's mode, the current
@@ -836,6 +861,111 @@ pub(super) fn format_attribution(name: &str, cluster_id: &str) -> String {
     } else {
         format!("${}@{}", name, cluster_id)
     }
+}
+
+/// Attempt to dispatch a `$name(...)` call as a function-like proc macro.
+///
+/// Called when the declarative registry lookup fails. Checks import
+/// sources and the built-in registry for a macro with `MacroKind::Call`.
+/// If found, dispatches through the proc macro pipeline and emits a
+/// `Patch::Replace` over the call span.
+fn try_dispatch_proc_call(
+    call: &CallExpression<'_>,
+    callee_name: &str,
+    visitor: &mut RewriteVisitor<'_>,
+    _context: ExpansionContext,
+) -> bool {
+    let dispatcher = match visitor.proc_dispatcher {
+        Some(d) => d,
+        None => return false,
+    };
+
+    let name_without_dollar = &callee_name[1..];
+
+    // Resolve the module path from import sources or built-in registry.
+    let module_path = if let Some(sources) = visitor.import_sources
+        && let Some(mp) = sources.get(callee_name)
+    {
+        mp.clone()
+    } else if let Some(desc) = crate::host::derived::lookup_by_name(name_without_dollar)
+        && desc.kind == crate::ts_syn::abi::MacroKind::Call
+    {
+        "@macro/derive".to_string()
+    } else {
+        return false;
+    };
+
+    // Extract the raw argument text between the parens.
+    let args_start = call.span.start as usize;
+    let args_end = call.span.end as usize;
+    let call_source = &visitor.source[args_start..args_end];
+    let args_source = if let Some(open) = call_source.find('(') {
+        let inner = &call_source[open + 1..];
+        if let Some(close) = inner.rfind(')') {
+            inner[..close].to_string()
+        } else {
+            inner.to_string()
+        }
+    } else {
+        String::new()
+    };
+
+    let call_span = SpanIR::new(call.span.start + 1, call.span.end + 1);
+
+    let ctx = crate::ts_syn::abi::MacroContextIR {
+        abi_version: 1,
+        macro_kind: crate::ts_syn::abi::MacroKind::Call,
+        macro_name: name_without_dollar.to_string(),
+        module_path,
+        decorator_span: call_span,
+        macro_name_span: None,
+        target_span: call_span,
+        file_name: String::new(),
+        target: crate::ts_syn::abi::TargetIR::Other,
+        target_source: args_source,
+        import_registry: crate::ts_syn::ImportRegistry::new(),
+        config: None,
+        type_registry: None,
+        resolved_fields: None,
+    };
+
+    // Try the built-in dispatcher first, then the external loader.
+    let mut result = dispatcher.dispatch(ctx.clone());
+
+    let is_not_found = result.diagnostics.iter().any(|d| {
+        d.message.contains("Macro")
+            && (d.message.contains("not found") || d.message.contains("is not a Macroforge"))
+    });
+
+    if is_not_found {
+        if let Some(loader) = visitor.external_loader {
+            match loader.run_macro(&ctx) {
+                Ok(external_result) => result = external_result,
+                Err(_) => return false,
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // If the macro returned tokens, use those as the replacement text.
+    if let Some(tokens) = &result.tokens {
+        visitor.output.patches.push(Patch::Replace {
+            span: call_span,
+            code: PatchCode::Text(tokens.clone()),
+            source_macro: Some(format!("${}", name_without_dollar)),
+        });
+    }
+
+    for patch in result.runtime_patches {
+        visitor.output.patches.push(patch);
+    }
+
+    for diag in result.diagnostics {
+        visitor.output.diagnostics.push(diag);
+    }
+
+    true
 }
 
 // ---------------------------------------------------------------------------

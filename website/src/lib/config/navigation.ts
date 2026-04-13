@@ -59,6 +59,10 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/custom-macros/rust-setup');
         case '/docs/custom-macros/ts-macro-derive':
             return resolve('/docs/custom-macros/ts-macro-derive');
+        case '/docs/custom-macros/ts-macro':
+            return resolve('/docs/custom-macros/ts-macro');
+        case '/docs/custom-macros/ts-macro-attribute':
+            return resolve('/docs/custom-macros/ts-macro-attribute');
         case '/docs/custom-macros/ts-quote':
             return resolve('/docs/custom-macros/ts-quote');
 
@@ -153,6 +157,14 @@ export const navigation: NavSection[] = [
             {
                 title: '#[ts_macro_derive]',
                 href: '/docs/custom-macros/ts-macro-derive'
+            },
+            {
+                title: '#[ts_macro]',
+                href: '/docs/custom-macros/ts-macro'
+            },
+            {
+                title: '#[ts_macro_attribute]',
+                href: '/docs/custom-macros/ts-macro-attribute'
             },
             { title: 'Template Syntax', href: '/docs/custom-macros/ts-quote' }
         ]

@@ -95,14 +95,15 @@ pub use imports::{ImportCollectionResult, collect_import_sources};
 use std::collections::HashMap;
 
 use crate::ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, InterfaceIR, MacroContextIR, MacroResult, Patch,
-    PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
+    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR, MacroContextIR,
+    MacroResult, Patch, PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
 };
 #[cfg(feature = "swc")]
 use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
 #[cfg(all(not(feature = "swc"), feature = "oxc"))]
 use crate::ts_syn::{
-    lower_classes_oxc, lower_enums_oxc, lower_interfaces_oxc, lower_type_aliases_oxc,
+    lower_classes_oxc, lower_enums_oxc, lower_functions_oxc, lower_interfaces_oxc,
+    lower_type_aliases_oxc,
 };
 #[cfg(any(not(target_arch = "wasm32"), feature = "swc"))]
 use anyhow::Context;
@@ -114,10 +115,11 @@ use super::{
 };
 
 pub(crate) use derive_targets::{
-    DeriveTargetIR, SpanKey, collect_derive_targets, diagnostic_span_for_derive,
-    find_macro_name_span, span_ir_with_at,
+    AttributeTarget, AttributeTargetIR, DeriveTargetIR, SpanKey, collect_attribute_targets,
+    collect_derive_targets, diagnostic_span_for_derive, find_macro_name_span, span_ir_with_at,
 };
-use external_loader::{ExternalMacroLoader, resolve_external_decorator_names};
+pub(crate) use external_loader::ExternalMacroLoader;
+use external_loader::resolve_external_decorator_names;
 #[cfg(feature = "swc")]
 use helpers::{MemberWithComment, parse_members_from_tokens};
 use helpers::{
@@ -212,6 +214,7 @@ pub(crate) struct LoweredItems {
     pub interfaces: Vec<InterfaceIR>,
     pub enums: Vec<EnumIR>,
     pub type_aliases: Vec<TypeAliasIR>,
+    pub functions: Vec<FunctionIR>,
     pub imports: crate::host::import_registry::ImportRegistry,
 }
 
@@ -221,6 +224,7 @@ impl LoweredItems {
             && self.interfaces.is_empty()
             && self.enums.is_empty()
             && self.type_aliases.is_empty()
+            && self.functions.is_empty()
     }
 }
 
@@ -312,6 +316,16 @@ impl MacroExpander {
             declarative_registry: None,
             build_mode: crate::host::declarative::BuildMode::dev(),
         })
+    }
+
+    /// Get a reference to the external macro loader, if available.
+    ///
+    /// Only used from the OXC-only call-fallback path in
+    /// `expand_core.rs`. The SWC backend dispatches through a different
+    /// code path so under `--features swc` this accessor has no callers.
+    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+    pub(crate) fn external_loader_ref(&self) -> Option<&ExternalMacroLoader> {
+        self.external_loader.as_ref()
     }
 
     /// Control whether decorators are preserved in the expanded output.
@@ -433,8 +447,18 @@ impl MacroExpander {
             crate::host::declarative::ResolvedImports::default()
         };
 
-        // Fast path: nothing declarative in this file.
-        if discovered.is_empty() && resolved_imports.imported.is_empty() {
+        // Fast path: nothing declarative in this file and no proc macro
+        // call sites (`$name(...)` patterns in the source).
+        let has_dollar_calls = source.contains("$(")
+            || source.contains("$ (")
+            || (source.contains('$') && {
+                // Quick scan: is there a `$identifier(` pattern?
+                let bytes = source.as_bytes();
+                bytes
+                    .windows(2)
+                    .any(|w| w[0] == b'$' && w[1].is_ascii_alphabetic())
+            });
+        if discovered.is_empty() && resolved_imports.imported.is_empty() && !has_dollar_calls {
             return Ok((None, resolved_imports.diagnostics));
         }
 
@@ -464,6 +488,16 @@ impl MacroExpander {
             })?;
         }
 
+        // Collect import sources from `/** import macro { $name } from "..." */`
+        // comments AND regular `import { $name } from "..."` statements so the
+        // rewriter can resolve proc macro call sites. The `$` prefix is reserved
+        // for call macros, so any imported `$name` is treated as a macro import.
+        let mut macro_import_sources =
+            crate::ts_syn::import_registry::collect_macro_import_comments_pub(source);
+        macro_import_sources.extend(crate::host::declarative::collect_dollar_imports(
+            &parsed.program,
+        ));
+
         let output = crate::host::declarative::rewrite(
             &parsed.program,
             source,
@@ -471,6 +505,11 @@ impl MacroExpander {
             &discovered,
             self.build_mode,
             self.type_registry.as_ref(),
+            Some(crate::host::declarative::ProcMacroFallback {
+                dispatcher: &self.dispatcher,
+                import_sources: &macro_import_sources,
+                external_loader: self.external_loader.as_ref(),
+            }),
         );
 
         let mut diagnostics = resolved_imports.diagnostics;
@@ -564,6 +603,8 @@ impl MacroExpander {
                 .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
             type_aliases: lower_type_aliases_oxc(&parsed.program, source, filter)
                 .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+            functions: lower_functions_oxc(&parsed.program, source, filter)
+                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
             imports: crate::host::import_registry::ImportRegistry::from_oxc_program(
                 &parsed.program,
                 source,
@@ -591,6 +632,7 @@ impl MacroExpander {
             interfaces: items.interfaces.clone(),
             enums: items.enums.clone(),
             type_aliases: items.type_aliases.clone(),
+            functions: items.functions.clone(),
             imports: crate::host::import_registry::ImportRegistry::new(),
         };
 
@@ -642,6 +684,7 @@ impl MacroExpander {
             interfaces,
             enums,
             type_aliases,
+            functions: vec![],
             imports,
         };
         if items.is_empty() {
@@ -663,6 +706,7 @@ impl MacroExpander {
             interfaces: items.interfaces.clone(),
             enums: items.enums.clone(),
             type_aliases: items.type_aliases.clone(),
+            functions: vec![],
             imports: crate::host::import_registry::ImportRegistry::new(),
         };
 
@@ -702,6 +746,7 @@ impl MacroExpander {
             interfaces: items.interfaces.clone(),
             enums: items.enums.clone(),
             type_aliases: items.type_aliases.clone(),
+            functions: vec![],
             imports: crate::host::import_registry::ImportRegistry::new(),
         };
 
@@ -755,6 +800,7 @@ impl MacroExpander {
             interfaces,
             enums,
             type_aliases,
+            functions: vec![],
             imports,
         };
         if items.is_empty() {
@@ -799,6 +845,7 @@ impl MacroExpander {
             interfaces,
             enums,
             type_aliases,
+            functions,
             imports,
         } = items;
 
@@ -857,12 +904,18 @@ impl MacroExpander {
             .map(|ta| (SpanKey::from(ta.span), ta))
             .collect();
 
+        let function_map: HashMap<SpanKey, FunctionIR> = functions
+            .into_iter()
+            .map(|f| (SpanKey::from(f.span), f))
+            .collect();
+
         trace_logs.push(format!(
-            "lowered items: classes={}, interfaces={}, enums={}, type_aliases={}",
+            "lowered items: classes={}, interfaces={}, enums={}, type_aliases={}, functions={}",
             class_map.len(),
             interface_map.len(),
             enum_map.len(),
-            type_alias_map.len()
+            type_alias_map.len(),
+            function_map.len()
         ));
 
         let derive_targets = collect_derive_targets(
@@ -881,8 +934,20 @@ impl MacroExpander {
             ));
         }
 
-        if derive_targets.is_empty() {
-            trace_logs.push("no derive targets found, returning early".to_string());
+        let (attribute_targets, attr_diagnostics) = collect_attribute_targets(
+            &function_map,
+            &class_map,
+            &interface_map,
+            &enum_map,
+            &type_alias_map,
+            source,
+            &import_sources,
+        );
+        diagnostics.extend(attr_diagnostics);
+        trace_logs.push(format!("attribute_targets: {}", attribute_targets.len()));
+
+        if derive_targets.is_empty() && attribute_targets.is_empty() {
+            trace_logs.push("no derive or attribute targets found, returning early".to_string());
             flush_trace(&trace_logs, diagnostics);
             return (collector, std::mem::take(diagnostics));
         }
@@ -1352,6 +1417,224 @@ impl MacroExpander {
                 }
             }
         }
+        // === Attribute macro dispatch ===
+        //
+        // Run after derives so attribute macros can see derive output.
+        // Each attribute macro on a target receives the original source
+        // (chaining support is deferred — overlap detector catches conflicts).
+
+        // Group attribute targets by target span for potential chaining.
+        use std::collections::BTreeMap;
+        let mut grouped_attrs: BTreeMap<(u32, u32), Vec<AttributeTarget>> = BTreeMap::new();
+        for attr_target in attribute_targets {
+            let key = (
+                attr_target.target_ir_span().start,
+                attr_target.target_ir_span().end,
+            );
+            grouped_attrs.entry(key).or_default().push(attr_target);
+        }
+
+        for (_target_key, mut group) in grouped_attrs {
+            // Sort by decorator source position (outermost first = smallest offset first).
+            group.sort_by_key(|t| t.decorator_span.start);
+
+            // For chained rewriting: track the current rewritten source/IR.
+            // Each macro in the chain receives the previous macro's output.
+            let mut current_source: Option<String> = None;
+            let mut accumulated_patches = Vec::new();
+
+            for (chain_idx, attr_target) in group.iter().enumerate() {
+                // Remove the decorator JSDoc comment.
+                if !self.keep_decorators {
+                    let decorator_removal = Patch::Delete {
+                        span: attr_target.decorator_span,
+                    };
+                    collector.add_runtime_patches(vec![decorator_removal.clone()]);
+                    collector.add_type_patches(vec![decorator_removal]);
+                }
+
+                // Extract target span and source.
+                let target_span = attr_target.target_ir_span();
+                let target_source = if chain_idx > 0 {
+                    // Chained: use the rewritten source from the previous macro.
+                    current_source.clone().unwrap_or_else(|| {
+                        source
+                            .get(
+                                target_span.start.saturating_sub(1) as usize
+                                    ..target_span.end.saturating_sub(1) as usize,
+                            )
+                            .unwrap_or("")
+                            .to_string()
+                    })
+                } else {
+                    source
+                        .get(
+                            target_span.start.saturating_sub(1) as usize
+                                ..target_span.end.saturating_sub(1) as usize,
+                        )
+                        .unwrap_or("")
+                        .to_string()
+                };
+
+                // Build the MacroContextIR.
+                let mut ctx = match &attr_target.target_ir {
+                    AttributeTargetIR::Function(f) => MacroContextIR::new_attribute_function(
+                        attr_target.macro_name.clone(),
+                        attr_target.module_path.clone(),
+                        attr_target.decorator_span,
+                        target_span,
+                        file_name.to_string(),
+                        f.clone(),
+                        target_source,
+                    ),
+                    AttributeTargetIR::Class(c) => MacroContextIR::new_attribute_class(
+                        attr_target.macro_name.clone(),
+                        attr_target.module_path.clone(),
+                        attr_target.decorator_span,
+                        target_span,
+                        file_name.to_string(),
+                        c.clone(),
+                        source
+                            .get(
+                                target_span.start.saturating_sub(1) as usize
+                                    ..target_span.end.saturating_sub(1) as usize,
+                            )
+                            .unwrap_or("")
+                            .to_string(),
+                    ),
+                    AttributeTargetIR::Interface(i) => MacroContextIR::new_attribute_interface(
+                        attr_target.macro_name.clone(),
+                        attr_target.module_path.clone(),
+                        attr_target.decorator_span,
+                        target_span,
+                        file_name.to_string(),
+                        i.clone(),
+                        source
+                            .get(
+                                target_span.start.saturating_sub(1) as usize
+                                    ..target_span.end.saturating_sub(1) as usize,
+                            )
+                            .unwrap_or("")
+                            .to_string(),
+                    ),
+                    AttributeTargetIR::Enum(e) => MacroContextIR::new_attribute_enum(
+                        attr_target.macro_name.clone(),
+                        attr_target.module_path.clone(),
+                        attr_target.decorator_span,
+                        target_span,
+                        file_name.to_string(),
+                        e.clone(),
+                        source
+                            .get(
+                                target_span.start.saturating_sub(1) as usize
+                                    ..target_span.end.saturating_sub(1) as usize,
+                            )
+                            .unwrap_or("")
+                            .to_string(),
+                    ),
+                    AttributeTargetIR::TypeAlias(t) => MacroContextIR::new_attribute_type_alias(
+                        attr_target.macro_name.clone(),
+                        attr_target.module_path.clone(),
+                        attr_target.decorator_span,
+                        target_span,
+                        file_name.to_string(),
+                        t.clone(),
+                        source
+                            .get(
+                                target_span.start.saturating_sub(1) as usize
+                                    ..target_span.end.saturating_sub(1) as usize,
+                            )
+                            .unwrap_or("")
+                            .to_string(),
+                    ),
+                };
+
+                // Calculate macro_name_span for precise error reporting.
+                if let Some(macro_name_span) = find_macro_name_span(
+                    source,
+                    attr_target.decorator_span,
+                    &attr_target.macro_name,
+                ) {
+                    ctx = ctx.with_macro_name_span(macro_name_span);
+                }
+
+                // Enrich with type registry.
+                if let Some(ref registry) = self.type_registry {
+                    ctx.type_registry = Some(registry.clone());
+                    let resolver = crate::host::type_resolver::TypeResolver::new(registry);
+                    ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
+                        &ctx.target,
+                        &resolver,
+                    ));
+                }
+
+                crate::ts_syn::context_registry::install_context(ctx.clone());
+
+                let mut result = self.dispatcher.dispatch(ctx.clone());
+
+                // External loader fallback.
+                if is_macro_not_found(&result)
+                    && ctx.module_path != DERIVE_MODULE_PATH
+                    && let Some(loader) = &self.external_loader
+                {
+                    ctx.import_registry =
+                        crate::host::import_registry::with_registry(|r| r.clone());
+                    ctx.config = Some(crate::host::import_registry::with_foreign_types(|ft| {
+                        crate::ts_syn::config::MacroforgeConfig {
+                            foreign_types: ft.to_vec(),
+                            ..Default::default()
+                        }
+                    }));
+                    match loader.run_macro(&ctx) {
+                        Ok(external_result) => result = external_result,
+                        Err(err) => {
+                            result.diagnostics.push(Diagnostic {
+                                level: DiagnosticLevel::Error,
+                                message: format!(
+                                    "Failed to load external attribute macro '{}' from '{}': {}",
+                                    ctx.macro_name, ctx.module_path, err
+                                ),
+                                span: Some(ctx.error_span()),
+                                notes: vec![],
+                                help: None,
+                            });
+                        }
+                    }
+                }
+
+                // For chaining: if this macro produced a Replace patch over the
+                // full target span, apply it and feed the result to the next macro.
+                if group.len() > 1 && !result.runtime_patches.is_empty() {
+                    // Find a Replace patch that covers the target span.
+                    for patch in &result.runtime_patches {
+                        if let Patch::Replace { span, code, .. } = patch
+                            && span.start == target_span.start
+                            && span.end == target_span.end
+                            && let Some(text) = code.as_text()
+                        {
+                            current_source = Some(text.to_string());
+                        }
+                    }
+                }
+
+                if !result.diagnostics.is_empty() {
+                    diagnostics.extend(result.diagnostics.clone());
+                }
+
+                if !result.imports.is_empty() {
+                    crate::host::import_registry::with_registry_mut(|r| {
+                        r.merge_imports(result.imports);
+                    });
+                }
+
+                accumulated_patches.extend(result.runtime_patches.clone());
+                collector.add_runtime_patches(result.runtime_patches);
+                collector.add_type_patches(result.type_patches);
+
+                crate::ts_syn::context_registry::clear_context();
+            }
+        }
+
         flush_trace(&trace_logs, diagnostics);
         (collector, std::mem::take(diagnostics))
     }

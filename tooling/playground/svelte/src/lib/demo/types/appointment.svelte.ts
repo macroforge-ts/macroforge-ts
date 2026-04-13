@@ -1,44 +1,44 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { type DateTime, Option } from 'effect';
-import type { Colors } from './colors.svelte';
-import type { Employee } from './employee.svelte';
-import type { RecurrenceRule } from './recurrence-rule.svelte';
-import type { Site } from './site.svelte';
-import type { Status } from './status.svelte';
+import { type DateTime, Option } from "effect";
+import type { Colors } from "./colors.svelte";
+import type { Employee } from "./employee.svelte";
+import type { RecurrenceRule } from "./recurrence-rule.svelte";
+import type { Site } from "./site.svelte";
+import type { Status } from "./status.svelte";
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Appointment {
-    /** @hiddenController({}) */
-    id: string;
-    /** @textController({ label: "Title" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
-    title: string;
-    /** @selectController({ label: "Status", options: [{ label: "Scheduled", value: "Scheduled" }, { label: "On Deck", value: "OnDeck" }, { label: "Waiting", value: "Waiting" }] }) */
-    /** @default("Scheduled") */
-    status: Status;
-    /** @dateTimeController({ label: "Begins" }) */
-    begins: DateTime.DateTime;
-    /** @numberController({ label: "Duration", min: 0 }) */
-    duration: number;
-    /** @textController({ label: "Time Zone" }) */
-    timeZone: string;
-    /** @hiddenController({}) */
-    offsetMs: number;
-    /** @switchController({ label: "All Day" }) */
-    allDay: boolean;
-    /** @switchController({ label: "Multi Day" }) */
-    multiDay: boolean;
-    /** @comboboxMultipleController({ label: "Employees", fetchUrls: ["/api/employees"] }) */
-    employees: Array<string | Employee>;
-    /** @siteFieldsetController({ label: "Location" }) */
-    /** @default("") */
-    location: string | Site;
-    /** @textAreaController({ label: "Description" }) */
-    description: Option.Option<string>;
-    /** @hiddenController({}) */
-    /** @default({ main: "#000000", hover: "#333333", active: "#666666" }) */
-    colors: Colors;
-    /** @hiddenController({}) */
-    recurrenceRule: RecurrenceRule | null;
+  /** @hiddenController({}) */
+  id: string;
+  /** @textController({ label: "Title" }) */
+  /** @serde({ validate: ["nonEmpty"] }) */
+  title: string;
+  /** @selectController({ label: "Status", options: [{ label: "Scheduled", value: "Scheduled" }, { label: "On Deck", value: "OnDeck" }, { label: "Waiting", value: "Waiting" }] }) */
+  /** @default("Scheduled") */
+  status: Status;
+  /** @dateTimeController({ label: "Begins" }) */
+  begins: DateTime.DateTime;
+  /** @numberController({ label: "Duration", min: 0 }) */
+  duration: number;
+  /** @textController({ label: "Time Zone" }) */
+  timeZone: string;
+  /** @hiddenController({}) */
+  offsetMs: number;
+  /** @switchController({ label: "All Day" }) */
+  allDay: boolean;
+  /** @switchController({ label: "Multi Day" }) */
+  multiDay: boolean;
+  /** @comboboxMultipleController({ label: "Employees", fetchUrls: ["/api/employees"] }) */
+  employees: Array<string | Employee>;
+  /** @siteFieldsetController({ label: "Location" }) */
+  /** @default("") */
+  location: string | Site;
+  /** @textAreaController({ label: "Description" }) */
+  description: Option.Option<string>;
+  /** @hiddenController({}) */
+  /** @default({ main: "#000000", hover: "#333333", active: "#666666" }) */
+  colors: Colors;
+  /** @hiddenController({}) */
+  recurrenceRule: RecurrenceRule | null;
 }

@@ -609,11 +609,220 @@ fn maybe_wrap_iife(source: String, context: ExpansionContext) -> String {
         ExpansionContext::Statement | ExpansionContext::Type => source,
         ExpansionContext::Expression => {
             let trimmed = source.trim();
-            if trimmed.starts_with('{') && trimmed.ends_with('}') {
-                format!("(() => {})()", trimmed)
-            } else {
-                source
+            if !(trimmed.starts_with('{') && trimmed.ends_with('}')) {
+                return source;
+            }
+            // Parse the block via OXC to decide whether it's a block
+            // statement with a trailing expression statement (Rust-like
+            // block-as-expression semantics) or something else (object
+            // literal, labeled statement, etc.). Only block statements
+            // get the IIFE + return treatment; anything else is emitted
+            // verbatim. If parsing fails for any reason — which would
+            // indicate the template itself is malformed — fall back to
+            // the pre-PR behavior (wrap without return injection) so the
+            // downstream parser surfaces the real error.
+            match rewrite_block_with_return(trimmed) {
+                Some(rewritten) => format!("(() => {})()", rewritten),
+                None => format!("(() => {})()", trimmed),
             }
         }
+    }
+}
+
+/// Parse `block_source` (starting with `{` and ending with `}`) as a
+/// JavaScript block statement and, if the final statement is an
+/// `ExpressionStatement`, replace it with a `return` of the same
+/// expression. Returns `None` if the source doesn't parse as a single
+/// block statement or has no trailing expression statement that needs
+/// rewriting.
+///
+/// Uses OXC so every JavaScript lexical surface (template literals with
+/// interpolation, regex literals, comments, nested blocks, object
+/// literals, etc.) is handled correctly — no hand-rolled scanning.
+fn rewrite_block_with_return(block_source: &str) -> Option<String> {
+    use oxc::allocator::Allocator;
+    use oxc::ast::ast::Statement;
+    use oxc::parser::Parser;
+    use oxc::span::SourceType;
+
+    let allocator = Allocator::default();
+    // TS and TSX aren't strict supersets of each other — `<T>expr` casts
+    // parse under TS but not TSX, and JSX parses under TSX but not TS.
+    // Try TS first (more permissive for macro-body-style code that tends
+    // to use `as`-casts) and fall back to TSX if it fails so JSX-producing
+    // macro bodies also work.
+    let parsed = Parser::new(&allocator, block_source, SourceType::ts()).parse();
+    let parsed = if parsed.errors.is_empty() {
+        parsed
+    } else {
+        let tsx = Parser::new(&allocator, block_source, SourceType::tsx()).parse();
+        if !tsx.errors.is_empty() {
+            return None;
+        }
+        tsx
+    };
+
+    // Expect exactly one top-level statement: the block itself.
+    let stmts = &parsed.program.body;
+    if stmts.len() != 1 {
+        return None;
+    }
+    let Statement::BlockStatement(block) = &stmts[0] else {
+        return None;
+    };
+    let last = block.body.last()?;
+    let expr_stmt = match last {
+        Statement::ExpressionStatement(es) => es,
+        // Any other trailing statement form (return, if, throw, let,
+        // loop, etc.) already has its own completion semantics — don't
+        // touch it.
+        _ => return None,
+    };
+
+    // Only rewrite when the trailing expression statement has no
+    // explicit `;` terminator. An `ExpressionStatement` whose span
+    // covers the full `expr;` form would end with `;`; a bare
+    // trailing expression's span ends with the expression's last
+    // character. This is the Rust-like "block returns its last
+    // expression" signal from the macro author.
+    let es_span = &expr_stmt.span;
+    let es_text = &block_source[es_span.start as usize..es_span.end as usize];
+    if es_text.trim_end().ends_with(';') {
+        return None;
+    }
+
+    // Splice a `return ` prefix onto the trailing expression statement.
+    let (before, after) = block_source.split_at(es_span.start as usize);
+    Some(format!("{}return {}", before, after))
+}
+
+#[cfg(test)]
+mod iife_wrap_tests {
+    use super::{ExpansionContext, maybe_wrap_iife, rewrite_block_with_return};
+
+    fn wrap(src: &str) -> String {
+        maybe_wrap_iife(src.to_string(), ExpansionContext::Expression)
+    }
+
+    #[test]
+    fn non_block_source_passes_through() {
+        assert_eq!(wrap("1 + 2"), "1 + 2");
+        assert_eq!(wrap("foo(x)"), "foo(x)");
+    }
+
+    #[test]
+    fn statement_context_never_wraps() {
+        let out = maybe_wrap_iife("{ x + 1 }".into(), ExpansionContext::Statement);
+        assert_eq!(out, "{ x + 1 }");
+    }
+
+    #[test]
+    fn type_context_never_wraps() {
+        let out = maybe_wrap_iife("{ a: number }".into(), ExpansionContext::Type);
+        assert_eq!(out, "{ a: number }");
+    }
+
+    #[test]
+    fn trailing_expression_gets_return() {
+        let rewritten = rewrite_block_with_return("{ const __a = 10; __a + 1 }").unwrap();
+        assert_eq!(rewritten, "{ const __a = 10; return __a + 1 }");
+    }
+
+    #[test]
+    fn trailing_expression_with_semicolon_is_untouched() {
+        // Explicit `;` — user signaled "discard this expression".
+        assert!(rewrite_block_with_return("{ const __a = 10; __a + 1; }").is_none());
+    }
+
+    #[test]
+    fn trailing_return_statement_is_untouched() {
+        // Already a return — don't double-inject.
+        assert!(rewrite_block_with_return("{ const __a = 10; return __a + 1 }").is_none());
+    }
+
+    #[test]
+    fn trailing_throw_is_untouched() {
+        assert!(rewrite_block_with_return("{ throw new Error('x') }").is_none());
+    }
+
+    #[test]
+    fn empty_block_is_untouched() {
+        assert!(rewrite_block_with_return("{}").is_none());
+    }
+
+    #[test]
+    fn block_with_only_declaration_is_untouched() {
+        assert!(rewrite_block_with_return("{ const x = 1; }").is_none());
+    }
+
+    #[test]
+    fn template_literal_with_semicolon_does_not_split_wrongly() {
+        // The `;` inside the template literal's interpolation must NOT be
+        // treated as a statement boundary — the whole `const s = ...` is
+        // the first statement, and `s.length` is the trailing expression.
+        let src = "{ const s = `a;${1};b`; s.length }";
+        let rewritten = rewrite_block_with_return(src).unwrap();
+        assert_eq!(rewritten, "{ const s = `a;${1};b`; return s.length }");
+    }
+
+    #[test]
+    fn regex_literal_with_semicolon_is_respected() {
+        let src = "{ const r = /a;b/; r.source.length }";
+        let rewritten = rewrite_block_with_return(src).unwrap();
+        assert_eq!(rewritten, "{ const r = /a;b/; return r.source.length }");
+    }
+
+    #[test]
+    fn comment_with_semicolon_is_ignored() {
+        let src = "{ const x = 1; /* ; ignored ; */ x + 1 }";
+        let rewritten = rewrite_block_with_return(src).unwrap();
+        // The rewrite splices `return ` in front of the trailing
+        // expression-statement span, so the comment stays in place.
+        assert_eq!(rewritten, "{ const x = 1; /* ; ignored ; */ return x + 1 }");
+    }
+
+    #[test]
+    fn parenthesized_object_literal_as_trailing_value() {
+        let src = "{ const k = 'a'; ({ [k]: 1 }) }";
+        let rewritten = rewrite_block_with_return(src).unwrap();
+        assert_eq!(rewritten, "{ const k = 'a'; return ({ [k]: 1 }) }");
+    }
+
+    #[test]
+    fn trailing_arrow_expression() {
+        let src = "{ const y = 2; () => y }";
+        let rewritten = rewrite_block_with_return(src).unwrap();
+        assert_eq!(rewritten, "{ const y = 2; return () => y }");
+    }
+
+    #[test]
+    fn trailing_satisfies_expression() {
+        let src = "{ const x = 1; x satisfies number }";
+        let rewritten = rewrite_block_with_return(src).unwrap();
+        assert_eq!(rewritten, "{ const x = 1; return x satisfies number }");
+    }
+
+    #[test]
+    fn trailing_if_statement_is_untouched() {
+        assert!(rewrite_block_with_return("{ const x = 1; if (x > 0) { f(); } }").is_none());
+    }
+
+    #[test]
+    fn nested_block_with_trailing_expression() {
+        // The outer block is what we care about. Its last statement is
+        // the inner block (a BlockStatement), not an ExpressionStatement,
+        // so the outer block is left alone.
+        assert!(rewrite_block_with_return("{ { inner } }").is_none());
+    }
+
+    #[test]
+    fn malformed_block_falls_back_to_verbatim_wrap() {
+        // Syntax error — both TS and TSX fail. `rewrite_block_with_return`
+        // returns None; `maybe_wrap_iife` wraps the source as-is so the
+        // downstream parser surfaces the real error instead of us silently
+        // swallowing it.
+        let out = wrap("{ const x = ;; }");
+        assert!(out.starts_with("(() => {"));
+        assert!(out.ends_with(")()"));
     }
 }

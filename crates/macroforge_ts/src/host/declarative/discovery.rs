@@ -205,6 +205,28 @@ impl<'a> oxc::ast_visit::Visit<'a> for DiscoveryVisitor<'_> {
         // template body is a string literal to us, not nested code.
     }
 
+    fn visit_export_named_declaration(&mut self, decl: &oxc::ast::ast::ExportNamedDeclaration<'a>) {
+        // `export const $name = macroRules\`...\``: OXC models this as an
+        // `ExportNamedDeclaration` whose inner `declaration` is a
+        // `VariableDeclaration`. The default walker would descend to the
+        // inner decl, which would then call `try_collect_decl` with the
+        // *inner* span — causing the rewriter to erase only the
+        // `const $name = ...` portion and leave the `export` keyword
+        // orphaned. To fix that we intercept here and pass the *outer*
+        // span (which covers `export`), then skip the default descent.
+        if let Some(oxc::ast::ast::Declaration::VariableDeclaration(var_decl)) = &decl.declaration {
+            // Use the outer `export ...` span so the rewriter deletes the
+            // entire statement including the `export` keyword.
+            self.try_collect_decl(var_decl, decl.span);
+            // Skip walk — macro template bodies don't contain nested code
+            // we need to visit, and we've already handled the decl.
+            return;
+        }
+        // Non-macro export: let the default walker descend so nested
+        // declarations (e.g. function bodies) are still visited.
+        oxc::ast_visit::walk::walk_export_named_declaration(self, decl);
+    }
+
     fn visit_block_statement(&mut self, block: &oxc::ast::ast::BlockStatement<'a>) {
         self.scope_stack.push(oxc_span_to_ir(block.span));
         oxc::ast_visit::walk::walk_block_statement(self, block);
@@ -547,6 +569,38 @@ fn extract_plain_string(expr: &Expression<'_>) -> Result<String, DeclarativeErro
     }
 }
 
+/// Collect regular `import { $name } from "module"` specifiers whose
+/// imported names start with `$`. The `$` prefix is reserved for call
+/// macros, so any imported `$foo` identifier is recorded with its source
+/// module. The rewriter's proc macro fallback consults this map to resolve
+/// `$foo(...)` call sites without requiring a JSDoc
+/// `/** import macro */` directive.
+///
+/// Aliased imports (`import { state as $state }`) use the local name as
+/// the key — that's the callee the user writes, which is what the
+/// rewriter looks up.
+pub fn collect_dollar_imports(program: &Program<'_>) -> std::collections::HashMap<String, String> {
+    let mut out = std::collections::HashMap::new();
+    for stmt in &program.body {
+        let Statement::ImportDeclaration(import) = stmt else {
+            continue;
+        };
+        let module = import.source.value.as_str();
+        let Some(specifiers) = &import.specifiers else {
+            continue;
+        };
+        for spec in specifiers {
+            if let ImportDeclarationSpecifier::ImportSpecifier(named) = spec {
+                let local = named.local.name.as_str();
+                if local.starts_with('$') {
+                    out.insert(local.to_string(), module.to_string());
+                }
+            }
+        }
+    }
+    out
+}
+
 /// Return `true` if the program imports `{ macroRules }` from the rules
 /// module. The local name must match exactly (no aliasing), so discovery
 /// can rely on AST-level identifier matches instead of tracking renames.
@@ -740,19 +794,29 @@ pub fn resolve_cross_file_imports(
         // the usual `.ts` / `.tsx` / `index.ts` variants relative to the
         // importing file's directory.
         let Some(resolved_path) = project_registry.resolve_specifier(importer_path, &module) else {
-            out.diagnostics.push(Diagnostic {
-                level: DiagnosticLevel::Error,
-                message: format!(
-                    "cannot resolve declarative macro import `{}` from module `{}`: file not found in project registry",
-                    name, module
-                ),
-                span: None,
-                notes: vec![],
-                help: Some(format!(
-                    "ensure `{}` is a file under the project root and contains declarative macros",
-                    module
-                )),
-            });
+            // A relative-path specifier (starts with `./` or `../`) can
+            // only point to a declarative library file. If we can't
+            // resolve it, that's an error the user needs to know about.
+            //
+            // Bare package specifiers (e.g. `@playground/macro`) may
+            // refer to proc macro packages loaded via the external
+            // loader at dispatch time, so skip those silently and let
+            // the proc macro fallback in the rewriter handle them.
+            if module.starts_with("./") || module.starts_with("../") {
+                out.diagnostics.push(Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "cannot resolve declarative macro module `{}` imported as `{}`",
+                        module, name
+                    ),
+                    span: None,
+                    notes: vec![],
+                    help: Some(format!(
+                        "verify the file exists relative to `{}`",
+                        importer_path.display()
+                    )),
+                });
+            }
             continue;
         };
 

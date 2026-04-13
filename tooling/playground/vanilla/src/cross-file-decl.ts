@@ -7,7 +7,7 @@
 // module should be plain arrays / numbers with no trace of any tag
 // function.
 
-/** import macro { $vec, $identity } from "./_decl_macros_lib" */
+/** import macro { $vec, $identity } from "./decl_macros_lib" */
 
 export const crossFileEmpty = $vec();
 export const crossFileThree = $vec(1, 2, 3);

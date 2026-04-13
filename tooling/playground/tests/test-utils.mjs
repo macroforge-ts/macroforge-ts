@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 
 export const playgroundRoot = path.resolve(__dirname, '..');
 // Derive repo root from file location (tests/ -> playground/ -> tooling/ -> repo root)
-export const repoRoot = process.env.MACROFORGE_ROOT ||
+export const repoRoot = globalThis.process.env.MACROFORGE_ROOT ||
     path.resolve(__dirname, '..', '..', '..');
 export const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 export const svelteRoot = path.join(playgroundRoot, 'svelte');
@@ -48,7 +48,7 @@ export const cliBinary = (() => {
     );
     const debug = path.join(repoRoot, 'crates', 'target', 'debug', 'macroforge');
     const cargoInstall = path.join(
-        process.env.HOME || process.env.USERPROFILE || '',
+        globalThis.process.env.HOME || globalThis.process.env.USERPROFILE || '',
         '.cargo',
         'bin',
         'macroforge'
@@ -69,7 +69,7 @@ export const cliBinary = (() => {
 export function runCli(args, options = {}) {
     const command = new Deno.Command(cliBinary, {
         args,
-        cwd: options.cwd || process.cwd(),
+        cwd: options.cwd || globalThis.process.cwd(),
         stdout: 'piped',
         stderr: 'piped'
     });
@@ -191,14 +191,14 @@ function buildMacroforgeViteConfig() {
  */
 async function withManagedEnv(rootDir, options, serverFactory) {
     const { useProjectCwd = true } = options ?? {};
-    const previousCwd = process.cwd();
+    const previousCwd = globalThis.process.cwd();
     let server;
     let copiedConfig = false;
     const localConfigPath = path.join(rootDir, 'macroforge.config.ts');
 
     try {
         if (useProjectCwd) {
-            process.chdir(rootDir);
+            globalThis.process.chdir(rootDir);
         }
 
         // Copy the workspace-level config so the macro host loads the shared macro packages
@@ -224,12 +224,12 @@ async function withManagedEnv(rootDir, options, serverFactory) {
             fs.rmSync(localConfigPath);
         }
         if (useProjectCwd) {
-            process.chdir(previousCwd);
+            globalThis.process.chdir(previousCwd);
         }
     }
 }
 
-export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
+export function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
     const options = typeof optionsOrRunner === 'function' ? {} : optionsOrRunner;
     const runner = typeof optionsOrRunner === 'function' ? optionsOrRunner : maybeRunner;
 
@@ -266,7 +266,7 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
  *
  * The runner receives (server, baseUrl) where baseUrl is e.g. "http://localhost:24703".
  */
-export async function withDevServer(rootDir, optionsOrRunner, maybeRunner) {
+export function withDevServer(rootDir, optionsOrRunner, maybeRunner) {
     const options = typeof optionsOrRunner === 'function' ? {} : optionsOrRunner;
     const runner = typeof optionsOrRunner === 'function' ? optionsOrRunner : maybeRunner;
 

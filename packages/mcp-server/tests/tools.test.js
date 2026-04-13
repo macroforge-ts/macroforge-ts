@@ -114,9 +114,14 @@ test("get-macro-info - Serialize macro description", async (t) => {
     serializeMacro.description && serializeMacro.description.length > 0,
     "Serialize macro should have description",
   );
+  // The Serialize macro generates `toStringifiedJSON` (a JSON-string
+  // serializer) plus a streaming `serializeWithContext` pair. The
+  // description should mention at least one of those surface methods.
   assert.ok(
-    serializeMacro.description.includes("toJSON"),
-    "Serialize description should mention toJSON",
+    serializeMacro.description.includes("toStringifiedJSON") ||
+      serializeMacro.description.includes("serializeWithContext") ||
+      serializeMacro.description.includes("serialization"),
+    `Serialize description should describe its output; got: ${serializeMacro.description}`,
   );
 });
 
@@ -286,11 +291,13 @@ class User {
 
   const result = macroforge.expandSync(code, "test.ts", {});
 
-  // Expanded code should include toJSON method
+  // Expanded code should include the generated serializer — either the
+  // public `toStringifiedJSON` or the internal `serializeWithContext`.
   assert.ok(result.code, "should have expanded code");
   assert.ok(
-    result.code.includes("toJSON"),
-    "expanded code should include toJSON method",
+    result.code.includes("toStringifiedJSON") ||
+      result.code.includes("serializeWithContext"),
+    "expanded code should include Serialize methods",
   );
 });
 
@@ -316,8 +323,9 @@ class User {
     "expanded code should include toString",
   );
   assert.ok(
-    result.code.includes("toJSON"),
-    "expanded code should include toJSON",
+    result.code.includes("toStringifiedJSON") ||
+      result.code.includes("serializeWithContext"),
+    "expanded code should include Serialize methods",
   );
   assert.ok(
     result.code.includes("clone"),

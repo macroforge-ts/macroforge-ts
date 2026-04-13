@@ -1,0 +1,9 @@
+{
+    "tasks": {
+        "dev": "deno run -A --unstable-detect-cjs --node-modules-dir=manual --env-file=../../.env npm:vite",
+        "build": "deno run -A --unstable-detect-cjs --node-modules-dir=manual --env-file=../../.env npm:vite build",
+        "preview": "deno run -A --unstable-detect-cjs --node-modules-dir=manual --env-file=../../.env npm:vite preview",
+        "clean": "rm -rf dist node_modules .macroforge",
+        "cleanbuild": "deno task clean && deno install --node-modules-dir && deno task build"
+    }
+}

@@ -110,6 +110,7 @@
 //! The config is parsed natively using SWC. External macros are supported via FFI
 //! (compiled `.node`/`.dylib` packages) or Node.js subprocess fallback.
 
+mod build;
 mod cache;
 mod expand;
 mod watch;
@@ -122,6 +123,7 @@ use anyhow::{Result, anyhow};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
+use build::run_build;
 use cache::{run_cache, run_refresh};
 use expand::{expand_file, scan_and_expand};
 use watch::run_watch;
@@ -215,6 +217,18 @@ enum Command {
         /// Root directory (defaults to cwd)
         root: Option<PathBuf>,
     },
+    /// Build a macro crate to WASM with wasm-bindgen and add $ aliases for Call macros.
+    ///
+    /// Compiles the crate at the given path (or cwd) to `wasm32-unknown-unknown`,
+    /// runs `wasm-bindgen`, then post-processes the output to add `$`-prefixed
+    /// re-exports for function-like (Call) macros (e.g. `$state`, `$derived`).
+    Build {
+        /// Path to the macro crate directory (defaults to cwd)
+        crate_dir: Option<PathBuf>,
+        /// Output directory for the WASM package (defaults to <crate_dir>/pkg)
+        #[arg(long, short = 'o')]
+        out: Option<PathBuf>,
+    },
 }
 
 fn main() -> Result<()> {
@@ -256,5 +270,6 @@ fn main() -> Result<()> {
         Command::Watch { root, debounce_ms } => run_watch(root, debounce_ms),
         Command::Cache { root } => run_cache(root),
         Command::Refresh { root } => run_refresh(root),
+        Command::Build { crate_dir, out } => run_build(crate_dir, out),
     }
 }

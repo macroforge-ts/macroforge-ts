@@ -1,0 +1,49 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/declarative/export_const_multiple.ts
+---
+## Input
+
+// Multiple `export const` macro declarations in one file.
+//
+// Both declarations should be fully erased — including their `export`
+// keywords — so no orphan `export` remains in the output.
+import { macroRules } from 'macroforge/rules';
+
+export const $vec = macroRules`
+  () => []
+  ($($x:Expr),+) => [$($x),+]
+`;
+
+export const $id = macroRules`
+  ($x:Expr) => $x
+`;
+
+const empty = $vec();
+const xs = $vec(1, 2, 3);
+const forty = $id(40);
+
+## Output
+
+// Multiple `export const` macro declarations in one file.
+//
+// Both declarations should be fully erased — including their `export`
+// keywords — so no orphan `export` remains in the output.
+
+
+
+
+
+
+const empty = [];
+const xs = [1,2,3];
+const forty = 40;
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

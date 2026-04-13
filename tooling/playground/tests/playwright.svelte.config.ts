@@ -4,9 +4,9 @@ export default defineConfig({
     testDir: './e2e',
     testMatch: '**/svelte-*.spec.ts',
     fullyParallel: true,
-    forbidOnly: !!process.env.CI,
-    retries: process.env.CI ? 2 : 0,
-    workers: process.env.CI ? 1 : undefined,
+    forbidOnly: !!globalThis.process.env.CI,
+    retries: globalThis.process.env.CI ? 2 : 0,
+    workers: globalThis.process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
         baseURL: 'http://localhost:5173',
@@ -22,7 +22,7 @@ export default defineConfig({
         command: 'deno task dev',
         cwd: '../svelte',
         url: 'http://localhost:5173',
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: !globalThis.process.env.CI,
         timeout: 120000
     }
 });

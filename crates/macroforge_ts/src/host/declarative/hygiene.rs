@@ -53,23 +53,20 @@ pub(super) fn collect_declared_underscore_names(source: &str) -> HashSet<String>
     let mut out: HashSet<String> = HashSet::new();
     let mut cursor = LexCursor::new(source);
     while let Some(event) = cursor.next_event() {
-        match event {
-            Event::Keyword(KeywordKind::Const | KeywordKind::Let | KeywordKind::Var) => {
-                // The next identifier we see in code context — after
-                // any amount of horizontal or vertical whitespace and
-                // comments — is the binding name. We look it up via a
-                // lightweight lookahead that shares the same state
-                // machine, so a `const\n  __x` declaration works the
-                // same as `const __x`. Destructuring patterns
-                // (`const { __x } = ...`) are out of scope — the next
-                // token there is `{`, not an ident, so we skip them.
-                if let Some(next) = cursor.peek_next_code_ident()
-                    && next.starts_with("__")
-                {
-                    out.insert(next.to_string());
-                }
+        if let Event::Keyword(KeywordKind::Const | KeywordKind::Let | KeywordKind::Var) = event {
+            // The next identifier we see in code context — after
+            // any amount of horizontal or vertical whitespace and
+            // comments — is the binding name. We look it up via a
+            // lightweight lookahead that shares the same state
+            // machine, so a `const\n  __x` declaration works the
+            // same as `const __x`. Destructuring patterns
+            // (`const { __x } = ...`) are out of scope — the next
+            // token there is `{`, not an ident, so we skip them.
+            if let Some(next) = cursor.peek_next_code_ident()
+                && next.starts_with("__")
+            {
+                out.insert(next.to_string());
             }
-            _ => {}
         }
     }
     out

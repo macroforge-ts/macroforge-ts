@@ -73,8 +73,7 @@
 <ol>
     <li>
         Fork or clone the <a href="https://github.com/macroforge-ts/macroforge-ts"
-            >macroforge-ts repository</
-        >
+            >macroforge-ts repository</a>
     </li>
     <li>Build the extension you need</li>
     <li>Install it as a developer extension in your editor</li>

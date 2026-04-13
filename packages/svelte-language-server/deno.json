@@ -58,6 +58,10 @@
     "useUnknownInCatchVariables": false
   },
   "unstable": ["sloppy-imports"],
+  "tasks": {
+    "pretest": "node test/setup-fixtures.js",
+    "test": "deno task pretest && TS_NODE_TRANSPILE_ONLY=true deno run -A --node-modules-dir=manual npm:mocha --timeout 60000 --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types"
+  },
   "publish": {
     "exclude": ["test/", "dist/", "node_modules/"]
   },

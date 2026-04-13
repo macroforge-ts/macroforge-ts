@@ -218,7 +218,14 @@ impl CompilerBackend for OxcBackend {
                 crate::host::declarative::ResolvedImports::default()
             };
 
-            if discovered.is_empty() && resolved_imports.imported.is_empty() {
+            // Check for `$identifier` patterns that might be proc macro calls.
+            let has_dollar_calls = code.contains('$') && {
+                let bytes = code.as_bytes();
+                bytes
+                    .windows(2)
+                    .any(|w| w[0] == b'$' && w[1].is_ascii_alphabetic())
+            };
+            if discovered.is_empty() && resolved_imports.imported.is_empty() && !has_dollar_calls {
                 (None::<String>, resolved_imports.diagnostics)
             } else {
                 let mut registry = crate::host::declarative::DeclarativeMacroRegistry::new();
@@ -247,6 +254,20 @@ impl CompilerBackend for OxcBackend {
                     .as_ref()
                     .and_then(|o| o.type_registry_json.as_ref())
                     .and_then(|json| get_or_parse_registry(json));
+                // Create an expander early so its dispatcher and external
+                // loader are available for proc macro call fallback during
+                // the declarative rewrite pass.
+                let early_expander = create_expander()?;
+
+                let macro_import_sources =
+                    crate::ts_syn::import_registry::collect_macro_import_comments_pub(code);
+
+                let proc_fallback = crate::host::declarative::ProcMacroFallback {
+                    dispatcher: &early_expander.dispatcher,
+                    import_sources: &macro_import_sources,
+                    external_loader: early_expander.external_loader_ref(),
+                };
+
                 let rewrite_out = crate::host::declarative::rewrite(
                     &ret.program,
                     code,
@@ -254,6 +275,7 @@ impl CompilerBackend for OxcBackend {
                     &discovered,
                     build_mode,
                     type_registry.as_ref(),
+                    Some(proc_fallback),
                 );
                 let mut diagnostics = resolved_imports.diagnostics;
                 diagnostics.extend(rewrite_out.diagnostics);
@@ -314,11 +336,14 @@ impl CompilerBackend for OxcBackend {
             let type_aliases = crate::ts_syn::lower_type_aliases_oxc(&ret.program, code, None)?;
             let imports = crate::ts_syn::ImportRegistry::from_oxc_program(&ret.program, code);
 
+            let functions = crate::ts_syn::lower_functions_oxc(&ret.program, code, None)?;
+
             let items = LoweredItems {
                 classes,
                 interfaces,
                 enums,
                 type_aliases,
+                functions,
                 imports,
             };
 

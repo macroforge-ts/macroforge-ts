@@ -12,7 +12,7 @@ import {
 } from './test-utils.mjs';
 
 // Use dynamic import for TypeScript to work in both Node and Deno
-const ts = await import('npm:typescript@5').then((m) => m.default ?? m);
+const ts = await import('typescript').then((m) => m.default ?? m);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

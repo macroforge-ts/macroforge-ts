@@ -8,11 +8,7 @@
  * which has svelte-check, macroforge, and .svelte.ts files with @derive.
  */
 
-import {
-    assert,
-    assertEquals,
-    assertStringIncludes
-} from 'https://deno.land/std@0.224.0/assert/mod.ts';
+import { assert, assertEquals, assertStringIncludes } from '@std/assert';
 import { runCli, svelteRoot } from './test-utils.mjs';
 
 // ============================================================================

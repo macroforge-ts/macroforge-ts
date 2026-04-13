@@ -108,7 +108,12 @@ test.describe('Vanilla Playground Macro Tests', () => {
         await page.waitForSelector('[data-tests-complete="true"]');
 
         // Check that the global results object is populated
-        const results = await page.evaluate(() => (window as any).macroTestResults);
+        const results = await page.evaluate(() =>
+            (globalThis as unknown as {
+                macroTestResults: { debug?: string; serialize?: string };
+            })
+                .macroTestResults
+        );
 
         expect(results.debug).toBeDefined();
         expect(typeof results.debug).toBe('string');

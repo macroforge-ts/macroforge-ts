@@ -50,9 +50,15 @@ pub fn is_macro_package() -> bool {
 /// A vector of macro names (e.g., `["Debug", "Clone", "Serialize"]`).
 #[cfg_attr(feature = "node", napi(js_name = "__macroforgeGetMacroNames"))]
 pub fn get_macro_names() -> Vec<String> {
-    derived::macro_names()
-        .into_iter()
-        .map(|s| s.to_string())
+    inventory::iter::<crate::host::derived::DerivedMacroRegistration>()
+        .map(|entry| {
+            let name = entry.descriptor.name;
+            if entry.descriptor.kind == crate::ts_syn::abi::MacroKind::Call {
+                format!("${}", name)
+            } else {
+                name.to_string()
+            }
+        })
         .collect()
 }
 

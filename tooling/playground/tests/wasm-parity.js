@@ -1,9 +1,8 @@
 import pkg from 'macroforge';
 const { expandSync: expand_node } = pkg;
-import * as expand_wasm from '../../../crates/macroforge_ts/pkg/macroforge_ts.js';
-import fs from 'node:fs';
-import path from 'node:path';
+import * as expand_wasm from '../../../crates/macroforge_ts/pkg/macroforge_ts.d.ts';
 import assert from 'node:assert';
+import process from 'node:process';
 
 // Utility to normalize code for parity comparison
 // This handles differences in indentation/whitespace that can occur between native and WASM builds
@@ -26,7 +25,7 @@ export class User {
 `;
 const BASE_FILE = 'user-simple.ts';
 
-async function runTests() {
+function runTests() {
     console.log('🧪 Running Macroforge Parity Tests...');
 
     // Test 1: Identical Output (Core macros)
@@ -115,8 +114,10 @@ class Settings {
     console.log('✅ All parity tests passed!');
 }
 
-runTests().catch((err) => {
+try {
+    runTests();
+} catch (err) {
     console.error('❌ Parity test failed:');
     console.error(err);
     process.exit(1);
-});
+}

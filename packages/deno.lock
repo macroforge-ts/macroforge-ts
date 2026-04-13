@@ -33,6 +33,7 @@
     "npm:svelte@^5.43.8": "5.55.2",
     "npm:ts-node@10": "10.9.2_@types+node@22.19.17_typescript@5.9.3",
     "npm:typescript-auto-import-cache@~0.3.6": "0.3.6",
+    "npm:typescript@5": "5.9.3",
     "npm:typescript@^5.7.0": "5.9.3",
     "npm:typescript@^5.9.2": "5.9.3",
     "npm:typescript@^5.9.3": "5.9.3",

@@ -1,0 +1,26 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/call/concat_names_simple.ts
+---
+## Input
+
+/** import macro { concat_names } from "@macroforge/test-macros" */
+
+export const fooBar = $concat_names(foo, bar);
+export const userName = $concat_names(user, name);
+
+## Output
+
+/** import macro { concat_names } from "@macroforge/test-macros" */
+
+export const fooBar = "foo_bar";
+export const userName = "user_name";
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

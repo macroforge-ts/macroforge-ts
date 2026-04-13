@@ -51,11 +51,18 @@ pub struct MacroManifest {
 pub fn get_manifest() -> MacroManifest {
     let macros: Vec<MacroManifestEntry> = inventory::iter::<DerivedMacroRegistration>
         .into_iter()
-        .map(|entry| MacroManifestEntry {
-            name: entry.descriptor.name.to_string(),
-            kind: format!("{:?}", entry.descriptor.kind).to_lowercase(),
-            description: entry.descriptor.description.to_string(),
-            package: entry.descriptor.package.to_string(),
+        .map(|entry| {
+            let name = if entry.descriptor.kind == crate::ts_syn::abi::MacroKind::Call {
+                format!("${}", entry.descriptor.name)
+            } else {
+                entry.descriptor.name.to_string()
+            };
+            MacroManifestEntry {
+                name,
+                kind: format!("{:?}", entry.descriptor.kind).to_lowercase(),
+                description: entry.descriptor.description.to_string(),
+                package: entry.descriptor.package.to_string(),
+            }
         })
         .collect();
 

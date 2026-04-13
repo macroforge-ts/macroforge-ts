@@ -136,7 +136,8 @@ mod tests;
 
 #[cfg(feature = "oxc")]
 pub use discovery::{
-    DiscoveredMacro, ImportedMacro, ResolvedImports, discover, resolve_cross_file_imports,
+    DiscoveredMacro, ImportedMacro, ResolvedImports, collect_dollar_imports, discover,
+    resolve_cross_file_imports,
 };
 #[cfg(feature = "oxc")]
 pub use megamorph::{
@@ -146,8 +147,11 @@ pub use megamorph::{
 pub use project_registry::ProjectDeclarativeRegistry;
 #[cfg(feature = "oxc")]
 pub use registry::{DeclarativeMacroRegistry, RegistryError};
-#[cfg(feature = "oxc")]
-pub use rewriter::{RewriteOutput, rewrite};
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+pub use rewriter::ProcMacroFallback;
+pub use rewriter::RewriteOutput;
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+pub use rewriter::rewrite;
 
 /// Parse `source` with OXC purely to confirm it is syntactically valid
 /// TypeScript and surface any parse errors as structured [`Diagnostic`]s.

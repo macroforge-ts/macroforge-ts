@@ -5,7 +5,8 @@ import { defineConfig } from 'vite';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Runtime imports from env variables (no fallbacks - must be set)
-const { VITE_PLUGIN_PKG, MACROFORGE_TS_CRATE, PLAYGROUND_MACRO, SHARED_PKG } = process.env;
+const { VITE_PLUGIN_PKG, MACROFORGE_TS_CRATE, PLAYGROUND_MACRO, SHARED_PKG } =
+    globalThis.process.env;
 
 const { macroforge } = await import(`${VITE_PLUGIN_PKG}/src/index.js`);
 

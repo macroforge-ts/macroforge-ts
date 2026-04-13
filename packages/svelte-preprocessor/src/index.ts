@@ -26,7 +26,7 @@
  * @packageDocumentation
  */
 
-import { type ExpandOptions, hasMacroAnnotations } from "@macroforge/shared";
+import type { ExpandOptions } from "@macroforge/shared";
 import type { Preprocessor, PreprocessorGroup } from "svelte/compiler";
 
 // ============================================================================
@@ -432,15 +432,7 @@ export function macroforgePreprocess(
     /*
      * STEP 2: Quick Scan Optimization
      *
-     * Before loading native bindings, do a cheap string check for "@derive".
-     * Most components won't have macros, so this saves the cost of loading
-     * and calling the native expansion engine in the common case.
-     */
-    if (!hasMacroAnnotations(content)) {
-      return;
-    }
-
-    /*
+     /*
      * STEP 3: Load Native Bindings
      *
      * The expansion engine is a native module (Rust compiled to Node addon).
@@ -495,9 +487,8 @@ export function macroforgePreprocess(
        * - map: Source map for debugging (optional, not yet implemented)
        */
       if (result.code && result.code !== content) {
-        const mapping = (result as any).sourceMapping as
-          | SourceMapping
-          | undefined;
+        const mapping = (result as unknown as { sourceMapping?: SourceMapping })
+          .sourceMapping;
         const map = mapping?.segments?.length && filename
           ? buildSourceMap(content, result.code, mapping, filename)
           : undefined;

@@ -1,0 +1,62 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/declarative/export_const_object_form.ts
+---
+## Input
+
+// `export const` with the object form of `macroRules({...})`.
+//
+// Exercises that the `export` + object-form combination is handled
+// by the visitor — not just the tag-form template.
+import { macroRules } from 'macroforge/rules';
+
+export const $ReadOnly = macroRules({
+    kind: 'type',
+    expand: macroRules`
+    ($t:Type) => { readonly [K in keyof $t]: $t[K] }
+  `
+});
+
+export const $Tuple = macroRules({
+    kind: 'type',
+    expand: macroRules`
+    ($($t:Type),+) => [$($t),+]
+  `
+});
+
+interface User {
+    id: string;
+    name: string;
+}
+
+type StrictUser = $ReadOnly<User>;
+type Pair = $Tuple<string, number>;
+
+## Output
+
+// `export const` with the object form of `macroRules({...})`.
+//
+// Exercises that the `export` + object-form combination is handled
+// by the visitor — not just the tag-form template.
+
+
+
+
+
+
+interface User {
+    id: string;
+    name: string;
+}
+
+type StrictUser = { readonly [K in keyof User]: User[K] };
+type Pair = [string,number];
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

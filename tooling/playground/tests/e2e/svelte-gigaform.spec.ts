@@ -1,5 +1,23 @@
 import { expect, test } from '@playwright/test';
 
+// Shape of the gigaform result objects exposed by the playground on
+// `window.gigaformResults`. Deliberately loose — each form shape is
+// macro-generated, so tests drill in with runtime-typed access rather
+// than enumerate every field controller method.
+type GigaformField = {
+    set: (v: unknown) => void;
+    setTainted: (v: boolean) => void;
+    getTainted: () => boolean;
+    setError: (errs: string[]) => void;
+    getErrors: () => string[] | null;
+    [method: string]: unknown;
+};
+type GigaformForm = {
+    fields: Record<string, GigaformField>;
+    [k: string]: unknown;
+};
+type GigaformWindow = { gigaformResults: Record<string, GigaformForm> };
+
 test.describe('Gigaform E2E Tests', () => {
     test.describe('Basic Field Operations', () => {
         test.beforeEach(async ({ page }) => {
@@ -27,9 +45,10 @@ test.describe('Gigaform E2E Tests', () => {
         test('field.set() updates input value reactively', async ({ page }) => {
             // Programmatically set via window object
             await page.evaluate(() => {
-                (window as any).gigaformResults.phoneNumber.fields.phoneType.set(
-                    'Mobile'
-                );
+                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
+                    .fields.phoneType.set(
+                        'Mobile'
+                    );
             });
             await page.waitForTimeout(50);
 
@@ -39,7 +58,8 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('getTainted() returns false initially', async ({ page }) => {
             const tainted = await page.evaluate(() =>
-                (window as any).gigaformResults.phoneNumber.fields.phoneType
+                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
+                    .fields.phoneType
                     .getTainted()
             );
             expect(tainted).toBe(false);
@@ -47,13 +67,15 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('setTainted() marks field as touched', async ({ page }) => {
             await page.evaluate(() => {
-                (window as any).gigaformResults.phoneNumber.fields.phoneType.setTainted(
-                    true
-                );
+                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
+                    .fields.phoneType.setTainted(
+                        true
+                    );
             });
 
             const tainted = await page.evaluate(() =>
-                (window as any).gigaformResults.phoneNumber.fields.phoneType
+                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
+                    .fields.phoneType
                     .getTainted()
             );
             expect(tainted).toBe(true);
@@ -67,7 +89,8 @@ test.describe('Gigaform E2E Tests', () => {
             await page.fill('[data-testid="phone-type"]', 'Work');
 
             const tainted = await page.evaluate(() =>
-                (window as any).gigaformResults.phoneNumber.fields.phoneType
+                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
+                    .fields.phoneType
                     .getTainted()
             );
             expect(tainted).toBe(true);
@@ -75,9 +98,10 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('setError() stores and displays error', async ({ page }) => {
             await page.evaluate(() => {
-                (window as any).gigaformResults.phoneNumber.fields.phoneType.setError([
-                    'Phone type is required'
-                ]);
+                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
+                    .fields.phoneType.setError([
+                        'Phone type is required'
+                    ]);
             });
             await page.waitForTimeout(50);
 
@@ -167,7 +191,8 @@ test.describe('Gigaform E2E Tests', () => {
 
             const data = await page.evaluate(
                 () =>
-                    (window as any).gigaformResults.user.data.settings.scheduleSettings
+                    (globalThis as unknown as GigaformWindow).gigaformResults.user.data
+                        .settings.scheduleSettings
                         .daysPerWeek
             );
             expect(data).toBe(5);
@@ -179,7 +204,8 @@ test.describe('Gigaform E2E Tests', () => {
 
             const data = await page.evaluate(
                 () =>
-                    (window as any).gigaformResults.user.data.settings.scheduleSettings
+                    (globalThis as unknown as GigaformWindow).gigaformResults.user.data
+                        .settings.scheduleSettings
                         .rowHeight
             );
             expect(data).toBe('Large');
@@ -187,14 +213,18 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('add permission page to nested array', async ({ page }) => {
             const initialLength = await page.evaluate(
-                () => (window as any).gigaformResults.user.data.permissions.pages.length
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults.user.data
+                        .permissions.pages.length
             );
 
             await page.click('[data-testid="add-permission-page"]');
             await page.waitForTimeout(50);
 
             const newLength = await page.evaluate(
-                () => (window as any).gigaformResults.user.data.permissions.pages.length
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults.user.data
+                        .permissions.pages.length
             );
 
             expect(newLength).toBe(initialLength + 1);
@@ -231,7 +261,9 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('push() adds new phone to array', async ({ page }) => {
             const initialCount = await page.evaluate(
-                () => (window as any).gigaformResults.account.fields.phones.get().length
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults.account
+                        .fields.phones.get().length
             );
 
             await page.fill('[data-testid="new-phone-type"]', 'Work');
@@ -240,7 +272,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const newCount = await page.evaluate(
-                () => (window as any).gigaformResults.account.fields.phones.get().length
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults.account
+                        .fields.phones.get().length
             );
 
             expect(newCount).toBe(initialCount + 1);
@@ -254,7 +288,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const countBefore = await page.evaluate(
-                () => (window as any).gigaformResults.account.fields.phones.get().length
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults.account
+                        .fields.phones.get().length
             );
 
             // Remove the first phone
@@ -262,7 +298,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const countAfter = await page.evaluate(
-                () => (window as any).gigaformResults.account.fields.phones.get().length
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults.account
+                        .fields.phones.get().length
             );
 
             expect(countAfter).toBe(countBefore - 1);
@@ -276,7 +314,8 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const phoneAt0 = await page.evaluate(() => {
-                const controller = (window as any).gigaformResults.account.fields.phones
+                const controller = (globalThis as unknown as GigaformWindow)
+                    .gigaformResults.account.fields.phones
                     .at(0);
                 return controller.get();
             });
@@ -296,7 +335,9 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const phone = await page.evaluate(
-                () => (window as any).gigaformResults.account.fields.phones.get()[0]
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults.account
+                        .fields.phones.get()[0]
             );
 
             // Main should have toggled
@@ -315,21 +356,21 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="add-phone"]');
             await page.waitForTimeout(50);
 
-            const beforeSwap = await page.evaluate(() =>
-                (window as any).gigaformResults.account.fields.phones
-                    .get()
-                    .map((p: any) => p.phoneType)
-            );
+            const beforeSwap = await page.evaluate(() => {
+                const phones = (globalThis as unknown as GigaformWindow).gigaformResults
+                    .account.fields.phones.get() as Array<{ phoneType: string }>;
+                return phones.map((p) => p.phoneType);
+            });
 
             // Swap via Move Up button on second element
             await page.click('[data-testid="phone-swap-up-1"]');
             await page.waitForTimeout(50);
 
-            const afterSwap = await page.evaluate(() =>
-                (window as any).gigaformResults.account.fields.phones
-                    .get()
-                    .map((p: any) => p.phoneType)
-            );
+            const afterSwap = await page.evaluate(() => {
+                const phones = (globalThis as unknown as GigaformWindow).gigaformResults
+                    .account.fields.phones.get() as Array<{ phoneType: string }>;
+                return phones.map((p) => p.phoneType);
+            });
 
             expect(afterSwap[0]).toBe(beforeSwap[1]);
             expect(afterSwap[1]).toBe(beforeSwap[0]);
@@ -363,7 +404,9 @@ test.describe('Gigaform E2E Tests', () => {
 
             // Verify tuple structure
             const customField = await page.evaluate(
-                () => (window as any).gigaformResults.account.fields.customFields.get()[0]
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults.account
+                        .fields.customFields.get()[0]
             );
             expect(customField).toEqual(['Industry', 'Technology']);
         });
@@ -395,7 +438,8 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const leadName = await page.evaluate(() =>
-                (window as any).gigaformResults.lead.fields.leadName.get()
+                (globalThis as unknown as GigaformWindow).gigaformResults.lead.fields
+                    .leadName.get()
             );
 
             expect(leadName).toHaveProperty('companyName');
@@ -411,7 +455,8 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const leadName = await page.evaluate(() =>
-                (window as any).gigaformResults.lead.fields.leadName.get()
+                (globalThis as unknown as GigaformWindow).gigaformResults.lead.fields
+                    .leadName.get()
             );
 
             expect(leadName).toHaveProperty('firstName');
@@ -514,7 +559,8 @@ test.describe('Gigaform E2E Tests', () => {
             const initialCount = await page.evaluate(
                 () =>
                     Object.keys(
-                        (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                        (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
+                            .fields.taxComponents.get()
                     )
                         .length
             );
@@ -527,7 +573,8 @@ test.describe('Gigaform E2E Tests', () => {
             const newCount = await page.evaluate(
                 () =>
                     Object.keys(
-                        (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                        (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
+                            .fields.taxComponents.get()
                     )
                         .length
             );
@@ -546,7 +593,8 @@ test.describe('Gigaform E2E Tests', () => {
 
             const stateValue = await page.evaluate(
                 () =>
-                    (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                    (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
+                        .fields.taxComponents.get()
                         .state
             );
 
@@ -563,7 +611,8 @@ test.describe('Gigaform E2E Tests', () => {
             const hasCity = await page.evaluate(
                 () =>
                     'city' in
-                        (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                        (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
+                            .fields.taxComponents.get()
             );
 
             expect(hasCity).toBe(false);
@@ -578,7 +627,8 @@ test.describe('Gigaform E2E Tests', () => {
             const count = await page.evaluate(
                 () =>
                     Object.keys(
-                        (window as any).gigaformResults.taxRate.fields.taxComponents.get()
+                        (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
+                            .fields.taxComponents.get()
                     )
                         .length
             );
@@ -614,7 +664,8 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const site = await page.evaluate(() =>
-                (window as any).gigaformResults.order.fields.site.get()
+                (globalThis as unknown as GigaformWindow).gigaformResults.order.fields
+                    .site.get()
             );
 
             expect(site.coordinates.lat).toBeCloseTo(40.7128);
@@ -733,7 +784,8 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const imageUrl = await page.evaluate(() =>
-                (window as any).gigaformResults.employee.fields.imageUrl.get()
+                (globalThis as unknown as GigaformWindow).gigaformResults.employee
+                    .fields.imageUrl.get()
             );
 
             expect(imageUrl).toBe('https://example.com/image.jpg');
@@ -794,7 +846,7 @@ test.describe('Gigaform E2E Tests', () => {
 
             // Multiple programmatic updates
             await page.evaluate(() => {
-                const form = (window as any).gigaformResults.phoneNumber;
+                const form = (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber;
                 form.fields.phoneType.set('Programmatic');
                 form.fields.number.set('999-888-7777');
                 form.fields.main.set(true);
@@ -817,7 +869,8 @@ test.describe('Gigaform E2E Tests', () => {
             // Rapid updates
             for (let i = 0; i < 10; i++) {
                 await page.evaluate((val) => {
-                    (window as any).gigaformResults.gradient.fields.startHue.set(val);
+                    (globalThis as unknown as GigaformWindow).gigaformResults.gradient
+                        .fields.startHue.set(val);
                 }, i * 36);
             }
             await page.waitForTimeout(100);
@@ -839,7 +892,7 @@ test.describe('Gigaform E2E Tests', () => {
 
             // Set error and tainted
             await page.evaluate(() => {
-                const form = (window as any).gigaformResults.phoneNumber;
+                const form = (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber;
                 form.fields.phoneType.setError(['Test error']);
                 form.fields.phoneType.setTainted(true);
             });
@@ -853,7 +906,7 @@ test.describe('Gigaform E2E Tests', () => {
             expect(await page.inputValue('[data-testid="phone-type"]')).toBe('');
 
             const state = await page.evaluate(() => {
-                const form = (window as any).gigaformResults.phoneNumber;
+                const form = (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber;
                 return {
                     error: form.fields.phoneType.getError(),
                     tainted: form.fields.phoneType.getTainted()
@@ -871,9 +924,13 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForSelector('body.hydrated', { timeout: 10000 });
 
             const hasEmployee = await page.evaluate(
-                () => 'employee' in (window as any).gigaformResults
+                () =>
+                    'employee' in
+                        (globalThis as unknown as GigaformWindow).gigaformResults
             );
-            const hasOrder = await page.evaluate(() => 'order' in (window as any).gigaformResults);
+            const hasOrder = await page.evaluate(() =>
+                'order' in (globalThis as unknown as GigaformWindow).gigaformResults
+            );
 
             expect(hasEmployee).toBe(true);
             expect(hasOrder).toBe(true);
@@ -894,7 +951,9 @@ test.describe('Gigaform E2E Tests', () => {
             );
 
             const validation = await page.evaluate(
-                () => (window as any).gigaformResults.phoneValidation
+                () =>
+                    (globalThis as unknown as GigaformWindow).gigaformResults
+                        .phoneValidation
             );
 
             expect(validation).toBeDefined();

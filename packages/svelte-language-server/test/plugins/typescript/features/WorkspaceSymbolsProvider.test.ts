@@ -97,11 +97,11 @@ describe("WorkspaceSymbolsProvider", function () {
         location: {
           range: {
             end: {
-              character: 26,
+              character: 24,
               line: 4,
             },
             start: {
-              character: 4,
+              character: 2,
               line: 4,
             },
           },
