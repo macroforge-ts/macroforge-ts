@@ -39,7 +39,7 @@ import {
   loadSections,
   searchSections,
   type Section,
-} from "./docs-loader.js";
+} from "./docs-loader.ts";
 
 /** Cached documentation sections loaded at server startup */
 let sections: Section[] = [];
@@ -60,7 +60,7 @@ let sections: Section[] = [];
  * @example
  * ```typescript
  * import { Server } from '@modelcontextprotocol/sdk/server/index.js';
- * import { registerTools } from './tools/index.js';
+ * import { registerTools } from './tools/index.ts';
  *
  * const server = new Server({ name: 'macroforge', version: '1.0.0' }, { capabilities: { tools: {} } });
  * registerTools(server);

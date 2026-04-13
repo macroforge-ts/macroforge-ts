@@ -1777,7 +1777,6 @@
         "packageJson": {
           "dependencies": [
             "npm:@types/node@^22.10.2",
-            "npm:macroforge@~0.1.79",
             "npm:typescript@^5.9.3"
           ]
         }
@@ -1811,8 +1810,6 @@
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/trace-mapping@~0.3.25",
-            "npm:@macroforge/shared@~0.1.79",
-            "npm:@macroforge/typescript-plugin@~0.1.79",
             "npm:@types/estree@^0.0.42",
             "npm:@types/globrex@~0.1.4",
             "npm:@types/lodash@^4.14.116",
@@ -1826,7 +1823,6 @@
             "npm:fdir@^6.2.0",
             "npm:globrex@~0.1.2",
             "npm:lodash@^4.17.21",
-            "npm:macroforge@~0.1.79",
             "npm:mocha@^9.2.0",
             "npm:prettier-plugin-svelte@^3.4.0",
             "npm:prettier@~3.3.3",
@@ -1853,8 +1849,6 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/shared@~0.1.79",
-            "npm:macroforge@~0.1.79",
             "npm:svelte@^5.43.8",
             "npm:typescript@^5.9.3"
           ]
@@ -1868,9 +1862,7 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/shared@~0.1.79",
             "npm:@types/node@^18.19.130",
-            "npm:macroforge@~0.1.79",
             "npm:typescript@^5.9.3"
           ]
         }
@@ -1884,9 +1876,7 @@
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/sourcemap-codec@^1.5.0",
-            "npm:@macroforge/shared@~0.1.79",
-            "npm:@types/node@22",
-            "npm:macroforge@~0.1.79"
+            "npm:@types/node@22"
           ]
         }
       }

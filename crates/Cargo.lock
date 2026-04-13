@@ -1589,7 +1589,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.79"
+version = "0.1.80"
 dependencies = [
  "anyhow",
  "boa_engine",
@@ -1631,7 +1631,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.81"
+version = "0.1.82"
 dependencies = [
  "convert_case",
  "macroforge_ts",
@@ -1644,7 +1644,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.81"
+version = "0.1.82"
 dependencies = [
  "anyhow",
  "convert_case",
@@ -1661,7 +1661,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.81"
+version = "0.1.82"
 dependencies = [
  "indexmap",
  "oxc",

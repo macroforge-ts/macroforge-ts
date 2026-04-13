@@ -97,9 +97,7 @@ export class MaxItemsValidator {
             errors.push({ field: 'items', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            MaxItemsValidator.prototype
-        ) as MaxItemsValidator;
+        const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -199,9 +197,7 @@ export function maxItemsValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function maxItemsValidatorIs(
-    value: unknown
-): value is MaxItemsValidator {
+export function maxItemsValidatorIs(value: unknown): value is MaxItemsValidator {
     return MaxItemsValidator.is(value);
 }
 
@@ -296,9 +292,7 @@ export class MinItemsValidator {
             errors.push({ field: 'items', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            MinItemsValidator.prototype
-        ) as MinItemsValidator;
+        const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -398,9 +392,7 @@ export function minItemsValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function minItemsValidatorIs(
-    value: unknown
-): value is MinItemsValidator {
+export function minItemsValidatorIs(value: unknown): value is MinItemsValidator {
     return MinItemsValidator.is(value);
 }
 
@@ -496,9 +488,7 @@ export class ItemsCountValidator {
             errors.push({ field: 'items', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            ItemsCountValidator.prototype
-        ) as ItemsCountValidator;
+        const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -598,8 +588,6 @@ export function itemsCountValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function itemsCountValidatorIs(
-    value: unknown
-): value is ItemsCountValidator {
+export function itemsCountValidatorIs(value: unknown): value is ItemsCountValidator {
     return ItemsCountValidator.is(value);
 }

@@ -2714,3 +2714,156 @@
 [1776045334.512] [expand] registered macros: ["@macro/derive::Deserialize", "__DYNAMIC_MODULE__::PartialOrd", "@macro/derive::Ord", "@macro/derive::Hash", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::Clone", "@macro/derive::PartialEq", "@macro/derive::Debug", "__DYNAMIC_MODULE__::Hash", "__DYNAMIC_MODULE__::Default", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::Ord", "@macro/derive::Default", "@macro/derive::Clone", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Debug", "@macro/derive::PartialOrd"]
 [1776045334.512] [expand] dispatch result: runtime=0, type=0, tokens=Some(253), diags=0
 [1776045334.512] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.425] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/simple.ts
+[1776117192.425] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/simple.ts: {}
+[1776117192.426] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.426] [expand] derive_targets: 1
+[1776117192.426] [expand]   target: macros=[("Debug", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 22 }
+[1776117192.426] [expand] attribute_targets: 0
+[1776117192.426] [expand] dispatching macro 'Debug' from module '@macro/derive'
+[1776117192.426] [expand] registered macros: ["@macro/derive::Debug", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::Default", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::PartialOrd", "@macro/derive::Ord", "@macro/derive::Default", "@macro/derive::Deserialize", "@macro/derive::PartialEq", "@macro/derive::Hash", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::Hash", "@macro/derive::PartialOrd", "@macro/derive::Clone"]
+[1776117192.427] [expand] dispatch result: runtime=0, type=0, tokens=Some(286), diags=0
+[1776117192.427] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.463] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/multi-macro.ts
+[1776117192.463] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/multi-macro.ts: {}
+[1776117192.463] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.464] [expand] derive_targets: 1
+[1776117192.464] [expand]   target: macros=[("Debug", "@macro/derive"), ("Clone", "@macro/derive"), ("Default", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 38 }
+[1776117192.464] [expand] attribute_targets: 0
+[1776117192.464] [expand] dispatching macro 'Debug' from module '@macro/derive'
+[1776117192.465] [expand] registered macros: ["__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::Serialize", "@macro/derive::Serialize", "@macro/derive::Debug", "@macro/derive::Hash", "@macro/derive::Ord", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::Clone", "__DYNAMIC_MODULE__::Default", "@macro/derive::PartialEq", "@macro/derive::PartialOrd", "@macro/derive::Deserialize", "__DYNAMIC_MODULE__::Hash", "@macro/derive::Default", "__DYNAMIC_MODULE__::Debug"]
+[1776117192.465] [expand] dispatch result: runtime=0, type=0, tokens=Some(335), diags=0
+[1776117192.465] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.465] [expand] dispatching macro 'Clone' from module '@macro/derive'
+[1776117192.465] [expand] registered macros: ["__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::Serialize", "@macro/derive::Serialize", "@macro/derive::Debug", "@macro/derive::Hash", "@macro/derive::Ord", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::Clone", "__DYNAMIC_MODULE__::Default", "@macro/derive::PartialEq", "@macro/derive::PartialOrd", "@macro/derive::Deserialize", "__DYNAMIC_MODULE__::Hash", "@macro/derive::Default", "__DYNAMIC_MODULE__::Debug"]
+[1776117192.465] [expand] dispatch result: runtime=0, type=0, tokens=Some(266), diags=0
+[1776117192.465] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.465] [expand] dispatching macro 'Default' from module '@macro/derive'
+[1776117192.465] [expand] registered macros: ["__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::Serialize", "@macro/derive::Serialize", "@macro/derive::Debug", "@macro/derive::Hash", "@macro/derive::Ord", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::Clone", "__DYNAMIC_MODULE__::Default", "@macro/derive::PartialEq", "@macro/derive::PartialOrd", "@macro/derive::Deserialize", "__DYNAMIC_MODULE__::Hash", "@macro/derive::Default", "__DYNAMIC_MODULE__::Debug"]
+[1776117192.465] [expand] dispatch result: runtime=0, type=0, tokens=Some(149), diags=0
+[1776117192.465] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.499] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/config.ts
+[1776117192.499] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/user.ts
+[1776117192.499] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/models/entity.ts
+[1776117192.500] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/config.ts: {}
+[1776117192.500] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/models/entity.ts: {}
+[1776117192.500] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/user.ts: {}
+[1776117192.500] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.500] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.500] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.500] [expand] derive_targets: 1
+[1776117192.500] [expand] derive_targets: 1
+[1776117192.500] [expand] derive_targets: 1
+[1776117192.500] [expand]   target: macros=[("Debug", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 22 }
+[1776117192.500] [expand]   target: macros=[("Default", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 24 }
+[1776117192.500] [expand]   target: macros=[("Clone", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 22 }
+[1776117192.500] [expand] attribute_targets: 0
+[1776117192.500] [expand] attribute_targets: 0
+[1776117192.500] [expand] attribute_targets: 0
+[1776117192.501] [expand] dispatching macro 'Debug' from module '@macro/derive'
+[1776117192.501] [expand] dispatching macro 'Default' from module '@macro/derive'
+[1776117192.501] [expand] registered macros: ["@macro/derive::PartialOrd", "@macro/derive::Hash", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Deserialize", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::Clone", "@macro/derive::PartialEq", "@macro/derive::Default", "@macro/derive::Ord", "__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::Hash", "__DYNAMIC_MODULE__::Clone", "@macro/derive::Debug", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Default"]
+[1776117192.501] [expand] dispatching macro 'Clone' from module '@macro/derive'
+[1776117192.501] [expand] registered macros: ["@macro/derive::Hash", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Default", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::PartialOrd", "@macro/derive::Default", "__DYNAMIC_MODULE__::Debug", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::Ord", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::Serialize", "@macro/derive::Clone", "@macro/derive::PartialOrd", "@macro/derive::Deserialize", "@macro/derive::Debug", "__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::Hash"]
+[1776117192.501] [expand] registered macros: ["__DYNAMIC_MODULE__::Ord", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Clone", "@macro/derive::Debug", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::Hash", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::Ord", "__DYNAMIC_MODULE__::Default", "@macro/derive::Deserialize", "@macro/derive::Clone", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Hash", "@macro/derive::Default", "@macro/derive::PartialOrd", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::PartialOrd", "@macro/derive::PartialEq"]
+[1776117192.501] [expand] dispatch result: runtime=0, type=0, tokens=Some(253), diags=0
+[1776117192.501] [expand] dispatch result: runtime=0, type=0, tokens=Some(122), diags=0
+[1776117192.501] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.501] [expand] dispatch result: runtime=0, type=0, tokens=Some(210), diags=0
+[1776117192.501] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.501] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.537] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/user.ts
+[1776117192.537] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/user.ts: {}
+[1776117192.537] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.537] [expand] derive_targets: 1
+[1776117192.537] [expand]   target: macros=[("Debug", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 22 }
+[1776117192.537] [expand] attribute_targets: 0
+[1776117192.538] [expand] dispatching macro 'Debug' from module '@macro/derive'
+[1776117192.538] [expand] registered macros: ["__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::Default", "@macro/derive::Hash", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::Serialize", "@macro/derive::Deserialize", "@macro/derive::Ord", "__DYNAMIC_MODULE__::Debug", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::Clone", "@macro/derive::Debug", "@macro/derive::PartialOrd", "@macro/derive::Clone", "@macro/derive::Default", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Hash"]
+[1776117192.538] [expand] dispatch result: runtime=0, type=0, tokens=Some(253), diags=0
+[1776117192.538] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.600] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/component.svelte.ts
+[1776117192.601] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/component.svelte.ts: {}
+[1776117192.601] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.601] [expand] derive_targets: 1
+[1776117192.601] [expand]   target: macros=[("Debug", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 22 }
+[1776117192.601] [expand] attribute_targets: 0
+[1776117192.601] [expand] dispatching macro 'Debug' from module '@macro/derive'
+[1776117192.601] [expand] registered macros: ["@macro/derive::Clone", "@macro/derive::Debug", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::Hash", "@macro/derive::Hash", "__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::PartialOrd", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Ord", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::Default", "@macro/derive::PartialOrd", "@macro/derive::Default", "@macro/derive::Deserialize", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Serialize"]
+[1776117192.602] [expand] dispatch result: runtime=0, type=0, tokens=Some(258), diags=0
+[1776117192.602] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.635] [expand] install_registry: 1 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/config-test/event.ts
+[1776117192.635] [expand]   import 'DateTime' from 'effect'
+[1776117192.635] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/config-test/event.ts: {"DateTime": "effect"}
+[1776117192.635] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.635] [expand] derive_targets: 1
+[1776117192.636] [expand]   target: macros=[("Default", "@macro/derive"), ("Serialize", "@macro/derive")], decorator_span=SpanIR { start: 42, end: 76 }
+[1776117192.636] [expand] attribute_targets: 0
+[1776117192.636] [expand] dispatching macro 'Default' from module '@macro/derive'
+[1776117192.636] [expand] registered macros: ["__DYNAMIC_MODULE__::Ord", "@macro/derive::Ord", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::Deserialize", "__DYNAMIC_MODULE__::Hash", "@macro/derive::PartialOrd", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::Default", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Hash", "__DYNAMIC_MODULE__::PartialOrd", "@macro/derive::Clone", "@macro/derive::Default", "__DYNAMIC_MODULE__::Clone", "@macro/derive::Debug", "@macro/derive::Serialize"]
+[1776117192.636] [expand] dispatch result: runtime=0, type=0, tokens=Some(154), diags=0
+[1776117192.636] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.636] [expand] dispatching macro 'Serialize' from module '@macro/derive'
+[1776117192.636] [expand] registered macros: ["__DYNAMIC_MODULE__::Ord", "@macro/derive::Ord", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::Deserialize", "__DYNAMIC_MODULE__::Hash", "@macro/derive::PartialOrd", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::Default", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Hash", "__DYNAMIC_MODULE__::PartialOrd", "@macro/derive::Clone", "@macro/derive::Default", "__DYNAMIC_MODULE__::Clone", "@macro/derive::Debug", "@macro/derive::Serialize"]
+[1776117192.636] [expand] dispatch result: runtime=0, type=0, tokens=Some(1570), diags=0
+[1776117192.636] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.663] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/serialize.ts
+[1776117192.664] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/serialize.ts: {}
+[1776117192.664] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.664] [expand] derive_targets: 1
+[1776117192.664] [expand]   target: macros=[("Serialize", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 26 }
+[1776117192.664] [expand] attribute_targets: 0
+[1776117192.664] [expand] dispatching macro 'Serialize' from module '@macro/derive'
+[1776117192.664] [expand] registered macros: ["@macro/derive::Default", "__DYNAMIC_MODULE__::Hash", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::Debug", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::PartialOrd", "@macro/derive::Debug", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Default", "__DYNAMIC_MODULE__::Clone", "@macro/derive::Clone", "__DYNAMIC_MODULE__::Ord", "@macro/derive::Deserialize", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::Serialize", "@macro/derive::Hash", "@macro/derive::Ord", "@macro/derive::Serialize"]
+[1776117192.664] [expand] dispatch result: runtime=0, type=0, tokens=Some(1578), diags=0
+[1776117192.664] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.692] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/deserialize.ts
+[1776117192.692] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/deserialize.ts: {}
+[1776117192.692] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.692] [expand] derive_targets: 1
+[1776117192.692] [expand]   target: macros=[("Deserialize", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 28 }
+[1776117192.692] [expand] attribute_targets: 0
+[1776117192.693] [expand] dispatching macro 'Deserialize' from module '@macro/derive'
+[1776117192.693] [expand] registered macros: ["@macro/derive::PartialEq", "@macro/derive::PartialOrd", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::Debug", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::Default", "@macro/derive::Default", "@macro/derive::Serialize", "@macro/derive::Debug", "@macro/derive::Ord", "@macro/derive::Hash", "@macro/derive::Clone", "@macro/derive::Deserialize", "__DYNAMIC_MODULE__::Hash", "__DYNAMIC_MODULE__::Serialize"]
+[1776117192.693] [expand] dispatch result: runtime=0, type=0, tokens=Some(5476), diags=0
+[1776117192.693] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.719] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/serde-combined.ts
+[1776117192.719] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/serde-combined.ts: {}
+[1776117192.719] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.719] [expand] derive_targets: 1
+[1776117192.720] [expand]   target: macros=[("Serialize", "@macro/derive"), ("Deserialize", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 39 }
+[1776117192.720] [expand] attribute_targets: 0
+[1776117192.720] [expand] dispatching macro 'Serialize' from module '@macro/derive'
+[1776117192.720] [expand] registered macros: ["@macro/derive::Clone", "__DYNAMIC_MODULE__::Default", "@macro/derive::PartialOrd", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::Debug", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Serialize", "@macro/derive::Ord", "@macro/derive::Default", "__DYNAMIC_MODULE__::Ord", "@macro/derive::Deserialize", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Hash", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Hash"]
+[1776117192.720] [expand] dispatch result: runtime=0, type=0, tokens=Some(1527), diags=0
+[1776117192.720] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.720] [expand] dispatching macro 'Deserialize' from module '@macro/derive'
+[1776117192.720] [expand] registered macros: ["@macro/derive::Clone", "__DYNAMIC_MODULE__::Default", "@macro/derive::PartialOrd", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::Debug", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Serialize", "@macro/derive::Ord", "@macro/derive::Default", "__DYNAMIC_MODULE__::Ord", "@macro/derive::Deserialize", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Hash", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Hash"]
+[1776117192.721] [expand] dispatch result: runtime=0, type=0, tokens=Some(5422), diags=0
+[1776117192.721] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.740] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/no-macros.ts
+[1776117192.740] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/no-macros.ts: {}
+[1776117192.740] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.740] [expand] derive_targets: 0
+[1776117192.740] [expand] attribute_targets: 0
+[1776117192.740] [expand] no derive or attribute targets found, returning early
+[1776117192.757] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/print-test.ts
+[1776117192.758] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/print-test.ts: {}
+[1776117192.758] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.758] [expand] derive_targets: 1
+[1776117192.758] [expand]   target: macros=[("Debug", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 22 }
+[1776117192.758] [expand] attribute_targets: 0
+[1776117192.758] [expand] dispatching macro 'Debug' from module '@macro/derive'
+[1776117192.759] [expand] registered macros: ["@macro/derive::Debug", "@macro/derive::Serialize", "__DYNAMIC_MODULE__::Deserialize", "__DYNAMIC_MODULE__::Clone", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::PartialEq", "__DYNAMIC_MODULE__::Hash", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::Default", "__DYNAMIC_MODULE__::Ord", "@macro/derive::Deserialize", "@macro/derive::Clone", "@macro/derive::PartialOrd", "__DYNAMIC_MODULE__::PartialOrd", "__DYNAMIC_MODULE__::Debug", "@macro/derive::Ord", "@macro/derive::Default", "@macro/derive::Hash"]
+[1776117192.759] [expand] dispatch result: runtime=0, type=0, tokens=Some(249), diags=0
+[1776117192.759] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true
+[1776117192.783] [expand] install_registry: 0 source_imports for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/custom-out.ts
+[1776117192.783] [expand] import_sources for /Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/tooling/playground/tests/.tmp-cli/custom-out.ts: {}
+[1776117192.783] [expand] lowered items: classes=0, interfaces=1, enums=0, type_aliases=0, functions=0
+[1776117192.783] [expand] derive_targets: 1
+[1776117192.783] [expand]   target: macros=[("Debug", "@macro/derive")], decorator_span=SpanIR { start: 1, end: 22 }
+[1776117192.784] [expand] attribute_targets: 0
+[1776117192.784] [expand] dispatching macro 'Debug' from module '@macro/derive'
+[1776117192.784] [expand] registered macros: ["@macro/derive::Clone", "@macro/derive::Deserialize", "__DYNAMIC_MODULE__::Serialize", "__DYNAMIC_MODULE__::PartialOrd", "@macro/derive::Debug", "@macro/derive::Hash", "__DYNAMIC_MODULE__::Ord", "__DYNAMIC_MODULE__::Debug", "__DYNAMIC_MODULE__::PartialEq", "@macro/derive::PartialOrd", "@macro/derive::Ord", "@macro/derive::Default", "__DYNAMIC_MODULE__::Hash", "__DYNAMIC_MODULE__::Deserialize", "@macro/derive::PartialEq", "__DYNAMIC_MODULE__::Clone", "__DYNAMIC_MODULE__::Default", "@macro/derive::Serialize"]
+[1776117192.784] [expand] dispatch result: runtime=0, type=0, tokens=Some(253), diags=0
+[1776117192.784] [expand] external loader check: module_path='@macro/derive', DERIVE_MODULE_PATH='@macro/derive', is_not_found=false, no_output=false, has_loader=true

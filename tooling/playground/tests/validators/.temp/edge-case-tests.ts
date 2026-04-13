@@ -28,10 +28,7 @@ export class MultipleValidatorsTest {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = MultipleValidatorsTest.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = MultipleValidatorsTest.deserializeWithContext(data, ctx);
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -101,9 +98,7 @@ export class MultipleValidatorsTest {
             errors.push({ field: 'text', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            MultipleValidatorsTest.prototype
-        ) as MultipleValidatorsTest;
+        const instance = Object.create(MultipleValidatorsTest.prototype) as MultipleValidatorsTest;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -237,9 +232,7 @@ export function multipleValidatorsTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function multipleValidatorsTestIs(
-    value: unknown
-): value is MultipleValidatorsTest {
+export function multipleValidatorsTestIs(value: unknown): value is MultipleValidatorsTest {
     return MultipleValidatorsTest.is(value);
 }
 
@@ -334,9 +327,7 @@ export class CustomMessageTest {
             errors.push({ field: 'email', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            CustomMessageTest.prototype
-        ) as CustomMessageTest;
+        const instance = Object.create(CustomMessageTest.prototype) as CustomMessageTest;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -346,10 +337,7 @@ export class CustomMessageTest {
         {
             const __raw_email = obj['email'] as string;
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) {
-                errors.push({
-                    field: 'email',
-                    message: 'Please enter a valid email address'
-                });
+                errors.push({ field: 'email', message: 'Please enter a valid email address' });
             }
             instance.email = __raw_email;
         }
@@ -367,10 +355,7 @@ export class CustomMessageTest {
         if (_field === 'email') {
             const __val = _value as string;
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
-                errors.push({
-                    field: 'email',
-                    message: 'Please enter a valid email address'
-                });
+                errors.push({ field: 'email', message: 'Please enter a valid email address' });
             }
         }
 
@@ -384,10 +369,7 @@ export class CustomMessageTest {
         if ('email' in _partial && _partial.email !== undefined) {
             const __val = _partial.email as string;
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
-                errors.push({
-                    field: 'email',
-                    message: 'Please enter a valid email address'
-                });
+                errors.push({ field: 'email', message: 'Please enter a valid email address' });
             }
         }
 
@@ -434,9 +416,7 @@ export function customMessageTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function customMessageTestIs(
-    value: unknown
-): value is CustomMessageTest {
+export function customMessageTestIs(value: unknown): value is CustomMessageTest {
     return CustomMessageTest.is(value);
 }
 
@@ -532,9 +512,7 @@ export class MixedValidatorsTest {
             errors.push({ field: 'email', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            MixedValidatorsTest.prototype
-        ) as MixedValidatorsTest;
+        const instance = Object.create(MixedValidatorsTest.prototype) as MixedValidatorsTest;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -641,9 +619,7 @@ export function mixedValidatorsTestDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function mixedValidatorsTestIs(
-    value: unknown
-): value is MixedValidatorsTest {
+export function mixedValidatorsTestIs(value: unknown): value is MixedValidatorsTest {
     return MixedValidatorsTest.is(value);
 }
 
@@ -669,10 +645,7 @@ export class CombinedStringValidatorsTest {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(data, ctx);
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -906,10 +879,7 @@ export class CombinedNumberValidatorsTest {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(data, ctx);
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
