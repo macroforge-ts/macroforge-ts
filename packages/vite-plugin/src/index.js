@@ -517,6 +517,23 @@ export async function macroforge() {
 
       rustTransformer.setupExternalMacros(resolveDecoratorNames, runMacro);
     }
+
+    // Register fs callbacks for the @buildtime evaluator. The WASM
+    // build of macroforge has no filesystem (no WASI), so the host
+    // (us, in Node) must service `buildtime.fs.readText/exists/listDir`
+    // calls. No-op for NAPI builds where std::fs works directly.
+    if (rustTransformer.setupBuildtimeFs) {
+      const readText = (path) => fs.readFileSync(path, "utf-8");
+      const exists = (path) => fs.existsSync(path);
+      const listDir = (path) => {
+        try {
+          return fs.readdirSync(path);
+        } catch {
+          return [];
+        }
+      };
+      rustTransformer.setupBuildtimeFs(readText, exists, listDir);
+    }
   } catch (error) {
     console.warn(
       "[@macroforge/vite-plugin] Rust binary not found. Please run `npm run build:rust` first.",
@@ -778,6 +795,73 @@ export async function macroforge() {
   }
 
   /**
+   * Snapshot a file's current content hash + mtime for buildtime
+   * dependency tracking. Returns `{ path, hash, mtimeMs }` for an
+   * existing file or `{ path, missing: true }` for one that doesn't.
+   * @param {string} depPath - Absolute path to probe
+   */
+  function snapshotBuildtimeDep(depPath) {
+    try {
+      const stat = fs.statSync(depPath);
+      const content = fs.readFileSync(depPath);
+      return {
+        path: depPath,
+        hash: createHash("sha256").update(content).digest("hex"),
+        mtimeMs: stat.mtimeMs,
+      };
+    } catch {
+      return { path: depPath, missing: true };
+    }
+  }
+
+  /**
+   * Two-level validity check for a stored buildtime dependency. Fast
+   * path: mtime unchanged → trust the cache. Slow path: mtime changed
+   * but content hash matches → the file was re-saved without edits,
+   * cache is still valid; bump the stored mtime to avoid re-hashing
+   * next time.
+   * @param {{ path: string, hash?: string, mtimeMs?: number, missing?: boolean }} snap
+   */
+  function buildtimeDepStillValid(snap) {
+    if (!snap || typeof snap.path !== "string") return false;
+    if (snap.missing) {
+      // Was missing when cached — still cache-valid only if still missing.
+      try {
+        fs.statSync(snap.path);
+        return false;
+      } catch {
+        return true;
+      }
+    }
+    let stat;
+    try {
+      stat = fs.statSync(snap.path);
+    } catch {
+      return false; // existed before, now gone → invalidate
+    }
+    if (
+      typeof snap.mtimeMs === "number" &&
+      stat.mtimeMs === snap.mtimeMs
+    ) {
+      return true;
+    }
+    if (typeof snap.hash !== "string") return false;
+    let content;
+    try {
+      content = fs.readFileSync(snap.path);
+    } catch {
+      return false;
+    }
+    const currentHash = createHash("sha256").update(content).digest("hex");
+    if (currentHash === snap.hash) {
+      // Content unchanged — refresh the stored mtime.
+      snap.mtimeMs = stat.mtimeMs;
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Reads a cached expansion result for a source file.
    * @param {string} id - Absolute file path
    * @param {string} code - Current source code content
@@ -792,6 +876,17 @@ export async function macroforge() {
 
     const currentHash = contentHash(code);
     if (entry.sourceHash !== currentHash) return null;
+
+    // Buildtime dep check — if any dep changed, the cached result
+    // is stale even though the source itself is unchanged.
+    if (Array.isArray(entry.buildtimeDeps) && entry.buildtimeDeps.length) {
+      for (const snap of entry.buildtimeDeps) {
+        if (!buildtimeDepStillValid(snap)) return null;
+      }
+      // Successful validity check may have refreshed mtime fields;
+      // mark manifest dirty so the update persists.
+      cacheManifestDirty = true;
+    }
 
     const cachePath = path.join(cacheDir, relPath + ".cache");
     try {
@@ -809,8 +904,12 @@ export async function macroforge() {
    * @param {string} sourceCode - Original source code
    * @param {string} expandedCode - Expanded code from rustTransformer
    * @param {boolean} hasMacros - Whether the file actually had macros expanded
+   * @param {string[]} [buildtimeDeps] - Absolute paths the @buildtime
+   *   pre-pass read during evaluation. Each is snapshotted with its
+   *   mtime + content hash so subsequent builds can invalidate the
+   *   cache entry when any of them changes.
    */
-  function writeCacheEntry(id, sourceCode, expandedCode, hasMacros) {
+  function writeCacheEntry(id, sourceCode, expandedCode, hasMacros, buildtimeDeps) {
     if (!cacheDir) return;
 
     const relPath = path.relative(projectRoot, id);
@@ -832,9 +931,13 @@ export async function macroforge() {
         };
       }
 
+      const depSnapshots = Array.isArray(buildtimeDeps)
+        ? buildtimeDeps.map(snapshotBuildtimeDep)
+        : [];
       cacheManifest.entries[relPath] = {
         sourceHash: contentHash(sourceCode),
         hasMacros,
+        buildtimeDeps: depSnapshots,
       };
 
       // Debounce manifest writes — don't write 59KB JSON on every file
@@ -1154,13 +1257,36 @@ export async function macroforge() {
           }
         }
 
+        // Watch files that `@buildtime` declarations read. When any of
+        // them change, Vite re-invokes `transform` and the buildtime
+        // pre-pass re-evaluates with the fresh content.
+        if (result.buildtimeDependencies && result.buildtimeDependencies.length) {
+          for (const dep of result.buildtimeDependencies) {
+            /** @type {any} */ (this).addWatchFile(dep);
+          }
+        }
+
         if (result && result.code) {
-          // Check if macros were actually expanded
-          const hasMacros = result.sourceMapping?.generatedRegions?.length > 0;
+          // Check if macros were actually expanded. A file counts as
+          // "has macros" if derive macros emitted generated regions OR
+          // if the buildtime pre-pass rewrote the source (detected by
+          // presence of dependencies or by text difference against the
+          // input — a `@buildtime const X = 1+1` rewrite reads no files
+          // but still changes the output).
+          const hasMacros =
+            result.sourceMapping?.generatedRegions?.length > 0 ||
+            (result.buildtimeDependencies?.length ?? 0) > 0 ||
+            result.code !== code;
 
           // --- Dev cache write (self-populating) ---
           if (isDevMode && devCacheEnabled) {
-            writeCacheEntry(id, code, result.code, hasMacros);
+            writeCacheEntry(
+              id,
+              code,
+              result.code,
+              hasMacros,
+              result.buildtimeDependencies,
+            );
           }
 
           // Remove macro-only imports so SSR output doesn't load native bindings

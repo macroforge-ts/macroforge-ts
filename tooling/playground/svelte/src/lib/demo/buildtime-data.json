@@ -1,0 +1,5 @@
+{
+  "app": "macroforge-svelte",
+  "version": "3.0.0",
+  "features": ["SSR", "HMR", "runes"]
+}
