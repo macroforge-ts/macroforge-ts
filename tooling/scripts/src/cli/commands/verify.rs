@@ -85,16 +85,26 @@ fn cascade_to_dependents(
 
 /// Build a single repository
 /// Note: npm dependencies are globally swapped to local paths before this is called
-fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
+///
+/// When `cache_build` is `true`, incremental caches are preserved:
+/// the `rm -rf node_modules dist` / `rm -rf node_modules .svelte-kit`
+/// step is skipped for TS and Website repos, and the Rust `core`
+/// crate runs `build:rust` (incremental) instead of `cleanbuild`.
+fn build_repo(repo: &Repo, verbose: bool, cache_build: bool) -> Result<()> {
     match repo.repo_type {
         RepoType::Rust => {
             if repo.name == "core" {
-                // Set NAPI_BUILD_SKIP_WATCHER to prevent build.rs from spawning another napi build
-                shell::run(
-                    "NAPI_BUILD_SKIP_WATCHER=1 deno task cleanbuild",
-                    &repo.abs_path,
-                    verbose,
-                )?;
+                // Set NAPI_BUILD_SKIP_WATCHER to prevent build.rs from spawning another napi build.
+                //
+                // `deno task build` runs the incremental build (build:wasm) — cargo reuses its
+                // target cache. `deno task cleanbuild` wipes `pkg/` and `node_modules/` first,
+                // which is what users want on a release build but overkill on iterative verifies.
+                let cmd = if cache_build {
+                    "NAPI_BUILD_SKIP_WATCHER=1 deno task build"
+                } else {
+                    "NAPI_BUILD_SKIP_WATCHER=1 deno task cleanbuild"
+                };
+                shell::run(cmd, &repo.abs_path, verbose)?;
             }
         }
         RepoType::Ts => {
@@ -109,7 +119,9 @@ fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
                 .is_some();
 
             // Use deno for dependency installation and build
-            shell::run("rm -rf node_modules dist", &repo.abs_path, verbose)?;
+            if !cache_build {
+                shell::run("rm -rf node_modules dist", &repo.abs_path, verbose)?;
+            }
             shell::deno::install(&repo.abs_path)?;
             if has_build_script {
                 shell::deno::task(&repo.abs_path, "build")?;
@@ -117,7 +129,9 @@ fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
         }
         RepoType::Website => {
             shell::git::pull(&repo.abs_path, "origin")?;
-            shell::run("rm -rf node_modules .svelte-kit", &repo.abs_path, verbose)?;
+            if !cache_build {
+                shell::run("rm -rf node_modules .svelte-kit", &repo.abs_path, verbose)?;
+            }
             shell::deno::install(&repo.abs_path)?;
             shell::deno::task(&repo.abs_path, "build")?;
         }
@@ -429,7 +443,11 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         let step = Step {
             number: 3.0,
             total: 11,
-            label: "Clean building packages".to_string(),
+            label: if args.cache_build {
+                "Building packages (cached)".to_string()
+            } else {
+                "Clean building packages".to_string()
+            },
         };
         step.print();
 
@@ -448,7 +466,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             print!("  {} {}... ", "Building:".bold(), repo.name.cyan());
             io::stdout().flush()?;
 
-            match build_repo(repo, verbose) {
+            match build_repo(repo, verbose, args.cache_build) {
                 Ok(_) => {
                     println!("{}", "done".green());
                 }

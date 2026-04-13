@@ -304,6 +304,61 @@ cargo build --release --bin macroforge
     </tbody>
 </table>
 
+<h3 id="build">macroforge build</h3>
+
+<p>
+    Builds a macro crate to WebAssembly with <code>wasm-bindgen</code> and
+    post-processes the output to add <code>$</code>-prefixed re-exports for
+    function-like (Call) macros. Used when distributing your own macro
+    packages.
+</p>
+
+<CodeBlock code={`macroforge build [crate_dir] [options]`} lang="bash" />
+
+<p>Steps:</p>
+
+<ol>
+    <li><code>cargo build --release --target wasm32-unknown-unknown</code></li>
+    <li>Runs <code>wasm-bindgen --target nodejs</code> into <code>pkg/</code>
+        (or the directory given via <code>-o</code>)</li>
+    <li>Parses the generated <code>.d.ts</code> to discover Call macros and
+        appends <code>export &#123; state as $state &#125;</code>-style
+        aliases so consumers can import both forms.</li>
+</ol>
+
+<h4>Options</h4>
+
+<table>
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>[crate_dir]</code></td>
+            <td>Path to the macro crate (defaults to <code>.</code>)</td>
+        </tr>
+        <tr>
+            <td><code>-o, --out &lt;out&gt;</code></td>
+            <td>Output directory for the WASM package (defaults to
+                <code>&lt;crate_dir&gt;/pkg</code>)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h4>Examples</h4>
+
+<CodeBlock
+    code={`# Build the current macro crate
+macroforge build
+
+# Build a specific crate into a custom directory
+macroforge build ./packages/my-macros -o dist/wasm`}
+    lang="bash"
+/>
+
 <h2 id="output-format">Output Format</h2>
 
 <h3>Expanded Code</h3>

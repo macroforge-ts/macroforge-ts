@@ -1,5 +1,5 @@
 /** @derive(Debug, Clone) */
 export class Store {
-    items: string[];
-    count: number;
+  items: string[];
+  count: number;
 }

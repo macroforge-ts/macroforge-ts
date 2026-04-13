@@ -1,8 +1,8 @@
 {
   "dependencies": {
     "@jridgewell/sourcemap-codec": "^1.5.0",
-    "@macroforge/shared": "file:../shared",
-    "macroforge": "file:../../crates/macroforge_ts"
+    "@macroforge/shared": "^0.1.79",
+    "macroforge": "^0.1.79"
   },
   "devDependencies": {
     "@types/node": "^22.0.0"

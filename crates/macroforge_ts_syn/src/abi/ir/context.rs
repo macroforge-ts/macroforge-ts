@@ -53,7 +53,7 @@
 use std::collections::HashMap;
 
 use crate::abi::type_registry::{ResolvedTypeRef, TypeRegistry};
-use crate::abi::{ClassIR, EnumIR, InterfaceIR, SpanIR, TypeAliasIR};
+use crate::abi::{ClassIR, EnumIR, FunctionIR, InterfaceIR, SpanIR, TypeAliasIR};
 use crate::import_registry::ImportRegistry;
 use serde::{Deserialize, Serialize};
 
@@ -105,7 +105,8 @@ pub enum MacroKind {
 ///         TargetIR::Interface(i) => &i.name,
 ///         TargetIR::Enum(e) => &e.name,
 ///         TargetIR::TypeAlias(t) => &t.name,
-///         _ => "<unknown>",
+///         TargetIR::Function(f) => &f.name,
+///         TargetIR::Other => "<unknown>",
 ///     }
 /// }
 /// ```
@@ -123,8 +124,8 @@ pub enum TargetIR {
     /// Macro applied to a type alias declaration.
     TypeAlias(TypeAliasIR),
 
-    /// Macro applied to a function (reserved for future use).
-    Function,
+    /// Macro applied to a function declaration.
+    Function(FunctionIR),
 
     /// Macro applied to an unsupported construct.
     Other,
@@ -307,6 +308,14 @@ impl MacroContextIR {
         }
     }
 
+    /// Get the function IR if the target is a function
+    pub fn as_function(&self) -> Option<&FunctionIR> {
+        match &self.target {
+            TargetIR::Function(function_ir) => Some(function_ir),
+            _ => None,
+        }
+    }
+
     /// Create a new macro context for a derive macro on an interface
     pub fn new_derive_interface(
         macro_name: String,
@@ -383,6 +392,146 @@ impl MacroContextIR {
             target_span,
             file_name,
             target: TargetIR::Enum(enum_ir),
+            target_source,
+            import_registry: ImportRegistry::new(),
+            config: None,
+            type_registry: None,
+            resolved_fields: None,
+        }
+    }
+
+    /// Create a new macro context for an attribute macro on a function
+    pub fn new_attribute_function(
+        macro_name: String,
+        module_path: String,
+        decorator_span: SpanIR,
+        target_span: SpanIR,
+        file_name: String,
+        function_ir: FunctionIR,
+        target_source: String,
+    ) -> Self {
+        Self {
+            abi_version: 1,
+            macro_kind: MacroKind::Attribute,
+            macro_name,
+            module_path,
+            decorator_span,
+            macro_name_span: None,
+            target_span,
+            file_name,
+            target: TargetIR::Function(function_ir),
+            target_source,
+            import_registry: ImportRegistry::new(),
+            config: None,
+            type_registry: None,
+            resolved_fields: None,
+        }
+    }
+
+    /// Create a new macro context for an attribute macro on a class
+    pub fn new_attribute_class(
+        macro_name: String,
+        module_path: String,
+        decorator_span: SpanIR,
+        target_span: SpanIR,
+        file_name: String,
+        class: ClassIR,
+        target_source: String,
+    ) -> Self {
+        Self {
+            abi_version: 1,
+            macro_kind: MacroKind::Attribute,
+            macro_name,
+            module_path,
+            decorator_span,
+            macro_name_span: None,
+            target_span,
+            file_name,
+            target: TargetIR::Class(class),
+            target_source,
+            import_registry: ImportRegistry::new(),
+            config: None,
+            type_registry: None,
+            resolved_fields: None,
+        }
+    }
+
+    /// Create a new macro context for an attribute macro on an interface
+    pub fn new_attribute_interface(
+        macro_name: String,
+        module_path: String,
+        decorator_span: SpanIR,
+        target_span: SpanIR,
+        file_name: String,
+        interface: InterfaceIR,
+        target_source: String,
+    ) -> Self {
+        Self {
+            abi_version: 1,
+            macro_kind: MacroKind::Attribute,
+            macro_name,
+            module_path,
+            decorator_span,
+            macro_name_span: None,
+            target_span,
+            file_name,
+            target: TargetIR::Interface(interface),
+            target_source,
+            import_registry: ImportRegistry::new(),
+            config: None,
+            type_registry: None,
+            resolved_fields: None,
+        }
+    }
+
+    /// Create a new macro context for an attribute macro on an enum
+    pub fn new_attribute_enum(
+        macro_name: String,
+        module_path: String,
+        decorator_span: SpanIR,
+        target_span: SpanIR,
+        file_name: String,
+        enum_ir: EnumIR,
+        target_source: String,
+    ) -> Self {
+        Self {
+            abi_version: 1,
+            macro_kind: MacroKind::Attribute,
+            macro_name,
+            module_path,
+            decorator_span,
+            macro_name_span: None,
+            target_span,
+            file_name,
+            target: TargetIR::Enum(enum_ir),
+            target_source,
+            import_registry: ImportRegistry::new(),
+            config: None,
+            type_registry: None,
+            resolved_fields: None,
+        }
+    }
+
+    /// Create a new macro context for an attribute macro on a type alias
+    pub fn new_attribute_type_alias(
+        macro_name: String,
+        module_path: String,
+        decorator_span: SpanIR,
+        target_span: SpanIR,
+        file_name: String,
+        type_alias: TypeAliasIR,
+        target_source: String,
+    ) -> Self {
+        Self {
+            abi_version: 1,
+            macro_kind: MacroKind::Attribute,
+            macro_name,
+            module_path,
+            decorator_span,
+            macro_name_span: None,
+            target_span,
+            file_name,
+            target: TargetIR::TypeAlias(type_alias),
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,

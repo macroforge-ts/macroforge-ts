@@ -55,16 +55,16 @@ describe("script preprocessor", () => {
   test("processes JavaScript when processJavaScript is true", async () => {
     const preprocessor = macroforgePreprocess({ processJavaScript: true });
 
-    // This will try to process but may return undefined if native bindings unavailable
-    // The important thing is it doesn't skip based on language
-    const result = await preprocessor.script({
+    // This will try to process but may return undefined if native bindings
+    // unavailable. Run it to confirm the language check passes; the return
+    // value is ignored because the native binding may not be available in
+    // the test environment.
+    await preprocessor.script({
       content: "/** @derive(Debug) */ class Foo {}",
       filename: "test.svelte",
       attributes: {}, // no lang = JavaScript
     });
 
-    // Result may be undefined if native bindings aren't available, that's ok
-    // We're testing that the language check passed
     assert.ok(true, "Should attempt to process JavaScript blocks");
   });
 
@@ -173,15 +173,16 @@ describe("error handling", () => {
   test("gracefully handles expansion errors", async () => {
     const preprocessor = macroforgePreprocess();
 
-    // Invalid syntax that might cause expansion to fail
-    const result = await preprocessor.script({
+    // Invalid syntax that might cause expansion to fail. Return value
+    // is intentionally ignored — the test only verifies the call does
+    // not throw.
+    await preprocessor.script({
       content: `/** @derive(UnknownMacro) */
 class Broken {`,
       filename: "broken.svelte",
       attributes: { lang: "ts" },
     });
 
-    // Should not throw, may return undefined or partial result
     assert.ok(true, "Should not throw on expansion errors");
   });
 });

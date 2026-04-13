@@ -47,7 +47,6 @@ import * as path from "node:path";
 import { encode as encodeVlq } from "@jridgewell/sourcemap-codec";
 import {
   collectExternalDecoratorModules,
-  hasMacroAnnotations,
   loadMacroConfig,
 } from "@macroforge/shared";
 
@@ -1088,11 +1087,6 @@ export async function macroforge() {
 
       // Check if Rust transformer is available
       if (!rustTransformer || !rustTransformer.expandSync) {
-        return null;
-      }
-
-      // Quick check: skip files without a real @derive directive
-      if (!hasMacroAnnotations(code)) {
         return null;
       }
 

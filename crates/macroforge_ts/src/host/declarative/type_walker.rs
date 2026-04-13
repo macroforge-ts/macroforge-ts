@@ -43,7 +43,8 @@ pub(super) fn try_rewrite_type_ref(
     // PR 11: scoped lookup so nested type-macro declarations
     // shadow outer ones at their use sites.
     let Some(def) = visitor.registry().lookup_at(macro_name, tr.span.start + 1) else {
-        return false;
+        // Not a declarative macro — try proc macro dispatch for type position.
+        return try_dispatch_proc_type_ref(tr, macro_name, visitor);
     };
     if def.kind != MacroKind::Type {
         // The macro exists but it's value-position only. Emit a hard
@@ -177,4 +178,103 @@ fn match_type_invocation_empty(
     Err(MatchError::NoArmMatched {
         tried: vec!["()".to_string()],
     })
+}
+
+/// Attempt to dispatch a `$Name<T1, T2>` type reference as a function-like
+/// proc macro in type position. Called when the declarative registry lookup
+/// fails.
+fn try_dispatch_proc_type_ref(
+    tr: &oxc::ast::ast::TSTypeReference<'_>,
+    macro_name: &str,
+    visitor: &mut super::rewriter::RewriteVisitor<'_>,
+) -> bool {
+    use oxc::span::GetSpan;
+
+    let dispatcher = match visitor.proc_dispatcher {
+        Some(d) => d,
+        None => return false,
+    };
+
+    let callee_with_dollar = format!("${}", macro_name);
+
+    // Resolve module path.
+    let module_path = if let Some(sources) = visitor.import_sources
+        && let Some(mp) = sources.get(&callee_with_dollar)
+    {
+        mp.clone()
+    } else if let Some(desc) = crate::host::derived::lookup_by_name(macro_name)
+        && desc.kind == crate::ts_syn::abi::MacroKind::Call
+    {
+        "@macro/derive".to_string()
+    } else {
+        return false;
+    };
+
+    // Extract the type arguments as source text.
+    let args_source = tr
+        .type_arguments
+        .as_ref()
+        .map(|tp| {
+            let sp = tp.span();
+            let raw = &visitor.source()[sp.start as usize..sp.end as usize];
+            // Strip < and >
+            raw.strip_prefix('<')
+                .and_then(|s| s.strip_suffix('>'))
+                .unwrap_or(raw)
+                .to_string()
+        })
+        .unwrap_or_default();
+
+    let type_span = SpanIR::new(tr.span.start + 1, tr.span.end + 1);
+
+    let ctx = crate::ts_syn::abi::MacroContextIR {
+        abi_version: 1,
+        macro_kind: crate::ts_syn::abi::MacroKind::Call,
+        macro_name: macro_name.to_string(),
+        module_path,
+        decorator_span: type_span,
+        macro_name_span: None,
+        target_span: type_span,
+        file_name: String::new(),
+        target: crate::ts_syn::abi::TargetIR::Other,
+        target_source: args_source,
+        import_registry: crate::ts_syn::ImportRegistry::new(),
+        config: None,
+        type_registry: None,
+        resolved_fields: None,
+    };
+
+    let mut result = dispatcher.dispatch(ctx.clone());
+
+    let is_not_found = result.diagnostics.iter().any(|d| {
+        d.message.contains("Macro")
+            && (d.message.contains("not found") || d.message.contains("is not a Macroforge"))
+    });
+    if is_not_found {
+        if let Some(loader) = visitor.external_loader {
+            match loader.run_macro(&ctx) {
+                Ok(external_result) => result = external_result,
+                Err(_) => return false,
+            }
+        } else {
+            return false;
+        }
+    }
+
+    if let Some(tokens) = &result.tokens {
+        visitor.output_mut().patches.push(Patch::Replace {
+            span: type_span,
+            code: PatchCode::Text(tokens.clone()),
+            source_macro: Some(format!("${}", macro_name)),
+        });
+    }
+
+    for patch in result.runtime_patches {
+        visitor.output_mut().patches.push(patch);
+    }
+    for diag in result.diagnostics {
+        visitor.output_mut().diagnostics.push(diag);
+    }
+
+    true
 }

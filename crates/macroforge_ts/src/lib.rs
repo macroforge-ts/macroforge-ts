@@ -87,8 +87,8 @@ pub use macroforge_ts_syn as ts_syn;
 /// Macro attributes and quote templates
 /// Use: `use macroforge_ts::macros::*;`
 pub mod macros {
-    // Re-export the ts_macro_derive attribute
-    pub use macroforge_ts_macros::ts_macro_derive;
+    // Re-export proc macro attributes
+    pub use macroforge_ts_macros::{ts_macro, ts_macro_attribute, ts_macro_derive};
 
     // Re-export all quote macros
     pub use macroforge_ts_quote::{ts_quote, ts_template};
@@ -249,6 +249,9 @@ pub mod build;
 pub use ts_syn::abi;
 
 pub mod builtin;
+
+#[cfg(feature = "test-macros")]
+pub mod test_macros;
 
 // ============================================================================
 // Extracted submodules

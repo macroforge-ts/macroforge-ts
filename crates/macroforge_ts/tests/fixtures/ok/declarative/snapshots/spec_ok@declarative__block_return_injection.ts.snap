@@ -1,0 +1,166 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/declarative/block_return_injection.ts
+---
+## Input
+
+// Regression fixture for block-bodied declarative macros.
+//
+// Rust-like block semantics: the last expression in the block body is
+// the block's value. JavaScript's arrow-function block bodies do NOT
+// auto-return their last expression, so the expander rewrites
+//
+//   (() => { ...decls...; __trailing })()
+// →
+//   (() => { ...decls...; return __trailing })()
+//
+// Each macro below exercises a distinct scenario for the return-injection
+// pass. Lexical-surface cases that can't be expressed safely inside an
+// outer macroRules template literal (nested templates, nested regex with
+// literal `;`) are covered by the unit tests in `expander.rs`.
+//
+//   basicBlock          — trailing binary expression
+//   trailingArrow       — arrow expression as the final value
+//   trailingObjectLit   — parenthesized object literal as the final value
+//   trailingSatisfies   — TS `satisfies` expression
+//   withReturn          — explicit `return` respected (no double-inject)
+//   withSemi            — explicit trailing `;` means "discard", not "return"
+//   nestedBlockInBody   — trailing statement is a block: don't touch it
+
+import { macroRules } from 'macroforge/rules';
+
+const $basicBlock = macroRules`
+  ($x:Expr) => {
+    const __v = $x;
+    __v + 1
+  }
+`;
+
+const $trailingArrow = macroRules`
+  ($x:Expr) => {
+    const __y = $x;
+    () => __y
+  }
+`;
+
+const $trailingObjectLit = macroRules`
+  ($x:Expr) => {
+    const __k = "value";
+    ({ [__k]: $x })
+  }
+`;
+
+const $trailingSatisfies = macroRules`
+  ($x:Expr) => {
+    const __v = $x;
+    __v satisfies number
+  }
+`;
+
+const $withReturn = macroRules`
+  ($x:Expr) => {
+    const __v = $x;
+    return __v * 3;
+  }
+`;
+
+const $withSemi = macroRules`
+  ($x:Expr) => {
+    const __v = $x;
+    __v + 4;
+  }
+`;
+
+const $nestedBlockInBody = macroRules`
+  ($x:Expr) => {
+    const __v = $x;
+    { __v + 5 }
+  }
+`;
+
+export const basicBlock = $basicBlock(10);
+export const trailingArrowFn = $trailingArrow(42);
+export const trailingObject = $trailingObjectLit(7);
+export const trailingSatisfies = $trailingSatisfies(9);
+export const withReturnResult = $withReturn(6);
+export const withSemiResult = $withSemi(8);
+export const nestedBlock = $nestedBlockInBody(11);
+
+## Output
+
+// Regression fixture for block-bodied declarative macros.
+//
+// Rust-like block semantics: the last expression in the block body is
+// the block's value. JavaScript's arrow-function block bodies do NOT
+// auto-return their last expression, so the expander rewrites
+//
+//   (() => { ...decls...; __trailing })()
+// →
+//   (() => { ...decls...; return __trailing })()
+//
+// Each macro below exercises a distinct scenario for the return-injection
+// pass. Lexical-surface cases that can't be expressed safely inside an
+// outer macroRules template literal (nested templates, nested regex with
+// literal `;`) are covered by the unit tests in `expander.rs`.
+//
+//   basicBlock          — trailing binary expression
+//   trailingArrow       — arrow expression as the final value
+//   trailingObjectLit   — parenthesized object literal as the final value
+//   trailingSatisfies   — TS `satisfies` expression
+//   withReturn          — explicit `return` respected (no double-inject)
+//   withSemi            — explicit trailing `;` means "discard", not "return"
+//   nestedBlockInBody   — trailing statement is a block: don't touch it
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const basicBlock = (() => {
+    const __v$1 = 10;
+    return __v$1 + 1
+  })();
+export const trailingArrowFn = (() => {
+    const __y$2 = 42;
+    return () => __y$2
+  })();
+export const trailingObject = (() => {
+    const __k$3 = "value";
+    return ({ [__k$3]: 7 })
+  })();
+export const trailingSatisfies = (() => {
+    const __v$4 = 9;
+    return __v$4 satisfies number
+  })();
+export const withReturnResult = (() => {
+    const __v$5 = 6;
+    return __v$5 * 3;
+  })();
+export const withSemiResult = (() => {
+    const __v$6 = 8;
+    __v$6 + 4;
+  })();
+export const nestedBlock = (() => {
+    const __v$7 = 11;
+    { __v$7 + 5 }
+  })();
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

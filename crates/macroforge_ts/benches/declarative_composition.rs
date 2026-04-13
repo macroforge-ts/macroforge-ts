@@ -1,6 +1,5 @@
 //! Criterion microbenchmarks for the declarative macro hot paths.
-//!
-//! Shipped as PR 16 of the production-hardening plan. The in-suite
+//! The in-suite
 //! regression guard (`deep_composition_chain_expands_quickly` in
 //! `host/declarative/tests.rs`) catches orders-of-magnitude
 //! regressions; this benchmark suite provides finer-grained
@@ -29,14 +28,29 @@
 //!   50 synthesized call sites. Covers `cluster_shapes` and the
 //!   pairwise Jaccard path.
 
+// The benchmark drives the OXC-backed rewriter directly. Under
+// `--features swc`, the oxc-only rewriter internals (`rewrite`,
+// `ProcMacroFallback`) aren't re-exported, so a stub `main` replaces
+// the real bench body.
 #![cfg(feature = "oxc")]
 
+#[cfg(feature = "swc")]
+fn main() {
+    println!("declarative_composition bench: skipped (swc feature enabled)");
+}
+
+#[cfg(not(feature = "swc"))]
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
+#[cfg(not(feature = "swc"))]
 use std::hint::black_box;
 
+#[cfg(not(feature = "swc"))]
 use macroforge_ts::host::declarative::{BuildMode, DeclarativeMacroRegistry, discover, rewrite};
+#[cfg(not(feature = "swc"))]
 use oxc::allocator::Allocator;
+#[cfg(not(feature = "swc"))]
 use oxc::parser::Parser;
+#[cfg(not(feature = "swc"))]
 use oxc::span::SourceType;
 
 /// Build source text for a composition chain of the given depth:
@@ -48,6 +62,7 @@ use oxc::span::SourceType;
 /// ```
 ///
 /// The inner chain of `$double(...)` calls is `depth` levels deep.
+#[cfg(not(feature = "swc"))]
 fn composition_source(depth: usize) -> String {
     let mut body = String::from("$x");
     for _ in 0..depth {
@@ -62,6 +77,7 @@ fn composition_source(depth: usize) -> String {
     )
 }
 
+#[cfg(not(feature = "swc"))]
 fn run_rewrite(source: &str) {
     let allocator = Allocator::default();
     let parsed = Parser::new(&allocator, source, SourceType::ts()).parse();
@@ -84,10 +100,12 @@ fn run_rewrite(source: &str) {
         &discovered,
         BuildMode::dev(),
         None,
+        None,
     );
     black_box(out);
 }
 
+#[cfg(not(feature = "swc"))]
 fn bench_composition(c: &mut Criterion) {
     let mut group = c.benchmark_group("composition");
     for depth in [4usize, 16, 64, 192] {
@@ -102,6 +120,7 @@ fn bench_composition(c: &mut Criterion) {
 /// Build a macro body that declares ~50 `__`-prefixed locals and
 /// uses each one a few times, stressing the hygiene rewriter's
 /// identifier scan.
+#[cfg(not(feature = "swc"))]
 fn hygiene_source() -> String {
     let mut body = String::from("{\n");
     for i in 0..50 {
@@ -125,6 +144,7 @@ fn hygiene_source() -> String {
     )
 }
 
+#[cfg(not(feature = "swc"))]
 fn bench_hygiene(c: &mut Criterion) {
     let source = hygiene_source();
     c.bench_function("hygiene/rewrite_large_body", |b| {
@@ -134,6 +154,7 @@ fn bench_hygiene(c: &mut Criterion) {
 
 /// Build a source with a 50-shape Auto macro so `cluster_shapes`
 /// does real work. Uses first-letter bucketing (no type registry).
+#[cfg(not(feature = "swc"))]
 fn cluster_source() -> String {
     let mut calls = String::new();
     // 10 names each starting with 5 different letters → 50 total
@@ -161,6 +182,7 @@ fn cluster_source() -> String {
     )
 }
 
+#[cfg(not(feature = "swc"))]
 fn bench_cluster(c: &mut Criterion) {
     let source = cluster_source();
     c.bench_function("cluster/analyze_50_shapes", |b| {
@@ -188,11 +210,14 @@ fn bench_cluster(c: &mut Criterion) {
                 &discovered,
                 BuildMode::prod(),
                 None,
+                None,
             );
             black_box(out);
         });
     });
 }
 
+#[cfg(not(feature = "swc"))]
 criterion_group!(benches, bench_composition, bench_hygiene, bench_cluster);
+#[cfg(not(feature = "swc"))]
 criterion_main!(benches);

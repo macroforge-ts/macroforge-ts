@@ -1,0 +1,27 @@
+{
+    "imports": {
+        "@std/assert": "jsr:@std/assert@1",
+        "typescript": "npm:typescript@5"
+    },
+    "lint": {
+        "exclude": [
+            "**/.temp/**",
+            "**/.macroforge/**",
+            "**/node_modules/**",
+            "**/*.expanded.ts",
+            "**/*.expanded.svelte.ts"
+        ]
+    },
+    "tasks": {
+        "clean": "rm -rf node_modules",
+        "cleanbuild": "deno task clean && deno install --node-modules-dir",
+        "test": "deno run --allow-all --no-check --unstable-detect-cjs --node-modules-dir=manual --env-file=../../.env run-isolated.mjs",
+        "test:validators": "deno test --allow-all --no-check --unstable-detect-cjs --node-modules-dir=manual validators/*.test.mjs",
+
+        "_comment_e2e": "Playwright's CLI uses Node internals Deno's compat layer doesn't implement fully (ESM loading, worker_threads). Playwright refuses to start under Deno with a 'requires Node.js 18.19+' error even though process.versions.node reports a newer version. Keep the e2e tasks on node.",
+        "test:e2e": "node --env-file=../../.env ./node_modules/.bin/playwright test",
+        "test:e2e:vanilla": "node --env-file=../../.env ./node_modules/.bin/playwright test --config=playwright.config.ts",
+        "test:e2e:svelte": "node --env-file=../../.env ./node_modules/.bin/playwright test --config=playwright.svelte.config.ts",
+        "playwright:install": "node ./node_modules/.bin/playwright install chromium"
+    }
+}

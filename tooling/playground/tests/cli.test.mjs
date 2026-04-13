@@ -7,7 +7,7 @@
  * - Load and respect macroforge.config.ts (foreign types)
  */
 
-import { assert, assertEquals } from 'https://deno.land/std@0.224.0/assert/mod.ts';
+import { assert, assertEquals } from '@std/assert';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs';
 import path from 'node:path';

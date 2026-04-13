@@ -14,7 +14,7 @@ import { basename, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = resolve(fileURLToPath(import.meta.url), '..');
-const filters = process.argv.slice(2);
+const filters = globalThis.process.argv.slice(2);
 
 const testFiles = readdirSync(__dirname)
     .filter((f) => f.endsWith('.test.mjs'))

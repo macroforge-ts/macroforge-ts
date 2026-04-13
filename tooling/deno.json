@@ -28,7 +28,9 @@
             "**/target",
             "**/*.d.ts",
             "**/fixtures/**",
-            "**/svelte-language-server/**"
+            "**/svelte-language-server/**",
+            "**/.temp/**",
+            "**/.macroforge/**"
         ],
         "rules": {
             "tags": ["recommended"],

@@ -259,6 +259,17 @@ fn lower_class(
 
                     let method_decorators =
                         collect_leading_decorators_oxc(source, method.span.start as usize, filter);
+
+                    let (method_body_span, method_body_src) = if let Some(body) = &func.body {
+                        let bspan = oxc_span_ir(body.span);
+                        let inner_start = body.span.start as usize + 1;
+                        let inner_end = body.span.end as usize - 1;
+                        let src = source.get(inner_start..inner_end).unwrap_or("").to_string();
+                        (Some(bspan), Some(src))
+                    } else {
+                        (None, None)
+                    };
+
                     methods.push(MethodSigIR {
                         name: ident.name.to_string(),
                         span: oxc_span_ir(method.span),
@@ -273,6 +284,8 @@ fn lower_class(
                             _ => Visibility::Public,
                         },
                         decorators: method_decorators,
+                        body_span: method_body_span,
+                        body_src: method_body_src,
                         #[cfg(feature = "swc")]
                         member_ast: None,
                     });
@@ -663,6 +676,157 @@ fn lower_type_body_oxc(ts_type: &TSType<'_>, source: &str) -> TypeBody {
     }
 }
 
+pub fn lower_functions_oxc(
+    program: &Program<'_>,
+    source: &str,
+    _filter: Option<&HashSet<String>>,
+) -> Result<Vec<FunctionIR>, TsSynError> {
+    let mut functions = Vec::new();
+    for stmt in &program.body {
+        match stmt {
+            Statement::FunctionDeclaration(decl) => {
+                if let Some(func_ir) = lower_function(decl, source, false, false, None) {
+                    functions.push(func_ir);
+                }
+            }
+            Statement::ExportNamedDeclaration(decl) => {
+                if let Some(Declaration::FunctionDeclaration(func_decl)) = &decl.declaration
+                    && let Some(func_ir) =
+                        lower_function(func_decl, source, true, false, Some(decl.span))
+                {
+                    functions.push(func_ir);
+                }
+            }
+            Statement::ExportDefaultDeclaration(decl) => {
+                if let ExportDefaultDeclarationKind::FunctionDeclaration(func_decl) =
+                    &decl.declaration
+                    && let Some(func_ir) =
+                        lower_function(func_decl, source, true, true, Some(decl.span))
+                {
+                    functions.push(func_ir);
+                }
+            }
+            _ => {}
+        }
+    }
+    Ok(functions)
+}
+
+fn lower_function(
+    decl: &Function<'_>,
+    source: &str,
+    is_exported: bool,
+    is_default_export: bool,
+    export_span: Option<oxc::span::Span>,
+) -> Option<FunctionIR> {
+    let name = decl.id.as_ref()?.name.to_string();
+
+    let body = decl.body.as_ref()?;
+
+    // Use the export statement span if present, otherwise the function's own span.
+    let outer_span = export_span.unwrap_or(decl.span);
+    let span = oxc_span_ir(outer_span);
+    let body_span = oxc_span_ir(body.span);
+
+    // Signature span: from the start of the outer span to just before the body's `{`.
+    let sig_end = body.span.start;
+    let signature_span = SpanIR::new(outer_span.start + 1, sig_end + 1);
+
+    let type_params = decl
+        .type_parameters
+        .as_ref()
+        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
+        .unwrap_or_default();
+
+    let mut params = Vec::new();
+    for param in &decl.params.items {
+        let p_span = param.span;
+        let p_src = &source[p_span.start as usize..p_span.end as usize];
+
+        let is_rest = p_src.starts_with("...");
+
+        let (p_name, type_src, default_src, is_optional) = match &param.pattern {
+            BindingPattern::BindingIdentifier(ident) => {
+                let ts = param
+                    .type_annotation
+                    .as_ref()
+                    .map(|ann| {
+                        let sp = ann.type_annotation.span();
+                        source[sp.start as usize..sp.end as usize].to_string()
+                    })
+                    .unwrap_or_default();
+                (ident.name.to_string(), ts, None, param.optional)
+            }
+            BindingPattern::AssignmentPattern(assign) => {
+                let id_name = match &assign.left {
+                    BindingPattern::BindingIdentifier(ident) => ident.name.to_string(),
+                    _ => p_src.to_string(),
+                };
+                let ts = param
+                    .type_annotation
+                    .as_ref()
+                    .map(|ann| {
+                        let sp = ann.type_annotation.span();
+                        source[sp.start as usize..sp.end as usize].to_string()
+                    })
+                    .unwrap_or_default();
+                let default = {
+                    let sp = assign.right.span();
+                    source[sp.start as usize..sp.end as usize].to_string()
+                };
+                (id_name, ts, Some(default), false)
+            }
+            _ => (p_src.to_string(), String::new(), None, false),
+        };
+
+        params.push(FunctionParamIR {
+            name: p_name,
+            span: oxc_span_ir(p_span),
+            type_src,
+            default_src,
+            is_optional,
+            is_rest,
+            decorators: vec![],
+        });
+    }
+
+    let return_type_src = decl
+        .return_type
+        .as_ref()
+        .map(|ann| {
+            let sp = ann.type_annotation.span();
+            source[sp.start as usize..sp.end as usize].to_string()
+        })
+        .unwrap_or_default();
+
+    // Body source: between the braces (exclusive).
+    let inner_start = body.span.start as usize + 1;
+    let inner_end = body.span.end as usize - 1;
+    let body_src = source.get(inner_start..inner_end).unwrap_or("").to_string();
+
+    // Collect leading JSDoc decorators (no filter — preserve all decorators).
+    let decorator_start = export_span
+        .map(|s| s.start as usize)
+        .unwrap_or(decl.span.start as usize);
+    let decorators = collect_leading_decorators_oxc(source, decorator_start, None);
+
+    Some(FunctionIR {
+        name,
+        span,
+        body_span,
+        signature_span,
+        is_async: decl.r#async,
+        is_generator: decl.generator,
+        is_exported,
+        is_default_export,
+        type_params,
+        params,
+        return_type_src,
+        body_src,
+        decorators,
+    })
+}
+
 pub fn lower_targets_oxc(
     program: &Program<'_>,
     source: &str,
@@ -680,6 +844,9 @@ pub fn lower_targets_oxc(
     }
     for ta in lower_type_aliases_oxc(program, source, filter)? {
         targets.push(LoweredTarget::TypeAlias(ta));
+    }
+    for func in lower_functions_oxc(program, source, filter)? {
+        targets.push(LoweredTarget::Function(func));
     }
     Ok(targets)
 }

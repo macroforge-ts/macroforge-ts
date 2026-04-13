@@ -114,17 +114,73 @@ use syn::{Ident, ItemFn, LitStr, Result, parse::Parser, parse_macro_input, spann
 /// - The macro name is not a valid identifier
 /// - An unknown option is specified
 /// - The `kind` value is not one of the valid options
+///
+/// A procedural macro attribute for function-like call macros.
+///
+/// Creates a macro invoked via `$name(...)` syntax in TypeScript.
+/// Equivalent to Rust's `#[proc_macro]`.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// #[ts_macro(sql, description = "Compile-time SQL validation")]
+/// pub fn sql_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+///     Ok(input)
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn ts_macro(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let options = match parse_macro_options_with_default_kind(
+        TokenStream2::from(attr),
+        MacroKindOption::Call,
+        "ts_macro",
+    ) {
+        Ok(opts) => opts,
+        Err(err) => return err.to_compile_error().into(),
+    };
+    generate_macro_impl(options, item, "ts_macro")
+}
+
+/// A procedural macro attribute for attribute macros.
+///
+/// Creates a macro invoked via `@name` decorator syntax on declarations.
+/// Equivalent to Rust's `#[proc_macro_attribute]`.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// #[ts_macro_attribute(reactive, description = "Add reactivity to a function")]
+/// pub fn reactive_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+///     Ok(input)
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn ts_macro_attribute(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let options = match parse_macro_options_with_default_kind(
+        TokenStream2::from(attr),
+        MacroKindOption::Attribute,
+        "ts_macro_attribute",
+    ) {
+        Ok(opts) => opts,
+        Err(err) => return err.to_compile_error().into(),
+    };
+    generate_macro_impl(options, item, "ts_macro_attribute")
+}
+
 #[proc_macro_attribute]
 pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let options = match parse_macro_options(TokenStream2::from(attr)) {
         Ok(opts) => opts,
         Err(err) => return err.to_compile_error().into(),
     };
+    generate_macro_impl(options, item, "ts_macro_derive")
+}
 
+fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str) -> TokenStream {
     let mut function = parse_macro_input!(item as ItemFn);
     function
         .attrs
-        .retain(|attr| !attr.path().is_ident("ts_macro_derive"));
+        .retain(|attr| !attr.path().is_ident(attr_name));
 
     let fn_ident = function.sig.ident.clone();
     let struct_ident = pascal_case_ident(&fn_ident);
@@ -199,6 +255,13 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let get_macro_names_js_name = format!("__macroforgeGetMacroNames_{}", options.name);
     let is_macro_package_js_name = format!("__macroforgeIsMacroPackage_{}", options.name);
 
+    // No-op callable export: lets consumers `import { state } from "@playground/macro"`
+    let noop_js_name_lit = LitStr::new(&options.name.to_string(), Span::call_site());
+    let noop_fn_ident = format_ident!(
+        "__ts_macro_noop_{}",
+        options.name.to_string().to_case(Case::Snake)
+    );
+
     let manifest_exports = if is_macroforge_ts {
         quote! {}
     } else {
@@ -239,6 +302,45 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                 true
             }
         }
+    };
+
+    // No-op callable exports per target
+    let wasm_noop_fn = match &options.kind {
+        MacroKindOption::Call => quote! {
+            #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #noop_js_name_lit)]
+            pub fn #noop_fn_ident(
+                value: macroforge_ts::wasm_bindgen::JsValue,
+            ) -> macroforge_ts::wasm_bindgen::JsValue {
+                value
+            }
+        },
+        MacroKindOption::Derive | MacroKindOption::Attribute => quote! {
+            #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #noop_js_name_lit)]
+            pub fn #noop_fn_ident() {}
+        },
+    };
+
+    let napi_noop_fn = match &options.kind {
+        MacroKindOption::Call => quote! {
+            #[macroforge_ts::napi_derive::napi(
+                js_name = #noop_js_name_lit,
+                ts_args_type = "value?: any",
+                ts_return_type = "any"
+            )]
+            pub fn #noop_fn_ident() {}
+        },
+        MacroKindOption::Derive => quote! {
+            #[macroforge_ts::napi_derive::napi(
+                js_name = #noop_js_name_lit,
+                ts_args_type = "...args: any[]",
+                ts_return_type = "void"
+            )]
+            pub fn #noop_fn_ident() {}
+        },
+        MacroKindOption::Attribute => quote! {
+            #[macroforge_ts::napi_derive::napi(js_name = #noop_js_name_lit)]
+            pub fn #noop_fn_ident() {}
+        },
     };
 
     let run_macro_exports = quote! {
@@ -292,6 +394,8 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                 }
 
                 #napi_manifest_exports
+
+                #napi_noop_fn
             }
             pub use #run_macro_napi_mod_ident::*;
         }
@@ -311,6 +415,8 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                 }
 
                 #manifest_exports
+
+                #wasm_noop_fn
             }
 
             pub use #run_macro_wasm_mod_ident::*;
@@ -604,6 +710,29 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
         parser.parse2(remaining)?;
     }
 
+    Ok(opts)
+}
+
+/// Like `parse_macro_options` but with a caller-specified default kind.
+/// Used by `#[ts_macro]` (defaults Call) and `#[ts_macro_attribute]` (defaults Attribute).
+fn parse_macro_options_with_default_kind(
+    tokens: TokenStream2,
+    default_kind: MacroKindOption,
+    attr_name: &str,
+) -> Result<MacroOptions> {
+    if tokens.is_empty() {
+        return Err(syn::Error::new(
+            Span::call_site(),
+            format!("{} requires a macro name as the first argument", attr_name),
+        ));
+    }
+
+    let mut opts = parse_macro_options(tokens)?;
+    // Only override the kind if the user didn't explicitly set one
+    // (i.e. it's still the default Derive from parse_macro_options).
+    if matches!(opts.kind, MacroKindOption::Derive) {
+        opts.kind = default_kind;
+    }
     Ok(opts)
 }
 

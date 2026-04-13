@@ -40,15 +40,15 @@ pub fn run(args: &PushArgs) -> Result<()> {
         format::warning("Nothing to push");
     }
 
-    if !args.yes && !args.dry_run {
-        if !Confirm::new()
+    if !args.yes
+        && !args.dry_run
+        && !Confirm::new()
             .with_prompt("Proceed?")
             .default(false)
             .interact()?
-        {
-            format::warning("Aborted");
-            return Ok(());
-        }
+    {
+        format::warning("Aborted");
+        return Ok(());
     }
 
     if args.dry_run {

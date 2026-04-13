@@ -71,11 +71,11 @@ describe("ImplementationProvider", function () {
           range: {
             start: {
               line: 5,
-              character: 11,
+              character: 9,
             },
             end: {
               line: 7,
-              character: 5,
+              character: 3,
             },
           },
           uri: getUri("some-type.ts"),

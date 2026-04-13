@@ -1090,6 +1090,23 @@ fn lower_members(
                     meth.accessibility,
                 );
 
+                let (method_body_span, method_body_src) = if let Some(body) = &meth.function.body {
+                    let bspan = swc_span_to_ir(body.span);
+                    let inner_start = body.span.lo.0 as usize;
+                    let inner_end = body.span.hi.0 as usize;
+                    let src = if inner_end > inner_start + 1 {
+                        source
+                            .get(inner_start..inner_end - 1)
+                            .unwrap_or("")
+                            .to_string()
+                    } else {
+                        String::new()
+                    };
+                    (Some(bspan), Some(src))
+                } else {
+                    (None, None)
+                };
+
                 methods.push(MethodSigIR {
                     name,
                     span: swc_span_to_ir(adjusted_span),
@@ -1105,6 +1122,8 @@ fn lower_members(
                     is_async: meth.function.is_async,
                     visibility: lower_visibility(meth.accessibility),
                     decorators: lower_decorators(&meth.function.decorators, source),
+                    body_span: method_body_span,
+                    body_src: method_body_src,
                     member_ast: Some(MethodAstIR::Method(meth.clone())),
                 });
             }
@@ -1123,16 +1142,35 @@ fn lower_members(
                 let adjusted_span =
                     adjust_constructor_span(source, constructor_span, c.accessibility);
 
+                let (ctor_body_span, ctor_body_src) = if let Some(body) = &c.body {
+                    let bspan = swc_span_to_ir(body.span);
+                    let inner_start = body.span.lo.0 as usize;
+                    let inner_end = body.span.hi.0 as usize;
+                    let src = if inner_end > inner_start + 1 {
+                        source
+                            .get(inner_start..inner_end - 1)
+                            .unwrap_or("")
+                            .to_string()
+                    } else {
+                        String::new()
+                    };
+                    (Some(bspan), Some(src))
+                } else {
+                    (None, None)
+                };
+
                 methods.push(MethodSigIR {
                     name: "constructor".into(),
                     span: swc_span_to_ir(adjusted_span),
-                    type_params_src: String::new(), // constructors don't have type parameters
+                    type_params_src: String::new(),
                     params_src,
-                    return_type_src: String::new(), // constructors don't have return types
+                    return_type_src: String::new(),
                     is_static: false,
-                    is_async: false, // constructors can't be async
+                    is_async: false,
                     visibility: lower_visibility(c.accessibility),
-                    decorators: vec![], // Constructors don't have decorators
+                    decorators: vec![],
+                    body_span: ctor_body_span,
+                    body_src: ctor_body_src,
                     member_ast: Some(MethodAstIR::Constructor(c.clone())),
                 });
             }

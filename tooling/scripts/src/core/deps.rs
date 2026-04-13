@@ -170,14 +170,6 @@ fn calculate_transitive_deps(deps: &HashMap<String, Vec<String>>) -> HashMap<Str
     result
 }
 
-/// Get all dependents of a package (packages that depend on it)
-pub fn get_dependents(deps: &HashMap<String, Vec<String>>, package: &str) -> Vec<String> {
-    deps.iter()
-        .filter(|(_, dependencies)| dependencies.contains(&package.to_string()))
-        .map(|(name, _)| name.clone())
-        .collect()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -327,92 +319,6 @@ mod tests {
     }
 
     #[test]
-    fn test_get_dependents_empty() {
-        let deps: HashMap<String, Vec<String>> = HashMap::new();
-        let dependents = get_dependents(&deps, "package-a");
-        assert_eq!(dependents.len(), 0);
-    }
-
-    #[test]
-    fn test_get_dependents_no_dependents() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec![]);
-
-        let dependents = get_dependents(&deps, "package-a");
-        assert_eq!(dependents.len(), 0);
-    }
-
-    #[test]
-    fn test_get_dependents_single_dependent() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec!["package-a".to_string()]);
-
-        let dependents = get_dependents(&deps, "package-a");
-        assert_eq!(dependents.len(), 1);
-        assert!(dependents.contains(&"package-b".to_string()));
-    }
-
-    #[test]
-    fn test_get_dependents_multiple_dependents() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec!["package-a".to_string()]);
-        deps.insert("package-c".to_string(), vec!["package-a".to_string()]);
-        deps.insert("package-d".to_string(), vec!["package-a".to_string()]);
-
-        let mut dependents = get_dependents(&deps, "package-a");
-        dependents.sort();
-        assert_eq!(dependents.len(), 3);
-        assert_eq!(dependents, vec!["package-b", "package-c", "package-d"]);
-    }
-
-    #[test]
-    fn test_get_dependents_transitive_not_included() {
-        // Only direct dependents should be returned, not transitive
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec!["package-a".to_string()]);
-        deps.insert("package-c".to_string(), vec!["package-b".to_string()]);
-
-        let dependents = get_dependents(&deps, "package-a");
-        assert_eq!(dependents.len(), 1);
-        assert!(dependents.contains(&"package-b".to_string()));
-        assert!(!dependents.contains(&"package-c".to_string()));
-    }
-
-    #[test]
-    fn test_get_dependents_mixed_dependencies() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec![]);
-        deps.insert(
-            "package-c".to_string(),
-            vec!["package-a".to_string(), "package-b".to_string()],
-        );
-        deps.insert("package-d".to_string(), vec!["package-b".to_string()]);
-
-        let mut dependents_a = get_dependents(&deps, "package-a");
-        dependents_a.sort();
-        assert_eq!(dependents_a, vec!["package-c"]);
-
-        let mut dependents_b = get_dependents(&deps, "package-b");
-        dependents_b.sort();
-        assert_eq!(dependents_b, vec!["package-c", "package-d"]);
-    }
-
-    #[test]
-    fn test_get_dependents_nonexistent_package() {
-        let mut deps = HashMap::new();
-        deps.insert("package-a".to_string(), vec![]);
-        deps.insert("package-b".to_string(), vec!["package-a".to_string()]);
-
-        let dependents = get_dependents(&deps, "package-nonexistent");
-        assert_eq!(dependents.len(), 0);
-    }
-
-    #[test]
     fn test_load_deps_valid_toml() -> Result<()> {
         let mut temp_file = NamedTempFile::new()?;
         let toml_content = r#"
@@ -553,33 +459,6 @@ package-c = ["package-b"]
 
         assert!(a_pos < b_pos);
         assert!(b_pos < c_pos);
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_integration_load_and_get_dependents() -> Result<()> {
-        let temp_dir = tempfile::tempdir()?;
-        let tooling_dir = temp_dir.path().join("tooling");
-        std::fs::create_dir(&tooling_dir)?;
-
-        let toml_content = r#"
-package-a = []
-package-b = ["package-a"]
-package-c = ["package-a"]
-package-d = ["package-b"]
-"#;
-        let deps_path = tooling_dir.join("deps.toml");
-        std::fs::write(&deps_path, toml_content)?;
-
-        let deps = load_deps(temp_dir.path())?;
-
-        let mut dependents_a = get_dependents(&deps, "package-a");
-        dependents_a.sort();
-        assert_eq!(dependents_a, vec!["package-b", "package-c"]);
-
-        let dependents_b = get_dependents(&deps, "package-b");
-        assert_eq!(dependents_b, vec!["package-d"]);
 
         Ok(())
     }

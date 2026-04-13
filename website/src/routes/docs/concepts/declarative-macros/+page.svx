@@ -45,7 +45,7 @@ const $name = macroRules`
 
 - **`import { macroRules }`** — required. The import from `"macroforge/rules"` is the signal that activates the declarative macro pipeline. Without it, `macroRules` is treated as a regular identifier.
 - **`` macroRules`...` ``** — a tagged template literal. The body between backticks is the macro's definition in a mini-language (not TypeScript).
-- **`const $name`** — the macro's name. Must start with `$`.
+- **`const $name`** — the macro's name. Must start with `$`. Both `const $name = macroRules\`…\`` and `export const $name = macroRules\`…\`` are supported — the expander erases the entire binding (including the `export` keyword) so the library file compiles cleanly under `noUnusedLocals`.
 
 ### Object Form (advanced)
 

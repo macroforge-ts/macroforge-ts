@@ -315,7 +315,18 @@ test.describe('Svelte Validator Form E2E Tests', () => {
             await page.click('[data-testid="submit-user-registration"]');
 
             // Check window object
-            const results = await page.evaluate(() => (window as any).validatorFormResults);
+            const results = await page.evaluate(() =>
+                (globalThis as unknown as {
+                    validatorFormResults: Record<
+                        string,
+                        {
+                            success: boolean;
+                            data?: Record<string, unknown>;
+                            errors?: unknown[];
+                        }
+                    >;
+                }).validatorFormResults
+            );
             expect(results.userRegistration).toBeDefined();
             expect(results.userRegistration.success).toBe(true);
             expect(results.userRegistration.data).toBeDefined();
@@ -332,7 +343,18 @@ test.describe('Svelte Validator Form E2E Tests', () => {
             await page.click('[data-testid="submit-product"]');
 
             // Check window object
-            const results = await page.evaluate(() => (window as any).validatorFormResults);
+            const results = await page.evaluate(() =>
+                (globalThis as unknown as {
+                    validatorFormResults: Record<
+                        string,
+                        {
+                            success: boolean;
+                            data?: Record<string, unknown>;
+                            errors?: unknown[];
+                        }
+                    >;
+                }).validatorFormResults
+            );
             expect(results.product).toBeDefined();
             expect(results.product.success).toBe(false);
             expect(results.product.errors).toBeDefined();

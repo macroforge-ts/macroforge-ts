@@ -1,0 +1,684 @@
+{
+    "by_file": {
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/declarative_and_derive.ts": {
+            "identity": {
+                "name": "identity",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [{ "Substitution": "x" }],
+                        "span": { "start": 81, "end": 96 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 78, "end": 97 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/id_single_arm.ts": {
+            "id": {
+                "name": "id",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [{ "Substitution": "x" }],
+                        "span": { "start": 75, "end": 90 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 72, "end": 91 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/hygiene.ts": {
+            "withTemp": {
+                "name": "withTemp",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [
+                            { "Literal": "{\n    const __v = " },
+                            { "Substitution": "x" },
+                            { "Literal": ";\n    __v + 1\n  }" }
+                        ],
+                        "span": { "start": 81, "end": 131 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 78, "end": 132 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/differential/auto_single_shape.ts": {
+            "wrap": {
+                "name": "wrap",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [
+                            { "Literal": "({ wrapped: " },
+                            { "Substitution": "x" },
+                            { "Literal": " })" }
+                        ],
+                        "span": { "start": 446, "end": 476 }
+                    }
+                ],
+                "mode": "Auto",
+                "kind": "Value",
+                "runtime": "function __wrap(v) { return { wrapped: v }; }",
+                "call_arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [
+                            { "Literal": "__wrap(" },
+                            { "Substitution": "x" },
+                            { "Literal": ")" }
+                        ],
+                        "span": { "start": 570, "end": 593 }
+                    }
+                ],
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 441, "end": 479 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/differential/vec_expand_only.ts": {
+            "vec": {
+                "name": "vec",
+                "arms": [
+                    {
+                        "pattern": "Empty",
+                        "body": [{ "Literal": "[]" }],
+                        "span": { "start": 322, "end": 330 }
+                    },
+                    {
+                        "pattern": {
+                            "Sequence": [
+                                {
+                                    "Repetition": {
+                                        "pattern": {
+                                            "Sequence": [
+                                                { "Fragment": { "name": "x", "kind": "Expr" } }
+                                            ]
+                                        },
+                                        "separator": ",",
+                                        "kind": "OneOrMore"
+                                    }
+                                }
+                            ]
+                        },
+                        "body": [
+                            { "Literal": "[" },
+                            {
+                                "Repetition": {
+                                    "body": [{ "Substitution": "x" }],
+                                    "separator": ",",
+                                    "kind": "OneOrMore"
+                                }
+                            },
+                            { "Literal": "]" }
+                        ],
+                        "span": { "start": 333, "end": 360 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 319, "end": 361 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/differential/identity_share_only.ts": {
+            "identity": {
+                "name": "identity",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [
+                            { "Literal": "__inline_identity(" },
+                            { "Substitution": "x" },
+                            { "Literal": ")" }
+                        ],
+                        "span": { "start": 407, "end": 441 }
+                    }
+                ],
+                "mode": "ShareOnly",
+                "kind": "Value",
+                "runtime": "function __identity(v) { return v; }",
+                "call_arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [
+                            { "Literal": "__identity(" },
+                            { "Substitution": "x" },
+                            { "Literal": ")" }
+                        ],
+                        "span": { "start": 526, "end": 553 }
+                    }
+                ],
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 402, "end": 444 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_vec.ts": {
+            "vec": {
+                "name": "vec",
+                "arms": [
+                    {
+                        "pattern": "Empty",
+                        "body": [{ "Literal": "[]" }],
+                        "span": { "start": 402, "end": 410 }
+                    },
+                    {
+                        "pattern": {
+                            "Sequence": [
+                                {
+                                    "Repetition": {
+                                        "pattern": {
+                                            "Sequence": [
+                                                { "Fragment": { "name": "x", "kind": "Expr" } }
+                                            ]
+                                        },
+                                        "separator": ",",
+                                        "kind": "OneOrMore"
+                                    }
+                                }
+                            ]
+                        },
+                        "body": [
+                            { "Literal": "[" },
+                            {
+                                "Repetition": {
+                                    "body": [{ "Substitution": "x" }],
+                                    "separator": ",",
+                                    "kind": "OneOrMore"
+                                }
+                            },
+                            { "Literal": "]" }
+                        ],
+                        "span": { "start": 413, "end": 440 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 399, "end": 441 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/compose.ts": {
+            "double": {
+                "name": "double",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [
+                            { "Literal": "(" },
+                            { "Substitution": "x" },
+                            { "Literal": " * 2)" }
+                        ],
+                        "span": { "start": 79, "end": 100 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 76, "end": 101 }
+            },
+            "quad": {
+                "name": "quad",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [
+                            {
+                                "MacroCall": {
+                                    "name": "double",
+                                    "args": [
+                                        {
+                                            "MacroCall": {
+                                                "name": "double",
+                                                "args": [{ "Substitution": "x" }]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ],
+                        "span": { "start": 133, "end": 166 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 130, "end": 167 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/type_macros.ts": {
+            "Tuple": {
+                "name": "Tuple",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [
+                                {
+                                    "Repetition": {
+                                        "pattern": {
+                                            "Sequence": [
+                                                { "Fragment": { "name": "t", "kind": "Type" } }
+                                            ]
+                                        },
+                                        "separator": ",",
+                                        "kind": "OneOrMore"
+                                    }
+                                }
+                            ]
+                        },
+                        "body": [
+                            { "Literal": "[" },
+                            {
+                                "Repetition": {
+                                    "body": [{ "Substitution": "t" }],
+                                    "separator": ",",
+                                    "kind": "OneOrMore"
+                                }
+                            },
+                            { "Literal": "]" }
+                        ],
+                        "span": { "start": 385, "end": 412 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Type",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 380, "end": 415 }
+            },
+            "ReadOnly": {
+                "name": "ReadOnly",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "t", "kind": "Type" } }]
+                        },
+                        "body": [
+                            { "Literal": "{ readonly [K in keyof " },
+                            { "Substitution": "t" },
+                            { "Literal": "]: " },
+                            { "Substitution": "t" },
+                            { "Literal": "[K] }" }
+                        ],
+                        "span": { "start": 189, "end": 237 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Type",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 184, "end": 240 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_library_only.ts": {
+            "vec": {
+                "name": "vec",
+                "arms": [
+                    {
+                        "pattern": "Empty",
+                        "body": [{ "Literal": "[]" }],
+                        "span": { "start": 488, "end": 496 }
+                    },
+                    {
+                        "pattern": {
+                            "Sequence": [
+                                {
+                                    "Repetition": {
+                                        "pattern": {
+                                            "Sequence": [
+                                                { "Fragment": { "name": "x", "kind": "Expr" } }
+                                            ]
+                                        },
+                                        "separator": ",",
+                                        "kind": "OneOrMore"
+                                    }
+                                }
+                            ]
+                        },
+                        "body": [
+                            { "Literal": "[" },
+                            {
+                                "Repetition": {
+                                    "body": [{ "Substitution": "x" }],
+                                    "separator": ",",
+                                    "kind": "OneOrMore"
+                                }
+                            },
+                            { "Literal": "]" }
+                        ],
+                        "span": { "start": 499, "end": 526 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 485, "end": 527 }
+            },
+            "identity": {
+                "name": "identity",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [{ "Substitution": "x" }],
+                        "span": { "start": 570, "end": 585 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 567, "end": 586 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_mixed.ts": {
+            "vec": {
+                "name": "vec",
+                "arms": [
+                    {
+                        "pattern": "Empty",
+                        "body": [{ "Literal": "[]" }],
+                        "span": { "start": 283, "end": 291 }
+                    },
+                    {
+                        "pattern": {
+                            "Sequence": [
+                                {
+                                    "Repetition": {
+                                        "pattern": {
+                                            "Sequence": [
+                                                { "Fragment": { "name": "x", "kind": "Expr" } }
+                                            ]
+                                        },
+                                        "separator": ",",
+                                        "kind": "OneOrMore"
+                                    }
+                                }
+                            ]
+                        },
+                        "body": [
+                            { "Literal": "[" },
+                            {
+                                "Repetition": {
+                                    "body": [{ "Substitution": "x" }],
+                                    "separator": ",",
+                                    "kind": "OneOrMore"
+                                }
+                            },
+                            { "Literal": "]" }
+                        ],
+                        "span": { "start": 294, "end": 321 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 280, "end": 322 }
+            },
+            "id": {
+                "name": "id",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [{ "Substitution": "x" }],
+                        "span": { "start": 352, "end": 367 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 349, "end": 368 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_multiple.ts": {
+            "vec": {
+                "name": "vec",
+                "arms": [
+                    {
+                        "pattern": "Empty",
+                        "body": [{ "Literal": "[]" }],
+                        "span": { "start": 279, "end": 287 }
+                    },
+                    {
+                        "pattern": {
+                            "Sequence": [
+                                {
+                                    "Repetition": {
+                                        "pattern": {
+                                            "Sequence": [
+                                                { "Fragment": { "name": "x", "kind": "Expr" } }
+                                            ]
+                                        },
+                                        "separator": ",",
+                                        "kind": "OneOrMore"
+                                    }
+                                }
+                            ]
+                        },
+                        "body": [
+                            { "Literal": "[" },
+                            {
+                                "Repetition": {
+                                    "body": [{ "Substitution": "x" }],
+                                    "separator": ",",
+                                    "kind": "OneOrMore"
+                                }
+                            },
+                            { "Literal": "]" }
+                        ],
+                        "span": { "start": 290, "end": 317 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 276, "end": 318 }
+            },
+            "id": {
+                "name": "id",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "x", "kind": "Expr" } }]
+                        },
+                        "body": [{ "Substitution": "x" }],
+                        "span": { "start": 355, "end": 370 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 352, "end": 371 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/vec_basic.ts": {
+            "vec": {
+                "name": "vec",
+                "arms": [
+                    {
+                        "pattern": "Empty",
+                        "body": [{ "Literal": "[]" }],
+                        "span": { "start": 76, "end": 84 }
+                    },
+                    {
+                        "pattern": {
+                            "Sequence": [
+                                {
+                                    "Repetition": {
+                                        "pattern": {
+                                            "Sequence": [
+                                                { "Fragment": { "name": "x", "kind": "Expr" } }
+                                            ]
+                                        },
+                                        "separator": ",",
+                                        "kind": "OneOrMore"
+                                    }
+                                }
+                            ]
+                        },
+                        "body": [
+                            { "Literal": "[" },
+                            {
+                                "Repetition": {
+                                    "body": [{ "Substitution": "x" }],
+                                    "separator": ",",
+                                    "kind": "OneOrMore"
+                                }
+                            },
+                            { "Literal": "]" }
+                        ],
+                        "span": { "start": 87, "end": 114 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Value",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 73, "end": 115 }
+            }
+        },
+        "/Users/jakoblochinski/Softworks/GitHub/workspace/macroforge-ts/crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_object_form.ts": {
+            "ReadOnly": {
+                "name": "ReadOnly",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [{ "Fragment": { "name": "t", "kind": "Type" } }]
+                        },
+                        "body": [
+                            { "Literal": "{ readonly [K in keyof " },
+                            { "Substitution": "t" },
+                            { "Literal": "]: " },
+                            { "Substitution": "t" },
+                            { "Literal": "[K] }" }
+                        ],
+                        "span": { "start": 321, "end": 369 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Type",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 316, "end": 372 }
+            },
+            "Tuple": {
+                "name": "Tuple",
+                "arms": [
+                    {
+                        "pattern": {
+                            "Sequence": [
+                                {
+                                    "Repetition": {
+                                        "pattern": {
+                                            "Sequence": [
+                                                { "Fragment": { "name": "t", "kind": "Type" } }
+                                            ]
+                                        },
+                                        "separator": ",",
+                                        "kind": "OneOrMore"
+                                    }
+                                }
+                            ]
+                        },
+                        "body": [
+                            { "Literal": "[" },
+                            {
+                                "Repetition": {
+                                    "body": [{ "Substitution": "t" }],
+                                    "separator": ",",
+                                    "kind": "OneOrMore"
+                                }
+                            },
+                            { "Literal": "]" }
+                        ],
+                        "span": { "start": 460, "end": 487 }
+                    }
+                ],
+                "mode": "ExpandOnly",
+                "kind": "Type",
+                "runtime": null,
+                "call_arms": null,
+                "megamorphism_threshold": 4,
+                "runtime_name_template": null,
+                "span": { "start": 455, "end": 490 }
+            }
+        }
+    }
+}

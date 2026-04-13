@@ -225,6 +225,15 @@ pub struct MethodSigIR {
     /// Decorators applied to this method.
     pub decorators: Vec<DecoratorIR>,
 
+    /// Body span (between `{` and `}`). `None` for abstract or interface methods.
+    #[serde(default)]
+    pub body_span: Option<SpanIR>,
+
+    /// Raw source of the body (between but not including the braces).
+    /// `None` for abstract or interface methods.
+    #[serde(default)]
+    pub body_src: Option<String>,
+
     /// The raw SWC method AST (not serialized).
     /// Provides access to the full method including body.
     #[cfg(feature = "swc")]

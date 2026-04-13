@@ -1,0 +1,26 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/call/stringify_simple.ts
+---
+## Input
+
+/** import macro { stringify } from "@macroforge/test-macros" */
+
+export const quoted = $stringify(a + b);
+export const identifier = $stringify(foo);
+
+## Output
+
+/** import macro { stringify } from "@macroforge/test-macros" */
+
+export const quoted = "a + b";
+export const identifier = "foo";
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)

@@ -8,11 +8,7 @@
  * which has TypeScript, macroforge, and .ts files with @derive.
  */
 
-import {
-    assert,
-    assertEquals,
-    assertStringIncludes
-} from 'https://deno.land/std@0.224.0/assert/mod.ts';
+import { assertEquals, assertStringIncludes } from '@std/assert';
 import { runCli, vanillaRoot } from './test-utils.mjs';
 
 // ============================================================================

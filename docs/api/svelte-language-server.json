@@ -25,7 +25,7 @@
     {
       "name": "SvelteCheckDiagnosticSource",
       "kind": "type",
-      "type": "js' | 'css' | 'svelte';",
+      "type": "js\" | \"css\" | \"svelte\";",
       "description": ""
     },
     {

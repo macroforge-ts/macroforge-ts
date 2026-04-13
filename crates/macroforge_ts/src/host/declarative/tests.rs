@@ -240,10 +240,7 @@ const result = $quad(3);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(text) = code;
-                Some(text.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .expect("expected a Replace patch for the call site");
@@ -389,6 +386,7 @@ const ys = $vec();
         &discovered,
         BuildMode::dev(),
         None,
+        None,
     );
     // Expect: 1 Delete (macro def) + 1 Delete (the `import { macroRules }`
     // statement, which becomes dead after stripping the def) + 2 Replaces
@@ -436,7 +434,32 @@ const xs = $vec(1, 2, 3);
 }
 
 #[test]
-fn resolve_cross_file_unresolved_module_reports_diagnostic() {
+fn resolve_cross_file_unresolved_bare_package_skips_silently() {
+    // Bare package specifiers (e.g., `@external/macros`) can't be resolved
+    // against the declarative registry because they don't exist in the
+    // project tree; they may refer to proc macro packages loaded via the
+    // external loader at dispatch time. Silent skip is the correct
+    // behavior so the proc macro fallback can take over.
+    let (registry, _) = library_registry();
+
+    let consumer_src = r#"/** import macro { $vec } from "@external/macros" */"#;
+    let consumer_path = std::path::PathBuf::from("/project/src/consumer.ts");
+    let resolved = resolve_cross_file_imports(consumer_src, &consumer_path, &registry);
+
+    assert!(resolved.imported.is_empty());
+    assert!(
+        resolved.diagnostics.is_empty(),
+        "expected no diagnostics for unresolved bare package (proc macro fallback), got: {:?}",
+        resolved.diagnostics
+    );
+}
+
+#[test]
+fn resolve_cross_file_unresolved_relative_path_reports_diagnostic() {
+    // Relative-path specifiers (starting with `./` or `../`) can only
+    // point to a declarative library file in the same project. If the
+    // file doesn't exist it's always an error — proc macro packages
+    // are never addressed by relative path.
     let (registry, _) = library_registry();
 
     let consumer_src = r#"/** import macro { $vec } from "./nonexistent" */"#;
@@ -447,8 +470,8 @@ fn resolve_cross_file_unresolved_module_reports_diagnostic() {
     assert_eq!(resolved.diagnostics.len(), 1);
     assert!(
         resolved.diagnostics[0].message.contains("cannot resolve"),
-        "got: {}",
-        resolved.diagnostics[0].message
+        "expected `cannot resolve` diagnostic, got: {:?}",
+        resolved.diagnostics
     );
 }
 
@@ -725,6 +748,7 @@ type Result = $Wrap<string>;
         &discovered,
         BuildMode::dev(),
         None,
+        None,
     );
     // Apply patches to verify final output.
     let applied = crate::host::patch_applicator::PatchApplicator::new(source, out.patches.clone())
@@ -776,6 +800,7 @@ type T = $Tup<string, number>;
         &registry,
         &discovered,
         BuildMode::dev(),
+        None,
         None,
     );
     let applied = crate::host::patch_applicator::PatchApplicator::new(source, out.patches.clone())
@@ -848,6 +873,7 @@ const x = $Foo(1);
         &discovered,
         BuildMode::dev(),
         None,
+        None,
     );
     // No panic means we're fine. We accept any outcome here.
     let _ = out;
@@ -883,6 +909,7 @@ fn rewrite_source(source: &str, build_mode: BuildMode) -> super::rewriter::Rewri
         &registry,
         &discovered,
         build_mode,
+        None,
         None,
     )
 }
@@ -963,10 +990,7 @@ const result = $serialize(user);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(text) = code;
-                Some(text.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .expect("expected at least one Replace patch");
@@ -1037,8 +1061,7 @@ const a = $id(42);
     // not `call_arms` (which would introduce `__id`).
     let has_id_call = out.patches.iter().any(|p| match p {
         crate::ts_syn::abi::Patch::Replace { code, .. } => {
-            let crate::ts_syn::abi::PatchCode::Text(text) = code;
-            text.contains("__id")
+            code.as_text().is_some_and(|t| t.contains("__id"))
         }
         _ => false,
     });
@@ -1224,6 +1247,7 @@ fn rewrite_tsx_source(source: &str, build_mode: BuildMode) -> super::rewriter::R
         &discovered,
         build_mode,
         None,
+        None,
     )
 }
 
@@ -1248,8 +1272,9 @@ const el = <div prop={$id(42)} />;
         "expected exactly 1 Replace inside JSX prop, got: {:#?}",
         replaces
     );
-    if let crate::ts_syn::abi::Patch::Replace { code, .. } = replaces[0] {
-        let crate::ts_syn::abi::PatchCode::Text(text) = code;
+    if let crate::ts_syn::abi::Patch::Replace { code, .. } = replaces[0]
+        && let Some(text) = code.as_text()
+    {
         assert!(
             text.contains("42"),
             "expansion should contain the literal: {}",
@@ -1336,10 +1361,7 @@ const x = $tricky();
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(text) = code;
-                Some(text.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .expect("expected a Replace patch for $tricky()");
@@ -1395,8 +1417,9 @@ type T = [$wrap<string>, number];
         "expected type-macro in tuple element to be rewritten, got: {:#?}",
         out.patches
     );
-    if let crate::ts_syn::abi::Patch::Replace { code, .. } = replaces[0] {
-        let crate::ts_syn::abi::PatchCode::Text(text) = code;
+    if let crate::ts_syn::abi::Patch::Replace { code, .. } = replaces[0]
+        && let Some(text) = code.as_text()
+    {
         assert!(
             text.contains("wrapped"),
             "expansion should contain the wrapper shape: {}",
@@ -1546,10 +1569,7 @@ const b = $h(User);
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .collect();
@@ -1749,10 +1769,7 @@ function factory() {
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .collect();
@@ -1792,10 +1809,7 @@ function inner() {
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .collect();
@@ -1873,10 +1887,7 @@ function beta() {
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .collect();
@@ -1931,10 +1942,7 @@ const out = $splitLast(1, 2, 3);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .expect("expected a Replace patch for the call site");
@@ -2093,10 +2101,7 @@ const b2 = $serialize(Bert);
     let combined: String = inserts
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Insert { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Insert { code, .. } => code.as_text(),
             _ => None,
         })
         .collect::<Vec<_>>()
@@ -2137,10 +2142,7 @@ const q = $h(Bravo);
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .collect();
@@ -2303,10 +2305,7 @@ const b2 = $serialize(Bert, Cfg);
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Insert { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Insert { code, .. } => code.as_text(),
             _ => None,
         })
         .collect();
@@ -2320,10 +2319,7 @@ const b2 = $serialize(Bert, Cfg);
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .collect();
@@ -2358,10 +2354,7 @@ type R = $Result<string, Error>;
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .expect("expected a Replace patch for $Result<string, Error>");
@@ -2400,10 +2393,7 @@ const r = $list(1, 2, 3);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .expect("expected a Replace patch for $list(...)");
@@ -2436,10 +2426,7 @@ const r = $apply_each(1, 2, 3);
         .find_map(|p| match p {
             crate::ts_syn::abi::Patch::Replace {
                 code, source_macro, ..
-            } if source_macro.as_deref() == Some("$apply_each") => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            } if source_macro.as_deref() == Some("$apply_each") => code.as_text(),
             _ => None,
         })
         .expect("expected a Replace patch for $apply_each(...)");
@@ -2565,10 +2552,7 @@ const r = $cluster(5);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => {
-                let crate::ts_syn::abi::PatchCode::Text(t) = code;
-                Some(t.as_str())
-            }
+            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
             _ => None,
         })
         .expect("expected a Replace patch for $cluster(5)");

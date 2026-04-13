@@ -78,18 +78,18 @@ pub fn swap_local(config: &Config) -> Result<()> {
                 for (crate_name, target_repo) in *deps {
                     let trimmed = line.trim();
                     // Match version-only dep: `crate = "0.1.81"`
-                    if trimmed.starts_with(&format!("{} = \"", crate_name)) {
-                        if let Some(target) = config.repos.get(*target_repo) {
-                            let rel_path = pathdiff_relative(cargo_dir, &target.abs_path);
-                            let v = versions
-                                .get_local(target_repo)
-                                .map(|s| s.to_string())
-                                .unwrap_or_else(|| "0.1.0".to_string());
-                            return format!(
-                                "{} = {{ version = \"{}\", path = \"{}\" }}",
-                                crate_name, v, rel_path
-                            );
-                        }
+                    if trimmed.starts_with(&format!("{} = \"", crate_name))
+                        && let Some(target) = config.repos.get(*target_repo)
+                    {
+                        let rel_path = pathdiff_relative(cargo_dir, &target.abs_path);
+                        let v = versions
+                            .get_local(target_repo)
+                            .map(|s| s.to_string())
+                            .unwrap_or_else(|| "0.1.0".to_string());
+                        return format!(
+                            "{} = {{ version = \"{}\", path = \"{}\" }}",
+                            crate_name, v, rel_path
+                        );
                     }
                 }
                 line.to_string()

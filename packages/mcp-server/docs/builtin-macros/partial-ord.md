@@ -6,20 +6,18 @@ between values where some pairs may be incomparable.
 
 ## Generated Output
 
-| Type       | Generated Code                                             | Description                                    |
-| ---------- | ---------------------------------------------------------- | ---------------------------------------------- |
-| Class      | `classNamePartialCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method    |
-| Enum       | `enumNamePartialCompare(a, b): number \| null`             | Standalone function returning `number \| null` |
-| Interface  | `ifaceNamePartialCompare(a, b): number \| null`            | Standalone function returning `number \| null` |
-| Type Alias | `typeNamePartialCompare(a, b): number \| null`             | Standalone function returning `number \| null` |
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `classNamePartialCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
+| Enum | `enumNamePartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
+| Interface | `ifaceNamePartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
+| Type Alias | `typeNamePartialCompare(a, b): number \| null` | Standalone function returning `number \| null` |
 
-Names use **camelCase** conversion (e.g., `Temperature` →
-`temperaturePartialCompare`).
+Names use **camelCase** conversion (e.g., `Temperature` → `temperaturePartialCompare`).
 
 ## Return Values
 
-Unlike `Ord`, `PartialOrd` returns `number | null` to handle incomparable
-values:
+Unlike `Ord`, `PartialOrd` returns `number | null` to handle incomparable values:
 
 - **-1**: `a` is less than `b`
 - **0**: `a` is equal to `b`
@@ -47,15 +45,15 @@ Fields are compared **lexicographically** in declaration order:
 
 ## Type-Specific Comparisons
 
-| Type              | Comparison Method                                         |
-| ----------------- | --------------------------------------------------------- |
-| `number`/`bigint` | Direct subtraction (`a - b`)                              |
-| `string`          | `localeCompare()`                                         |
-| `boolean`         | `false < true` (cast to number)                           |
-| null/undefined    | Returns `null` for mismatched nullability                 |
-| Arrays            | Lexicographic, propagates `null` on incomparable elements |
-| `Date`            | Timestamp comparison, `null` if invalid                   |
-| Objects           | Delegates to `compareTo()` if available                   |
+| Type | Comparison Method |
+|------|-------------------|
+| `number`/`bigint` | Direct subtraction (`a - b`) |
+| `string` | `localeCompare()` |
+| `boolean` | `false < true` (cast to number) |
+| null/undefined | Returns `null` for mismatched nullability |
+| Arrays | Lexicographic, propagates `null` on incomparable elements |
+| `Date` | Timestamp comparison, `null` if invalid |
+| Objects | Delegates to `compareTo()` if available |
 
 ## Field-Level Options
 
@@ -68,43 +66,39 @@ The `@ord` decorator supports:
 ```typescript before
 /** @derive(PartialOrd) */
 class Temperature {
-  value: number | null;
-  unit: string;
+    value: number | null;
+    unit: string;
 }
 ```
 
 ```typescript after
 class Temperature {
-  value: number | null;
-  unit: string;
+    value: number | null;
+    unit: string;
 
-  static compareTo(a: Temperature, b: Temperature): number | null {
-    return temperaturePartialCompare(a, b);
-  }
+    static compareTo(a: Temperature, b: Temperature): number | null {
+        return temperaturePartialCompare(a, b);
+    }
 }
 
-export function temperaturePartialCompare(
-  a: Temperature,
-  b: Temperature,
-): number | null {
-  if (a === b) return 0;
-  const cmp0 = (() => {
-    if (typeof (a.value as any)?.compareTo === "function") {
-      const optResult = (a.value as any).compareTo(b.value);
-      return optResult === null ? null : optResult;
-    }
-    return a.value === b.value ? 0 : null;
-  })();
-  if (cmp0 === null) return null;
-  if (cmp0 !== 0) return cmp0;
-  const cmp1 = a.unit.localeCompare(b.unit);
-  if (cmp1 === null) return null;
-  if (cmp1 !== 0) return cmp1;
-  return 0;
+export function temperaturePartialCompare(a: Temperature, b: Temperature): number | null {
+    if (a === b) return 0;
+    const cmp0 = (() => {
+        if (typeof (a.value as any)?.compareTo === 'function') {
+            const optResult = (a.value as any).compareTo(b.value);
+            return optResult === null ? null : optResult;
+        }
+        return a.value === b.value ? 0 : null;
+    })();
+    if (cmp0 === null) return null;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.unit.localeCompare(b.unit);
+    if (cmp1 === null) return null;
+    if (cmp1 !== 0) return cmp1;
+    return 0;
 }
 ```
 
 ## Return Type
 
-The generated functions return `number | null` where `null` indicates
-incomparable values.
+The generated functions return `number | null` where `null` indicates incomparable values.

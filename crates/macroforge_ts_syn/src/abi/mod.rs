@@ -77,6 +77,8 @@ pub enum LoweredTarget {
     Enum(crate::abi::EnumIR),
     /// A lowered type alias declaration.
     TypeAlias(crate::abi::TypeAliasIR),
+    /// A lowered function declaration.
+    Function(crate::abi::FunctionIR),
 }
 
 /// Re-export of SWC's ECMAScript AST types.

@@ -134,8 +134,8 @@ pub use import_registry::{
 pub use lower::*;
 #[cfg(feature = "oxc")]
 pub use lower_oxc::{
-    collect_exported_names_oxc, lower_classes_oxc, lower_enums_oxc, lower_interfaces_oxc,
-    lower_targets_oxc, lower_type_aliases_oxc,
+    collect_exported_names_oxc, lower_classes_oxc, lower_enums_oxc, lower_functions_oxc,
+    lower_interfaces_oxc, lower_targets_oxc, lower_type_aliases_oxc,
 };
 #[cfg(feature = "oxc")]
 pub use oxc_quote_helpers::{

@@ -325,6 +325,24 @@ pub enum PatchCode {
     ModuleItem(swc_ast::ModuleItem),
 }
 
+impl PatchCode {
+    /// Borrow the code as a string slice if this is a [`PatchCode::Text`]
+    /// variant, otherwise `None`.
+    ///
+    /// Convenience accessor for test code that needs to inspect patch
+    /// contents without destructuring across feature-gated variants.
+    /// Under `--features oxc` only `Text` exists so this always returns
+    /// `Some`; under `--features swc` it gracefully returns `None` for
+    /// AST-node variants.
+    pub fn as_text(&self) -> Option<&str> {
+        match self {
+            PatchCode::Text(s) => Some(s.as_str()),
+            #[cfg(feature = "swc")]
+            _ => None,
+        }
+    }
+}
+
 // Custom serde for PatchCode - only serialize Text variant, skip AST variants
 impl serde::Serialize for PatchCode {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

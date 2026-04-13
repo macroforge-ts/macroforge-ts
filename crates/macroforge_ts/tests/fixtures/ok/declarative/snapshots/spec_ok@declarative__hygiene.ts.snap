@@ -1,6 +1,5 @@
 ---
 source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/ok/declarative/hygiene.ts
 ---
@@ -21,7 +20,7 @@ const result = $withTemp(10);
 
 const result = (() => {
     const __v$1 = 10;
-    __v$1 + 1
+    return __v$1 + 1
   })();
 
 ## DTS

@@ -1627,63 +1627,6 @@ describe('Enum tagging modes — expansion', () => {
 // ============================================================================
 
 describe('Enum tagging modes — runtime round-trip', () => {
-    /**
-     * Helper: expand code, evaluate the generated module, and return its exports.
-     * We concatenate the macroforge/serde runtime stubs so the expanded code can
-     * actually execute without a real import resolver.
-     */
-    function evalExpanded(code) {
-        const result = expandSync(code, 'test.ts');
-        // Strip TypeScript type annotations so we can eval as JS
-        // Also strip import statements (we'll inject stubs)
-        const js = result.code
-            .replace(/import\s+\{[^}]*\}\s+from\s+["'][^"']+["'];?/g, '')
-            .replace(/export\s+/g, '')
-            // strip type annotations from parameters/return types
-            .replace(
-                /:\s*(?:string|number|boolean|void|any|unknown|null|undefined)(?:\s*\|[^,){}=]*)?/g,
-                ''
-            )
-            .replace(/:\s*(?:Array|Record|Map|Set)<[^>]*>/g, '')
-            .replace(/\?\s*:/g, '?') // optional params
-            // strip 'as any', 'as Type', etc.
-            .replace(/\bas\s+(?:any|[A-Z]\w*(?:\s*\|\s*\w+)*)/g, '')
-            // strip interface/type declarations
-            .replace(/(?:interface|type)\s+\w+[^{]*\{[^}]*\}/g, '')
-            .replace(/type\s+\w+\s*=[^;]+;/g, '');
-
-        // Inject minimal SerializeContext stub
-        const stubs = `
-            class SerializeContext {
-                static create() { return new SerializeContext(); }
-                _nextId = 1;
-                _seen = new Map();
-                getId(obj) { return this._seen.get(obj) ?? null; }
-                register(obj) {
-                    const id = this._nextId++;
-                    this._seen.set(obj, id);
-                    return id;
-                }
-            }
-            const __mf_SerializeContext = SerializeContext;
-        `;
-
-        const module = { exports: {} };
-        const fn = new Function(
-            'module',
-            'exports',
-            stubs + js + `
-            module.exports = { ${
-                (js.match(/function\s+(\w+)\s*[<(]/g) || [])
-                    .map((m) => m.match(/function\s+(\w+)/)[1])
-                    .join(', ')
-            } };
-        `
-        );
-        fn(module, module.exports);
-        return module.exports;
-    }
-
     test('externally tagged: serialize + deserialize both generate correct code', () => {
         const code = `
             /** @derive(Serialize, Deserialize) */

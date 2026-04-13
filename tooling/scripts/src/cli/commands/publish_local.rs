@@ -436,11 +436,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         if has_crate {
             ensure_cargo_auth()?;
         }
-        if has_jsr {
-            if let Some((jsr_name, _, _, _, _)) = to_publish.iter().find(|(_, _, _, _, jsr)| *jsr) {
-                let jsr_dir = &config.repos[*jsr_name].abs_path;
-                ensure_jsr_auth(jsr_dir)?;
-            }
+        if has_jsr
+            && let Some((jsr_name, _, _, _, _)) = to_publish.iter().find(|(_, _, _, _, jsr)| *jsr)
+        {
+            let jsr_dir = &config.repos[*jsr_name].abs_path;
+            ensure_jsr_auth(jsr_dir)?;
         }
         println!();
     }
@@ -488,17 +488,15 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         format::step(step, total, &format!("Publishing {}", display_name));
 
         // crates.io
-        if *needs_crate {
-            if let Some(crate_name) = &repo.crate_name {
-                match publish_crate(&repo.abs_path, crate_name, pkg_version, args.dry_run)? {
-                    true => {
-                        if !args.dry_run {
-                            wait_for_crate(crate_name, pkg_version)?;
-                        }
-                        published.push(format!("{}@{} (crates.io)", crate_name, pkg_version));
+        if *needs_crate && let Some(crate_name) = &repo.crate_name {
+            match publish_crate(&repo.abs_path, crate_name, pkg_version, args.dry_run)? {
+                true => {
+                    if !args.dry_run {
+                        wait_for_crate(crate_name, pkg_version)?;
                     }
-                    false => skipped.push(format!("{}@{} (crates.io)", crate_name, pkg_version)),
+                    published.push(format!("{}@{} (crates.io)", crate_name, pkg_version));
                 }
+                false => skipped.push(format!("{}@{} (crates.io)", crate_name, pkg_version)),
             }
         }
 
@@ -519,9 +517,8 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         // JSR
         if *needs_jsr {
             let name = jsr_name(&repo.abs_path);
-            match publish_jsr(&repo.abs_path, &name, pkg_version, args.dry_run)? {
-                true => published.push(format!("{}@{} (jsr)", name, pkg_version)),
-                false => {}
+            if publish_jsr(&repo.abs_path, &name, pkg_version, args.dry_run)? {
+                published.push(format!("{}@{} (jsr)", name, pkg_version))
             }
         }
     }

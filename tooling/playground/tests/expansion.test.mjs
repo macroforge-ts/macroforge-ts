@@ -160,14 +160,14 @@ test('declarative macros: project-wide registry file lists macro-defining files'
     const parsed = JSON.parse(declarativeRegistryJson);
     const files = Object.keys(parsed.by_file ?? {});
     assert.ok(
-        files.some((f) => f.includes('_decl_macros_lib')),
-        `expected _decl_macros_lib.ts in registry files, got: ${
+        files.some((f) => f.includes('decl_macros_lib')),
+        `expected decl_macros_lib.ts in registry files, got: ${
             files.join(
                 ', '
             )
         }`
     );
-    // _decl_macros_lib.ts defines $vec and $identity; declarative-macros.ts
+    // decl_macros_lib.ts defines $vec and $identity; declarative-macros.ts
     // defines $vec, $id, $withTemp. Total = 5 macros across 2 files.
     let macroCount = 0;
     for (const macros of Object.values(parsed.by_file ?? {})) {
@@ -188,9 +188,9 @@ test('declarative macros: cross-file imports resolve at expand time', () => {
     );
 
     // Expand the consumer file with the declarative registry installed.
-    // The registry maps `_decl_macros_lib.ts`'s absolute path to its
+    // The registry maps `decl_macros_lib.ts`'s absolute path to its
     // `$vec` / `$identity` definitions; the pre-pass uses it to resolve
-    // the `/** import macro { $vec, $identity } from "./_decl_macros_lib" */`
+    // the `/** import macro { $vec, $identity } from "./decl_macros_lib" */`
     // JSDoc at the top of `cross-file-decl.ts`.
     const consumerPath = path.join(vanillaRoot, 'src', 'cross-file-decl.ts');
     const source = fs.readFileSync(consumerPath, 'utf8');

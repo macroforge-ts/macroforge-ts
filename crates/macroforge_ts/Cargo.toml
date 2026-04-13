@@ -21,7 +21,7 @@ path = "src/bin/cli/main.rs"
 [dependencies]
 # NAPI-RS for Node.js bindings
 napi = { version = "3.5.2", features = ["napi8", "compat-mode"], optional = true }
-napi-derive = { version = "3.3.3", optional = true }
+napi-derive = { version = "3.3.3", optional = true, features = ["type-def"] }
 
 # WASM Bindings
 wasm-bindgen = { version = "0.2.100", optional = true }
@@ -99,6 +99,12 @@ oxc = [
 full = ["oxc", "swc", "wasm", "build"]
 # Enable build script utilities (napi_auto_build)
 build = ["libc"]
+# Register the `src/test_macros/` module — a small set of proc/attribute
+# macros (@traced, $stringify, $concat_names) used exclusively by the
+# snapshot test fixtures under `tests/fixtures/ok/{attribute,call}/`.
+# These get registered via inventory just like the real built-ins, so
+# they must NOT be enabled in production builds.
+test-macros = []
 
 [build-dependencies]
 napi-build = { version = "2.3.1", optional = true }
@@ -118,3 +124,11 @@ criterion = { version = "0.5", features = ["html_reports"] }
 name = "declarative_composition"
 harness = false
 required-features = ["oxc"]
+
+# Snapshot tests exercise built-in, declarative, and test-macros fixtures.
+# `test-macros` is required so the `@traced`, `$stringify`, and
+# `$concat_names` macros are registered in the inventory when the test
+# binary runs.
+[[test]]
+name = "spec_tests"
+required-features = ["test-macros"]

@@ -4,11 +4,14 @@ import * as expand_wasm from '../../../crates/macroforge_ts/pkg/macroforge_ts.js
 import fs from 'node:fs';
 import path from 'node:path';
 
-const TEST_FILE = path.resolve(process.cwd(), '../vanilla/src/user.ts');
+const TEST_FILE = path.resolve(
+    globalThis.process.cwd(),
+    '../vanilla/src/user.ts'
+);
 const code = fs.readFileSync(TEST_FILE, 'utf-8');
 
 test.describe('Macroforge WASM parity', () => {
-    test('WASM and Node should produce identical output', async () => {
+    test('WASM and Node should produce identical output', () => {
         const resultNode = expand_node(code, TEST_FILE, { keep_decorators: false });
         const resultWasm = expand_wasm.expand_sync(code, TEST_FILE, {
             keep_decorators: false
@@ -30,9 +33,9 @@ test.describe('Macroforge WASM parity', () => {
         }
     });
 
-    test('WASM should handle complex files', async () => {
+    test('WASM should handle complex files', () => {
         const complexFile = path.resolve(
-            process.cwd(),
+            globalThis.process.cwd(),
             '../vanilla/src/validator-form.ts'
         );
         const complexCode = fs.readFileSync(complexFile, 'utf-8');
@@ -48,7 +51,7 @@ test.describe('Macroforge WASM parity', () => {
         expect(resultWasm.diagnostics.length).toBe(resultNode.diagnostics.length);
     });
 
-    test('WASM should support diagnostics parity', async () => {
+    test('WASM should support diagnostics parity', () => {
         const invalidCode = `@Derive(NonExistentMacro)\nclass Test {}`;
         const fileName = 'invalid.ts';
 

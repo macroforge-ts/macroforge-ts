@@ -1,0 +1,37 @@
+---
+source: macroforge_ts/tests/spec_tests.rs
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/ok/attribute/traced_async.ts
+---
+## Input
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+/** @traced */
+export async function fetchUser(id: number): Promise<string> {
+    return `user-${id}`;
+}
+
+## Output
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+
+export async function fetchUser(id: number): Promise<string> {
+    (globalThis as any).__traced ??= {};
+    (globalThis as any).__traced["fetchUser"] = ((globalThis as any).__traced["fetchUser"] || 0) + 1;
+    return `user-${id}`;
+}
+
+## DTS
+
+/** import macro { traced } from "@macroforge/test-macros" */
+
+
+export async function fetchUser(id: number): Promise<string> {
+    return `user-${id}`;
+}
+
+## Diagnostics
+
+(none)

@@ -1,4 +1,4 @@
-import { assert as assertTrue, assertEquals, assertStrictEquals } from 'jsr:@std/assert@1';
+import { assert as assertTrue, assertEquals, assertStrictEquals } from '@std/assert';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { existsSync } from 'node:fs';
@@ -78,7 +78,7 @@ export async function expandAndCompile(filePath) {
 /**
  * Load a validator test module
  */
-export async function loadValidatorModule(moduleName) {
+export function loadValidatorModule(moduleName) {
     const filePath = path.join(vanillaRoot, 'src/validators', `${moduleName}.ts`);
     return expandAndCompile(filePath);
 }

@@ -792,7 +792,7 @@ impl DeriveInput {
                 });
                 (ident, type_alias.span, attrs, data)
             }
-            TargetIR::Function => {
+            TargetIR::Function(_) => {
                 return Err(TsSynError::Unsupported(
                     "Function derive macros not yet supported".into(),
                 ));
