@@ -1,6 +1,9 @@
 <script lang="ts">
 import { MacroUser, showcaseUserJson, showcaseUserSummary } from '$lib/demo/macro-user';
 import { SvelteAllMacrosTest, svelteTestInstance } from '$lib/demo/all-macros-test';
+import { collectSvelteBuildtime } from '$lib/demo/buildtime-demo';
+
+const buildtimeResults = collectSvelteBuildtime();
 
 const derivedUser = new MacroUser({
     id: 'usr_1001',
@@ -172,6 +175,67 @@ function runAllMacroTests() {
             <h3>Showcase user (module-level)</h3>
             <p>{showcaseUserSummary}</p>
             <pre>{showcaseJsonPretty}</pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>@buildtime evaluation</h2>
+        <p>
+            Every value below was computed at compile time by macroforge
+            and spliced into the module as a TS literal. The runtime
+            stub imported from <code>macroforge/buildtime</code> still
+            throws when called — proving the plugin did the work, not
+            the browser.
+        </p>
+        <div class="card" data-testid="buildtime-results">
+            <div>
+                <strong>answer:</strong>
+                <code data-testid="svelte-bt-answer"
+                    >{buildtimeResults.answer}</code
+                >
+            </div>
+            <div>
+                <strong>schema sha256:</strong>
+                <code data-testid="svelte-bt-hash"
+                    >{buildtimeResults.schemaHash}</code
+                >
+            </div>
+            <div>
+                <strong>app name (from JSON):</strong>
+                <code data-testid="svelte-bt-app-name"
+                    >{buildtimeResults.appName}</code
+                >
+            </div>
+            <div>
+                <strong>app version (from JSON):</strong>
+                <code data-testid="svelte-bt-app-version"
+                    >{buildtimeResults.appVersion}</code
+                >
+            </div>
+            <div>
+                <strong>features (from JSON):</strong>
+                <code data-testid="svelte-bt-features"
+                    >{buildtimeResults.features.join(',')}</code
+                >
+            </div>
+            <div>
+                <strong>constant list (compile-time map):</strong>
+                <code data-testid="svelte-bt-constant-list"
+                    >{buildtimeResults.constantList.join(',')}</code
+                >
+            </div>
+            <div>
+                <strong>derived summary:</strong>
+                <code data-testid="svelte-bt-summary"
+                    >{buildtimeResults.derivedSummary}</code
+                >
+            </div>
+            <div>
+                <strong>runtime stub throws:</strong>
+                <code data-testid="svelte-bt-stub-throws"
+                    >{String(buildtimeResults.runtimeStubThrows)}</code
+                >
+            </div>
         </div>
     </section>
 

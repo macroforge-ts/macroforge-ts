@@ -58,7 +58,7 @@ pub struct TransformResult {
 /// };
 /// ```
 #[cfg_attr(feature = "node", napi(object))]
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MacroDiagnostic {
     /// Severity level of the diagnostic.
     /// One of: "error", "warning", "info".
@@ -181,6 +181,12 @@ pub struct ExpandResult {
     pub diagnostics: Vec<MacroDiagnostic>,
     /// Source mapping for position translation between original and expanded code.
     pub source_mapping: Option<SourceMappingResult>,
+    /// Absolute paths of every file read by `@buildtime` declarations
+    /// during evaluation. Consumers (the Vite plugin, loopshot's dev
+    /// server, the on-disk cache) use this list for incremental rebuilds:
+    /// when any dependency changes, the cache entry for this source
+    /// must be invalidated and the file re-expanded.
+    pub buildtime_dependencies: Vec<String>,
 }
 
 impl ExpandResult {
@@ -206,6 +212,7 @@ impl ExpandResult {
             metadata: None,
             diagnostics: vec![],
             source_mapping: None,
+            buildtime_dependencies: vec![],
         }
     }
 }

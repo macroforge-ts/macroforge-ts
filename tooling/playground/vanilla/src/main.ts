@@ -2,6 +2,10 @@ import { AllMacrosTestClass, testInstance } from "./all-macros-test.ts";
 import { User } from "./user.ts";
 import { type RunesTestResults, runRunesTests } from "./runes-test.ts";
 import { type E2eResults, runE2eHarness } from "./e2e-harness.ts";
+import {
+  type BuildtimeDemoResult,
+  collectBuildtimeDemo,
+} from "./buildtime-demo.ts";
 
 // The playground attaches test results to `globalThis` so Playwright
 // can read them after page load.
@@ -16,6 +20,7 @@ type PlaygroundGlobals = {
   };
   runesTestResults?: RunesTestResults;
   e2eResults?: E2eResults;
+  buildtimeResults?: BuildtimeDemoResult;
 };
 const pg = globalThis as unknown as PlaygroundGlobals;
 
@@ -112,6 +117,12 @@ function testMacros() {
   const derivedSummary = User.toString(user);
   const derivedJson = user.toJSON();
 
+  // Pull spliced-at-build-time values out of buildtime-demo.ts. If the
+  // Vite plugin's macroforge pre-pass didn't run, this will throw
+  // because the `macroforge/buildtime` runtime stubs fire.
+  const buildtimeResult = collectBuildtimeDemo();
+  pg.buildtimeResults = buildtimeResult;
+
   const app = document.getElementById("app");
   if (app) {
     app.innerHTML = `
@@ -151,6 +162,32 @@ function testMacros() {
         Notice how the summary uses <code>identifier</code> instead of <code>id</code>, while the
         <code>authToken</code> field is skipped entirely in <code>toString()</code> but still present in the JSON payload.
       </p>
+
+      <h2>@buildtime evaluation</h2>
+      <p>
+        Every value below was computed at compile time by macroforge and
+        spliced into the module as a TS literal. The runtime stub
+        imported from <code>macroforge/buildtime</code> still throws if
+        called — proving the plugin did the work, not the browser.
+      </p>
+      <div id="buildtime-results" data-testid="buildtime-results">
+        <div><strong>answer (6 * 7):</strong> <code data-testid="bt-answer">${buildtimeResult.answer}</code></div>
+        <div><strong>schema sha256:</strong> <code data-testid="bt-hash">${buildtimeResult.schemaHash}</code></div>
+        <div><strong>app name (from JSON):</strong> <code data-testid="bt-app-name">${buildtimeResult.appName}</code></div>
+        <div><strong>app version (from JSON):</strong> <code data-testid="bt-app-version">${buildtimeResult.appVersion}</code></div>
+        <div><strong>routes (from JSON):</strong> <code data-testid="bt-routes">${
+      buildtimeResult.routes.join(",")
+    }</code></div>
+        <div><strong>derived summary:</strong> <code data-testid="bt-summary">${buildtimeResult.derivedSummary}</code></div>
+        <div><strong>greeting for alice:</strong> <code data-testid="bt-greet-alice">${buildtimeResult.greetingAlice}</code></div>
+        <div><strong>greeting keys:</strong> <code data-testid="bt-greet-keys">${
+      buildtimeResult.greetingKeys.join(",")
+    }</code></div>
+        <div><strong>constant object thirteen:</strong> <code data-testid="bt-const-thirteen">${buildtimeResult.constantObject.thirteen}</code></div>
+        <div><strong>runtime stub throws:</strong> <code data-testid="bt-stub-throws">${
+      String(buildtimeResult.runtimeStubThrows)
+    }</code></div>
+      </div>
 
       <p>Check the console for more examples!</p>
     `;

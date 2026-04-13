@@ -1,0 +1,5 @@
+{
+  "app": "macroforge-playground",
+  "version": "2.4.1",
+  "routes": ["home", "users", "settings"]
+}

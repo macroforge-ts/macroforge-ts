@@ -8,7 +8,7 @@
   "imports": {
     "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
     "typescript": "npm:typescript@^5.9.3",
-    "vite": "npm:vite@^6.0.0"
+    "vite": "npm:vite@^8.0.0"
   },
   "compilerOptions": {
     "lib": ["esnext", "deno.window"],

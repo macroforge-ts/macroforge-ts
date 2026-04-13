@@ -20,7 +20,7 @@ path = "src/bin/cli/main.rs"
 
 [dependencies]
 # NAPI-RS for Node.js bindings
-napi = { version = "3.5.2", features = ["napi8", "compat-mode"], optional = true }
+napi = { version = "3.5.2", features = ["napi8", "compat-mode", "tokio_rt"], optional = true }
 napi-derive = { version = "3.3.3", optional = true, features = ["type-def"] }
 
 # WASM Bindings
@@ -39,7 +39,7 @@ swc_core = { version = "59.0.1", optional = true, features = [
 ] }
 
 # Oxc for TypeScript parsing and transformation
-oxc = { version = "0.123", optional = true, features = ["codegen", "ast_visit"] }
+oxc = { version = "0.123", optional = true, features = ["codegen", "ast_visit", "transformer", "semantic"] }
 
 # Macroforge crates
 macroforge_ts_syn = { version = "0.1.81", path = "../macroforge_ts_syn" }
@@ -69,6 +69,30 @@ notify-debouncer-full = "0.7"
 sha2 = "0.11"
 tempfile = "3.13.0"
 
+# Buildtime sandbox — Boa (pure Rust JS engine). Compiles to both
+# native and wasm32-unknown-unknown since there's no C code in the
+# dependency tree. Optional; gated by `buildtime-boa`.
+boa_engine = { version = "0.21", optional = true }
+
+# Boa pulls in `getrandom` transitively. On wasm32 it requires a
+# backend selection — we use the wasm-bindgen Crypto.getRandomValues
+# bridge. The matching cfg flag is set in `crates/.cargo/config.toml`.
+getrandom = { version = "0.3", features = ["wasm_js"], optional = true }
+
+# `web_time` is a drop-in replacement for `std::time::Instant` that
+# works on wasm32-unknown-unknown (which has no monotonic clock in
+# std). On native targets it re-exports the std types so the same
+# code paths work in both environments.
+web-time = { version = "1.1", optional = true }
+
+# Buildtime sandbox path matching. Used by the CapabilitySet to check
+# whether a filesystem read/write is permitted.
+globset = "0.4"
+
+# Buildtime cross-platform time + digest helpers (sha2 is already
+# listed above for the watch command; we reuse it in buildtime::api).
+hex = "0.4"
+
 # Ordered maps
 indexmap = "2.7"
 
@@ -87,7 +111,7 @@ rayon = "1.10"
 libc = { version = "0.2", optional = true }
 
 [features]
-default = ["wasm", "oxc"]
+default = ["wasm", "oxc", "buildtime-boa"]
 swc = ["dep:swc_core", "macroforge_ts_syn/swc", "macroforge_ts_quote/swc"]
 node = ["dep:napi", "dep:napi-derive", "dep:napi-build"]
 wasm = ["dep:wasm-bindgen", "dep:serde-wasm-bindgen", "dep:js-sys"]
@@ -96,7 +120,9 @@ oxc = [
     "macroforge_ts_syn/oxc",
     "macroforge_ts_quote/oxc"
 ]
-full = ["oxc", "swc", "wasm", "build"]
+# Buildtime sandbox — Boa (pure Rust). Compiles to native + wasm32.
+buildtime-boa = ["dep:boa_engine", "dep:getrandom", "dep:web-time"]
+full = ["oxc", "swc", "wasm", "build", "buildtime-boa"]
 # Enable build script utilities (napi_auto_build)
 build = ["libc"]
 # Register the `src/test_macros/` module — a small set of proc/attribute

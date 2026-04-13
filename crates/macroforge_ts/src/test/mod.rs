@@ -52,6 +52,8 @@
 //! cargo test -p macroforge_ts
 //! ```
 
+#[cfg(all(feature = "oxc", feature = "buildtime-boa"))]
+mod buildtime_integration;
 mod class_features;
 mod decorator_stripping;
 mod derive_basic;

@@ -53,6 +53,24 @@ pub fn expand_sync(
         .map_err(|e| Error::new(Status::GenericFailure, e))
 }
 
+/// Async macro expansion.
+///
+/// Returns a Promise that resolves to the same [`ExpandResult`] as
+/// [`expand_sync`]. Vite's async `transform` hook can `await` this so
+/// expansion doesn't block the plugin worker for the duration of a
+/// long `@buildtime` evaluation. Internally the pipeline is still
+/// synchronous; hosting it on an `async fn` is the NAPI idiom for
+/// dispatching to a worker-pool thread and returning a Promise.
+#[napi(js_name = "expand")]
+pub async fn expand(
+    code: String,
+    filepath: String,
+    options: Option<ExpandOptions>,
+) -> Result<ExpandResult> {
+    CoreEngine::expand_sync(code, filepath, options)
+        .map_err(|e| Error::new(Status::GenericFailure, e))
+}
+
 #[napi]
 pub fn scan_project_sync(root_dir: String, options: Option<ScanOptions>) -> Result<ScanResult> {
     CoreEngine::scan_project_sync(root_dir, options)

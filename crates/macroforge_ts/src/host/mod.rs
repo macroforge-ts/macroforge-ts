@@ -78,6 +78,10 @@
 /// Configuration loading and management.
 pub mod config;
 
+/// Compile-time `@buildtime` evaluation — sandboxed JS execution during
+/// source transformation, Zig-comptime style.
+pub mod buildtime;
+
 /// Declarative (pattern-matching) macros — the `$name(...)` macro system.
 pub mod declarative;
 

@@ -1,2 +1,9 @@
 [target.aarch64-unknown-linux-gnu]
 linker = "aarch64-linux-gnu-gcc"
+
+# Boa transitively depends on `getrandom`. Since v0.3, getrandom requires
+# an explicit backend selection on wasm32-unknown-unknown. The Vite
+# plugin runs in a JS host (Node or browser), so we point it at the
+# wasm-bindgen / Crypto.getRandomValues backend.
+[target.wasm32-unknown-unknown]
+rustflags = ['--cfg', 'getrandom_backend="wasm_js"']

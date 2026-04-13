@@ -288,7 +288,7 @@ pub use plugin::NativePlugin;
 
 #[cfg(feature = "node")]
 pub use bindings_napi::{
-    check_syntax, clear_config_cache, derive_decorator, expand_sync, load_config,
+    check_syntax, clear_config_cache, derive_decorator, expand, expand_sync, load_config,
     parse_import_sources, scan_project_sync, transform_sync,
 };
 
