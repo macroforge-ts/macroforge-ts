@@ -15,7 +15,7 @@
  *
  * @example
  * ```typescript
- * import { loadSections, getSection, searchSections } from './docs-loader.js';
+ * import { loadSections, getSection, searchSections } from './docs-loader.ts';
  *
  * const sections = loadSections();
  * const debug = getSection(sections, 'debug');

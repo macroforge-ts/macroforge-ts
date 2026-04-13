@@ -1,9 +1,30 @@
 {
-  "name": "@macroforge/svelte-language-server",
-  "version": "0.1.79",
-  "license": "MIT",
+  "compilerOptions": {
+    "lib": [
+      "esnext",
+      "deno.window"
+    ],
+    "noImplicitAny": false,
+    "noImplicitOverride": false,
+    "skipLibCheck": true,
+    "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": false
+  },
   "exports": {
     ".": "./src/index.ts"
+  },
+  "fmt": {
+    "exclude": [
+      "**/dist",
+      "**/build",
+      "**/node_modules"
+    ],
+    "indentWidth": 4,
+    "lineWidth": 100,
+    "semiColons": true,
+    "singleQuote": true,
+    "trailingCommas": "never",
+    "useTabs": false
   },
   "imports": {
     "@jridgewell/trace-mapping": "npm:@jridgewell/trace-mapping@^0.3.25",
@@ -44,37 +65,28 @@
     "vscode-html-languageservice": "npm:vscode-html-languageservice@~5.4.0",
     "vscode-html-languageservice/lib/umd/languageFacts/data/webCustomData": "npm:vscode-html-languageservice@~5.4.0/lib/umd/languageFacts/data/webCustomData",
     "vscode-languageserver": "npm:vscode-languageserver@9.0.1",
-    "vscode-languageserver/node": "npm:vscode-languageserver@9.0.1/node",
     "vscode-languageserver-protocol": "npm:vscode-languageserver-protocol@3.17.5",
     "vscode-languageserver-types": "npm:vscode-languageserver-types@3.17.5",
+    "vscode-languageserver/node": "npm:vscode-languageserver@9.0.1/node",
     "vscode-uri": "npm:vscode-uri@~3.1.0"
   },
-  "compilerOptions": {
-    "lib": ["esnext", "deno.window"],
-    "skipLibCheck": true,
-    "noImplicitOverride": false,
-    "strictPropertyInitialization": false,
-    "noImplicitAny": false,
-    "useUnknownInCatchVariables": false
+  "license": "MIT",
+  "lint": {
+    "exclude": [
+      "."
+    ]
   },
-  "unstable": ["sloppy-imports"],
+  "name": "@macroforge/svelte-language-server",
+  "publish": {
+    "exclude": [
+      "test/",
+      "dist/",
+      "node_modules/"
+    ]
+  },
   "tasks": {
     "pretest": "node test/setup-fixtures.js",
     "test": "deno task pretest && TS_NODE_TRANSPILE_ONLY=true deno run -A --node-modules-dir=manual npm:mocha --timeout 60000 --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types"
   },
-  "publish": {
-    "exclude": ["test/", "dist/", "node_modules/"]
-  },
-  "fmt": {
-    "useTabs": false,
-    "indentWidth": 4,
-    "lineWidth": 100,
-    "singleQuote": true,
-    "semiColons": true,
-    "trailingCommas": "never",
-    "exclude": ["**/dist", "**/build", "**/node_modules"]
-  },
-  "lint": {
-    "exclude": ["."]
-  }
+  "version": "0.1.80"
 }

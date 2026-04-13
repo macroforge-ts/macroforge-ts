@@ -31,5 +31,5 @@
   },
   "type": "module",
   "types": "src/index.d.ts",
-  "version": "0.1.79"
+  "version": "0.1.80"
 }

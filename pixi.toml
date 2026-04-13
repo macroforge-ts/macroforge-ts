@@ -43,8 +43,8 @@ diagnostics = { cmd = "tooling/scripts/target/release/mf diagnostics" }
 "cleanbuild:rust" = { cmd = "tooling/scripts/target/release/mf build --repos rust" }
 
 # Version management (using mf)
-bump = { cmd = "tooling/scripts/target/release/mf prep --bump-only" }
-sync = { cmd = "tooling/scripts/target/release/mf prep --sync-versions --bump-only" }
+bump = { cmd = "tooling/scripts/target/release/mf verify --bump-only" }
+sync = { cmd = "tooling/scripts/target/release/mf verify --sync-versions --bump-only" }
 rebase = { cmd = "tooling/scripts/target/release/mf versions" }
 
 # Documentation (using mf)

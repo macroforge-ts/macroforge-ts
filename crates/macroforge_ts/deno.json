@@ -1,31 +1,23 @@
 {
-    "name": "@macroforge/core",
-    "version": "0.1.79",
     "exports": {
         ".": "./pkg/macroforge_ts.js",
         "./buildtime": "./js/buildtime/index.ts",
         "./serde": "./js/serde/index.ts",
         "./traits": "./js/traits/index.ts"
     },
-    "publish": {
-        "include": [
-            "pkg/",
-            "js/buildtime/",
-            "js/serde/",
-            "js/traits/",
-            "deno.json",
-            "LICENSE",
-            "README.md"
-        ]
-    },
     "fmt": {
-        "useTabs": false,
+        "exclude": [
+            "**/js/**",
+            "**/dist",
+            "**/build",
+            "**/node_modules"
+        ],
         "indentWidth": 4,
         "lineWidth": 100,
-        "singleQuote": true,
         "semiColons": true,
+        "singleQuote": true,
         "trailingCommas": "never",
-        "exclude": ["**/js/**", "**/dist", "**/build", "**/node_modules"]
+        "useTabs": false
     },
     "lint": {
         "exclude": [
@@ -37,5 +29,18 @@
             "index.d.ts",
             "tests/fixtures/**"
         ]
-    }
+    },
+    "name": "@macroforge/core",
+    "publish": {
+        "include": [
+            "pkg/",
+            "js/buildtime/",
+            "js/serde/",
+            "js/traits/",
+            "deno.json",
+            "LICENSE",
+            "README.md"
+        ]
+    },
+    "version": "0.1.80"
 }

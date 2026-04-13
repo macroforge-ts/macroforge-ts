@@ -37,7 +37,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { registerTools } from "./tools/index.js";
+import { registerTools } from "./tools/index.ts";
 
 // Get package info for server metadata
 const __filename = fileURLToPath(import.meta.url);

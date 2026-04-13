@@ -78,5 +78,5 @@
     "watch": "deno run -A npm:typescript@5/tsc -w"
   },
   "typings": "dist/src/index",
-  "version": "0.1.79"
+  "version": "0.1.80"
 }

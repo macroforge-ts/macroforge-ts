@@ -6,5 +6,8 @@
     "./typescript-plugin",
     "./vite-plugin",
     "./svelte-preprocessor"
+  ],
+  "unstable": [
+    "sloppy-imports"
   ]
 }

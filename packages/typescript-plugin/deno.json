@@ -1,28 +1,27 @@
 {
-    "name": "@macroforge/typescript-plugin",
-    "version": "0.1.79",
-    "license": "MIT",
     "exports": {
         ".": "./src/index.ts"
     },
-    "imports": {
-        "typescript/lib/tsserverlibrary": "npm:typescript@^5.9.3/lib/tsserverlibrary",
-        "macroforge": "npm:macroforge@^0.1.79",
-        "@macroforge/shared": "npm:@macroforge/shared@^0.1.79"
-    },
-    "unstable": ["sloppy-imports"],
-    "publish": {
-        "exclude": ["tests/", "dist/", "scripts/", "node_modules/"]
-    },
     "fmt": {
-        "useTabs": false,
+        "exclude": [
+            "**/fixtures/**",
+            "**/dist",
+            "**/build",
+            "**/node_modules"
+        ],
         "indentWidth": 4,
         "lineWidth": 100,
-        "singleQuote": true,
         "semiColons": true,
+        "singleQuote": true,
         "trailingCommas": "never",
-        "exclude": ["**/fixtures/**", "**/dist", "**/build", "**/node_modules"]
+        "useTabs": false
     },
+    "imports": {
+        "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
+        "macroforge": "npm:macroforge@^0.1.79",
+        "typescript/lib/tsserverlibrary": "npm:typescript@^5.9.3/lib/tsserverlibrary"
+    },
+    "license": "MIT",
     "lint": {
         "exclude": [
             "**/fixtures/**",
@@ -34,8 +33,6 @@
             "**/*.config.js"
         ],
         "rules": {
-            "tags": ["recommended"],
-            "include": ["eqeqeq"],
             "exclude": [
                 "require-await",
                 "no-process-global",
@@ -43,7 +40,23 @@
                 "no-irregular-whitespace",
                 "no-explicit-any",
                 "no-inner-declarations"
+            ],
+            "include": [
+                "eqeqeq"
+            ],
+            "tags": [
+                "recommended"
             ]
         }
-    }
+    },
+    "name": "@macroforge/typescript-plugin",
+    "publish": {
+        "exclude": [
+            "tests/",
+            "dist/",
+            "scripts/",
+            "node_modules/"
+        ]
+    },
+    "version": "0.1.80"
 }

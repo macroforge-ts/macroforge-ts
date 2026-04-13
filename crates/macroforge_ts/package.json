@@ -6,39 +6,39 @@
     "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
     "exports": {
         ".": {
-            "default": "./pkg/macroforge_ts.js",
             "require": "./pkg/macroforge_ts.js",
-            "types": "./pkg/macroforge_ts.d.ts"
+            "types": "./pkg/macroforge_ts.d.ts",
+            "default": "./pkg/macroforge_ts.js"
         },
         "./buildtime": {
-            "default": "./js/buildtime/index.mjs",
             "import": "./js/buildtime/index.mjs",
-            "types": "./js/buildtime/index.d.ts"
+            "types": "./js/buildtime/index.d.ts",
+            "default": "./js/buildtime/index.mjs"
         },
         "./reexports": {
-            "default": "./js/reexports/index.mjs",
             "import": "./js/reexports/index.mjs",
-            "types": "./js/reexports/index.d.ts"
+            "types": "./js/reexports/index.d.ts",
+            "default": "./js/reexports/index.mjs"
         },
         "./reexports/effect": {
-            "default": "./js/reexports/effect.mjs",
             "import": "./js/reexports/effect.mjs",
-            "types": "./js/reexports/effect.d.ts"
+            "types": "./js/reexports/effect.d.ts",
+            "default": "./js/reexports/effect.mjs"
         },
         "./rules": {
-            "default": "./js/rules/index.mjs",
             "import": "./js/rules/index.mjs",
-            "types": "./js/rules/index.d.ts"
+            "types": "./js/rules/index.d.ts",
+            "default": "./js/rules/index.mjs"
         },
         "./serde": {
-            "default": "./js/serde/index.mjs",
             "import": "./js/serde/index.mjs",
-            "types": "./js/serde/index.d.ts"
+            "types": "./js/serde/index.d.ts",
+            "default": "./js/serde/index.mjs"
         },
         "./traits": {
-            "default": "./js/traits/index.mjs",
             "import": "./js/traits/index.mjs",
-            "types": "./js/traits/index.d.ts"
+            "types": "./js/traits/index.d.ts",
+            "default": "./js/traits/index.mjs"
         }
     },
     "files": [
@@ -75,5 +75,5 @@
     },
     "type": "commonjs",
     "types": "./pkg/macroforge_ts.d.ts",
-    "version": "0.1.79"
+    "version": "0.1.80"
 }

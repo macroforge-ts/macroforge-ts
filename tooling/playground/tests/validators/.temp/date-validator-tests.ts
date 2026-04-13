@@ -98,9 +98,7 @@ export class ValidDateValidator {
             errors.push({ field: 'date', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            ValidDateValidator.prototype
-        ) as ValidDateValidator;
+        const instance = Object.create(ValidDateValidator.prototype) as ValidDateValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -204,9 +202,7 @@ export function validDateValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function validDateValidatorIs(
-    value: unknown
-): value is ValidDateValidator {
+export function validDateValidatorIs(value: unknown): value is ValidDateValidator {
     return ValidDateValidator.is(value);
 }
 
@@ -232,10 +228,7 @@ export class GreaterThanDateValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanDateValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = GreaterThanDateValidator.deserializeWithContext(data, ctx);
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -411,9 +404,7 @@ export function greaterThanDateValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function greaterThanDateValidatorIs(
-    value: unknown
-): value is GreaterThanDateValidator {
+export function greaterThanDateValidatorIs(value: unknown): value is GreaterThanDateValidator {
     return GreaterThanDateValidator.is(value);
 }
 
@@ -439,8 +430,7 @@ export class GreaterThanOrEqualToDateValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = GreaterThanOrEqualToDateValidator
-                .deserializeWithContext(data, ctx);
+            const resultOrRef = GreaterThanOrEqualToDateValidator.deserializeWithContext(data, ctx);
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -646,10 +636,7 @@ export class LessThanDateValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LessThanDateValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = LessThanDateValidator.deserializeWithContext(data, ctx);
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -719,9 +706,7 @@ export class LessThanDateValidator {
             errors.push({ field: 'date', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            LessThanDateValidator.prototype
-        ) as LessThanDateValidator;
+        const instance = Object.create(LessThanDateValidator.prototype) as LessThanDateValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -825,9 +810,7 @@ export function lessThanDateValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function lessThanDateValidatorIs(
-    value: unknown
-): value is LessThanDateValidator {
+export function lessThanDateValidatorIs(value: unknown): value is LessThanDateValidator {
     return LessThanDateValidator.is(value);
 }
 
@@ -853,10 +836,7 @@ export class LessThanOrEqualToDateValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = LessThanOrEqualToDateValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = LessThanOrEqualToDateValidator.deserializeWithContext(data, ctx);
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -1061,10 +1041,7 @@ export class BetweenDateValidator {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = __mf_DeserializeContext.create();
-            const resultOrRef = BetweenDateValidator.deserializeWithContext(
-                data,
-                ctx
-            );
+            const resultOrRef = BetweenDateValidator.deserializeWithContext(data, ctx);
 
             if (__mf_PendingRef.is(resultOrRef)) {
                 return ({
@@ -1134,9 +1111,7 @@ export class BetweenDateValidator {
             errors.push({ field: 'date', message: 'missing required field' });
         }
 
-        const instance = Object.create(
-            BetweenDateValidator.prototype
-        ) as BetweenDateValidator;
+        const instance = Object.create(BetweenDateValidator.prototype) as BetweenDateValidator;
 
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
@@ -1250,8 +1225,6 @@ export function betweenDateValidatorDeserializeWithContext(
 }
 
 /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
-export function betweenDateValidatorIs(
-    value: unknown
-): value is BetweenDateValidator {
+export function betweenDateValidatorIs(value: unknown): value is BetweenDateValidator {
     return BetweenDateValidator.is(value);
 }
