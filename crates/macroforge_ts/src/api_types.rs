@@ -160,6 +160,7 @@ pub struct SourceMappingResult {
 ///     metadata: None,
 ///     diagnostics: vec![],
 ///     source_mapping: None,
+///     buildtime_dependencies: vec![],
 /// };
 ///
 /// // Check for errors

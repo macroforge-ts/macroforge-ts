@@ -717,7 +717,10 @@ const GREETINGS = ((): Record<string, string> => {
     assert!(
         errors.is_empty(),
         "errors: {:?}",
-        out.diagnostics.iter().map(|d| &d.message).collect::<Vec<_>>()
+        out.diagnostics
+            .iter()
+            .map(|d| &d.message)
+            .collect::<Vec<_>>()
     );
     let rewritten = out.rewritten.expect("expected rewrite");
     assert!(
@@ -739,24 +742,13 @@ fn prepass_actual_playground_demo_file() {
         return;
     };
     let allocator = oxc::allocator::Allocator::default();
-    let parsed = oxc::parser::Parser::new(
-        &allocator,
-        &src,
-        oxc::span::SourceType::ts(),
-    )
-    .parse();
+    let parsed = oxc::parser::Parser::new(&allocator, &src, oxc::span::SourceType::ts()).parse();
     assert!(parsed.errors.is_empty(), "parse: {:?}", parsed.errors);
     let sandbox = BoaSandbox::new();
     let mut opts = SandboxOptions::new(path.clone());
     opts.capabilities = CapabilitySet::unrestricted();
     opts.timeout = Duration::from_secs(5);
-    let out = crate::host::buildtime::run_prepass(
-        &parsed.program,
-        &src,
-        &path,
-        &sandbox,
-        &opts,
-    );
+    let out = crate::host::buildtime::run_prepass(&parsed.program, &src, &path, &sandbox, &opts);
     let errors: Vec<_> = out
         .diagnostics
         .iter()
@@ -765,7 +757,10 @@ fn prepass_actual_playground_demo_file() {
     assert!(
         errors.is_empty(),
         "errors: {:?}",
-        out.diagnostics.iter().map(|d| &d.message).collect::<Vec<_>>()
+        out.diagnostics
+            .iter()
+            .map(|d| &d.message)
+            .collect::<Vec<_>>()
     );
     let rewritten = out.rewritten.expect("expected rewrite");
     eprintln!("REWRITTEN:\n{}\n----", rewritten);
@@ -827,7 +822,10 @@ export function collectBuildtimeDemo(): BuildtimeDemoResult {
     assert!(
         errors.is_empty(),
         "errors: {:?}",
-        out.diagnostics.iter().map(|d| &d.message).collect::<Vec<_>>()
+        out.diagnostics
+            .iter()
+            .map(|d| &d.message)
+            .collect::<Vec<_>>()
     );
     let rewritten = out.rewritten.expect("expected rewrite");
     eprintln!("REWRITTEN:\n{}\n----", rewritten);
@@ -1030,8 +1028,8 @@ fn serializer_table_matches_spec() {
     );
     // number
     assert_eq!(
-        value_to_ts_source(&SandboxValue::Number(3.14)).unwrap(),
-        "3.14"
+        value_to_ts_source(&SandboxValue::Number(1.23)).unwrap(),
+        "1.23"
     );
     // bigint
     assert_eq!(

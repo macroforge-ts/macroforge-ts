@@ -436,12 +436,12 @@ fn build_same_file_prelude(
                 if is_buildtime(export.span.start, export.span.end) {
                     continue;
                 }
-                if let Some(Declaration::VariableDeclaration(var)) = &export.declaration {
-                    if let Some(reason) = impure_init_reason(var) {
-                        impure_diag.get_or_insert_with(|| {
-                            prelude_warning(reason, var.span.start, var.span.end)
-                        });
-                    }
+                if let Some(Declaration::VariableDeclaration(var)) = &export.declaration
+                    && let Some(reason) = impure_init_reason(var)
+                {
+                    impure_diag.get_or_insert_with(|| {
+                        prelude_warning(reason, var.span.start, var.span.end)
+                    });
                 }
             }
             other => {
@@ -626,14 +626,12 @@ fn contains_type_colon(src: &str) -> bool {
 }
 
 fn impure_init_reason(var: &oxc::ast::ast::VariableDeclaration<'_>) -> Option<&'static str> {
-    for declarator in &var.declarations {
-        if let Some(init) = &declarator.init {
-            if let Some(reason) = crate::host::buildtime::purity::expression_side_effect(init) {
-                return Some(reason);
-            }
-        }
-    }
-    None
+    var.declarations.iter().find_map(|declarator| {
+        declarator
+            .init
+            .as_ref()
+            .and_then(crate::host::buildtime::purity::expression_side_effect)
+    })
 }
 
 fn prelude_warning(reason: &str, start: u32, end: u32) -> Diagnostic {
@@ -707,12 +705,12 @@ fn strip_ts_from_body(body: &str) -> Result<String, String> {
     }
     let printed = Codegen::new().build(&program).code;
     // Pull the body back out from `function __mf_body() { ... }`.
-    let open = printed.find('{').ok_or_else(|| {
-        format!("ts-strip: no `{{` in output: {printed}")
-    })?;
-    let close = printed.rfind('}').ok_or_else(|| {
-        format!("ts-strip: no `}}` in output: {printed}")
-    })?;
+    let open = printed
+        .find('{')
+        .ok_or_else(|| format!("ts-strip: no `{{` in output: {printed}"))?;
+    let close = printed
+        .rfind('}')
+        .ok_or_else(|| format!("ts-strip: no `}}` in output: {printed}"))?;
     if close <= open + 1 {
         return Ok(String::new());
     }
@@ -760,12 +758,12 @@ fn remap_stack_line(line: &str, origin_display: &str, decl_line: u32) -> String 
     for pat in &patterns {
         if let Some(idx) = line.find(pat) {
             let after = &line[idx + pat.len()..];
-            if let Some((ln_str, col_rest)) = split_line_col(after) {
-                if let Ok(sandbox_line) = ln_str.parse::<i64>() {
-                    let user_line = remap_line(sandbox_line, decl_line);
-                    let prefix = &line[..idx];
-                    return format!("{}{}:{}:{}", prefix, origin_display, user_line, col_rest);
-                }
+            if let Some((ln_str, col_rest)) = split_line_col(after)
+                && let Ok(sandbox_line) = ln_str.parse::<i64>()
+            {
+                let user_line = remap_line(sandbox_line, decl_line);
+                let prefix = &line[..idx];
+                return format!("{}{}:{}:{}", prefix, origin_display, user_line, col_rest);
             }
         }
     }

@@ -48,9 +48,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
         await expect(keys).toHaveText('alice,bob,cam');
     });
 
-    test('Tier 1 nested object is serialized as a proper object literal', async ({
-        page
-    }) => {
+    test('Tier 1 nested object is serialized as a proper object literal', async ({ page }) => {
         const thirteen = page.locator('[data-testid="bt-const-thirteen"]');
         await expect(thirteen).toHaveText('13');
     });
@@ -71,9 +69,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
         await expect(stubThrows).toHaveText('true');
     });
 
-    test('buildtime results are attached to globalThis for inspection', async ({
-        page
-    }) => {
+    test('buildtime results are attached to globalThis for inspection', async ({ page }) => {
         const results = await page.evaluate(
             () =>
                 (globalThis as unknown as {

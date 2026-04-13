@@ -4,3 +4,4 @@ tooling/bench-bins/
 **/node_modules/
 **/.pixi/
 .claude/
+crates/macroforge_ts/.macroforge/debug.log

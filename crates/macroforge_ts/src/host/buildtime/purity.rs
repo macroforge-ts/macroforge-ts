@@ -57,16 +57,14 @@ fn impurity_of(stmt: &Statement<'_>) -> Option<(&'static str, SpanIR)> {
         },
         Statement::ExportDefaultDeclaration(_) => None,
         Statement::ExportAllDeclaration(_) => None,
-        Statement::VariableDeclaration(var) => {
-            for declarator in &var.declarations {
-                if let Some(init) = &declarator.init {
-                    if let Some(reason) = expression_side_effect(init) {
-                        return Some((reason, span_to_ir(declarator.span)));
-                    }
-                }
+        Statement::VariableDeclaration(var) => var.declarations.iter().find_map(|declarator| {
+            if let Some(init) = &declarator.init
+                && let Some(reason) = expression_side_effect(init)
+            {
+                return Some((reason, span_to_ir(declarator.span)));
             }
             None
-        }
+        }),
         Statement::FunctionDeclaration(_) => None,
         Statement::ClassDeclaration(_) => None,
         Statement::TSTypeAliasDeclaration(_) => None,
@@ -100,16 +98,14 @@ fn impurity_of_declaration<'a>(
     fallback_span: oxc::span::Span,
 ) -> Option<(&'static str, SpanIR)> {
     match decl {
-        Declaration::VariableDeclaration(var) => {
-            for declarator in &var.declarations {
-                if let Some(init) = &declarator.init {
-                    if let Some(reason) = expression_side_effect(init) {
-                        return Some((reason, span_to_ir(declarator.span)));
-                    }
-                }
+        Declaration::VariableDeclaration(var) => var.declarations.iter().find_map(|declarator| {
+            if let Some(init) = &declarator.init
+                && let Some(reason) = expression_side_effect(init)
+            {
+                return Some((reason, span_to_ir(declarator.span)));
             }
             None
-        }
+        }),
         Declaration::FunctionDeclaration(_) => None,
         Declaration::ClassDeclaration(_) => None,
         Declaration::TSTypeAliasDeclaration(_) => None,
@@ -147,10 +143,10 @@ pub(crate) fn expression_side_effect(expr: &Expression<'_>) -> Option<&'static s
                 if let oxc::ast::ast::ArrayExpressionElement::SpreadElement(_) = el {
                     return Some("array spread at top level");
                 }
-                if let Some(e) = el.as_expression() {
-                    if let Some(reason) = expression_side_effect(e) {
-                        return Some(reason);
-                    }
+                if let Some(e) = el.as_expression()
+                    && let Some(reason) = expression_side_effect(e)
+                {
+                    return Some(reason);
                 }
             }
             None
