@@ -107,8 +107,7 @@ mod wasm_impl {
     fn callbacks() -> Result<&'static HostFsCallbacks, HostFsError> {
         CALLBACKS.get().ok_or_else(|| {
             HostFsError::NotAvailable(
-                "no JS host registered fs callbacks; call setupBuildtimeFs() first"
-                    .to_string(),
+                "no JS host registered fs callbacks; call setupBuildtimeFs() first".to_string(),
             )
         })
     }
@@ -129,12 +128,10 @@ mod wasm_impl {
                 message: "host returned null/undefined".to_string(),
             });
         }
-        result
-            .as_string()
-            .ok_or_else(|| HostFsError::Io {
-                path: path.to_path_buf(),
-                message: "host returned non-string".to_string(),
-            })
+        result.as_string().ok_or_else(|| HostFsError::Io {
+            path: path.to_path_buf(),
+            message: "host returned non-string".to_string(),
+        })
     }
 
     pub(super) fn exists(path: &Path) -> Result<bool, HostFsError> {

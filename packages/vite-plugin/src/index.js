@@ -909,7 +909,13 @@ export async function macroforge() {
    *   mtime + content hash so subsequent builds can invalidate the
    *   cache entry when any of them changes.
    */
-  function writeCacheEntry(id, sourceCode, expandedCode, hasMacros, buildtimeDeps) {
+  function writeCacheEntry(
+    id,
+    sourceCode,
+    expandedCode,
+    hasMacros,
+    buildtimeDeps,
+  ) {
     if (!cacheDir) return;
 
     const relPath = path.relative(projectRoot, id);
@@ -1260,7 +1266,9 @@ export async function macroforge() {
         // Watch files that `@buildtime` declarations read. When any of
         // them change, Vite re-invokes `transform` and the buildtime
         // pre-pass re-evaluates with the fresh content.
-        if (result.buildtimeDependencies && result.buildtimeDependencies.length) {
+        if (
+          result.buildtimeDependencies && result.buildtimeDependencies.length
+        ) {
           for (const dep of result.buildtimeDependencies) {
             /** @type {any} */ (this).addWatchFile(dep);
           }

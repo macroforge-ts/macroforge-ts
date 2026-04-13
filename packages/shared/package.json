@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "macroforge": "^0.1.79"
+    "macroforge": "file:../../crates/macroforge_ts"
   },
   "description": "Shared utilities for Macroforge plugins",
   "devDependencies": {

@@ -242,8 +242,8 @@ mod serialize_unit {
     #[test]
     fn fractional_numbers_round_trip() {
         assert_eq!(
-            value_to_ts_source(&SandboxValue::Number(3.14)).unwrap(),
-            "3.14"
+            value_to_ts_source(&SandboxValue::Number(1.23)).unwrap(),
+            "1.23"
         );
     }
 

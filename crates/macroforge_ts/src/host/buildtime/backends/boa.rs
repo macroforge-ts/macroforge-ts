@@ -103,21 +103,14 @@ impl BuildtimeSandbox for BoaSandbox {
         // `Script::evaluate_async_with_budget` yields to the executor
         // every N "clock cycles" — `drive_to_deadline` polls that
         // future with a no-op waker and bails on deadline.
-        let script = match Script::parse(
-            Source::from_bytes(wrapped.as_bytes()),
-            None,
-            &mut context,
-        ) {
+        let script = match Script::parse(Source::from_bytes(wrapped.as_bytes()), None, &mut context)
+        {
             Ok(s) => s,
             Err(err) => return Err(SandboxError::Backend(err.to_string())),
         };
         {
-            let fut = std::pin::pin!(
-                script.evaluate_async_with_budget(&mut context, EVAL_BUDGET)
-            );
-            if let Err(err) = drive_to_deadline(fut, deadline) {
-                return Err(err);
-            }
+            let fut = std::pin::pin!(script.evaluate_async_with_budget(&mut context, EVAL_BUDGET));
+            drive_to_deadline(fut, deadline)?;
         }
 
         // Drain pending microtasks so the async IIFE wrapper resolves.
@@ -125,9 +118,7 @@ impl BuildtimeSandbox for BoaSandbox {
         {
             let ctx_cell = std::cell::RefCell::new(&mut context);
             let fut = std::pin::pin!(executor.clone().run_jobs_async(&ctx_cell));
-            if let Err(err) = drive_to_deadline(fut, deadline) {
-                return Err(err);
-            }
+            drive_to_deadline(fut, deadline)?;
         }
 
         if let Some(err) = state.borrow_mut().side_channel_error.take() {
@@ -184,10 +175,7 @@ const EVAL_BUDGET: u32 = 1024;
 ///
 /// Takes a stack-pinned `Pin<&mut F>` so non-`'static` futures (which
 /// Boa's APIs return — they borrow the Context) work without boxing.
-fn drive_to_deadline<F, T>(
-    mut future: Pin<&mut F>,
-    deadline: Instant,
-) -> Result<T, SandboxError>
+fn drive_to_deadline<F, T>(mut future: Pin<&mut F>, deadline: Instant) -> Result<T, SandboxError>
 where
     F: Future<Output = JsResult<T>>,
 {
@@ -496,8 +484,9 @@ fn fs_read_text_impl(
     path: &str,
 ) -> Result<String, SandboxError> {
     let resolved = resolve_and_check_read(state, path)?;
-    let text = crate::host::buildtime::host_fs::read_text(&resolved)
-        .map_err(|e| SandboxError::Backend(format!("fs.readText({}): {}", resolved.display(), e)))?;
+    let text = crate::host::buildtime::host_fs::read_text(&resolved).map_err(|e| {
+        SandboxError::Backend(format!("fs.readText({}): {}", resolved.display(), e))
+    })?;
     state.borrow_mut().dependencies.push(resolved);
     Ok(text)
 }
@@ -709,24 +698,22 @@ fn object_kind_name(obj: &JsObject, context: &mut Context) -> &'static str {
     if obj.is_callable() {
         return "function";
     }
-    if let Ok(ctor) = obj.get(js_string!("constructor"), context) {
-        if let Some(ctor_obj) = ctor.as_object() {
-            if let Ok(name) = ctor_obj.get(js_string!("name"), context) {
-                if let Some(s) = name.as_string() {
-                    let s = s.to_std_string_lossy();
-                    return match s.as_str() {
-                        "Object" => "Object",
-                        "Date" => "Date",
-                        "RegExp" => "RegExp",
-                        "Map" => "Map",
-                        "Set" => "Set",
-                        "Promise" => "Promise",
-                        "Error" => "Error",
-                        _ => "class instance",
-                    };
-                }
-            }
-        }
+    if let Ok(ctor) = obj.get(js_string!("constructor"), context)
+        && let Some(ctor_obj) = ctor.as_object()
+        && let Ok(name) = ctor_obj.get(js_string!("name"), context)
+        && let Some(s) = name.as_string()
+    {
+        let s = s.to_std_string_lossy();
+        return match s.as_str() {
+            "Object" => "Object",
+            "Date" => "Date",
+            "RegExp" => "RegExp",
+            "Map" => "Map",
+            "Set" => "Set",
+            "Promise" => "Promise",
+            "Error" => "Error",
+            _ => "class instance",
+        };
     }
     "null-proto"
 }

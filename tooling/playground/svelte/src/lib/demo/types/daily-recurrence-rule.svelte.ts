@@ -2,5 +2,5 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface DailyRecurrenceRule {
-  quantityOfDays: number;
+    quantityOfDays: number;
 }
