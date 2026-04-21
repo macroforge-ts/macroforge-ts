@@ -81,3 +81,5 @@ bench = { cmd = "deno run -A tooling/scripts/bench.mjs" }
 scripts = { cmd = "tooling/scripts/target/release/mf --tui" }
 
 [dependencies]
+rust = "1.94.*"
+rust-std-wasm32-unknown-unknown = "1.94.*"

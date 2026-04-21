@@ -92,6 +92,7 @@ fn test_legacy_macro_config_conversion() {
         generate_convenience_const: false,
         foreign_types: vec![],
         config_imports: HashMap::new(),
+        ..Default::default()
     };
 
     let legacy: MacroConfig = mf_config.into();

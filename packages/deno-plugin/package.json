@@ -1,0 +1,17 @@
+{
+  "description": "Deno-native macro expansion for projects that don't use Vite",
+  "name": "@macroforge/deno-plugin",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macroforge-ts/macroforge-ts.git"
+  },
+  "scripts": {
+    "build": "echo 'No build needed — JSR publishes src/ directly'",
+    "clean": "rm -rf node_modules",
+    "cleanbuild": "deno task clean && deno task build",
+    "test": "deno test -A tests/"
+  },
+  "type": "module",
+  "version": "0.1.80"
+}

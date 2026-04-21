@@ -187,6 +187,54 @@ pub(crate) struct OxcBackend;
 /// Fast-paths the common case where the source contains no `@buildtime`
 /// marker: a single text-contains check, and the function returns
 /// without parsing or constructing a sandbox.
+/// Resolve the `MacroforgeConfig` the attribute pre-pass should use.
+///
+/// If `options.config_path` points at a config already parsed into
+/// [`CONFIG_CACHE`], return that. Otherwise fall back to defaults — the
+/// attribute pre-pass is still invoked so annotations get validated, but no
+/// project-level customisation applies.
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+fn resolve_config_for_attributes(
+    options: &Option<ExpandOptions>,
+) -> macroforge_ts_syn::config::MacroforgeConfig {
+    if let Some(opts) = options.as_ref()
+        && let Some(path) = opts.config_path.as_ref()
+        && let Some(entry) = CONFIG_CACHE.get(path)
+    {
+        return entry.clone();
+    }
+    macroforge_ts_syn::config::MacroforgeConfig::default()
+}
+
+/// Run the attribute-macro pre-pass (`@cfg`, `@deprecated`, `@mustUse`,
+/// `@nonExhaustive`) against `code`. Fast-paths when none of the tag heads
+/// appears in the source.
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+fn run_attributes_prepass_oxc(
+    code: &str,
+    filepath: &str,
+    source_type: oxc::span::SourceType,
+    config: &macroforge_ts_syn::config::MacroforgeConfig,
+) -> Result<(Option<String>, Vec<crate::ts_syn::Diagnostic>)> {
+    let has_any_tag = ["@cfg", "@deprecated", "@mustUse", "@nonExhaustive"]
+        .iter()
+        .any(|t| code.contains(t));
+    if !has_any_tag {
+        return Ok((None, Vec::new()));
+    }
+    let allocator = Allocator::default();
+    let ret = OxcParser::new(&allocator, code, source_type).parse();
+    if !ret.errors.is_empty() {
+        return Err(anyhow!(
+            "Oxc parse errors (attributes pre-pass): {:?}",
+            ret.errors
+        ));
+    }
+    let origin_path = std::path::PathBuf::from(filepath);
+    let out = crate::host::attributes::run_prepass(&ret.program, code, &origin_path, config);
+    Ok((out.rewritten, out.diagnostics))
+}
+
 #[cfg(all(not(feature = "swc"), feature = "oxc"))]
 fn run_buildtime_prepass_oxc(
     code: &str,
@@ -245,6 +293,25 @@ impl CompilerBackend for OxcBackend {
     ) -> Result<ExpandResult> {
         let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
 
+        // --- Attribute pre-pass (OXC-only path) ---
+        //
+        // Runs BEFORE the buildtime pre-pass so `@cfg`-stripped declarations
+        // don't get evaluated (and `@buildtime` expressions that would be
+        // dead under the current build flags are simply never seen). The
+        // pre-pass also rewrites `@deprecated(...)` to the tsc-readable
+        // JSDoc form, brands `@nonExhaustive` type aliases, and collects
+        // `@mustUse` diagnostics against discarded call sites.
+        //
+        // Fast-paths when none of `@cfg / @deprecated / @mustUse /
+        // @nonExhaustive` appears in the source.
+        #[cfg(not(feature = "swc"))]
+        let attribute_config = resolve_config_for_attributes(options);
+        #[cfg(not(feature = "swc"))]
+        let (attribute_rewritten, attribute_diagnostics) =
+            run_attributes_prepass_oxc(code, filepath, source_type, &attribute_config)?;
+        #[cfg(not(feature = "swc"))]
+        let code_after_attributes: &str = attribute_rewritten.as_deref().unwrap_or(code);
+
         // --- Buildtime pre-pass (OXC-only path) ---
         //
         // Runs BEFORE the declarative macro pre-pass so @buildtime
@@ -257,9 +324,11 @@ impl CompilerBackend for OxcBackend {
         // text-contains check plus the initial parse — cheap.
         #[cfg(not(feature = "swc"))]
         let (buildtime_rewritten, buildtime_deps, buildtime_diagnostics) =
-            run_buildtime_prepass_oxc(code, filepath, source_type)?;
+            run_buildtime_prepass_oxc(code_after_attributes, filepath, source_type)?;
         #[cfg(not(feature = "swc"))]
-        let code_after_buildtime: &str = buildtime_rewritten.as_deref().unwrap_or(code);
+        let code_after_buildtime: &str = buildtime_rewritten
+            .as_deref()
+            .unwrap_or(code_after_attributes);
 
         // --- Declarative macro pre-pass (OXC-only path) ---
         //
@@ -431,14 +500,18 @@ impl CompilerBackend for OxcBackend {
             };
 
             if items.is_empty() {
-                // No derive targets, but we might still have buildtime
-                // or declarative rewrites / diagnostics to surface.
+                // No derive targets, but we might still have attribute,
+                // buildtime, or declarative rewrites / diagnostics to surface.
                 let changed_by_buildtime = buildtime_rewritten.is_some();
-                let has_buildtime_work = changed_by_buildtime || !buildtime_diagnostics.is_empty();
-                if !changed_by_decl && decl_diagnostics.is_empty() && !has_buildtime_work {
+                let changed_by_attributes = attribute_rewritten.is_some();
+                let has_work = changed_by_buildtime
+                    || changed_by_attributes
+                    || !buildtime_diagnostics.is_empty()
+                    || !attribute_diagnostics.is_empty();
+                if !changed_by_decl && decl_diagnostics.is_empty() && !has_work {
                     return Ok(ExpandResult::unchanged(code));
                 }
-                let mut diagnostics: Vec<MacroDiagnostic> = buildtime_diagnostics
+                let mut diagnostics: Vec<MacroDiagnostic> = attribute_diagnostics
                     .iter()
                     .map(|d| MacroDiagnostic {
                         level: format!("{:?}", d.level).to_lowercase(),
@@ -447,14 +520,30 @@ impl CompilerBackend for OxcBackend {
                         end: d.span.map(|s| s.end),
                     })
                     .collect();
+                diagnostics.extend(buildtime_diagnostics.iter().map(|d| MacroDiagnostic {
+                    level: format!("{:?}", d.level).to_lowercase(),
+                    message: d.message.clone(),
+                    start: d.span.map(|s| s.start),
+                    end: d.span.map(|s| s.end),
+                }));
                 diagnostics.extend(decl_diagnostics.iter().map(|d| MacroDiagnostic {
                     level: format!("{:?}", d.level).to_lowercase(),
                     message: d.message.clone(),
                     start: d.span.map(|s| s.start),
                     end: d.span.map(|s| s.end),
                 }));
+                // The returned `code` is the last successful rewrite: buildtime
+                // beats attributes beats the original. (Derive work would
+                // further layer on top, but we're inside the no-derive branch.)
+                let code_for_result = if let Some(ref c) = buildtime_rewritten {
+                    c.clone()
+                } else if let Some(ref c) = attribute_rewritten {
+                    c.clone()
+                } else {
+                    code.to_string()
+                };
                 let mut result = ExpandResult {
-                    code: code.to_string(),
+                    code: code_for_result,
                     types: None,
                     metadata: None,
                     diagnostics,
@@ -476,7 +565,7 @@ impl CompilerBackend for OxcBackend {
                 .apply_and_finalize_expansion(code, &mut collector, &mut diagnostics, items_clone)
                 .map_err(anyhow::Error::from)?;
 
-            let mut result_diagnostics: Vec<MacroDiagnostic> = buildtime_diagnostics
+            let mut result_diagnostics: Vec<MacroDiagnostic> = attribute_diagnostics
                 .iter()
                 .map(|d| MacroDiagnostic {
                     level: format!("{:?}", d.level).to_lowercase(),
@@ -485,6 +574,12 @@ impl CompilerBackend for OxcBackend {
                     end: d.span.map(|s| s.end),
                 })
                 .collect();
+            result_diagnostics.extend(buildtime_diagnostics.iter().map(|d| MacroDiagnostic {
+                level: format!("{:?}", d.level).to_lowercase(),
+                message: d.message.clone(),
+                start: d.span.map(|s| s.start),
+                end: d.span.map(|s| s.end),
+            }));
             result_diagnostics.extend(expansion.diagnostics.into_iter().map(|d| MacroDiagnostic {
                 level: format!("{:?}", d.level).to_lowercase(),
                 message: d.message,
@@ -843,7 +938,13 @@ pub(crate) fn has_macro_annotations(source: &str) -> bool {
     if source.contains("import macro") {
         return true;
     }
-    if !source.contains("@derive") {
+    // Attribute-macro pre-pass tags. Cheap text check first; full
+    // line-start parsing only fires when one of these substrings is present.
+    let has_attribute_tag = source.contains("@cfg")
+        || source.contains("@deprecated")
+        || source.contains("@mustUse")
+        || source.contains("@nonExhaustive");
+    if !source.contains("@derive") && !has_attribute_tag {
         return false;
     }
     let mut in_code_block = false;
@@ -862,7 +963,12 @@ pub(crate) fn has_macro_annotations(source: &str) -> bool {
         if in_code_block {
             continue;
         }
-        if trimmed.starts_with("@derive(") {
+        if trimmed.starts_with("@derive(")
+            || trimmed.starts_with("@cfg(")
+            || trimmed.starts_with("@deprecated")
+            || trimmed.starts_with("@mustUse")
+            || trimmed.starts_with("@nonExhaustive")
+        {
             return true;
         }
     }

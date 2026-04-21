@@ -178,6 +178,102 @@ impl ForeignTypeConfig {
     }
 }
 
+/// Build flags consumed by the `@cfg` attribute macro.
+///
+/// The predicate in `/** @cfg({ feature: 'ssr' }) */` evaluates against these
+/// flags: keys with single-value configs (e.g. `target`) match exactly; keys
+/// whose config value is an array (e.g. `features`) match when the annotation
+/// value is a member; multiple keys in one annotation combine with implicit AND.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CfgFlags {
+    /// Active feature flags. `@cfg({ feature: 'ssr' })` passes when `'ssr'` is in this list.
+    #[serde(default)]
+    pub features: Vec<String>,
+
+    /// Build target (e.g. `"web"`, `"node"`, `"deno"`). `@cfg({ target: 'web' })` matches exactly.
+    #[serde(default)]
+    pub target: Option<String>,
+
+    /// Whether this build treats `@cfg({ debugAssertions: true })` as truthy.
+    #[serde(default)]
+    pub debug_assertions: bool,
+
+    /// Arbitrary string-keyed predicate values. Accepts any JSON scalar so
+    /// annotations like `@cfg({ tenant: 'acme' })` or `@cfg({ version: 2 })`
+    /// can match exactly.
+    #[serde(default)]
+    pub custom: HashMap<String, serde_json::Value>,
+}
+
+/// Behavior knobs for the `@deprecated` attribute macro.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeprecatedConfig {
+    /// Inject a one-shot `console.warn(...)` into the deprecated declaration's
+    /// body so runtime use is visible alongside tsc's static `@deprecated` tag.
+    #[serde(default = "crate::config::default_true")]
+    pub runtime_warn: bool,
+
+    /// Treat any use of a `@deprecated` symbol as a macro-expansion error.
+    /// Off by default; turn on when chasing deprecations out of a codebase.
+    #[serde(default)]
+    pub fail_on_use: bool,
+}
+
+impl Default for DeprecatedConfig {
+    fn default() -> Self {
+        Self {
+            runtime_warn: true,
+            fail_on_use: false,
+        }
+    }
+}
+
+/// Enforcement strategy for `@mustUse`. Only one mode today; keeping this as
+/// an enum reserves room for a future `Wrap` variant without a breaking change.
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum MustUseMode {
+    /// Emit a macroforge diagnostic at the discarded-call site. No runtime cost.
+    #[default]
+    Lint,
+}
+
+/// Behavior knobs for the `@mustUse` attribute macro.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MustUseConfig {
+    #[serde(default)]
+    pub mode: MustUseMode,
+}
+
+/// Behavior knobs for the `@nonExhaustive` attribute macro.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NonExhaustiveConfig {
+    /// Brand property name used in the intersection. Keep this stable across a
+    /// project so downstream consumers can pattern-match on it.
+    #[serde(default = "default_non_exhaustive_brand")]
+    pub brand: String,
+}
+
+impl Default for NonExhaustiveConfig {
+    fn default() -> Self {
+        Self {
+            brand: default_non_exhaustive_brand(),
+        }
+    }
+}
+
+fn default_non_exhaustive_brand() -> String {
+    "__nonExhaustive".to_string()
+}
+
+pub(crate) fn default_true() -> bool {
+    true
+}
+
 /// Configuration for the macro host system.
 ///
 /// This struct represents the contents of a `macroforge.config.js` file.
@@ -205,6 +301,22 @@ pub struct MacroforgeConfig {
     #[serde(default)]
     pub foreign_types: Vec<ForeignTypeConfig>,
 
+    /// Build flags consumed by `@cfg`. Missing key is equivalent to an empty block.
+    #[serde(default)]
+    pub cfg: CfgFlags,
+
+    /// Knobs for `@deprecated`. Missing key uses per-field defaults.
+    #[serde(default)]
+    pub deprecated: DeprecatedConfig,
+
+    /// Knobs for `@mustUse`. Missing key = lint-mode diagnostic.
+    #[serde(default)]
+    pub must_use: MustUseConfig,
+
+    /// Knobs for `@nonExhaustive`. Missing key = default brand name.
+    #[serde(default)]
+    pub non_exhaustive: NonExhaustiveConfig,
+
     /// Import sources from the config file itself.
     ///
     /// Maps imported names (e.g., "DateTime", "Option") to their import info
@@ -225,6 +337,10 @@ impl Default for MacroforgeConfig {
             keep_decorators: false,
             generate_convenience_const: true,
             foreign_types: Vec::new(),
+            cfg: CfgFlags::default(),
+            deprecated: DeprecatedConfig::default(),
+            must_use: MustUseConfig::default(),
+            non_exhaustive: NonExhaustiveConfig::default(),
             config_imports: HashMap::new(),
         }
     }

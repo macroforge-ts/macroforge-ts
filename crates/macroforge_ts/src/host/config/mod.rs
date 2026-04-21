@@ -69,6 +69,7 @@
 //! sources (in `from` or `aliases`). Types imported from other packages with the same
 //! name are ignored, falling back to generic handling.
 
+mod attribute_blocks;
 mod loader;
 #[cfg(feature = "swc")]
 mod namespaces;

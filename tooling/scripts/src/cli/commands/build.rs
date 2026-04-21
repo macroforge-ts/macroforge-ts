@@ -68,6 +68,7 @@ pub fn run(args: BuildArgs) -> Result<()> {
         "svelte-language-server",
         "svelte-preprocessor",
         "mcp-server",
+        "deno-plugin",
     ];
     for pkg in ts_packages {
         if repo_names.contains(&pkg) {

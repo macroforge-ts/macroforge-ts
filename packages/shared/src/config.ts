@@ -26,6 +26,78 @@ export interface ConfigLoadResult {
     generateConvenienceConst: boolean;
     hasForeignTypes: boolean;
     foreignTypeCount: number;
+    /** True when the config provides a non-empty `cfg` block. */
+    hasCfgFlags?: boolean;
+    /** True when the config overrides any `deprecated` defaults. */
+    hasDeprecatedConfig?: boolean;
+    /** True when the config overrides any `mustUse` defaults. */
+    hasMustUseConfig?: boolean;
+    /** True when the config overrides any `nonExhaustive` defaults. */
+    hasNonExhaustiveConfig?: boolean;
+}
+
+/**
+ * Build flags consumed by the `@cfg` attribute macro.
+ *
+ * @example
+ * ```ts
+ * // macroforge.config.ts
+ * export default {
+ *   cfg: {
+ *     features: ['ssr'],
+ *     target: 'web',
+ *     debugAssertions: true,
+ *     custom: { tenant: 'acme' }
+ *   }
+ * };
+ *
+ * // Source:
+ * /​** @cfg({ feature: 'ssr' }) *​/
+ * export function render() { ... }
+ * ```
+ */
+export interface CfgFlags {
+    /** Feature flags. `@cfg({ feature: 'ssr' })` matches when `'ssr'` is in this list. */
+    features?: string[];
+    /** Build target (e.g. `"web"`, `"node"`, `"deno"`). Matched exactly. */
+    target?: string;
+    /** Whether `@cfg({ debugAssertions: true })` should pass. */
+    debugAssertions?: boolean;
+    /** Arbitrary string-keyed predicate values matched exactly against annotations. */
+    custom?: Record<string, string | number | boolean | null>;
+}
+
+/**
+ * Behavior knobs for the `@deprecated` attribute macro.
+ */
+export interface DeprecatedConfig {
+    /** Inject a one-shot `console.warn(...)` into the deprecated body. Default: true. */
+    runtimeWarn?: boolean;
+    /** Treat any use of a deprecated symbol as a macro-expansion error. Default: false. */
+    failOnUse?: boolean;
+}
+
+/**
+ * Behavior knobs for the `@mustUse` attribute macro.
+ */
+export interface MustUseConfig {
+    /**
+     * Enforcement strategy. Today only `"lint"` is supported (build-time
+     * diagnostic at discarded-call sites).
+     */
+    mode?: 'lint';
+}
+
+/**
+ * Behavior knobs for the `@nonExhaustive` attribute macro.
+ */
+export interface NonExhaustiveConfig {
+    /**
+     * Brand property name used in the intersection. Keep this stable across a
+     * project so downstream consumers can pattern-match on it.
+     * @default "__nonExhaustive"
+     */
+    brand?: string;
 }
 
 /**
@@ -110,6 +182,26 @@ export interface MacroConfig {
      * Whether the config has foreign type handlers defined.
      */
     hasForeignTypes?: boolean;
+
+    /**
+     * Build flags for the `@cfg` attribute macro.
+     */
+    cfg?: CfgFlags;
+
+    /**
+     * Behavior knobs for the `@deprecated` attribute macro.
+     */
+    deprecated?: DeprecatedConfig;
+
+    /**
+     * Behavior knobs for the `@mustUse` attribute macro.
+     */
+    mustUse?: MustUseConfig;
+
+    /**
+     * Behavior knobs for the `@nonExhaustive` attribute macro.
+     */
+    nonExhaustive?: NonExhaustiveConfig;
 
     /**
      * Vite plugin configuration options.

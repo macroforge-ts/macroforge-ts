@@ -129,6 +129,27 @@ fn parse_config_object(
                         config.foreign_types = parse_foreign_types(ft_obj, imports, cm)?;
                     }
                 }
+                "cfg" => {
+                    if let Some(map) = object_to_json_map(&kv.value) {
+                        config.cfg = super::attribute_blocks::parse_cfg_flags(&map);
+                    }
+                }
+                "deprecated" => {
+                    if let Some(map) = object_to_json_map(&kv.value) {
+                        config.deprecated = super::attribute_blocks::parse_deprecated_config(&map);
+                    }
+                }
+                "mustUse" => {
+                    if let Some(map) = object_to_json_map(&kv.value) {
+                        config.must_use = super::attribute_blocks::parse_must_use_config(&map);
+                    }
+                }
+                "nonExhaustive" => {
+                    if let Some(map) = object_to_json_map(&kv.value) {
+                        config.non_exhaustive =
+                            super::attribute_blocks::parse_non_exhaustive_config(&map);
+                    }
+                }
                 _ => {}
             }
         }
@@ -371,6 +392,53 @@ pub(crate) fn extract_function_expr(
             (Some(source), None)
         }
         _ => (None, None),
+    }
+}
+
+/// Convert an SWC object-literal expression into a `serde_json::Map` so
+/// the shared parsers in [`super::attribute_blocks`] can consume it.
+/// Returns `None` when the expression isn't an object literal.
+fn object_to_json_map(expr: &Expr) -> Option<serde_json::Map<String, serde_json::Value>> {
+    match expr_to_json(expr)? {
+        serde_json::Value::Object(map) => Some(map),
+        _ => None,
+    }
+}
+
+/// Convert a literal-ish SWC expression to a `serde_json::Value`. Returns
+/// `None` for anything we don't recognize (functions, identifiers, etc.)
+/// so downstream shared parsers never stash unparseable placeholders.
+fn expr_to_json(expr: &Expr) -> Option<serde_json::Value> {
+    match expr {
+        Expr::Lit(Lit::Str(s)) => Some(serde_json::Value::String(atom_to_string(&s.value))),
+        Expr::Lit(Lit::Bool(b)) => Some(serde_json::Value::Bool(b.value)),
+        Expr::Lit(Lit::Null(_)) => Some(serde_json::Value::Null),
+        Expr::Lit(Lit::Num(n)) => {
+            serde_json::Number::from_f64(n.value).map(serde_json::Value::Number)
+        }
+        Expr::Array(arr) => {
+            let items = arr
+                .elems
+                .iter()
+                .filter_map(|e| e.as_ref().and_then(|e| expr_to_json(&e.expr)))
+                .collect();
+            Some(serde_json::Value::Array(items))
+        }
+        Expr::Object(obj) => {
+            let mut map = serde_json::Map::new();
+            for prop in &obj.props {
+                if let PropOrSpread::Prop(prop) = prop
+                    && let Prop::KeyValue(kv) = &**prop
+                {
+                    let key = get_prop_key(&kv.key);
+                    if let Some(val) = expr_to_json(&kv.value) {
+                        map.insert(key, val);
+                    }
+                }
+            }
+            Some(serde_json::Value::Object(map))
+        }
+        _ => None,
     }
 }
 

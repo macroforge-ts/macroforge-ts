@@ -878,6 +878,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         ),
         ("svelte-preprocessor", "@macroforge/svelte-preprocessor"),
         ("mcp-server", "@macroforge/mcp-server"),
+        ("deno-plugin", "@macroforge/deno-plugin"),
         ("syn", "macroforge_ts_syn"),
         ("template", "macroforge_ts_quote"),
         ("macros", "macroforge_ts_macros"),

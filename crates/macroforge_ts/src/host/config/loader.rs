@@ -257,12 +257,91 @@ fn parse_config_object_oxc(
                     config.foreign_types = parse_foreign_types_oxc(ft_obj, imports, source)?;
                 }
             }
+            "cfg" => {
+                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                    config.cfg = super::attribute_blocks::parse_cfg_flags(&map);
+                }
+            }
+            "deprecated" => {
+                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                    config.deprecated = super::attribute_blocks::parse_deprecated_config(&map);
+                }
+            }
+            "mustUse" => {
+                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                    config.must_use = super::attribute_blocks::parse_must_use_config(&map);
+                }
+            }
+            "nonExhaustive" => {
+                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                    config.non_exhaustive =
+                        super::attribute_blocks::parse_non_exhaustive_config(&map);
+                }
+            }
             _ => {}
         }
     }
 
     config.config_imports = imports.clone();
     Ok(config)
+}
+
+/// Convert an OXC object-expression node into a `serde_json::Map` so the
+/// shared attribute-block parsers in [`super::attribute_blocks`] can handle
+/// it. Returns `None` when the expression isn't an object literal.
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+fn object_to_json_map_oxc(
+    expr: &oxc::ast::ast::Expression<'_>,
+) -> Option<serde_json::Map<String, serde_json::Value>> {
+    match expr_to_json_oxc(expr)? {
+        serde_json::Value::Object(map) => Some(map),
+        _ => None,
+    }
+}
+
+/// Convert a literal-ish OXC expression into a `serde_json::Value`. Mirrors
+/// the SWC-side `parser.rs::expr_to_json` — the two exist only because the
+/// AST types differ; the downstream shape is identical.
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+fn expr_to_json_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::Value> {
+    use oxc::ast::ast::Expression;
+    match expr {
+        Expression::StringLiteral(s) => Some(serde_json::Value::String(s.value.to_string())),
+        Expression::BooleanLiteral(b) => Some(serde_json::Value::Bool(b.value)),
+        Expression::NullLiteral(_) => Some(serde_json::Value::Null),
+        Expression::NumericLiteral(n) => {
+            serde_json::Number::from_f64(n.value).map(serde_json::Value::Number)
+        }
+        Expression::ArrayExpression(arr) => {
+            let items = arr
+                .elements
+                .iter()
+                .filter_map(|e| match e {
+                    oxc::ast::ast::ArrayExpressionElement::SpreadElement(_) => None,
+                    oxc::ast::ast::ArrayExpressionElement::Elision(_) => None,
+                    other => other.as_expression().and_then(expr_to_json_oxc),
+                })
+                .collect();
+            Some(serde_json::Value::Array(items))
+        }
+        Expression::ObjectExpression(obj) => {
+            let mut map = serde_json::Map::new();
+            for prop in &obj.properties {
+                let oxc::ast::ast::ObjectPropertyKind::ObjectProperty(prop) = prop else {
+                    continue;
+                };
+                if prop.kind != oxc::ast::ast::PropertyKind::Init {
+                    continue;
+                }
+                let key = get_prop_key_oxc(&prop.key, "");
+                if let Some(val) = expr_to_json_oxc(&prop.value) {
+                    map.insert(key, val);
+                }
+            }
+            Some(serde_json::Value::Object(map))
+        }
+        _ => None,
+    }
 }
 
 #[cfg(all(not(feature = "swc"), feature = "oxc"))]

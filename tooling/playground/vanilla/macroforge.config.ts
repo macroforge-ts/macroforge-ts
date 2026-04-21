@@ -1,3 +1,7 @@
 export default {
-    keepDecorators: true
+    keepDecorators: true,
+    cfg: {
+        features: ['playground'],
+        target: 'web'
+    }
 };

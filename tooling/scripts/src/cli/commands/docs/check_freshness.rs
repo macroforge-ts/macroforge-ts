@@ -45,6 +45,7 @@ const TS_JSON_FILES: &[&str] = &[
     "website/static/api-data/typescript/svelte-language-server.json",
     "website/static/api-data/typescript/svelte-preprocessor.json",
     "website/static/api-data/typescript/mcp-server.json",
+    "website/static/api-data/typescript/deno-plugin.json",
 ];
 
 /// Rust crate README files
@@ -63,6 +64,7 @@ const TS_README_FILES: &[&str] = &[
     "packages/svelte-language-server/README.md",
     "packages/svelte-preprocessor/README.md",
     "packages/mcp-server/README.md",
+    "packages/deno-plugin/README.md",
 ];
 
 /// Build the list of all generated file paths (relative to root)

@@ -5,7 +5,8 @@
     "./svelte-language-server",
     "./typescript-plugin",
     "./vite-plugin",
-    "./svelte-preprocessor"
+    "./svelte-preprocessor",
+    "./deno-plugin"
   ],
   "unstable": [
     "sloppy-imports"

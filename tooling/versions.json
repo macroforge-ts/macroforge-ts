@@ -32,6 +32,10 @@
         "local": "0.1.80",
         "registry": "0.1.77"
     },
+    "deno-plugin": {
+        "local": "0.1.80",
+        "registry": ""
+    },
     "website": {
         "local": "0.1.82",
         "registry": ""
