@@ -79,6 +79,7 @@ const TS_PACKAGES: &[(&str, &str)] = &[
     ("svelte-language-server", "packages/svelte-language-server"),
     ("svelte-preprocessor", "packages/svelte-preprocessor"),
     ("mcp-server", "packages/mcp-server"),
+    ("deno-plugin", "packages/deno-plugin"),
 ];
 
 pub fn run(output_dir: &Path) -> Result<()> {

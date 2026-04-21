@@ -1148,6 +1148,7 @@ dependencies = [
  "oxc",
  "pathdiff",
  "serde",
+ "serde_json",
  "thiserror",
 ]
 

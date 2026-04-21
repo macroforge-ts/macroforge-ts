@@ -70,6 +70,153 @@ test('vanilla: decorators stripped and methods generated', () => {
     assertMethodsGenerated(code, 'vanilla/user.ts', 'toJSON');
 });
 
+// ---------------------------------------------------------------------------
+// Attribute-macro pre-pass: @cfg / @deprecated / @mustUse / @nonExhaustive
+//
+// These tests assert against the playground fixtures directly. The Vite
+// plugin runs the same pre-pass during a build, so passing here means the
+// browser will see the same output that the e2e Playwright specs check.
+// ---------------------------------------------------------------------------
+
+// Walk up from `start` until a macroforge.config.* lands in the directory,
+// stopping at the repo root. Returns null when no config is found — that's
+// fine, the engine then uses defaults.
+function findMacroforgeConfigPath(start) {
+    let dir = path.dirname(start);
+    while (dir.startsWith(repoRoot)) {
+        for (const ext of ['.ts', '.mts', '.js', '.mjs', '.cjs']) {
+            const candidate = path.join(dir, `macroforge.config${ext}`);
+            if (fs.existsSync(candidate)) return candidate;
+        }
+        const parent = path.dirname(dir);
+        if (parent === dir) break;
+        dir = parent;
+    }
+    return null;
+}
+
+function expandPlaygroundAttributeFile(relPath) {
+    const filePath = path.join(repoRoot, relPath);
+    const code = fs.readFileSync(filePath, 'utf8');
+    // Pull the playground's macroforge.config so `cfg.features` /
+    // `cfg.target` flow through. expandSync caches the parsed config keyed
+    // by configPath.
+    const configPath = findMacroforgeConfigPath(filePath);
+    if (configPath) {
+        const { loadConfig } = require('macroforge');
+        loadConfig(fs.readFileSync(configPath, 'utf8'), configPath);
+    }
+    return expandSync(code, filePath, {
+        keepDecorators: false,
+        configPath: configPath ?? undefined
+    });
+}
+
+function assertAttributeFixtureExpanded(output, fileLabel) {
+    // @cfg keeps `keptByPlayground` (feature 'playground' is in the config)
+    // and `keptByWebTarget` (target 'web' matches).
+    assert.ok(
+        /export function keptByPlayground\b/.test(output),
+        `${fileLabel}: keptByPlayground should survive @cfg`
+    );
+    assert.ok(
+        /export function keptByWebTarget\b/.test(output),
+        `${fileLabel}: keptByWebTarget should survive @cfg`
+    );
+
+    // @cfg strips `strippedByMissingFeature` and `strippedByNodeTarget`
+    // entirely — the function declarations must be gone from the output.
+    assert.ok(
+        !/export function strippedByMissingFeature\b/.test(output),
+        `${fileLabel}: strippedByMissingFeature should be stripped by @cfg`
+    );
+    assert.ok(
+        !/export function strippedByNodeTarget\b/.test(output),
+        `${fileLabel}: strippedByNodeTarget should be stripped by @cfg`
+    );
+
+    // @deprecated is rewritten from `@deprecated('msg', {...})` to a
+    // tsc-readable `@deprecated msg` JSDoc tag.
+    assert.ok(
+        output.includes('@deprecated use renderV2 instead'),
+        `${fileLabel}: @deprecated JSDoc rewrite missing`
+    );
+    assert.ok(
+        !output.includes("@deprecated('"),
+        `${fileLabel}: macroforge-style @deprecated annotation should be gone`
+    );
+
+    // @mustUse strips its JSDoc — the diagnostic is the action, not the markup.
+    // Only match the annotation form `@mustUse(` or a JSDoc-style `/** @mustUse`
+    // so narrative comments mentioning the feature survive.
+    assert.ok(
+        !output.includes('@mustUse('),
+        `${fileLabel}: @mustUse(...) annotation should be stripped`
+    );
+    assert.ok(
+        !/\/\*\*\s*@mustUse\b/.test(output),
+        `${fileLabel}: bare @mustUse JSDoc annotation should be stripped`
+    );
+
+    // @nonExhaustive intersects the type alias's RHS with a brand sentinel.
+    assert.ok(
+        /readonly __nonExhaustive: unique symbol/.test(output),
+        `${fileLabel}: @nonExhaustive brand intersection missing`
+    );
+    // Variants must survive — check each independently since the formatter
+    // may change quote style (single vs double) between fixtures.
+    for (const variant of ['green', 'yellow', 'red']) {
+        assert.ok(
+            output.includes(`'${variant}'`) || output.includes(`"${variant}"`),
+            `${fileLabel}: @nonExhaustive should preserve variant '${variant}'`
+        );
+    }
+
+    // No annotation tags should leak into the output. Match the JSDoc tag
+    // form (`/** @cfg(`, `/** @nonExhaustive`) — narrative `//` comments
+    // that happen to mention `@cfg(...)` are prose and must survive.
+    assert.ok(
+        !/\/\*\*\s*@cfg\s*\(/.test(output),
+        `${fileLabel}: @cfg JSDoc tags should be stripped from kept declarations`
+    );
+    assert.ok(
+        !/\/\*\*\s*@nonExhaustive\b/.test(output),
+        `${fileLabel}: @nonExhaustive JSDoc tag should be stripped`
+    );
+}
+
+test('vanilla: attribute pre-pass strips, brands, and rewrites annotations', () => {
+    const { code, diagnostics } = expandPlaygroundAttributeFile(
+        'playground/vanilla/src/attributes-test.ts'
+    );
+    assert.deepEqual(
+        diagnostics.filter((d) => d.level === 'error'),
+        [],
+        `vanilla attributes-test.ts: unexpected error diagnostics: ${
+            JSON.stringify(
+                diagnostics
+            )
+        }`
+    );
+    assertAttributeFixtureExpanded(code, 'vanilla/attributes-test.ts');
+});
+
+test('svelte: attribute pre-pass strips, brands, and rewrites annotations', () => {
+    const { code, diagnostics } = expandPlaygroundAttributeFile(
+        'playground/svelte/src/lib/demo/attributes-demo.ts'
+    );
+    assert.deepEqual(
+        diagnostics.filter((d) => d.level === 'error'),
+        [],
+        `svelte attributes-demo.ts: unexpected error diagnostics: ${
+            JSON.stringify(
+                diagnostics
+            )
+        }`
+    );
+    assertAttributeFixtureExpanded(code, 'svelte/attributes-demo.ts');
+});
+
 test('svelte: decorators stripped and methods generated', () => {
     const { code } = expandFile('playground/svelte/src/lib/demo/macro-user.ts');
     assertDecoratorsStripped(code, 'svelte/macro-user.ts');

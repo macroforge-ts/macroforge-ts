@@ -159,6 +159,12 @@ pub fn build_repos_map(root: &Path, env: &EnvConfig) -> HashMap<String, Repo> {
             "@macroforge/mcp-server",
             "packages/mcp-server",
         ),
+        (
+            "deno-plugin",
+            "DENO_PLUGIN_PKG",
+            "@macroforge/deno-plugin",
+            "packages/deno-plugin",
+        ),
     ];
 
     for (name, env_var, npm_name, default_path) in pkg_configs {

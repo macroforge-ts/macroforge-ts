@@ -40,6 +40,11 @@ const TS_PACKAGES: &[(&str, &str, &str)] = &[
         "packages/mcp-server",
         "@macroforge/mcp-server",
     ),
+    (
+        "deno-plugin",
+        "packages/deno-plugin",
+        "@macroforge/deno-plugin",
+    ),
 ];
 
 /// Rust crates: (json_name/crate_name, relative_path)

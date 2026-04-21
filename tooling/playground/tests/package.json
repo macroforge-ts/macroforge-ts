@@ -6,8 +6,8 @@
     "dependencies": {},
     "devDependencies": {
         "@vtsls/language-server": "^0.2.9",
-        "@playwright/test": "^1.49.0",
+        "@playwright/test": "^1.59.0",
         "typescript": "^5",
-        "vite": "^7.2.6"
+        "vite": "~7.2.6"
     }
 }

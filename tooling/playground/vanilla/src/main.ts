@@ -3,6 +3,36 @@ import { User } from './user.ts';
 import { type RunesTestResults, runRunesTests } from './runes-test.ts';
 import { type E2eResults, runE2eHarness } from './e2e-harness.ts';
 import { type BuildtimeDemoResult, collectBuildtimeDemo } from './buildtime-demo.ts';
+import * as attrs from './attributes-test.ts';
+
+// Probe runtime exports of the attributes fixture. `@cfg`-stripped
+// declarations vanish entirely, so the namespace import returns `undefined`
+// for them. We use that as the runtime evidence that the pre-pass ran.
+//
+// `@deprecated` keeps the function (only the JSDoc gets rewritten — the
+// `.expanded.ts` snapshot covers that).
+//
+// `@nonExhaustive` is type-only; the runtime value is just a string.
+type AttributesResults = {
+    keptByFeature: string | null;
+    strippedByFeature: string | null;
+    keptByTarget: string | null;
+    strippedByTarget: string | null;
+    deprecatedCall: string;
+    nonExhaustiveValue: string;
+};
+
+function collectAttributesResults(): AttributesResults {
+    const dyn = attrs as Partial<typeof attrs>;
+    return {
+        keptByFeature: dyn.keptByPlayground?.() ?? null,
+        strippedByFeature: dyn.strippedByMissingFeature?.() ?? null,
+        keptByTarget: dyn.keptByWebTarget?.() ?? null,
+        strippedByTarget: dyn.strippedByNodeTarget?.() ?? null,
+        deprecatedCall: attrs.renderV1(),
+        nonExhaustiveValue: attrs.exampleStatus
+    };
+}
 
 // The playground attaches test results to `globalThis` so Playwright
 // can read them after page load.
@@ -18,6 +48,7 @@ type PlaygroundGlobals = {
     runesTestResults?: RunesTestResults;
     e2eResults?: E2eResults;
     buildtimeResults?: BuildtimeDemoResult;
+    attributesResults?: AttributesResults;
 };
 const pg = globalThis as unknown as PlaygroundGlobals;
 
@@ -117,6 +148,11 @@ function testMacros() {
     const buildtimeResult = collectBuildtimeDemo();
     pg.buildtimeResults = buildtimeResult;
 
+    // Probe the attribute-pre-pass fixture. Stripped exports show up as
+    // `null`; kept ones return their value.
+    const attributeResults = collectAttributesResults();
+    pg.attributesResults = attributeResults;
+
     const app = document.getElementById('app');
     if (app) {
         app.innerHTML = `
@@ -181,6 +217,29 @@ function testMacros() {
         <div><strong>runtime stub throws:</strong> <code data-testid="bt-stub-throws">${
             String(buildtimeResult.runtimeStubThrows)
         }</code></div>
+      </div>
+
+      <h2>Attribute macros</h2>
+      <p>
+        Each row reflects an annotation on a declaration in
+        <code>attributes-test.ts</code>. Stripped exports show as
+        <code>(stripped)</code>; kept ones show the function's return value.
+      </p>
+      <div id="attributes-results" data-testid="attributes-results">
+        <div><strong>@cfg feature kept:</strong> <code data-testid="attr-kept-feature">${
+            attributeResults.keptByFeature ?? '(stripped)'
+        }</code></div>
+        <div><strong>@cfg feature stripped:</strong> <code data-testid="attr-stripped-feature">${
+            attributeResults.strippedByFeature ?? '(stripped)'
+        }</code></div>
+        <div><strong>@cfg target kept:</strong> <code data-testid="attr-kept-target">${
+            attributeResults.keptByTarget ?? '(stripped)'
+        }</code></div>
+        <div><strong>@cfg target stripped:</strong> <code data-testid="attr-stripped-target">${
+            attributeResults.strippedByTarget ?? '(stripped)'
+        }</code></div>
+        <div><strong>@deprecated call result:</strong> <code data-testid="attr-deprecated-call">${attributeResults.deprecatedCall}</code></div>
+        <div><strong>@nonExhaustive value:</strong> <code data-testid="attr-non-exhaustive">${attributeResults.nonExhaustiveValue}</code></div>
       </div>
 
       <p>Check the console for more examples!</p>

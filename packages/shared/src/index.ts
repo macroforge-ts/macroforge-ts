@@ -26,12 +26,16 @@ export {
 } from './external-manifest.js';
 
 export {
+    type CfgFlags,
     CONFIG_FILES,
     type ConfigLoader,
     type ConfigLoadResult,
+    type DeprecatedConfig,
     findConfigFile,
     loadMacroConfig,
     type MacroConfig,
+    type MustUseConfig,
+    type NonExhaustiveConfig,
     type VitePluginConfig
 } from './config.js';
 

@@ -166,9 +166,26 @@ impl CoreEngine {
         let has_foreign_types = !config.foreign_types.is_empty();
         let foreign_type_count = config.foreign_types.len() as u32;
 
+        // A block is considered "provided" when any sub-field deviates from
+        // the library default. Plugins use these booleans purely for logging.
+        let default_config = macroforge_ts_syn::config::MacroforgeConfig::default();
+        let has_cfg_flags = !config.cfg.features.is_empty()
+            || config.cfg.target.is_some()
+            || config.cfg.debug_assertions
+            || !config.cfg.custom.is_empty();
+        let has_deprecated_config = config.deprecated.runtime_warn
+            != default_config.deprecated.runtime_warn
+            || config.deprecated.fail_on_use != default_config.deprecated.fail_on_use;
+        let has_must_use_config = !matches!(
+            config.must_use.mode,
+            macroforge_ts_syn::config::MustUseMode::Lint
+        );
+        let has_non_exhaustive_config =
+            config.non_exhaustive.brand != default_config.non_exhaustive.brand;
+
         eprintln!(
-            "[macroforge:api] load_config success: keep_decorators={}, foreign_types={}",
-            config.keep_decorators, foreign_type_count
+            "[macroforge:api] load_config success: keep_decorators={}, foreign_types={}, cfg={}",
+            config.keep_decorators, foreign_type_count, has_cfg_flags
         );
 
         Ok(LoadConfigResult {
@@ -176,6 +193,10 @@ impl CoreEngine {
             generate_convenience_const: config.generate_convenience_const,
             has_foreign_types,
             foreign_type_count,
+            has_cfg_flags,
+            has_deprecated_config,
+            has_must_use_config,
+            has_non_exhaustive_config,
         })
     }
 

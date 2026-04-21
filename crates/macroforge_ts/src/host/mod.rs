@@ -78,6 +78,10 @@
 /// Configuration loading and management.
 pub mod config;
 
+/// Attribute macros (`@cfg`, `@deprecated`, `@mustUse`, `@nonExhaustive`) —
+/// pre-pass that runs before `@buildtime` and derive dispatch.
+pub mod attributes;
+
 /// Compile-time `@buildtime` evaluation — sandboxed JS execution during
 /// source transformation, Zig-comptime style.
 pub mod buildtime;

@@ -1,15 +1,16 @@
 # Debug
 
-The `Debug` macro generates a human-readable `toString()` method for
-TypeScript classes, interfaces, enums, and type aliases.
+The `Debug` macro generates a human-readable `toString()` method for TypeScript
+classes, interfaces, enums, and type aliases.
 
 ## Generated Output
 
-**Classes**: Generates a standalone function `classNameToString(value)` and a static wrapper
-method `static toString(value)` returning a string like `"ClassName { field1: value1, field2: value2 }"`.
+**Classes**: Generates a standalone function `classNameToString(value)` and a
+static wrapper method `static toString(value)` returning a string like
+`"ClassName { field1: value1, field2: value2 }"`.
 
-**Enums**: Generates a standalone function `enumNameToString(value)` that performs
-reverse lookup on numeric enums.
+**Enums**: Generates a standalone function `enumNameToString(value)` that
+performs reverse lookup on numeric enums.
 
 **Interfaces**: Generates a standalone function `ifaceNameToString(value)`.
 
@@ -17,7 +18,6 @@ reverse lookup on numeric enums.
 complex types, or field enumeration for object types.
 
 Names use **camelCase** conversion (e.g., `User` -> `userToString`).
-
 
 ## Field-Level Options
 
@@ -31,33 +31,33 @@ The `@debug` decorator supports:
 ```typescript before
 /** @derive(Debug) */
 class User {
-    /** @debug({ rename: "id" }) */
-    userId: number;
+  /** @debug({ rename: "id" }) */
+  userId: number;
 
-    /** @debug({ skip: true }) */
-    password: string;
+  /** @debug({ skip: true }) */
+  password: string;
 
-    email: string;
+  email: string;
 }
 ```
 
 ```typescript after
 class User {
-    userId: number;
+  userId: number;
 
-    password: string;
+  password: string;
 
-    email: string;
+  email: string;
 
-    static toString(value: User): string {
-        return userToString(value);
-    }
+  static toString(value: User): string {
+    return userToString(value);
+  }
 }
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push('id: ' + value.userId);
-    parts.push('email: ' + value.email);
-    return 'User { ' + parts.join(', ') + ' }';
+  const parts: string[] = [];
+  parts.push("id: " + value.userId);
+  parts.push("email: " + value.email);
+  return "User { " + parts.join(", ") + " }";
 }
 ```

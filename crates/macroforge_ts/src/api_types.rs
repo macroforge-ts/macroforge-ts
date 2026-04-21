@@ -448,4 +448,13 @@ pub struct LoadConfigResult {
     pub has_foreign_types: bool,
     /// Number of foreign types configured.
     pub foreign_type_count: u32,
+    /// Whether the config provides a non-empty `cfg` block used by the `@cfg`
+    /// attribute macro. Plugins can log this for visibility.
+    pub has_cfg_flags: bool,
+    /// Whether the config overrides any `@deprecated` default behavior.
+    pub has_deprecated_config: bool,
+    /// Whether the config overrides any `@mustUse` default behavior.
+    pub has_must_use_config: bool,
+    /// Whether the config overrides any `@nonExhaustive` default behavior.
+    pub has_non_exhaustive_config: bool,
 }

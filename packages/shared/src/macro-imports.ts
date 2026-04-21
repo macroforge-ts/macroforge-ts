@@ -5,27 +5,53 @@
  */
 
 /**
- * Checks whether source code contains `@derive(` as a real JSDoc directive.
+ * JSDoc tag heads that macroforge recognises as annotations the engine must
+ * see. Each entry is matched against line-starts after stripping JSDoc
+ * comment syntax. `@derive(` and `@cfg(` must be parenthesised; the others
+ * may appear bare or with args.
+ */
+const MACRO_TAG_PREFIXES = [
+    '@derive(',
+    '@cfg(',
+    '@deprecated',
+    '@mustUse',
+    '@nonExhaustive'
+] as const;
+
+/**
+ * Checks whether source code contains a macroforge JSDoc annotation —
+ * `@derive(...)`, `@cfg(...)`, `@deprecated`, `@mustUse`, or `@nonExhaustive`.
  *
- * Only matches `@derive(` when it appears at the start of a JSDoc comment line
+ * Only matches when the tag appears at the start of a JSDoc comment line
  * (after stripping comment syntax like `/**`, `*​/`, `*`, and whitespace).
- * This correctly rejects `@derive` embedded in prose text such as
+ * This correctly rejects matches embedded in prose text such as
  * `"Deserialize result format from @derive(Deserialize)"`.
  *
  * Use this instead of `code.includes("@derive")` to avoid false positives.
  *
  * @param source - The TypeScript source code to scan
- * @returns `true` if the source contains a real `@derive(` directive
+ * @returns `true` if the source contains any macroforge annotation
  *
  * @example
  * ```typescript
- * hasMacroAnnotations('/** @derive(Debug) *​/ class X {}');     // true
- * hasMacroAnnotations('/** result from @derive(Debug) *​/');    // false — embedded in prose
- * hasMacroAnnotations('class X {}');                            // false
+ * hasMacroAnnotations('/** @derive(Debug) *​/ class X {}');       // true
+ * hasMacroAnnotations('/** @cfg({ feature: "ssr" }) *​/ fn f() {}'); // true
+ * hasMacroAnnotations('/** @nonExhaustive *​/ type K = "a";');     // true
+ * hasMacroAnnotations('/** result from @derive(Debug) *​/');       // false — embedded in prose
+ * hasMacroAnnotations('class X {}');                              // false
  * ```
  */
 export function hasMacroAnnotations(source: string): boolean {
-    if (!source.includes('@derive')) {
+    // Cheap bail-out: if none of the tag heads are textually present, no line
+    // can start with one.
+    const bareHeads = [
+        '@derive',
+        '@cfg',
+        '@deprecated',
+        '@mustUse',
+        '@nonExhaustive'
+    ];
+    if (!bareHeads.some((head) => source.includes(head))) {
         return false;
     }
     let inCodeBlock = false;
@@ -45,8 +71,7 @@ export function hasMacroAnnotations(source: string): boolean {
         if (inCodeBlock) {
             continue;
         }
-        // A line must START with @derive( to be a real directive.
-        if (trimmed.startsWith('@derive(')) {
+        if (MACRO_TAG_PREFIXES.some((prefix) => trimmed.startsWith(prefix))) {
             return true;
         }
     }

@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { macroforgePreprocess } from "../dist/index.js";
+import { macroforgePreprocess } from "../src/index.ts";
 
 describe("macroforgePreprocess", () => {
   test("returns a PreprocessorGroup with correct structure", () => {

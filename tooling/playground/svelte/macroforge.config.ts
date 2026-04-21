@@ -2,6 +2,10 @@ import { DateTime, Option } from 'effect';
 
 export default {
     keepDecorators: false,
+    cfg: {
+        features: ['playground'],
+        target: 'web'
+    },
     foreignTypes: {
         // Use the fully qualified type name as the key
         // This matches the type annotation "DateTime.DateTime" in TypeScript

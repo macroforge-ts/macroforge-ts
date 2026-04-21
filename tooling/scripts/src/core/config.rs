@@ -96,6 +96,7 @@ pub fn npm_package_names() -> HashMap<&'static str, &'static str> {
         ),
         ("svelte-preprocessor", "@macroforge/svelte-preprocessor"),
         ("mcp-server", "@macroforge/mcp-server"),
+        ("deno-plugin", "@macroforge/deno-plugin"),
     ]
     .into_iter()
     .collect()

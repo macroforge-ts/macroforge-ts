@@ -1667,6 +1667,7 @@ dependencies = [
  "oxc",
  "pathdiff",
  "serde",
+ "serde_json",
  "swc_core",
  "thiserror",
 ]
