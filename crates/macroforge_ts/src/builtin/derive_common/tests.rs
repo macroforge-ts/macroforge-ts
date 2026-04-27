@@ -101,15 +101,13 @@ fn test_get_type_default() {
     assert_eq!(get_type_default("Date"), "new Date()");
     // Unknown types call their defaultValue() method (Prefix style)
     assert_eq!(get_type_default("User"), "userDefaultValue()");
-    // Generic type instantiations use typeDefaultValue<Args>() syntax
-    assert_eq!(
-        get_type_default("RecordLink<Service>"),
-        "recordLinkDefaultValue<Service>()"
-    );
-    assert_eq!(
-        get_type_default("Result<User, Error>"),
-        "resultDefaultValue<User, Error>()"
-    );
+    // Generic type instantiations without a TypeRegistry cannot be resolved,
+    // so they fall back to `undefined`. With a registry, `RecordLink<T>`
+    // expands to its body (`string | T`) and the default flows through the
+    // primitive-or-serializable detector to `"place:holder"`. See
+    // `get_type_default_with_registry` for the resolved path.
+    assert_eq!(get_type_default("RecordLink<Service>"), "undefined");
+    assert_eq!(get_type_default("Result<User, Error>"), "undefined");
     // Object literal types default to {}
     assert_eq!(get_type_default("{ [key: string]: number }"), "{}");
     assert_eq!(get_type_default("{ foo: string; bar: number }"), "{}");
@@ -128,16 +126,19 @@ fn test_get_type_default_object_literal_before_union_split() {
 
 #[test]
 fn test_get_type_default_union_with_primitive() {
-    // string | CustomType -> default of the primitive member
-    assert_eq!(get_type_default("string | Account"), r#""""#);
-    assert_eq!(get_type_default("string | Employee"), r#""""#);
-    assert_eq!(get_type_default("string | Appointment"), r#""""#);
-    assert_eq!(get_type_default("string | Site"), r#""""#);
+    // `string | UserType` is the resolved shape of `RecordLink<T>` and
+    // defaults to the unresolved-link sentinel; checked before the primitive
+    // branch by `detect_primitive_serializable_union`.
+    assert_eq!(get_type_default("string | Account"), r#""place:holder""#);
+    assert_eq!(get_type_default("string | Employee"), r#""place:holder""#);
+    assert_eq!(get_type_default("string | Appointment"), r#""place:holder""#);
+    assert_eq!(get_type_default("string | Site"), r#""place:holder""#);
+    // Primitive other than `string` falls through to the primitive branch.
     assert_eq!(get_type_default("number | Custom"), "0");
     assert_eq!(get_type_default("boolean | Foo"), "false");
     assert_eq!(get_type_default("bigint | Bar"), "0n");
-    // Primitive not first in union
-    assert_eq!(get_type_default("Account | string"), r#""""#);
+    // Primitive not first in union — same RecordLink shape, same sentinel.
+    assert_eq!(get_type_default("Account | string"), r#""place:holder""#);
 }
 
 #[test]

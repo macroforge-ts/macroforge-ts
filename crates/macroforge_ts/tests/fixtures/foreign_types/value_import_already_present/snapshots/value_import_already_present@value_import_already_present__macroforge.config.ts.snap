@@ -1,0 +1,73 @@
+---
+source: macroforge_ts/tests/foreign_type_fixtures.rs
+description: value_import_already_present
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/foreign_types/value_import_already_present/macroforge.config.ts
+---
+## Config
+
+// Target file imports DateTime as a value at the top, so the inlined
+// expression can reference `DateTime.foo` directly — the engine must
+// NOT add a redundant `__mf_DateTime` alias.
+import { DateTime } from 'effect';
+
+export default {
+    foreignTypes: {
+        'DateTime.Utc': {
+            from: ['effect'],
+            serialize: (v: DateTime.Utc) => DateTime.formatIso(v),
+            deserialize: (raw: unknown) => DateTime.make(raw as string),
+            default: () => DateTime.make(new Date()),
+            hasShape: (v: unknown) => typeof v === 'string',
+        },
+    },
+};
+
+## Input
+
+import { DateTime } from 'effect';
+
+/** @derive(Default, Serialize, Deserialize) */
+export interface Tick {
+    at: DateTime.Utc;
+}
+
+## Config-declared namespaces (any name not in this list is treated as a global)
+
+DateTime
+
+## Generated imports (only `__mf_*` lines)
+
+import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+
+## `__mf_*` aliases referenced in body
+
+__mf_DeserializeContext
+__mf_PendingRef
+__mf_SerializeContext
+
+## Body references — config-declared (must be aliased)
+
+DateTime
+
+## Body references — treated as global (must NOT be aliased)
+
+Array
+JSON
+Tick
+
+## Default function
+
+export function tickDefaultValue(): Tick {
+                        return {
+at: (() => DateTime.make(new Date()))(),
+};
+                    }
+
+## Diagnostics
+
+(none)

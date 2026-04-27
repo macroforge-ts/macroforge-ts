@@ -54,6 +54,7 @@ pub use registry_helpers::{
     type_has_derive,
 };
 pub use type_utils::{
-    get_type_default, has_known_default, is_generic_type, is_nullable_type, is_numeric_type,
-    is_primitive_type, parse_generic_type,
+    detect_primitive_serializable_union, get_type_default, get_type_default_with_registry,
+    has_known_default, is_generic_type, is_nullable_type, is_numeric_type, is_primitive_type,
+    parse_generic_type,
 };

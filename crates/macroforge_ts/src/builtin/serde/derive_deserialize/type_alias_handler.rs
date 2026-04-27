@@ -75,6 +75,7 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
             &generic_args,
             &full_type_name,
             &validate_field_generic_decl,
+            type_registry,
         )
     } else if let Some(members) = type_alias.as_intersection() {
         let fields =
@@ -96,6 +97,7 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
                 &generic_args,
                 &full_type_name,
                 &validate_field_generic_decl,
+                type_registry,
             )
         } else {
             handle_fallback_type_alias(
@@ -172,6 +174,7 @@ fn handle_object_type_alias(
     _generic_args: &str,
     full_type_name: &str,
     validate_field_generic_decl: &str,
+    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
 ) -> Result<TsStream, MacroforgeError> {
     let container_opts = SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
     let tag_field = container_opts.tag_field_or_default();
@@ -181,7 +184,12 @@ fn handle_object_type_alias(
     let fields: Vec<DeserializeField> = ir_fields
         .iter()
         .filter_map(|field| {
-            interface_field_to_deserialize_field(field, &container_opts, &mut all_diagnostics)
+            interface_field_to_deserialize_field(
+                field,
+                &container_opts,
+                &mut all_diagnostics,
+                type_registry,
+            )
         })
         .collect();
 
@@ -517,13 +525,27 @@ fn handle_object_type_alias(
 
                                     {:case TypeCategory::Serializable(inner_type_name)}
                                         {$let inner_type_expr: Expr = ts_ident!(inner_type_name).into()}
-                                        ctx.pushScope("@{field.json_key}");
-                                        try {
-                                            const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
-                                            ctx.assignOrDefer(instance, "@{field.field_name}", __result);
-                                        } finally {
-                                            ctx.popScope();
-                                        }
+                                        {#if field.primitive_union_guard.is_some()}
+                                            if (typeof @{raw_var_ident} === "string") {
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            } else {
+                                                ctx.pushScope("@{field.json_key}");
+                                                try {
+                                                    const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                } finally {
+                                                    ctx.popScope();
+                                                }
+                                            }
+                                        {:else}
+                                            ctx.pushScope("@{field.json_key}");
+                                            try {
+                                                const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+                                        {/if}
 
                                     {:case TypeCategory::Nullable(_)}
                                         {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
@@ -698,13 +720,27 @@ fn handle_object_type_alias(
 
                                     {:case TypeCategory::Serializable(inner_type_name)}
                                         {$let inner_type_expr: Expr = ts_ident!(inner_type_name).into()}
-                                        ctx.pushScope("@{field.json_key}");
-                                        try {
-                                            const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
-                                            ctx.assignOrDefer(instance, "@{field.field_name}", __result);
-                                        } finally {
-                                            ctx.popScope();
-                                        }
+                                        {#if field.primitive_union_guard.is_some()}
+                                            if (typeof @{raw_var_ident} === "string") {
+                                                instance.@{field.field_ident} = @{raw_var_ident};
+                                            } else {
+                                                ctx.pushScope("@{field.json_key}");
+                                                try {
+                                                    const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                } finally {
+                                                    ctx.popScope();
+                                                }
+                                            }
+                                        {:else}
+                                            ctx.pushScope("@{field.json_key}");
+                                            try {
+                                                const __result = @{inner_type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+                                        {/if}
 
                                     {:case TypeCategory::Nullable(_)}
                                         {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
