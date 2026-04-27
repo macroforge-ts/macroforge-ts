@@ -125,39 +125,54 @@ pub fn rewrite_expression_namespaces(expr: &str) -> String {
 
 /// Register required namespace imports for a matched foreign type.
 ///
-/// Checks each namespace referenced in the foreign type's expressions and determines
-/// if it needs to be imported (i.e., if it's not already available as a value import).
+/// For each namespace `ns` referenced inside `ft`'s expression bodies,
+/// register `import { ns as __mf_ns } from "<module>"` so
+/// [`rewrite_expression_namespaces`] can substitute `ns.` → `__mf_ns.` in
+/// the inlined body.
 ///
-/// The import source is determined by looking at the config file's imports first
-/// (e.g., if the config has `import { DateTime } from "effect"`, we use "effect").
-/// This ensures we import from the same place the config uses for its expressions.
+/// `ns` is only registered when we have a definite module to import it
+/// from:
+/// 1. The macroforge.config.ts top-level imports (`config_imports`), or
+/// 2. A configured foreign type whose surface name / namespace root is
+///    `ns` (e.g. `DateTime.Utc`'s default body calls `Option.match` and
+///    `Option` is itself a foreign-type entry — its `from[0]` tells us
+///    where to import it).
 ///
-/// # Arguments
-/// * `ft` - The matched foreign type configuration
-/// * `import_module` - The module the type is imported from (fallback if not in config)
-pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, import_module: &str) {
+/// **Globals are never imported.** Identifiers like `Array`, `console`,
+/// `Math`, `Object`, `BigInt`, `JSON`, `Date`, `Error`, etc. show up in
+/// `expression_namespaces` exactly the same as user-imported namespaces,
+/// but they live in the JS runtime — emitting `import { console as
+/// __mf_console } from "<ft.from>"` would produce a broken cache. The
+/// rule is: if neither `config_imports` nor the foreign-type registry
+/// names `ns`, leave it unrewritten — the runtime resolves it as a global
+/// for free.
+///
+/// `ft.from[0]` is **not** used as a fallback module for `ns`. The
+/// matched foreign type's `from` describes where `ft` itself lives, not
+/// where arbitrary other identifiers in its expression body live.
+pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, _import_module: &str) {
+    let foreign_types = crate::host::import_registry::with_foreign_types(|fts| fts.to_vec());
     with_registry_mut(|r| {
         for ns in &ft.expression_namespaces {
-            let has_import = r.is_available(ns);
-            let has_config_import = r.config_imports.contains_key(ns);
-
-            if !has_import && !has_config_import {
+            // Already a non-type-only value import in the target source —
+            // the inlined `ns.foo()` resolves directly, no alias needed.
+            if r.source_map().contains_key(ns) && !r.is_type_only(ns) {
                 continue;
             }
 
-            let is_type_only = r.is_type_only(ns);
+            // Only register when we *know* the module. Anything else
+            // (Array, console, Math, JSON, …) is a JS global; leave it
+            // alone.
+            let module = if let Some(m) = r.config_imports.get(ns).cloned() {
+                m
+            } else if let Some(m) = foreign_type_module(&foreign_types, ns) {
+                m
+            } else {
+                continue;
+            };
 
-            if is_type_only || (!r.source_map().contains_key(ns) && has_config_import) {
-                let module = r.config_imports.get(ns).cloned().unwrap_or_else(|| {
-                    ft.from
-                        .first()
-                        .cloned()
-                        .unwrap_or_else(|| import_module.to_string())
-                });
-
-                let alias = format!("__mf_{}", ns);
-                r.request_namespace_import(ns, &module, &alias);
-            }
+            let alias = format!("__mf_{}", ns);
+            r.request_namespace_import(ns, &module, &alias);
         }
 
         // For dotted names like "DateTime.Utc", import the namespace root ("DateTime")
@@ -167,6 +182,22 @@ pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, import_mo
             r.request_type_import(import_name, &ft.from[0]);
         }
     });
+}
+
+/// Look up a configured foreign type whose surface name (or namespace root)
+/// matches `ns`. Used to recover the module specifier when the referenced
+/// namespace isn't named in macroforge.config.ts's top-level imports but is
+/// itself a configured foreign type (e.g. `Option`).
+fn foreign_type_module(foreign_types: &[ForeignTypeConfig], ns: &str) -> Option<String> {
+    for candidate in foreign_types {
+        let matches = candidate.name == ns
+            || candidate.get_namespace().is_some_and(|root| root == ns)
+            || candidate.get_type_name() == ns;
+        if matches && let Some(m) = candidate.from.first() {
+            return Some(m.clone());
+        }
+    }
+    None
 }
 
 /// Result of matching a type against foreign type configurations.

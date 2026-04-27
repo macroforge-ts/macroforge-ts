@@ -1,0 +1,8 @@
+# Use Apple's new linker ("ld-prime", Xcode 15+) instead of the old ld64.
+# Apple rewrote ld64 from scratch in 2023 — multi-threaded, native Mach-O,
+# significantly faster link times on large Rust binaries. Ships with Xcode,
+# no install needed. The `-ld_new` flag is forwarded through `cc` to the
+# linker (Apple's clang understands it; `lld` it would not, see prior
+# revision of this file for why we dropped that approach).
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-ld_new"]

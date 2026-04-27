@@ -1,5 +1,7 @@
+use crate::builtin::derive_common::detect_primitive_serializable_union;
 use crate::ts_syn::TsStream;
 use crate::ts_syn::abi::DiagnosticCollector;
+use crate::ts_syn::abi::ir::{TypeRegistry, resolve_generic_aliases};
 use crate::ts_syn::{parse_ts_expr, ts_ident};
 
 use super::super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
@@ -19,6 +21,7 @@ pub(super) fn interface_field_to_deserialize_field(
     field: &crate::ts_syn::abi::ir::interface::InterfaceFieldIR,
     container_opts: &SerdeContainerOptions,
     diagnostics: &mut DiagnosticCollector,
+    type_registry: Option<&TypeRegistry>,
 ) -> Option<DeserializeField> {
     let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
     diagnostics.extend(parse_result.diagnostics);
@@ -33,7 +36,25 @@ pub(super) fn interface_field_to_deserialize_field(
         .clone()
         .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-    let type_cat = TypeCategory::from_ts_type(&field.ts_type);
+    let resolved_ts_type: String = match type_registry {
+        Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
+        None => field.ts_type.clone(),
+    };
+    let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
+    // `string | SomeSerializable` — the resolved shape of `RecordLink<T>`.
+    // Downgrade to `Serializable(inner)` + a typeof-guard flag so downstream
+    // templates keep a single code path.
+    let primitive_union_guard = if matches!(
+        type_cat,
+        TypeCategory::Unknown | TypeCategory::Serializable(_)
+    ) {
+        detect_primitive_serializable_union(&resolved_ts_type).map(|(prim, ser)| {
+            type_cat = TypeCategory::Serializable(ser);
+            prim
+        })
+    } else {
+        None
+    };
 
     let nullable_inner_kind = match &type_cat {
         TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
@@ -149,8 +170,8 @@ pub(super) fn interface_field_to_deserialize_field(
         json_key,
         field_name: field.name.clone(),
         field_ident: ts_ident!(field.name.as_str()),
-        raw_cast_type: raw_cast_type(&field.ts_type, &type_cat),
-        ts_type: field.ts_type.clone(),
+        raw_cast_type: raw_cast_type(&resolved_ts_type, &type_cat),
+        ts_type: resolved_ts_type,
         type_cat,
         optional: field.optional || opts.default || opts.default_expr.is_some(),
         has_default: opts.default || opts.default_expr.is_some(),
@@ -173,6 +194,7 @@ pub(super) fn interface_field_to_deserialize_field(
         wrapper_serializable_type,
         optional_inner_kind,
         optional_serializable_type,
+        primitive_union_guard,
     })
 }
 
@@ -255,10 +277,17 @@ pub(super) fn generate_field_assignment(
         }
         TypeCategory::Serializable(type_name) => {
             let deser_fn = nested_deserialize_fn_name(type_name);
-            lines.push(format!(
-                "{}__inst.{} = {}(__obj[\"{}\"], ctx) as {};",
-                indent, fname, deser_fn, key, field.ts_type
-            ));
+            if field.primitive_union_guard.is_some() {
+                lines.push(format!(
+                    "{}__inst.{} = typeof __obj[\"{}\"] === \"string\" ? __obj[\"{}\"] : {}(__obj[\"{}\"], ctx) as {};",
+                    indent, fname, key, key, deser_fn, key, field.ts_type
+                ));
+            } else {
+                lines.push(format!(
+                    "{}__inst.{} = {}(__obj[\"{}\"], ctx) as {};",
+                    indent, fname, deser_fn, key, field.ts_type
+                ));
+            }
         }
         TypeCategory::Nullable(inner) => {
             let inner_cat = TypeCategory::from_ts_type(inner);

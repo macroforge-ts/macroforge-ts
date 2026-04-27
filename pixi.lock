@@ -6,6 +6,7 @@ environments:
     packages:
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/rust-1.94.0-h5655b98_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/rust-src-1.94.0-unix_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-wasm32-unknown-unknown-1.94.0-unix_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-x86_64-apple-darwin-1.94.0-h38e4360_0.conda
 packages:
@@ -18,6 +19,17 @@ packages:
   license_family: MIT
   size: 201469684
   timestamp: 1773066100586
+- conda: https://conda.anaconda.org/conda-forge/noarch/rust-src-1.94.0-unix_0.conda
+  sha256: 0a06934a3db5171a6f567689afd6391015a2529d9bc608a9ed4a22b537b2b1bc
+  md5: 5b577e4cac24014599e74481c9a2b5ec
+  depends:
+  - __unix
+  constrains:
+  - rust >=1.94.0,<1.94.1.0a0
+  license: MIT
+  license_family: MIT
+  size: 4466770
+  timestamp: 1773066264757
 - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-wasm32-unknown-unknown-1.94.0-unix_0.conda
   sha256: cfcee9ea56976fdd720320e1ef763a4529714323d621275047b3664ae603a8c4
   md5: 9784e843604f3d17c820cc3db662e351

@@ -934,6 +934,21 @@ fn lower_type_member(
             TypeMemberKind::Intersection(members)
         }
 
+        // Parenthesized type: `({ kind: 'A' } & ADetail)` — unwrap and lower
+        // the inner type. The parens are purely a parser disambiguator; the
+        // semantic shape is whatever's inside. Decorators on the parenthesized
+        // member (e.g. `/** @default */ ({ ... } & T)`) are merged onto the
+        // inner member so the union pass still sees them.
+        TsParenthesizedType(paren) => {
+            let mut inner = lower_type_member(&paren.type_ann, source, valid_annotations);
+            for decorator in decorators {
+                if !inner.has_decorator(&decorator.name) {
+                    inner.decorators.push(decorator);
+                }
+            }
+            return inner;
+        }
+
         // Type reference or other: User, string, Array<T>
         _ => {
             let type_str = snippet(source, ts_type.span());

@@ -34,6 +34,7 @@ class User {
     });
 }
 
+#[cfg(feature = "node")]
 #[test]
 fn parse_import_sources_handles_aliases_and_defaults() {
     let code = r#"
@@ -62,6 +63,7 @@ import * as Everything from "@macro/all";
     );
 }
 
+#[cfg(feature = "node")]
 #[test]
 fn native_position_mapper_matches_js_logic() {
     let mapping = SourceMappingResult {

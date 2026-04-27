@@ -80,6 +80,15 @@ bench = { cmd = "deno run -A tooling/scripts/bench.mjs" }
 # TUI dashboard
 scripts = { cmd = "tooling/scripts/target/release/mf --tui" }
 
+# wasm-bindgen-cli is not on conda-forge, so we cargo-install it at the
+# exact version pinned by the Rust workspace lockfile. Without this, the
+# wasm-pack cache may hand `bench.mjs` a newer CLI that rejects the .wasm
+# with a "schema version mismatch" error. Run once per machine:
+#   pixi run setup:wasm-bindgen
+"setup:wasm-bindgen" = { cmd = "cargo install wasm-bindgen-cli --version 0.2.117 --locked" }
+
 [dependencies]
 rust = "1.94.*"
+# rust-src lets rust-analyzer and cargo-miri introspect stdlib sources; matches dealdraft.
+rust-src = "1.94.*"
 rust-std-wasm32-unknown-unknown = "1.94.*"

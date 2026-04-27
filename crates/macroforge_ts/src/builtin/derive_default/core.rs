@@ -100,7 +100,12 @@ fn wrap_string_for_tagged_union(
             .trim_matches('\'');
         if lit == variant_name {
             return Some(if let Some(p) = payload_type {
-                let camel = p.split('<').next().unwrap_or(&p).trim().to_case(Case::Camel);
+                let camel = p
+                    .split('<')
+                    .next()
+                    .unwrap_or(&p)
+                    .trim()
+                    .to_case(Case::Camel);
                 format!(
                     "({{ \"{}\": \"{}\", ...{}DefaultValue() }})",
                     tag, variant_name, camel
@@ -111,6 +116,23 @@ fn wrap_string_for_tagged_union(
         }
     }
     None
+}
+
+/// True when `s` contains a `|` at top level (depth 0 with respect to
+/// matching parens / brackets / braces / angle brackets). Used to tell a
+/// parenthesized union (`(string | T)`) — which we reject — from a
+/// parenthesized intersection (`({ tag } & T)`) — which is fine.
+fn contains_top_level_pipe(s: &str) -> bool {
+    let mut depth: i32 = 0;
+    for ch in s.chars() {
+        match ch {
+            '(' | '[' | '{' | '<' => depth += 1,
+            ')' | ']' | '}' | '>' => depth -= 1,
+            '|' if depth <= 1 => return true,
+            _ => {}
+        }
+    }
+    false
 }
 
 /// Extract `"value"` out of `tag: "value"` or `tag = "value"` inside the
@@ -558,11 +580,17 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 }
 
                 // Check for parenthesized union members - can't place @default inside parens
-                // e.g., `(string | Product) | (string | Service)` is not allowed
+                // e.g., `(string | Product) | (string | Service)` is not allowed.
+                // Parenthesized intersections like `({ kind: 'A' } & ADetail)` are
+                // fine — they preserve doc-comment placement unambiguously and are
+                // already handled by `as_intersection_members` below.
                 let parenthesized: Vec<&str> = members
                     .iter()
                     .filter_map(|m| m.as_type_ref())
-                    .filter(|t| t.trim().starts_with('('))
+                    .filter(|t| {
+                        let trimmed = t.trim();
+                        trimmed.starts_with('(') && contains_top_level_pipe(trimmed)
+                    })
                     .collect();
 
                 if !parenthesized.is_empty() {

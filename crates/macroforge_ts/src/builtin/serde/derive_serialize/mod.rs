@@ -162,7 +162,9 @@ use super::{
     SerdeContainerOptions, SerdeFieldOptions, TaggingMode, TypeCategory, get_foreign_types,
     rewrite_expression_namespaces,
 };
+use crate::builtin::derive_common::detect_primitive_serializable_union;
 use crate::builtin::return_types::SERIALIZE_CONTEXT;
+use crate::ts_syn::abi::ir::resolve_generic_aliases;
 
 #[ts_macro_derive(
     Serialize,
@@ -171,6 +173,8 @@ use crate::builtin::return_types::SERIALIZE_CONTEXT;
 )]
 pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
+
+    let type_registry = input.context.type_registry.as_ref();
 
     match &input.data {
         Data::Class(class) => {
@@ -209,7 +213,22 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         .clone()
                         .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-                    let type_cat = TypeCategory::from_ts_type(&field.ts_type);
+                    let resolved_ts_type: String = match type_registry {
+                        Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
+                        None => field.ts_type.clone(),
+                    };
+                    let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
+                    let primitive_union_guard = if matches!(
+                        type_cat,
+                        TypeCategory::Unknown | TypeCategory::Serializable(_)
+                    ) {
+                        detect_primitive_serializable_union(&resolved_ts_type).map(|(prim, ser)| {
+                            type_cat = TypeCategory::Serializable(ser);
+                            prim
+                        })
+                    } else {
+                        None
+                    };
 
                     let optional_inner_kind = match &type_cat {
                         TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
@@ -335,6 +354,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         wrapper_serializable_type,
                         serialize_with,
                         decimal_format: opts.format.as_deref() == Some("decimal"),
+                        primitive_union_guard,
                     })
                 })
                 .collect();
@@ -607,10 +627,22 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(type_name)).into()}
                                     {#if field.optional}
                                         if (value.@{field.field_ident} !== undefined) {
-                                            result.@{field.json_key_ident} = @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                            {#if field.primitive_union_guard.is_some()}
+                                                result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "string"
+                                                    ? value.@{field.field_ident}
+                                                    : @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                            {:else}
+                                                result.@{field.json_key_ident} = @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                            {/if}
                                         }
                                     {:else}
-                                        result.@{field.json_key_ident} = @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                        {#if field.primitive_union_guard.is_some()}
+                                            result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "string"
+                                                ? value.@{field.field_ident}
+                                                : @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                        {:else}
+                                            result.@{field.json_key_ident} = @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                        {/if}
                                     {/if}
 
                                 {:case TypeCategory::Record(_, _)}
@@ -867,7 +899,22 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         .clone()
                         .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-                    let type_cat = TypeCategory::from_ts_type(&field.ts_type);
+                    let resolved_ts_type: String = match type_registry {
+                        Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
+                        None => field.ts_type.clone(),
+                    };
+                    let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
+                    let primitive_union_guard = if matches!(
+                        type_cat,
+                        TypeCategory::Unknown | TypeCategory::Serializable(_)
+                    ) {
+                        detect_primitive_serializable_union(&resolved_ts_type).map(|(prim, ser)| {
+                            type_cat = TypeCategory::Serializable(ser);
+                            prim
+                        })
+                    } else {
+                        None
+                    };
 
                     let optional_inner_kind = match &type_cat {
                         TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
@@ -993,6 +1040,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         wrapper_serializable_type,
                         serialize_with,
                         decimal_format: opts.format.as_deref() == Some("decimal"),
+                        primitive_union_guard,
                     })
                 })
                 .collect();
@@ -1271,10 +1319,22 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(type_name)).into()}
                                     {#if field.optional}
                                         if (value.@{field.field_ident} !== undefined) {
-                                            result.@{field.json_key_ident} = @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                            {#if field.primitive_union_guard.is_some()}
+                                                result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "string"
+                                                    ? value.@{field.field_ident}
+                                                    : @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                            {:else}
+                                                result.@{field.json_key_ident} = @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                            {/if}
                                         }
                                     {:else}
-                                        result.@{field.json_key_ident} = @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                        {#if field.primitive_union_guard.is_some()}
+                                            result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "string"
+                                                ? value.@{field.field_ident}
+                                                : @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                        {:else}
+                                            result.@{field.json_key_ident} = @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
+                                        {/if}
                                     {/if}
 
                                 {:case TypeCategory::Record(_, _)}
@@ -1528,7 +1588,24 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             .clone()
                             .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-                        let type_cat = TypeCategory::from_ts_type(&field.ts_type);
+                        let resolved_ts_type: String = match type_registry {
+                            Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
+                            None => field.ts_type.clone(),
+                        };
+                        let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
+                        let primitive_union_guard = if matches!(
+                            type_cat,
+                            TypeCategory::Unknown | TypeCategory::Serializable(_)
+                        ) {
+                            detect_primitive_serializable_union(&resolved_ts_type).map(
+                                |(prim, ser)| {
+                                    type_cat = TypeCategory::Serializable(ser);
+                                    prim
+                                },
+                            )
+                        } else {
+                            None
+                        };
 
                         let optional_inner_kind = match &type_cat {
                             TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
@@ -1631,6 +1708,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             wrapper_serializable_type,
                             serialize_with,
                             decimal_format: opts.format.as_deref() == Some("decimal"),
+                            primitive_union_guard,
                         })
                     })
                     .collect();

@@ -68,6 +68,7 @@ pub mod enum_;
 pub mod function;
 pub mod interface;
 pub mod type_alias;
+pub mod type_alias_resolve;
 pub mod type_registry;
 
 pub use class::*;
@@ -77,4 +78,5 @@ pub use enum_::*;
 pub use function::*;
 pub use interface::*;
 pub use type_alias::*;
+pub use type_alias_resolve::*;
 pub use type_registry::*;

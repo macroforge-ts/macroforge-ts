@@ -1,6 +1,7 @@
 use convert_case::{Case, Casing};
 
 use crate::builtin::serde::{TypeCategory, get_foreign_types, split_top_level_union};
+use crate::ts_syn::abi::ir::{TypeRegistry, resolve_generic_aliases};
 
 /// Check if a TypeScript type is a primitive type
 pub fn is_primitive_type(ts_type: &str) -> bool {
@@ -40,6 +41,34 @@ pub fn is_generic_type(type_name: &str) -> bool {
     type_name.contains('<') && type_name.contains('>')
 }
 
+/// Detect the resolved shape of `RecordLink<T> = string | T` and similar
+/// primitive-plus-user-type unions. Returns `(primitive, serializable)` when
+/// `ts_type` is a two-member top-level union where exactly one side is a
+/// primitive and the other is a user-defined type (uppercase, non-primitive).
+///
+/// This is the structural shape left behind when `resolve_generic_aliases`
+/// expands `RecordLink<ErrandMessage>` into `string | ErrandMessage`.
+pub fn detect_primitive_serializable_union(ts_type: &str) -> Option<(String, String)> {
+    let parts = split_top_level_union(ts_type.trim())?;
+    if parts.len() != 2 {
+        return None;
+    }
+    let left = parts[0].trim();
+    let right = parts[1].trim();
+    match (
+        TypeCategory::from_ts_type(left),
+        TypeCategory::from_ts_type(right),
+    ) {
+        (TypeCategory::Primitive, TypeCategory::Serializable(name)) => {
+            Some((left.to_string(), name))
+        }
+        (TypeCategory::Serializable(name), TypeCategory::Primitive) => {
+            Some((right.to_string(), name))
+        }
+        _ => None,
+    }
+}
+
 /// Extracts base type and type arguments from a generic type.
 /// "RecordLink<Service>" -> Some(("RecordLink", "Service"))
 /// "Map<string, number>" -> Some(("Map", "string, number"))
@@ -67,8 +96,27 @@ pub fn has_known_default(_ts_type: &str) -> bool {
     true
 }
 
-/// Get default value for a TypeScript type
+/// Get default value for a TypeScript type. Back-compat shim — prefer
+/// [`get_type_default_with_registry`] so generic aliases like `RecordLink<T>`
+/// are expanded before the default is chosen.
 pub fn get_type_default(ts_type: &str) -> String {
+    get_type_default_with_registry(ts_type, None)
+}
+
+/// Get default value for a TypeScript type, resolving generic aliases against
+/// the project's [`TypeRegistry`] first. `RecordLink<T>` (and any other
+/// user-defined generic alias) expands to its body before the default is
+/// chosen, so the emitter never references a nonexistent
+/// `{alias}DefaultValue<T>()` helper.
+pub fn get_type_default_with_registry(ts_type: &str, registry: Option<&TypeRegistry>) -> String {
+    let resolved: String = match registry {
+        Some(r) => resolve_generic_aliases(ts_type, r),
+        None => ts_type.to_string(),
+    };
+    get_type_default_resolved(&resolved)
+}
+
+fn get_type_default_resolved(ts_type: &str) -> String {
     let t = ts_type.trim();
 
     // Check for foreign type default first
@@ -84,6 +132,13 @@ pub fn get_type_default(ts_type: &str) -> String {
         // Rewrite namespace references to use generated aliases
         let rewritten = crate::builtin::serde::rewrite_expression_namespaces(default_expr);
         return format!("({})()", rewritten);
+    }
+
+    // `string | SomeSerializable` — the resolved shape of `RecordLink<T>`:
+    // record-link fields default to the unresolved-link sentinel, never to
+    // a zero'd nested object. Checked before the generic union branch below.
+    if detect_primitive_serializable_union(t).is_some_and(|(p, _)| p == "string") {
+        return "\"place:holder\"".to_string();
     }
 
     // Nullable first (like Rust's Option::default() -> None)
@@ -103,7 +158,7 @@ pub fn get_type_default(ts_type: &str) -> String {
         // 1. If any member is a primitive, use that primitive's default
         for part in &parts {
             if is_primitive_type(part) {
-                return get_type_default(part);
+                return get_type_default_resolved(part);
             }
         }
         // 2. If any member is a literal, use the first literal
@@ -115,11 +170,11 @@ pub fn get_type_default(ts_type: &str) -> String {
                 || p.parse::<f64>().is_ok()
                 || matches!(p, "true" | "false")
             {
-                return get_type_default(p);
+                return get_type_default_resolved(p);
             }
         }
         // 3. Union of only custom types — default via first member
-        return get_type_default(parts[0]);
+        return get_type_default_resolved(parts[0]);
     }
 
     match t {
@@ -171,15 +226,12 @@ pub fn get_type_default(ts_type: &str) -> String {
         {
             "({})".to_string()
         }
-        // Generic type instantiations like RecordLink<Service>
-        t if is_generic_type(t) => {
-            if let Some((base, args)) = parse_generic_type(t) {
-                format!("{}DefaultValue<{}>()", base.to_case(Case::Camel), args)
-            } else {
-                // Fallback: shouldn't happen if is_generic_type returned true
-                format_default_call(t)
-            }
-        }
+        // Generic type instantiations (`RecordLink<T>`, etc.) should have
+        // been resolved to their body by `resolve_generic_aliases` before we
+        // got here. Any instantiation that reaches this branch is either an
+        // unregistered alias or a type we cannot introspect — emit `undefined`
+        // rather than a call to a nonexistent `xDefaultValue<T>()` helper.
+        t if is_generic_type(t) => "undefined".to_string(),
         // String literal types: "active", 'pending', `template`
         t if (t.starts_with('"') && t.ends_with('"'))
             || (t.starts_with('\'') && t.ends_with('\''))

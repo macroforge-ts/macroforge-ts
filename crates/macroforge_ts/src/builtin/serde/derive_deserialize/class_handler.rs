@@ -17,10 +17,12 @@ use super::helpers::{
 };
 use super::types::{DeserializeField, SerdeValueKind, raw_cast_type};
 use super::validation::generate_field_validations;
+use crate::builtin::derive_common::detect_primitive_serializable_union;
 use crate::builtin::return_types::{
     DESERIALIZE_CONTEXT, DESERIALIZE_ERROR, DESERIALIZE_OPTIONS, PENDING_REF,
     deserialize_return_type, is_ok_check, wrap_error, wrap_success,
 };
+use crate::ts_syn::abi::ir::resolve_generic_aliases;
 
 pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeError> {
     let class = match &input.data {
@@ -61,6 +63,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
     }
 
     // Collect deserializable fields with diagnostic collection
+    let type_registry = input.context.type_registry.as_ref();
     let mut all_diagnostics = DiagnosticCollector::new();
     let fields: Vec<DeserializeField> = class
         .fields()
@@ -79,7 +82,22 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                 .clone()
                 .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-            let type_cat = TypeCategory::from_ts_type(&field.ts_type);
+            let resolved_ts_type: String = match type_registry {
+                Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
+                None => field.ts_type.clone(),
+            };
+            let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
+            let primitive_union_guard = if matches!(
+                type_cat,
+                TypeCategory::Unknown | TypeCategory::Serializable(_)
+            ) {
+                detect_primitive_serializable_union(&resolved_ts_type).map(|(prim, ser)| {
+                    type_cat = TypeCategory::Serializable(ser);
+                    prim
+                })
+            } else {
+                None
+            };
 
             let nullable_inner_kind = match &type_cat {
                 TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
@@ -203,8 +221,8 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                 json_key,
                 field_name: field.name.clone(),
                 field_ident: ts_ident!(field.name.as_str()),
-                raw_cast_type: raw_cast_type(&field.ts_type, &type_cat),
-                ts_type: field.ts_type.clone(),
+                raw_cast_type: raw_cast_type(&resolved_ts_type, &type_cat),
+                ts_type: resolved_ts_type,
                 type_cat,
                 optional: field.optional || opts.default || opts.default_expr.is_some(),
                 has_default: opts.default || opts.default_expr.is_some(),
@@ -227,6 +245,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                 wrapper_serializable_type,
                 optional_inner_kind,
                 optional_serializable_type,
+                primitive_union_guard,
             })
         })
         .collect();
@@ -662,24 +681,49 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
 
                                 {:case TypeCategory::Serializable(type_name)}
                                     {$let type_expr: Expr = ts_ident!(type_name).into()}
-                                    ctx.pushScope("@{field.json_key}");
-                                    try {
-                                        const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
-                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
-                                    } catch (__e) {
-                                        if (__e instanceof @{deserialize_error_expr}) {
-                                            for (const __err of __e.errors) {
-                                                errors.push({
-                                                    field: __err.field === "_root" ? "@{field.json_key}" : "@{field.json_key}." + __err.field,
-                                                    message: __err.message
-                                                });
-                                            }
+                                    {#if field.primitive_union_guard.is_some()}
+                                        if (typeof @{raw_var_ident} === "string") {
+                                            instance.@{field.field_ident} = @{raw_var_ident};
                                         } else {
-                                            throw __e;
+                                            ctx.pushScope("@{field.json_key}");
+                                            try {
+                                                const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof @{deserialize_error_expr}) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "@{field.json_key}" : "@{field.json_key}." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
                                         }
-                                    } finally {
-                                        ctx.popScope();
-                                    }
+                                    {:else}
+                                        ctx.pushScope("@{field.json_key}");
+                                        try {
+                                            const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                            ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                        } catch (__e) {
+                                            if (__e instanceof @{deserialize_error_expr}) {
+                                                for (const __err of __e.errors) {
+                                                    errors.push({
+                                                        field: __err.field === "_root" ? "@{field.json_key}" : "@{field.json_key}." + __err.field,
+                                                        message: __err.message
+                                                    });
+                                                }
+                                            } else {
+                                                throw __e;
+                                            }
+                                        } finally {
+                                            ctx.popScope();
+                                        }
+                                    {/if}
 
                                 {:case TypeCategory::Nullable(_)}
                                     {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
@@ -906,24 +950,49 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
 
                                 {:case TypeCategory::Serializable(type_name)}
                                     {$let type_expr: Expr = ts_ident!(type_name).into()}
-                                    ctx.pushScope("@{field.json_key}");
-                                    try {
-                                        const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
-                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
-                                    } catch (__e) {
-                                        if (__e instanceof @{deserialize_error_expr}) {
-                                            for (const __err of __e.errors) {
-                                                errors.push({
-                                                    field: __err.field === "_root" ? "@{field.json_key}" : "@{field.json_key}." + __err.field,
-                                                    message: __err.message
-                                                });
-                                            }
+                                    {#if field.primitive_union_guard.is_some()}
+                                        if (typeof @{raw_var_ident} === "string") {
+                                            instance.@{field.field_ident} = @{raw_var_ident};
                                         } else {
-                                            throw __e;
+                                            ctx.pushScope("@{field.json_key}");
+                                            try {
+                                                const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof @{deserialize_error_expr}) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "@{field.json_key}" : "@{field.json_key}." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
                                         }
-                                    } finally {
-                                        ctx.popScope();
-                                    }
+                                    {:else}
+                                        ctx.pushScope("@{field.json_key}");
+                                        try {
+                                            const __result = @{type_expr}.deserializeWithContext(@{raw_var_ident}, ctx);
+                                            ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                        } catch (__e) {
+                                            if (__e instanceof @{deserialize_error_expr}) {
+                                                for (const __err of __e.errors) {
+                                                    errors.push({
+                                                        field: __err.field === "_root" ? "@{field.json_key}" : "@{field.json_key}." + __err.field,
+                                                        message: __err.message
+                                                    });
+                                                }
+                                            } else {
+                                                throw __e;
+                                            }
+                                        } finally {
+                                            ctx.popScope();
+                                        }
+                                    {/if}
 
                                 {:case TypeCategory::Nullable(_)}
                                     {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}

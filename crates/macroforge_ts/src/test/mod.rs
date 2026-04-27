@@ -53,6 +53,10 @@
 //! ```
 
 #[cfg(all(feature = "oxc", feature = "buildtime-boa"))]
+// Buildtime is OXC-only — the OxcBackend's `@buildtime` pre-pass is gated
+// behind `not(feature = "swc")`, so these tests only succeed on the
+// OXC-default profile.
+#[cfg(not(feature = "swc"))]
 mod buildtime_integration;
 mod class_features;
 mod decorator_stripping;

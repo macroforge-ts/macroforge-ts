@@ -169,4 +169,11 @@ pub(crate) struct SerializeField {
 
     /// Whether this field uses decimal format (serialize number as string).
     pub(crate) decimal_format: bool,
+
+    /// Set when the field's resolved type is a two-member primitive-or-serializable
+    /// union (the shape of `RecordLink<T> = string | T` after alias resolution).
+    /// Holds the primitive keyword (e.g. `"string"`). When set, the
+    /// `Serializable(name)` serialize branch wraps its call in a
+    /// `typeof === primitive` guard so raw id strings pass through unchanged.
+    pub(crate) primitive_union_guard: Option<String>,
 }

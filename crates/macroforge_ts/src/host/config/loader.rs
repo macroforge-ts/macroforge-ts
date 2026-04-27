@@ -574,10 +574,11 @@ fn extract_expression_namespaces_oxc(expr_str: &str) -> Vec<String> {
     fn collect_argument(arg: &Argument<'_>, namespaces: &mut HashSet<String>) {
         match arg {
             Argument::SpreadElement(spread) => collect_expr(&spread.argument, namespaces),
-            Argument::Identifier(ident) => {
-                let _ = ident;
+            other => {
+                if let Some(expr) = other.as_expression() {
+                    collect_expr(expr, namespaces);
+                }
             }
-            _ => {}
         }
     }
 

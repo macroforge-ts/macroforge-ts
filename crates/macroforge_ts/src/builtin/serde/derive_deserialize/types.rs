@@ -105,6 +105,13 @@ pub(super) struct DeserializeField {
     /// For `T | undefined` where T is Serializable: the type name.
     #[allow(dead_code)]
     pub optional_serializable_type: Option<String>,
+
+    /// Set when the field's resolved type is a two-member primitive-or-serializable
+    /// union (the shape of `RecordLink<T> = string | T` after alias resolution).
+    /// Holds the primitive keyword (e.g. `"string"`). When set, the
+    /// `Serializable(name)` deserialize branch wraps its call in a
+    /// `typeof === primitive` guard so raw id strings pass through unchanged.
+    pub primitive_union_guard: Option<String>,
 }
 
 impl DeserializeField {

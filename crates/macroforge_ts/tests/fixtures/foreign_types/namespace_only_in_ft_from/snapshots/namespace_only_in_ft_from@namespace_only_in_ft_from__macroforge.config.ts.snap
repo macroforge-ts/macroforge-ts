@@ -1,0 +1,79 @@
+---
+source: macroforge_ts/tests/foreign_type_fixtures.rs
+description: namespace_only_in_ft_from
+expression: snapshot
+input_file: macroforge_ts/tests/fixtures/foreign_types/namespace_only_in_ft_from/macroforge.config.ts
+---
+## Config
+
+// Foreign type DateTime.Utc whose default body uses Option, where Option
+// is NOT imported at the top of macroforge.config.ts but IS itself a
+// configured foreign type. The engine must still emit
+// `import { Option as __mf_Option } from "effect"` by recovering the
+// module from the Option foreign-type entry's `from` list.
+import { DateTime } from 'effect';
+
+export default {
+    foreignTypes: {
+        'DateTime.Utc': {
+            from: ['effect'],
+            serialize: (v) => DateTime.formatIso(v),
+            deserialize: (raw) => DateTime.make(raw as string),
+            default: () =>
+                Option.match(DateTime.make(new Date()), {
+                    onSome: (dt) => dt,
+                    onNone: () => DateTime.make(0),
+                }),
+        },
+        'Option': {
+            from: ['effect'],
+            serialize: (v) => v,
+            deserialize: (raw) => raw,
+            default: () => null,
+        },
+    },
+};
+
+## Input
+
+import { DateTime } from 'effect';
+
+/** @derive(Default) */
+export interface Foo {
+    createdAt: DateTime.Utc;
+}
+
+## Config-declared namespaces (any name not in this list is treated as a global)
+
+DateTime
+
+## Generated imports (only `__mf_*` lines)
+
+import { Option as __mf_Option } from "effect";
+
+## `__mf_*` aliases referenced in body
+
+__mf_Option
+
+## Body references — config-declared (must be aliased)
+
+DateTime
+
+## Body references — treated as global (must NOT be aliased)
+
+(none)
+
+## Default function
+
+export function fooDefaultValue(): Foo {
+                        return {
+createdAt: (() => __mf_Option.match(DateTime.make(new Date()), {
+	onSome: (dt) => dt,
+	onNone: () => DateTime.make(0)
+}))(),
+};
+                    }
+
+## Diagnostics
+
+(none)
