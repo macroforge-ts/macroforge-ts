@@ -998,6 +998,12 @@ fn handle_union_type_alias(
     struct ExternalObjectVariant {
         name: String,
         fields: Vec<crate::ts_syn::abi::ir::interface::InterfaceFieldIR>,
+        /// If the variant payload (`fields[0].ts_type`) is a configured foreign
+        /// type (e.g. `DateTime.Utc`), this is the inline deserialize
+        /// expression to invoke on `__inner`. Without this, primitive
+        /// passthrough returns the raw JSON (e.g. an ISO string) and downstream
+        /// code expecting a `DateTime` object breaks.
+        inner_foreign_deserialize_inline: Option<String>,
     }
     let mut external_object_variants: Vec<ExternalObjectVariant> = Vec::new();
 
@@ -1006,9 +1012,18 @@ fn handle_union_type_alias(
             crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Object { fields }
                 if is_externally_tagged && !fields.is_empty() =>
             {
+                let payload_ts_type = fields[0].ts_type.as_str();
+                let inner_foreign_deserialize_inline = TypeCategory::match_foreign_type(
+                    payload_ts_type,
+                    &foreign_types_config,
+                )
+                .config
+                .and_then(|ft| ft.deserialize_expr.clone())
+                .map(|expr| rewrite_expression_namespaces(&expr));
                 external_object_variants.push(ExternalObjectVariant {
                     name: fields[0].name.clone(),
                     fields: fields.clone(),
+                    inner_foreign_deserialize_inline,
                 });
             }
             crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Object { fields } => {
@@ -1138,7 +1153,8 @@ fn handle_union_type_alias(
         TsStream::merge_all(guards)
     };
 
-    let has_tagged_variants = has_object_variants || has_intersection_variants;
+    let has_tagged_variants =
+        has_object_variants || has_intersection_variants || !external_object_variants.is_empty();
     let is_literal_only = !literals.is_empty() && type_refs.is_empty() && !has_tagged_variants;
     let is_primitive_only = has_primitives
         && !has_serializables
@@ -1403,7 +1419,7 @@ fn handle_union_type_alias(
                             {/for}
 
                             {#if is_externally_tagged}
-                                // Externally tagged: { "TypeName": { ...fields } }
+                                // Externally tagged: { "TypeName": payload }
                                 if (typeof value === "object" && value !== null) {
                                     const __keys = Object.keys(value);
                                     if (__keys.length >= 1) {
@@ -1411,11 +1427,12 @@ fn handle_union_type_alias(
                                         const __inner = (value as any)[__variantName];
                                         {#for ov in &external_object_variants}
                                             if (__variantName === "@{ov.name}") {
-                                                const __result: Record<string, unknown> = {};
-                                                {#for field in &ov.fields}
-                                                    __result["@{field.name}"] = __inner["@{field.name}"] ?? null;
-                                                {/for}
-                                                return __result as @{full_type_ident};
+                                                {#if let Some(ref deser_inline) = ov.inner_foreign_deserialize_inline}
+                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
+                                                    return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
+                                                {:else}
+                                                    return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                {/if}
                                             }
                                         {/for}
                                         {#for type_ref in &regular_serializables}
@@ -1669,7 +1686,7 @@ fn handle_union_type_alias(
 
                             {#if has_serializables}
                                 {#if is_externally_tagged}
-                                    // Externally tagged: { "TypeName": { ...fields } }
+                                    // Externally tagged: { "TypeName": payload }
                                     if (typeof value === "object" && value !== null) {
                                         const __keys = Object.keys(value);
                                         if (__keys.length >= 1) {
@@ -1677,11 +1694,12 @@ fn handle_union_type_alias(
                                             const __inner = (value as any)[__variantName];
                                             {#for ov in &external_object_variants}
                                             if (__variantName === "@{ov.name}") {
-                                                const __result: Record<string, unknown> = {};
-                                                {#for field in &ov.fields}
-                                                    __result["@{field.name}"] = __inner["@{field.name}"] ?? null;
-                                                {/for}
-                                                return __result as @{full_type_ident};
+                                                {#if let Some(ref deser_inline) = ov.inner_foreign_deserialize_inline}
+                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
+                                                    return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
+                                                {:else}
+                                                    return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                {/if}
                                             }
                                         {/for}
                                         {#for type_ref in &regular_serializables}
@@ -1856,6 +1874,30 @@ fn handle_union_type_alias(
                                 }
                             {/if}
 
+                            {#if !external_object_variants.is_empty() && is_externally_tagged && !has_serializables}
+                                // Externally tagged anonymous-variant union: { "TagName": payload }
+                                // (Distinct from the has_serializables case above so types like
+                                //  RecurrenceEnd / OrderStage that mix literals + anonymous
+                                //  variants still get a deserializer body.)
+                                if (typeof value === "object" && value !== null) {
+                                    const __keys = Object.keys(value);
+                                    if (__keys.length >= 1) {
+                                        const __variantName = __keys[0];
+                                        const __inner = (value as any)[__variantName];
+                                        {#for ov in &external_object_variants}
+                                            if (__variantName === "@{ov.name}") {
+                                                {#if let Some(ref deser_inline) = ov.inner_foreign_deserialize_inline}
+                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
+                                                    return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
+                                                {:else}
+                                                    return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                {/if}
+                                            }
+                                        {/for}
+                                    }
+                                }
+                            {/if}
+
                             throw new @{deserialize_error_expr}([{
                                 field: "_root",
                                 message: "@{type_name}.deserializeWithContext: value does not match any union member"
@@ -2013,6 +2055,16 @@ fn handle_union_type_alias(
                                     const __typeName = (value as any)["@{tag_field}"];
                                     {%let all_tag_values: Vec<String> = object_variants.iter().map(|ov| format!("\"{}\"", ov.tag_value)).chain(intersection_variants.iter().map(|iv| format!("\"{}\"", iv.tag_value))).collect()}
                                     if ([@{all_tag_values.join(", ")}].includes(__typeName)) return true;
+                                }
+                            {/if}
+                            {#if !external_object_variants.is_empty() && is_externally_tagged && !has_serializables}
+                                if (typeof value === "object" && value !== null) {
+                                    const __keys = Object.keys(value);
+                                    if (__keys.length >= 1) {
+                                        const __variantName = __keys[0];
+                                        {%let all_variant_names: Vec<String> = external_object_variants.iter().map(|ov| format!("\"{}\"", ov.name)).collect()}
+                                        if ([@{all_variant_names.join(", ")}].includes(__variantName)) return true;
+                                    }
                                 }
                             {/if}
                             {#if has_generic_params}
