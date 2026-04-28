@@ -997,7 +997,6 @@ fn handle_union_type_alias(
 
     struct ExternalObjectVariant {
         name: String,
-        fields: Vec<crate::ts_syn::abi::ir::interface::InterfaceFieldIR>,
         /// If the variant payload (`fields[0].ts_type`) is a configured foreign
         /// type (e.g. `DateTime.Utc`), this is the inline deserialize
         /// expression to invoke on `__inner`. Without this, primitive
@@ -1013,16 +1012,13 @@ fn handle_union_type_alias(
                 if is_externally_tagged && !fields.is_empty() =>
             {
                 let payload_ts_type = fields[0].ts_type.as_str();
-                let inner_foreign_deserialize_inline = TypeCategory::match_foreign_type(
-                    payload_ts_type,
-                    &foreign_types_config,
-                )
-                .config
-                .and_then(|ft| ft.deserialize_expr.clone())
-                .map(|expr| rewrite_expression_namespaces(&expr));
+                let inner_foreign_deserialize_inline =
+                    TypeCategory::match_foreign_type(payload_ts_type, &foreign_types_config)
+                        .config
+                        .and_then(|ft| ft.deserialize_expr.clone())
+                        .map(|expr| rewrite_expression_namespaces(&expr));
                 external_object_variants.push(ExternalObjectVariant {
                     name: fields[0].name.clone(),
-                    fields: fields.clone(),
                     inner_foreign_deserialize_inline,
                 });
             }
@@ -1422,8 +1418,8 @@ fn handle_union_type_alias(
                                 // Externally tagged: { "TypeName": payload }
                                 if (typeof value === "object" && value !== null) {
                                     const __keys = Object.keys(value);
-                                    if (__keys.length >= 1) {
-                                        const __variantName = __keys[0];
+                                    const __variantName = __keys[0];
+                                    if (__variantName !== undefined) {
                                         const __inner = (value as any)[__variantName];
                                         {#for ov in &external_object_variants}
                                             if (__variantName === "@{ov.name}") {
@@ -1689,8 +1685,8 @@ fn handle_union_type_alias(
                                     // Externally tagged: { "TypeName": payload }
                                     if (typeof value === "object" && value !== null) {
                                         const __keys = Object.keys(value);
-                                        if (__keys.length >= 1) {
-                                            const __variantName = __keys[0];
+                                        const __variantName = __keys[0];
+                                        if (__variantName !== undefined) {
                                             const __inner = (value as any)[__variantName];
                                             {#for ov in &external_object_variants}
                                             if (__variantName === "@{ov.name}") {
@@ -1881,8 +1877,8 @@ fn handle_union_type_alias(
                                 //  variants still get a deserializer body.)
                                 if (typeof value === "object" && value !== null) {
                                     const __keys = Object.keys(value);
-                                    if (__keys.length >= 1) {
-                                        const __variantName = __keys[0];
+                                    const __variantName = __keys[0];
+                                    if (__variantName !== undefined) {
                                         const __inner = (value as any)[__variantName];
                                         {#for ov in &external_object_variants}
                                             if (__variantName === "@{ov.name}") {
@@ -1924,8 +1920,8 @@ fn handle_union_type_alias(
                                 // Externally tagged: check if object has a key matching a variant name
                                 if (typeof value === "object" && value !== null) {
                                     const __keys = Object.keys(value);
-                                    if (__keys.length >= 1) {
-                                        const __variantName = __keys[0];
+                                    const __variantName = __keys[0];
+                                    if (__variantName !== undefined) {
                                         {#for ov in &external_object_variants}
                                         if (__variantName === "@{ov.name}") return true;
                                     {/for}
@@ -1991,8 +1987,8 @@ fn handle_union_type_alias(
                                     // Externally tagged: check if object has a key matching a variant name
                                     if (typeof value === "object" && value !== null) {
                                         const __keys = Object.keys(value);
-                                        if (__keys.length >= 1) {
-                                            const __variantName = __keys[0];
+                                        const __variantName = __keys[0];
+                                        if (__variantName !== undefined) {
                                             {#for ov in &external_object_variants}
                                         if (__variantName === "@{ov.name}") return true;
                                     {/for}
@@ -2060,8 +2056,8 @@ fn handle_union_type_alias(
                             {#if !external_object_variants.is_empty() && is_externally_tagged && !has_serializables}
                                 if (typeof value === "object" && value !== null) {
                                     const __keys = Object.keys(value);
-                                    if (__keys.length >= 1) {
-                                        const __variantName = __keys[0];
+                                    const __variantName = __keys[0];
+                                    if (__variantName !== undefined) {
                                         {%let all_variant_names: Vec<String> = external_object_variants.iter().map(|ov| format!("\"{}\"", ov.name)).collect()}
                                         if ([@{all_variant_names.join(", ")}].includes(__variantName)) return true;
                                     }
