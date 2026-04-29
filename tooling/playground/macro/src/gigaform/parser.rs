@@ -1285,11 +1285,9 @@ pub fn enrich_fields_with_registry(fields: &mut [ParsedField], registry: &TypeRe
 
             // Upgrade is_nested: confirm via registry instead of PascalCase heuristic
             match &entry.definition {
-                TypeDefinitionIR::Class(_) | TypeDefinitionIR::Interface(_) => {
-                    if !field.is_array {
-                        field.is_nested = true;
-                        field.nested_type = Some(base_type.clone());
-                    }
+                TypeDefinitionIR::Class(_) | TypeDefinitionIR::Interface(_) if !field.is_array => {
+                    field.is_nested = true;
+                    field.nested_type = Some(base_type.clone());
                 }
                 _ => {}
             }
