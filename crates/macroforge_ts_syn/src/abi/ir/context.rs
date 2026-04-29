@@ -225,9 +225,12 @@ pub struct MacroContextIR {
     /// Gives macros access to all types defined in the project for
     /// Zig-style compile-time type awareness.
     ///
-    /// This is `None` when no pre-scan was performed (backward compatible).
+    /// Always present — defaults to an empty `TypeRegistry` when no scan
+    /// data is available (e.g. unit-test fixtures that don't exercise
+    /// cross-file resolution). Macros must treat this as the source of
+    /// truth and call `resolve` rather than ad-hoc lookups.
     #[serde(default)]
-    pub type_registry: Option<TypeRegistry>,
+    pub type_registry: TypeRegistry,
 
     /// Resolved type references for the target's fields.
     /// Maps field name -> ResolvedTypeRef for each field in the target.
@@ -260,7 +263,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -339,7 +342,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -367,7 +370,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -395,7 +398,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -423,7 +426,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -451,7 +454,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -479,7 +482,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -507,7 +510,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -535,7 +538,7 @@ impl MacroContextIR {
             target_source,
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -558,8 +561,7 @@ impl MacroContextIR {
         {
             return Some(existing.to_string());
         }
-        let registry = self.type_registry.as_ref()?;
-        let entry = registry.types.get(type_name)?;
+        let entry = self.type_registry.types.get(type_name)?;
         if entry.file_path == self.file_name {
             return None;
         }
@@ -626,7 +628,7 @@ mod import_specifier_tests {
             target_source: String::new(),
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -661,10 +663,7 @@ mod import_specifier_tests {
                 is_type_only: true,
             },
         ]);
-        ctx.type_registry = Some(registry_with(
-            "Customer",
-            "/totally/different/path.svelte.ts",
-        ));
+        ctx.type_registry = registry_with("Customer", "/totally/different/path.svelte.ts");
         assert_eq!(
             ctx.import_specifier_for("Customer"),
             Some("./customer.svelte".to_string())
@@ -674,14 +673,14 @@ mod import_specifier_tests {
     #[test]
     fn co_located_returns_none() {
         let mut ctx = make_ctx("/foo/bar.svelte.ts");
-        ctx.type_registry = Some(registry_with("Bar", "/foo/bar.svelte.ts"));
+        ctx.type_registry = registry_with("Bar", "/foo/bar.svelte.ts");
         assert_eq!(ctx.import_specifier_for("Bar"), None);
     }
 
     #[test]
     fn sibling_file() {
         let mut ctx = make_ctx("/foo/order.svelte.ts");
-        ctx.type_registry = Some(registry_with("Customer", "/foo/customer.svelte.ts"));
+        ctx.type_registry = registry_with("Customer", "/foo/customer.svelte.ts");
         assert_eq!(
             ctx.import_specifier_for("Customer"),
             Some("./customer.svelte".to_string())
@@ -691,7 +690,7 @@ mod import_specifier_tests {
     #[test]
     fn nested_subdir() {
         let mut ctx = make_ctx("/foo/order.svelte.ts");
-        ctx.type_registry = Some(registry_with("Customer", "/foo/sub/customer.svelte.ts"));
+        ctx.type_registry = registry_with("Customer", "/foo/sub/customer.svelte.ts");
         assert_eq!(
             ctx.import_specifier_for("Customer"),
             Some("./sub/customer.svelte".to_string())
@@ -701,7 +700,7 @@ mod import_specifier_tests {
     #[test]
     fn parent_dir() {
         let mut ctx = make_ctx("/foo/sub/order.svelte.ts");
-        ctx.type_registry = Some(registry_with("Customer", "/foo/customer.svelte.ts"));
+        ctx.type_registry = registry_with("Customer", "/foo/customer.svelte.ts");
         assert_eq!(
             ctx.import_specifier_for("Customer"),
             Some("../customer.svelte".to_string())
@@ -717,14 +716,14 @@ mod import_specifier_tests {
     #[test]
     fn plain_ts_file() {
         let mut ctx = make_ctx("/foo/order.svelte.ts");
-        ctx.type_registry = Some(registry_with("Util", "/foo/util.ts"));
+        ctx.type_registry = registry_with("Util", "/foo/util.ts");
         assert_eq!(ctx.import_specifier_for("Util"), Some("./util".to_string()));
     }
 
     #[test]
     fn tsx_file() {
         let mut ctx = make_ctx("/foo/order.svelte.ts");
-        ctx.type_registry = Some(registry_with("Component", "/foo/component.tsx"));
+        ctx.type_registry = registry_with("Component", "/foo/component.tsx");
         assert_eq!(
             ctx.import_specifier_for("Component"),
             Some("./component".to_string())

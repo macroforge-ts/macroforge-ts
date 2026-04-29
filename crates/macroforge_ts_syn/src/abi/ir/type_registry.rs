@@ -139,14 +139,48 @@ impl TypeRegistry {
         name: &str,
         file_imports: &[FileImportEntry],
     ) -> Option<&TypeRegistryEntry> {
-        // Fast path: unambiguous name
+        self.resolve_in_file(name, "", file_imports)
+    }
+
+    /// Like [`resolve`] but also disambiguates by the caller's own file path.
+    /// When `name` is ambiguous and not in `file_imports`, this picks the
+    /// qualified entry whose `file_path` equals `caller_file_path` — i.e. the
+    /// type is declared in the same file that's referencing it (common in
+    /// generated aggregator files that re-declare types alongside their
+    /// canonical definitions).
+    ///
+    /// Pass an empty `caller_file_path` to skip same-file resolution.
+    pub fn resolve_in_file(
+        &self,
+        name: &str,
+        caller_file_path: &str,
+        file_imports: &[FileImportEntry],
+    ) -> Option<&TypeRegistryEntry> {
+        // Fast path: unambiguous name.
         if !self.ambiguous_names.iter().any(|n| n == name) {
             return self.types.get(name);
         }
-        // Find import source for this name and match against qualified entries
-        if let Some(import) = file_imports.iter().find(|i| i.local_name == name) {
+        // Same-file resolution — the caller and the declaration share a file,
+        // so the entry whose file_path matches the caller is canonical here
+        // even when the simple name is ambiguous globally.
+        if !caller_file_path.is_empty() {
             for entry in self.qualified_types.values() {
-                if entry.name == name && entry.file_path.contains(&import.module_specifier) {
+                if entry.name == name && entry.file_path == caller_file_path {
+                    return Some(entry);
+                }
+            }
+        }
+        // Import-based resolution: the module specifier is the textual import
+        // path (e.g. `./record-link.svelte`, `@lib/types/user`); the entry's
+        // `file_path` is the absolute on-disk path
+        // (e.g. `/Users/.../record-link.svelte.ts`). We can't do a literal
+        // substring match — `./record-link.svelte` never appears in the
+        // absolute path. Compare on the trailing path segment instead,
+        // ignoring leading relative prefixes and trailing source extensions.
+        if let Some(import) = file_imports.iter().find(|i| i.local_name == name) {
+            let needle = module_specifier_basename(&import.module_specifier);
+            for entry in self.qualified_types.values() {
+                if entry.name == name && file_path_module_matches(&entry.file_path, needle) {
                     return Some(entry);
                 }
             }
@@ -190,6 +224,51 @@ impl TypeRegistry {
     pub fn is_empty(&self) -> bool {
         self.qualified_types.is_empty()
     }
+}
+
+/// Extract the module-name portion of an import path, dropping leading
+/// relative prefixes (`./`, `../`, repeated `../../`) and any trailing
+/// source extension. `./record-link.svelte` → `record-link.svelte`,
+/// `../models/user` → `user`, `@lib/foo/bar.ts` → `bar`.
+fn module_specifier_basename(module_specifier: &str) -> &str {
+    let mut s = module_specifier.trim();
+    while let Some(rest) = s.strip_prefix("./").or_else(|| s.strip_prefix("../")) {
+        s = rest;
+    }
+    let basename = s.rsplit('/').next().unwrap_or(s);
+    basename
+        .strip_suffix(".ts")
+        .or_else(|| basename.strip_suffix(".tsx"))
+        .or_else(|| basename.strip_suffix(".js"))
+        .or_else(|| basename.strip_suffix(".mjs"))
+        .or_else(|| basename.strip_suffix(".cjs"))
+        .unwrap_or(basename)
+}
+
+/// Whether `file_path` (an absolute on-disk path) corresponds to a module
+/// whose import basename matches `needle`. Strips one source extension from
+/// the file's basename, then accepts an exact match or a prefix match
+/// followed by a `.` so a needle like `all-types` (extension-less import)
+/// still matches `all-types.svelte.ts` (Svelte component output) — the
+/// `.svelte` suffix counts as a sub-extension on the same module.
+fn file_path_module_matches(file_path: &str, needle: &str) -> bool {
+    let basename = file_path.rsplit('/').next().unwrap_or(file_path);
+    let trimmed = basename
+        .strip_suffix(".ts")
+        .or_else(|| basename.strip_suffix(".tsx"))
+        .or_else(|| basename.strip_suffix(".js"))
+        .or_else(|| basename.strip_suffix(".mjs"))
+        .or_else(|| basename.strip_suffix(".cjs"))
+        .unwrap_or(basename);
+    if trimmed == needle {
+        return true;
+    }
+    // `all-types` matches `all-types.svelte` (sub-extension boundary). Guard
+    // against partial-name collisions like `user-id` matching `user-ident` by
+    // requiring the suffix to start with `.`.
+    trimmed
+        .strip_prefix(needle)
+        .is_some_and(|rest| rest.starts_with('.'))
 }
 
 #[cfg(test)]
