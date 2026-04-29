@@ -42,7 +42,10 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
     let tag_field = container_opts.tag_field_or_default();
 
     // Collect deserializable fields with diagnostic collection
-    let type_registry = input.context.type_registry.as_ref();
+    let type_registry = &input.context.type_registry;
+    let caller_file_path = input.context.file_name.as_str();
+    let file_imports = input.context.import_registry.file_import_entries();
+    let file_imports = file_imports.as_slice();
     let mut all_diagnostics = DiagnosticCollector::new();
     let fields: Vec<DeserializeField> = interface
         .fields()
@@ -61,10 +64,12 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
                 .clone()
                 .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-            let resolved_ts_type: String = match type_registry {
-                Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
-                None => field.ts_type.clone(),
-            };
+            let resolved_ts_type = resolve_generic_aliases(
+                &field.ts_type,
+                type_registry,
+                caller_file_path,
+                file_imports,
+            );
             let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
             let primitive_union_guard = if matches!(
                 type_cat,

@@ -14,14 +14,14 @@ export default {
             default: () =>
                 Option.match(DateTime.make(new Date()), {
                     onSome: (dt) => dt,
-                    onNone: () => DateTime.make(0),
-                }),
+                    onNone: () => DateTime.make(0)
+                })
         },
         'Option': {
             from: ['effect'],
             serialize: (v) => v,
             deserialize: (raw) => raw,
-            default: () => null,
-        },
-    },
+            default: () => null
+        }
+    }
 };

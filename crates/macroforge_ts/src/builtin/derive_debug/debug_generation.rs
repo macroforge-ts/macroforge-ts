@@ -8,11 +8,11 @@ pub(super) fn debug_value_expr(
     _ts_type: &str,
     var: &str,
     resolved: Option<&ResolvedTypeRef>,
-    registry: Option<&TypeRegistry>,
+    registry: &TypeRegistry,
 ) -> String {
     let access = format!("{var}.{field_name}");
 
-    if let (Some(resolved), Some(registry)) = (resolved, registry) {
+    if let Some(resolved) = resolved {
         // Direct known Debug type -> call standalone toString function
         if !resolved.is_collection
             && resolved.registry_key.is_some()

@@ -530,19 +530,15 @@ fn position_jaccard(a: &TypeShape, b: &TypeShape) -> f64 {
             let _ = (na, nb);
             jaccard(fa, fb)
         }
-        (TypeShape::Named { name: na, .. }, TypeShape::Named { name: nb, .. }) => {
+        (TypeShape::Named { name: na, .. }, TypeShape::Named { name: nb, .. }) if na == nb => {
             // At least one side lacks a fingerprint — fall back to
             // exact name equality. (First-letter bucketing happens
             // at the cluster_shapes level, not per position.)
-            if na == nb { 1.0 } else { 0.0 }
+            1.0
         }
-        (TypeShape::Literal(la), TypeShape::Literal(lb)) => {
-            if la == lb {
-                1.0
-            } else {
-                0.0
-            }
-        }
+        (TypeShape::Named { .. }, TypeShape::Named { .. }) => 0.0,
+        (TypeShape::Literal(la), TypeShape::Literal(lb)) if la == lb => 1.0,
+        (TypeShape::Literal(_), TypeShape::Literal(_)) => 0.0,
         (TypeShape::Opaque, TypeShape::Opaque) => 1.0,
         // Discriminant mismatch — different kinds of values.
         _ => 0.0,
@@ -582,13 +578,13 @@ fn structural_cluster_id(group: &[Vec<TypeShape>]) -> String {
 /// consistently", and opaque fallbacks prevent the heuristic from
 /// over-committing when it's unsure.
 ///
-/// When `type_registry` is `Some`, the `Named` result is augmented
-/// with a sorted field-name fingerprint from the registry (if the
-/// type is known). The fingerprint is used by [`cluster_shapes`] for
-/// structural clustering (Phase 14).
+/// `Named` results are augmented with a sorted field-name fingerprint
+/// from `type_registry` (if the type is known). An empty registry
+/// produces no fingerprint, falling back to the name-prefix heuristic
+/// in [`cluster_shapes`] (Phase 14).
 pub fn extract_type_shape(
     arg: &oxc::ast::ast::Argument<'_>,
-    type_registry: Option<&TypeRegistry>,
+    type_registry: &TypeRegistry,
 ) -> TypeShape {
     use oxc::ast::ast::Expression;
     let Some(expr) = arg.as_expression() else {
@@ -643,9 +639,9 @@ pub fn extract_type_shape(
 /// - **Anything else** (union aliases, tuple aliases, intersection
 ///   aliases) — no fingerprint, falls back to the name-prefix
 ///   heuristic in `cluster_shapes`.
-fn named_with_fingerprint(name: &str, type_registry: Option<&TypeRegistry>) -> TypeShape {
+fn named_with_fingerprint(name: &str, type_registry: &TypeRegistry) -> TypeShape {
     let fields = type_registry
-        .and_then(|reg| reg.get(name))
+        .get(name)
         .and_then(|entry| extract_fingerprint_fields(&entry.definition, type_registry));
 
     TypeShape::Named {
@@ -666,7 +662,7 @@ fn named_with_fingerprint(name: &str, type_registry: Option<&TypeRegistry>) -> T
 /// name-prefix heuristic.
 fn extract_fingerprint_fields(
     def: &TypeDefinitionIR,
-    type_registry: Option<&TypeRegistry>,
+    type_registry: &TypeRegistry,
 ) -> Option<Vec<String>> {
     match def {
         TypeDefinitionIR::Class(class) => {
@@ -720,7 +716,7 @@ fn extract_fingerprint_fields(
             // calls sites passing a `SomeClass`.
             if let Some(target_name) = alias.body.as_alias() {
                 return type_registry
-                    .and_then(|reg| reg.get(target_name))
+                    .get(target_name)
                     .and_then(|entry| extract_fingerprint_fields_direct(&entry.definition));
             }
             None

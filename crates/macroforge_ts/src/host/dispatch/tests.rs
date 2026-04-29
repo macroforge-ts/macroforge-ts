@@ -74,7 +74,7 @@ fn test_dispatch() {
         target_source: "class Test {}".to_string(),
         import_registry: crate::ts_syn::import_registry::ImportRegistry::new(),
         config: None,
-        type_registry: None,
+        type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
         resolved_fields: None,
     };
 

@@ -1,7 +1,7 @@
 use convert_case::{Case, Casing};
 
 use crate::builtin::serde::{TypeCategory, get_foreign_types, split_top_level_union};
-use crate::ts_syn::abi::ir::{TypeRegistry, resolve_generic_aliases};
+use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_aliases};
 
 /// Check if a TypeScript type is a primitive type
 pub fn is_primitive_type(ts_type: &str) -> bool {
@@ -96,11 +96,13 @@ pub fn has_known_default(_ts_type: &str) -> bool {
     true
 }
 
-/// Get default value for a TypeScript type. Back-compat shim — prefer
-/// [`get_type_default_with_registry`] so generic aliases like `RecordLink<T>`
-/// are expanded before the default is chosen.
+/// Get default value for a TypeScript type with no project registry.
+/// Used by tests and primitive-only fixtures; production code should always
+/// call [`get_type_default_with_registry`] so generic aliases like
+/// `RecordLink<T>` expand against the actual project context.
 pub fn get_type_default(ts_type: &str) -> String {
-    get_type_default_with_registry(ts_type, None)
+    let registry = TypeRegistry::default();
+    get_type_default_with_registry(ts_type, &registry, "", &[])
 }
 
 /// Get default value for a TypeScript type, resolving generic aliases against
@@ -108,11 +110,18 @@ pub fn get_type_default(ts_type: &str) -> String {
 /// user-defined generic alias) expands to its body before the default is
 /// chosen, so the emitter never references a nonexistent
 /// `{alias}DefaultValue<T>()` helper.
-pub fn get_type_default_with_registry(ts_type: &str, registry: Option<&TypeRegistry>) -> String {
-    let resolved: String = match registry {
-        Some(r) => resolve_generic_aliases(ts_type, r),
-        None => ts_type.to_string(),
-    };
+///
+/// `caller_file_path` is the file referencing `ts_type` (used to resolve
+/// types declared in the same file when the simple name is ambiguous, as
+/// happens in generated aggregator files), and `file_imports` come from
+/// that same file's import statements.
+pub fn get_type_default_with_registry(
+    ts_type: &str,
+    registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
+) -> String {
+    let resolved = resolve_generic_aliases(ts_type, registry, caller_file_path, file_imports);
     get_type_default_resolved(&resolved)
 }
 

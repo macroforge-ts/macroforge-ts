@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/foreign_type_fixtures.rs
+assertion_line: 369
 description: js_globals_in_body
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/foreign_types/js_globals_in_body/macroforge.config.ts
@@ -27,9 +28,9 @@ export default {
                 const now = Math.floor(Date.now() / 1000);
                 return DateTime.make(now);
             },
-            hasShape: (v: unknown) => typeof v === 'string',
-        },
-    },
+            hasShape: (v: unknown) => typeof v === 'string'
+        }
+    }
 };
 
 ## Input

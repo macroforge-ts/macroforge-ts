@@ -79,20 +79,20 @@ pub fn collect_exported_names(module: &swc_core::ecma::ast::Module) -> HashSet<S
                 }
                 _ => {}
             },
-            ModuleItem::ModuleDecl(ModuleDecl::ExportNamed(named)) => {
+            ModuleItem::ModuleDecl(ModuleDecl::ExportNamed(named))
                 // Handle `export { Foo, Bar }` and `export { Foo as Bar }`
-                if named.src.is_none() {
-                    // Only local re-exports (not `export { X } from './mod'`)
-                    for spec in &named.specifiers {
-                        if let ExportSpecifier::Named(n) = spec {
-                            let name = match &n.orig {
-                                ModuleExportName::Ident(id) => id.sym.to_string(),
-                                ModuleExportName::Str(s) => {
-                                    String::from_utf8_lossy(s.value.as_bytes()).to_string()
-                                }
-                            };
-                            names.insert(name);
-                        }
+                if named.src.is_none() =>
+            {
+                // Only local re-exports (not `export { X } from './mod'`)
+                for spec in &named.specifiers {
+                    if let ExportSpecifier::Named(n) = spec {
+                        let name = match &n.orig {
+                            ModuleExportName::Ident(id) => id.sym.to_string(),
+                            ModuleExportName::Str(s) => {
+                                String::from_utf8_lossy(s.value.as_bytes()).to_string()
+                            }
+                        };
+                        names.insert(name);
                     }
                 }
             }

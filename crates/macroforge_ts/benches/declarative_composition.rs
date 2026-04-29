@@ -47,6 +47,8 @@ use std::hint::black_box;
 #[cfg(not(feature = "swc"))]
 use macroforge_ts::host::declarative::{BuildMode, DeclarativeMacroRegistry, discover, rewrite};
 #[cfg(not(feature = "swc"))]
+use macroforge_ts::ts_syn::abi::ir::type_registry::TypeRegistry;
+#[cfg(not(feature = "swc"))]
 use oxc::allocator::Allocator;
 #[cfg(not(feature = "swc"))]
 use oxc::parser::Parser;
@@ -99,7 +101,7 @@ fn run_rewrite(source: &str) {
         &registry,
         &discovered,
         BuildMode::dev(),
-        None,
+        &TypeRegistry::default(),
         None,
     );
     black_box(out);
@@ -209,7 +211,7 @@ fn bench_cluster(c: &mut Criterion) {
                 &registry,
                 &discovered,
                 BuildMode::prod(),
-                None,
+                &TypeRegistry::default(),
                 None,
             );
             black_box(out);

@@ -3,6 +3,7 @@ use super::types::OrdField;
 
 use crate::macros::ts_template;
 use crate::swc_ecma_ast::{Expr, Ident};
+use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 use crate::ts_syn::{parse_ts_expr, ts_ident};
 
 #[test]
@@ -19,7 +20,8 @@ fn test_ord_macro_output() {
         .enumerate()
         .map(|(i, f)| {
             let cmp_ident = ts_ident!(format!("cmp{}", i));
-            let expr_src = generate_field_compare_for_interface(f, "a", "b", None, None);
+            let expr_src =
+                generate_field_compare_for_interface(f, "a", "b", None, &TypeRegistry::default());
             let expr = parse_ts_expr(&expr_src).expect("compare expr should parse");
             (cmp_ident, *expr)
         })
@@ -66,7 +68,8 @@ fn test_field_compare_number() {
         name: "id".to_string(),
         ts_type: "number".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", None, None);
+    let result =
+        generate_field_compare_for_interface(&field, "a", "b", None, &TypeRegistry::default());
     assert!(result.contains("a.id < b.id"));
     assert!(result.contains("a.id > b.id"));
     assert!(!result.contains("null")); // Total ordering - no null
@@ -78,7 +81,8 @@ fn test_field_compare_string() {
         name: "name".to_string(),
         ts_type: "string".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", None, None);
+    let result =
+        generate_field_compare_for_interface(&field, "a", "b", None, &TypeRegistry::default());
     assert!(result.contains("localeCompare"));
     // Should clamp localeCompare result to -1, 0, 1
     assert!(result.contains("-1"));
@@ -91,7 +95,8 @@ fn test_field_compare_object_no_null() {
         name: "user".to_string(),
         ts_type: "User".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", None, None);
+    let result =
+        generate_field_compare_for_interface(&field, "a", "b", None, &TypeRegistry::default());
     assert!(result.contains("compareTo"));
     // Should fallback to 0 instead of null
     assert!(result.contains("?? 0"));

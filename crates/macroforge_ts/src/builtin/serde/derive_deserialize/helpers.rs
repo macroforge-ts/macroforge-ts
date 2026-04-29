@@ -16,7 +16,7 @@ use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry};
 /// on string inputs -- the string IS the value, not a JSON-encoded payload.
 pub(super) fn type_accepts_string(
     type_name: &str,
-    registry: Option<&TypeRegistry>,
+    registry: &TypeRegistry,
     foreign_types: &[ForeignTypeConfig],
 ) -> bool {
     // Primitive string keyword
@@ -42,14 +42,6 @@ pub(super) fn type_accepts_string(
         }
     }
 
-    // Check the type registry
-    let registry = match registry {
-        Some(r) => r,
-        None => {
-            return false;
-        }
-    };
-
     let entry = match registry.get(type_name) {
         Some(e) => e,
         None => {
@@ -65,12 +57,12 @@ pub(super) fn type_accepts_string(
         TypeDefinitionIR::TypeAlias(alias) => match &alias.body {
             // Union: check if any member is string, a string literal, or a foreign string type
             TypeBody::Union(members) => members.iter().any(|m| match &m.kind {
-                TypeMemberKind::TypeRef(t) => type_accepts_string(t, Some(registry), foreign_types),
+                TypeMemberKind::TypeRef(t) => type_accepts_string(t, registry, foreign_types),
                 TypeMemberKind::Literal(lit) => lit.starts_with('"') || lit.starts_with('\''),
                 TypeMemberKind::Object { .. } | TypeMemberKind::Intersection(_) => false,
             }),
             // Simple alias: recurse
-            TypeBody::Alias(target) => type_accepts_string(target, Some(registry), foreign_types),
+            TypeBody::Alias(target) => type_accepts_string(target, registry, foreign_types),
             _ => false,
         },
         // Enums with string members accept strings

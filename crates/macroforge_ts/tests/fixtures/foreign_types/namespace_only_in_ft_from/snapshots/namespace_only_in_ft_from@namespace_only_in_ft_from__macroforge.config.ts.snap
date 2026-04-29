@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/foreign_type_fixtures.rs
+assertion_line: 369
 description: namespace_only_in_ft_from
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/foreign_types/namespace_only_in_ft_from/macroforge.config.ts
@@ -22,16 +23,16 @@ export default {
             default: () =>
                 Option.match(DateTime.make(new Date()), {
                     onSome: (dt) => dt,
-                    onNone: () => DateTime.make(0),
-                }),
+                    onNone: () => DateTime.make(0)
+                })
         },
         'Option': {
             from: ['effect'],
             serialize: (v) => v,
             deserialize: (raw) => raw,
-            default: () => null,
-        },
-    },
+            default: () => null
+        }
+    }
 };
 
 ## Input

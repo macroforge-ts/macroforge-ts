@@ -19,7 +19,7 @@ export default {
                 const now = Math.floor(Date.now() / 1000);
                 return DateTime.make(now);
             },
-            hasShape: (v: unknown) => typeof v === 'string',
-        },
-    },
+            hasShape: (v: unknown) => typeof v === 'string'
+        }
+    }
 };

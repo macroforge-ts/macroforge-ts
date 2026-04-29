@@ -39,14 +39,14 @@ pub(crate) fn generate_field_compare_for_interface(
     other_var: &str,
     allow_null: bool,
     resolved: Option<&ResolvedTypeRef>,
-    registry: Option<&TypeRegistry>,
+    registry: &TypeRegistry,
 ) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
     let null_return = if allow_null { "null" } else { "0" };
 
     // Type-aware path: direct compare call when type has @derive(PartialOrd)
-    if let (Some(resolved), Some(registry)) = (resolved, registry)
+    if let Some(resolved) = resolved
         && !resolved.is_collection
         && resolved.registry_key.is_some()
         && type_has_derive(registry, &resolved.base_type_name, "PartialOrd")

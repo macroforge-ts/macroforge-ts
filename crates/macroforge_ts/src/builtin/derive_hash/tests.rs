@@ -1,4 +1,5 @@
 use super::*;
+use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 
 #[test]
 fn test_hash_macro_output() {
@@ -11,7 +12,8 @@ fn test_hash_macro_output() {
     let hash_exprs: Vec<crate::swc_ecma_ast::Expr> = hash_fields
         .iter()
         .map(|f| {
-            let expr_src = generate_field_hash_for_interface(f, "value", None, None);
+            let expr_src =
+                generate_field_hash_for_interface(f, "value", None, &TypeRegistry::default());
             *crate::ts_syn::parse_ts_expr(&expr_src).expect("hash expr should parse")
         })
         .collect();
@@ -50,7 +52,7 @@ fn test_field_hash_number() {
         name: "id".to_string(),
         ts_type: "number".to_string(),
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, None);
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
     assert!(result.contains("Number.isInteger"));
 }
 
@@ -60,7 +62,7 @@ fn test_field_hash_string() {
         name: "name".to_string(),
         ts_type: "string".to_string(),
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, None);
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
     assert!(result.contains("split"));
     assert!(result.contains("charCodeAt"));
 }
@@ -71,7 +73,7 @@ fn test_field_hash_boolean() {
         name: "active".to_string(),
         ts_type: "boolean".to_string(),
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, None);
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
     assert!(result.contains("1231")); // Java's Boolean.hashCode() constants
     assert!(result.contains("1237"));
 }
@@ -82,7 +84,7 @@ fn test_field_hash_date() {
         name: "createdAt".to_string(),
         ts_type: "Date".to_string(),
     };
-    let result = generate_field_hash_for_interface(&field, "value", None, None);
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
     assert!(result.contains("getTime"));
 }
 
@@ -93,6 +95,6 @@ fn test_field_hash_object() {
         ts_type: "User".to_string(),
     };
     // Without registry — duck-typing fallback
-    let result = generate_field_hash_for_interface(&field, "value", None, None);
+    let result = generate_field_hash_for_interface(&field, "value", None, &TypeRegistry::default());
     assert!(result.contains("hashCode"));
 }

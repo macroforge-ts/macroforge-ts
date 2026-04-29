@@ -194,7 +194,7 @@ pub struct MacroExpander {
     external_loader: Option<ExternalMacroLoader>,
     /// Project-wide type registry for compile-time type awareness.
     /// When set, macros receive type information about all types in the project.
-    type_registry: Option<crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry,
     /// Project-wide declarative macro registry for cross-file
     /// `/** import macro */` resolution. Built during the same project
     /// scan as `type_registry`.
@@ -312,7 +312,7 @@ impl MacroExpander {
             keep_decorators,
             external_decorator_modules: Vec::new(),
             external_loader: Some(ExternalMacroLoader::new(root_dir)),
-            type_registry: None,
+            type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
             declarative_registry: None,
             build_mode: crate::host::declarative::BuildMode::dev(),
         })
@@ -347,7 +347,7 @@ impl MacroExpander {
     /// resolved field types in its [`MacroContextIR`].
     pub fn set_type_registry(
         &mut self,
-        registry: Option<crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+        registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry,
     ) {
         self.type_registry = registry;
     }
@@ -504,7 +504,7 @@ impl MacroExpander {
             &registry,
             &discovered,
             self.build_mode,
-            self.type_registry.as_ref(),
+            &self.type_registry,
             Some(crate::host::declarative::ProcMacroFallback {
                 dispatcher: &self.dispatcher,
                 import_sources: &macro_import_sources,
@@ -1188,16 +1188,23 @@ impl MacroExpander {
                     ctx = ctx.with_macro_name_span(macro_name_span);
                 }
 
-                // Enrich context with project-wide type awareness
-                if let Some(ref registry) = self.type_registry {
-                    ctx.type_registry = Some(registry.clone());
+                // Enrich context with project-wide type awareness. The
+                // registry is always present (empty when no scan ran) so
+                // macros can call `resolve` unconditionally.
+                ctx.type_registry = self.type_registry.clone();
+                let resolver = crate::host::type_resolver::TypeResolver::new(&self.type_registry);
+                ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
+                    &ctx.target,
+                    &resolver,
+                ));
 
-                    let resolver = crate::host::type_resolver::TypeResolver::new(registry);
-                    ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
-                        &ctx.target,
-                        &resolver,
-                    ));
-                }
+                // Pass the file's import registry so built-in macros can
+                // disambiguate ambiguous type names against the file's
+                // import sources (e.g. `RecordLink` re-declared in an
+                // aggregator file). External macros got this at line ~1292
+                // already; we now do the same for the built-in dispatch
+                // path so derive macros see the same context.
+                ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
 
                 // Install the fully-enriched context as the active thread-local
                 // so TsStream import-resolution helpers can read it without
@@ -1558,15 +1565,15 @@ impl MacroExpander {
                     ctx = ctx.with_macro_name_span(macro_name_span);
                 }
 
-                // Enrich with type registry.
-                if let Some(ref registry) = self.type_registry {
-                    ctx.type_registry = Some(registry.clone());
-                    let resolver = crate::host::type_resolver::TypeResolver::new(registry);
-                    ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
-                        &ctx.target,
-                        &resolver,
-                    ));
-                }
+                // Enrich with type registry (always present; empty when no
+                // pre-scan ran so resolve sites stay unconditional).
+                ctx.type_registry = self.type_registry.clone();
+                let resolver = crate::host::type_resolver::TypeResolver::new(&self.type_registry);
+                ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
+                    &ctx.target,
+                    &resolver,
+                ));
+                ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
 
                 crate::ts_syn::context_registry::install_context(ctx.clone());
 

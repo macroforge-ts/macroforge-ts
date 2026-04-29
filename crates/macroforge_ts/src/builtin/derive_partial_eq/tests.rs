@@ -1,6 +1,7 @@
 use super::*;
 
 use crate::macros::ts_template;
+use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 use crate::ts_syn::parse_ts_expr;
 
 #[test]
@@ -19,7 +20,7 @@ fn test_partial_eq_macro_output() {
 
     let comparison = eq_fields
         .iter()
-        .map(|f| generate_field_equality_for_interface(f, "a", "b", None, None))
+        .map(|f| generate_field_equality_for_interface(f, "a", "b", None, &TypeRegistry::default()))
         .collect::<Vec<_>>()
         .join(" && ");
     let comparison_expr = parse_ts_expr(&comparison).expect("comparison expr should parse");
@@ -50,7 +51,8 @@ fn test_field_equality_primitive() {
         name: "id".to_string(),
         ts_type: "number".to_string(),
     };
-    let result = generate_field_equality_for_interface(&field, "a", "b", None, None);
+    let result =
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
     assert!(result.contains("a.id === b.id"));
 }
 
@@ -60,7 +62,8 @@ fn test_field_equality_object() {
         name: "user".to_string(),
         ts_type: "User".to_string(),
     };
-    let result = generate_field_equality_for_interface(&field, "a", "b", None, None);
+    let result =
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
     assert!(result.contains("equals"));
 }
 
@@ -70,7 +73,8 @@ fn test_field_equality_array() {
         name: "items".to_string(),
         ts_type: "string[]".to_string(),
     };
-    let result = generate_field_equality_for_interface(&field, "a", "b", None, None);
+    let result =
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
     assert!(result.contains("Array.isArray"));
     assert!(result.contains("every"));
 }
@@ -81,6 +85,7 @@ fn test_field_equality_date() {
         name: "createdAt".to_string(),
         ts_type: "Date".to_string(),
     };
-    let result = generate_field_equality_for_interface(&field, "a", "b", None, None);
+    let result =
+        generate_field_equality_for_interface(&field, "a", "b", None, &TypeRegistry::default());
     assert!(result.contains("getTime"));
 }

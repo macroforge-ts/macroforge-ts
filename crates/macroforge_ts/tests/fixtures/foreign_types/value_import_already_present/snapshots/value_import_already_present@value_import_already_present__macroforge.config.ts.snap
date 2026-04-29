@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/foreign_type_fixtures.rs
+assertion_line: 369
 description: value_import_already_present
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/foreign_types/value_import_already_present/macroforge.config.ts
@@ -18,9 +19,9 @@ export default {
             serialize: (v: DateTime.Utc) => DateTime.formatIso(v),
             deserialize: (raw: unknown) => DateTime.make(raw as string),
             default: () => DateTime.make(new Date()),
-            hasShape: (v: unknown) => typeof v === 'string',
-        },
-    },
+            hasShape: (v: unknown) => typeof v === 'string'
+        }
+    }
 };
 
 ## Input

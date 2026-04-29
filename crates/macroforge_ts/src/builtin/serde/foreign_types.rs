@@ -160,12 +160,24 @@ pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, _import_m
                 continue;
             }
 
-            // Only register when we *know* the module. Anything else
-            // (Array, console, Math, JSON, …) is a JS global; leave it
-            // alone.
+            // Resolve the module to import `ns` from. Search order:
+            //   1. macroforge.config.ts top-level `import` declarations.
+            //   2. A configured foreign type whose surface name / namespace
+            //      root / type name is `ns` (e.g. `Option` is itself a
+            //      foreign-type entry — its `from[0]` tells us the module).
+            //   3. The target source's own type-only import for `ns` — the
+            //      user already named the module in their `import type`
+            //      statement, so we can faithfully promote that to a value
+            //      import without guessing.
+            //
+            // Anything else (Array, console, Math, JSON, …) is a JS global
+            // with no module; leave it unrewritten and let the runtime
+            // resolve it directly.
             let module = if let Some(m) = r.config_imports.get(ns).cloned() {
                 m
             } else if let Some(m) = foreign_type_module(&foreign_types, ns) {
+                m
+            } else if let Some(m) = r.get_source(ns).map(str::to_string) {
                 m
             } else {
                 continue;

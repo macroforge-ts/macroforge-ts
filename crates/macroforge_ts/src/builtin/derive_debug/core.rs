@@ -16,7 +16,7 @@ use super::types::{DebugField, DebugFieldOptions};
 pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
     let resolved_fields = input.context.resolved_fields.as_ref();
-    let type_registry = input.context.type_registry.as_ref();
+    let type_registry = &input.context.type_registry;
 
     match &input.data {
         Data::Class(class) => {
