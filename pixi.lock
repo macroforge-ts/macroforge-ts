@@ -3,52 +3,14 @@ environments:
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
+    - url: https://prefix.dev/brads-forge/
     packages:
       osx-64:
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/rust-1.94.0-h5655b98_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/rust-src-1.94.0-unix_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-wasm32-unknown-unknown-1.94.0-unix_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-x86_64-apple-darwin-1.94.0-h38e4360_0.conda
+      - conda: https://prefix.dev/brads-forge/osx-64/rustup-1.29.0-he0f4bc8_4.conda
 packages:
-- conda: https://conda.anaconda.org/conda-forge/osx-64/rust-1.94.0-h5655b98_0.conda
-  sha256: d6d4c597e30e03e06da6626b601f2e85256ded5a920d4323b07522721fe7b47d
-  md5: 59ca71d90e1fa1871f9bf267d11b29a5
-  depends:
-  - rust-std-x86_64-apple-darwin 1.94.0 h38e4360_0
+- conda: https://prefix.dev/brads-forge/osx-64/rustup-1.29.0-he0f4bc8_4.conda
+  sha256: ff76a15afcf63745be55089e41db4c93ce40392160a3f0327ad6d99514b37632
+  md5: 31a759116d4c97bd4913c7f8b6379e4b
   license: MIT
-  license_family: MIT
-  size: 201469684
-  timestamp: 1773066100586
-- conda: https://conda.anaconda.org/conda-forge/noarch/rust-src-1.94.0-unix_0.conda
-  sha256: 0a06934a3db5171a6f567689afd6391015a2529d9bc608a9ed4a22b537b2b1bc
-  md5: 5b577e4cac24014599e74481c9a2b5ec
-  depends:
-  - __unix
-  constrains:
-  - rust >=1.94.0,<1.94.1.0a0
-  license: MIT
-  license_family: MIT
-  size: 4466770
-  timestamp: 1773066264757
-- conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-wasm32-unknown-unknown-1.94.0-unix_0.conda
-  sha256: cfcee9ea56976fdd720320e1ef763a4529714323d621275047b3664ae603a8c4
-  md5: 9784e843604f3d17c820cc3db662e351
-  depends:
-  - __unix
-  constrains:
-  - rust >=1.94.0,<1.94.1.0a0
-  license: MIT
-  license_family: MIT
-  size: 25315596
-  timestamp: 1773066616737
-- conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-x86_64-apple-darwin-1.94.0-h38e4360_0.conda
-  sha256: 4beba0d8f99cb8b62102cf9c09bbcdd8a8ab1be55c0bd00b4ebfbe0c76bf8b18
-  md5: 214a61b18f51d3f97828a6b8388b2989
-  depends:
-  - __unix
-  constrains:
-  - rust >=1.94.0,<1.94.1.0a0
-  license: MIT
-  license_family: MIT
-  size: 34391186
-  timestamp: 1773065969624
+  size: 4698841
+  timestamp: 1773378043339

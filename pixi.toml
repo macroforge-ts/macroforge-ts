@@ -1,10 +1,16 @@
 [workspace]
 authors = ["rymskip <17lochinskij@protonmail.com>"]
-channels = ["conda-forge"]
+channels = ["conda-forge", "https://prefix.dev/brads-forge"]
 name = "macroforge"
 platforms = ["osx-64"]
 version = "0.1.0"
 [tasks]
+# One-shot per-machine bootstrap. Installs global rustup from brads-forge if
+# missing, drops cargo/rustc/etc. symlinks into ~/.cargo/bin so the rustup
+# multicall dispatch works (pixi expose wrappers don't preserve argv[0]), and
+# appends RUSTUP_HOME to ~/.zshenv. Safe to re-run.
+"setup-rust" = "bash scripts/setup-rust.sh"
+
 # Build mf tooling binary
 "build:mf" = { cmd = "cd tooling/scripts && cargo build --release" }
 
@@ -88,7 +94,11 @@ scripts = { cmd = "tooling/scripts/target/release/mf --tui" }
 "setup:wasm-bindgen" = { cmd = "cargo install wasm-bindgen-cli --version 0.2.117 --locked" }
 
 [dependencies]
-rust = "1.94.*"
-# rust-src lets rust-analyzer and cargo-miri introspect stdlib sources; matches dealdraft.
-rust-src = "1.94.*"
-rust-std-wasm32-unknown-unknown = "1.94.*"
+# Rust toolchain manager from brads-forge. The active rust version, components,
+# and targets are pinned in rust-toolchain.toml at the repo root — rustup
+# auto-installs that toolchain on first cargo invocation. RUSTUP_HOME is
+# shared with the global rustup install via [activation.env] below.
+rustup = "*"
+
+[activation.env]
+RUSTUP_HOME = "$HOME/.pixi/envs/rustup/.rustup"
