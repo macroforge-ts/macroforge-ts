@@ -2,6 +2,6 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Payment {
-    id: string;
-    date: string;
+  id: string;
+  date: string;
 }

@@ -8,7 +8,7 @@
 // - Nested block scopes with hygiene-local temporaries
 // - Type-position macros via the `macroRules({...})` object form
 
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from "macroforge/rules";
 
 // ──────────────────────────────────────────────────────────────────
 // 1. Multi-arm dispatch by arity.
@@ -90,12 +90,12 @@ const $squarePlusOne = macroRules`
 `;
 
 export function hygieneCheck(): { callerTemp: number; macroResult: number } {
-    // Caller's `__temp` should remain 999 after the macro expands,
-    // because the macro's expansion introduces its own `__temp` inside
-    // an IIFE — it must not escape or shadow the outer binding.
-    const __temp = 999;
-    const macroResult = $squarePlusOne(3);
-    return { callerTemp: __temp, macroResult };
+  // Caller's `__temp` should remain 999 after the macro expands,
+  // because the macro's expansion introduces its own `__temp` inside
+  // an IIFE — it must not escape or shadow the outer binding.
+  const __temp = 999;
+  const macroResult = $squarePlusOne(3);
+  return { callerTemp: __temp, macroResult };
 }
 
 // Value-position use at module scope.
@@ -111,31 +111,31 @@ export const sqPlus1 = $squarePlusOne(4);
 // as unused — the only usages are type references (`$PartialShallow<T>`)
 // which the JS-side linter doesn't follow across domains.
 export const $PartialShallow = macroRules({
-    kind: 'type',
-    expand: macroRules`
+  kind: "type",
+  expand: macroRules`
     ($t:Type) => { [K in keyof $t]?: $t[K] }
-  `
+  `,
 });
 
 export const $NonNull = macroRules({
-    kind: 'type',
-    expand: macroRules`
+  kind: "type",
+  expand: macroRules`
     ($t:Type) => Exclude<$t, null | undefined>
-  `
+  `,
 });
 
 export interface Address {
-    street: string;
-    city: string;
-    zip: string;
+  street: string;
+  city: string;
+  zip: string;
 }
 
 export type AddressPatch = $PartialShallow<Address>;
 export type DefinitelyString = $NonNull<string | null | undefined>;
 
 // Values that exercise the types at runtime.
-export const samplePatch: AddressPatch = { city: 'Berlin' };
-export const definitelyHello: DefinitelyString = 'hello';
+export const samplePatch: AddressPatch = { city: "Berlin" };
+export const definitelyHello: DefinitelyString = "hello";
 
 // The test harness uses this sentinel to confirm the declarative
 // macros were all erased from the source at build time.

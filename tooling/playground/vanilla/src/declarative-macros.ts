@@ -6,7 +6,7 @@
 // time Vite serves this file the runtime values below should be plain
 // arrays / numbers / expressions with no trace of the macro template.
 
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from "macroforge/rules";
 
 // Variadic array constructor with two arms: empty and one-or-more.
 const $vec = macroRules`

@@ -2,8 +2,8 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type LeadStage =
-    | /** @default */ 'Open'
-    | 'InitialContact'
-    | 'Qualified'
-    | 'Estimate'
-    | 'Negotiation';
+  | /** @default */ "Open"
+  | "InitialContact"
+  | "Qualified"
+  | "Estimate"
+  | "Negotiation";

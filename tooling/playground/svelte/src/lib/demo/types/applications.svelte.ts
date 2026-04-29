@@ -2,10 +2,10 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Applications =
-    | /** @default */ 'Sales'
-    | 'Accounting'
-    | 'Errand'
-    | 'HumanResources'
-    | 'Logistics'
-    | 'Marketing'
-    | 'Website';
+  | /** @default */ "Sales"
+  | "Accounting"
+  | "Errand"
+  | "HumanResources"
+  | "Logistics"
+  | "Marketing"
+  | "Website";

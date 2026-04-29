@@ -2,8 +2,8 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type UserRole =
-    | /** @default */ 'Administrator'
-    | 'SalesRepresentative'
-    | 'Technician'
-    | 'HumanResources'
-    | 'InformationTechnology';
+  | /** @default */ "Administrator"
+  | "SalesRepresentative"
+  | "Technician"
+  | "HumanResources"
+  | "InformationTechnology";

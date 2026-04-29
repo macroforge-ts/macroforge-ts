@@ -8,40 +8,40 @@
 
 /** @cfg({ feature: 'playground' }) */
 export function keptByPlayground(): string {
-    return 'kept-by-feature';
+  return "kept-by-feature";
 }
 
 /** @cfg({ feature: 'never-defined-anywhere' }) */
 export function strippedByMissingFeature(): string {
-    return 'should-be-stripped';
+  return "should-be-stripped";
 }
 
 /** @cfg({ target: 'web' }) */
 export function keptByWebTarget(): string {
-    return 'kept-by-target';
+  return "kept-by-target";
 }
 
 /** @cfg({ target: 'node' }) */
 export function strippedByNodeTarget(): string {
-    return 'should-be-stripped';
+  return "should-be-stripped";
 }
 
 /** @deprecated('use renderV2 instead', { since: '0.3.0' }) */
 export function renderV1(): string {
-    return 'render-v1';
+  return "render-v1";
 }
 
 /** @mustUse('connection handle must be closed') */
 export function openConnection(): { close: () => void } {
-    return { close() {} };
+  return { close() {} };
 }
 
 /** @nonExhaustive */
-export type ServerStatus = 'green' | 'yellow' | 'red';
+export type ServerStatus = "green" | "yellow" | "red";
 
 // External code constructing a `ServerStatus` must cast through the brand
 // `@nonExhaustive` adds — that's the whole point of the brand.
-export const exampleStatus = 'green' as ServerStatus;
+export const exampleStatus = "green" as ServerStatus;
 
 // Consume the @mustUse return value so no diagnostic fires at build time.
 const handle = openConnection();

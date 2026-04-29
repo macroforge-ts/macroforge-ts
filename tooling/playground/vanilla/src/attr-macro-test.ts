@@ -14,12 +14,12 @@
 
 /** @traced */
 export function tracedAdd(a: number, b: number): number {
-    return a + b;
+  return a + b;
 }
 
 /** @traced */
 export function tracedGreet(name: string): string {
-    return `hello, ${name}`;
+  return `hello, ${name}`;
 }
 
 export const stringifiedExpr = $stringify(1 + 2 * 3);

@@ -2,5 +2,5 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Gradient {
-    startHue: number;
+  startHue: number;
 }
