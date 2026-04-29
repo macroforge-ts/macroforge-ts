@@ -17,7 +17,7 @@
       ],
       "returns": "oid",
       "examples": [
-        "```typescript\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { registerTools } from './tools/index.js';\n\nconst server = new Server({ name: 'macroforge', version: '1.0.0' }, { capabilities: { tools: {} } });\nregisterTools(server);\n```"
+        "```typescript\nimport { Server } from '@modelcontextprotocol/sdk/server/index.js';\nimport { registerTools } from './tools/index.ts';\n\nconst server = new Server({ name: 'macroforge', version: '1.0.0' }, { capabilities: { tools: {} } });\nregisterTools(server);\n```"
       ]
     }
   ]
