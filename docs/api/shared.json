@@ -29,7 +29,7 @@
       "name": "hasMacroAnnotations",
       "kind": "function",
       "type": "(source: tring)) => oolean",
-      "description": "Checks whether source code contains `@derive(` as a real JSDoc directive. Only matches `@derive(` when it appears at the start of a JSDoc comment line (after stripping comment syntax like `/**`, `*​/`, `*`, and whitespace). This correctly rejects `@derive` embedded in prose text such as `\"Deserialize result format from @derive(Deserialize)\"`. Use this instead of `code.includes(\"@derive\")` to avoid false positives. ```",
+      "description": "Checks whether source code contains a macroforge JSDoc annotation — `@derive(...)`, `@cfg(...)`, `@deprecated`, `@mustUse`, or `@nonExhaustive`. Only matches when the tag appears at the start of a JSDoc comment line (after stripping comment syntax like `/**`, `*​/`, `*`, and whitespace). This correctly rejects matches embedded in prose text such as `\"Deserialize result format from @derive(Deserialize)\"`. Use this instead of `code.includes(\"@derive\")` to avoid false positives. ```",
       "params": [
         {
           "name": "source",
@@ -37,9 +37,9 @@
           "description": "The TypeScript source code to scan"
         }
       ],
-      "returns": "`true` if the source contains a real `@derive(` directive",
+      "returns": "`true` if the source contains any macroforge annotation",
       "examples": [
-        "```typescript\nhasMacroAnnotations('/** @derive(Debug) *​/ class X {}');     // true\nhasMacroAnnotations('/** result from @derive(Debug) *​/');    // false — embedded in prose\nhasMacroAnnotations('class X {}');                            // false\n```"
+        "```typescript\nhasMacroAnnotations('/** @derive(Debug) *​/ class X {}');       // true\nhasMacroAnnotations('/** @cfg({ feature: \"ssr\" }) *​/ fn f() {}'); // true\nhasMacroAnnotations('/** @nonExhaustive *​/ type K = \"a\";');     // true\nhasMacroAnnotations('/** result from @derive(Debug) *​/');       // false — embedded in prose\nhasMacroAnnotations('class X {}');                              // false\n```"
       ]
     },
     {
@@ -184,6 +184,33 @@
       "kind": "interface",
       "type": null,
       "description": "Result from parsing a config file."
+    },
+    {
+      "name": "CfgFlags",
+      "kind": "interface",
+      "type": null,
+      "description": "Build flags consumed by the `@cfg` attribute macro. ```",
+      "examples": [
+        "```ts\n// macroforge.config.ts\nexport default {\ncfg: {\nfeatures: ['ssr'],\ntarget: 'web',\ndebugAssertions: true,\ncustom: { tenant: 'acme' }\n}\n};\n\n// Source:\n/​** @cfg({ feature: 'ssr' }) *​/\nexport function render() { ... }\n```"
+      ]
+    },
+    {
+      "name": "DeprecatedConfig",
+      "kind": "interface",
+      "type": null,
+      "description": "Behavior knobs for the `@deprecated` attribute macro."
+    },
+    {
+      "name": "MustUseConfig",
+      "kind": "interface",
+      "type": null,
+      "description": "Behavior knobs for the `@mustUse` attribute macro."
+    },
+    {
+      "name": "NonExhaustiveConfig",
+      "kind": "interface",
+      "type": null,
+      "description": "Behavior knobs for the `@nonExhaustive` attribute macro."
     },
     {
       "name": "VitePluginConfig",

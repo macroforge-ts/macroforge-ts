@@ -1,0 +1,76 @@
+{
+  "name": "@macroforge/deno-plugin",
+  "version": "0.1.80",
+  "description": "Deno-native macro expansion for projects that don't use Vite",
+  "exports": [
+    {
+      "name": "ExpandOptions",
+      "kind": "interface",
+      "type": null,
+      "description": ""
+    },
+    {
+      "name": "ExpandResult",
+      "kind": "interface",
+      "type": null,
+      "description": ""
+    },
+    {
+      "name": "expand",
+      "kind": "function",
+      "type": "(code: tring,, filepath: tring,, options?: xpandOptions) => xpandResult",
+      "description": "Expand a single in-memory TypeScript source string. Looks up `macroforge.config.*` from `projectRoot` (or `Deno.cwd()`) on first call, caches the parsed config, and forwards every other concern to the Rust engine.",
+      "params": [
+        {
+          "name": "code",
+          "type": "tring,",
+          "description": ""
+        },
+        {
+          "name": "filepath",
+          "type": "tring,",
+          "description": ""
+        },
+        {
+          "name": "options",
+          "type": "",
+          "description": ""
+        }
+      ],
+      "returns": "xpandResult"
+    },
+    {
+      "name": "expandFile",
+      "kind": "function",
+      "type": "async (filepath: tring,, options?: xpandOptions) => romise<ExpandResult>",
+      "description": "Read a file from disk and expand it.",
+      "params": [
+        {
+          "name": "filepath",
+          "type": "tring,",
+          "description": ""
+        },
+        {
+          "name": "options",
+          "type": "",
+          "description": ""
+        }
+      ],
+      "returns": "romise<ExpandResult>"
+    },
+    {
+      "name": "loadRustTransformer",
+      "kind": "function",
+      "type": "(projectRoot?: tring) => ustTransformer",
+      "description": "Resolve and initialize the macroforge engine. The first call loads the binary from the project's `node_modules` (resolved via the project CWD) and registers the host-side callbacks the WASM build needs. Subsequent calls return the same instance.",
+      "params": [
+        {
+          "name": "projectRoot",
+          "type": "",
+          "description": ""
+        }
+      ],
+      "returns": "ustTransformer"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-13T21:34:56.718197+00:00",
+  "generated": "2026-04-29T06:00:27.101026+00:00",
   "packages": [
     {
       "exportCount": 0,
@@ -7,7 +7,7 @@
       "version": "0.1.80"
     },
     {
-      "exportCount": 19,
+      "exportCount": 23,
       "name": "@macroforge/shared",
       "version": "0.1.80"
     },
@@ -34,6 +34,11 @@
     {
       "exportCount": 1,
       "name": "@macroforge/mcp-server",
+      "version": "0.1.80"
+    },
+    {
+      "exportCount": 5,
+      "name": "@macroforge/deno-plugin",
       "version": "0.1.80"
     }
   ]
