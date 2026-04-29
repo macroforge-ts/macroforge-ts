@@ -3,7 +3,7 @@
 // The leading underscore keeps this file out of ambiguous alphabetical
 // sorts — it's a library, not an entry point.
 
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from "macroforge/rules";
 
 export const $vec = macroRules`
   () => []
