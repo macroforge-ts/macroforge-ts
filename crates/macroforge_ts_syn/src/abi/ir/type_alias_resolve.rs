@@ -22,7 +22,7 @@
 use std::collections::HashMap;
 
 use super::type_alias::{TypeBody, TypeMember, TypeMemberKind};
-use super::type_registry::{TypeDefinitionIR, TypeRegistry};
+use super::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
 
 const MAX_DEPTH: u8 = 16;
 
@@ -30,11 +30,30 @@ const MAX_DEPTH: u8 = 16;
 /// `ts_type`, substituting type parameters. Returns the input unchanged if
 /// no alias is found or if substitution is not possible (arity mismatch,
 /// object-body alias, etc.).
-pub fn resolve_generic_aliases(ts_type: &str, registry: &TypeRegistry) -> String {
-    resolve_recursive(ts_type, registry, 0)
+///
+/// `caller_file_path` and `file_imports` come from the file *referencing*
+/// the type. Both feed [`TypeRegistry::resolve_in_file`] — the file path
+/// disambiguates types declared in the caller's own file (typical of
+/// generated aggregators that re-declare types alongside their canonical
+/// definitions); the imports disambiguate types pulled in by name. Pass an
+/// empty path/slice when the caller has no such context — unambiguous names
+/// still resolve via simple-name lookup.
+pub fn resolve_generic_aliases(
+    ts_type: &str,
+    registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
+) -> String {
+    resolve_recursive(ts_type, registry, caller_file_path, file_imports, 0)
 }
 
-fn resolve_recursive(ts_type: &str, registry: &TypeRegistry, depth: u8) -> String {
+fn resolve_recursive(
+    ts_type: &str,
+    registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
+    depth: u8,
+) -> String {
     if depth >= MAX_DEPTH {
         return ts_type.to_string();
     }
@@ -44,7 +63,7 @@ fn resolve_recursive(ts_type: &str, registry: &TypeRegistry, depth: u8) -> Strin
     if let Some(parts) = split_top_level_union(trimmed) {
         let resolved: Vec<String> = parts
             .iter()
-            .map(|p| resolve_recursive(p, registry, depth + 1))
+            .map(|p| resolve_recursive(p, registry, caller_file_path, file_imports, depth + 1))
             .collect();
         return resolved.join(" | ");
     }
@@ -53,30 +72,45 @@ fn resolve_recursive(ts_type: &str, registry: &TypeRegistry, depth: u8) -> Strin
     if let Some(parts) = split_top_level_intersection(trimmed) {
         let resolved: Vec<String> = parts
             .iter()
-            .map(|p| resolve_recursive(p, registry, depth + 1))
+            .map(|p| resolve_recursive(p, registry, caller_file_path, file_imports, depth + 1))
             .collect();
         return resolved.join(" & ");
     }
 
     // `T[]` — recurse into element type.
     if let Some(inner) = trimmed.strip_suffix("[]") {
-        return format!("{}[]", resolve_recursive(inner, registry, depth + 1));
+        return format!(
+            "{}[]",
+            resolve_recursive(inner, registry, caller_file_path, file_imports, depth + 1)
+        );
     }
 
     // Generic: `Base<args>`.
     if let Some((base, args_str)) = parse_generic(trimmed) {
         let resolved_args: Vec<String> = split_top_level_commas(args_str)
             .iter()
-            .map(|a| resolve_recursive(a, registry, depth + 1))
+            .map(|a| resolve_recursive(a, registry, caller_file_path, file_imports, depth + 1))
             .collect();
 
         // Only user-defined aliases start with an uppercase letter; lower-case
         // names (`partial<T>`) are TS unknowns. We also leave built-in container
         // types alone and just rebuild them with resolved args.
         if base.chars().next().is_some_and(|c| c.is_ascii_uppercase())
-            && let Some(expanded) = try_expand_alias(base, &resolved_args, registry)
+            && let Some(expanded) = try_expand_alias(
+                base,
+                &resolved_args,
+                registry,
+                caller_file_path,
+                file_imports,
+            )
         {
-            return resolve_recursive(&expanded, registry, depth + 1);
+            return resolve_recursive(
+                &expanded,
+                registry,
+                caller_file_path,
+                file_imports,
+                depth + 1,
+            );
         }
 
         return format!("{}<{}>", base, resolved_args.join(", "));
@@ -89,8 +123,14 @@ fn try_expand_alias(
     base: &str,
     resolved_args: &[String],
     registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
 ) -> Option<String> {
-    let entry = registry.get(base)?;
+    // Use `resolve_in_file` so ambiguous names — e.g. types redeclared in an
+    // aggregator file — still hit the canonical entry once we know either
+    // the caller's own file (same-file declaration) or the file it imported
+    // the name from.
+    let entry = registry.resolve_in_file(base, caller_file_path, file_imports)?;
     let TypeDefinitionIR::TypeAlias(alias) = &entry.definition else {
         return None;
     };
@@ -307,7 +347,7 @@ mod tests {
     fn expands_record_link_to_union() {
         let reg = record_link_registry();
         assert_eq!(
-            resolve_generic_aliases("RecordLink<ErrandMessage>", &reg),
+            resolve_generic_aliases("RecordLink<ErrandMessage>", &reg, "", &[]),
             "string | ErrandMessage"
         );
     }
@@ -316,7 +356,7 @@ mod tests {
     fn expands_record_link_inside_array() {
         let reg = record_link_registry();
         assert_eq!(
-            resolve_generic_aliases("Array<RecordLink<ErrandMessage>>", &reg),
+            resolve_generic_aliases("Array<RecordLink<ErrandMessage>>", &reg, "", &[]),
             "Array<string | ErrandMessage>"
         );
     }
@@ -325,7 +365,7 @@ mod tests {
     fn expands_record_link_inside_array_suffix() {
         let reg = record_link_registry();
         assert_eq!(
-            resolve_generic_aliases("RecordLink<Foo>[]", &reg),
+            resolve_generic_aliases("RecordLink<Foo>[]", &reg, "", &[]),
             "string | Foo[]"
         );
         // Note: `string | Foo[]` parses as `string | (Foo[])` in TS; that's
@@ -339,7 +379,7 @@ mod tests {
     fn expands_record_link_inside_map() {
         let reg = record_link_registry();
         assert_eq!(
-            resolve_generic_aliases("Map<string, RecordLink<Foo>>", &reg),
+            resolve_generic_aliases("Map<string, RecordLink<Foo>>", &reg, "", &[]),
             "Map<string, string | Foo>"
         );
     }
@@ -348,7 +388,7 @@ mod tests {
     fn passes_through_missing_alias() {
         let reg = TypeRegistry::new();
         assert_eq!(
-            resolve_generic_aliases("RecordLink<Foo>", &reg),
+            resolve_generic_aliases("RecordLink<Foo>", &reg, "", &[]),
             "RecordLink<Foo>"
         );
     }
@@ -356,15 +396,15 @@ mod tests {
     #[test]
     fn passes_through_non_generic() {
         let reg = record_link_registry();
-        assert_eq!(resolve_generic_aliases("User", &reg), "User");
-        assert_eq!(resolve_generic_aliases("string", &reg), "string");
+        assert_eq!(resolve_generic_aliases("User", &reg, "", &[]), "User");
+        assert_eq!(resolve_generic_aliases("string", &reg, "", &[]), "string");
     }
 
     #[test]
     fn passes_through_lowercase_base() {
         let reg = record_link_registry();
         assert_eq!(
-            resolve_generic_aliases("partial<User>", &reg),
+            resolve_generic_aliases("partial<User>", &reg, "", &[]),
             "partial<User>"
         );
     }
@@ -373,7 +413,7 @@ mod tests {
     fn passes_through_arity_mismatch() {
         let reg = record_link_registry();
         assert_eq!(
-            resolve_generic_aliases("RecordLink<A, B>", &reg),
+            resolve_generic_aliases("RecordLink<A, B>", &reg, "", &[]),
             "RecordLink<A, B>"
         );
     }
@@ -402,7 +442,10 @@ mod tests {
             ),
             "/p",
         );
-        assert_eq!(resolve_generic_aliases("Outer<User>", &reg), "User | null");
+        assert_eq!(
+            resolve_generic_aliases("Outer<User>", &reg, "", &[]),
+            "User | null"
+        );
     }
 
     #[test]
@@ -417,7 +460,10 @@ mod tests {
             ),
             "/p",
         );
-        assert_eq!(resolve_generic_aliases("Boxed<User>", &reg), "Boxed<User>");
+        assert_eq!(
+            resolve_generic_aliases("Boxed<User>", &reg, "", &[]),
+            "Boxed<User>"
+        );
     }
 
     #[test]

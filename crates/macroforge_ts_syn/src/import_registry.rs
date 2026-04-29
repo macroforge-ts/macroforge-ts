@@ -378,6 +378,22 @@ impl ImportRegistry {
             .collect()
     }
 
+    /// Export source imports as the registry's `FileImportEntry` shape so
+    /// `TypeRegistry::resolve` and `resolve_generic_aliases` can disambiguate
+    /// types whose simple name appears in multiple files.
+    pub fn file_import_entries(&self) -> Vec<crate::abi::ir::type_registry::FileImportEntry> {
+        use crate::abi::ir::type_registry::FileImportEntry;
+        self.source_imports
+            .iter()
+            .map(|(name, si)| FileImportEntry {
+                local_name: name.clone(),
+                module_specifier: si.source_module.clone(),
+                original_name: si.original_name.clone(),
+                is_type_only: si.is_type_only,
+            })
+            .collect()
+    }
+
     /// Install source imports from serializable entries (for external macro processes).
     pub fn install_source_imports(&mut self, entries: Vec<SourceImportEntry>) {
         for entry in entries {

@@ -1098,7 +1098,7 @@ mod import_for_tests {
             target_source: String::new(),
             import_registry: ImportRegistry::new(),
             config: None,
-            type_registry: Some(registry),
+            type_registry: registry,
             resolved_fields: None,
         }
     }

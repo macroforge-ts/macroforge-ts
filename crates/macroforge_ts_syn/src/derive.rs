@@ -997,7 +997,7 @@ mod tests {
             target_source: "class User { id: number; name: string; }".into(),
             import_registry: crate::import_registry::ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: crate::abi::ir::type_registry::TypeRegistry::default(),
             resolved_fields: None,
         }
     }
@@ -1056,7 +1056,7 @@ mod tests {
             target_source: "enum Status { Active, Inactive }".into(),
             import_registry: crate::import_registry::ImportRegistry::new(),
             config: None,
-            type_registry: None,
+            type_registry: crate::abi::ir::type_registry::TypeRegistry::default(),
             resolved_fields: None,
         };
 
