@@ -13,12 +13,11 @@ pub(crate) fn generate_clone_expr(
     ts_type: &str,
     var: &str,
     resolved: Option<&ResolvedTypeRef>,
-    registry: Option<&TypeRegistry>,
+    registry: &TypeRegistry,
 ) -> String {
     let access = format!("{var}.{field_name}");
 
-    // If we have resolved type info and a registry, generate optimized clones
-    if let (Some(resolved), Some(registry)) = (resolved, registry) {
+    if let Some(resolved) = resolved {
         // Handle optional types: clone inner if present, else pass through
         if resolved.is_optional {
             let inner_expr =
@@ -32,7 +31,7 @@ pub(crate) fn generate_clone_expr(
         return generate_clone_for_resolved(field_name, ts_type, var, resolved, registry);
     }
 
-    // Fallback: no registry available — shallow copy (backward compatible)
+    // No resolved type info — shallow copy.
     generate_clone_expr_fallback(field_name, ts_type, var)
 }
 

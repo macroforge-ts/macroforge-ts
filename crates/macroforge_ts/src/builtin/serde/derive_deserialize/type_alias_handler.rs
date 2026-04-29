@@ -28,7 +28,10 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
         crate::ts_syn::Data::TypeAlias(ta) => ta,
         _ => unreachable!(),
     };
-    let type_registry = input.context.type_registry.as_ref();
+    let type_registry = &input.context.type_registry;
+    let caller_file_path = input.context.file_name.as_str();
+    let file_imports = input.context.import_registry.file_import_entries();
+    let file_imports = file_imports.as_slice();
 
     let type_name = input.name();
     let type_ident = ts_ident!(type_name);
@@ -76,6 +79,8 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
             &full_type_name,
             &validate_field_generic_decl,
             type_registry,
+            caller_file_path,
+            file_imports,
         )
     } else if let Some(members) = type_alias.as_intersection() {
         let fields =
@@ -98,6 +103,8 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
                 &full_type_name,
                 &validate_field_generic_decl,
                 type_registry,
+                caller_file_path,
+                file_imports,
             )
         } else {
             handle_fallback_type_alias(
@@ -116,6 +123,8 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
                 &full_type_name,
                 &validate_field_generic_decl,
                 type_registry,
+                caller_file_path,
+                file_imports,
             )
         }
     } else if let Some(members) = type_alias.as_union() {
@@ -134,6 +143,7 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
             &generic_args,
             &full_type_name,
             type_registry,
+            caller_file_path,
             members,
         )
     } else {
@@ -153,6 +163,8 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
             &full_type_name,
             &validate_field_generic_decl,
             type_registry,
+            caller_file_path,
+            file_imports,
         )
     }
 }
@@ -174,7 +186,9 @@ fn handle_object_type_alias(
     _generic_args: &str,
     full_type_name: &str,
     validate_field_generic_decl: &str,
-    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    type_registry: &crate::ts_syn::abi::ir::type_registry::TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[crate::ts_syn::abi::ir::type_registry::FileImportEntry],
 ) -> Result<TsStream, MacroforgeError> {
     let container_opts = SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
     let tag_field = container_opts.tag_field_or_default();
@@ -189,6 +203,8 @@ fn handle_object_type_alias(
                 &container_opts,
                 &mut all_diagnostics,
                 type_registry,
+                caller_file_path,
+                file_imports,
             )
         })
         .collect();
@@ -869,7 +885,8 @@ fn handle_union_type_alias(
     generic_decl: &str,
     _generic_args: &str,
     full_type_name: &str,
-    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    type_registry: &crate::ts_syn::abi::ir::type_registry::TypeRegistry,
+    _caller_file_path: &str,
     members: &[crate::ts_syn::abi::ir::type_alias::TypeMember],
 ) -> Result<TsStream, MacroforgeError> {
     // Union type - could be literal union, type ref union, or mixed
@@ -2099,7 +2116,9 @@ fn handle_fallback_type_alias(
     generic_args: &str,
     full_type_name: &str,
     validate_field_generic_decl: &str,
-    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    type_registry: &crate::ts_syn::abi::ir::type_registry::TypeRegistry,
+    _caller_file_path: &str,
+    _file_imports: &[crate::ts_syn::abi::ir::type_registry::FileImportEntry],
 ) -> Result<TsStream, MacroforgeError> {
     // Fallback for other type alias forms (simple alias, tuple, etc.)
     let fn_deserialize_ident = ts_ident!(

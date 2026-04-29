@@ -1,5 +1,6 @@
 ---
 source: macroforge_ts/tests/foreign_type_fixtures.rs
+assertion_line: 369
 description: cross_namespace_default
 expression: snapshot
 input_file: macroforge_ts/tests/fixtures/foreign_types/cross_namespace_default/macroforge.config.ts
@@ -20,16 +21,16 @@ export default {
             deserialize: (raw: unknown) =>
                 Option.match(DateTime.make(raw as string), {
                     onSome: (dt) => dt,
-                    onNone: () => Option.getOrElse(DateTime.make(0), () => null as never),
+                    onNone: () => Option.getOrElse(DateTime.make(0), () => null as never)
                 }),
             default: () =>
                 Option.match(DateTime.make(new Date()), {
                     onSome: (dt) => dt,
-                    onNone: () => Option.getOrElse(DateTime.make(0), () => null as never),
+                    onNone: () => Option.getOrElse(DateTime.make(0), () => null as never)
                 }),
-            hasShape: (v: unknown) => typeof v === 'string',
-        },
-    },
+            hasShape: (v: unknown) => typeof v === 'string'
+        }
+    }
 };
 
 ## Input

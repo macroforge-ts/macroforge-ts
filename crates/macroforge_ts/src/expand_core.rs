@@ -404,7 +404,8 @@ impl CompilerBackend for OxcBackend {
                 let type_registry = options
                     .as_ref()
                     .and_then(|o| o.type_registry_json.as_ref())
-                    .and_then(|json| get_or_parse_registry(json));
+                    .and_then(|json| get_or_parse_registry(json))
+                    .unwrap_or_default();
                 // Create an expander early so its dispatcher and external
                 // loader are available for proc macro call fallback during
                 // the declarative rewrite pass.
@@ -425,7 +426,7 @@ impl CompilerBackend for OxcBackend {
                     &registry,
                     &discovered,
                     build_mode,
-                    type_registry.as_ref(),
+                    &type_registry,
                     Some(proc_fallback),
                 );
                 let mut diagnostics = resolved_imports.diagnostics;
@@ -662,16 +663,22 @@ fn apply_options(macro_host: &mut MacroExpander, options: &Option<ExpandOptions>
             macro_host.set_external_decorator_modules(modules.clone());
         }
         if let Some(json) = &opts.type_registry_json {
-            let registry = get_or_parse_registry(json);
-            if let Some(ref reg) = registry {
-                eprintln!(
-                    "[macroforge:expand] Found type registry with {} types",
-                    reg.len()
-                );
-            } else {
-                eprintln!("[macroforge:expand] Failed to parse type registry JSON");
+            match get_or_parse_registry(json) {
+                Some(reg) => {
+                    eprintln!(
+                        "[macroforge:expand] Found type registry with {} types",
+                        reg.len()
+                    );
+                    macro_host.set_type_registry(reg);
+                }
+                None => {
+                    // A bad JSON is a hard error in the caller's setup —
+                    // surface it but keep the host's empty registry so
+                    // expansion still runs and downstream diagnostics
+                    // explain what's missing.
+                    eprintln!("[macroforge:expand] Failed to parse type registry JSON");
+                }
             }
-            macro_host.set_type_registry(registry);
         }
         // Note: `declarative_registry_json` is read directly by the
         // declarative pre-pass in OxcBackend::expand without going through
@@ -892,7 +899,7 @@ fn inject_log_comments(result: &mut ExpandResult) {
 
     // Insert positioned comments (process in reverse order to preserve offsets)
     let mut code = result.code.clone();
-    positioned.sort_by(|a, b| b.0.cmp(&a.0));
+    positioned.sort_by_key(|p| std::cmp::Reverse(p.0));
     for (offset, msg) in &positioned {
         let offset = *offset as usize;
         if offset <= code.len() {

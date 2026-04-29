@@ -6,7 +6,9 @@ use crate::builtin::derive_common::{
 };
 use crate::macros::{ts_macro_derive, ts_template};
 use crate::swc_ecma_ast::{Expr, Ident};
-use crate::ts_syn::abi::ir::{TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry};
+use crate::ts_syn::abi::ir::{
+    FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry,
+};
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, emit_expr, parse_ts_expr, parse_ts_macro_input,
@@ -22,15 +24,19 @@ use super::types::{DefaultField, validate_default_fields};
 fn resolve_default_value(
     opts_value: Option<String>,
     ts_type: &str,
-    type_registry: Option<&TypeRegistry>,
+    type_registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
 ) -> String {
     if let Some(v) = opts_value {
-        if let Some(wrapped) = wrap_string_for_tagged_union(&v, ts_type, type_registry) {
+        if let Some(wrapped) =
+            wrap_string_for_tagged_union(&v, ts_type, type_registry, caller_file_path, file_imports)
+        {
             return wrapped;
         }
         return v;
     }
-    get_type_default_with_registry(ts_type, type_registry)
+    get_type_default_with_registry(ts_type, type_registry, caller_file_path, file_imports)
 }
 
 /// Returns `Some(wrapped)` when `value` is a string literal and `ts_type`
@@ -42,7 +48,9 @@ fn resolve_default_value(
 fn wrap_string_for_tagged_union(
     value: &str,
     ts_type: &str,
-    registry: Option<&TypeRegistry>,
+    registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
 ) -> Option<String> {
     let trimmed = value.trim();
     let is_string_literal = (trimmed.starts_with('"') && trimmed.ends_with('"'))
@@ -52,9 +60,8 @@ fn wrap_string_for_tagged_union(
     }
     let variant_name = &trimmed[1..trimmed.len() - 1];
 
-    let registry = registry?;
     let alias_name = ts_type.trim().split('<').next()?.trim();
-    let entry = registry.get(alias_name)?;
+    let entry = registry.resolve_in_file(alias_name, caller_file_path, file_imports)?;
     let alias = match &entry.definition {
         TypeDefinitionIR::TypeAlias(a) => a,
         _ => return None,
@@ -162,7 +169,10 @@ fn extract_tag_from_serde_args(args: &str) -> Option<String> {
 )]
 pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
-    let type_registry = input.context.type_registry.as_ref();
+    let type_registry = &input.context.type_registry;
+    let caller_file_path = input.context.file_name.as_str();
+    let file_imports = input.context.import_registry.file_import_entries();
+    let file_imports = file_imports.as_slice();
 
     match &input.data {
         Data::Class(class) => {
@@ -222,8 +232,13 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 .filter(|field| !field.optional)
                 .map(|field| {
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
-                    let default_value =
-                        resolve_default_value(opts.value, &field.ts_type, type_registry);
+                    let default_value = resolve_default_value(
+                        opts.value,
+                        &field.ts_type,
+                        type_registry,
+                        caller_file_path,
+                        file_imports,
+                    );
 
                     let value_expr = parse_ts_expr(&default_value).map_err(|err| {
                         MacroforgeError::new(
@@ -352,7 +367,13 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
                     DefaultField {
                         name: field.name.clone(),
-                        value: resolve_default_value(opts.value, &field.ts_type, type_registry),
+                        value: resolve_default_value(
+                            opts.value,
+                            &field.ts_type,
+                            type_registry,
+                            caller_file_path,
+                            file_imports,
+                        ),
                     }
                 })
                 .collect();
@@ -475,7 +496,13 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         let opts = DefaultFieldOptions::from_decorators(&field.decorators);
                         DefaultField {
                             name: field.name.clone(),
-                            value: resolve_default_value(opts.value, &field.ts_type, type_registry),
+                            value: resolve_default_value(
+                                opts.value,
+                                &field.ts_type,
+                                type_registry,
+                                caller_file_path,
+                                file_imports,
+                            ),
                         }
                     })
                     .collect();
@@ -533,13 +560,21 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 // Helper: build an object literal default from an inline object variant's fields
                 fn build_object_default(
                     fields: &[crate::ts_syn::InterfaceFieldIR],
-                    registry: Option<&crate::ts_syn::abi::ir::TypeRegistry>,
+                    registry: &crate::ts_syn::abi::ir::TypeRegistry,
+                    caller_file_path: &str,
+                    file_imports: &[FileImportEntry],
                 ) -> String {
                     let props: Vec<String> = fields
                         .iter()
                         .map(|f| {
                             let opts = DefaultFieldOptions::from_decorators(&f.decorators);
-                            let value = resolve_default_value(opts.value, &f.ts_type, registry);
+                            let value = resolve_default_value(
+                                opts.value,
+                                &f.ts_type,
+                                registry,
+                                caller_file_path,
+                                file_imports,
+                            );
                             format!("{}: {}", f.name, value)
                         })
                         .collect();
@@ -554,7 +589,9 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 // calls (`bigDecimal.bigDecimalDefaultValue()`).
                 fn build_intersection_default(
                     intersection_members: &[crate::ts_syn::TypeMember],
-                    registry: Option<&crate::ts_syn::abi::ir::TypeRegistry>,
+                    registry: &crate::ts_syn::abi::ir::TypeRegistry,
+                    caller_file_path: &str,
+                    file_imports: &[FileImportEntry],
                 ) -> Option<String> {
                     use convert_case::{Case, Casing};
                     let mut parts: Vec<String> = Vec::new();
@@ -565,7 +602,13 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         } else if let Some(fields) = member.as_object() {
                             for f in fields {
                                 let opts = DefaultFieldOptions::from_decorators(&f.decorators);
-                                let value = resolve_default_value(opts.value, &f.ts_type, registry);
+                                let value = resolve_default_value(
+                                    opts.value,
+                                    &f.ts_type,
+                                    registry,
+                                    caller_file_path,
+                                    file_imports,
+                                );
                                 parts.push(format!("{}: {}", f.name, value));
                             }
                         }
@@ -616,7 +659,12 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         // Object type (tagged union variant) — build an object literal
                         // with default values for each field
                         if let Some(fields) = member.as_object() {
-                            return Some(build_object_default(fields, type_registry));
+                            return Some(build_object_default(
+                                fields,
+                                type_registry,
+                                caller_file_path,
+                                file_imports,
+                            ));
                         }
                         // Intersection type (tagged union with struct payload).
                         // Prefer spreading each TypeRef's `xxxDefaultValue()`
@@ -624,16 +672,24 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         // get their proper default expression instead of a
                         // bogus camelCase fallback.
                         if let Some(intersection_members) = member.as_intersection_members() {
-                            if let Some(literal) =
-                                build_intersection_default(intersection_members, type_registry)
-                            {
+                            if let Some(literal) = build_intersection_default(
+                                intersection_members,
+                                type_registry,
+                                caller_file_path,
+                                file_imports,
+                            ) {
                                 return Some(literal);
                             }
                             // Fallback: full flattening with registry
                             if let Some(fields) =
                                 flatten_intersection_fields(intersection_members, type_registry)
                             {
-                                return Some(build_object_default(&fields, type_registry));
+                                return Some(build_object_default(
+                                    &fields,
+                                    type_registry,
+                                    caller_file_path,
+                                    file_imports,
+                                ));
                             }
                             // Last resort: inline object fields only
                             let inline_fields: Vec<_> = intersection_members
@@ -642,7 +698,12 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                                 .flat_map(|fields| fields.iter().cloned())
                                 .collect();
                             if !inline_fields.is_empty() {
-                                return Some(build_object_default(&inline_fields, type_registry));
+                                return Some(build_object_default(
+                                    &inline_fields,
+                                    type_registry,
+                                    caller_file_path,
+                                    file_imports,
+                                ));
                             }
                         }
                         None
@@ -660,14 +721,21 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     if all_object_like {
                         members.first().and_then(|m| {
                             if let Some(fields) = m.as_object() {
-                                Some(build_object_default(fields, type_registry))
+                                Some(build_object_default(
+                                    fields,
+                                    type_registry,
+                                    caller_file_path,
+                                    file_imports,
+                                ))
                             } else if let Some(intersection_members) = m.as_intersection_members() {
-                                build_intersection_default(intersection_members, type_registry)
-                                    .or_else(|| {
-                                        flatten_intersection_fields(
-                                            intersection_members,
-                                            type_registry,
-                                        )
+                                build_intersection_default(
+                                    intersection_members,
+                                    type_registry,
+                                    caller_file_path,
+                                    file_imports,
+                                )
+                                .or_else(|| {
+                                    flatten_intersection_fields(intersection_members, type_registry)
                                         .or_else(|| {
                                             let inline: Vec<_> = intersection_members
                                                 .iter()
@@ -680,8 +748,15 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                                                 Some(inline)
                                             }
                                         })
-                                        .map(|fields| build_object_default(&fields, type_registry))
-                                    })
+                                        .map(|fields| {
+                                            build_object_default(
+                                                &fields,
+                                                type_registry,
+                                                caller_file_path,
+                                                file_imports,
+                                            )
+                                        })
+                                })
                             } else {
                                 None
                             }
@@ -730,7 +805,12 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     } else {
                         // Resolves generic aliases via the type registry, then
                         // falls back to primitives / named-type defaults.
-                        get_type_default_with_registry(&variant, type_registry)
+                        get_type_default_with_registry(
+                            &variant,
+                            type_registry,
+                            caller_file_path,
+                            file_imports,
+                        )
                     };
 
                     // Handle generic type aliases (e.g., type RecordLink<T> = ...)

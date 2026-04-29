@@ -54,7 +54,7 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 ///     target_source: "class User {}".to_string(),
 ///     import_registry: macroforge_ts_syn::import_registry::ImportRegistry::new(),
 ///     config: None,
-///     type_registry: None,
+///     type_registry: macroforge_ts_syn::abi::ir::type_registry::TypeRegistry::default(),
 ///     resolved_fields: None,
 /// };
 ///

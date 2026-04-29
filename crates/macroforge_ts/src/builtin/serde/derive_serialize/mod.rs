@@ -174,7 +174,10 @@ use crate::ts_syn::abi::ir::resolve_generic_aliases;
 pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    let type_registry = input.context.type_registry.as_ref();
+    let type_registry = &input.context.type_registry;
+    let caller_file_path = input.context.file_name.as_str();
+    let file_imports = input.context.import_registry.file_import_entries();
+    let file_imports = file_imports.as_slice();
 
     match &input.data {
         Data::Class(class) => {
@@ -213,10 +216,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         .clone()
                         .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-                    let resolved_ts_type: String = match type_registry {
-                        Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
-                        None => field.ts_type.clone(),
-                    };
+                    let resolved_ts_type =
+                        resolve_generic_aliases(
+                            &field.ts_type,
+                            type_registry,
+                            caller_file_path,
+                            file_imports,
+                        );
                     let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
                     let primitive_union_guard = if matches!(
                         type_cat,
@@ -899,10 +905,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         .clone()
                         .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-                    let resolved_ts_type: String = match type_registry {
-                        Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
-                        None => field.ts_type.clone(),
-                    };
+                    let resolved_ts_type =
+                        resolve_generic_aliases(
+                            &field.ts_type,
+                            type_registry,
+                            caller_file_path,
+                            file_imports,
+                        );
                     let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
                     let primitive_union_guard = if matches!(
                         type_cat,
@@ -1560,7 +1569,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let serialize_context_ident = ts_ident!(SERIALIZE_CONTEXT);
             let serialize_context_expr: Expr = serialize_context_ident.clone().into();
 
-            let type_registry = input.context.type_registry.as_ref();
+            let type_registry = &input.context.type_registry;
             let effective_fields =
                 crate::builtin::derive_common::get_effective_fields(type_alias, type_registry);
             if let Some(ref effective_ir_fields) = effective_fields {
@@ -1588,10 +1597,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             .clone()
                             .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
 
-                        let resolved_ts_type: String = match type_registry {
-                            Some(registry) => resolve_generic_aliases(&field.ts_type, registry),
-                            None => field.ts_type.clone(),
-                        };
+                        let resolved_ts_type =
+                            resolve_generic_aliases(
+                            &field.ts_type,
+                            type_registry,
+                            caller_file_path,
+                            file_imports,
+                        );
                         let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
                         let primitive_union_guard = if matches!(
                             type_cat,

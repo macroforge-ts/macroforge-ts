@@ -96,7 +96,7 @@ pub fn standalone_fn_name(type_name: &str, suffix: &str) -> String {
 /// For type aliases with intersection bodies, recursively flattens.
 pub fn fields_from_definition(
     definition: &TypeDefinitionIR,
-    type_registry: Option<&TypeRegistry>,
+    type_registry: &TypeRegistry,
 ) -> Option<Vec<InterfaceFieldIR>> {
     match definition {
         TypeDefinitionIR::Interface(i) => Some(i.fields.clone()),
@@ -128,12 +128,13 @@ pub fn fields_from_definition(
 
 /// Flatten an intersection type's members into a single field list.
 ///
-/// Returns `None` if any `TypeRef` member cannot be resolved (incomplete knowledge).
-/// Returns `Some(fields)` with deduplicated fields (first-seen-wins) on success.
+/// Returns `None` if any `TypeRef` member cannot be resolved (incomplete
+/// knowledge — the named type is missing from the registry). Returns
+/// `Some(fields)` with deduplicated fields (first-seen-wins) on success.
 /// Literal members are skipped (they contribute no fields).
 pub fn flatten_intersection_fields(
     members: &[TypeMember],
-    type_registry: Option<&TypeRegistry>,
+    type_registry: &TypeRegistry,
 ) -> Option<Vec<InterfaceFieldIR>> {
     let mut fields = Vec::new();
     let mut seen = HashSet::new();
@@ -148,8 +149,7 @@ pub fn flatten_intersection_fields(
                 }
             }
             TypeMemberKind::TypeRef(type_name) => {
-                let registry = type_registry?;
-                let entry = registry.get(type_name)?;
+                let entry = type_registry.get(type_name)?;
                 let member_fields = fields_from_definition(&entry.definition, type_registry)?;
                 for field in member_fields {
                     if seen.insert(field.name.clone()) {
@@ -181,7 +181,7 @@ pub fn flatten_intersection_fields(
 /// Returns `None` for unions, tuples, simple aliases, or unresolvable intersections.
 pub fn get_effective_fields(
     type_alias: &DataTypeAlias,
-    type_registry: Option<&TypeRegistry>,
+    type_registry: &TypeRegistry,
 ) -> Option<Vec<InterfaceFieldIR>> {
     if let Some(fields) = type_alias.as_object() {
         Some(fields.to_vec())

@@ -39,7 +39,8 @@ use super::types::HashField;
 /// use macroforge_ts::builtin::derive_hash::{HashField, generate_field_hash_for_interface};
 ///
 /// let field = HashField { name: "name".to_string(), ts_type: "string".to_string() };
-/// let code = generate_field_hash_for_interface(&field, "self", None, None);
+/// let registry = macroforge_ts::ts_syn::abi::ir::TypeRegistry::default();
+/// let code = generate_field_hash_for_interface(&field, "self", None, &registry);
 /// assert!(code.contains("self.name"));
 /// assert!(code.contains("reduce"));
 /// ```
@@ -47,13 +48,13 @@ pub fn generate_field_hash_for_interface(
     field: &HashField,
     var: &str,
     resolved: Option<&ResolvedTypeRef>,
-    registry: Option<&TypeRegistry>,
+    registry: &TypeRegistry,
 ) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
 
     // Type-aware path: check if the field type has @derive(Hash)
-    if let (Some(resolved), Some(registry)) = (resolved, registry) {
+    if let Some(resolved) = resolved {
         // Direct known Hash type → call standalone function
         if !resolved.is_collection
             && resolved.registry_key.is_some()

@@ -131,7 +131,10 @@ fn test_get_type_default_union_with_primitive() {
     // branch by `detect_primitive_serializable_union`.
     assert_eq!(get_type_default("string | Account"), r#""place:holder""#);
     assert_eq!(get_type_default("string | Employee"), r#""place:holder""#);
-    assert_eq!(get_type_default("string | Appointment"), r#""place:holder""#);
+    assert_eq!(
+        get_type_default("string | Appointment"),
+        r#""place:holder""#
+    );
     assert_eq!(get_type_default("string | Site"), r#""place:holder""#);
     // Primitive other than `string` falls through to the primitive branch.
     assert_eq!(get_type_default("number | Custom"), "0");
@@ -536,7 +539,7 @@ fn test_flatten_intersection_all_inline_objects() {
         }),
     ];
 
-    let result = flatten_intersection_fields(&members, None);
+    let result = flatten_intersection_fields(&members, &TypeRegistry::default());
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 3);
@@ -556,7 +559,7 @@ fn test_flatten_intersection_deduplicates_fields() {
         }),
     ];
 
-    let result = flatten_intersection_fields(&members, None);
+    let result = flatten_intersection_fields(&members, &TypeRegistry::default());
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 3); // id, name, email (id deduped)
@@ -593,7 +596,7 @@ fn test_flatten_intersection_with_type_ref_resolved() {
         TypeMember::new(TypeMemberKind::TypeRef("Account".to_string())),
     ];
 
-    let result = flatten_intersection_fields(&members, Some(&registry));
+    let result = flatten_intersection_fields(&members, &registry);
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 3);
@@ -612,7 +615,7 @@ fn test_flatten_intersection_unresolvable_type_ref_returns_none() {
         TypeMember::new(TypeMemberKind::TypeRef("Account".to_string())),
     ];
 
-    let result = flatten_intersection_fields(&members, None);
+    let result = flatten_intersection_fields(&members, &TypeRegistry::default());
     assert!(result.is_none());
 }
 
@@ -624,7 +627,7 @@ fn test_flatten_intersection_type_ref_not_in_registry() {
         "Unknown".to_string(),
     ))];
 
-    let result = flatten_intersection_fields(&members, Some(&registry));
+    let result = flatten_intersection_fields(&members, &registry);
     assert!(result.is_none());
 }
 
@@ -637,7 +640,7 @@ fn test_flatten_intersection_skips_literals() {
         }),
     ];
 
-    let result = flatten_intersection_fields(&members, None);
+    let result = flatten_intersection_fields(&members, &TypeRegistry::default());
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 1);
@@ -658,7 +661,7 @@ fn test_get_effective_fields_object_type() {
         },
     };
 
-    let result = get_effective_fields(&ta, None);
+    let result = get_effective_fields(&ta, &TypeRegistry::default());
     assert!(result.is_some());
     assert_eq!(result.unwrap().len(), 2);
 }
@@ -682,7 +685,7 @@ fn test_get_effective_fields_intersection_type() {
         },
     };
 
-    let result = get_effective_fields(&ta, None);
+    let result = get_effective_fields(&ta, &TypeRegistry::default());
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 2);
@@ -705,7 +708,7 @@ fn test_get_effective_fields_union_returns_none() {
         },
     };
 
-    let result = get_effective_fields(&ta, None);
+    let result = get_effective_fields(&ta, &TypeRegistry::default());
     assert!(result.is_none());
 }
 
@@ -722,7 +725,7 @@ fn test_fields_from_definition_interface() {
         methods: vec![],
     });
 
-    let result = fields_from_definition(&def, None);
+    let result = fields_from_definition(&def, &TypeRegistry::default());
     assert!(result.is_some());
     let fields = result.unwrap();
     assert_eq!(fields.len(), 2);

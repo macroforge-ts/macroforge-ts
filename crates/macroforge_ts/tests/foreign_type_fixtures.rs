@@ -68,8 +68,7 @@ fn format_snapshot(
     }
 
     let mut mf_aliases: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
-    let mut body_namespaces: std::collections::BTreeSet<String> =
-        std::collections::BTreeSet::new();
+    let mut body_namespaces: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
     let bytes = code.as_bytes();
     let mut i = 0;
     while i < bytes.len() {
@@ -119,7 +118,9 @@ fn format_snapshot(
     out.push_str("\n\n## Input\n\n");
     out.push_str(input.trim());
 
-    out.push_str("\n\n## Config-declared namespaces (any name not in this list is treated as a global)\n\n");
+    out.push_str(
+        "\n\n## Config-declared namespaces (any name not in this list is treated as a global)\n\n",
+    );
     if config_imports.is_empty() {
         out.push_str("(none)");
     } else {
@@ -334,7 +335,8 @@ fn foreign_type_fixtures() {
 
             // Use a unique config_path string per fixture so CONFIG_CACHE
             // doesn't serve a stale entry across runs.
-            let cache_key = format!("/test/foreign_type_fixtures/{fixture_name}/macroforge.config.ts");
+            let cache_key =
+                format!("/test/foreign_type_fixtures/{fixture_name}/macroforge.config.ts");
 
             clear_config_cache();
             clear_foreign_types();
@@ -349,8 +351,9 @@ fn foreign_type_fixtures() {
                 declarative_registry_json: None,
                 build_mode: None,
             };
-            let result = CoreEngine::expand_sync(input.clone(), "input.ts".to_string(), Some(options))
-                .unwrap_or_else(|e| panic!("expand_sync failed for {fixture_name}: {e}"));
+            let result =
+                CoreEngine::expand_sync(input.clone(), "input.ts".to_string(), Some(options))
+                    .unwrap_or_else(|e| panic!("expand_sync failed for {fixture_name}: {e}"));
 
             clear_config_cache();
             clear_foreign_types();

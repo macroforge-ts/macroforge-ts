@@ -1,6 +1,7 @@
 //! Integration tests for the declarative macro host.
 
 use crate::ts_syn::abi::SpanIR;
+use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 
 use super::BuildMode;
 use super::discovery::{discover, resolve_cross_file_imports};
@@ -385,7 +386,7 @@ const ys = $vec();
         &registry,
         &discovered,
         BuildMode::dev(),
-        None,
+        &TypeRegistry::default(),
         None,
     );
     // Expect: 1 Delete (macro def) + 1 Delete (the `import { macroRules }`
@@ -747,7 +748,7 @@ type Result = $Wrap<string>;
         &registry,
         &discovered,
         BuildMode::dev(),
-        None,
+        &TypeRegistry::default(),
         None,
     );
     // Apply patches to verify final output.
@@ -800,7 +801,7 @@ type T = $Tup<string, number>;
         &registry,
         &discovered,
         BuildMode::dev(),
-        None,
+        &TypeRegistry::default(),
         None,
     );
     let applied = crate::host::patch_applicator::PatchApplicator::new(source, out.patches.clone())
@@ -872,7 +873,7 @@ const x = $Foo(1);
         &registry,
         &discovered,
         BuildMode::dev(),
-        None,
+        &TypeRegistry::default(),
         None,
     );
     // No panic means we're fine. We accept any outcome here.
@@ -909,7 +910,7 @@ fn rewrite_source(source: &str, build_mode: BuildMode) -> super::rewriter::Rewri
         &registry,
         &discovered,
         build_mode,
-        None,
+        &TypeRegistry::default(),
         None,
     )
 }
@@ -1246,7 +1247,7 @@ fn rewrite_tsx_source(source: &str, build_mode: BuildMode) -> super::rewriter::R
         &registry,
         &discovered,
         build_mode,
-        None,
+        &TypeRegistry::default(),
         None,
     )
 }

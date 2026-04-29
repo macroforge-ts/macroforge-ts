@@ -12,14 +12,14 @@ export default {
             deserialize: (raw: unknown) =>
                 Option.match(DateTime.make(raw as string), {
                     onSome: (dt) => dt,
-                    onNone: () => Option.getOrElse(DateTime.make(0), () => null as never),
+                    onNone: () => Option.getOrElse(DateTime.make(0), () => null as never)
                 }),
             default: () =>
                 Option.match(DateTime.make(new Date()), {
                     onSome: (dt) => dt,
-                    onNone: () => Option.getOrElse(DateTime.make(0), () => null as never),
+                    onNone: () => Option.getOrElse(DateTime.make(0), () => null as never)
                 }),
-            hasShape: (v: unknown) => typeof v === 'string',
-        },
-    },
+            hasShape: (v: unknown) => typeof v === 'string'
+        }
+    }
 };

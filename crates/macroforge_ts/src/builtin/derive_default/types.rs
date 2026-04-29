@@ -22,13 +22,8 @@ pub(super) struct DefaultField {
 pub(super) fn validate_default_fields(
     fields: &[(String, String)], // (field_name, ts_type)
     parent_name: &str,
-    registry: Option<&TypeRegistry>,
+    registry: &TypeRegistry,
 ) {
-    let registry = match registry {
-        Some(r) => r,
-        None => return,
-    };
-
     for (field_name, ts_type) in fields {
         let t = ts_type.trim();
         // Only check non-primitive, non-collection types

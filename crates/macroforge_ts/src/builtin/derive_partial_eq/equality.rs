@@ -38,7 +38,8 @@ use super::types::EqField;
 /// use macroforge_ts::builtin::derive_partial_eq::{EqField, generate_field_equality_for_interface};
 ///
 /// let field = EqField { name: "name".to_string(), ts_type: "string".to_string() };
-/// let code = generate_field_equality_for_interface(&field, "self", "other", None, None);
+/// let registry = macroforge_ts::ts_syn::abi::ir::TypeRegistry::default();
+/// let code = generate_field_equality_for_interface(&field, "self", "other", None, &registry);
 /// assert_eq!(code, "self.name === other.name");
 /// ```
 pub fn generate_field_equality_for_interface(
@@ -46,13 +47,13 @@ pub fn generate_field_equality_for_interface(
     self_var: &str,
     other_var: &str,
     resolved: Option<&ResolvedTypeRef>,
-    registry: Option<&TypeRegistry>,
+    registry: &TypeRegistry,
 ) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
 
     // Type-aware path: direct equality calls when type has @derive(PartialEq)
-    if let (Some(resolved), Some(registry)) = (resolved, registry) {
+    if let Some(resolved) = resolved {
         // Direct known PartialEq type -> call standalone function
         if !resolved.is_collection
             && resolved.registry_key.is_some()

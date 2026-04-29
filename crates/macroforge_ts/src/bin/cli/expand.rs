@@ -193,7 +193,45 @@ pub(crate) fn try_expand_file_builtin(
     let source = fs::read_to_string(&input)
         .with_context(|| format!("failed to read {}", input.display()))?;
 
-    let expander = MacroExpander::new().context("failed to initialize macro expander")?;
+    let mut expander = MacroExpander::new().context("failed to initialize macro expander")?;
+
+    // Load the project-wide type and declarative registries from the
+    // `.macroforge/` cache so generic aliases (`RecordLink<T>`) and
+    // cross-file `/** import macro */` comments resolve at expansion time.
+    // Macroforge is built around these registries — running without them
+    // silently degrades codegen (e.g. union @default variants emit
+    // `undefined` instead of the proper `xDefaultValue<T>()` call).
+    //
+    // Skip the scan when the source has no macro annotations: `expand_source`
+    // short-circuits in that case anyway, and `ensure_type_registry_cache`
+    // would otherwise emit "[macroforge] Type scan: …" stderr noise that
+    // breaks tools relying on a clean stderr in `--quiet` mode.
+    if super::cache::has_macro_annotations(&source) {
+        super::wrappers::ensure_type_registry_cache();
+        let registry_path = super::wrappers::TYPE_REGISTRY_CACHE_PATH
+            .lock()
+            .unwrap()
+            .clone();
+        if let Some(ref rp) = registry_path
+            && let Ok(json) = fs::read_to_string(rp)
+            && let Ok(registry) = serde_json::from_str::<
+                macroforge_ts::ts_syn::abi::ir::type_registry::TypeRegistry,
+            >(&json)
+        {
+            expander.set_type_registry(registry);
+        }
+        let declarative_registry_path = super::wrappers::DECLARATIVE_REGISTRY_CACHE_PATH
+            .lock()
+            .unwrap()
+            .clone();
+        if let Some(ref dp) = declarative_registry_path
+            && let Ok(json) = fs::read_to_string(dp)
+            && let Ok(registry) =
+                macroforge_ts::host::declarative::ProjectDeclarativeRegistry::from_json(&json)
+        {
+            expander.set_declarative_registry(Some(registry));
+        }
+    }
 
     let expansion = expander
         .expand_source(&source, &input.display().to_string())

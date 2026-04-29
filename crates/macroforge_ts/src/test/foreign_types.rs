@@ -305,7 +305,9 @@ export interface Foo {
 
         // None of these JS globals must appear as `__mf_X` aliases or as
         // generated imports. They resolve at runtime as part of the JS spec.
-        for global in ["console", "Math", "Array", "Object", "BigInt", "JSON", "Date"] {
+        for global in [
+            "console", "Math", "Array", "Object", "BigInt", "JSON", "Date",
+        ] {
             let alias = format!("__mf_{}", global);
             assert!(
                 !result.code.contains(&alias),

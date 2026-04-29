@@ -361,7 +361,7 @@ pub(crate) fn expand_for_cache(path: &Path, source: &str) -> Result<Option<Strin
             macroforge_ts::ts_syn::abi::ir::type_registry::TypeRegistry,
         >(&json)
     {
-        expander.set_type_registry(Some(registry));
+        expander.set_type_registry(registry);
     }
 
     // Also load the declarative macro registry so cross-file

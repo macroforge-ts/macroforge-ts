@@ -77,7 +77,7 @@ pub fn rewrite(
     registry: &DeclarativeMacroRegistry,
     discovered: &[DiscoveredMacro],
     build_mode: BuildMode,
-    type_registry: Option<&crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    type_registry: &crate::ts_syn::abi::ir::type_registry::TypeRegistry,
     proc_fallback: Option<ProcMacroFallback<'_>>,
 ) -> RewriteOutput {
     let mut out = RewriteOutput::default();
@@ -114,12 +114,12 @@ pub fn rewrite(
     let run_analyzer =
         has_auto && (matches!(build_mode, BuildMode::Prod) || build_mode.force_share());
     let megamorph_report = if run_analyzer {
-        // PR 14: emit a one-time `Info` diagnostic when the analyzer
-        // runs without a type registry. Structural clustering is
-        // downgraded to first-letter bucketing in that case, which
-        // a user running in prod may not realize without an
-        // explicit notice.
-        if type_registry.is_none() {
+        // PR 14: emit a one-time `Info` diagnostic when the analyzer runs
+        // without project-wide type information. The registry is always
+        // present now, but an empty one means no scan ran — the analyzer
+        // falls back to name-prefix bucketing, which a user running in
+        // prod may not realize without an explicit notice.
+        if type_registry.is_empty() {
             out.diagnostics.push(Diagnostic {
                 level: DiagnosticLevel::Info,
                 message: "declarative macro analyzer running without a type registry; structural clustering disabled, falling back to the name-prefix heuristic. Pass `type_registry_json` in ExpandOptions to enable field-level fingerprinting.".to_string(),
@@ -239,7 +239,7 @@ pub fn rewrite(
 /// as a real call site).
 struct CollectVisitor<'a> {
     registry: &'a DeclarativeMacroRegistry,
-    type_registry: Option<&'a crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    type_registry: &'a crate::ts_syn::abi::ir::type_registry::TypeRegistry,
     sites: Vec<ResolvedCallSite>,
 }
 
@@ -320,7 +320,7 @@ pub(super) struct RewriteVisitor<'a> {
     /// shapes from the collector would never match the rewriter's
     /// `None`-fingerprint lookups and `resolve_cluster_id` would
     /// silently fall through to the defensive single-helper path.
-    type_registry: Option<&'a crate::ts_syn::abi::ir::type_registry::TypeRegistry>,
+    type_registry: &'a crate::ts_syn::abi::ir::type_registry::TypeRegistry,
     /// Optional proc macro dispatcher for function-like proc macros.
     /// When a `$name(...)` call doesn't resolve in the declarative
     /// registry, this dispatcher is consulted as a fallback.
@@ -925,7 +925,7 @@ fn try_dispatch_proc_call(
         target_source: args_source,
         import_registry: crate::ts_syn::ImportRegistry::new(),
         config: None,
-        type_registry: None,
+        type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
         resolved_fields: None,
     };
 

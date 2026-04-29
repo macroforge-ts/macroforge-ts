@@ -3,6 +3,7 @@ use crate::builtin::derive_partial_ord::types::OrdField;
 use crate::builtin::return_types::partial_ord_return_type;
 use crate::macros::ts_template;
 use crate::ts_syn::TsStream;
+use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 use crate::ts_syn::ts_ident;
 
 #[test]
@@ -16,7 +17,8 @@ fn test_partial_ord_macro_output_vanilla() {
     let mut compare_body_str = String::new();
     for (i, f) in ord_fields.iter().enumerate() {
         let cmp_var = format!("cmp{}", i);
-        let expr_src = generate_field_compare_for_interface(f, "a", "b", true, None, None);
+        let expr_src =
+            generate_field_compare_for_interface(f, "a", "b", true, None, &TypeRegistry::default());
         compare_body_str.push_str(&format!(
             "const {} = {};\nif ({} === null) return null;\nif ({} !== 0) return {};\n",
             cmp_var, expr_src, cmp_var, cmp_var, cmp_var
@@ -60,7 +62,14 @@ fn test_field_compare_number() {
         name: "id".to_string(),
         ts_type: "number".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
+    let result = generate_field_compare_for_interface(
+        &field,
+        "a",
+        "b",
+        true,
+        None,
+        &TypeRegistry::default(),
+    );
     assert!(result.contains("a.id < b.id"));
     assert!(result.contains("a.id > b.id"));
 }
@@ -71,7 +80,14 @@ fn test_field_compare_string() {
         name: "name".to_string(),
         ts_type: "string".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
+    let result = generate_field_compare_for_interface(
+        &field,
+        "a",
+        "b",
+        true,
+        None,
+        &TypeRegistry::default(),
+    );
     assert!(result.contains("localeCompare"));
 }
 
@@ -81,7 +97,14 @@ fn test_field_compare_boolean() {
         name: "active".to_string(),
         ts_type: "boolean".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
+    let result = generate_field_compare_for_interface(
+        &field,
+        "a",
+        "b",
+        true,
+        None,
+        &TypeRegistry::default(),
+    );
     // false < true: false returns -1, true returns 1
     assert!(result.contains("-1"));
     assert!(result.contains("1"));
@@ -93,7 +116,14 @@ fn test_field_compare_date() {
         name: "createdAt".to_string(),
         ts_type: "Date".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
+    let result = generate_field_compare_for_interface(
+        &field,
+        "a",
+        "b",
+        true,
+        None,
+        &TypeRegistry::default(),
+    );
     assert!(result.contains("getTime"));
 }
 
@@ -103,7 +133,14 @@ fn test_field_compare_object_vanilla() {
         name: "user".to_string(),
         ts_type: "User".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
+    let result = generate_field_compare_for_interface(
+        &field,
+        "a",
+        "b",
+        true,
+        None,
+        &TypeRegistry::default(),
+    );
     assert!(result.contains("compareTo"));
     // We check for null directly
     assert!(result.contains("=== null"));
@@ -115,7 +152,14 @@ fn test_field_compare_array_vanilla() {
         name: "items".to_string(),
         ts_type: "Item[]".to_string(),
     };
-    let result = generate_field_compare_for_interface(&field, "a", "b", true, None, None);
+    let result = generate_field_compare_for_interface(
+        &field,
+        "a",
+        "b",
+        true,
+        None,
+        &TypeRegistry::default(),
+    );
     // optResult is already the value
     assert!(result.contains("cmp = optResult"));
 }

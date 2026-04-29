@@ -10,7 +10,7 @@ export default {
             serialize: (v: DateTime.Utc) => DateTime.formatIso(v),
             deserialize: (raw: unknown) => DateTime.make(raw as string),
             default: () => DateTime.make(new Date()),
-            hasShape: (v: unknown) => typeof v === 'string',
-        },
-    },
+            hasShape: (v: unknown) => typeof v === 'string'
+        }
+    }
 };

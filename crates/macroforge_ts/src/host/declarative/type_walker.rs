@@ -240,7 +240,7 @@ fn try_dispatch_proc_type_ref(
         target_source: args_source,
         import_registry: crate::ts_syn::ImportRegistry::new(),
         config: None,
-        type_registry: None,
+        type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
         resolved_fields: None,
     };
 
