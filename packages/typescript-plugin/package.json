@@ -4,8 +4,8 @@
         "url": "https://github.com/macroforge-ts/macroforge-ts/issues"
     },
     "dependencies": {
-        "@macroforge/shared": "file:../shared",
-        "macroforge": "file:../../crates/macroforge_ts"
+        "@macroforge/shared": "^0.1.80",
+        "macroforge": "^0.1.80"
     },
     "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
     "devDependencies": {
