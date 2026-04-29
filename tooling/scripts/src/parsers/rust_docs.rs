@@ -196,13 +196,11 @@ fn save_section(
                 }
             }
         }
-        "returns" | "return" => {
-            if !text.is_empty() {
-                *returns = Some(ReturnDoc {
-                    return_type: String::new(),
-                    description: text,
-                });
-            }
+        "returns" | "return" if !text.is_empty() => {
+            *returns = Some(ReturnDoc {
+                return_type: String::new(),
+                description: text,
+            });
         }
         "example" | "examples" => {
             // Extract code blocks from the example section

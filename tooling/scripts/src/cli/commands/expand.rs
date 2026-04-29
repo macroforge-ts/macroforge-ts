@@ -154,6 +154,21 @@ pub fn run(args: ExpandArgs) -> Result<()> {
                 println!("loaded config (wasm): {}", cfg.display());
             }
 
+            // Find the per-playground `.macroforge/` cache so generic alias
+            // resolution (`RecordLink<T>` etc.) and cross-file declarative
+            // imports work during pre-build expansion. Without these the
+            // expander runs context-free and falls back to `undefined` for
+            // generic instantiations whose alias body it cannot see.
+            let macroforge_dir = find_macroforge_cache_dir(root);
+            let type_registry_path = macroforge_dir
+                .as_ref()
+                .map(|d| d.join("type-registry.json"))
+                .filter(|p| p.exists());
+            let declarative_registry_path = macroforge_dir
+                .as_ref()
+                .map(|d| d.join("declarative-registry.json"))
+                .filter(|p| p.exists());
+
             // Process TypeScript files
             for entry in fs::read_dir(root)? {
                 let entry = entry?;
@@ -259,7 +274,19 @@ pub fn run(args: ExpandArgs) -> Result<()> {
                     }}
 
                     const code = readFileSync('{}', 'utf8');
-                    const result = m.expandSync(code, '{}', {{ keepDecorators: false }});
+                    const expandOpts = {{ keepDecorators: false }};
+                    const trPath = '{}';
+                    if (trPath) {{
+                      try {{ expandOpts.typeRegistryJson = readFileSync(trPath, 'utf8'); }} catch (e) {{ console.error('[expand] failed to read type registry at', trPath, e.message); }}
+                    }}
+                    console.error('[expand] trPath=', trPath, 'has typeRegistryJson?', !!expandOpts.typeRegistryJson);
+                    const drPath = '{}';
+                    if (drPath) {{
+                      try {{ expandOpts.declarativeRegistryJson = readFileSync(drPath, 'utf8'); }} catch {{}}
+                    }}
+                    const cfgPath = '{}';
+                    if (cfgPath) expandOpts.configPath = cfgPath;
+                    const result = m.expandSync(code, '{}', expandOpts);
                     writeFileSync('{}', result.code);
                     "#,
                     config
@@ -268,6 +295,18 @@ pub fn run(args: ExpandArgs) -> Result<()> {
                         .display(),
                     config.root.display(),
                     path.display(),
+                    type_registry_path
+                        .as_ref()
+                        .map(|p| p.display().to_string())
+                        .unwrap_or_default(),
+                    declarative_registry_path
+                        .as_ref()
+                        .map(|p| p.display().to_string())
+                        .unwrap_or_default(),
+                    config_path
+                        .as_ref()
+                        .map(|p| p.display().to_string())
+                        .unwrap_or_default(),
                     path.display(),
                     expanded_path.display()
                 );
@@ -379,6 +418,48 @@ fn find_config_file(start_dir: &Path) -> Option<PathBuf> {
     }
 
     None
+}
+
+/// Walk upward from `start_dir` to find the macroforge project's `.macroforge/`
+/// cache directory. The cache holds `type-registry.json` and
+/// `declarative-registry.json`, which the WASM expander needs to resolve
+/// generic alias bodies and cross-file declarative imports.
+///
+/// Two anchors are accepted, in order of preference at each level:
+///   1. an existing `.macroforge/` directory (authoritative — the scanner
+///      already wrote its output here), or
+///   2. a `macroforge.config.*` file (the project anchor — the cache will
+///      live at a sibling `.macroforge/`, returned even if not yet written
+///      so the caller can still pass `configPath` to expandSync without us
+///      walking past the project boundary).
+///
+/// Walks past nested `package.json` files: monorepos commonly have inner
+/// packages whose macro work belongs to a `.macroforge/` cache further up
+/// the tree. Stops at the filesystem root or at a `.git/` boundary, since
+/// crossing that means we left the project entirely.
+fn find_macroforge_cache_dir(start_dir: &Path) -> Option<PathBuf> {
+    let start = start_dir
+        .canonicalize()
+        .unwrap_or_else(|_| start_dir.to_path_buf());
+    let mut dir = start.as_path();
+    loop {
+        let cache = dir.join(".macroforge");
+        if cache.is_dir() {
+            return Some(cache);
+        }
+        if CONFIG_FILES.iter().any(|name| dir.join(name).is_file()) {
+            return Some(dir.join(".macroforge"));
+        }
+        // `.git/` is the outermost project boundary: above it we are in
+        // unrelated territory (other workspaces, $HOME, etc.).
+        if dir.join(".git").exists() {
+            return None;
+        }
+        match dir.parent() {
+            Some(parent) if parent != dir => dir = parent,
+            _ => return None,
+        }
+    }
 }
 
 /// Check if a file is a source file (not already expanded)

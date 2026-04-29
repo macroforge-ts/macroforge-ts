@@ -92,21 +92,20 @@ fn cascade_to_dependents(
 /// crate runs `build:rust` (incremental) instead of `cleanbuild`.
 fn build_repo(repo: &Repo, verbose: bool, cache_build: bool) -> Result<()> {
     match repo.repo_type {
-        RepoType::Rust => {
-            if repo.name == "core" {
-                // Set NAPI_BUILD_SKIP_WATCHER to prevent build.rs from spawning another napi build.
-                //
-                // `deno task build` runs the incremental build (build:wasm) — cargo reuses its
-                // target cache. `deno task cleanbuild` wipes `pkg/` and `node_modules/` first,
-                // which is what users want on a release build but overkill on iterative verifies.
-                let cmd = if cache_build {
-                    "NAPI_BUILD_SKIP_WATCHER=1 deno task build"
-                } else {
-                    "NAPI_BUILD_SKIP_WATCHER=1 deno task cleanbuild"
-                };
-                shell::run(cmd, &repo.abs_path, verbose)?;
-            }
+        RepoType::Rust if repo.name == "core" => {
+            // Set NAPI_BUILD_SKIP_WATCHER to prevent build.rs from spawning another napi build.
+            //
+            // `deno task build` runs the incremental build (build:wasm) — cargo reuses its
+            // target cache. `deno task cleanbuild` wipes `pkg/` and `node_modules/` first,
+            // which is what users want on a release build but overkill on iterative verifies.
+            let cmd = if cache_build {
+                "NAPI_BUILD_SKIP_WATCHER=1 deno task build"
+            } else {
+                "NAPI_BUILD_SKIP_WATCHER=1 deno task cleanbuild"
+            };
+            shell::run(cmd, &repo.abs_path, verbose)?;
         }
+        RepoType::Rust => {}
         RepoType::Ts => {
             // Check if package has build script
             let has_build_script = repo
