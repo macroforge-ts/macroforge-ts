@@ -29,7 +29,7 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     let options = parser::parse_gigaform_options(&input);
 
     // Extract type registry from context (populated by pre-expansion scan)
-    let type_registry = input.context.type_registry.as_ref();
+    let type_registry = &input.context.type_registry;
 
     // Extract type params from the data variant
     let type_params = extract_type_params(&input.data);
@@ -95,11 +95,10 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
         }
     };
 
-    // Enrich fields with type-awareness from the project TypeRegistry
+    // Enrich fields with type-awareness from the project TypeRegistry.
+    // Empty registry is a no-op inside the helper.
     let mut fields = fields;
-    if let Some(registry) = type_registry {
-        parser::enrich_fields_with_registry(&mut fields, registry);
-    }
+    parser::enrich_fields_with_registry(&mut fields, type_registry);
 
     if fields.is_empty() {
         let msg = match &input.data {

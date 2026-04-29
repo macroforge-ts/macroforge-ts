@@ -846,45 +846,37 @@ fn generate_constraints(field: &ParsedField) -> TsStream {
     for validator in &field.validators {
         let args_str = validator.args.join(", ");
         match validator.name.as_str() {
-            "length" => {
+            "length" if !args_str.is_empty() => {
                 // Parse length(min=N, max=M) or length(N, M)
-                if !args_str.is_empty() {
-                    if args_str.contains("min") || args_str.contains("max") {
-                        // Named args format - pass through
-                        constraint_parts.push(args_str.clone());
-                    } else if let Some((min, max)) = args_str.split_once(',') {
-                        let min = min.trim();
-                        let max = max.trim();
-                        if !min.is_empty() {
-                            constraint_parts.push(format!("minlength: {}", min));
-                        }
-                        if !max.is_empty() {
-                            constraint_parts.push(format!("maxlength: {}", max));
-                        }
-                    } else {
-                        // Single arg - treat as min
-                        constraint_parts.push(format!("minlength: {}", args_str.trim()));
+                if args_str.contains("min") || args_str.contains("max") {
+                    // Named args format - pass through
+                    constraint_parts.push(args_str.clone());
+                } else if let Some((min, max)) = args_str.split_once(',') {
+                    let min = min.trim();
+                    let max = max.trim();
+                    if !min.is_empty() {
+                        constraint_parts.push(format!("minlength: {}", min));
                     }
+                    if !max.is_empty() {
+                        constraint_parts.push(format!("maxlength: {}", max));
+                    }
+                } else {
+                    // Single arg - treat as min
+                    constraint_parts.push(format!("minlength: {}", args_str.trim()));
                 }
             }
             "email" => constraint_parts.push("type: \"email\"".to_string()),
             "url" => constraint_parts.push("type: \"url\"".to_string()),
             "positive" => constraint_parts.push("min: 1".to_string()),
             "int" | "integer" => constraint_parts.push("step: 1".to_string()),
-            "min" | "minLength" => {
-                if !args_str.is_empty() {
-                    constraint_parts.push(format!("minlength: {}", args_str.trim()));
-                }
+            "min" | "minLength" if !args_str.is_empty() => {
+                constraint_parts.push(format!("minlength: {}", args_str.trim()));
             }
-            "max" | "maxLength" => {
-                if !args_str.is_empty() {
-                    constraint_parts.push(format!("maxlength: {}", args_str.trim()));
-                }
+            "max" | "maxLength" if !args_str.is_empty() => {
+                constraint_parts.push(format!("maxlength: {}", args_str.trim()));
             }
-            "pattern" | "regex" => {
-                if !args_str.is_empty() {
-                    constraint_parts.push(format!("pattern: {}", args_str.trim()));
-                }
+            "pattern" | "regex" if !args_str.is_empty() => {
+                constraint_parts.push(format!("pattern: {}", args_str.trim()));
             }
             _ => {}
         }
