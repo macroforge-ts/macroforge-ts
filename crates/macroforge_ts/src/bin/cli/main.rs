@@ -11,19 +11,47 @@
 //! Expands macros in TypeScript/TSX files:
 //!
 //! ```bash
-//! # Expand a single file
+//! # Expand a single file (writes src/User.expanded.ts by default)
 //! macroforge expand src/User.ts
 //!
 //! # Expand to specific output file
 //! macroforge expand src/User.ts --out dist/User.js
 //!
-//! # Scan and expand all files in a directory
+//! # Check pass: scan a directory, expand in memory, write nothing
 //! macroforge expand --scan src/
 //!
+//! # Emit a packager-ready mirrored tree of the expanded sources into <dir>
+//! macroforge expand --scan src/ --out dist/expanded
+//!
+//! # Emit the generated .d.ts type surfaces into <dir> (mirrored layout)
+//! macroforge expand --scan src/ --types-out dist/types
+//!
+//! # Legacy: write <name>.expanded.<ext> siblings next to each source
+//! macroforge expand --scan src/ --emit-expanded
 //!
 //! # Print expanded output to stdout
 //! macroforge expand src/User.ts --print
 //! ```
+//!
+//! ### Scan output routing
+//!
+//! In `--scan` (or directory-input) mode, `--out` and `--types-out` name
+//! **directories**, and the scanned tree is mirrored into them:
+//!
+//! - `--out <dir>` writes each macro file expanded at `<dir>/<relative-path>`
+//!   (same filename) and copies every other file (`.svelte`, `.css`, `.d.ts`,
+//!   macro-free `.ts`, assets) verbatim — a complete, packager-ready staging
+//!   tree.
+//! - `--types-out <dir>` writes the generated `.d.ts` type surfaces mirrored
+//!   under `<dir>` (`foo.ts` → `foo.d.ts`, `foo.svelte.ts` → `foo.svelte.d.ts`).
+//!
+//! Files whose name contains `.expanded.` are never scanned or mirrored. An
+//! output directory nested inside the scanned root (e.g. `--scan . --types-out
+//! dist/types`) is pruned from the walk, so a re-run never re-ingests its own
+//! output; only an output directory that *is* the scan root or an ancestor of
+//! it is rejected. A scan fails with a non-zero exit if any file cannot be
+//! expanded, so a partial staging tree never silently feeds a downstream
+//! packager.
 //!
 //! ### `macroforge tsc`
 //!
@@ -53,6 +81,21 @@
 //!
 //! # Machine-readable output
 //! macroforge svelte-check --output machine
+//! ```
+//!
+//! ### `macroforge svelte-package`
+//!
+//! Run `@sveltejs/package` with macro expansion baked into its file reads, so a
+//! published library ships the generated derive runtime (and correct `.d.ts`)
+//! for its `.ts`/`.svelte.ts` type modules — no separate expand step or staging
+//! tree. Drop-in replacement for `svelte-package` in a library build:
+//!
+//! ```bash
+//! # Package src/lib into dist with macros expanded
+//! macroforge svelte-package --input src/lib --output dist
+//!
+//! # Explicit tsconfig; skip .d.ts emission
+//! macroforge svelte-package --tsconfig tsconfig.json --no-types
 //! ```
 //!
 //! ## Configuration
@@ -93,10 +136,15 @@
 //!
 //! ## Output File Naming
 //!
-//! By default, expanded files are written with `.expanded` inserted before the extension:
+//! In single-file mode (and with `--scan --emit-expanded`), expanded files are
+//! written with `.expanded` inserted before the extension:
 //!
 //! - `foo.ts` → `foo.expanded.ts`
 //! - `foo.svelte.ts` → `foo.expanded.svelte.ts`
+//!
+//! In `--scan` mode with `--out`/`--types-out`, the original filenames are
+//! preserved and mirrored under the target directory (see *Scan output
+//! routing* above).
 //!
 //! ## Exit Codes
 //!
@@ -125,9 +173,9 @@ use std::path::PathBuf;
 
 use build::run_build;
 use cache::{run_cache, run_refresh};
-use expand::{expand_file, scan_and_expand};
+use expand::{ScanOptions, expand_file, scan_and_expand};
 use watch::run_watch;
-use wrappers::{run_svelte_check_wrapper, run_tsc_wrapper};
+use wrappers::{run_svelte_check_wrapper, run_svelte_package_wrapper, run_tsc_wrapper};
 
 /// Command-line interface for Macroforge TypeScript macro utilities.
 ///
@@ -167,6 +215,10 @@ enum Command {
         /// Include files ignored by .gitignore when scanning
         #[arg(long)]
         include_ignored: bool,
+        /// With --scan: also write `<name>.expanded.<ext>` debug siblings next to
+        /// each expanded source file (legacy behavior; default off)
+        #[arg(long)]
+        emit_expanded: bool,
     },
     /// Run tsc with macro expansion baked into file reads (tsc --noEmit semantics)
     Tsc {
@@ -188,6 +240,24 @@ enum Command {
         /// Fail on warnings in addition to errors
         #[arg(long)]
         fail_on_warnings: bool,
+    },
+    /// Run @sveltejs/package with macro expansion baked into file reads.
+    ///
+    /// Emits a published library whose `.ts`/`.svelte.ts` type modules ship the
+    /// generated derive runtime and correct `.d.ts` — no separate expand step.
+    SveltePackage {
+        /// Input directory (defaults to svelte-package's own default, src/lib)
+        #[arg(long, short = 'i')]
+        input: Option<PathBuf>,
+        /// Output directory (defaults to svelte-package's own default, dist)
+        #[arg(long, short = 'o')]
+        output: Option<PathBuf>,
+        /// Path to a tsconfig/jsconfig file
+        #[arg(long)]
+        tsconfig: Option<PathBuf>,
+        /// Do not emit type declarations (.d.ts)
+        #[arg(long)]
+        no_types: bool,
     },
     /// Watch source files and maintain a .macroforge/cache for fast Vite dev mode.
     ///
@@ -243,10 +313,18 @@ fn main() -> Result<()> {
             quiet,
             scan,
             include_ignored,
+            emit_expanded,
         } => {
+            let scan_options = || ScanOptions {
+                include_ignored,
+                out_dir: out.clone(),
+                types_out_dir: types_out.clone(),
+                emit_expanded,
+            };
+
             if scan {
                 let root = input.unwrap_or_else(|| PathBuf::from("."));
-                scan_and_expand(root, include_ignored)
+                scan_and_expand(root, scan_options())
             } else {
                 let input = input.ok_or_else(|| {
                     anyhow!("input file required (use --scan to scan a directory)")
@@ -254,8 +332,13 @@ fn main() -> Result<()> {
 
                 // If input is a directory, treat it as --scan
                 if input.is_dir() {
-                    scan_and_expand(input, include_ignored)
+                    scan_and_expand(input, scan_options())
                 } else {
+                    if emit_expanded {
+                        return Err(anyhow!(
+                            "--emit-expanded is only valid with --scan; single-file mode already writes a sibling .expanded file (use --out to redirect)"
+                        ));
+                    }
                     expand_file(input, out, types_out, print, quiet)
                 }
             }
@@ -267,6 +350,12 @@ fn main() -> Result<()> {
             output,
             fail_on_warnings,
         } => run_svelte_check_wrapper(workspace, tsconfig, output, fail_on_warnings),
+        Command::SveltePackage {
+            input,
+            output,
+            tsconfig,
+            no_types,
+        } => run_svelte_package_wrapper(input, output, tsconfig, no_types),
         Command::Watch { root, debounce_ms } => run_watch(root, debounce_ms),
         Command::Cache { root } => run_cache(root),
         Command::Refresh { root } => run_refresh(root),

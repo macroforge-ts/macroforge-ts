@@ -58,7 +58,15 @@ pub fn run(args: ExpandArgs) -> Result<()> {
             let result = shell::run_binary(
                 root,
                 &cli_binary,
-                &["expand", "--scan", &root.to_string_lossy()],
+                // --emit-expanded: keep writing `<name>.expanded.<ext>` siblings
+                // next to each source (the playground fixture workflow). Since
+                // macroforge 0.x, plain `--scan` is a write-free check pass.
+                &[
+                    "expand",
+                    "--scan",
+                    &root.to_string_lossy(),
+                    "--emit-expanded",
+                ],
             );
 
             match result {

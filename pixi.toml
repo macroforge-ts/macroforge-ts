@@ -22,7 +22,8 @@ build = { cmd = "pixi run build:rust && pixi run build:plugin" }
 "build:@playground/macro" = { cmd = "cd tooling/playground/macro && deno task build" }
 "build:@playground/svelte" = "cd tooling/playground/svelte && deno task build"
 "build:@playground/vanilla" = "cd tooling/playground/vanilla && deno task build"
-"build:playground" = "pixi run build:@playground/macro && pixi run build:@playground/svelte && pixi run build:@playground/vanilla"
+"build:@playground/library" = "cd tooling/playground/library && deno task build"
+"build:playground" = "pixi run build:@playground/macro && pixi run build:@playground/svelte && pixi run build:@playground/vanilla && pixi run build:@playground/library"
 
 # Tests
 "test:rust" = { cmd = "tooling/scripts/target/release/mf test rust" }
