@@ -6,52 +6,97 @@ use std::{
     path::{Path, PathBuf},
 };
 
+/// Output routing for a directory scan.
+///
+/// A scan can emit into one or more destinations, each independent:
+/// - `out_dir` — a **mirrored tree** of the scanned sources: every macro file
+///   is written expanded at `<out_dir>/<relative-path>` (same filename), and
+///   every other file (`.svelte`, `.css`, `.d.ts`, macro-free `.ts`, assets)
+///   is copied verbatim. This produces a packager-ready staging tree.
+/// - `types_out_dir` — mirrored `.d.ts` type surfaces for each macro file that
+///   produces one (`foo.ts` → `foo.d.ts`, `foo.svelte.ts` → `foo.svelte.d.ts`).
+/// - `emit_expanded` — legacy behavior: write a `<name>.expanded.<ext>` debug
+///   sibling next to each expanded source file. Default off.
+///
+/// With none of these set, the scan is a diagnostics/check pass that writes
+/// nothing (and still fails with a non-zero exit if any file cannot expand).
+#[derive(Default)]
+pub struct ScanOptions {
+    /// Also process files ignored by `.gitignore`.
+    pub include_ignored: bool,
+    /// Directory for the mirrored expanded source tree.
+    pub out_dir: Option<PathBuf>,
+    /// Directory for the mirrored `.d.ts` type surfaces.
+    pub types_out_dir: Option<PathBuf>,
+    /// Write `<name>.expanded.<ext>` siblings next to each expanded source.
+    pub emit_expanded: bool,
+}
+
 /// Recursively scans a directory for TypeScript files and expands macros in each.
 ///
 /// This function walks the directory tree, respecting `.gitignore` rules (unless
-/// `include_ignored` is true), and attempts to expand each `.ts` and `.tsx` file.
+/// `opts.include_ignored` is true). Where output is emitted is controlled by
+/// [`ScanOptions`].
 ///
-/// Files are skipped if:
-/// - They are `.d.ts` declaration files
-/// - They already contain `.expanded.` in their name
-/// - They are in directories ignored by `.gitignore` (unless `include_ignored`)
-///
-/// # Arguments
-///
-/// * `root` - The root directory to start scanning from
-/// * `include_ignored` - If true, also process files ignored by `.gitignore`
+/// Files whose name contains `.expanded.` are always skipped so macroforge never
+/// re-scans or mirrors its own debug artifacts. `.d.ts` declaration files are not
+/// expanded, but are copied verbatim into `out_dir` when a mirrored tree is
+/// requested.
 ///
 /// # Returns
 ///
-/// Returns `Ok(())` on success, or an error if the scan fails.
-pub fn scan_and_expand(root: PathBuf, include_ignored: bool) -> Result<()> {
+/// Returns `Ok(())` on success. Returns an error if any file fails to expand —
+/// a partially-populated staging tree must never silently feed a packager.
+pub fn scan_and_expand(root: PathBuf, opts: ScanOptions) -> Result<()> {
     use rayon::prelude::*;
 
     let root = root.canonicalize().unwrap_or(root);
     eprintln!("[macroforge] scanning {}", root.display());
 
-    // Phase 1: Collect all files (sequential walk)
-    let mut files: Vec<PathBuf> = Vec::new();
+    // Output directories commonly live inside the scanned tree — the canonical
+    // form is `expand --scan . --types-out dist/types`. That is fine: we prune
+    // the output directories from the walk (below) so their contents are never
+    // re-scanned, re-expanded, or recursively copied on a later run. What is not
+    // fine is an output directory that *is* the scan root or an ancestor of it —
+    // that would overwrite the sources in place — so reject only that case.
+    let output_dirs: Vec<PathBuf> = [
+        ("--out", opts.out_dir.as_ref()),
+        ("--types-out", opts.types_out_dir.as_ref()),
+    ]
+    .into_iter()
+    .filter_map(|(flag, dir)| dir.map(|d| (flag, canonicalized_target(d), d)))
+    .map(|(flag, canonical, dir)| {
+        if root.starts_with(&canonical) {
+            return Err(anyhow!(
+                "{flag} directory {} contains the scan root {}; choose a location that does not overwrite the scanned sources",
+                dir.display(),
+                root.display()
+            ));
+        }
+        Ok(canonical)
+    })
+    .collect::<Result<_>>()?;
+
+    // Phase 1: Collect files (sequential walk). TypeScript sources are expansion
+    // candidates; every other file is a passthrough that is only tracked when a
+    // mirrored tree is being produced. Output directories are pruned from the
+    // walk so a re-run never ingests previously-emitted files.
+    let mut ts_files: Vec<PathBuf> = Vec::new();
+    let mut passthrough_files: Vec<PathBuf> = Vec::new();
     let walker = WalkBuilder::new(&root)
         .hidden(false)
-        .git_ignore(!include_ignored)
+        .git_ignore(!opts.include_ignored)
         .git_global(false)
         .git_exclude(false)
+        .filter_entry(move |entry| {
+            let path = entry.path();
+            !output_dirs.iter().any(|dir| path.starts_with(dir))
+        })
         .build();
 
     for entry in walker.flatten() {
         let path = entry.path();
-
-        let is_ts_file = path
-            .extension()
-            .is_some_and(|ext| ext == "ts" || ext == "tsx")
-            && !path
-                .file_name()
-                .unwrap_or_default()
-                .to_string_lossy()
-                .ends_with(".d.ts");
-
-        if !is_ts_file || !path.is_file() {
+        if !path.is_file() {
             continue;
         }
 
@@ -60,37 +105,70 @@ pub fn scan_and_expand(root: PathBuf, include_ignored: bool) -> Result<()> {
             continue;
         }
 
-        files.push(path.to_path_buf());
+        let is_ts_file = path
+            .extension()
+            .is_some_and(|ext| ext == "ts" || ext == "tsx")
+            && !filename.ends_with(".d.ts");
+
+        if is_ts_file {
+            ts_files.push(path.to_path_buf());
+        } else if opts.out_dir.is_some() {
+            passthrough_files.push(path.to_path_buf());
+        }
     }
 
-    let files_found = files.len();
+    let files_found = ts_files.len();
 
-    // Phase 2: Expand in parallel
+    // Phase 2: Expand candidates in parallel (no filesystem writes in workers).
     let pool = rayon::ThreadPoolBuilder::new().build()?;
 
-    let results: Vec<_> = pool.install(|| {
-        files
+    let results: Vec<(PathBuf, Result<Option<FileExpansion>>)> = pool.install(|| {
+        ts_files
             .par_iter()
-            .map(|path| {
-                let result = try_expand_file(path.clone(), None, None, false, true);
-                (path.clone(), result)
-            })
+            .map(|path| (path.clone(), expand_file_in_memory(path)))
             .collect()
     });
 
-    // Phase 3: Report results (sequential)
+    // Phase 3: Emit sequentially, mirroring each source's path under the outputs.
     let mut files_expanded = 0;
+    let mut failures = 0;
     for (path, result) in &results {
+        let rel = path.strip_prefix(&root).unwrap_or(path);
         match result {
-            Ok(true) => files_expanded += 1,
-            Ok(false) => {}
-            Err(e) => {
-                eprintln!(
-                    "[macroforge] error expanding {}: {}",
-                    path.strip_prefix(&root).unwrap_or(path).display(),
-                    e
-                );
+            Ok(Some(file)) => {
+                files_expanded += 1;
+                emit_diagnostics(&file.expansion, &file.source, path);
+
+                if let Some(out_dir) = &opts.out_dir {
+                    write_file(&out_dir.join(rel), &file.expansion.code)?;
+                }
+                if let Some(types_dir) = &opts.types_out_dir
+                    && let Some(types) = file.expansion.type_output.as_ref()
+                {
+                    write_file(&types_dir.join(type_surface_rel_path(rel)), types)?;
+                }
+                if opts.emit_expanded {
+                    write_file(&get_expanded_path(path), &file.expansion.code)?;
+                }
             }
+            Ok(None) => {
+                // No macros: keep the mirrored tree complete by copying verbatim.
+                if let Some(out_dir) = &opts.out_dir {
+                    copy_file(path, &out_dir.join(rel))?;
+                }
+            }
+            Err(e) => {
+                failures += 1;
+                eprintln!("[macroforge] error expanding {}: {}", rel.display(), e);
+            }
+        }
+    }
+
+    // Copy non-TypeScript files verbatim so the staging tree is packager-ready.
+    if let Some(out_dir) = &opts.out_dir {
+        for path in &passthrough_files {
+            let rel = path.strip_prefix(&root).unwrap_or(path);
+            copy_file(path, &out_dir.join(rel))?;
         }
     }
 
@@ -99,7 +177,47 @@ pub fn scan_and_expand(root: PathBuf, include_ignored: bool) -> Result<()> {
         files_found, files_expanded
     );
 
+    if failures > 0 {
+        return Err(anyhow!(
+            "{} file(s) failed to expand under {}",
+            failures,
+            root.display()
+        ));
+    }
+
     Ok(())
+}
+
+/// Resolves `path` to an absolute location, canonicalizing the nearest existing
+/// ancestor so symlinked prefixes (e.g. macOS `/tmp` → `/private/tmp`) match the
+/// canonicalized scan root. The target itself need not exist yet.
+fn canonicalized_target(path: &Path) -> PathBuf {
+    let absolute = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        std::env::current_dir()
+            .map(|cwd| cwd.join(path))
+            .unwrap_or_else(|_| path.to_path_buf())
+    };
+
+    let mut existing = absolute.as_path();
+    let mut tail: Vec<std::ffi::OsString> = Vec::new();
+    loop {
+        if let Ok(canonical) = existing.canonicalize() {
+            let mut resolved = canonical;
+            for component in tail.iter().rev() {
+                resolved.push(component);
+            }
+            return resolved;
+        }
+        match (existing.file_name(), existing.parent()) {
+            (Some(name), Some(parent)) => {
+                tail.push(name.to_os_string());
+                existing = parent;
+            }
+            _ => return absolute,
+        }
+    }
 }
 
 /// Expands macros in a single TypeScript file.
@@ -125,7 +243,7 @@ pub fn expand_file(
     print: bool,
     quiet: bool,
 ) -> Result<()> {
-    match try_expand_file(input.clone(), out, types_out, print, false)? {
+    match try_expand_file(input.clone(), out, types_out, print)? {
         true => Ok(()),
         false => {
             if !quiet {
@@ -136,61 +254,42 @@ pub fn expand_file(
     }
 }
 
-/// Attempts to expand macros in a file using the Rust-native expander.
-///
-/// Uses the Rust `MacroExpander` which supports both built-in macros and
-/// external macros (via FFI for compiled packages or Node.js subprocess fallback).
-///
-/// # Arguments
-///
-/// * `input` - Path to the input TypeScript file
-/// * `out` - Optional output path for expanded code
-/// * `types_out` - Optional output path for type declarations
-/// * `print` - Whether to print output to stdout
-/// * `is_scanning` - Whether this is part of a directory scan (affects error output)
-///
-/// # Returns
-///
-/// - `Ok(true)` - Macros were found and successfully expanded
-/// - `Ok(false)` - No macros were found in the file
-/// - `Err(...)` - An error occurred during expansion
-pub(crate) fn try_expand_file(
-    input: PathBuf,
-    out: Option<PathBuf>,
-    types_out: Option<PathBuf>,
-    print: bool,
-    _is_scanning: bool,
-) -> Result<bool> {
-    try_expand_file_builtin(input, out, types_out, print)
+/// A source file together with the result of expanding its macros.
+pub(crate) struct FileExpansion {
+    /// The original source text (needed to resolve diagnostic spans).
+    pub source: String,
+    /// The macro expansion result.
+    pub expansion: MacroExpansion,
 }
 
-/// Expands macros using only the built-in Rust expander.
+/// Expands macros in a file entirely in memory, performing no filesystem writes.
 ///
-/// This is the fast path that doesn't require Node.js. It only supports
-/// the built-in macros (Debug, Clone, PartialEq, Hash, Ord, PartialOrd,
-/// Default, Serialize, Deserialize).
+/// Uses the Rust-native `MacroExpander` (the fast, Node-free path). Callers are
+/// responsible for emitting diagnostics and routing output. This is the shared
+/// core used by both single-file expansion and directory scans; keeping it
+/// write-free lets scans expand in parallel and emit sequentially.
 ///
 /// ## Configuration Loading
 ///
-/// This function searches for and loads `macroforge.config.ts/js` to enable
-/// foreign type handlers. The config is parsed natively using SWC without
-/// requiring Node.js.
-pub(crate) fn try_expand_file_builtin(
-    input: PathBuf,
-    out: Option<PathBuf>,
-    types_out: Option<PathBuf>,
-    print: bool,
-) -> Result<bool> {
+/// Searches for and loads `macroforge.config.ts/js` to enable foreign type
+/// handlers, parsed natively using SWC without requiring Node.js.
+///
+/// # Returns
+///
+/// - `Ok(Some(_))` - Macros were found and successfully expanded
+/// - `Ok(None)` - No macros were found (the source is unchanged)
+/// - `Err(...)` - An error occurred while reading or expanding the file
+pub(crate) fn expand_file_in_memory(input: &Path) -> Result<Option<FileExpansion>> {
     use macroforge_ts::host::MacroforgeConfigLoader;
 
     // Load config if available (for foreign types support).
     // Foreign types are set on the registry before expansion; source imports
     // are built from the AST during prepare_expansion_context / expand_source.
-    if let Ok(Some(config)) = MacroforgeConfigLoader::find_from_path(&input) {
+    if let Ok(Some(config)) = MacroforgeConfigLoader::find_from_path(input) {
         macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
     }
 
-    let source = fs::read_to_string(&input)
+    let source = fs::read_to_string(input)
         .with_context(|| format!("failed to read {}", input.display()))?;
 
     let mut expander = MacroExpander::new().context("failed to initialize macro expander")?;
@@ -242,8 +341,28 @@ pub(crate) fn try_expand_file_builtin(
     macroforge_ts::host::clear_foreign_types();
 
     if !expansion.changed {
-        return Ok(false);
+        return Ok(None);
     }
+
+    Ok(Some(FileExpansion { source, expansion }))
+}
+
+/// Expands a single file and routes its output (used by the single-file path).
+///
+/// # Returns
+///
+/// - `Ok(true)` - Macros were found and successfully expanded
+/// - `Ok(false)` - No macros were found in the file
+/// - `Err(...)` - An error occurred during expansion
+pub(crate) fn try_expand_file(
+    input: PathBuf,
+    out: Option<PathBuf>,
+    types_out: Option<PathBuf>,
+    print: bool,
+) -> Result<bool> {
+    let Some(FileExpansion { source, expansion }) = expand_file_in_memory(&input)? else {
+        return Ok(false);
+    };
 
     emit_diagnostics(&expansion, &source, &input);
     emit_runtime_output(&expansion, &input, out.as_ref(), print)?;
@@ -353,12 +472,27 @@ fn emit_type_output(
 }
 
 /// Writes content to a file, creating parent directories as needed.
-fn write_file(path: &PathBuf, contents: &str) -> Result<()> {
+fn write_file(path: &Path, contents: &str) -> Result<()> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)
             .with_context(|| format!("failed to create {}", parent.display()))?;
     }
     fs::write(path, contents).with_context(|| format!("failed to write {}", path.display()))?;
+    Ok(())
+}
+
+/// Copies a file verbatim, creating parent directories as needed.
+///
+/// Used when mirroring a scanned tree into an output directory: files with no
+/// macros (and non-TypeScript assets) are copied unchanged so the destination is
+/// a complete, packager-ready copy of the sources.
+fn copy_file(src: &Path, dest: &Path) -> Result<()> {
+    if let Some(parent) = dest.parent() {
+        fs::create_dir_all(parent)
+            .with_context(|| format!("failed to create {}", parent.display()))?;
+    }
+    fs::copy(src, dest)
+        .with_context(|| format!("failed to copy {} to {}", src.display(), dest.display()))?;
     Ok(())
 }
 
@@ -418,5 +552,24 @@ pub(crate) fn get_expanded_path(input: &Path) -> PathBuf {
         dir.join(format!("{}.expanded{}", name_without_ext, extensions))
     } else {
         dir.join(format!("{}.expanded", basename))
+    }
+}
+
+/// Maps a source-relative path to the path of its generated `.d.ts` type surface,
+/// preserving directory structure and any middle extensions.
+///
+/// Examples: `User.ts` → `User.d.ts`, `types/person-name.svelte.ts` →
+/// `types/person-name.svelte.d.ts`, `Button.tsx` → `Button.d.ts`.
+pub(crate) fn type_surface_rel_path(rel: &Path) -> PathBuf {
+    let filename = rel.file_name().unwrap_or_default().to_string_lossy();
+    let stem = filename
+        .strip_suffix(".ts")
+        .or_else(|| filename.strip_suffix(".tsx"))
+        .unwrap_or(&filename);
+    let new_name = format!("{stem}.d.ts");
+
+    match rel.parent() {
+        Some(parent) if !parent.as_os_str().is_empty() => parent.join(new_name),
+        _ => PathBuf::from(new_name),
     }
 }

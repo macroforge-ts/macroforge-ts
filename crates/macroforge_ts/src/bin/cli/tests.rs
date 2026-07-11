@@ -3,7 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::cache::{CacheEntry, CacheManifest, content_hash, normalized_content_hash, warm_cache};
-use crate::expand::{get_expanded_path, offset_to_line_col};
+use crate::expand::{get_expanded_path, offset_to_line_col, type_surface_rel_path};
 
 // =========================================================================
 // get_expanded_path tests
@@ -52,6 +52,49 @@ fn test_get_expanded_path_root_file() {
     let input = Path::new("index.ts");
     let result = get_expanded_path(input);
     assert_eq!(result, PathBuf::from("index.expanded.ts"));
+}
+
+// =========================================================================
+// type_surface_rel_path tests
+// =========================================================================
+
+#[test]
+fn test_type_surface_rel_path_simple_ts() {
+    let rel = Path::new("User.ts");
+    assert_eq!(type_surface_rel_path(rel), PathBuf::from("User.d.ts"));
+}
+
+#[test]
+fn test_type_surface_rel_path_svelte_ts() {
+    let rel = Path::new("types/person-name.svelte.ts");
+    assert_eq!(
+        type_surface_rel_path(rel),
+        PathBuf::from("types/person-name.svelte.d.ts")
+    );
+}
+
+#[test]
+fn test_type_surface_rel_path_tsx() {
+    let rel = Path::new("components/Button.tsx");
+    assert_eq!(
+        type_surface_rel_path(rel),
+        PathBuf::from("components/Button.d.ts")
+    );
+}
+
+#[test]
+fn test_type_surface_rel_path_nested() {
+    let rel = Path::new("a/b/c/config.ts");
+    assert_eq!(
+        type_surface_rel_path(rel),
+        PathBuf::from("a/b/c/config.d.ts")
+    );
+}
+
+#[test]
+fn test_type_surface_rel_path_root_file() {
+    let rel = Path::new("index.ts");
+    assert_eq!(type_surface_rel_path(rel), PathBuf::from("index.d.ts"));
 }
 
 // =========================================================================

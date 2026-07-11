@@ -229,3 +229,70 @@ pub fn run_svelte_check_wrapper(
 
     Ok(())
 }
+
+/// Runs `@sveltejs/package` with macro expansion baked into its file reads.
+///
+/// Produces a published package whose `.ts`/`.svelte.ts` type modules ship the
+/// generated derive runtime (and correct `.d.ts`), with no separate expand step
+/// or staging tree. The Node wrapper expands macros on both read paths
+/// svelte-package uses (see `svelte-package-wrapper.mjs`).
+pub fn run_svelte_package_wrapper(
+    input: Option<PathBuf>,
+    output: Option<PathBuf>,
+    tsconfig: Option<PathBuf>,
+    no_types: bool,
+) -> Result<()> {
+    // Build the type registry first so expansion can resolve cross-module type
+    // references, exactly as the tsc / svelte-check wrappers do.
+    ensure_type_registry_cache();
+    let registry_path = TYPE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
+    let declarative_registry_path = DECLARATIVE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
+
+    // The wrapper is three ES modules: the entrypoint, a module-resolve hook,
+    // and an fs shim. They must sit together so the hook resolves the shim by
+    // relative path, so write all three into the temp dir.
+    let main_js = include_str!("../../../js/cli/svelte-package-wrapper.mjs");
+    let hook_js = include_str!("../../../js/cli/svelte-package-fs-hook.mjs");
+    let shim_js = include_str!("../../../js/cli/svelte-package-fs-shim.mjs");
+
+    let mut temp_dir = std::env::temp_dir();
+    temp_dir.push("macroforge-cli");
+    fs::create_dir_all(&temp_dir)?;
+    let main_path = temp_dir.join("svelte-package-wrapper.mjs");
+    fs::write(&main_path, main_js)?;
+    fs::write(temp_dir.join("svelte-package-fs-hook.mjs"), hook_js)?;
+    fs::write(temp_dir.join("svelte-package-fs-shim.mjs"), shim_js)?;
+
+    let mut cmd = std::process::Command::new("node");
+    cmd.arg(&main_path);
+
+    if let Some(ref rp) = registry_path {
+        cmd.env("MACROFORGE_TYPE_REGISTRY_PATH", rp);
+    }
+    if let Some(ref drp) = declarative_registry_path {
+        cmd.env("MACROFORGE_DECLARATIVE_REGISTRY_PATH", drp);
+    }
+
+    if let Some(ref i) = input {
+        cmd.arg("--input").arg(i);
+    }
+    if let Some(ref o) = output {
+        cmd.arg("--output").arg(o);
+    }
+    if let Some(ref t) = tsconfig {
+        cmd.arg("--tsconfig").arg(t);
+    }
+    if no_types {
+        cmd.arg("--no-types");
+    }
+
+    let status = cmd
+        .status()
+        .context("failed to run node svelte-package wrapper")?;
+
+    if !status.success() {
+        std::process::exit(status.code().unwrap_or(1));
+    }
+
+    Ok(())
+}
