@@ -217,6 +217,11 @@ pub(super) fn try_composite_foreign_deserialize(ts_type: &str) -> Option<String>
         } else {
             ("none", core)
         }
+    } else if let Some((_, value)) = crate::ts_syn::type_normalize::parse_index_signature(core) {
+        // Inline TS index-signature `{ [k: K]: V }` is the structural
+        // equivalent of `Record<K, V>`; recognise it so the per-value
+        // foreign-type deserializer runs the same way for both spellings.
+        ("record", value)
     } else {
         ("none", core)
     };
