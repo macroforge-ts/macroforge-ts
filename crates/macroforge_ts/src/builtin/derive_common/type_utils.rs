@@ -223,15 +223,9 @@ fn get_type_default_resolved(ts_type: &str) -> String {
         t if t.starts_with("WeakSet<") => "new WeakSet()".to_string(),
         t if t.starts_with("Promise<") => "Promise.resolve()".to_string(),
         // Built-in generic utility types (all produce object-like values)
-        t if t.starts_with("Record<")
-            || t.starts_with("Partial<")
-            || t.starts_with("Required<")
-            || t.starts_with("Readonly<")
-            || t.starts_with("Pick<")
-            || t.starts_with("Omit<")
-            || t.starts_with("NonNullable<")
-            || t.starts_with("Exclude<")
-            || t.starts_with("Extract<") =>
+        t if crate::ts_syn::type_normalize::is_ts_object_utility_type(
+            crate::ts_syn::type_normalize::base_type_name(t),
+        ) =>
         {
             "({})".to_string()
         }

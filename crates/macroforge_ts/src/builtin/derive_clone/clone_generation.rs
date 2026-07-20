@@ -196,15 +196,9 @@ pub(crate) fn generate_clone_expr_fallback(field_name: &str, ts_type: &str, var:
         }
         _ if t.starts_with("Promise<") => access,
         // Utility types that produce object-like values
-        _ if t.starts_with("Record<")
-            || t.starts_with("Partial<")
-            || t.starts_with("Required<")
-            || t.starts_with("Readonly<")
-            || t.starts_with("Pick<")
-            || t.starts_with("Omit<")
-            || t.starts_with("NonNullable<")
-            || t.starts_with("Exclude<")
-            || t.starts_with("Extract<") =>
+        _ if crate::ts_syn::type_normalize::is_ts_object_utility_type(
+            crate::ts_syn::type_normalize::base_type_name(t),
+        ) =>
         {
             format!("({{ ...{access} }})")
         }
