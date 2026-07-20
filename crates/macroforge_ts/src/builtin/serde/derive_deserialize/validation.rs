@@ -93,8 +93,13 @@ pub fn generate_validation_condition(validator: &Validator, value_var: &str) -> 
         Validator::MinItems(n) => format!("{value_var}.length < {n}"),
         Validator::ItemsCount(n) => format!("{value_var}.length !== {n}"),
 
-        // Date validators (null-safe: JSON.stringify converts Invalid Date to null)
-        Validator::ValidDate => format!("{value_var} == null || isNaN({value_var}.getTime())"),
+        // Date validators. `validDate` only makes sense on a string value (a
+        // `Date`/typed field that failed to parse never reaches here), so
+        // parse with `new Date(...)` before checking — `new Date` also accepts
+        // a `Date`, so this stays correct if the value is already one.
+        Validator::ValidDate => {
+            format!("{value_var} == null || isNaN(new Date({value_var}).getTime())")
+        }
         Validator::GreaterThanDate(date) => {
             format!(
                 r#"{value_var} == null || {value_var}.getTime() <= new Date("{date}").getTime()"#
@@ -219,8 +224,9 @@ pub(super) fn generate_field_validations(
             Validator::MinItems(n) => format!("{value_var}.length < {n}"),
             Validator::ItemsCount(n) => format!("{value_var}.length !== {n}"),
 
-            // Date validators
-            Validator::ValidDate => format!("isNaN({value_var}.getTime())"),
+            // Date validators. `validDate` only makes sense on a string value;
+            // parse it before checking (`new Date` also accepts a `Date`).
+            Validator::ValidDate => format!("isNaN(new Date({value_var}).getTime())"),
             Validator::GreaterThanDate(date) => {
                 format!("{value_var}.getTime() <= new Date(\"{date}\").getTime()")
             }
