@@ -119,3 +119,9 @@ wasm-pack = ">=0.15"
 
 [activation.env]
 RUSTUP_HOME = "$HOME/.pixi/envs/rustup/.rustup"
+
+# mold linker — Linux only. `.cargo/config.toml` sets `-fuse-ld=mold` for the
+# linux target; this puts `mold` on the env PATH so cargo finds it. macOS uses
+# Apple's ld-prime and doesn't need it.
+[target.linux-64.dependencies]
+mold = ">=2.40"

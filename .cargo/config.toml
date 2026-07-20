@@ -6,3 +6,9 @@
 # revision of this file for why we dropped that approach).
 [target.x86_64-apple-darwin]
 rustflags = ["-C", "link-arg=-ld_new"]
+
+# Link with mold on Linux instead of GNU ld (BFD) — multi-threaded, much faster
+# link times. `-fuse-ld=mold` is understood by gcc 12+ and forwarded through cc;
+# it finds `mold` on PATH, provided by the mold pixi dependency (linux-64).
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "link-arg=-fuse-ld=mold"]
