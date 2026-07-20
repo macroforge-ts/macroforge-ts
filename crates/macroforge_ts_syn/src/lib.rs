@@ -122,6 +122,7 @@ mod oxc_quote_helpers;
 pub mod parse;
 pub mod quote_helpers;
 pub mod stream;
+pub mod type_normalize;
 
 pub use abi::*;
 pub use derive::*;
