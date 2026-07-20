@@ -862,6 +862,26 @@ export async function macroforge() {
   }
 
   /**
+   * Resolves the on-disk `.cache` path for a source file's project-relative
+   * path. Sources outside the project root (e.g. a shared library pulled in
+   * from a sibling directory) yield a relPath with leading `..` segments; a
+   * naive `path.join(cacheDir, relPath)` then climbs out of the cache dir and
+   * scatters `.cache` files into a sibling tree. Fold any escape into a
+   * contained `_external/` subdir so every entry stays under cacheDir. In-root
+   * sources (no `..`) keep their existing layout, so their cache is untouched.
+   * @param {string} relPath - `path.relative(projectRoot, id)`
+   * @returns {string} absolute path to the `.cache` file
+   */
+  function cachePathFor(relPath) {
+    const segments = relPath.split(path.sep);
+    const contained =
+      segments[0] === ".."
+        ? path.join("_external", ...segments.filter((s) => s !== ".."))
+        : relPath;
+    return path.join(cacheDir, contained + ".cache");
+  }
+
+  /**
    * Reads a cached expansion result for a source file.
    * @param {string} id - Absolute file path
    * @param {string} code - Current source code content
@@ -888,7 +908,7 @@ export async function macroforge() {
       cacheManifestDirty = true;
     }
 
-    const cachePath = path.join(cacheDir, relPath + ".cache");
+    const cachePath = cachePathFor(relPath);
     try {
       const expandedCode = fs.readFileSync(cachePath, "utf-8");
       return { code: expandedCode };
@@ -923,7 +943,7 @@ export async function macroforge() {
     try {
       // Only write .cache files for files that actually have macros
       if (hasMacros) {
-        const cachePath = path.join(cacheDir, relPath + ".cache");
+        const cachePath = cachePathFor(relPath);
         ensureDir(path.dirname(cachePath));
         fs.writeFileSync(cachePath, expandedCode, "utf-8");
       }
