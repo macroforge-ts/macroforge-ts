@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
+use crate::ts_syn::abi::Patch;
 #[cfg(feature = "swc")]
-use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel};
-use crate::ts_syn::abi::{Patch, SpanIR};
+use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, SpanIR};
 #[cfg(feature = "swc")]
 use swc_core::ecma::ast::Module;
 
@@ -226,18 +226,25 @@ pub(super) fn external_type_function_import_patches(
         }
     }
 
-    needed
-        .into_iter()
-        .map(|((ident, module_src), is_type)| {
-            let keyword = if is_type { "import type" } else { "import" };
-            Patch::InsertRaw {
-                at: SpanIR::new(1, 1),
-                code: format!("{keyword} {{ {ident} }} from \"{module_src}\";\n"),
-                context: Some("import".to_string()),
-                source_macro: None,
+    // Register each needed import in the global registry. The registry is a
+    // HashMap keyed by `local_name`, so re-registration across multiple
+    // derive-macro dispatches against the same target file is naturally
+    // idempotent. The registry's `emit_generated_imports()` call at the end
+    // of expansion prepends them to the runtime output exactly once. We
+    // return zero patches because emitting a `Patch::InsertRaw` here in
+    // addition to the registry path would land the same identifier in the
+    // file twice and break downstream parsers on re-declaration.
+    crate::host::import_registry::with_registry_mut(|r| {
+        for ((ident, module_src), is_type) in &needed {
+            if *is_type {
+                r.request_type_import(ident, module_src);
+            } else {
+                r.request_import(ident, None, module_src, false);
             }
-        })
-        .collect()
+        }
+    });
+
+    Vec::new()
 }
 
 /// Check for imports of built-in macros and return warnings
