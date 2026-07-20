@@ -1,8 +1,13 @@
 [workspace]
 authors = ["rymskip <17lochinskij@protonmail.com>"]
-channels = ["conda-forge", "https://prefix.dev/brads-forge"]
+channels = [
+    "conda-forge",
+    "https://prefix.dev/brads-forge",
+    # Deno tracks upstream releases here (conda-forge lags and lacks `upgrade`).
+    "https://prefix.dev/github-releases",
+]
 name = "macroforge"
-platforms = ["osx-64"]
+platforms = ["osx-64", "linux-64"]
 version = "0.1.0"
 [tasks]
 # One-shot per-machine bootstrap. Installs global rustup from brads-forge if
@@ -100,6 +105,17 @@ scripts = { cmd = "tooling/scripts/target/release/mf --tui" }
 # auto-installs that toolchain on first cargo invocation. RUSTUP_HOME is
 # shared with the global rustup install via [activation.env] below.
 rustup = "*"
+# Deno — `deno task build` across crates/macroforge_ts, packages/*, website,
+# and `deno run` for bench.mjs / concurrently. From the github-releases channel.
+deno = { version = "*", channel = "https://prefix.dev/github-releases" }
+# Node + npm — `node --test` e2e harness (tooling/tests/e2e) and npm-driven
+# package builds shelled out from the tooling crate.
+nodejs = "*"
+# `rust-script` runs the docs:mcp extract-docs.rs script.
+rust-script = ">=0.36"
+# `wasm-pack` builds the macroforge_ts wasm artifact (see build:rust / bench.mjs;
+# the wasm-bindgen-cli version is pinned separately via `setup:wasm-bindgen`).
+wasm-pack = ">=0.15"
 
 [activation.env]
 RUSTUP_HOME = "$HOME/.pixi/envs/rustup/.rustup"
