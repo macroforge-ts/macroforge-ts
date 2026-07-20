@@ -40,6 +40,8 @@ fn test_deserialize_field_has_validators() {
         optional_inner_kind: None,
         optional_serializable_type: None,
         primitive_union_guard: None,
+        array_elem_primitive_union_guard: None,
+        union_string_validators: vec![],
     };
     assert!(field.has_validators());
 
@@ -125,6 +127,8 @@ fn test_generate_object_variant_deser_block() {
                 optional_inner_kind: None,
                 optional_serializable_type: None,
                 primitive_union_guard: None,
+                array_elem_primitive_union_guard: None,
+                union_string_validators: vec![],
             },
             DeserializeField {
                 json_key: "level".into(),
@@ -155,6 +159,8 @@ fn test_generate_object_variant_deser_block() {
                 optional_inner_kind: None,
                 optional_serializable_type: None,
                 primitive_union_guard: None,
+                array_elem_primitive_union_guard: None,
+                union_string_validators: vec![],
             },
         ],
         required_field_keys: vec!["permissions".into()],

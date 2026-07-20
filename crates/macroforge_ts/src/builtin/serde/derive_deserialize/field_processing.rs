@@ -7,8 +7,8 @@ use crate::ts_syn::{parse_ts_expr, ts_ident};
 use super::super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
 use super::super::{get_foreign_types, rewrite_expression_namespaces};
 use super::helpers::{
-    classify_serde_value_kind, get_serializable_type_name, nested_deserialize_fn_name,
-    parse_default_expr, try_composite_foreign_deserialize,
+    alias_primitive_arm_validators, classify_serde_value_kind, get_serializable_type_name,
+    nested_deserialize_fn_name, parse_default_expr, try_composite_foreign_deserialize,
 };
 use super::types::{DeserializeField, ObjectVariant, SerdeValueKind, raw_cast_type};
 
@@ -60,6 +60,13 @@ pub(super) fn interface_field_to_deserialize_field(
         None
     };
 
+    // Pull the primitive arm's validators (e.g. `nonEmpty` on a record-link
+    // alias's `string` arm) so the primitive form of the union is validated.
+    let union_string_validators = match &primitive_union_guard {
+        Some(prim) => alias_primitive_arm_validators(&field.ts_type, prim, type_registry),
+        None => Vec::new(),
+    };
+
     let nullable_inner_kind = match &type_cat {
         TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
         _ => None,
@@ -72,10 +79,26 @@ pub(super) fn interface_field_to_deserialize_field(
         TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
         _ => None,
     };
-    let array_elem_serializable_type = match &type_cat {
-        TypeCategory::Array(inner) => get_serializable_type_name(inner),
+    // When the element type is itself a primitive-plus-serializable union
+    // (the resolved shape of any `Alias<T> = primitive | T` generic),
+    // detect the union and capture both halves: the serializable side feeds
+    // the element-deserialize call, the primitive side gates the per-element
+    // typeof guard so primitive elements pass through unchanged.
+    let array_elem_primitive_union = match &type_cat {
+        TypeCategory::Array(inner) => detect_primitive_serializable_union(inner),
         _ => None,
     };
+    let array_elem_serializable_type = match &type_cat {
+        TypeCategory::Array(inner) => get_serializable_type_name(inner).or_else(|| {
+            array_elem_primitive_union
+                .as_ref()
+                .map(|(_, ser)| ser.clone())
+        }),
+        _ => None,
+    };
+    let array_elem_primitive_union_guard = array_elem_primitive_union
+        .as_ref()
+        .map(|(prim, _)| prim.clone());
     let set_elem_kind = match &type_cat {
         TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
         _ => None,
@@ -199,6 +222,8 @@ pub(super) fn interface_field_to_deserialize_field(
         optional_inner_kind,
         optional_serializable_type,
         primitive_union_guard,
+        array_elem_primitive_union_guard,
+        union_string_validators,
     })
 }
 
@@ -335,10 +360,22 @@ pub(super) fn generate_field_assignment(
                 _ => {
                     if let Some(ref elem_type) = field.array_elem_serializable_type {
                         let deser_fn = nested_deserialize_fn_name(elem_type);
-                        lines.push(format!(
-                            "{}__inst.{} = Array.isArray(__obj[\"{}\"]) ? (__obj[\"{}\"] as any[]).map((item: any) => {}(item, ctx)) : [];",
-                            indent, fname, key, key, deser_fn
-                        ));
+                        // For elements whose static type is a primitive-plus-serializable
+                        // union, primitive-side items are passed through as-is — the
+                        // `typeof === <prim>` guard captures the actual primitive
+                        // (`string`, `number`, `boolean`, …) detected at codegen.
+                        // Object items go through the per-element deserializer.
+                        if let Some(prim) = field.array_elem_primitive_union_guard.as_deref() {
+                            lines.push(format!(
+                                "{}__inst.{} = Array.isArray(__obj[\"{}\"]) ? (__obj[\"{}\"] as any[]).map((item: any) => typeof item === \"{}\" ? item : {}(item, ctx)) : [];",
+                                indent, fname, key, key, prim, deser_fn
+                            ));
+                        } else {
+                            lines.push(format!(
+                                "{}__inst.{} = Array.isArray(__obj[\"{}\"]) ? (__obj[\"{}\"] as any[]).map((item: any) => {}(item, ctx)) : [];",
+                                indent, fname, key, key, deser_fn
+                            ));
+                        }
                     } else {
                         lines.push(format!(
                             "{}__inst.{} = __obj[\"{}\"] as {};",

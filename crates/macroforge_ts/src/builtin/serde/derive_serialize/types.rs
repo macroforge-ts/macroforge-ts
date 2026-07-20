@@ -176,4 +176,12 @@ pub(crate) struct SerializeField {
     /// `Serializable(name)` serialize branch wraps its call in a
     /// `typeof === primitive` guard so raw id strings pass through unchanged.
     pub(crate) primitive_union_guard: Option<String>,
+
+    /// The array-element analogue of `primitive_union_guard`: set when an
+    /// `Array<T>` element resolves to a primitive-or-serializable union (e.g.
+    /// `Array<RecordLink<T>>` = `Array<string | T>`). When set alongside
+    /// `array_elem_serializable_type`, each element is serialized through a
+    /// `typeof === primitive` guard so bare-id elements pass through unchanged
+    /// while fetched objects are serialized.
+    pub(crate) array_elem_primitive_union_guard: Option<String>,
 }

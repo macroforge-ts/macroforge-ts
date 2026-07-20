@@ -12,8 +12,9 @@ use super::super::{
     rewrite_expression_namespaces,
 };
 use super::helpers::{
-    classify_serde_value_kind, get_serializable_type_name, nested_deserialize_fn_name,
-    nested_deserialize_result_fn_name, parse_default_expr, try_composite_foreign_deserialize,
+    alias_primitive_arm_validators, classify_serde_value_kind, get_serializable_type_name,
+    nested_deserialize_fn_name, nested_deserialize_result_fn_name, parse_default_expr,
+    try_composite_foreign_deserialize,
 };
 use super::types::{DeserializeField, SerdeValueKind, raw_cast_type};
 use super::validation::generate_field_validations;
@@ -104,6 +105,14 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                 None
             };
 
+            // Pull the primitive arm's validators (e.g. `nonEmpty` on a
+            // record-link alias's `string` arm) so the primitive form of the
+            // union is validated.
+            let union_string_validators = match &primitive_union_guard {
+                Some(prim) => alias_primitive_arm_validators(&field.ts_type, prim, type_registry),
+                None => Vec::new(),
+            };
+
             let nullable_inner_kind = match &type_cat {
                 TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
                 _ => None,
@@ -119,11 +128,25 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                 _ => None,
             };
 
-            // Collection element type tracking for recursive deserialization
-            let array_elem_serializable_type = match &type_cat {
-                TypeCategory::Array(inner) => get_serializable_type_name(inner),
+            // Collection element type tracking for recursive deserialization.
+            // For `Array<primitive | T>` elements, also fall back to
+            // `detect_primitive_serializable_union` so the per-element template
+            // can dispatch the serializable side and pass primitive items through.
+            let array_elem_primitive_union = match &type_cat {
+                TypeCategory::Array(inner) => detect_primitive_serializable_union(inner),
                 _ => None,
             };
+            let array_elem_serializable_type = match &type_cat {
+                TypeCategory::Array(inner) => get_serializable_type_name(inner).or_else(|| {
+                    array_elem_primitive_union
+                        .as_ref()
+                        .map(|(_, ser)| ser.clone())
+                }),
+                _ => None,
+            };
+            let array_elem_primitive_union_guard = array_elem_primitive_union
+                .as_ref()
+                .map(|(prim, _)| prim.clone());
             let set_elem_kind = match &type_cat {
                 TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
                 _ => None,
@@ -251,6 +274,8 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                 optional_inner_kind,
                 optional_serializable_type,
                 primitive_union_guard,
+                array_elem_primitive_union_guard,
+                union_string_validators,
             })
         })
         .collect();
@@ -689,6 +714,10 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                     {#if field.primitive_union_guard.is_some()}
                                         if (typeof @{raw_var_ident} === "string") {
                                             instance.@{field.field_ident} = @{raw_var_ident};
+                                            {#if field.has_union_string_validators()}
+                                                {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, class_name)}
+                                                {$typescript usv_code}
+                                            {/if}
                                         } else {
                                             ctx.pushScope("@{field.json_key}");
                                             try {
@@ -958,6 +987,10 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                     {#if field.primitive_union_guard.is_some()}
                                         if (typeof @{raw_var_ident} === "string") {
                                             instance.@{field.field_ident} = @{raw_var_ident};
+                                            {#if field.has_union_string_validators()}
+                                                {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, class_name)}
+                                                {$typescript usv_code}
+                                            {/if}
                                         } else {
                                             ctx.pushScope("@{field.json_key}");
                                             try {
