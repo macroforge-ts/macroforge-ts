@@ -3,7 +3,10 @@ use crate::ts_syn::{TsSynError, parse_ts_expr};
 
 use convert_case::{Case, Casing};
 
-use super::super::{TypeCategory, get_foreign_types, rewrite_expression_namespaces};
+use super::super::{
+    SerdeFieldOptions, TypeCategory, ValidatorSpec, get_foreign_types,
+    rewrite_expression_namespaces,
+};
 use super::types::SerdeValueKind;
 use crate::host::ForeignTypeConfig;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMemberKind};
@@ -70,6 +73,46 @@ pub(super) fn type_accepts_string(
         // Classes and interfaces are always objects
         TypeDefinitionIR::Class(_) | TypeDefinitionIR::Interface(_) => false,
     }
+}
+
+/// Reads the validators declared on the primitive arm of a generic record-link
+/// alias (`Alias<T> = primitive | T`). The alias's primitive arm can carry
+/// `@serde` validators (e.g. `nonEmpty`) that don't appear on a field
+/// referencing the alias, so resolve the alias by name and read them directly.
+///
+/// `ts_type` is the field's original (pre-resolution) type reference and
+/// `primitive` is the primitive keyword detected for the union (e.g. `"string"`).
+/// Returns an empty list when the name doesn't resolve to a union alias or the
+/// primitive arm carries no validators.
+pub(super) fn alias_primitive_arm_validators(
+    ts_type: &str,
+    primitive: &str,
+    registry: &TypeRegistry,
+) -> Vec<ValidatorSpec> {
+    let base = extract_base_type(ts_type);
+    let entry = match registry.get(&base) {
+        Some(e) => e,
+        None => match registry.get_all(&base).next() {
+            Some(e) => e,
+            None => return Vec::new(),
+        },
+    };
+    let TypeDefinitionIR::TypeAlias(alias) = &entry.definition else {
+        return Vec::new();
+    };
+    let TypeBody::Union(members) = &alias.body else {
+        return Vec::new();
+    };
+    for member in members {
+        if let TypeMemberKind::TypeRef(t) = &member.kind
+            && t == primitive
+        {
+            return SerdeFieldOptions::from_decorators(&member.decorators, "")
+                .options
+                .validators;
+        }
+    }
+    Vec::new()
 }
 
 pub(super) fn parse_default_expr(expr_src: &str) -> Result<Expr, TsSynError> {

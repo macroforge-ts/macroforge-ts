@@ -107,17 +107,41 @@ pub(super) struct DeserializeField {
     pub optional_serializable_type: Option<String>,
 
     /// Set when the field's resolved type is a two-member primitive-or-serializable
-    /// union (the shape of `RecordLink<T> = string | T` after alias resolution).
-    /// Holds the primitive keyword (e.g. `"string"`). When set, the
+    /// union — the shape any `Alias<T> = primitive | T` generic resolves to.
+    /// Holds the primitive keyword (e.g. `"string"`, `"number"`). When set, the
     /// `Serializable(name)` deserialize branch wraps its call in a
-    /// `typeof === primitive` guard so raw id strings pass through unchanged.
+    /// `typeof === primitive` guard so raw primitive values pass through unchanged.
     pub primitive_union_guard: Option<String>,
+
+    /// Same shape as `primitive_union_guard` but for the *element* of an
+    /// `Array<primitive | T>` (i.e. `Array<Alias<T>>` after alias resolution).
+    /// Holds the primitive keyword. When set, the per-element template emits
+    /// a `typeof item === primitive` guard so primitive items pass through and
+    /// only object items go through the inner type's deserializer.
+    pub array_elem_primitive_union_guard: Option<String>,
+
+    /// Validators declared on the *primitive arm* of the resolved
+    /// `primitive | Serializable` union — e.g. the `nonEmpty` on the `string`
+    /// arm of a record-link alias (`Alias<T> = string | T`). These don't appear
+    /// on the field referencing the alias, so they're read from the alias
+    /// definition and kept separate from `validators`: they apply only to the
+    /// primitive form and are emitted inside the deserialize branch's
+    /// `typeof === primitive` guard. Keeping them out of `validators` avoids
+    /// leaking an unguarded check into the per-field `validateField` path,
+    /// where the value may be the object form.
+    pub union_string_validators: Vec<ValidatorSpec>,
 }
 
 impl DeserializeField {
     /// Returns true if this field has any validators that need to be applied.
     pub fn has_validators(&self) -> bool {
         !self.validators.is_empty()
+    }
+
+    /// Returns true if the primitive arm of a `primitive | Serializable` union
+    /// carries validators to apply to the primitive form.
+    pub fn has_union_string_validators(&self) -> bool {
+        !self.union_string_validators.is_empty()
     }
 }
 
