@@ -1906,6 +1906,78 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 let tag_field = container_opts.tag_field_or_default().to_string();
                 let content_field = container_opts.content_field().unwrap_or("").to_string();
 
+                // Enumerate variants that expose a dedicated per-variant serializer so the
+                // union serializer can DISPATCH to them rather than relying on the value
+                // carrying a `serializeWithContext` method. Plain objects (values not
+                // constructed through a generated factory) have no such method, so without
+                // dispatch their variant fields that need non-identity serialization leak
+                // as raw values instead of passing through the per-variant serializer.
+                struct SerVariant {
+                    tag_value: String,
+                    ser_fn: crate::swc_ecma_ast::Ident,
+                    has_shape_fn: crate::swc_ecma_ast::Ident,
+                }
+                let mut ser_variants: Vec<SerVariant> = Vec::new();
+                if let Some(members) = type_alias.as_union() {
+                    use crate::ts_syn::abi::ir::type_alias::TypeMemberKind;
+                    for m in members {
+                        match &m.kind {
+                            // Tagged intersection variant: `{ variant: 'X' } & TypeRef`
+                            TypeMemberKind::Intersection(subs) => {
+                                let mut tag_value: Option<String> = None;
+                                let mut ref_type: Option<String> = None;
+                                for sub in subs {
+                                    match &sub.kind {
+                                        TypeMemberKind::Object { fields } => {
+                                            tag_value = fields.iter().find_map(|f| {
+                                                if f.name == tag_field {
+                                                    Some(
+                                                        f.ts_type
+                                                            .trim()
+                                                            .trim_matches('\'')
+                                                            .trim_matches('"')
+                                                            .to_string(),
+                                                    )
+                                                } else {
+                                                    None
+                                                }
+                                            });
+                                        }
+                                        TypeMemberKind::TypeRef(t) => ref_type = Some(t.clone()),
+                                        _ => {}
+                                    }
+                                }
+                                if let (Some(tv), Some(rt)) = (tag_value, ref_type) {
+                                    let camel = rt.to_case(Case::Camel);
+                                    ser_variants.push(SerVariant {
+                                        tag_value: tv,
+                                        ser_fn: ts_ident!("{}SerializeWithContext", camel),
+                                        has_shape_fn: ts_ident!("{}HasShape", camel),
+                                    });
+                                }
+                            }
+                            // Untagged serializable type-ref variant: `TypeRef`
+                            TypeMemberKind::TypeRef(t)
+                                if is_untagged
+                                    && !matches!(
+                                        TypeCategory::from_ts_type(t),
+                                        TypeCategory::Primitive | TypeCategory::Date
+                                    ) =>
+                            {
+                                let camel = t.to_case(Case::Camel);
+                                ser_variants.push(SerVariant {
+                                    tag_value: t.clone(),
+                                    ser_fn: ts_ident!("{}SerializeWithContext", camel),
+                                    has_shape_fn: ts_ident!("{}HasShape", camel),
+                                });
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                let has_ser_variants = !ser_variants.is_empty();
+                let dispatch_by_tag = !is_untagged;
+
                 let mut result = if let Some(params) = &type_params_ident {
                     ts_template! {
                         /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation */
@@ -1918,12 +1990,39 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                         /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
                         export function @{fn_serialize_internal_ident}<@{params}>(value: @{full_type_ident}, ctx: @{serialize_context_ident}): unknown {
-                            const __variant = typeof (value as any)?.serializeWithContext === "function"
-                                ? (value as any).serializeWithContext(ctx)
-                                : value;
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+                            {#if has_ser_variants}
+                            if (!__matched && value !== null && typeof value === "object") {
+                                {#if dispatch_by_tag}
+                                const __tag = (value as any)["@{tag_field}"];
+                                {#for v in &ser_variants}
+                                if (!__matched && __tag === "@{v.tag_value}") { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
+                                {/for}
+                                {:else}
+                                {#for v in &ser_variants}
+                                if (!__matched && @{v.has_shape_fn}(value)) { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
+                                {/for}
+                                {/if}
+                            }
+                            {/if}
+                            if (!__matched) {
+                                __variant = value;
+                            }
 
                             {#if is_internally_tagged}
-                                // Internally tagged: pass through (variant already has __type embedded)
+                                // Internally tagged: keep the tag field. A dispatched
+                                // per-variant result carries `__type`; map it back to the
+                                // tag field. A passed-through value already carries the tag
+                                // field, so return it unchanged.
+                                if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "@{tag_field}": __typeName, ...fields };
+                                }
                                 return __variant;
                             {:else}
                                 // Non-internally-tagged modes: restructure the variant output
@@ -1962,12 +2061,39 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                         /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context */
                         export function @{fn_serialize_internal_ident}(value: @{full_type_ident}, ctx: @{serialize_context_ident}): unknown {
-                            const __variant = typeof (value as any)?.serializeWithContext === "function"
-                                ? (value as any).serializeWithContext(ctx)
-                                : value;
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+                            {#if has_ser_variants}
+                            if (!__matched && value !== null && typeof value === "object") {
+                                {#if dispatch_by_tag}
+                                const __tag = (value as any)["@{tag_field}"];
+                                {#for v in &ser_variants}
+                                if (!__matched && __tag === "@{v.tag_value}") { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
+                                {/for}
+                                {:else}
+                                {#for v in &ser_variants}
+                                if (!__matched && @{v.has_shape_fn}(value)) { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
+                                {/for}
+                                {/if}
+                            }
+                            {/if}
+                            if (!__matched) {
+                                __variant = value;
+                            }
 
                             {#if is_internally_tagged}
-                                // Internally tagged: pass through (variant already has __type embedded)
+                                // Internally tagged: keep the tag field. A dispatched
+                                // per-variant result carries `__type`; map it back to the
+                                // tag field. A passed-through value already carries the tag
+                                // field, so return it unchanged.
+                                if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "@{tag_field}": __typeName, ...fields };
+                                }
                                 return __variant;
                             {:else}
                                 // Non-internally-tagged modes: restructure the variant output
