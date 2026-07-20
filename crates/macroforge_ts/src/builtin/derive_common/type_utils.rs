@@ -143,13 +143,6 @@ fn get_type_default_resolved(ts_type: &str) -> String {
         return format!("({})()", rewritten);
     }
 
-    // `string | SomeSerializable` — the resolved shape of `RecordLink<T>`:
-    // record-link fields default to the unresolved-link sentinel, never to
-    // a zero'd nested object. Checked before the generic union branch below.
-    if detect_primitive_serializable_union(t).is_some_and(|(p, _)| p == "string") {
-        return "\"place:holder\"".to_string();
-    }
-
     // Nullable first (like Rust's Option::default() -> None)
     if is_nullable_type(t) {
         return "null".to_string();
