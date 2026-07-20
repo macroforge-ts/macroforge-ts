@@ -289,8 +289,8 @@ pub(crate) fn expand_file_in_memory(input: &Path) -> Result<Option<FileExpansion
         macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
     }
 
-    let source = fs::read_to_string(input)
-        .with_context(|| format!("failed to read {}", input.display()))?;
+    let source =
+        fs::read_to_string(input).with_context(|| format!("failed to read {}", input.display()))?;
 
     let mut expander = MacroExpander::new().context("failed to initialize macro expander")?;
 

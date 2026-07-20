@@ -30,7 +30,11 @@ fn setup_scan_fixture(temp: &Path) {
         "export interface Plain {\n  x: number;\n}\n",
     )
     .unwrap();
-    std::fs::write(src.join("nested").join("style.css"), "body { margin: 0; }\n").unwrap();
+    std::fs::write(
+        src.join("nested").join("style.css"),
+        "body { margin: 0; }\n",
+    )
+    .unwrap();
     std::fs::write(
         src.join("Comp.svelte"),
         "<script lang=\"ts\">let x = 1;</script>\n",
@@ -194,7 +198,10 @@ fn scan_with_out_dir_mirrors_expanded_tree() {
     // A macro-free file is copied verbatim.
     let plain_src = std::fs::read_to_string(temp.path().join("src").join("plain.ts")).unwrap();
     let plain_out = std::fs::read_to_string(staging.join("plain.ts")).unwrap();
-    assert_eq!(plain_out, plain_src, "macro-free file should be copied verbatim");
+    assert_eq!(
+        plain_out, plain_src,
+        "macro-free file should be copied verbatim"
+    );
 
     // Non-TS assets and components are copied too.
     assert!(
@@ -391,10 +398,8 @@ fn scan_with_emit_expanded_writes_siblings() {
     );
 
     // The legacy sibling is (re)generated next to the source with expanded code.
-    let sibling = std::fs::read_to_string(
-        temp.path().join("src").join("withmacro.expanded.ts"),
-    )
-    .unwrap();
+    let sibling =
+        std::fs::read_to_string(temp.path().join("src").join("withmacro.expanded.ts")).unwrap();
     assert!(
         sibling.contains("fooDefaultValue"),
         "sibling should contain expanded runtime, got: {sibling}"
