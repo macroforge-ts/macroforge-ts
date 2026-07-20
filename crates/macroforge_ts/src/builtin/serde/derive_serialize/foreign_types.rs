@@ -65,6 +65,12 @@ pub(crate) fn try_composite_foreign_serialize(ts_type: &str) -> Option<String> {
         } else {
             ("none", core)
         }
+    } else if let Some((_, value)) = crate::ts_syn::type_normalize::parse_index_signature(core) {
+        // Mirror of the deserialize-side recognition for `{ [k: K]: V }`
+        // — see `derive_deserialize/helpers.rs`. Required so per-value
+        // foreign-type serializers round-trip for fields written in the
+        // index-signature surface form.
+        ("record", value)
     } else {
         ("none", core)
     };
