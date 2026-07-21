@@ -30,12 +30,10 @@
 
 <p>Create a <code>macroforge.config.ts</code> file:</p>
 
-<CodeBlock code={`import { defineConfig } from "macroforge/config";
-
-export default defineConfig({
+<CodeBlock code={`export default {
   keepDecorators: false,
   generateConvenienceConst: true,
-});`} lang="typescript" filename="macroforge.config.ts" />
+};`} lang="typescript" filename="macroforge.config.ts" />
 
 <h2 id="options">Options Reference</h2>
 
@@ -95,9 +93,7 @@ export default defineConfig({
 
 <CodeBlock code={`// macroforge.config.ts
 import { DateTime } from "effect";
-import { defineConfig } from "macroforge/config";
-
-export default defineConfig({
+export default {
   foreignTypes: {
     "DateTime.DateTime": {
       from: ["effect"],
@@ -111,7 +107,7 @@ export default defineConfig({
       hasShape: (v) => v instanceof Date || typeof v === "string"
     }
   }
-});`} lang="typescript" filename="macroforge.config.ts" />
+};`} lang="typescript" filename="macroforge.config.ts" />
 
 <p>
   Each foreign type handler supports the following properties:
@@ -142,9 +138,7 @@ export default defineConfig({
 </p>
 
 <CodeBlock code={`// macroforge.config.ts
-import { defineConfig } from "macroforge/config";
-
-export default defineConfig({
+export default {
   vite: {
     // Whether to generate .d.ts type definition files from expanded code
     generateTypes: true,
@@ -157,7 +151,7 @@ export default defineConfig({
     // Enable disk-based expansion cache in dev mode (vite dev)
     devCache: true
   }
-});`} lang="typescript" filename="macroforge.config.ts" />
+};`} lang="typescript" filename="macroforge.config.ts" />
 
 <ul>
   <li><code>generateTypes</code>: Whether to generate <code>.d.ts</code> type definition files from expanded code (default: <code>true</code>).</li>
@@ -166,3 +160,101 @@ export default defineConfig({
   <li><code>metadataOutputDir</code>: Output directory for metadata JSON files, relative to project root (default: <code>".macroforge/meta"</code>).</li>
   <li><code>devCache</code>: Enable disk-based expansion cache in dev mode (<code>vite dev</code>) (default: <code>true</code>).</li>
 </ul>
+
+<h3>cfg</h3>
+
+<p>
+	Build flags consumed by the <code>@cfg</code> attribute macro. See
+	<a href="/docs/attributes">Attribute Macros</a> for the annotation syntax.
+</p>
+
+<CodeBlock code={`export default {
+  cfg: {
+    features: ["beta", "experimental"],
+    target: "node",
+    debugAssertions: false,
+    custom: { tier: "pro" }
+  }
+};`} lang="typescript" filename="macroforge.config.ts" />
+
+<ul>
+  <li><code>features</code>: Active feature flags; <code>@cfg(&lbrace; feature: "beta" &rbrace;)</code> passes when the value is a member (default: <code>[]</code>).</li>
+  <li><code>target</code>: Matched exactly against <code>@cfg(&lbrace; target: … &rbrace;)</code> (default: unset).</li>
+  <li><code>debugAssertions</code>: Boolean matched against <code>@cfg(&lbrace; debugAssertions: … &rbrace;)</code> (default: <code>false</code>).</li>
+  <li><code>custom</code>: Arbitrary keys matched exactly by any other annotation key (default: <code>&lbrace;&rbrace;</code>).</li>
+</ul>
+
+<h3>deprecated</h3>
+
+<p>Behavior of the <code>@deprecated</code> attribute macro.</p>
+
+<CodeBlock code={`export default {
+  deprecated: {
+    runtimeWarn: true,
+    failOnUse: false
+  }
+};`} lang="typescript" filename="macroforge.config.ts" />
+
+<ul>
+  <li><code>failOnUse</code>: Promote use of a deprecated symbol from an editor hint to a hard expansion error (default: <code>false</code>).</li>
+  <li><code>runtimeWarn</code>: Reserved. Defaults to <code>true</code> but currently has no effect — no runtime warning is injected.</li>
+</ul>
+
+<h3>mustUse</h3>
+
+<p>Behavior of the <code>@mustUse</code> attribute macro.</p>
+
+<CodeBlock code={`export default {
+  mustUse: { mode: "lint" }
+};`} lang="typescript" filename="macroforge.config.ts" />
+
+<ul>
+  <li><code>mode</code>: Currently only <code>"lint"</code> is recognised, which emits a diagnostic when a return value is discarded (default: <code>"lint"</code>).</li>
+</ul>
+
+<h3>nonExhaustive</h3>
+
+<p>Behavior of the <code>@nonExhaustive</code> attribute macro.</p>
+
+<CodeBlock code={`export default {
+  nonExhaustive: { brand: "__nonExhaustive" }
+};`} lang="typescript" filename="macroforge.config.ts" />
+
+<ul>
+  <li><code>brand</code>: Property name used in the branding intersection. Keep it stable across a project (default: <code>"__nonExhaustive"</code>).</li>
+</ul>
+
+<h3>buildtime</h3>
+
+<p>
+	Sandbox settings for <code>@buildtime</code> evaluation. See
+	<a href="/docs/buildtime">Buildtime Evaluation</a> for the API.
+</p>
+
+<CodeBlock code={`export default {
+  buildtime: {
+    capabilities: {
+      timeout: 5000,
+      maxHeap: 256,
+      filesystem: { read: ["src/**"], write: [] },
+      env: ["NODE_ENV"],
+      network: false
+    },
+    flags: { CHANNEL: "beta" }
+  }
+};`} lang="typescript" filename="macroforge.config.ts" />
+
+<ul>
+  <li><code>capabilities.timeout</code>: Evaluation budget in milliseconds, enforced (default: <code>5000</code>).</li>
+  <li><code>capabilities.maxHeap</code>: Heap ceiling in MiB. Advisory — not currently enforced (default: <code>256</code>).</li>
+  <li><code>capabilities.filesystem.read</code>: Globs readable via <code>buildtime.fs</code> (default: <code>["**"]</code>).</li>
+  <li><code>capabilities.filesystem.write</code>: Reserved; no write API is exposed (default: <code>[]</code>).</li>
+  <li><code>capabilities.env</code>: Environment variable names exposed as <code>buildtime.env.NAME</code>. Deny-by-default (default: <code>[]</code>).</li>
+  <li><code>capabilities.network</code>: Reserved; no network API is exposed (default: <code>false</code>).</li>
+  <li><code>flags</code>: Values returned by <code>buildtime.flags.has()</code> / <code>.get()</code> (default: <code>&lbrace;&rbrace;</code>).</li>
+</ul>
+
+<p>
+	Capability keys may also be written flat (<code>buildtime.timeout</code>); the nested
+	form is canonical because it matches the path sandbox diagnostics point at.
+</p>

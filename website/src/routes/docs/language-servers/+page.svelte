@@ -53,6 +53,15 @@
         </tr>
         <tr>
             <td
+                ><a href={resolve("/docs/language-servers/vtsls-macroforge")}
+                    >vtsls-macroforge</a
+                ></td
+            >
+            <td>TypeScript language server with macro expansion</td>
+            <td>Working (dev install)</td>
+        </tr>
+        <tr>
+            <td
                 ><a href={resolve("/docs/language-servers/zed")}
                     >Zed Extensions</a
                 ></td

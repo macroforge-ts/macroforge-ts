@@ -36,6 +36,26 @@
 			<td>Build-time macro expansion</td>
 			<td><code>@macroforge/vite-plugin</code></td>
 		</tr>
+		<tr>
+			<td>Svelte Preprocessor</td>
+			<td>Expand macros inside <code>.svelte</code> components</td>
+			<td><code>@macroforge/svelte-preprocessor</code></td>
+		</tr>
+		<tr>
+			<td>CLI</td>
+			<td>Expand, watch, type-check and package from the terminal</td>
+			<td><code>macroforge</code></td>
+		</tr>
+		<tr>
+			<td>Deno Plugin</td>
+			<td>Expansion for Deno projects (CLI + programmatic API)</td>
+			<td><code>@macroforge/deno-plugin</code></td>
+		</tr>
+		<tr>
+			<td>MCP Server</td>
+			<td>Macro documentation and tooling for AI assistants</td>
+			<td><code>@macroforge/mcp-server</code></td>
+		</tr>
 	</tbody>
 </table>
 

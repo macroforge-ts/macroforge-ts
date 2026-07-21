@@ -93,13 +93,6 @@ cargo build --release --bin macroforge
             >
         </tr>
         <tr>
-            <td><code>--builtin-only</code></td>
-            <td
-                >Use only built-in Rust macros (faster, but no external macro
-                support)</td
-            >
-        </tr>
-        <tr>
             <td><code>--scan</code></td>
             <td>Scan directory for TypeScript files with macros</td>
         </tr>
@@ -116,9 +109,13 @@ cargo build --release --bin macroforge
 
 <h4>Examples</h4>
 
-<p>Expand a file and print to stdout:</p>
+<p>Expand a file (writes a sibling <code>src/user.expanded.ts</code>):</p>
 
 <CodeBlock code={`macroforge expand src/user.ts`} lang="bash" />
+
+<p>Print the expansion to stdout instead:</p>
+
+<CodeBlock code={`macroforge expand src/user.ts --print`} lang="bash" />
 
 <p>Expand and write to a file:</p>
 
@@ -134,16 +131,11 @@ cargo build --release --bin macroforge
     lang="bash"
 />
 
-<p>Use fast built-in macros only (no external macro support):</p>
-
-<CodeBlock code={`macroforge expand src/user.ts --builtin-only`} lang="bash" />
-
 <Alert type="note">
     <span
-        >By default, the CLI uses Node.js for full macro support (including
-        external macros). It must be run from your project's root directory
-        where <code>macroforge</code> and any external macro packages are
-        installed in <code>node_modules</code>.</span
+        >Expansion runs natively in Rust — no Node.js process is spawned. External
+        macro packages are loaded from <code>node_modules</code> via FFI, so run the
+        CLI from your project root when your code uses them.</span
     >
 </Alert>
 
@@ -225,6 +217,44 @@ cargo build --release --bin macroforge
     </tbody>
 </table>
 
+<h3 id="svelte-package">macroforge svelte-package</h3>
+
+<p>
+    Runs <code>svelte-package</code> with macro expansion, so a published Svelte
+    library ships fully expanded source and type declarations.
+</p>
+
+<CodeBlock code={`macroforge svelte-package [options]`} lang="bash" />
+
+<h4>Options</h4>
+
+<table>
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>-i, --input &lt;path&gt;</code></td>
+            <td>Source directory (defaults to <code>src/lib</code>)</td>
+        </tr>
+        <tr>
+            <td><code>-o, --output &lt;path&gt;</code></td>
+            <td>Output directory (defaults to <code>dist</code>)</td>
+        </tr>
+        <tr>
+            <td><code>--tsconfig &lt;path&gt;</code></td>
+            <td>Path to <code>tsconfig.json</code></td>
+        </tr>
+        <tr>
+            <td><code>--no-types</code></td>
+            <td>Skip generating type declarations</td>
+        </tr>
+    </tbody>
+</table>
+
 <h3 id="watch">macroforge watch</h3>
 
 <p>
@@ -243,10 +273,6 @@ cargo build --release --bin macroforge
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td><code>--builtin-only</code></td>
-            <td>Use only built-in Rust macros</td>
-        </tr>
         <tr>
             <td><code>--debounce-ms &lt;ms&gt;</code></td>
             <td>Debounce interval in milliseconds (default: 100)</td>
@@ -272,10 +298,6 @@ cargo build --release --bin macroforge
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td><code>--builtin-only</code></td>
-            <td>Use only built-in Rust macros</td>
-        </tr>
     </tbody>
 </table>
 
@@ -297,10 +319,6 @@ cargo build --release --bin macroforge
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td><code>--builtin-only</code></td>
-            <td>Use only built-in Rust macros</td>
-        </tr>
     </tbody>
 </table>
 
@@ -432,7 +450,7 @@ class User {
     Use <code>macroforge expand</code> to inspect what code your macros generate:
 </p>
 
-<CodeBlock code={`macroforge expand src/models/user.ts | less`} lang="bash" />
+<CodeBlock code={`macroforge expand src/models/user.ts --print | less`} lang="bash" />
 
 <h3>Build Pipeline</h3>
 
@@ -446,46 +464,6 @@ for file in src/**/*.ts; do
 done`}
     lang="bash"
 />
-
-<h2 id="builtin-vs-full">Built-in vs Full Mode</h2>
-
-<p>
-    By default, the CLI uses Node.js for full macro support including external
-    macros. Use <code>--builtin-only</code> for faster expansion when you only need
-    built-in macros:
-</p>
-
-<table>
-    <thead>
-        <tr>
-            <th>Feature</th>
-            <th>Default (Node.js)</th>
-            <th><code>--builtin-only</code> (Rust)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Built-in macros</td>
-            <td>Yes</td>
-            <td>Yes</td>
-        </tr>
-        <tr>
-            <td>External macros</td>
-            <td>Yes</td>
-            <td>No</td>
-        </tr>
-        <tr>
-            <td>Performance</td>
-            <td>Standard</td>
-            <td>Faster</td>
-        </tr>
-        <tr>
-            <td>Dependencies</td>
-            <td>Requires <code>macroforge</code> in node_modules</td>
-            <td>None</td>
-        </tr>
-    </tbody>
-</table>
 
 <style>
     .version-badge {

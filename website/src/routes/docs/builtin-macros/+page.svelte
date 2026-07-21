@@ -63,12 +63,12 @@
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/serialize')}><code>Serialize</code></a></td>
-			<td><code>static serialize(value: T): string</code></td>
+			<td><code>static serialize(value: T, keepMetadata?: boolean): string</code></td>
 			<td>JSON serialization with type handling</td>
 		</tr>
 		<tr>
 			<td><a href={resolve('/docs/builtin-macros/deserialize')}><code>Deserialize</code></a></td>
-			<td><code>static deserialize(input: unknown): Result&lt;T, ...&gt;</code></td>
+			<td><code>static deserialize(input, opts?): &lbrace; success: true; value: T &rbrace; | &lbrace; success: false; errors &rbrace;</code></td>
 			<td>JSON deserialization with validation</td>
 		</tr>
 	</tbody>
@@ -94,8 +94,10 @@ class User {
 <h2 id="interface-support">Interface Support</h2>
 
 <p>
-	All built-in macros work with interfaces. For interfaces, methods are generated as functions
-	in a namespace with the same name, using <code>self</code> as the first parameter:
+	All built-in macros work with interfaces. Interfaces have no class to attach statics to, so
+	they get standalone functions named <code>&lbrace;typeName&rbrace;&lbrace;Operation&rbrace;</code>
+	taking the value as the first parameter. When <code>generateConvenienceConst</code> is enabled
+	(the default), a grouping <code>const</code> is also emitted so you can call them by short name:
 </p>
 
 <CodeBlock code={`/** @derive(Debug, Clone, PartialEq) */
@@ -104,20 +106,28 @@ interface Point {
   y: number;
 }
 
-// Generated namespace:
-// namespace Point {
-//   export function toString(self: Point): string { ... }
-//   export function clone(self: Point): Point { ... }
-//   export function equals(self: Point, other: Point): boolean { ... }
-//   export function hashCode(self: Point): number { ... }
-// }
+// Generated standalone functions:
+// export function pointToString(value: Point): string { ... }
+// export function pointClone(value: Point): Point { ... }
+// export function pointEquals(a: Point, b: Point): boolean { ... }
+// export function pointHashCode(value: Point): number { ... }
+
+// Plus a grouping const (generateConvenienceConst, on by default):
+// export const Point = {
+//   toString: pointToString,
+//   clone: pointClone,
+//   equals: pointEquals,
+//   hashCode: pointHashCode,
+// } as const;
 
 const point: Point = { x: 10, y: 20 };
 
-// Use the namespace functions
-console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
-const copy = Point.clone(point);        // { x: 10, y: 20 }
-console.log(Point.equals(point, copy)); // true`} lang="typescript" />
+console.log(pointToString(point));      // "Point { x: 10, y: 20 }"
+const copy = pointClone(point);         // { x: 10, y: 20 }
+console.log(pointEquals(point, copy));  // true
+
+// …or via the grouping const
+console.log(Point.toString(point));`} lang="typescript" />
 
 <h2 id="enum-support">Enum Support</h2>
 
@@ -133,27 +143,32 @@ enum Status {
   Pending = "pending",
 }
 
-// Generated namespace:
+// Generated standalone functions:
+// export function statusToString(value: Status): string { ... }
+// export function statusClone(value: Status): Status { ... }
+// export function statusEquals(a: Status, b: Status): boolean { ... }
+// export function statusHashCode(value: Status): number { ... }
+// export function statusSerialize(value: Status): string { ... }
+// export function statusDeserialize(input: unknown): Status { ... }
+
+// Enums use namespace merging for the convenience names:
 // namespace Status {
-//   export function toString(value: Status): string { ... }
-//   export function clone(value: Status): Status { ... }
-//   export function equals(a: Status, b: Status): boolean { ... }
-//   export function hashCode(value: Status): number { ... }
-//   export function toJSON(value: Status): string | number { ... }
-//   export function fromJSON(data: unknown): Status { ... }
+//   export const toString = statusToString;
+//   export const serialize = statusSerialize;
 // }
 
-// Use the namespace functions
-console.log(Status.toString(Status.Active));     // "Status.Active"
-console.log(Status.equals(Status.Active, Status.Active)); // true
-const json = Status.toJSON(Status.Pending);      // "pending"
-const parsed = Status.fromJSON("active");        // Status.Active`} lang="typescript" />
+console.log(statusToString(Status.Active));                // "Status.Active"
+console.log(statusEquals(Status.Active, Status.Active));   // true
+const json = statusSerialize(Status.Pending);              // "pending"
+// Note: enum deserialize throws on invalid input rather than
+// returning a success/errors union.
+const parsed = statusDeserialize("active");                // Status.Active`} lang="typescript" />
 
 <h2 id="type-alias-support">Type Alias Support</h2>
 
 <p>
-	All built-in macros work with type aliases. For object type aliases, field-aware methods
-	are generated in a namespace:
+	All built-in macros work with type aliases. Object type aliases get field-aware standalone
+	functions, plus the optional grouping <code>const</code>:
 </p>
 
 <CodeBlock code={`/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
@@ -162,20 +177,19 @@ type Point = {
   y: number;
 };
 
-// Generated namespace:
-// namespace Point {
-//   export function toString(value: Point): string { ... }
-//   export function clone(value: Point): Point { ... }
-//   export function equals(a: Point, b: Point): boolean { ... }
-//   export function hashCode(value: Point): number { ... }
-//   export function toJSON(value: Point): Record<string, unknown> { ... }
-//   export function fromJSON(data: unknown): Point { ... }
-// }
+// Generated standalone functions:
+// export function pointToString(value: Point): string { ... }
+// export function pointClone(value: Point): Point { ... }
+// export function pointEquals(a: Point, b: Point): boolean { ... }
+// export function pointHashCode(value: Point): number { ... }
+// export function pointSerialize(value: Point, keepMetadata?: boolean): string { ... }
+// export function pointDeserialize(input: unknown, opts?): { success: true; value: Point }
+//                                                        | { success: false; errors } { ... }
 
 const point: Point = { x: 10, y: 20 };
-console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
-const copy = Point.clone(point);        // { x: 10, y: 20 }
-console.log(Point.equals(point, copy)); // true`} lang="typescript" />
+console.log(pointToString(point));      // "Point { x: 10, y: 20 }"
+const copy = pointClone(point);         // { x: 10, y: 20 }
+console.log(pointEquals(point, copy));  // true`} lang="typescript" />
 
 <p>
 	Union type aliases also work, using JSON-based implementations:

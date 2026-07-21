@@ -65,7 +65,7 @@
 </p>
 <ul>
 	<li><code>ts_template!</code> - Generate TypeScript code from templates</li>
-	<li><code>body!</code> - Generate class body members</li>
+	<li><code>ts_template!(Within &lbrace; … &rbrace;)</code> - Generate class body members</li>
 	<li>Control flow: <code>{"{#for}"}</code>, <code>{"{#if}"}</code>, <code>{"{$let}"}</code></li>
 </ul>
 

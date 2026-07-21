@@ -36,7 +36,7 @@
             <td>General code generation</td>
         </tr>
         <tr>
-            <td><code>body!</code></td>
+            <td><code>ts_template!(Within &lbrace; … &rbrace;)</code></td>
             <td>Class body members</td>
             <td>Methods and properties</td>
         </tr>
@@ -69,14 +69,14 @@
         <tr>
             <td><code>&#123;&gt; "comment" &lt;&#125;</code></td>
             <td
-                >Block comment: outputs <code>/* comment */</code> (string preserves
+                >Line comment: outputs <code>// comment</code> (string preserves
                 whitespace)</td
             >
         </tr>
         <tr>
             <td><code>&#123;&gt;&gt; "doc" &lt;&lt;&#125;</code></td>
             <td
-                >Doc comment: outputs <code>/** doc */</code> (string preserves whitespace)</td
+                >Block comment: outputs <code>/* comment */</code> (string preserves whitespace)</td
             >
         </tr>
         <tr>
@@ -163,6 +163,10 @@
         <tr>
             <td><code>&#123;$let mut name = expr&#125;</code></td>
             <td>Define a mutable local variable</td>
+        </tr>
+        <tr>
+            <td><code>&#123;%let name = expr&#125;</code></td>
+            <td>Bind a Rust variable (alternate syntax for <code>&#123;$let&#125;</code>)</td>
         </tr>
         <tr>
             <td><code>&#123;$do expr&#125;</code></td>
@@ -791,21 +795,21 @@ let code = ts_template! {
 
 <CodeBlock
     code={`// Create a helper method with its own import
-let mut helper = body! {
+let mut helper = ts_template!(Within {
     validateEmail(email: string): boolean {
         return Result.ok(true);
     }
-};
+});
 helper.add_import("Result", "macroforge/utils");
 
 // Inject the helper into the main template
-let result = body! {
+let result = ts_template!(Within {
     {$typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
     }
-};
+});
 // result now includes helper's source AND its Result import`}
     lang="rust"
 />
@@ -817,20 +821,20 @@ let result = body! {
 
 <CodeBlock
     code={`let extra_methods = if include_validation {
-    Some(body! {
+    Some(ts_template!(Within {
         validate(): boolean { return true; }
-    })
+    }))
 } else {
     None
 };
 
-body! {
+ts_template!(Within {
     mainMethod(): void {}
 
     {#if let Some(methods) = extra_methods}
         {$typescript methods}
     {/if}
-}`}
+})`}
     lang="rust"
 />
 
@@ -873,19 +877,19 @@ const example = "Use @{foo} for templates";`}
         Data::Class(class) => {
             let class_name = input.name();
 
-            let mut body_stmts = vec![ts_quote!( const result = {}; as Stmt )];
+            let mut body_stmts = vec![ts_quote!("const result = {};" as Stmt)];
 
             for field_name in class.field_names() {
                 body_stmts.push(ts_quote!(
-                    result.$(ident!("{}", field_name)) = this.$(ident!("{}", field_name));
-                    as Stmt
+                    "result.$field = this.$field;" as Stmt,
+                    field = ts_ident!(field_name)
                 ));
             }
 
-            body_stmts.push(ts_quote!( return result; as Stmt ));
+            body_stmts.push(ts_quote!("return result;" as Stmt));
 
             let runtime_code = fn_assign!(
-                member_expr!(Expr::Ident(ident!(class_name)), "prototype"),
+                member_expr!(Expr::Ident(ts_ident!(class_name)), "prototype"),
                 "toJSON",
                 body_stmts
             );
@@ -936,22 +940,22 @@ const example = "Use @{foo} for templates";`}
         string at runtime
     </li>
     <li>
-        <strong>SWC Parsing:</strong> The generated string is parsed with SWC to produce
-        a typed AST
+        <strong>Parsing:</strong> The generated string is parsed with OXC (the default
+        backend) to produce a typed AST. An SWC backend is available behind the opt-in
+        <code>swc</code> feature.
     </li>
     <li>
-        <strong>Result:</strong> Returns <code>Stmt</code> that can be used in
-        <code>MacroResult</code> patches
+        <strong>Result:</strong> Returns a <code>TsStream</code> that can be returned
+        directly as macro output
     </li>
 </ol>
 
 <h2 id="return-type">Return Type</h2>
 
 <p>
-    <code>ts_template!</code> returns a
-    <code>Result&lt;Stmt, TsSynError&gt;</code> by default. The macro automatically
-    unwraps and provides helpful error messages showing the generated TypeScript code
-    if parsing fails:
+    <code>ts_template!</code> returns a <code>TsStream</code>, which is what a macro
+    function returns as its output. If the generated source fails to parse, the macro
+    reports an error showing the generated TypeScript:
 </p>
 
 <CodeBlock

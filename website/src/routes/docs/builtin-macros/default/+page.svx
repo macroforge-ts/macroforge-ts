@@ -44,7 +44,8 @@ The macro uses Rust-like default semantics:
 | `Set<T>` | `new Set()` |
 | `Date` | `new Date()` (current time) |
 | `T \| null` | `null` |
-| `CustomType` | `CustomType.defaultValue()` (recursive) |
+| Unions (`A \| B`) | Default of the first primitive or literal member, else the first member's default |
+| `CustomType` | `customTypeDefaultValue()` (recursive standalone-function call) |
 
 ## Field-Level Options
 
@@ -121,8 +122,14 @@ export function statusDefaultValue(): Status {
 
 ## Error Handling
 
-The macro will return an error if:
+The macro returns a compile error only if:
 
-- A non-primitive field lacks `@default` and has no known default
 - An enum has no variant marked with `@default`
-- A union type has no `@default` on a variant
+- A field's `@default` expression fails to parse
+
+Missing defaults on non-primitive fields are **not** compile errors: every type is
+assumed to implement Default (Rust-like philosophy), so the macro emits a
+`typeNameDefaultValue()` call for any custom type. If a field's type is in the
+type registry but does not derive `Default`, a warning is printed to stderr at
+expansion time and the call is generated anyway — it may then fail at runtime if
+the function does not exist.

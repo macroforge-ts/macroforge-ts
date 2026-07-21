@@ -105,6 +105,9 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         Data::Enum(_) => {
             // Handle enums (if supported)
         }
+        Data::TypeAlias(_) => {
+            // Handle type aliases (if supported)
+        }
     }
 }`} lang="rust" />
 
@@ -123,6 +126,9 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     fn as_class(&self) -> Option<&DataClass>;
     fn as_interface(&self) -> Option<&DataInterface>;
     fn as_enum(&self) -> Option<&DataEnum>;
+    fn as_type_alias(&self) -> Option<&DataTypeAlias>;
+    fn body_span(&self) -> SpanIR;       // Span of the type body
+    fn error_span(&self) -> SpanIR;      // Preferred span for diagnostics
 }
 
 enum Data {
@@ -222,15 +228,16 @@ impl DataTypeAlias {
 </p>
 
 <CodeBlock code={`// Add an import to be inserted at the top of the file
-let mut output = body! {
+let mut output = ts_template!(Within {
     validate(): ValidationResult {
         return validateFields(this);
     }
-};
+});
 
-// This will add: import { validateFields, ValidationResult } from "my-validation-lib";
+// Adds: import { validateFields } from "my-validation-lib";
+//       import type { ValidationResult } from "my-validation-lib";
 output.add_import("validateFields", "my-validation-lib");
-output.add_import("ValidationResult", "my-validation-lib");
+output.add_type_import("ValidationResult", "my-validation-lib");
 
 Ok(output)`} lang="rust" />
 
@@ -249,7 +256,7 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     match &input.data {
         Data::Class(_) => {
             // Generate code...
-            Ok(body! { /* ... */ })
+            Ok(ts_template!(Within { /* ... */ }))
         }
         _ => Err(MacroforgeError::new(
             input.decorator_span(),
@@ -260,7 +267,7 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 
 <h2 id="complete-example">Complete Example</h2>
 
-<CodeBlock code={`use macroforge_ts::macros::{ts_macro_derive, body};
+<CodeBlock code={`use macroforge_ts::macros::{ts_macro_derive, ts_template};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
 };
@@ -285,7 +292,7 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
                 .filter(|f| has_decorator(f, "validate"))
                 .collect();
 
-            Ok(body! {
+            Ok(ts_template!(Within {
                 validate(): string[] {
                     const errors: string[] = [];
                     {#for field in validations}
@@ -295,7 +302,7 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
                     {/for}
                     return errors;
                 }
-            })
+            }))
         }
         _ => Err(MacroforgeError::new(
             input.decorator_span(),

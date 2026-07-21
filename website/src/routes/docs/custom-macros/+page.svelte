@@ -30,7 +30,7 @@
 
 <h2 id="quick-example">Quick Example</h2>
 
-<CodeBlock code={`use macroforge_ts::macros::{ts_macro_derive, body};
+<CodeBlock code={`use macroforge_ts::macros::{ts_macro_derive, ts_template};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(
@@ -42,7 +42,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 
     match &input.data {
         Data::Class(class) => {
-            Ok(body! {
+            Ok(ts_template!(Within {
                 toJSON(): Record<string, unknown> {
                     return {
                         {#for field in class.field_names()}
@@ -50,7 +50,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
                         {/for}
                     };
                 }
-            })
+            }))
         }
         _ => Err(MacroforgeError::new(
             input.decorator_span(),

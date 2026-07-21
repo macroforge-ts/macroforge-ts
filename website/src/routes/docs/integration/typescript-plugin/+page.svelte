@@ -72,7 +72,7 @@ class User {
 </p>
 
 <CodeBlock code={`const user = new User("Alice");
-user.to  // Suggests: toString(), toJSON(), etc.`} lang="typescript" />
+User.  // Suggests: toString(), clone(), serialize(), etc.`} lang="typescript" />
 
 <h3>Type Information</h3>
 
@@ -81,8 +81,8 @@ user.to  // Suggests: toString(), toJSON(), etc.`} lang="typescript" />
 </p>
 
 <CodeBlock code={`// Hover over 'clone' shows:
-// (method) User.clone(): User
-const copy = user.clone();`} lang="typescript" />
+// (method) User.clone(value: User): User
+const copy = User.clone(user);`} lang="typescript" />
 
 <h2 id="troubleshooting">Troubleshooting</h2>
 

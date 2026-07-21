@@ -38,9 +38,7 @@ export default defineConfig({
 	in your project root. Vite-specific options go under the <code>vite</code> key:
 </p>
 
-<CodeBlock code={`import { defineConfig } from "macroforge/config";
-
-export default defineConfig({
+<CodeBlock code={`export default {
   // Keep @derive decorators in output (for debugging)
   keepDecorators: false,
 
@@ -61,7 +59,7 @@ export default defineConfig({
     // Enable disk cache in dev mode
     devCache: true,
   }
-});`} lang="typescript" filename="macroforge.config.ts" />
+};`} lang="typescript" filename="macroforge.config.ts" />
 
 <h3>Option Reference</h3>
 

@@ -72,6 +72,14 @@
 
   // JSON string of project-wide type registry for cross-file awareness
   typeRegistryJson?: string;
+
+  // JSON string of the project-wide declarative macro registry, produced by
+  // scanProjectSync(). Required for cross-file "import macro" JSDoc resolution.
+  declarativeRegistryJson?: string;
+
+  // "dev" | "prod" (default: "prod"). Controls declarative macro emission:
+  // prod enables reverse monomorphization, dev expands inline.
+  buildMode?: string;
 }`} lang="typescript" />
 
 <h2 id="expand-result">ExpandResult</h2>
@@ -91,6 +99,10 @@
 
   // Position mapping data for source maps
   sourceMapping?: SourceMappingResult;
+
+  // Files read at build time via the buildtime API. Use these to invalidate
+  // caches / trigger rebuilds when a dependency changes.
+  buildtimeDependencies: string[];
 }`} lang="typescript" />
 
 <h2 id="macro-diagnostic">MacroDiagnostic</h2>

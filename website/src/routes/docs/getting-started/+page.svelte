@@ -18,8 +18,7 @@
 <h2 id="requirements">Requirements</h2>
 
 <ul>
-	<li>Node.js 24.0 or later (for native bindings)</li>
-	<li>A WebAssembly-compatible environment (for WASM version)</li>
+	<li>Node.js 18 or later (or any WebAssembly-capable runtime)</li>
 	<li>TypeScript 5.9 or later</li>
 </ul>
 
@@ -34,11 +33,9 @@
 <CodeBlock code="pnpm add macroforge" lang="bash" filename="pnpm" />
 
 <Alert type="info">
-	Macroforge provides two distribution options:
-	<ul>
-		<li><strong>Native Bindings</strong>: Pre-built binaries for macOS, Linux, and Windows. Used by default in Node.js.</li>
-		<li><strong>WebAssembly</strong>: A universal <code>@macroforge/wasm</code> package for browser, edge, and other environments.</li>
-	</ul>
+	The <code>macroforge</code> package ships a single WebAssembly build, so the same
+	artifact runs under Node.js, Deno, Bun, and edge runtimes with no platform-specific
+	binaries to install.
 </Alert>
 
 <h2 id="basic-usage">Basic Usage</h2>

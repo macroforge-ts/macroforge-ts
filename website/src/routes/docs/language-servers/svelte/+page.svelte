@@ -62,12 +62,9 @@ cd macroforge-ts`}
 <h3>2. Build the Language Server</h3>
 
 <CodeBlock
-    code={`# Install dependencies
-npm install
-
-# Build the Svelte language server
+    code={`# Build the Svelte language server (Deno workspace)
 cd packages/svelte-language-server
-npm run build`}
+deno task build`}
     lang="bash"
 />
 
@@ -94,7 +91,7 @@ npm run build`}
         </tr>
         <tr>
             <td>Version</td>
-            <td>0.1.7</td>
+            <td>0.1.80</td>
         </tr>
         <tr>
             <td>CLI Command</td>

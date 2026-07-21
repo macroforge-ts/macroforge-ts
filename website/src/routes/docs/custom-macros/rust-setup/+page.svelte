@@ -23,9 +23,9 @@
 
 <ul>
     <li>Rust toolchain (1.88 or later)</li>
-    <li>Node.js 24 or later</li>
+    <li>Node.js 18 or later</li>
     <li>
-        NAPI-RS CLI: <code>cargo install macroforge_ts</code>
+        NAPI-RS CLI: <code>npm install -g @napi-rs/cli</code>
     </li>
 </ul>
 
@@ -57,7 +57,7 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-macroforge_ts = "0.1"
+macroforge_ts = { version = "0.1", features = ["node"] }
 napi = { version = "3", features = ["napi8", "compat-mode"] }
 napi-derive = "3"
 
@@ -84,7 +84,7 @@ strip = true`}
 <h2 id="lib-rs">Create src/lib.rs</h2>
 
 <CodeBlock
-    code={`use macroforge_ts::macros::{ts_macro_derive, body};
+    code={`use macroforge_ts::macros::{ts_macro_derive, ts_template};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
 };
@@ -98,7 +98,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 
     match &input.data {
         Data::Class(class) => {
-            Ok(body! {
+            Ok(ts_template!(Within {
                 toJSON(): Record<string, unknown> {
                     return {
                         {#for field in class.field_names()}
@@ -106,7 +106,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
                         {/for}
                     };
                 }
-            })
+            }))
         }
         _ => Err(MacroforgeError::new(
             input.decorator_span(),

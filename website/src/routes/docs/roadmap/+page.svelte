@@ -194,10 +194,10 @@
         </tr>
         <tr>
             <td>WASM Binary Generation</td>
-            <td><span class="text-warning">Planned</span></td>
+            <td><span class="text-success">Available</span></td>
             <td
                 >Cross-platform WebAssembly binaries for easier macro
-                distribution</td
+                distribution — build them with <code>macroforge build</code></td
             >
         </tr>
         <tr>

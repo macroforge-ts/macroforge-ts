@@ -30,19 +30,23 @@
 
 <CodeBlock code={`const user = new User("Alice", 30, "alice@example.com");
 
-// Debug: toString()
-console.log(user.toString());
+// Debug: static toString(value)
+console.log(User.toString(user));
 // Output: User { name: Alice, age: 30, email: alice@example.com }
 
-// Clone: clone()
-const copy = user.clone();
+// Clone: static clone(value)
+const copy = User.clone(user);
 console.log(copy.name); // "Alice"
 
-// Eq: equals()
-console.log(user.equals(copy)); // true
+// PartialEq: static equals(a, b)
+console.log(User.equals(user, copy)); // true
 
 const different = new User("Bob", 25, "bob@example.com");
-console.log(user.equals(different)); // false`} lang="typescript" />
+console.log(User.equals(user, different)); // false
+
+// Each static wrapper delegates to a standalone function, which you can
+// also import and call directly:
+// userToString(user), userClone(user), userEquals(user, copy)`} lang="typescript" />
 
 <h2 id="customizing-behavior">Customizing Behavior</h2>
 
@@ -53,7 +57,7 @@ console.log(user.equals(different)); // false`} lang="typescript" />
 <MacroExample before={data.examples.customizing.before} after={data.examples.customizing.after} beforeHtml={data.examples.customizing.beforeHtml} afterHtml={data.examples.customizing.afterHtml} />
 
 <CodeBlock code={`const user = new User(42, "Alice", "secret123");
-console.log(user.toString());
+console.log(User.toString(user));
 // Output: User { userId: 42, name: Alice }
 // Note: 'id' is renamed to 'userId', 'password' is skipped`} lang="typescript" />
 

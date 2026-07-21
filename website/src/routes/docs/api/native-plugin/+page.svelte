@@ -39,6 +39,24 @@
 <CodeBlock code={`interface ProcessFileOptions {
   // Cache key - if unchanged, returns cached result
   version?: string;
+
+  // Keep @derive decorators in output (default: false)
+  keepDecorators?: boolean;
+
+  // External decorator module packages to load
+  externalDecoratorModules?: Array<string>;
+
+  // Path to a previously loaded config file
+  configPath?: string;
+
+  // JSON string of project-wide type registry
+  typeRegistryJson?: string;
+
+  // JSON string of the project-wide declarative macro registry
+  declarativeRegistryJson?: string;
+
+  // "dev" | "prod" (default: "prod")
+  buildMode?: string;
 }`} lang="typescript" />
 
 <h3>getMapper()</h3>
