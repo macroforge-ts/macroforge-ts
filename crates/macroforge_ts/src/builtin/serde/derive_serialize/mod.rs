@@ -8,7 +8,7 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `classNameSerialize(value)` + `static serialize(value)` | Standalone function + static wrapper method |
+//! | Class | `classNameSerialize(value, keepMetadata?)` + `static serialize(value, keepMetadata?)` | Standalone function + static wrapper method |
 //! | Enum | `enumNameSerialize(value)`, `enumNameSerializeWithContext` | Standalone functions |
 //! | Interface | `interfaceNameSerialize(value)`, etc. | Standalone functions |
 //! | Type Alias | `typeNameSerialize(value)`, etc. | Standalone functions |
@@ -37,14 +37,16 @@
 //! |------|------------------------|
 //! | Primitives | Direct value |
 //! | `Date` | `toISOString()` |
-//! | Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; otherwise map and call `SerializeWithContext(ctx)` when available |
-//! | `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; otherwise call `SerializeWithContext(ctx)` per value when available |
+//! | Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; for serializable element types, map through the element's `{name}SerializeWithContext` function |
+//! | `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; for serializable values, call `{name}SerializeWithContext` per value |
 //! | `Set<T>` | Convert to array; element handling matches `Array<T>` |
-//! | Nullable | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `SerializeWithContext` checks |
-//! | Objects | Call `SerializeWithContext(ctx)` if available (to support user-defined implementations) |
+//! | `Record<K,V>` | For primitive-like values, pass through; for `Date`/`Date | null`, convert values to ISO strings; for serializable values, rebuild via `Object.fromEntries` calling `{name}SerializeWithContext` per value |
+//! | Wrappers (`Partial<T>`, `Pick<T,K>`, ...) | Serialize based on the inner type `T` |
+//! | Nullable | Include `null` explicitly; non-null values follow the inner type's strategy |
+//! | Objects | Call the type's `{name}SerializeWithContext` function |
 //!
-//! Note: the generator specializes some code paths based on the declared TypeScript type to
-//! avoid runtime feature detection on primitives and literal unions.
+//! Note: which strategy applies is resolved **statically** from the field's declared
+//! TypeScript type at expansion time — there is no runtime feature detection.
 //!
 //! ## Field-Level Options
 //!
@@ -89,14 +91,14 @@
 //! @param value - The value to serialize
 //! @returns JSON string representation with cycle detection metadata  */
 //!
-//!     static serialize(value: User): string {
-//!         return userSerialize(value);
+//!     static serialize(value: User, keepMetadata?: boolean): string {
+//!         return userSerialize(value, keepMetadata);
 //!     }
 //!     /** @internal Serializes with an existing context for nested/cyclic object graphs.
 //! @param value - The value to serialize
 //! @param ctx - The serialization context  */
 //!
-//!     static serializeWithContext(value: User, ctx: @{SERIALIZE_CONTEXT}): Record<string, unknown> {
+//!     static serializeWithContext(value: User, ctx: __mf_SerializeContext): Record<string, unknown> {
 //!         return userSerializeWithContext(value, ctx);
 //!     }
 //! }
@@ -104,10 +106,13 @@
 //! /** Serializes a value to a JSON string.
 //! @param value - The value to serialize
 //! @returns JSON string representation with cycle detection metadata */ export function userSerialize(
-//!     value: User
+//!     value: User,
+//!     keepMetadata?: boolean
 //! ): string {
-//!     const ctx = @{SERIALIZE_CONTEXT}.create();
-//!     return JSON.stringify(userSerializeWithContext(value, ctx));
+//!     const ctx = __mf_SerializeContext.create();
+//!     const __raw = userSerializeWithContext(value, ctx);
+//!     if (keepMetadata) return JSON.stringify(__raw);
+//!     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
 //! } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 //! @param value - The value to serialize
 //! @param ctx - The serialization context */
@@ -168,7 +173,7 @@ use crate::ts_syn::abi::ir::resolve_generic_aliases;
 
 #[ts_macro_derive(
     Serialize,
-    description = "Generates serialization methods with cycle detection (toStringifiedJSON, serializeWithContext)",
+    description = "Generates serialization methods with cycle detection (serialize, serializeWithContext)",
     attributes((serde, "Configure serialization for this field. Options: skip, rename, flatten"))
 )]
 pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
@@ -471,9 +476,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field.array_elem_serializable_type}
                                                         {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
-                                                        {#if field.array_elem_primitive_union_guard.is_some()}
+                                                        {#if let Some(prim) = &field.array_elem_primitive_union_guard}
                                                             result.@{field.json_key_ident} = value.@{field.field_ident}.map(
-                                                                (item) => typeof item === "string" ? item : @{serialize_with_context_elem}(item, ctx)
+                                                                (item) => typeof item === "@{prim}" ? item : @{serialize_with_context_elem}(item, ctx)
                                                             );
                                                         {:else}
                                                             result.@{field.json_key_ident} = value.@{field.field_ident}.map(
@@ -496,9 +501,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {:case _}
                                                 {#if let Some(elem_type) = &field.array_elem_serializable_type}
                                                     {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
-                                                    {#if field.array_elem_primitive_union_guard.is_some()}
+                                                    {#if let Some(prim) = &field.array_elem_primitive_union_guard}
                                                         result.@{field.json_key_ident} = value.@{field.field_ident}.map(
-                                                            (item) => typeof item === "string" ? item : @{serialize_with_context_elem}(item, ctx)
+                                                            (item) => typeof item === "@{prim}" ? item : @{serialize_with_context_elem}(item, ctx)
                                                         );
                                                     {:else}
                                                         result.@{field.json_key_ident} = value.@{field.field_ident}.map(
@@ -655,8 +660,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(type_name)).into()}
                                     {#if field.optional}
                                         if (value.@{field.field_ident} !== undefined) {
-                                            {#if field.primitive_union_guard.is_some()}
-                                                result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "string"
+                                            {#if let Some(prim) = &field.primitive_union_guard}
+                                                result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "@{prim}"
                                                     ? value.@{field.field_ident}
                                                     : @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
                                             {:else}
@@ -664,8 +669,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {/if}
                                         }
                                     {:else}
-                                        {#if field.primitive_union_guard.is_some()}
-                                            result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "string"
+                                        {#if let Some(prim) = &field.primitive_union_guard}
+                                            result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "@{prim}"
                                                 ? value.@{field.field_ident}
                                                 : @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
                                         {:else}
@@ -1188,9 +1193,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field.array_elem_serializable_type}
                                                         {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
-                                                        {#if field.array_elem_primitive_union_guard.is_some()}
+                                                        {#if let Some(prim) = &field.array_elem_primitive_union_guard}
                                                             result.@{field.json_key_ident} = value.@{field.field_ident}.map(
-                                                                (item) => typeof item === "string" ? item : @{serialize_with_context_elem}(item, ctx)
+                                                                (item) => typeof item === "@{prim}" ? item : @{serialize_with_context_elem}(item, ctx)
                                                             );
                                                         {:else}
                                                             result.@{field.json_key_ident} = value.@{field.field_ident}.map(
@@ -1213,9 +1218,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {:case _}
                                                 {#if let Some(elem_type) = &field.array_elem_serializable_type}
                                                     {$let serialize_with_context_elem: Expr = ts_ident!(nested_serialize_fn_name(elem_type)).into()}
-                                                    {#if field.array_elem_primitive_union_guard.is_some()}
+                                                    {#if let Some(prim) = &field.array_elem_primitive_union_guard}
                                                         result.@{field.json_key_ident} = value.@{field.field_ident}.map(
-                                                            (item) => typeof item === "string" ? item : @{serialize_with_context_elem}(item, ctx)
+                                                            (item) => typeof item === "@{prim}" ? item : @{serialize_with_context_elem}(item, ctx)
                                                         );
                                                     {:else}
                                                         result.@{field.json_key_ident} = value.@{field.field_ident}.map(
@@ -1372,8 +1377,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {$let serialize_with_context_fn: Expr = ts_ident!(nested_serialize_fn_name(type_name)).into()}
                                     {#if field.optional}
                                         if (value.@{field.field_ident} !== undefined) {
-                                            {#if field.primitive_union_guard.is_some()}
-                                                result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "string"
+                                            {#if let Some(prim) = &field.primitive_union_guard}
+                                                result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "@{prim}"
                                                     ? value.@{field.field_ident}
                                                     : @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
                                             {:else}
@@ -1381,8 +1386,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {/if}
                                         }
                                     {:else}
-                                        {#if field.primitive_union_guard.is_some()}
-                                            result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "string"
+                                        {#if let Some(prim) = &field.primitive_union_guard}
+                                            result.@{field.json_key_ident} = typeof value.@{field.field_ident} === "@{prim}"
                                                 ? value.@{field.field_ident}
                                                 : @{serialize_with_context_fn}(value.@{field.field_ident}, ctx);
                                         {:else}

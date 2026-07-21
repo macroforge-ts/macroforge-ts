@@ -59,6 +59,10 @@ fn test_validation_condition_generation() {
 
     let condition = generate_validation_condition(&Validator::MaxLength(255), "str");
     assert_eq!(condition, "str.length > 255");
+
+    // nonNegativeInt must enforce both integrality and non-negativity
+    let condition = generate_validation_condition(&Validator::NonNegativeInt, "n");
+    assert_eq!(condition, "!Number.isInteger(n) || n < 0");
 }
 
 #[test]

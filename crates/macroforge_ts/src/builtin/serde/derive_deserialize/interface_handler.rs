@@ -620,8 +620,8 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
 
                                     {:case TypeCategory::Serializable(type_name)}
                                         {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(type_name)).into()}
-                                        {#if field.primitive_union_guard.is_some()}
-                                            if (typeof @{raw_var_ident} === "string") {
+                                        {#if let Some(prim) = &field.primitive_union_guard}
+                                            if (typeof @{raw_var_ident} === "@{prim}") {
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                                 {#if field.has_union_string_validators()}
                                                     {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, interface_name)}
@@ -891,8 +891,8 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
 
                                     {:case TypeCategory::Serializable(type_name)}
                                         {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(type_name)).into()}
-                                        {#if field.primitive_union_guard.is_some()}
-                                            if (typeof @{raw_var_ident} === "string") {
+                                        {#if let Some(prim) = &field.primitive_union_guard}
+                                            if (typeof @{raw_var_ident} === "@{prim}") {
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                                 {#if field.has_union_string_validators()}
                                                     {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, interface_name)}

@@ -27,6 +27,7 @@ fn test_serialize_field_struct() {
         serialize_with: None,
         decimal_format: false,
         primitive_union_guard: None,
+        array_elem_primitive_union_guard: None,
     };
     assert_eq!(field.json_key, "name");
     assert!(!field.optional);

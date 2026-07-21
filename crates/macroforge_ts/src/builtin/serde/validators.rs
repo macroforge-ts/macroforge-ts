@@ -51,6 +51,8 @@ pub enum Validator {
     NonPositive,
     MultipleOf(f64),
     Uint8,
+    /// Combined check: must be an integer AND >= 0 (like `Uint8` without the upper bound)
+    NonNegativeInt,
 
     // Array validators
     MaxItems(usize),
@@ -142,6 +144,7 @@ const KNOWN_VALIDATORS: &[&str] = &[
     "nonPositive",
     "multipleOf",
     "uint8",
+    "nonNegativeInt",
     "maxItems",
     "minItems",
     "itemsCount",
@@ -570,7 +573,7 @@ pub(super) fn parse_validator_string(s: &str) -> Result<Validator, ValidatorPars
         "nonnegativebigint" | "nonnegativebigintfromself" => Ok(Validator::NonNegativeBigInt),
         "negativebigint" | "negativebigintfromself" => Ok(Validator::NegativeBigInt),
         "nonpositivebigint" | "nonpositivebigintfromself" => Ok(Validator::NonPositiveBigInt),
-        "nonnegativeint" => Ok(Validator::Int), // Int + NonNegative combined
+        "nonnegativeint" => Ok(Validator::NonNegativeInt),
         _ => Err(ValidatorParseError::unknown_validator(trimmed)),
     }
 }

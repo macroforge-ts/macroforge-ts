@@ -306,10 +306,14 @@ pub(super) fn generate_field_assignment(
         }
         TypeCategory::Serializable(type_name) => {
             let deser_fn = nested_deserialize_fn_name(type_name);
-            if field.primitive_union_guard.is_some() {
+            // For fields whose static type is a primitive-plus-serializable union,
+            // primitive-side values are passed through as-is — the `typeof === <prim>`
+            // guard captures the actual primitive (`string`, `number`, `boolean`, …)
+            // detected at codegen. Object values go through the nested deserializer.
+            if let Some(prim) = field.primitive_union_guard.as_deref() {
                 lines.push(format!(
-                    "{}__inst.{} = typeof __obj[\"{}\"] === \"string\" ? __obj[\"{}\"] : {}(__obj[\"{}\"], ctx) as {};",
-                    indent, fname, key, key, deser_fn, key, field.ts_type
+                    "{}__inst.{} = typeof __obj[\"{}\"] === \"{}\" ? __obj[\"{}\"] : {}(__obj[\"{}\"], ctx) as {};",
+                    indent, fname, key, prim, key, deser_fn, key, field.ts_type
                 ));
             } else {
                 lines.push(format!(

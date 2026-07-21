@@ -87,6 +87,9 @@ pub fn generate_validation_condition(validator: &Validator, value_var: &str) -> 
         Validator::Uint8 => {
             format!("!Number.isInteger({value_var}) || {value_var} < 0 || {value_var} > 255")
         }
+        Validator::NonNegativeInt => {
+            format!("!Number.isInteger({value_var}) || {value_var} < 0")
+        }
 
         // Array validators
         Validator::MaxItems(n) => format!("{value_var}.length > {n}"),
@@ -218,6 +221,9 @@ pub(super) fn generate_field_validations(
             Validator::Uint8 => {
                 format!("!Number.isInteger({value_var}) || {value_var} < 0 || {value_var} > 255")
             }
+            Validator::NonNegativeInt => {
+                format!("!Number.isInteger({value_var}) || {value_var} < 0")
+            }
 
             // Array validators
             Validator::MaxItems(n) => format!("{value_var}.length > {n}"),
@@ -335,6 +341,9 @@ pub(super) fn get_default_validator_message(
             format!("{context_name}.{field_name} must be a multiple of {n}")
         }
         Validator::Uint8 => format!("{context_name}.{field_name} must be a uint8"),
+        Validator::NonNegativeInt => {
+            format!("{context_name}.{field_name} must be a non-negative integer")
+        }
         Validator::MaxItems(n) => {
             format!("{context_name}.{field_name} must have at most {n} items")
         }

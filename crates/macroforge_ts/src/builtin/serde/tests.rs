@@ -304,6 +304,10 @@ fn test_parse_simple_validators() {
     ));
     assert!(matches!(parse_validator_string("int"), Ok(Validator::Int)));
     assert!(matches!(
+        parse_validator_string("nonNegativeInt"),
+        Ok(Validator::NonNegativeInt)
+    ));
+    assert!(matches!(
         parse_validator_string("positive"),
         Ok(Validator::Positive)
     ));
