@@ -58,7 +58,7 @@ export interface Foo {
 "#;
 
     {
-        crate::host::config::clear_config_cache();
+        crate::host::config::CONFIG_CACHE.remove(config_path);
         clear_foreign_types();
         crate::host::import_registry::clear_registry();
         crate::host::config::MacroforgeConfigLoader::load_and_cache(config_source, config_path)
@@ -80,7 +80,7 @@ export interface Foo {
         .expect("expand_sync should succeed");
 
         clear_foreign_types();
-        crate::host::config::clear_config_cache();
+        crate::host::config::CONFIG_CACHE.remove(config_path);
 
         let error_count = result
             .diagnostics
@@ -178,7 +178,7 @@ export interface Foo {
 "#;
 
     {
-        crate::host::config::clear_config_cache();
+        crate::host::config::CONFIG_CACHE.remove(config_path);
         clear_foreign_types();
         crate::host::import_registry::clear_registry();
         crate::host::config::MacroforgeConfigLoader::load_and_cache(config_source, config_path)
@@ -200,7 +200,7 @@ export interface Foo {
         .expect("expand_sync should succeed");
 
         clear_foreign_types();
-        crate::host::config::clear_config_cache();
+        crate::host::config::CONFIG_CACHE.remove(config_path);
 
         let error_count = result
             .diagnostics
@@ -272,7 +272,7 @@ export interface Foo {
 "#;
 
     {
-        crate::host::config::clear_config_cache();
+        crate::host::config::CONFIG_CACHE.remove(config_path);
         clear_foreign_types();
         crate::host::import_registry::clear_registry();
         crate::host::config::MacroforgeConfigLoader::load_and_cache(config_source, config_path)
@@ -294,7 +294,7 @@ export interface Foo {
         .expect("expand_sync should succeed");
 
         clear_foreign_types();
-        crate::host::config::clear_config_cache();
+        crate::host::config::CONFIG_CACHE.remove(config_path);
 
         let error_count = result
             .diagnostics
