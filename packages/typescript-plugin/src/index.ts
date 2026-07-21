@@ -743,20 +743,24 @@ function shouldProcess(fileName: string) {
  * @returns `true` if the file likely contains macro directives, `false` otherwise
  *
  * @remarks
- * The function checks for the following patterns:
- * - `@derive` anywhere in the text (catches both JSDoc and decorator usage)
- * - `/** @derive(` pattern (JSDoc macro declaration)
- * - `/** import macro` pattern (inline macro import syntax)
+ * The function checks for the following three patterns:
+ * - A JSDoc comment opening directly followed by `@derive` (i.e. `/** @derive...`)
+ * - A JSDoc comment opening directly followed by `import macro` (inline macro
+ *   import syntax)
+ * - A `$` immediately followed by a letter anywhere in the text (declarative
+ *   macro invocations like `$vec(...)`)
  *
- * This is intentionally permissive - it's better to have false positives
- * (which just result in unnecessary expansion attempts) than false negatives
- * (which would break macro functionality).
+ * Plain decorator syntax without a JSDoc comment (e.g. `@Debug class User {}`)
+ * does NOT match. The `$` check is intentionally permissive - it's better to
+ * have false positives (which just result in unnecessary expansion attempts)
+ * than false negatives (which would break macro functionality).
  *
  * @example
  * ```typescript
- * hasMacroDirectives('/** @derive(Debug) * /');  // => true
- * hasMacroDirectives('@Debug class User {}');    // => true (contains @derive substring? no, but @Debug yes)
- * hasMacroDirectives('class User {}');           // => false
+ * hasMacroDirectives('/** @derive(Debug) * /'); // => true
+ * hasMacroDirectives('const v = $vec(1, 2);');  // => true ($ + letter)
+ * hasMacroDirectives('@Debug class User {}');   // => false (no JSDoc, no $)
+ * hasMacroDirectives('class User {}');          // => false
  * ```
  */
 function hasMacroDirectives(text: string) {

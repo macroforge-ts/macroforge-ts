@@ -6,30 +6,81 @@
 
 import { createRequire } from 'node:module';
 
+/** One macro exported by an external macro package (from `__macroforgeGetManifest*`). */
 export interface MacroManifestEntry {
+    /** Macro name as used in `@derive(...)` (matched case-insensitively). */
     name: string;
+    /** Macro kind (e.g. `"derive"`). */
     kind: string;
+    /** Human-readable description shown in editor tooling. */
     description: string;
+    /** Package specifier the macro lives in (e.g. `"@playground/macro"`). */
     package: string;
 }
 
+/** One decorator exported by an external macro package. Note: docs live in `docs`, not `description`. */
 export interface DecoratorManifestEntry {
+    /** Module specifier the decorator is imported from. */
     module: string;
+    /** Exported decorator name (matched case-insensitively by lookups). */
     export: string;
+    /** Decorator kind (e.g. `"field"`, `"class"`). */
     kind: string;
+    /** Human-readable documentation shown in editor tooling. */
     docs: string;
 }
 
+/**
+ * Options accepted by the native engine's `expandSync(code, filepath, options)`.
+ *
+ * Mirrors the napi `ExpandOptions` object (camelCase over the ABI boundary).
+ */
 export interface ExpandOptions {
+    /**
+     * If `true`, preserves `@derive` decorators in the output.
+     * If `false` (default), decorators are stripped after expansion.
+     */
     keepDecorators?: boolean;
+    /**
+     * Decorator module names contributed by external macro packages, used
+     * during decorator stripping. Built-in modules are always included.
+     */
     externalDecoratorModules?: string[];
+    /**
+     * Path to a config file previously loaded via the native `loadConfig`.
+     * The engine reads macro-behavior sections (foreign types, `cfg`,
+     * `deprecated`, ...) from its cache for this path.
+     */
     configPath?: string;
+    /**
+     * Pre-built type registry JSON (from `scanProjectSync` or
+     * `.macroforge/type-registry.json`) giving macros project-wide type
+     * awareness.
+     */
     typeRegistryJson?: string;
+    /**
+     * Pre-built project-wide declarative macro registry JSON. Enables
+     * cross-file "import macro" comment resolution (importing `$name`
+     * macros from another file); without it, cross-file macro imports
+     * emit diagnostics at each unresolved call site.
+     */
+    declarativeRegistryJson?: string;
+    /**
+     * Build mode for declarative (reverse-monomorphization) macros.
+     * `"dev"` expands everything inline for precise diagnostics; `"prod"`
+     * lets share/cluster modes emit shared runtime helpers. Engine default
+     * when absent: `"dev"`.
+     */
+    buildMode?: 'dev' | 'prod';
 }
 
+/** Aggregated manifest for an external macro package. */
 export interface MacroManifest {
+    /** Manifest schema version reported by the package. */
     version: number | string;
+    /** Macros exported by the package. */
     macros: MacroManifestEntry[];
+    /** Decorators exported by the package. */
     decorators: DecoratorManifestEntry[];
 }
 
@@ -209,7 +260,7 @@ export function getExternalMacroInfo(
  * ```typescript
  * const decoratorInfo = getExternalDecoratorInfo("hiddenController", "@playground/macro");
  * if (decoratorInfo) {
- *   console.log(decoratorInfo.description);
+ *   console.log(decoratorInfo.docs);
  * }
  * ```
  */

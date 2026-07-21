@@ -19,12 +19,20 @@ export const CONFIG_FILES = [
 ] as const;
 
 /**
- * Result from parsing a config file.
+ * Result from parsing a config file (as returned by the native `loadConfig`).
+ *
+ * Note that `loadMacroConfig` forwards only `keepDecorators`,
+ * `generateConvenienceConst`, and `hasForeignTypes` into its `MacroConfig`
+ * result; the remaining flags are informational for the caller.
  */
 export interface ConfigLoadResult {
+    /** Value of `keepDecorators` from the config file (false when unset). */
     keepDecorators: boolean;
+    /** Value of `generateConvenienceConst` from the config file (true when unset). */
     generateConvenienceConst: boolean;
+    /** True when the config registers at least one foreign type handler. */
     hasForeignTypes: boolean;
+    /** Number of foreign type handlers registered by the config. */
     foreignTypeCount: number;
     /** True when the config provides a non-empty `cfg` block. */
     hasCfgFlags?: boolean;
@@ -272,12 +280,23 @@ export function findConfigFile(startDir: string): string | null {
  * provided loader function (if any), which extracts configuration including
  * foreign type handlers.
  *
+ * The returned `MacroConfig` is a subset: only `keepDecorators`,
+ * `generateConvenienceConst`, `configPath`, and `hasForeignTypes` are ever
+ * populated. The macro-behavior sections (`cfg`, `deprecated`, `mustUse`,
+ * `nonExhaustive`) and the `vite` section are NOT surfaced here — the native
+ * engine consumes them itself from its cache keyed by `configPath` (pass
+ * `configPath` through in `ExpandOptions`), and the Vite plugin re-imports
+ * the config file to read its `vite` section.
+ *
+ * If the loader function throws, the error is swallowed and the fallback
+ * (defaults plus `configPath`) is returned.
+ *
  * @param startDir - The directory to start searching from (typically the project root)
  * @param loadConfigFn - Optional function to parse the config file content.
  *                       If provided, will be called with (content, filepath).
  *                       If not provided, only the configPath will be set.
  *
- * @returns The loaded configuration, or default values if no config file is found
+ * @returns The loaded configuration subset, or default values if no config file is found
  *
  * @example
  * ```typescript
