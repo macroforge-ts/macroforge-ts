@@ -97,7 +97,7 @@ scripts = { cmd = "tooling/scripts/target/release/mf --tui" }
 # wasm-pack cache may hand `bench.mjs` a newer CLI that rejects the .wasm
 # with a "schema version mismatch" error. Run once per machine:
 #   pixi run setup:wasm-bindgen
-"setup:wasm-bindgen" = { cmd = "cargo install wasm-bindgen-cli --version 0.2.117 --locked" }
+"setup:wasm-bindgen" = { cmd = "cargo install wasm-bindgen-cli --version 0.2.118 --locked" }
 
 [dependencies]
 # Rust toolchain manager from brads-forge. The active rust version, components,
@@ -116,6 +116,8 @@ rust-script = ">=0.36"
 # `wasm-pack` builds the macroforge_ts wasm artifact (see build:rust / bench.mjs;
 # the wasm-bindgen-cli version is pinned separately via `setup:wasm-bindgen`).
 wasm-pack = ">=0.15"
+rust-std-wasm32-unknown-unknown = ">=1.97.1,<2"
+cargo-nextest = ">=0.9.140,<0.10"
 
 [activation.env]
 RUSTUP_HOME = "$HOME/.pixi/envs/rustup/.rustup"
