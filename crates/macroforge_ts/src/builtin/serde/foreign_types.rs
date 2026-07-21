@@ -219,7 +219,10 @@ pub struct ForeignTypeMatch<'a> {
     pub config: Option<&'a ForeignTypeConfig>,
     /// Warning message for informational hints.
     pub warning: Option<String>,
-    /// Error message for import source mismatches (should fail the build).
+    /// Error message for import source mismatches. Currently never populated:
+    /// `match_foreign_type` lets import-source mismatches silently fall through
+    /// to generic handling (TypeScript catches any resulting issues downstream),
+    /// so consumers' error branches are dead code today.
     pub error: Option<String>,
 }
 
@@ -234,7 +237,9 @@ impl<'a> ForeignTypeMatch<'a> {
     }
 
     /// Create an import mismatch error (type matches but import source doesn't).
-    /// This should cause a build failure.
+    /// Currently unused: `match_foreign_type` treats import-source mismatches as
+    /// non-matches that fall through to generic handling rather than errors.
+    /// Kept for a future strict mode that fails the build on mismatches.
     pub fn import_mismatch(_config: &'a ForeignTypeConfig, error: String) -> Self {
         Self {
             config: None,

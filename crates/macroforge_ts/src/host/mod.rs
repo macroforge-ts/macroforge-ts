@@ -33,16 +33,22 @@
 //!
 //! ## Module Organization
 //!
+//! - [`attributes`] - Attribute macros (`@cfg`, `@deprecated`, `@mustUse`, `@nonExhaustive`)
+//! - [`buildtime`] - Sandboxed compile-time `@buildtime` evaluation
 //! - [`config`] - Configuration loading and management (`macroforge.config.ts`)
+//! - [`declarative`] - Declarative (pattern-matching) `$name(...)` macros
 //! - [`derived`] - Inventory-based registration for built-in derive macros
 //! - [`dispatch`] - Macro call routing and ABI version checking
 //! - [`error`] - Error types (`MacroError`) and `Result` type alias
 //! - [`expand`] - The main `MacroExpander` that orchestrates expansion
+//! - [`import_registry`] - Unified import registry used during expansion
 //! - [`macros`] - Helper macros for macro registration
 //! - [`package_registry`] - Global registry for macro package registrars
 //! - [`patch_applicator`] - Applies code patches with source mapping
 //! - [`registry`] - Thread-safe macro storage (`MacroRegistry`)
+//! - [`scanner`] - Project-wide TypeScript scanner for type awareness
 //! - [`traits`] - Core traits (`Macroforge`, `MacroPackage`)
+//! - [`type_resolver`] - Type resolution against the project registry
 //!
 //! ## Key Types
 //!

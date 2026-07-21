@@ -38,7 +38,7 @@
 //! | `Set<T>` | `new Set()` |
 //! | `Date` | `new Date()` |
 //! | `T \| null` | `null` |
-//! | `CustomType` | `CustomType.defaultValue()` |
+//! | `CustomType` | `customTypeDefaultValue()` |
 
 mod field_options;
 mod registry_helpers;

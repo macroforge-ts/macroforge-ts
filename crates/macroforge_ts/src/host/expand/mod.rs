@@ -2,7 +2,7 @@
 //!
 //! This module provides the core expansion functionality for TypeScript macros.
 //! It handles classes, interfaces, enums, and type aliases, supports external
-//! macro loading via Node.js, and provides source mapping for IDE integration.
+//! macro loading via dlopen/FFI, and provides source mapping for IDE integration.
 //!
 //! ## Architecture Overview
 //!
@@ -13,12 +13,18 @@
 //! ┌──────────────────────────────────────────┐
 //! │            MacroExpander                  │
 //! │                                           │
+//! │  0. declarative_prepass_oxc()             │
+//! │     - Discover/rewrite `$name(...)`       │
+//! │       declarative macro calls (oxc only)  │
+//! │                                           │
 //! │  1. prepare_expansion_context()           │
 //! │     - Lower AST to IR (ClassIR, etc.)    │
 //! │                                           │
 //! │  2. collect_macro_patches()               │
-//! │     - Find @derive decorators             │
-//! │     - Dispatch to macro implementations   │
+//! │     - Find @derive decorators and         │
+//! │       attribute-macro annotations         │
+//! │     - Dispatch derives, then attribute    │
+//! │       macros (which see derive output)    │
 //! │     - Collect patches from each macro     │
 //! │                                           │
 //! │  3. apply_and_finalize_expansion()        │
@@ -41,16 +47,17 @@
 //! ## External Macro Loading
 //!
 //! When a macro is not found in the built-in registry, the expander can
-//! load external macros by spawning a Node.js process. This enables:
+//! load external macros compiled as native shared libraries. This enables:
 //!
-//! - User-defined macros in JavaScript/TypeScript
+//! - User-defined macros written in Rust with `#[ts_macro_derive]`
 //! - Workspace-local macros in monorepos
 //! - npm-published macro packages
 //!
-//! The external loader searches for macros in:
-//! 1. `node_modules` nearest to the file being processed
-//! 2. The module path specified in the import
-//! 3. Workspace packages defined in `package.json`
+//! The external loader looks for `root_dir/node_modules/<module>` and loads
+//! the first `.node`/`.dylib`/`.so` file in that package via `libloading`
+//! (dlopen), calling the package's `__macroforge_ffi_*` symbols. On WASM,
+//! where dlopen isn't available, the host JS environment supplies resolve/run
+//! callbacks via `setupExternalMacros` instead.
 //!
 //! ## Usage Example
 //!
@@ -1646,6 +1653,9 @@ impl MacroExpander {
         (collector, std::mem::take(diagnostics))
     }
 
+    /// Convert a macro's raw token output into positioned `(runtime, type)`
+    /// patch pairs. Splits the tokens on `above`/`below`/body insertion
+    /// markers and anchors each chunk relative to the target's span.
     pub(crate) fn process_macro_output(
         &self,
         result: &mut MacroResult,
@@ -1947,6 +1957,9 @@ impl MacroExpander {
         Ok((runtime_patches, type_patches))
     }
 
+    /// Phase 3: apply the collected runtime and type patches, build the
+    /// source mapping, optionally strip decorators, and assemble the final
+    /// [`MacroExpansion`].
     pub(crate) fn apply_and_finalize_expansion(
         &self,
         source: &str,

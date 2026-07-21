@@ -250,8 +250,9 @@ struct ExternalCallbacks {
 /// Register JS callbacks for resolving and running external (user-defined) macros.
 ///
 /// Required for WASM builds. The native (NAPI) build resolves external macros
-/// by spawning a Node subprocess, but WASM cannot spawn processes. Instead, the
-/// host JS environment must provide two callbacks:
+/// by dlopen-ing the package's shared library and calling its FFI symbols,
+/// but WASM cannot load native libraries. Instead, the host JS environment
+/// must provide two callbacks:
 ///
 /// resolve: Given a package path, return an array of decorator names exported by that package.
 ///

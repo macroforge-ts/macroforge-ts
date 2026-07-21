@@ -285,6 +285,10 @@ impl WasmNativeMapper {
     }
 }
 
+/// Stub kept for API parity with the NAPI build: the constructor ignores
+/// its argument and both mapping methods always return `null`. WASM
+/// callers should use `NativeMapper` (from `processFile`'s plugin flow)
+/// for real position mapping.
 #[wasm_bindgen]
 pub struct NativePositionMapper {}
 

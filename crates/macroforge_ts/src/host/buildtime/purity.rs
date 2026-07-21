@@ -1,14 +1,17 @@
 //! Conservative purity analyzer for `@buildtime`-adjacent source.
 //!
-//! When a `@buildtime` body references functions defined elsewhere in
-//! the same file, the pre-pass snapshots the file (minus its
-//! `@buildtime` decls) and hands the snapshot to the sandbox as a
-//! sibling module. For that to be safe, the snapshot must have no
+//! When a `@buildtime` body references declarations defined elsewhere in
+//! the same file, the pre-pass builds a textual *prelude* — the file's
+//! pure top-level `const` and `function` declarations, prepended to the
+//! body before it's handed to the sandbox (see
+//! `prepass::build_same_file_prelude`; classes and TS-only declarations
+//! are excluded there because their type syntax can't be fed to the
+//! JS-only sandbox). For that to be safe, the included code must have no
 //! top-level side effects — no `console.log("loading...")`, no
 //! `fetch().then(...)`, no `writeFileSync`, no implicit state mutation.
 //!
-//! The analyzer walks the program and rejects any top-level statement
-//! that isn't one of:
+//! [`analyze`] walks a program and rejects any top-level statement that
+//! isn't one of:
 //!
 //! - `import ...`
 //! - `export ...` (when the exported item is itself pure)
@@ -16,6 +19,9 @@
 //! - `function NAME() { ... }`
 //! - `class NAME { ... }` (declaration only; body contents are runtime)
 //! - `type NAME = ...` / `interface NAME { ... }`
+//!
+//! The pre-pass itself runs its own equivalent scan inline and uses
+//! [`expression_side_effect`] from here to vet `const` initializers.
 //!
 //! This is deliberately strict: false positives (pure code the analyzer
 //! rejects) are better than false negatives (impure code that gets

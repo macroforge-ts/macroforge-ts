@@ -13,8 +13,9 @@
 //!
 //! Multiple keys in one annotation combine with implicit AND. A mismatch
 //! produces a `Patch::Delete` over the entire declaration (including the
-//! leading JSDoc). A match strips just the annotation line, so the
-//! surviving declaration is clean.
+//! leading JSDoc). A match deletes the whole JSDoc block containing the
+//! annotation (not just the annotation line), so the surviving
+//! declaration is clean.
 
 use std::collections::HashSet;
 

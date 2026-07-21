@@ -170,7 +170,8 @@ pub trait Macroforge: Send + Sync {
     ///
     /// - Increment when the `TsStream` or `MacroResult` structures change
     /// - Increment when the patch format changes
-    /// - Macros with mismatched versions are rejected with `MacroError::AbiVersionMismatch`
+    /// - Macros with mismatched versions are not executed; the dispatcher
+    ///   reports the mismatch as an error-level diagnostic
     ///
     /// # Default
     ///

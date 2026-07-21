@@ -53,7 +53,8 @@ pub struct BuildtimeDecl {
     pub name: String,
     /// Span of the entire statement that should be replaced by the
     /// serialized result (including the leading `export` keyword when
-    /// present). 0-based byte offsets into the original source.
+    /// present). 1-based byte offsets into the original source (the
+    /// SpanIR convention — the patch applicator subtracts 1).
     pub decl_span: SpanIR,
     /// Source text to pass to the sandbox. For Tier 1 this is `return <expr>;`,
     /// for Tier 2 it's the function body with its outer braces stripped.

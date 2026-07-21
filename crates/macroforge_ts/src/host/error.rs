@@ -116,9 +116,13 @@ pub enum MacroError {
     /// The macro's ABI version doesn't match what the host expects.
     ///
     /// This is a safety mechanism to prevent crashes from incompatible
-    /// macro implementations. It occurs when:
+    /// macro implementations:
     /// - Loading macros compiled against a different macroforge version
     /// - Using outdated macro packages
+    ///
+    /// Currently never constructed: the dispatcher reports ABI mismatches
+    /// as error-level diagnostics in the `MacroResult` instead of
+    /// returning this variant.
     ///
     /// # Fields
     ///

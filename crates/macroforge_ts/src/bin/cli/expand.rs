@@ -235,7 +235,8 @@ fn canonicalized_target(path: &Path) -> PathBuf {
 ///
 /// # Exit Codes
 ///
-/// Calls `std::process::exit(2)` if no macros are found and not in quiet mode.
+/// Calls `std::process::exit(2)` whenever no macros are found; `quiet`
+/// only suppresses the stderr message, not the exit code.
 pub fn expand_file(
     input: PathBuf,
     out: Option<PathBuf>,
@@ -272,7 +273,7 @@ pub(crate) struct FileExpansion {
 /// ## Configuration Loading
 ///
 /// Searches for and loads `macroforge.config.ts/js` to enable foreign type
-/// handlers, parsed natively using SWC without requiring Node.js.
+/// handlers, parsed natively without requiring Node.js.
 ///
 /// # Returns
 ///

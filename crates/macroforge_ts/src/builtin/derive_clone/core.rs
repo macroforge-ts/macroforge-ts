@@ -10,8 +10,9 @@ use super::clone_generation::generate_clone_expr;
 ///
 /// This macro implementation handles four TypeScript data types:
 ///
-/// - **Classes**: Generates an instance method that creates a new object via
-///   `Object.create()` and copies all fields
+/// - **Classes**: Generates a static `clone(value)` wrapper method plus a standalone
+///   `{className}Clone` function that creates a new object via `Object.create()`
+///   and copies all fields
 /// - **Enums**: Generates a standalone function that returns the value unchanged
 /// - **Interfaces**: Generates a standalone function that creates a new object literal
 /// - **Type Aliases**: Generates a standalone function with appropriate copying strategy

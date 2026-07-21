@@ -7,6 +7,12 @@ use crate::api_types::{
 };
 use crate::expand_core::{expand_inner, transform_inner};
 
+/// Trait sketch of the output-agnostic macro API surface.
+///
+/// Currently not implemented by anything — both the NAPI and WASM bindings
+/// call the inherent methods on [`CoreEngine`] directly. Kept public for
+/// semver compatibility; may be wired up (or removed) in a future major
+/// version.
 pub trait MacroforgeApi {
     type Error;
 
@@ -55,9 +61,20 @@ fn singleton() -> &'static std::sync::Mutex<Option<CachedScanner>> {
     SINGLETON_SCANNER.get_or_init(|| std::sync::Mutex::new(None))
 }
 
+/// Output-agnostic facade over the macro engine.
+///
+/// Every public entry point in `bindings_napi` and `bindings_wasm` delegates
+/// to an associated function here, so this is the single place where
+/// parsing, expansion, and scanning behavior is defined for both targets.
+/// On native targets, [`CoreEngine::expand_sync`], [`CoreEngine::transform_sync`],
+/// and [`CoreEngine::scan_project_sync`] run their work on a dedicated worker
+/// thread with a 32MB stack (deep AST recursion overflows the default stack)
+/// and catch panics, reporting them as `Err(String)` instead of aborting the
+/// host process.
 pub struct CoreEngine;
 
 impl CoreEngine {
+    /// Parse `code` and report whether it is syntactically valid TypeScript.
     pub fn check_syntax(code: &str, filepath: &str) -> Result<SyntaxCheckResult, String> {
         #[cfg(feature = "swc")]
         {
@@ -104,6 +121,7 @@ impl CoreEngine {
         }
     }
 
+    /// Collect the `(local name, module specifier)` pairs of every import in `code`.
     pub fn parse_import_sources(
         code: &str,
         filepath: &str,
@@ -154,6 +172,8 @@ impl CoreEngine {
         }
     }
 
+    /// Parse a `macroforge.config.*` source, cache it process-wide, and
+    /// return a summary of which config blocks were provided.
     pub fn load_config(content: &str, filepath: &str) -> Result<LoadConfigResult, String> {
         use crate::host::MacroforgeConfigLoader;
         eprintln!("[macroforge:api] load_config called for {}", filepath);
@@ -200,11 +220,15 @@ impl CoreEngine {
         })
     }
 
+    /// Drop the process-wide config cache populated by [`Self::load_config`].
     pub fn clear_config_cache() {
         eprintln!("[macroforge:api] clear_config_cache called");
         crate::host::clear_config_cache();
     }
 
+    /// Expand macros in `code` with default options and return the
+    /// transformed source. On native targets the work runs on a worker
+    /// thread with a 32MB stack; panics are caught and returned as `Err`.
     pub fn transform_sync(code: String, filepath: String) -> Result<TransformResult, String> {
         #[cfg(not(target_arch = "wasm32"))]
         {
@@ -256,6 +280,9 @@ impl CoreEngine {
         }
     }
 
+    /// Expand macros in `code` and return the full result (code, diagnostics,
+    /// source mapping, metadata). On native targets the work runs on a worker
+    /// thread with a 32MB stack; panics are caught and returned as `Err`.
     pub fn expand_sync(
         code: String,
         filepath: String,
@@ -361,6 +388,9 @@ impl CoreEngine {
         }
     }
 
+    /// Scan `root_dir` for exported types and declarative macros, returning
+    /// the serialized registries. Reuses the process-global cached scanner
+    /// when the root matches; runs on a 32MB-stack worker thread on native.
     pub fn scan_project_sync(
         root_dir: String,
         options: Option<ScanOptions>,

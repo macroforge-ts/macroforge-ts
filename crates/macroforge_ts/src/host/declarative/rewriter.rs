@@ -4,10 +4,10 @@
 //! The walker is implemented as two `oxc::ast_visit::Visit` implementors:
 //!
 //! - [`CollectVisitor`] — first pass (only when at least one `Auto`-mode
-//!   macro is registered AND we're building for prod). Records a
-//!   [`ResolvedCallSite`] for every `$name(...)` whose callee resolves to
-//!   an `Auto` macro, so the megamorph analyzer has real shapes to work
-//!   with.
+//!   macro is registered AND we're building for prod or dev with
+//!   `force_share`). Records a [`ResolvedCallSite`] for every `$name(...)`
+//!   whose callee resolves to an `Auto` macro, so the megamorph analyzer
+//!   has real shapes to work with.
 //! - [`RewriteVisitor`] — main pass. A single traversal that handles
 //!   BOTH value-position calls (`$macro(x)`) and type-position
 //!   references (`$Macro<T>`), because the default OXC walker already
@@ -66,11 +66,12 @@ pub struct RewriteOutput {
 /// patches for every discovered macro's declaration span so the original
 /// `` const $name = macroRules`...` `` is stripped from the output.
 ///
-/// `build_mode` controls reverse-monomorphization: in `Dev`, all modes
-/// behave like `ExpandOnly`; in `Prod`, `ShareOnly` / `ShareAnyway`
-/// emit a top-of-file runtime helper and each call site becomes a call
-/// to it. `Auto` in `Prod` is a stub for Phase 9c — it currently falls
-/// back to `ExpandOnly` behavior until the megamorphism analyzer lands.
+/// `build_mode` controls reverse-monomorphization: `ShareOnly` /
+/// `ShareAnyway` emit a top-of-file runtime helper and rewrite each call
+/// site to a call to it in *both* Dev and Prod. `Auto` expands inline in
+/// Dev (unless `force_share` is set) and, in Prod, consults the
+/// megamorphism analyzer to pick Share (single helper), Cluster (one
+/// helper per shape cluster), or ForceExpand (inline) per macro.
 pub fn rewrite(
     program: &Program<'_>,
     source: &str,
@@ -229,9 +230,10 @@ pub fn rewrite(
 }
 
 /// First-pass visitor for the megamorphism analyzer. Runs only when at
-/// least one `Auto`-mode macro is registered and `BuildMode::Prod` is
-/// active. Records a [`ResolvedCallSite`] for every `$name(...)` whose
-/// callee resolves to an `Auto` macro. No patches, no diagnostics.
+/// least one `Auto`-mode macro is registered and we're in `Prod` (or Dev
+/// with `force_share`). Records a [`ResolvedCallSite`] for every
+/// `$name(...)` whose callee resolves to an `Auto` macro. No patches, no
+/// diagnostics.
 ///
 /// Uses OXC's default walker for every node type except
 /// [`VariableDeclarator`], which we skip when it's a macro definition
@@ -306,7 +308,7 @@ pub(super) struct RewriteVisitor<'a> {
     emitted_runtimes: HashSet<(String, String)>,
     /// Optional megamorphism report from the first-pass walk. Populated
     /// only when at least one `Auto`-mode macro is registered and we're
-    /// building for prod — see [`rewrite`].
+    /// building for prod (or dev with `force_share`) — see [`rewrite`].
     megamorph_report: Option<&'a MegamorphReport>,
     /// Deduplication set for type-position rewrites. A `TSTypeReference`
     /// whose span has already been rewritten is skipped so the same
@@ -771,9 +773,7 @@ pub(super) fn try_rewrite_call(
     // would incorrectly inject an empty-string substitution. Convert
     // an empty cluster id to `None` so the expander skips the
     // synthetic binding.
-    let expander_cluster_id: Option<&str> = cluster_id
-        .as_deref()
-        .and_then(|s| if s.is_empty() { None } else { Some(s) });
+    let expander_cluster_id: Option<&str> = cluster_id.as_deref().filter(|s| !s.is_empty());
 
     // Match call args against the selected arm set.
     match match_invocation_against_arms(arms, &call.arguments, visitor.source) {
@@ -850,11 +850,10 @@ pub(super) fn try_rewrite_call(
 /// diagnostic blame distinguishes between per-cluster helper
 /// variants.
 ///
-/// Used by both [`try_rewrite_call`] (in this module) and
-/// [`super::type_walker::try_rewrite_type_ref`] via
-/// [`RewriteVisitor::format_attribution`] — the latter delegates
-/// here so the type-walker's attribution format stays in sync with
-/// the value-walker's.
+/// Used by both `try_rewrite_call` (in this module) and the
+/// type-walker's `try_rewrite_type_ref`, which calls this function
+/// directly so the type-walker's attribution format stays in sync
+/// with the value-walker's.
 pub(super) fn format_attribution(name: &str, cluster_id: &str) -> String {
     if cluster_id.is_empty() {
         format!("${}", name)

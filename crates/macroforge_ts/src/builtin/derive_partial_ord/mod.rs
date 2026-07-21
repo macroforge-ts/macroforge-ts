@@ -19,10 +19,14 @@
 //!
 //! Unlike `Ord`, `PartialOrd` returns `number | null` to handle incomparable values:
 //!
-//! - **-1**: `a` is less than `b`
+//! - **negative**: `a` is less than `b`
 //! - **0**: `a` is equal to `b`
-//! - **1**: `a` is greater than `b`
+//! - **positive**: `a` is greater than `b`
 //! - **null**: Values are incomparable
+//!
+//! Note: results are **not** clamped to -1/0/1. String fields return the raw
+//! `localeCompare()` value, which can be any negative or positive number (unlike
+//! `Ord`, which clamps `localeCompare` results). Only check the sign of the result.
 //!
 //! ## When to Use PartialOrd vs Ord
 //!
@@ -47,8 +51,8 @@
 //!
 //! | Type | Comparison Method |
 //! |------|-------------------|
-//! | `number`/`bigint` | Direct subtraction (`a - b`) |
-//! | `string` | `localeCompare()` |
+//! | `number`/`bigint` | Ternary comparison (`a < b ? -1 : a > b ? 1 : 0`) |
+//! | `string` | `localeCompare()` (raw, unclamped result) |
 //! | `boolean` | `false < true` (cast to number) |
 //! | null/undefined | Returns `null` for mismatched nullability |
 //! | Arrays | Lexicographic, propagates `null` on incomparable elements |

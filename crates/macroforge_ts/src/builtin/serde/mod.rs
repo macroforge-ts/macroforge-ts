@@ -5,15 +5,28 @@
 //!
 //! ## Generated Methods
 //!
+//! For classes, methods are generated as `static` members plus standalone functions
+//! (`{name}Serialize`, `{name}Deserialize`, ...) that delegate to them; interfaces and
+//! type aliases get the standalone functions only.
+//!
 //! ### Serialize
 //!
-//! - `serialize(): string` - Serialize to JSON string
-//! - `SerializeWithContext(ctx): Record<string, unknown>` - Internal method with cycle detection
+//! - `static serialize(value, keepMetadata?): string` - Serialize to JSON string;
+//!   `__type`/`__id` metadata is stripped unless `keepMetadata` is true
+//! - `static serializeWithContext(value, ctx): Record<string, unknown>` - Internal method with cycle detection
 //!
 //! ### Deserialize
 //!
-//! - `static deserialize(input: unknown): Result<T, Error[]>` - Parse and validate (auto-detects string vs object)
-//! - `static deserializeWithContext(value, ctx): T` - Internal method with cycle resolution
+//! - `static deserialize(input: unknown, opts?: { freeze?: boolean }):
+//!   { success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }` -
+//!   Parse and validate (auto-detects string vs object); never throws
+//! - `static deserializeWithContext(value, ctx): T | PendingRef` - Internal method with cycle resolution
+//! - `static hasShape(obj): boolean` - Structural check that all required JSON keys are present
+//! - `static is(value): value is T` - Type guard (instanceof, shape check, then a full deserialize)
+//! - `static validateField(field, value)` / `static validateFields(partial)` - Run field validators standalone
+//! - Classes also get a synthesized `constructor(props)` that assigns all deserialized fields
+//! - **Enums** get standalone functions only (`{name}Deserialize`, `{name}Is`); the enum
+//!   `deserialize` function **throws** on invalid values instead of returning a result union
 //!
 //! ## Cycle Detection
 //!
@@ -43,6 +56,8 @@
 //! | `flatten` | Flatten nested object fields into parent |
 //! | `serializeWith = "fn"` | Use custom function for serialization |
 //! | `deserializeWith = "fn"` | Use custom function for deserialization |
+//! | `format = "decimal"` | Serialize a number field as a string |
+//! | `validate: [...]` | Run validators during deserialization (see below) |
 //!
 //! ## Container-Level Options
 //!
@@ -51,6 +66,13 @@
 //! | `renameAll = "camelCase"` | Apply naming convention to all fields |
 //! | `denyUnknownFields` | Reject JSON with extra fields |
 //! | `tag = "fieldName"` | Custom type discriminator field name (default: `"__type"`) |
+//! | `content = "fieldName"` | With `tag`, selects adjacently-tagged union representation |
+//! | `untagged` | Untagged union representation (raw value, no discriminator) |
+//! | `externallyTagged` | Externally-tagged union representation (`{ "TypeName": {...} }`) |
+//!
+//! The tagging options combine into four modes mirroring Rust serde: internally tagged
+//! (the default, `tag` only), adjacently tagged (`tag` + `content`), externally tagged,
+//! and untagged.
 //!
 //! ## Naming Conventions
 //!
@@ -63,31 +85,37 @@
 //!
 //! ## Validation
 //!
-//! The Deserialize macro supports 30+ validators for runtime validation:
+//! The Deserialize macro supports 40+ validators for runtime validation:
 //!
 //! ### String Validators
 //! - `email` - Valid email format
 //! - `url` - Valid URL format
 //! - `uuid` - Valid UUID format
 //! - `pattern("regex")` - Match regex pattern
-//! - `minLength(n)`, `maxLength(n)`, `length(n)` - Length constraints
+//! - `minLength(n)`, `maxLength(n)`, `length(n)`, `length(min, max)` - Length constraints
 //! - `nonEmpty`, `trimmed` - Content requirements
-//! - `lowercase`, `uppercase`, `capitalized` - Case requirements
+//! - `lowercase`, `uppercase`, `capitalized`, `uncapitalized` - Case requirements
 //! - `startsWith("prefix")`, `endsWith("suffix")`, `includes("text")`
 //!
 //! ### Number Validators
-//! - `int` - Must be integer
+//! - `int`, `nonNegativeInt` - Must be an integer (optionally also >= 0)
 //! - `positive`, `negative`, `nonNegative`, `nonPositive`
-//! - `greaterThan(n)`, `lessThan(n)`, `between(min, max)`
+//! - `greaterThan(n)`, `greaterThanOrEqualTo(n)`, `lessThan(n)`, `lessThanOrEqualTo(n)`, `between(min, max)`
 //! - `multipleOf(n)`, `uint8`, `finite`, `nonNaN`
+//!
+//! ### BigInt Validators
+//! - `positiveBigInt`, `negativeBigInt`, `nonNegativeBigInt`, `nonPositiveBigInt`
+//! - `greaterThanBigInt(n)`, `greaterThanOrEqualToBigInt(n)`, `lessThanBigInt(n)`,
+//!   `lessThanOrEqualToBigInt(n)`, `betweenBigInt(min, max)`
 //!
 //! ### Array Validators
 //! - `minItems(n)`, `maxItems(n)`, `itemsCount(n)`
 //!
 //! ### Date Validators
 //! - `validDate` - Must be valid Date
-//! - `afterDate("2020-01-01")`, `beforeDate("2030-01-01")`
-//! - `betweenDates("start", "end")`
+//! - `greaterThanDate("2020-01-01")`, `greaterThanOrEqualToDate("2020-01-01")`
+//! - `lessThanDate("2030-01-01")`, `lessThanOrEqualToDate("2030-01-01")`
+//! - `betweenDate("start", "end")`
 //!
 //! ### Custom Validators
 //! - `custom(functionName)` - Call custom validation function

@@ -1,10 +1,14 @@
 //! `@deprecated('message', { since: '...' })` — surface deprecation to tsc
-//! via JSDoc and optionally inject a one-shot `console.warn` at runtime.
+//! via JSDoc.
 //!
 //! tsc already recognises a bare `@deprecated` JSDoc tag, so the strategy is:
 //! replace the macroforge-style `@deprecated('msg', {...})` annotation with a
 //! plain `@deprecated msg` JSDoc line. The `failOnUse` knob promotes any
 //! `@deprecated` to a macro-expansion error instead.
+//!
+//! The `runtimeWarn` config knob (a one-shot `console.warn` injected into
+//! the deprecated declaration's body) is parsed but currently not emitted —
+//! see the comment in `apply` below.
 
 use macroforge_ts_syn::config::DeprecatedConfig;
 

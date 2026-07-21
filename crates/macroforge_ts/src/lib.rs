@@ -15,8 +15,9 @@
 //!
 //! The crate is organized into several key components:
 //!
-//! - **Unified API** (`api` module): An output-agnostic trait-based interface (`MacroforgeApi`)
-//!   that defines all macro operations.
+//! - **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade that both
+//!   bindings delegate to. (The `MacroforgeApi` trait sketches the same surface but is
+//!   currently not implemented by anything.)
 //! - **Target Bindings**:
 //!   - `bindings_napi`: Node.js specific entry points using NAPI-RS.
 //!   - `bindings_wasm`: Universal entry points using `wasm-bindgen`.
@@ -31,15 +32,15 @@
 //!
 //! ```javascript
 //! const { expandSync } = require('macroforge');
-//! const result = expandSync(code, filepath, { keep_decorators: false });
+//! const result = expandSync(code, filepath, { keepDecorators: false });
 //! ```
 //!
 //! ### From WASM
 //!
 //! ```javascript
-//! import init, { expand_sync } from './pkg/macroforge_ts.js';
+//! import init, { expandSync } from './pkg/macroforge_ts.js';
 //! await init();
-//! const result = expand_sync(code, filepath, { keep_decorators: false });
+//! const result = expandSync(code, filepath, { keepDecorators: false });
 //! ```
 //!
 //! ## Re-exports for Macro Authors

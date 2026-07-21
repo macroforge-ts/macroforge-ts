@@ -1,8 +1,9 @@
 //! Host-side support for declarative (pattern-matching) macros.
 //!
 //! This module coordinates the discovery, matching, and rewriting of
-//! user-defined declarative macros of the form
-//! `` const $name = macro`...` ``. It runs as a pre-pass before the
+//! user-defined declarative macros, declared either as a tagged template
+//! (`` const $name = macroRules`...` ``) or as an object literal
+//! (`const $name = macroRules({...})`). It runs as a pre-pass before the
 //! existing derive macro pipeline, producing a set of [`Patch`]es that
 //! rewrite call sites and strip the original macro definitions.
 //!
@@ -26,9 +27,10 @@
 /// that need to read the flags.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BuildMode {
-    /// Dev mode: all macros (including `Auto`) expand inline for precise
-    /// diagnostics and type-checking. Share modes still emit the runtime
-    /// helper so per-call code shapes match prod.
+    /// Dev mode: `ExpandOnly` and `Auto` macros expand inline for precise
+    /// diagnostics and type-checking (`Auto` switches to the share path
+    /// when `force_share` is set). `ShareOnly` / `ShareAnyway` emit the
+    /// runtime helper and rewrite call sites in dev too, same as prod.
     ///
     /// `analyzer_telemetry: true` emits an `Info`-level diagnostic
     /// for every `Auto` macro describing the megamorph analyzer's

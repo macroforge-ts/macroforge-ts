@@ -8,19 +8,37 @@ use crate::host::import_registry::with_registry;
 /// Determines the serialization strategy for a TypeScript type
 #[derive(Debug, Clone, PartialEq)]
 pub enum TypeCategory {
+    /// `string`, `number`, `boolean`, `bigint`, `null`, `undefined`, and
+    /// string literal types (`"foo"`, `'bar'`)
     Primitive,
+    /// `T[]` or `Array<T>`; contains the element type string
     Array(String),
+    /// A union containing `undefined` (e.g. `T | undefined`); contains the
+    /// remaining members re-joined with ` | ` (so `A | B | undefined` yields
+    /// `Optional("A | B")`)
     Optional(String),
+    /// A union containing `null` but not `undefined`; like [`Self::Optional`],
+    /// contains the remaining members re-joined with ` | `
     Nullable(String),
+    /// The built-in `Date` type
     Date,
+    /// `Map<K, V>`; contains the key and value type strings
     Map(String, String),
+    /// `Set<T>`; contains the element type string
     Set(String),
+    /// `Record<K, V>`; contains the key and value type strings
     Record(String, String),
     /// Wrapper types like Partial<T>, Required<T>, Readonly<T>, Pick<T, K>, Omit<T, K>, NonNullable<T>
     /// These don't change the runtime value structure, so we serialize based on the inner type.
     /// Contains the inner type name (e.g., "User" for Partial<User>)
     Wrapper(String),
+    /// A user-defined class/interface/alias name (uppercase, not a recognized
+    /// built-in); contains the base name with any generic arguments stripped
     Serializable(String),
+    /// Fallback for everything else: non-nullable unions (`A | B`),
+    /// dot-qualified names (`DateTime.Utc` — handled via foreign-type matching),
+    /// lowercase identifiers, and utility types with no serialization strategy
+    /// (`Exclude`, `ReturnType`, `Promise`, ...)
     Unknown,
 }
 
@@ -204,35 +222,6 @@ impl TypeCategory {
         Self::Unknown
     }
 
-    /// Check if a type matches a configured foreign type.
-    ///
-    /// Attempts to match the type name against the configured foreign types,
-    /// checking both exact name matches and imports from configured sources.
-    ///
-    /// # Arguments
-    ///
-    /// * `ts_type` - The TypeScript type string (e.g., "DateTime", "ZonedDateTime")
-    /// * `foreign_types` - List of configured foreign type handlers
-    ///
-    /// # Returns
-    ///
-    /// The matching foreign type configuration, if found.
-    ///
-    /// # Example
-    ///
-    /// ```rust,ignore
-    /// let foreign_types = vec![ForeignTypeConfig {
-    ///     name: "DateTime".to_string(),
-    ///     from: vec!["effect".to_string()],
-    ///     ..Default::default()
-    /// }];
-    ///
-    /// // Matches by exact name
-    /// assert!(TypeCategory::match_foreign_type("DateTime", &foreign_types).is_some());
-    ///
-    /// // Doesn't match other types
-    /// assert!(TypeCategory::match_foreign_type("Date", &foreign_types).is_none());
-    /// ```
     /// Match a TypeScript type against configured foreign types with import source validation.
     ///
     /// # Arguments

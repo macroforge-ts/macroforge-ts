@@ -16,8 +16,8 @@
 //!
 //! ## Usage
 //!
-//! These helpers are used by `derive_deserialize.rs` and `derive_partial_ord.rs`
-//! to generate vanilla TypeScript code.
+//! These helpers are used by the `serde::derive_deserialize` and `derive_partial_ord`
+//! modules to generate vanilla TypeScript code.
 
 // ============================================================================
 // Serde Type Aliases

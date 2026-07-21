@@ -9,7 +9,8 @@ pub(crate) static TYPE_REGISTRY_CACHE_PATH: Mutex<Option<String>> = Mutex::new(N
 pub(crate) static DECLARATIVE_REGISTRY_CACHE_PATH: Mutex<Option<String>> = Mutex::new(None);
 
 /// Builds the type registry using the native ProjectScanner (no Node.js needed)
-/// and caches the result to a temp file. Subsequent calls are no-ops.
+/// and caches the result to `.macroforge/type-registry.json` in the current
+/// working directory. Subsequent calls are no-ops.
 ///
 /// The same scan also builds the declarative macro registry and writes it
 /// to `.macroforge/declarative-registry.json` alongside the type registry,

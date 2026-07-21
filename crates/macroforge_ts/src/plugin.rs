@@ -30,12 +30,12 @@ use crate::position_mapper::{NativeMapper, NativePositionMapper};
 /// const plugin = new NativePlugin();
 ///
 /// // Process files with caching
-/// const result1 = plugin.process_file("src/foo.ts", code1, { version: "1" });
-/// const result2 = plugin.process_file("src/foo.ts", code2, { version: "1" }); // Cache hit!
-/// const result3 = plugin.process_file("src/foo.ts", code3, { version: "2" }); // Cache miss
+/// const result1 = plugin.processFile("src/foo.ts", code1, { version: "1" });
+/// const result2 = plugin.processFile("src/foo.ts", code2, { version: "1" }); // Cache hit!
+/// const result3 = plugin.processFile("src/foo.ts", code3, { version: "2" }); // Cache miss
 ///
 /// // Get a mapper for position translation
-/// const mapper = plugin.get_mapper("src/foo.ts");
+/// const mapper = plugin.getMapper("src/foo.ts");
 /// ```
 #[napi]
 pub struct NativePlugin {

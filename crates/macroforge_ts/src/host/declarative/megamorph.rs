@@ -263,17 +263,17 @@ const JACCARD_THRESHOLD: f64 = 0.60;
 ///    (no fingerprint, falls back to the first letter of the
 ///    surface name), literal, or opaque.
 ///
-/// 3. **Structural Jaccard merge for fingerprinted firsts** — a
+/// 3. **Mean pairwise Jaccard merge for fingerprinted firsts** — a
 ///    tuple whose first element has a structural fingerprint may
-///    join an existing structural cluster iff (a) all members of
-///    the cluster have a first-element Jaccard similarity
-///    ≥ [`JACCARD_THRESHOLD`] with this tuple's first element,
-///    AND (b) the per-position discriminants of the REMAINING
-///    positions all match element-wise. This keeps `(User, Order)`
-///    and `(AdminUser, Order)` together (first args are
-///    structurally similar, second args match exactly) but keeps
-///    `(User, Order)` and `(User, Product)` apart (first args
-///    match but second args don't).
+///    join an existing structural cluster iff every member of the
+///    cluster has a *mean pairwise Jaccard similarity across all
+///    positions* ≥ [`JACCARD_THRESHOLD`] with this tuple (see
+///    `mean_pairwise_jaccard`: per-position Jaccard scores are
+///    averaged over the whole tuple; mismatched arities score 0).
+///    This keeps `(User, OrderA)` and `(User, OrderB)` together
+///    when `OrderA`/`OrderB` have a high field overlap — the tail
+///    doesn't need to match exactly, it just needs to keep the
+///    tuple-wide mean above the threshold.
 ///
 /// 4. **Name-prefix fallback** — tuples whose first element has no
 ///    fingerprint bucket by the first letter of the name, matching

@@ -155,8 +155,8 @@
 //! ## Configuration
 //!
 //! The CLI loads and respects `macroforge.config.ts/js` for foreign type configuration.
-//! The config is parsed natively using SWC. External macros are supported via FFI
-//! (compiled `.node`/`.dylib` packages) or Node.js subprocess fallback.
+//! The config is parsed natively without requiring Node.js. External macros are
+//! supported via FFI (compiled `.node`/`.dylib`/`.so` packages loaded with dlopen).
 
 mod build;
 mod cache;
@@ -179,10 +179,15 @@ use wrappers::{run_svelte_check_wrapper, run_svelte_package_wrapper, run_tsc_wra
 
 /// Command-line interface for Macroforge TypeScript macro utilities.
 ///
-/// Provides three main commands:
-/// - `expand` - Expand macros in TypeScript files
+/// Provides eight commands:
+/// - `expand` - Expand macros in TypeScript files or directories
 /// - `tsc` - Run TypeScript type checking with macro expansion
 /// - `svelte-check` - Run svelte-check with macro expansion
+/// - `svelte-package` - Run @sveltejs/package with macro expansion
+/// - `watch` - Watch files and maintain the .macroforge/cache
+/// - `cache` - Build the .macroforge/cache once and exit
+/// - `refresh` - Delete and rebuild the .macroforge/cache
+/// - `build` - Build a macro crate to WASM with $ aliases
 #[derive(Parser)]
 #[command(name = "macroforge", about = "TypeScript macro development utilities")]
 struct Cli {

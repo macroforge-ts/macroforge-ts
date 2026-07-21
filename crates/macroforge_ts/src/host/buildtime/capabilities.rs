@@ -7,8 +7,9 @@
 //! [`SandboxError`] with a span pointing at the declaration.
 //!
 //! Path matching is glob-based (via the `globset` crate). Patterns are
-//! matched against the canonicalized absolute path when the host can
-//! resolve one; otherwise the path is used as-is.
+//! matched against a *lexically* normalized absolute path (`.`/`..`
+//! components resolved textually) — symlinks are not resolved, so a
+//! symlink pointing outside an allowed directory still matches.
 //!
 //! [`SandboxError`]: crate::host::buildtime::sandbox::SandboxError
 
@@ -82,8 +83,10 @@ pub struct CapabilitySet {
 }
 
 impl CapabilitySet {
-    /// A fully-permissive capability set. **Tests only** — production
-    /// code should construct a set from user config.
+    /// A capability set permitting all filesystem reads/writes and
+    /// network access. Note `env_allow` stays empty, so env reads are
+    /// still denied. **Tests only** — production code should construct
+    /// a set from user config.
     #[cfg(any(test, doctest))]
     #[must_use]
     pub fn unrestricted() -> Self {

@@ -8,9 +8,11 @@
 //! Phase 13 added a sibling path: [`match_type_invocation_against_arms`]
 //! takes a slice of `TSType` nodes (from a `TSTypeReference`'s type
 //! parameters) and runs the same pattern-matching loop, but only accepts
-//! the `Type` fragment kind. The bindings it produces are shape-identical
-//! to the value-position path, so the expander doesn't need to know
-//! which walker invoked it.
+//! the `Type` fragment kind. Unlike the value-position path, it matches
+//! repetitions greedily with no backtracking, so a repetition followed by
+//! trailing fragments won't match in type position. The bindings it
+//! produces are shape-identical to the value-position path, so the
+//! expander doesn't need to know which walker invoked it.
 
 use std::collections::HashMap;
 
@@ -66,6 +68,9 @@ pub enum MatchError {
         reason: &'static str,
     },
     /// Two sequence bindings in the same body would need different lengths.
+    /// Currently never constructed by the matcher — sequence-length
+    /// mismatches are detected during body expansion and reported via
+    /// the expander's own error type.
     InconsistentSequenceLength,
 }
 

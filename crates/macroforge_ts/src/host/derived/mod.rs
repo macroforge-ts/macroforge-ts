@@ -6,7 +6,7 @@
 //!
 //! ## How It Works
 //!
-//! 1. Macro implementations use the `#[derive_macro]` attribute (from macroforge_ts_macros)
+//! 1. Macro implementations use the `#[ts_macro_derive]` attribute (from macroforge_ts_macros)
 //! 2. The attribute generates a `DerivedMacroRegistration` entry with static metadata
 //! 3. The `inventory` crate collects all entries at link time
 //! 4. At runtime, `register_module()` iterates entries and registers macros

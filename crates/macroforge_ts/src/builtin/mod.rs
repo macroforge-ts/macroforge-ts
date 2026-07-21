@@ -6,6 +6,12 @@
 //!
 //! ## Available Macros
 //!
+//! For **classes**, each macro generates a standalone function (e.g. `userClone`,
+//! `userSerialize`) plus a static wrapper method on the class that delegates to it.
+//! **Enums, interfaces, and type aliases** get standalone functions only (e.g.
+//! `statusDefaultValue`, `pointEquals`), since methods cannot be attached to them.
+//! The tables below show the class-side static methods.
+//!
 //! ### Equality & Hashing
 //!
 //! | Macro | Generated Method | Description |
@@ -37,8 +43,11 @@
 //!
 //! | Macro | Generated Method | Description |
 //! |-------|------------------|-------------|
-//! | `Serialize` | `toJSON(): Record<string, unknown>` | JSON serialization |
-//! | `Deserialize` | `static fromJSON(json): T` | JSON deserialization with validation |
+//! | `Serialize` | `static serialize(value, keepMetadata?): string` | JSON serialization with cycle detection |
+//! | `Deserialize` | `static deserialize(input, opts?): { success: true; value: T } \| { success: false; errors }` | JSON deserialization with validation |
+//!
+//! `Deserialize` additionally generates `static is(value)` / `static hasShape(obj)` type
+//! guards and `validateField`/`validateFields` helpers; see [`serde`] for the full surface.
 //!
 //! ## Field-Level Decorators
 //!

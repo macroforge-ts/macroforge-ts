@@ -25,14 +25,14 @@ use crate::api_types::{
 /// const mapper = new PositionMapper(sourceMapping);
 ///
 /// // Convert original position to expanded
-/// const expandedPos = mapper.original_to_expanded(42);
+/// const expandedPos = mapper.originalToExpanded(42);
 ///
 /// // Convert expanded position back to original (if not in generated code)
-/// const originalPos = mapper.expanded_to_original(100);
+/// const originalPos = mapper.expandedToOriginal(100);
 ///
 /// // Check if a position is in macro-generated code
-/// if (mapper.is_in_generated(pos)) {
-///     const macro = mapper.generated_by(pos); // e.g., "Debug"
+/// if (mapper.isInGenerated(pos)) {
+///     const macro = mapper.generatedBy(pos); // e.g., "Debug"
 /// }
 /// ```
 #[napi(js_name = "PositionMapper")]

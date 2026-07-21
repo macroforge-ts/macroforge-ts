@@ -47,7 +47,8 @@
 pub struct NapiAutoBuildConfig {
     /// The cargo package name (used with -p flag)
     pub package_name: String,
-    /// Use npx (true) or bunx (false) as fallback
+    /// Currently unused: the generated watcher script always tries npx
+    /// first and falls back to bunx, regardless of this setting.
     pub prefer_npx: bool,
     /// Additional arguments to pass to napi build
     pub extra_args: Vec<String>,
