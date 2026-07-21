@@ -2,9 +2,8 @@
 
 macroforge v0.1.48
 
-Synchronously expands macros in TypeScript code. This is the standalone macro
-expansion function that doesn't use caching. For cached expansion, use
-\[\`NativePlugin::process\_file\`\] instead.
+Synchronously expands macros in TypeScript code. This is the standalone macro expansion function
+that doesn't use caching. For cached expansion, use \[\`NativePlugin::process\_file\`\] instead.
 
 ## Signature
 
@@ -114,8 +113,7 @@ if (result.diagnostics.length > 0) {
 
 ## Error Handling
 
-Syntax errors and macro errors are returned in the `diagnostics` array, not
-thrown as exceptions:
+Syntax errors and macro errors are returned in the `diagnostics` array, not thrown as exceptions:
 
 TypeScript
 

@@ -1,38 +1,39 @@
 # Default
 
-The `Default` macro generates a static `defaultValue()` factory method that
-creates instances with default values. This is analogous to Rust's `Default`
-trait, providing a standard way to create "zero" or "empty" instances of types.
+The `Default` macro generates a static `defaultValue()` factory method that creates
+instances with default values. This is analogous to Rust's `Default` trait, providing
+a standard way to create "zero" or "empty" instances of types.
 
 ## Generated Output
 
-| Type       | Generated Code                                      | Description                                       |
-| ---------- | --------------------------------------------------- | ------------------------------------------------- |
-| Class      | `static defaultValue()` + `classNameDefaultValue()` | Static factory method + standalone function       |
-| Enum       | `enumNameDefaultValue(): EnumName`                  | Standalone function returning `@default` variant  |
-| Interface  | `ifaceNameDefaultValue(): InterfaceName`            | Standalone function returning object literal      |
-| Type Alias | `typeNameDefaultValue(): TypeName`                  | Standalone function with type-appropriate default |
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `static defaultValue()` + `classNameDefaultValue()` | Static factory method + standalone function |
+| Enum | `enumNameDefaultValue(): EnumName` | Standalone function returning `@default` variant |
+| Interface | `ifaceNameDefaultValue(): InterfaceName` | Standalone function returning object literal |
+| Type Alias | `typeNameDefaultValue(): TypeName` | Standalone function with type-appropriate default |
 
-Names use **camelCase** conversion (e.g., `UserSettings` ->
-`userSettingsDefaultValue`).
+Names use **camelCase** conversion (e.g., `UserSettings` -> `userSettingsDefaultValue`).
+
 
 ## Default Values by Type
 
 The macro uses Rust-like default semantics:
 
-| Type         | Default Value                           |
-| ------------ | --------------------------------------- |
-| `string`     | `""` (empty string)                     |
-| `number`     | `0`                                     |
-| `boolean`    | `false`                                 |
-| `bigint`     | `0n`                                    |
-| `T[]`        | `[]` (empty array)                      |
-| `Array<T>`   | `[]` (empty array)                      |
-| `Map<K,V>`   | `new Map()`                             |
-| `Set<T>`     | `new Set()`                             |
-| `Date`       | `new Date()` (current time)             |
-| `T \| null`  | `null`                                  |
-| `CustomType` | `CustomType.defaultValue()` (recursive) |
+| Type | Default Value |
+|------|---------------|
+| `string` | `""` (empty string) |
+| `number` | `0` |
+| `boolean` | `false` |
+| `bigint` | `0n` |
+| `T[]` | `[]` (empty array) |
+| `Array<T>` | `[]` (empty array) |
+| `Map<K,V>` | `new Map()` |
+| `Set<T>` | `new Set()` |
+| `Date` | `new Date()` (current time) |
+| `T \| null` | `null` |
+| Unions (`A \| B`) | Default of the first primitive or literal member, else the first member's default |
+| `CustomType` | `customTypeDefaultValue()` (recursive standalone-function call) |
 
 ## Field-Level Options
 
@@ -48,35 +49,35 @@ The `@default` decorator allows specifying explicit default values:
 ```typescript before
 /** @derive(Default) */
 class UserSettings {
-  /** @default("light") */
-  theme: string;
+    /** @default("light") */
+    theme: string;
 
-  /** @default(10) */
-  pageSize: number;
+    /** @default(10) */
+    pageSize: number;
 
-  notifications: boolean; // Uses type default: false
+    notifications: boolean;  // Uses type default: false
 }
 ```
 
 ```typescript after
 class UserSettings {
-  theme: string;
+    theme: string;
 
-  pageSize: number;
+    pageSize: number;
 
-  notifications: boolean; // Uses type default: false
+    notifications: boolean; // Uses type default: false
 
-  static defaultValue(): UserSettings {
-    const instance = new UserSettings();
-    instance.theme = "light";
-    instance.pageSize = 10;
-    instance.notifications = false;
-    return instance;
-  }
+    static defaultValue(): UserSettings {
+        const instance = new UserSettings();
+        instance.theme = 'light';
+        instance.pageSize = 10;
+        instance.notifications = false;
+        return instance;
+    }
 }
 
 export function userSettingsDefaultValue(): UserSettings {
-  return UserSettings.defaultValue();
+    return UserSettings.defaultValue();
 }
 ```
 
@@ -87,30 +88,36 @@ For enums, mark one variant with `@default`:
 ```typescript before
 /** @derive(Default) */
 enum Status {
-  /** @default */
-  Pending,
-  Active,
-  Completed,
+    /** @default */
+    Pending,
+    Active,
+    Completed
 }
 ```
 
 ```typescript after
 enum Status {
-  /** @default */
-  Pending,
-  Active,
-  Completed,
+    /** @default */
+    Pending,
+    Active,
+    Completed
 }
 
 export function statusDefaultValue(): Status {
-  return Status.Pending;
+    return Status.Pending;
 }
 ```
 
 ## Error Handling
 
-The macro will return an error if:
+The macro returns a compile error only if:
 
-- A non-primitive field lacks `@default` and has no known default
 - An enum has no variant marked with `@default`
-- A union type has no `@default` on a variant
+- A field's `@default` expression fails to parse
+
+Missing defaults on non-primitive fields are **not** compile errors: every type is
+assumed to implement Default (Rust-like philosophy), so the macro emits a
+`typeNameDefaultValue()` call for any custom type. If a field's type is in the
+type registry but does not derive `Default`, a warning is printed to stderr at
+expansion time and the call is generated anyway — it may then fail at runtime if
+the function does not exist.

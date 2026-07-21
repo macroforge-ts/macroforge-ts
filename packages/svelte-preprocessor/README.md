@@ -16,13 +16,11 @@ npm install @macroforge/svelte-preprocessor
 
 ### Functions
 
-- **`macroforgePreprocess`** - Creates a Svelte preprocessor that expands
-  Macroforge macros in `<script>` blocks.
+- **`macroforgePreprocess`** - Creates a Svelte preprocessor that expands Macroforge macros in `<script>` blocks.
 
 ### Interfaces
 
-- **`MacroforgePreprocessorOptions`** - Configuration options for the Macroforge
-  Svelte preprocessor.
+- **`MacroforgePreprocessorOptions`** - Configuration options for the Macroforge Svelte preprocessor.
 
 ### Constants
 
@@ -30,9 +28,8 @@ npm install @macroforge/svelte-preprocessor
 
 ## Documentation
 
-See the
-[full documentation](https://macroforge.dev/docs/api/reference/typescript/svelte-preprocessor)
-on the Macroforge website.
+See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/svelte-preprocessor) on
+the Macroforge website.
 
 ## License
 

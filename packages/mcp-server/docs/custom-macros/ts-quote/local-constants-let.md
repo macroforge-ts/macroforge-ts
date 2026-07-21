@@ -16,13 +16,11 @@ let code = ts_template! {
 };
 ```
 
-This is useful for computing derived values inside loops without cluttering the
-Rust code.
+This is useful for computing derived values inside loops without cluttering the Rust code.
 
 ## Mutable Variables: `{$let mut}`
 
-When you need to modify a variable within the template (e.g., in a `while`
-loop), use `{$let mut}`:
+When you need to modify a variable within the template (e.g., in a `while` loop), use `{$let mut}`:
 
 Rust
 

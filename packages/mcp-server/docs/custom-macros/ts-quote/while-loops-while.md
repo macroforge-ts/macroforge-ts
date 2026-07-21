@@ -43,8 +43,7 @@ console.log("b");
 console.log("c");
 ```
 
-This is especially useful when working with iterators or consuming optional
-values:
+This is especially useful when working with iterators or consuming optional values:
 
 Rust
 

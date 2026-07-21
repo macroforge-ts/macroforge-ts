@@ -1,7 +1,6 @@
 # Svelte Language Server
 
-_`@macroforge/svelte-language-server` provides full Svelte IDE support with
-macroforge integration._
+_`@macroforge/svelte-language-server` provides full Svelte IDE support with macroforge integration._
 
 <Alert type="warning" title="Developer Installation Required">
 This package is not yet published as an official extension. You'll need to build and install it manually.
@@ -13,11 +12,9 @@ This package is not yet published as an official extension. You'll need to build
 
 - **HTML support** - Hover info, autocompletions, Emmet, outline symbols
 
-- **CSS/SCSS/LESS** - Diagnostics, hover, completions, formatting, Emmet, color
-  picking
+- **CSS/SCSS/LESS** - Diagnostics, hover, completions, formatting, Emmet, color picking
 
-- **TypeScript/JavaScript** - Full language features with macroforge macro
-  expansion
+- **TypeScript/JavaScript** - Full language features with macroforge macro expansion
 
 - **Go-to-definition** - Navigate to macro-generated code
 
@@ -45,8 +42,8 @@ npm run build
 
 ### 3. Configure Your Editor
 
-The language server exposes a `svelteserver` binary that implements the Language
-Server Protocol (LSP). Configure your editor to use it:
+The language server exposes a `svelteserver` binary that implements the Language Server Protocol
+(LSP). Configure your editor to use it:
 
 ```bash
 # The binary is located at:
@@ -65,8 +62,7 @@ Server Protocol (LSP). Configure your editor to use it:
 
 ## How It Works
 
-The Svelte language server extends the standard Svelte language tooling with
-macroforge integration:
+The Svelte language server extends the standard Svelte language tooling with macroforge integration:
 
 1. Parses `.svelte` files and extracts TypeScript/JavaScript blocks
 
@@ -78,5 +74,5 @@ macroforge integration:
 
 ## Using with Zed
 
-For Zed editor, see the [Zed Extensions]({base}/docs/language-servers/zed) page
-for the dedicated `svelte-macroforge` extension.
+For Zed editor, see the [Zed Extensions]({base}/docs/language-servers/zed) page for the dedicated
+`svelte-macroforge` extension.

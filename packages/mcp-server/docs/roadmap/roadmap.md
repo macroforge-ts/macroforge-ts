@@ -1,12 +1,11 @@
 # Roadmap
 
-Planned features and improvements for Macroforge. This roadmap reflects our
-current priorities but may change based on community feedback.
+Planned features and improvements for Macroforge. This roadmap reflects our current priorities but
+may change based on community feedback.
 
 ## IDE Extensions
 
-Bring Macroforge support directly into your favorite editors with native
-extensions.
+Bring Macroforge support directly into your favorite editors with native extensions.
 
 | Extension            | Status      | Description                                                                        |
 | -------------------- | ----------- | ---------------------------------------------------------------------------------- |
@@ -29,9 +28,8 @@ Expanding Macroforge to work seamlessly with popular frontend frameworks.
 
 ## Pure TypeScript Macro Creation
 
-While Rust provides the best performance and type safety, we recognize that not
-everyone wants to write Rust. We're exploring options for writing macros in pure
-TypeScript.
+While Rust provides the best performance and type safety, we recognize that not everyone wants to
+write Rust. We're exploring options for writing macros in pure TypeScript.
 
 | Feature              | Status  | Description                                      |
 | -------------------- | ------- | ------------------------------------------------ |

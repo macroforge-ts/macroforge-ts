@@ -1,7 +1,6 @@
 ## String Interpolation: `"text @{expr}"`
 
-Interpolation works automatically inside string literals - no `format!()`
-needed:
+Interpolation works automatically inside string literals - no `format!()` needed:
 
 Rust
 

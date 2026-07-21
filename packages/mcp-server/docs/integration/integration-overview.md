@@ -1,7 +1,6 @@
 # Integration
 
-Macroforge integrates with your development workflow through IDE plugins and
-build tool integration.
+Macroforge integrates with your development workflow through IDE plugins and build tool integration.
 
 ## Overview
 
