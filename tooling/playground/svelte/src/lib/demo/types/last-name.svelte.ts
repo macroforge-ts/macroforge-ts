@@ -2,6 +2,6 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface LastName {
-  /** @serde({ validate: ["nonEmpty"] }) */
-  name: string;
+    /** @serde({ validate: ["nonEmpty"] }) */
+    name: string;
 }

@@ -56,7 +56,7 @@ function listFiles(dir) {
     return out.sort();
 }
 
-async function importDist(relPath) {
+function importDist(relPath) {
     const abs = path.join(libraryRoot, 'dist', relPath);
     return import(pathToFileURL(abs).href);
 }
@@ -109,7 +109,11 @@ test('packaging: supported build chain emits expanded runtime into dist', async 
         lastName: 'Lovelace'
     });
     const roundTrip = personName.personNameDeserialize(json);
-    assert.equal(roundTrip.success, true, 'round-trip deserialize should succeed');
+    assert.equal(
+        roundTrip.success,
+        true,
+        'round-trip deserialize should succeed'
+    );
     assert.deepEqual(roundTrip.value, {
         firstName: 'Ada',
         lastName: 'Lovelace'
@@ -119,7 +123,11 @@ test('packaging: supported build chain emits expanded runtime into dist', async 
         firstName: '',
         lastName: 'x'
     });
-    assert.equal(invalid.success, false, 'nonEmpty validation should reject empty');
+    assert.equal(
+        invalid.success,
+        false,
+        'nonEmpty validation should reject empty'
+    );
     assert.ok(
         invalid.errors.some((e) => e.field.includes('firstName')),
         `expected a firstName validation error, got: ${JSON.stringify(invalid.errors)}`

@@ -2,12 +2,12 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Ordinal {
-  north: number;
-  northeast: number;
-  east: number;
-  southeast: number;
-  south: number;
-  southwest: number;
-  west: number;
-  northwest: number;
+    north: number;
+    northeast: number;
+    east: number;
+    southeast: number;
+    south: number;
+    southwest: number;
+    west: number;
+    northwest: number;
 }

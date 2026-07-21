@@ -2,233 +2,233 @@
  * Tests for diagnostic handling (errors, warnings).
  */
 
-import test from "node:test";
-import assert from "node:assert/strict";
-import fs from "fs";
-import path from "path";
-import macroforge from "../src/index.js";
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'fs';
+import path from 'path';
+import macroforge from '../src/index.js';
 import {
-  cleanupTempDir,
-  createTempDir,
-  createTransformContext,
-  FIXTURES_DIR,
-  getFixturePath,
-  initializePlugin,
-  invokeTransform,
-  loadFixture,
-  writeTestFile,
-} from "./test-utils.js";
+    cleanupTempDir,
+    createTempDir,
+    createTransformContext,
+    FIXTURES_DIR,
+    getFixturePath,
+    initializePlugin,
+    invokeTransform,
+    loadFixture,
+    writeTestFile
+} from './test-utils.js';
 
-test("successfully transforms valid macro code", async () => {
-  const plugin = await macroforge();
-  initializePlugin(plugin, FIXTURES_DIR);
+test('successfully transforms valid macro code', async () => {
+    const plugin = await macroforge();
+    initializePlugin(plugin, FIXTURES_DIR);
 
-  const code = loadFixture("simple-macro");
-  const id = getFixturePath("simple-macro");
+    const code = loadFixture('simple-macro');
+    const id = getFixturePath('simple-macro');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Valid code should not produce errors
-  assert.equal(error, null);
-  // Should have transformed code
-  if (result) {
-    assert.ok(result.code);
-    assert.ok(result.code.includes("User"));
-  }
+    // Valid code should not produce errors
+    assert.equal(error, null);
+    // Should have transformed code
+    if (result) {
+        assert.ok(result.code);
+        assert.ok(result.code.includes('User'));
+    }
 });
 
-test("processes code without macros", async () => {
-  const plugin = await macroforge();
-  initializePlugin(plugin, FIXTURES_DIR);
+test('processes code without macros', async () => {
+    const plugin = await macroforge();
+    initializePlugin(plugin, FIXTURES_DIR);
 
-  const code = loadFixture("no-macro");
-  const id = getFixturePath("no-macro");
+    const code = loadFixture('no-macro');
+    const id = getFixturePath('no-macro');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  assert.equal(error, null);
-  // Plugin may return result even without macros (depending on transformer)
+    assert.equal(error, null);
+    // Plugin may return result even without macros (depending on transformer)
 });
 
-test("handles syntax errors gracefully", async (t) => {
-  const tempDir = createTempDir();
+test('handles syntax errors gracefully', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  // Create file with syntax error
-  writeTestFile(
-    tempDir,
-    "src/broken.ts",
-    `class BrokenClass {
+    // Create file with syntax error
+    writeTestFile(
+        tempDir,
+        'src/broken.ts',
+        `class BrokenClass {
   // Missing closing brace
   value: number;
-`,
-  );
+`
+    );
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/broken.ts"), "utf-8");
-  const id = path.join(tempDir, "src/broken.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/broken.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/broken.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Plugin should handle syntax errors - either return error or null
-  // It shouldn't crash unexpectedly
-  assert.ok(error !== undefined || result === null || result !== null);
+    // Plugin should handle syntax errors - either return error or null
+    // It shouldn't crash unexpectedly
+    assert.ok(error !== undefined || result === null || result !== null);
 });
 
-test("transform context captures errors", async (t) => {
-  // This test verifies the transform context error handling mechanism
-  const context = createTransformContext();
+test('transform context captures errors', async (t) => {
+    // This test verifies the transform context error handling mechanism
+    const context = createTransformContext();
 
-  assert.deepEqual(context.getErrors(), []);
-  assert.deepEqual(context.getWarnings(), []);
+    assert.deepEqual(context.getErrors(), []);
+    assert.deepEqual(context.getWarnings(), []);
 
-  // Test warning capture
-  context.warn("test warning");
-  assert.deepEqual(context.getWarnings(), ["test warning"]);
+    // Test warning capture
+    context.warn('test warning');
+    assert.deepEqual(context.getWarnings(), ['test warning']);
 
-  // Test error throw
-  assert.throws(
-    () => context.error("test error"),
-    { message: "test error" },
-  );
-  assert.deepEqual(context.getErrors(), ["test error"]);
+    // Test error throw
+    assert.throws(
+        () => context.error('test error'),
+        { message: 'test error' }
+    );
+    assert.deepEqual(context.getErrors(), ['test error']);
 });
 
-test("handles unknown macro gracefully", async (t) => {
-  const tempDir = createTempDir();
+test('handles unknown macro gracefully', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  // Create file with unknown macro
-  writeTestFile(
-    tempDir,
-    "src/unknown.ts",
-    `/** @derive(UnknownMacro) */
+    // Create file with unknown macro
+    writeTestFile(
+        tempDir,
+        'src/unknown.ts',
+        `/** @derive(UnknownMacro) */
 class Test {
   value: number;
 }
-export { Test };`,
-  );
+export { Test };`
+    );
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/unknown.ts"), "utf-8");
-  const id = path.join(tempDir, "src/unknown.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/unknown.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/unknown.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Should either error or return null/utils - not crash
-  assert.ok(error !== undefined || result !== undefined);
+    // Should either error or return null/utils - not crash
+    assert.ok(error !== undefined || result !== undefined);
 });
 
-test("handles empty file", async (t) => {
-  const tempDir = createTempDir();
+test('handles empty file', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  writeTestFile(tempDir, "src/empty.ts", "");
+    writeTestFile(tempDir, 'src/empty.ts', '');
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/empty.ts"), "utf-8");
-  const id = path.join(tempDir, "src/empty.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/empty.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/empty.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  assert.equal(error, null);
-  assert.equal(result, null);
+    assert.equal(error, null);
+    assert.equal(result, null);
 });
 
-test("handles whitespace-only file", async (t) => {
-  const tempDir = createTempDir();
+test('handles whitespace-only file', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  writeTestFile(tempDir, "src/whitespace.ts", "   \n\n   \t\t\n   ");
+    writeTestFile(tempDir, 'src/whitespace.ts', '   \n\n   \t\t\n   ');
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(
-    path.join(tempDir, "src/whitespace.ts"),
-    "utf-8",
-  );
-  const id = path.join(tempDir, "src/whitespace.ts");
+    const code = fs.readFileSync(
+        path.join(tempDir, 'src/whitespace.ts'),
+        'utf-8'
+    );
+    const id = path.join(tempDir, 'src/whitespace.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Should not error on whitespace-only files
-  assert.equal(error, null);
+    // Should not error on whitespace-only files
+    assert.equal(error, null);
 });
 
-test("handles comment-only file", async (t) => {
-  const tempDir = createTempDir();
+test('handles comment-only file', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  writeTestFile(
-    tempDir,
-    "src/comments.ts",
-    `// This is a comment
+    writeTestFile(
+        tempDir,
+        'src/comments.ts',
+        `// This is a comment
 /* Another comment */
-/** JSDoc comment */`,
-  );
+/** JSDoc comment */`
+    );
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/comments.ts"), "utf-8");
-  const id = path.join(tempDir, "src/comments.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/comments.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/comments.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Should not error on comment-only files
-  assert.equal(error, null);
+    // Should not error on comment-only files
+    assert.equal(error, null);
 });
 
-test("handles large file", async (t) => {
-  const tempDir = createTempDir();
+test('handles large file', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  // Generate a large file
-  let largeCode = `/** @derive(Debug) */\nclass LargeClass {\n`;
-  for (let i = 0; i < 1000; i++) {
-    largeCode += `  field${i}: string;\n`;
-  }
-  largeCode += `}\nexport { LargeClass };`;
+    // Generate a large file
+    let largeCode = `/** @derive(Debug) */\nclass LargeClass {\n`;
+    for (let i = 0; i < 1000; i++) {
+        largeCode += `  field${i}: string;\n`;
+    }
+    largeCode += `}\nexport { LargeClass };`;
 
-  writeTestFile(tempDir, "src/large.ts", largeCode);
+    writeTestFile(tempDir, 'src/large.ts', largeCode);
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/large.ts"), "utf-8");
-  const id = path.join(tempDir, "src/large.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/large.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/large.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Should handle large files without timing out
-  assert.equal(error, null);
-  if (result) {
-    assert.ok(result.code.includes("LargeClass"));
-  }
+    // Should handle large files without timing out
+    assert.equal(error, null);
+    if (result) {
+        assert.ok(result.code.includes('LargeClass'));
+    }
 });
 
-test("handles multiple classes with macros", async (t) => {
-  const tempDir = createTempDir();
+test('handles multiple classes with macros', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  writeTestFile(
-    tempDir,
-    "src/multi.ts",
-    `/** @derive(Debug) */
+    writeTestFile(
+        tempDir,
+        'src/multi.ts',
+        `/** @derive(Debug) */
 class User {
   id: string;
 }
@@ -243,159 +243,159 @@ class Comment {
   text: string;
 }
 
-export { User, Post, Comment };`,
-  );
+export { User, Post, Comment };`
+    );
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/multi.ts"), "utf-8");
-  const id = path.join(tempDir, "src/multi.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/multi.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/multi.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  assert.equal(error, null);
-  if (result) {
-    assert.ok(result.code.includes("User"));
-    assert.ok(result.code.includes("Post"));
-    assert.ok(result.code.includes("Comment"));
-  }
+    assert.equal(error, null);
+    if (result) {
+        assert.ok(result.code.includes('User'));
+        assert.ok(result.code.includes('Post'));
+        assert.ok(result.code.includes('Comment'));
+    }
 });
 
-test("strips macro-only import comments", async (t) => {
-  const tempDir = createTempDir();
+test('strips macro-only import comments', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  writeTestFile(
-    tempDir,
-    "src/with-import.ts",
-    `/** import macro from 'macroforge' */
+    writeTestFile(
+        tempDir,
+        'src/with-import.ts',
+        `/** import macro from 'macroforge' */
 /** @derive(Debug) */
 class User {
   id: string;
 }
-export { User };`,
-  );
+export { User };`
+    );
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(
-    path.join(tempDir, "src/with-import.ts"),
-    "utf-8",
-  );
-  const id = path.join(tempDir, "src/with-import.ts");
+    const code = fs.readFileSync(
+        path.join(tempDir, 'src/with-import.ts'),
+        'utf-8'
+    );
+    const id = path.join(tempDir, 'src/with-import.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  assert.equal(error, null);
-  if (result) {
-    // Macro import comments should be stripped
-    assert.ok(!result.code.includes("import macro"));
-  }
+    assert.equal(error, null);
+    if (result) {
+        // Macro import comments should be stripped
+        assert.ok(!result.code.includes('import macro'));
+    }
 });
 
-test("handles TypeScript generics", async (t) => {
-  const tempDir = createTempDir();
+test('handles TypeScript generics', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  writeTestFile(
-    tempDir,
-    "src/generic.ts",
-    `/** @derive(Debug) */
+    writeTestFile(
+        tempDir,
+        'src/generic.ts',
+        `/** @derive(Debug) */
 class Container<T> {
   value: T;
 }
-export { Container };`,
-  );
+export { Container };`
+    );
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/generic.ts"), "utf-8");
-  const id = path.join(tempDir, "src/generic.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/generic.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/generic.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  assert.equal(error, null);
-  if (result) {
-    assert.ok(result.code.includes("Container"));
-  }
+    assert.equal(error, null);
+    if (result) {
+        assert.ok(result.code.includes('Container'));
+    }
 });
 
-test("handles TypeScript interfaces", async (t) => {
-  const tempDir = createTempDir();
+test('handles TypeScript interfaces', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  writeTestFile(
-    tempDir,
-    "src/interface.ts",
-    `interface User {
+    writeTestFile(
+        tempDir,
+        'src/interface.ts',
+        `interface User {
   id: string;
   name: string;
 }
-export type { User };`,
-  );
+export type { User };`
+    );
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/interface.ts"), "utf-8");
-  const id = path.join(tempDir, "src/interface.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/interface.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/interface.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Should process interfaces without error
-  assert.equal(error, null);
+    // Should process interfaces without error
+    assert.equal(error, null);
 });
 
-test("handles decorators in code", async (t) => {
-  const tempDir = createTempDir();
+test('handles decorators in code', async (t) => {
+    const tempDir = createTempDir();
 
-  t.after(() => cleanupTempDir(tempDir));
+    t.after(() => cleanupTempDir(tempDir));
 
-  writeTestFile(
-    tempDir,
-    "src/decorated.ts",
-    `function decorator(target: any) {}
+    writeTestFile(
+        tempDir,
+        'src/decorated.ts',
+        `function decorator(target: any) {}
 
 /** @derive(Debug) */
 @decorator
 class DecoratedClass {
   id: string;
 }
-export { DecoratedClass };`,
-  );
+export { DecoratedClass };`
+    );
 
-  const plugin = await macroforge();
-  initializePlugin(plugin, tempDir);
+    const plugin = await macroforge();
+    initializePlugin(plugin, tempDir);
 
-  const code = fs.readFileSync(path.join(tempDir, "src/decorated.ts"), "utf-8");
-  const id = path.join(tempDir, "src/decorated.ts");
+    const code = fs.readFileSync(path.join(tempDir, 'src/decorated.ts'), 'utf-8');
+    const id = path.join(tempDir, 'src/decorated.ts');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Should handle decorators
-  assert.equal(error, null);
+    // Should handle decorators
+    assert.equal(error, null);
 });
 
-test("transform returns a source map when code is expanded", async () => {
-  const plugin = await macroforge();
-  initializePlugin(plugin, FIXTURES_DIR);
+test('transform returns a source map when code is expanded', async () => {
+    const plugin = await macroforge();
+    initializePlugin(plugin, FIXTURES_DIR);
 
-  const code = loadFixture("simple-macro");
-  const id = getFixturePath("simple-macro");
+    const code = loadFixture('simple-macro');
+    const id = getFixturePath('simple-macro');
 
-  const { result, error } = await invokeTransform(plugin, code, id);
+    const { result, error } = await invokeTransform(plugin, code, id);
 
-  assert.equal(error, null);
-  if (result && result.code && result.code !== code) {
-    // Phase 16: the plugin now forwards a real v3 source map.
-    assert.ok(result.map, "expanded files should carry a source map");
-    assert.equal(result.map.version, 3);
-    assert.equal(typeof result.map.mappings, "string");
-  }
+    assert.equal(error, null);
+    if (result && result.code && result.code !== code) {
+        // Phase 16: the plugin now forwards a real v3 source map.
+        assert.ok(result.map, 'expanded files should carry a source map');
+        assert.equal(result.map.version, 3);
+        assert.equal(typeof result.map.mappings, 'string');
+    }
 });

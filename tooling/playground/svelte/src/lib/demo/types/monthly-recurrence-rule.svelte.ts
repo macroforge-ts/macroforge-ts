@@ -2,8 +2,8 @@
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface MonthlyRecurrenceRule {
-  quantityOfMonths: number;
-  day: number;
-  /** @serde({ validate: ["nonEmpty"] }) */
-  name: string;
+    quantityOfMonths: number;
+    day: number;
+    /** @serde({ validate: ["nonEmpty"] }) */
+    name: string;
 }

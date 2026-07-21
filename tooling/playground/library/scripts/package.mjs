@@ -27,8 +27,22 @@ function findMacroforgeCli() {
         globalThis.process.env.USERPROFILE || '';
     const candidates = [
         globalThis.process.env.MACROFORGE_CLI,
-        path.join(repoRoot, 'crates', 'macroforge_ts', 'target', 'release', 'macroforge'),
-        path.join(repoRoot, 'crates', 'macroforge_ts', 'target', 'debug', 'macroforge'),
+        path.join(
+            repoRoot,
+            'crates',
+            'macroforge_ts',
+            'target',
+            'release',
+            'macroforge'
+        ),
+        path.join(
+            repoRoot,
+            'crates',
+            'macroforge_ts',
+            'target',
+            'debug',
+            'macroforge'
+        ),
         path.join(repoRoot, 'crates', 'target', 'release', 'macroforge'),
         path.join(repoRoot, 'crates', 'target', 'debug', 'macroforge'),
         path.join(home, '.cargo', 'bin', 'macroforge')
