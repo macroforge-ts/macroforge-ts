@@ -22,7 +22,7 @@ into a fully-fledged TypeScript macro that integrates with the Macroforge runtim
 use macroforge_ts_macros::ts_macro_derive;
 
 #[ts_macro_derive(Debug, description = "Generates debug formatting")]
-fn debug_macro(input: TsStream) -> Result<TsStream, MacroError> {
+fn debug_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
     // Transform the input TypeScript class
     Ok(input)
 }
@@ -48,13 +48,15 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-macroforge_ts_macros = "0.1.81"
+macroforge_ts_macros = "0.1.82"
 ```
 
 ## Key Exports
 
 ### Functions
 
+- **`ts_macro`** - A procedural macro attribute for function-like call macros.
+- **`ts_macro_attribute`** - A procedural macro attribute for attribute macros.
 - **`ts_macro_derive`** - A procedural macro attribute that transforms a function into a TypeScript derive macro.
 
 ## API Reference

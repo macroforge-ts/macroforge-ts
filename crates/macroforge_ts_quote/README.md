@@ -12,16 +12,18 @@ TypeScript code generation macros for macroforge.
 This crate provides procedural macros for generating TypeScript code from Rust.
 It offers two primary approaches:
 
-- [`ts_quote!`] - A thin wrapper around SWC's `quote!` macro with enhanced
-  interpolation syntax for compile-time validated TypeScript generation.
+- [`ts_quote!`] - Compile-time validated TypeScript generation with `$var`
+  interpolation, e.g. `ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs)`.
 
 - [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,
-  `{#for}`, `{#match}`) and expression interpolation (`@{expr}`).
+  `{#for}`, `{#match}`, ...) and expression interpolation (`@{expr}`).
 
 # Architecture
 
-The quote implementation uses TypeScript parsing (`Syntax::Typescript`) instead
-of JavaScript, enabling native support for type annotations and TypeScript syntax.
+The template source string is parsed as TypeScript at macro-expansion time,
+enabling native support for type annotations and TypeScript syntax. Parsing
+is backed by OXC with the default `oxc` feature; the SWC backend is
+available behind the opt-in `swc` feature.
 
 # Insert Positions
 
@@ -47,7 +49,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-macroforge_ts_quote = "0.1.81"
+macroforge_ts_quote = "0.1.82"
 ```
 
 ## Key Exports

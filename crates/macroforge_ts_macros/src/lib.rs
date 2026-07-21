@@ -15,7 +15,7 @@
 //! use macroforge_ts_macros::ts_macro_derive;
 //!
 //! #[ts_macro_derive(Debug, description = "Generates debug formatting")]
-//! fn debug_macro(input: TsStream) -> Result<TsStream, MacroError> {
+//! fn debug_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
 //!     // Transform the input TypeScript class
 //!     Ok(input)
 //! }
@@ -41,80 +41,6 @@ use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
 use syn::{Ident, ItemFn, LitStr, Result, parse::Parser, parse_macro_input, spanned::Spanned};
 
-/// A procedural macro attribute that transforms a function into a TypeScript derive macro.
-///
-/// This attribute macro takes a function that processes TypeScript code and generates
-/// all the necessary infrastructure for it to work as a Macroforge derive macro.
-///
-/// # Arguments
-///
-/// The macro accepts the following arguments:
-///
-/// - **name** (required, positional): The macro name as an identifier (e.g., `Debug`, `Clone`)
-/// - **description** (optional): A string literal describing the macro's purpose
-/// - **kind** (optional): The macro type - `"derive"` (default), `"attribute"`, or `"function"`
-/// - **attributes** (optional): Decorator attributes that modify the macro's behavior
-///
-/// # Generated Code
-///
-/// For a function `debug_macro` with macro name `Debug`, this generates:
-///
-/// 1. **`Debug` struct**: Implements the `Macroforge` trait
-/// 2. **`__ts_macro_run_debug` function**: NAPI-exported function for JS interop
-/// 3. **`__TS_MACRO_DESCRIPTOR_DEBUG` static**: Metadata descriptor
-/// 4. **Inventory registration**: Automatic discovery at runtime
-///
-/// # Examples
-///
-/// ## Basic Usage
-///
-/// ```rust,ignore
-/// #[ts_macro_derive(Clone)]
-/// fn clone_macro(input: TsStream) -> Result<TsStream, MacroError> {
-///     // Implementation
-///     Ok(input)
-/// }
-/// ```
-///
-/// ## With Description
-///
-/// ```rust,ignore
-/// #[ts_macro_derive(Serialize, description = "Generates JSON serialization methods")]
-/// fn serialize_macro(input: TsStream) -> Result<TsStream, MacroError> {
-///     Ok(input)
-/// }
-/// ```
-///
-/// ## With Decorators
-///
-/// ```rust,ignore
-/// #[ts_macro_derive(
-///     Serde,
-///     description = "Serialization with validation",
-///     attributes((serde, "Configure serialization"), (validate, "Add validators"))
-/// )]
-/// fn serde_macro(input: TsStream) -> Result<TsStream, MacroError> {
-///     Ok(input)
-/// }
-/// ```
-///
-/// ## Attribute Macro
-///
-/// ```rust,ignore
-/// #[ts_macro_derive(Route, kind = "attribute")]
-/// fn route_macro(input: TsStream) -> Result<TsStream, MacroError> {
-///     Ok(input)
-/// }
-/// ```
-///
-/// # Panics
-///
-/// This macro will produce a compile error if:
-/// - No macro name is provided
-/// - The macro name is not a valid identifier
-/// - An unknown option is specified
-/// - The `kind` value is not one of the valid options
-///
 /// A procedural macro attribute for function-like call macros.
 ///
 /// Creates a macro invoked via `$name(...)` syntax in TypeScript.
@@ -167,6 +93,80 @@ pub fn ts_macro_attribute(attr: TokenStream, item: TokenStream) -> TokenStream {
     generate_macro_impl(options, item, "ts_macro_attribute")
 }
 
+/// A procedural macro attribute that transforms a function into a TypeScript derive macro.
+///
+/// This attribute macro takes a function that processes TypeScript code and generates
+/// all the necessary infrastructure for it to work as a Macroforge derive macro.
+///
+/// # Arguments
+///
+/// The macro accepts the following arguments:
+///
+/// - **name** (required, positional): The macro name as an identifier (e.g., `Debug`, `Clone`)
+/// - **description** (optional): A string literal describing the macro's purpose
+/// - **kind** (optional): The macro type - `"derive"` (default), `"attribute"`, or `"function"`
+/// - **attributes** (optional): Decorator attributes that modify the macro's behavior
+///
+/// # Generated Code
+///
+/// For a function `debug_macro` with macro name `Debug`, this generates:
+///
+/// 1. **`DebugMacro` struct**: PascalCase of the function name; implements the `Macroforge` trait
+/// 2. **`__macroforgeRunDebug` export**: NAPI/WASM function for JS interop (named after the
+///    macro name), plus a `__macroforge_ffi_run_debug` C-ABI export for dlopen-based hosts
+/// 3. **`__TS_MACRO_DESCRIPTOR_DEBUGMACRO` static**: Metadata descriptor (uppercased struct name)
+/// 4. **Inventory registration**: Automatic discovery at runtime
+///
+/// # Examples
+///
+/// ## Basic Usage
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(Clone)]
+/// fn clone_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+///     // Implementation
+///     Ok(input)
+/// }
+/// ```
+///
+/// ## With Description
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(Serialize, description = "Generates JSON serialization methods")]
+/// fn serialize_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+///     Ok(input)
+/// }
+/// ```
+///
+/// ## With Decorators
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(
+///     Serde,
+///     description = "Serialization with validation",
+///     attributes((serde, "Configure serialization"), (validate, "Add validators"))
+/// )]
+/// fn serde_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+///     Ok(input)
+/// }
+/// ```
+///
+/// ## Attribute Macro
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(Route, kind = "attribute")]
+/// fn route_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+///     Ok(input)
+/// }
+/// ```
+///
+/// # Panics
+///
+/// This macro will produce a compile error if:
+/// - No macro name is provided
+/// - The macro name is not a valid identifier
+/// - An unknown option is specified
+/// - The `kind` value is not one of the valid options
 #[proc_macro_attribute]
 pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let options = match parse_macro_options(TokenStream2::from(attr)) {

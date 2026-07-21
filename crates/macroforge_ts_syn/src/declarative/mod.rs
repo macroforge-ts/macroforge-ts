@@ -9,9 +9,6 @@
 //! invocations and expand bodies. The types and parser here are
 //! host-agnostic (no OXC or SWC dependencies) so they can be unit
 //! tested in isolation.
-//!
-//! See the execution plan in the repo root for a fuller description
-//! of the grammar.
 
 pub mod errors;
 pub mod parser;

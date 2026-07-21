@@ -24,6 +24,14 @@
 //! | [`lower_type_aliases`] | All type alias declarations |
 //! | [`lower_targets`] | All supported declarations as [`LoweredTarget`] |
 //!
+//! ## Feature Flag
+//!
+//! This module is only compiled with the `swc` feature, which is *not* part of
+//! the default feature set. Under the default `oxc` backend, use the
+//! equivalents in [`lower_oxc`](crate::lower_oxc) (`lower_classes_oxc`,
+//! `lower_interfaces_oxc`, `lower_enums_oxc`, `lower_type_aliases_oxc`,
+//! `lower_targets_oxc`).
+//!
 //! ## Example
 //!
 //! ```rust

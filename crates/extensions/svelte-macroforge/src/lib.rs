@@ -1,3 +1,21 @@
+//! Zed extension wrapping the macroforge-aware Svelte language server.
+//!
+//! Provides the `svelte-macroforge` language server (see `extension.toml`),
+//! which runs `@macroforge/svelte-language-server` over stdio via Zed's
+//! bundled Node.js so Svelte files get macroforge macro expansion in the
+//! editor.
+//!
+//! On first use, the extension installs pinned npm packages into its own
+//! directory:
+//!
+//! - `@macroforge/svelte-language-server` at `SVELTE_LS_VERSION`
+//! - `macroforge` at the same version (installed at the root so npm resolves
+//!   its platform binary correctly)
+//! - the platform-specific `@macroforge/bin-*` binary package, also at the
+//!   same version
+//!
+//! Outdated installs are detected by version mismatch and reinstalled.
+
 use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree};
 

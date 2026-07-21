@@ -11,7 +11,14 @@
 //! - `{:else if cond}` - Else-if clause
 //! - `{#match expr}{:case pattern}...{/match}` - Match blocks with case arms
 //! - `{#for item in list}...{/for}` - Iteration
-//! - `{%let name = expr}` - Local constants
+//! - `{#while cond}...{/while}` - While loops
+//! - `{#while let pattern = expr}...{/while}` - While-let loops
+//! - `{%let name = expr}` or `{$let name = expr}` - Local constants
+//! - `{$let mut name = expr}` - Mutable local bindings
+//! - `{$do expr}` - Execute a Rust expression for its side effects
+//! - `{$typescript expr}` - Inject a `TsStream` into the output
+//! - `{> comment <}` - Line comment (emitted as `// comment`)
+//! - `{>> comment <<}` - Block comment (emitted as `/* comment */`)
 //!
 //! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 

@@ -3,16 +3,18 @@
 //! This crate provides procedural macros for generating TypeScript code from Rust.
 //! It offers two primary approaches:
 //!
-//! - [`ts_quote!`] - A thin wrapper around SWC's `quote!` macro with enhanced
-//!   interpolation syntax for compile-time validated TypeScript generation.
+//! - [`ts_quote!`] - Compile-time validated TypeScript generation with `$var`
+//!   interpolation, e.g. `ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs)`.
 //!
 //! - [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,
-//!   `{#for}`, `{#match}`) and expression interpolation (`@{expr}`).
+//!   `{#for}`, `{#match}`, ...) and expression interpolation (`@{expr}`).
 //!
 //! # Architecture
 //!
-//! The quote implementation uses TypeScript parsing (`Syntax::Typescript`) instead
-//! of JavaScript, enabling native support for type annotations and TypeScript syntax.
+//! The template source string is parsed as TypeScript at macro-expansion time,
+//! enabling native support for type annotations and TypeScript syntax. Parsing
+//! is backed by OXC with the default `oxc` feature; the SWC backend is
+//! available behind the opt-in `swc` feature.
 //!
 //! # Insert Positions
 //!
@@ -179,6 +181,20 @@ fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::To
 /// - `Within` - Insert inside the target's body (class members, etc.)
 /// - `Below` - Insert after the target declaration (default)
 /// - `Bottom` - Insert at the bottom of the file
+///
+/// # Template Tags
+///
+/// - `@{expr}` - Interpolate an expression (`@@{` escapes a literal `@{`)
+/// - `{#if cond}...{:else if cond}...{:else}...{/if}` - Conditionals
+/// - `{#if let pattern = expr}...{/if}` - Pattern-matching if-let
+/// - `{#match expr}{:case pattern}...{/match}` - Match with case arms
+/// - `{#for item in list}...{/for}` - Iteration
+/// - `{#while cond}...{/while}` / `{#while let pattern = expr}...{/while}` - Loops
+/// - `{%let name = expr}` or `{$let name = expr}` - Local constants
+///   (`{$let mut ...}` for mutable bindings)
+/// - `{$do expr}` - Execute a Rust expression for its side effects
+/// - `{$typescript expr}` - Inject a `TsStream` into the output
+/// - `{> comment <}` / `{>> comment <<}` - Line / block comments in the output
 #[proc_macro]
 pub fn ts_template(input: TokenStream) -> TokenStream {
     #[cfg(feature = "compiler")]

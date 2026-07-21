@@ -27,11 +27,11 @@
 //!
 //! ## Example: Basic Derive Macro
 //!
-//! ```rust,ignore
-//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, Data, MacroResult, TsStream};
+//! ```rust
+//! use macroforge_ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 //!
 //! // This function signature shows how derive macros receive input
-//! pub fn my_macro(mut input: TsStream) -> MacroResult {
+//! pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 //!     let input = parse_ts_macro_input!(input as DeriveInput);
 //!
 //!     // Get the type name
@@ -64,17 +64,17 @@
 //!         }
 //!     }
 //!
-//!     MacroResult::default()
+//!     Ok(TsStream::from_string(String::new()))
 //! }
 //! ```
 //!
 //! ## Example: Accessing Decorators
 //!
-//! ```rust,ignore
-//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, MacroResult, TsStream};
+//! ```rust
+//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, MacroforgeError, TsStream};
 //!
 //! // This function signature shows how derive macros receive input
-//! pub fn my_macro(mut input: TsStream) -> MacroResult {
+//! pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 //!     let input = parse_ts_macro_input!(input as DeriveInput);
 //!
 //!     // Check for a specific decorator
@@ -96,7 +96,7 @@
 //!         }
 //!     }
 //!
-//!     MacroResult::default()
+//!     Ok(TsStream::from_string(String::new()))
 //! }
 //! ```
 //!
@@ -131,12 +131,13 @@ use crate::TsStream;
 /// Use the `parse_ts_macro_input!` macro to parse a [`TsStream`] into
 /// a `DeriveInput`:
 ///
-/// ```rust,ignore
-/// use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, TsStream};
+/// ```rust
+/// use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, MacroforgeError, TsStream};
 ///
 /// // This requires a TsStream with macro context
-/// fn example(mut stream: TsStream) {
+/// fn example(mut stream: TsStream) -> Result<TsStream, MacroforgeError> {
 ///     let _input = parse_ts_macro_input!(stream as DeriveInput);
+///     Ok(TsStream::from_string(String::new()))
 /// }
 /// ```
 ///
@@ -902,17 +903,17 @@ impl crate::ParseTs for DeriveInput {
 /// for derive macros.
 ///
 /// # Example
-/// ```ignore
-/// use ts_syn::{parse_ts_macro_input, DeriveInput};
-/// use ts_syn::MacroResult;
+/// ```rust
+/// use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, MacroforgeError, TsStream};
 ///
-/// #[ts_macro_derive(MyMacro)]
-/// pub fn my_macro(mut input: TsStream) -> MacroResult {
+/// // Normally annotated with `#[ts_macro_derive(MyMacro)]` from `macroforge_ts_macros`
+/// pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 ///     let input = parse_ts_macro_input!(input as DeriveInput);
 ///
 ///     // input is now a DeriveInput
-///     let name = input.name();
+///     let _name = input.name();
 ///     // ...
+///     Ok(TsStream::from_string(String::new()))
 /// }
 /// ```
 ///

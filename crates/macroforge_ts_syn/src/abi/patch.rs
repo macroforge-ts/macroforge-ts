@@ -54,8 +54,11 @@ use crate::abi::swc_ast;
 
 /// Specifies where generated code should be inserted relative to the target.
 ///
-/// This enum provides structured control over code placement, replacing
-/// the string-based marker system (`/* @macroforge:body */`, etc.).
+/// This enum provides structured control over code placement as an alternative
+/// to the string-based marker system (`/* @macroforge:body */`, etc.). The two
+/// coexist: `ts_template!(Within ...)` still emits a `/* @macroforge:body */`
+/// marker alongside `InsertPos::Within`, and markers take precedence when
+/// present in the generated tokens.
 ///
 /// # Positions
 ///
@@ -416,6 +419,12 @@ impl From<Vec<swc_ast::Stmt>> for PatchCode {
     }
 }
 
+/// Lossy conversion: a vector with exactly one item becomes
+/// [`PatchCode::ModuleItem`]; any other length **discards the items** and
+/// produces placeholder text (one literal `/* generated code */` line per
+/// item), because `PatchCode` has no multi-item variant. Emit the items to
+/// source yourself (e.g. via [`emit_module_items`](crate::emit_module_items))
+/// and use `PatchCode::Text` if you need more than one item preserved.
 #[cfg(feature = "swc")]
 impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
     fn from(items: Vec<swc_ast::ModuleItem>) -> Self {

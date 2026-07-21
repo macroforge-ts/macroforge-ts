@@ -1,3 +1,22 @@
+//! Zed extension wrapping VTSLS with the macroforge TypeScript plugin.
+//!
+//! Provides the `vtsls-macroforge` language server (see `extension.toml`),
+//! which runs `@vtsls/language-server` over stdio via Zed's bundled Node.js
+//! and registers `@macroforge/typescript-plugin` as a global tsserver plugin
+//! (through both initialization options and workspace configuration) so
+//! TypeScript/TSX/JavaScript files get macroforge macro expansion in the
+//! editor.
+//!
+//! On first use, the extension installs pinned npm packages into its own
+//! directory:
+//!
+//! - `@vtsls/language-server` at `VTSLS_VERSION`
+//! - `@macroforge/typescript-plugin` at `TS_PLUGIN_VERSION`
+//! - the platform-specific `@macroforge/bin-*` binary package at
+//!   `MACROFORGE_VERSION`
+//!
+//! Outdated installs are detected by version mismatch and reinstalled.
+
 use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree, serde_json};
 

@@ -30,7 +30,7 @@
 //! ## Related Macros
 //!
 //! For constructing AST nodes, see the macros in [`lib.rs`](crate):
-//! - [`ident!`](crate::ident!) - Create identifier expressions
+//! - [`ts_ident!`](crate::ts_ident!) - Create identifier expressions
 //! - [`member_expr!`](crate::member_expr!) - Create member access expressions
 //! - [`fn_assign!`](crate::fn_assign!) - Create function assignment statements
 //! - [`stmt_vec!`](crate::stmt_vec!) - Create vectors of statements
@@ -47,7 +47,7 @@
 ///
 /// # Arguments
 ///
-/// - `$class` - An identifier expression for the class name (use [`ident!`](crate::ident!))
+/// - `$class` - An identifier expression for the class name (use [`ts_ident!`](crate::ts_ident!))
 /// - `$method` - A string literal for the method name
 /// - `$body` - A `Vec<Stmt>` containing the function body
 ///
@@ -68,20 +68,21 @@
 /// ```rust,ignore
 /// fn derive_debug(input: &DeriveInput) -> MacroResult {
 ///     let class = input.as_class().expect("Expected class");
-///     let class_name = ts_ident!(&input.name());
+///     let class_name = ts_ident!(input.name());
 ///
-///     // Build the debug() method body
+///     // Build the debug() method body (ts_quote! is provided by macroforge_ts_quote)
 ///     let body = vec![
-///         ts_quote!( return `${#class_name} { ... }`; as Stmt ),
+///         ts_quote!("return `$name { ... }`;" as Stmt, name: Ident = class_name.clone()),
 ///     ];
 ///
 ///     let method_stmt = proto_method!(class_name, "debug", body);
 ///
-///     // Return patch that inserts this method after the class
+///     // Return a patch that inserts this method after the class
+///     let target = input.target_span();
 ///     MacroResult {
 ///         runtime_patches: vec![
-///             Patch::InsertAfter {
-///                 target: input.target_span(),
+///             Patch::Insert {
+///                 at: SpanIR::new(target.end, target.end),
 ///                 code: method_stmt.into(),
 ///                 source_macro: Some("Debug".into()),
 ///             }

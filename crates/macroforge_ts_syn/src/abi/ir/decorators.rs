@@ -24,7 +24,7 @@
 //! ```
 //!
 //! This would produce:
-//! - Class-level: `DecoratorIR { name: "derive", args_src: "Debug, Clone", ... }`
+//! - Class-level: `DecoratorIR { name: "Derive", args_src: "Debug, Clone", ... }`
 //! - Class-level: `DecoratorIR { name: "Entity", args_src: "\"users\"", ... }`
 //! - Field-level: `DecoratorIR { name: "serde", args_src: "rename = \"user_name\"", ... }`
 
@@ -42,9 +42,11 @@ use crate::abi::swc_ast;
 ///
 /// # Name Normalization
 ///
-/// Decorator names from JSDoc are typically lowercase (`@derive`, `@serde`),
-/// while TypeScript decorators preserve their original casing (`@Entity`).
-/// Macro systems may normalize these for case-insensitive matching.
+/// Names are preserved with their original casing, with one exception: a
+/// JSDoc `@derive` directive (matched case-insensitively) is normalized to
+/// `"Derive"` during lowering. All other names — JSDoc or TypeScript
+/// decorator — are stored exactly as written (`@serde` -> `"serde"`,
+/// `@Entity` -> `"Entity"`).
 ///
 /// # Arguments
 ///

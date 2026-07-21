@@ -18,12 +18,19 @@ It is the core infrastructure crate for the Macroforge TypeScript macro system.
 The crate is organized into several modules:
 
 - [`abi`] - Application Binary Interface types for stable macro communication
+- [`config`] - Serializable configuration types shared between host and macro processes
+- [`context_registry`] - Thread-local storage for the active [`MacroContextIR`]
+- [`declarative`] - Grammar and parser for declarative (pattern-matching) macros
 - [`derive`] - Derive input types that mirror Rust's `syn::DeriveInput`
 - [`errors`] - Error types and diagnostics for macro expansion
-- [`lower`] - AST lowering from SWC types to IR representations
-- [`parse`] - TypeScript parsing utilities wrapping SWC
+- [`import_registry`] - Unified import registry built during IR lowering
+- [`jsdoc`] - JSDoc directive parsing shared by both lowering backends
+- [`lower`] - AST lowering from SWC types to IR representations (`swc` feature)
+- [`lower_oxc`] - AST lowering from OXC types to IR representations (`oxc` feature)
+- [`parse`] - TypeScript parsing utilities wrapping SWC (`swc` feature)
 - [`quote_helpers`] - Macros for ergonomic code generation
 - [`stream`] - Parsing stream abstraction similar to `syn::parse::ParseBuffer`
+- [`type_normalize`] - Helpers for splitting TS type-string snippets into structural pieces
 
 ## Architecture
 
@@ -35,13 +42,13 @@ The crate follows a layered architecture:
 │  (DeriveInput, TsStream, parse_ts_macro_input!)             │
 ├─────────────────────────────────────────────────────────────┤
 │                    Lowering Layer                           │
-│  (lower_classes, lower_interfaces, lower_enums, ...)        │
+│  (lower_classes_oxc / lower_classes, ...)                   │
 ├─────────────────────────────────────────────────────────────┤
 │                    IR Types (ABI Stable)                    │
 │  (ClassIR, InterfaceIR, EnumIR, TypeAliasIR, ...)           │
 ├─────────────────────────────────────────────────────────────┤
-│                    SWC Parser                               │
-│  (swc_core for TypeScript/JavaScript parsing)               │
+│                    Parser Backend                           │
+│  (OXC by default; SWC behind the `swc` feature)             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -49,13 +56,14 @@ The crate follows a layered architecture:
 
 Here's how to use this crate in a derive macro:
 
-```rust,ignore
-use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, MacroResult, Patch, Data, MacroContextIR};
+```rust
+use macroforge_ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
-// This function signature shows a typical derive macro entry point
-pub fn my_derive_macro(ctx: MacroContextIR) -> MacroResult {
+// A typical derive macro entry point (normally annotated with
+// `#[ts_macro_derive(...)]` from the `macroforge_ts_macros` crate)
+pub fn my_derive_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     // Parse the input using the syn-like API
-    let input = parse_ts_macro_input!(ctx);
+    let input = parse_ts_macro_input!(input as DeriveInput);
 
     // Access type information
     println!("Processing type: {}", input.name());
@@ -78,8 +86,8 @@ pub fn my_derive_macro(ctx: MacroContextIR) -> MacroResult {
         }
     }
 
-    // Generate code and return patches
-    MacroResult::ok()
+    // Return the generated code as a TsStream
+    Ok(TsStream::from_string(String::new()))
 }
 ```
 
@@ -87,8 +95,8 @@ pub fn my_derive_macro(ctx: MacroContextIR) -> MacroResult {
 
 This crate provides several helper macros for working with SWC AST nodes:
 
-- [`ident!`] - Create an identifier with optional formatting
-- [`private_ident!`] - Create a private (marked) identifier
+- [`ts_ident!`] - Create an identifier with optional formatting
+- [`ts_private_ident!`] - Create a private (marked) identifier
 - [`stmt_block!`] - Create a block statement from statements
 - [`fn_expr!`] - Create an anonymous function expression
 - [`member_expr!`] - Create a member access expression (obj.prop)
@@ -98,12 +106,13 @@ This crate provides several helper macros for working with SWC AST nodes:
 
 ## Feature Flags
 
-- `swc` - Enables SWC integration and the helper macros (enabled by default)
+- `oxc` - Enables the OXC parser backend (enabled by default)
+- `swc` - Enables SWC integration and the SWC-based helper macros (opt-in)
 
 ## Re-exports
 
 For convenience, the crate re-exports commonly used SWC types when the `swc` feature
-is enabled:
+is enabled (it is not part of the default feature set):
 
 - [`swc_core`] - The full SWC core crate
 - [`swc_common`] - Common SWC types (Span, SourceMap, etc.)
@@ -116,7 +125,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-macroforge_ts_syn = "0.1.81"
+macroforge_ts_syn = "0.1.82"
 ```
 
 ## Key Exports

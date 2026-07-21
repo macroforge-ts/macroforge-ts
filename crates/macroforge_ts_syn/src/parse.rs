@@ -43,7 +43,10 @@
 //!
 //! ## Feature Flag
 //!
-//! This module requires the `swc` feature (enabled by default).
+//! The real parser requires the `swc` feature, which is *not* enabled by
+//! default (the default backend is `oxc`; see [`parse_oxc_program`](crate::parse_oxc_program)
+//! and friends). Without `swc`, [`parse_ts_module`] is a stub that always
+//! returns an error.
 
 #[cfg(feature = "swc")]
 use swc_core::common::{FileName, SourceMap, sync::Lrc};
@@ -145,6 +148,10 @@ pub fn parse_ts_module(source: &str, file_name: &str) -> Result<Module, TsSynErr
         .map_err(|e| TsSynError::Parse(format!("{:?}", e)))
 }
 
+/// Stub used when the `swc` feature is disabled (the default configuration).
+///
+/// Always returns `Err`; use the OXC entry points
+/// ([`parse_oxc_program`](crate::parse_oxc_program) etc.) instead.
 #[cfg(not(feature = "swc"))]
 pub fn parse_ts_module(_source: &str, _file_name: &str) -> Result<(), TsSynError> {
     Err(TsSynError::Parse("swc feature disabled".into()))
