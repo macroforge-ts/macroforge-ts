@@ -8,6 +8,7 @@ use anyhow::{Context, Result};
 use colored::Colorize;
 use dialoguer::Input;
 
+/// Entry point for `mf commit`: stages and commits all changes in the monorepo.
 pub fn run(args: CommitArgs) -> Result<()> {
     let config = Config::load()?;
     let root = &config.root;

@@ -20,6 +20,7 @@ const CONFIG_FILES: &[&str] = &[
     "macroforge.config.cjs",
 ];
 
+/// Entry point for `mf expand`: expands macros in playground TypeScript files.
 pub fn run(args: ExpandArgs) -> Result<()> {
     let config = Config::load()?;
 

@@ -9,6 +9,8 @@ use anyhow::Result;
 use colored::Colorize;
 use std::io::{self, Write};
 
+/// Entry point for `mf versions`: fetches registry versions and syncs them to disk
+/// (versions.json, manifests, Zed extensions) unless `--check-only`.
 pub fn run(args: VersionsArgs) -> Result<()> {
     let config = Config::load()?;
     let mut versions = config.versions.clone();

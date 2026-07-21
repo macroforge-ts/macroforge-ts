@@ -38,7 +38,10 @@ pub enum Commands {
     /// Manifest manipulation (versions, dependencies)
     Manifest(ManifestArgs),
 
-    /// Fetch latest versions from npm/crates.io
+    /// Fetch latest versions from npm/crates.io and sync them to disk
+    ///
+    /// Rewrites versions.json, package.json/Cargo.toml manifests, and the Zed
+    /// extension version constants unless --check-only is passed.
     Versions(VersionsArgs),
 
     /// Run comprehensive multi-tool diagnostics
@@ -77,7 +80,7 @@ pub struct VerifyArgs {
     #[arg(long)]
     pub version: Option<String>,
 
-    /// Dry run - show what would be done
+    /// Test the full pipeline without bumping versions
     #[arg(long)]
     pub dry_run: bool,
 
@@ -238,7 +241,9 @@ pub enum DocsCommands {
     /// Check if documentation is up to date
     CheckFreshness,
 
-    /// Run all documentation generation steps
+    /// Run API extraction (Rust + TypeScript) and README generation
+    ///
+    /// Does not build the docs book; use `docs build-book` for that.
     All,
 }
 
@@ -275,7 +280,7 @@ pub struct TestArgs {
 
 #[derive(clap::Args)]
 pub struct PublishLocalArgs {
-    /// Skip the napi build step (binaries already built)
+    /// Skip the WASM build step (`deno task build:wasm`; package already built)
     #[arg(long)]
     pub skip_build: bool,
 

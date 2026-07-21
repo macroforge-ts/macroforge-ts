@@ -22,6 +22,7 @@ struct BuildStep {
     func: Option<BuildStepFn>,
 }
 
+/// Entry point for `mf build`: clean-rebuilds the selected repos in dependency order.
 pub fn run(args: BuildArgs) -> Result<()> {
     let config = Config::load()?;
     let repos = config.filter_repos(&args.repos);

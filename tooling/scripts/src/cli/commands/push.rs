@@ -8,6 +8,7 @@ use anyhow::{Context, Result};
 use colored::Colorize;
 use dialoguer::Confirm;
 
+/// Entry point for `mf push`: tags the release and pushes the monorepo.
 pub fn run(args: &PushArgs) -> Result<()> {
     let config = Config::load()?;
     let root = &config.root;

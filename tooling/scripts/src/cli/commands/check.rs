@@ -10,6 +10,7 @@ use anyhow::{Context, Result};
 use colored::Colorize;
 use std::path::Path;
 
+/// Entry point for `mf check`: reports TypeScript diagnostics for a single file.
 pub fn run(args: CheckArgs) -> Result<()> {
     let config = Config::load()?;
 

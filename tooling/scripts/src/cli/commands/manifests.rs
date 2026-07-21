@@ -10,6 +10,7 @@ use crate::core::shell;
 use crate::utils::format;
 use anyhow::Result;
 
+/// Entry point for `mf manifest`: dispatches manifest subcommands (versions, swaps, linking).
 pub fn run(args: ManifestArgs) -> Result<()> {
     let config = Config::load()?;
     let mut versions = config.versions.clone();

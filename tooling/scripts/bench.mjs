@@ -2,11 +2,12 @@
 // Macroforge expansion benchmark.
 //
 // Usage:
-//   pixi run bench              — benchmark current build
-//   pixi run bench:all          — compare all backends in bench-bins/
-//   pixi run bench:build        — build all 4 variants into bench-bins/
-//   pixi run bench:wasm-bindgen — run wasm-bindgen (used by build pipeline)
-//   MF_BENCH_ITERATIONS=50      — control iteration count (default: 20)
+//   pixi run bench                                  — benchmark current build
+//   pixi run bench:all                              — compare all backends in bench-bins/
+//   pixi run bench:build                            — build all 4 variants into bench-bins/
+//   bench.mjs --wasm-bindgen <input.wasm> <out-dir> — run wasm-bindgen (invoked
+//                                                     directly by the build:wasm task)
+//   MF_BENCH_ITERATIONS=50                          — control iteration count (default: 20)
 
 import { createRequire } from 'node:module';
 import * as path from 'node:path';

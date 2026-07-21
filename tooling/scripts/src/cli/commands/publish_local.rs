@@ -2,8 +2,8 @@
 //!
 //! Publishes all packages to their registries (npm, crates.io, JSR) from a
 //! local machine. Builds WASM, publishes in dependency order (topological sort),
-//! and polls registries to ensure each package is available before publishing
-//! dependents.
+//! and polls npm and crates.io to ensure each package is available before
+//! publishing dependents (JSR publishes are not polled).
 
 use crate::cli::PublishLocalArgs;
 use crate::core::config::Config;
@@ -304,6 +304,7 @@ fn ensure_jsr_auth(jsr_dir: &Path) -> Result<()> {
 // Main
 // ---------------------------------------------------------------------------
 
+/// Entry point for `mf publish-local`: publishes unpublished packages in dependency order.
 pub fn run(args: &PublishLocalArgs) -> Result<()> {
     let config = Config::load()?;
     let root = &config.root;

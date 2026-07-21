@@ -11,6 +11,7 @@ use anyhow::Result;
 use colored::Colorize;
 use std::fs;
 
+/// Entry point for `mf diagnostics`: runs multi-tool diagnostics across the codebase.
 pub fn run(args: DiagnosticsArgs) -> Result<()> {
     let config = Config::load()?;
     let logs_dir = config.root.join(".tmp/diagnostics");

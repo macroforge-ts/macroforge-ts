@@ -15,6 +15,7 @@ struct BookSection {
     level: usize,
 }
 
+/// Entry point for `mf docs build-book`: concatenates docs into a single markdown book.
 pub fn run(output_path: &Path) -> Result<()> {
     let config = Config::load()?;
     let docs_root = config.root.join("docs");

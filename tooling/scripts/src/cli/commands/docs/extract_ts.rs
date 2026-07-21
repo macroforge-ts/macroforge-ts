@@ -82,6 +82,7 @@ const TS_PACKAGES: &[(&str, &str)] = &[
     ("deno-plugin", "packages/deno-plugin"),
 ];
 
+/// Entry point for `mf docs extract-ts`: extracts TypeScript JSDoc/type info to JSON.
 pub fn run(output_dir: &Path) -> Result<()> {
     let config = Config::load()?;
     let output_path = config.root.join(output_dir);

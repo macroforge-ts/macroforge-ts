@@ -1,4 +1,4 @@
-//! Registry polling for npm and crates.io
+//! Registry polling for npm, crates.io, and JSR
 //!
 //! Uses HTTP APIs directly instead of shelling out to npm/cargo.
 

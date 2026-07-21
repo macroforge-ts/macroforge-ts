@@ -6,6 +6,7 @@
 # that extensions load successfully by monitoring the log file.
 #
 # Requirements:
+# - macOS only (monitors the Zed log at ~/Library/Logs/Zed/Zed.log)
 # - Zed must NOT be running before the test starts
 # - The test will start Zed, run checks, and close it when done
 #
