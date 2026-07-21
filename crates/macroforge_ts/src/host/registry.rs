@@ -145,16 +145,22 @@ impl MacroRegistry {
     ) -> Result<()> {
         let key = MacroKey::new(module, name);
 
-        // Atomic check-and-insert to prevent duplicates in concurrent registration
-        if self.macros.contains_key(&key) {
-            return Err(MacroError::InvalidConfig(format!(
-                "Macro '{}::{}' is already registered",
-                key.module, key.name
-            )));
+        // Atomic check-and-insert via the entry API: the shard lock is held
+        // across both the duplicate check and the insert, so concurrent
+        // registrations cannot overwrite each other.
+        match self.macros.entry(key) {
+            dashmap::mapref::entry::Entry::Occupied(entry) => {
+                let key = entry.key();
+                Err(MacroError::InvalidConfig(format!(
+                    "Macro '{}::{}' is already registered",
+                    key.module, key.name
+                )))
+            }
+            dashmap::mapref::entry::Entry::Vacant(entry) => {
+                entry.insert(macro_impl);
+                Ok(())
+            }
         }
-
-        self.macros.insert(key, macro_impl);
-        Ok(())
     }
 
     /// Looks up a macro by its exact module and name.
