@@ -30,6 +30,44 @@ export function resolvePath(path: Pathname): ResolvedPathname {
         case '/docs/concepts/architecture':
             return resolve('/docs/concepts/architecture');
 
+        // Declarative Macros
+        case '/docs/declarative-macros':
+            return resolve('/docs/declarative-macros');
+        case '/docs/declarative-macros/defining':
+            return resolve('/docs/declarative-macros/defining');
+        case '/docs/declarative-macros/patterns':
+            return resolve('/docs/declarative-macros/patterns');
+        case '/docs/declarative-macros/repetitions':
+            return resolve('/docs/declarative-macros/repetitions');
+        case '/docs/declarative-macros/expansion':
+            return resolve('/docs/declarative-macros/expansion');
+        case '/docs/declarative-macros/type-macros':
+            return resolve('/docs/declarative-macros/type-macros');
+        case '/docs/declarative-macros/sharing':
+            return resolve('/docs/declarative-macros/sharing');
+        case '/docs/declarative-macros/cross-file':
+            return resolve('/docs/declarative-macros/cross-file');
+
+        // Serde, Attributes, Buildtime, Deno
+        case '/docs/serde':
+            return resolve('/docs/serde');
+        case '/docs/serde/validators':
+            return resolve('/docs/serde/validators');
+        case '/docs/serde/container-options':
+            return resolve('/docs/serde/container-options');
+        case '/docs/serde/field-options':
+            return resolve('/docs/serde/field-options');
+        case '/docs/serde/foreign-types':
+            return resolve('/docs/serde/foreign-types');
+        case '/docs/serde/cycles-and-references':
+            return resolve('/docs/serde/cycles-and-references');
+        case '/docs/attributes':
+            return resolve('/docs/attributes');
+        case '/docs/buildtime':
+            return resolve('/docs/buildtime');
+        case '/docs/integration/deno-plugin':
+            return resolve('/docs/integration/deno-plugin');
+
         // Built-in Macros
         case '/docs/builtin-macros':
             return resolve('/docs/builtin-macros');
@@ -135,6 +173,25 @@ export const navigation: NavSection[] = [
         ]
     },
     {
+        title: 'Declarative Macros',
+        items: [
+            { title: 'Overview', href: '/docs/declarative-macros' },
+            { title: 'Defining Macros', href: '/docs/declarative-macros/defining' },
+            { title: 'Patterns & Fragments', href: '/docs/declarative-macros/patterns' },
+            {
+                title: 'Repetitions & Backtracking',
+                href: '/docs/declarative-macros/repetitions'
+            },
+            { title: 'Expansion & Hygiene', href: '/docs/declarative-macros/expansion' },
+            { title: 'Type-Position Macros', href: '/docs/declarative-macros/type-macros' },
+            {
+                title: 'Reverse Monomorphization',
+                href: '/docs/declarative-macros/sharing'
+            },
+            { title: 'Cross-File & Diagnostics', href: '/docs/declarative-macros/cross-file' }
+        ]
+    },
+    {
         title: 'Built-in Macros',
         items: [
             { title: 'Overview', href: '/docs/builtin-macros' },
@@ -147,6 +204,24 @@ export const navigation: NavSection[] = [
             { title: 'PartialOrd', href: '/docs/builtin-macros/partial-ord' },
             { title: 'Serialize', href: '/docs/builtin-macros/serialize' },
             { title: 'Deserialize', href: '/docs/builtin-macros/deserialize' }
+        ]
+    },
+    {
+        title: 'Serde Reference',
+        items: [
+            { title: 'Overview', href: '/docs/serde' },
+            { title: 'Validators', href: '/docs/serde/validators' },
+            { title: 'Container Options', href: '/docs/serde/container-options' },
+            { title: 'Field Options', href: '/docs/serde/field-options' },
+            { title: 'Foreign Types', href: '/docs/serde/foreign-types' },
+            { title: 'Cycles & References', href: '/docs/serde/cycles-and-references' }
+        ]
+    },
+    {
+        title: 'Attributes & Buildtime',
+        items: [
+            { title: 'Attribute Macros', href: '/docs/attributes' },
+            { title: 'Buildtime Evaluation', href: '/docs/buildtime' }
         ]
     },
     {
@@ -183,6 +258,7 @@ export const navigation: NavSection[] = [
                 title: 'Svelte Preprocessor',
                 href: '/docs/integration/svelte-preprocessor'
             },
+            { title: 'Deno Plugin', href: '/docs/integration/deno-plugin' },
             { title: 'MCP Server', href: '/docs/integration/mcp-server' },
             { title: 'Configuration', href: '/docs/integration/configuration' }
         ]

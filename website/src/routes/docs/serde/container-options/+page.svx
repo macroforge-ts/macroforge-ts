@@ -1,0 +1,108 @@
+<svelte:head>
+	<title>Serde Container Options - Macroforge Documentation</title>
+	<meta name="description" content="Type-level serde options: renameAll, denyUnknownFields, and the four union tagging modes." />
+</svelte:head>
+
+# Container Options
+
+Container options are written in a `@serde(...)` decorator on the **type** itself, alongside `@derive`.
+
+```typescript
+/** @derive(Serialize, Deserialize) */
+/** @serde(renameAll: "snake_case", denyUnknownFields) */
+class UserAccount {
+  firstName: string;
+  lastName: string;
+}
+```
+
+## `renameAll`
+
+Applies a naming convention to every field's JSON key. Per-field `rename` still wins.
+
+| Value | `firstName` becomes |
+| --- | --- |
+| `"camelCase"` | `firstName` |
+| `"snake_case"` | `first_name` |
+| `"SCREAMING_SNAKE_CASE"` | `FIRST_NAME` |
+| `"kebab-case"` | `first-name` |
+| `"PascalCase"` | `FirstName` |
+
+## `denyUnknownFields`
+
+By default, JSON keys with no matching field are ignored. With `denyUnknownFields`, an unexpected key becomes a validation error instead — useful for catching typos in config files and API payloads.
+
+## Union tagging
+
+When a type alias is a union of object types, the serializer needs to record which variant a value is. There are four strategies.
+
+### Internally tagged (default)
+
+The discriminator is a field alongside the data. The default tag field is `__type`.
+
+```json
+{ "__type": "Circle", "radius": 10 }
+```
+
+Use `tag: "kind"` to choose a different field name:
+
+```typescript
+/** @serde(tag: "kind") */
+type Shape = Circle | Square;
+```
+
+```json
+{ "kind": "Circle", "radius": 10 }
+```
+
+### Adjacently tagged
+
+Setting `content` alongside `tag` nests the payload under its own key:
+
+```typescript
+/** @serde(tag: "kind", content: "data") */
+type Shape = Circle | Square;
+```
+
+```json
+{ "kind": "Circle", "data": { "radius": 10 } }
+```
+
+### Externally tagged
+
+The variant name becomes the wrapping key:
+
+```typescript
+/** @serde(externallyTagged) */
+type Shape = Circle | Square;
+```
+
+```json
+{ "Circle": { "radius": 10 } }
+```
+
+### Untagged
+
+No discriminator at all — the deserializer identifies the variant structurally, using each variant's `hasShape` check.
+
+```typescript
+/** @serde(untagged) */
+type Shape = Circle | Square;
+```
+
+```json
+{ "radius": 10 }
+```
+
+Untagged unions are the most fragile: if two variants have overlapping shapes, the first match wins. Prefer a tagged representation when you control the format.
+
+## Summary
+
+| Option | Type | Default |
+| --- | --- | --- |
+| `renameAll` | string | none |
+| `denyUnknownFields` | flag | off |
+| `tag` | string | `"__type"` |
+| `content` | string | none (switches to adjacent tagging) |
+| `untagged` | flag | off |
+| `externallyTagged` | flag | off |

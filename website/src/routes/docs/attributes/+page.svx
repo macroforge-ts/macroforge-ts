@@ -1,0 +1,128 @@
+<svelte:head>
+	<title>Attribute Macros - Macroforge Documentation</title>
+	<meta name="description" content="Conditional compilation and API lifecycle attributes: @cfg, @deprecated, @mustUse and @nonExhaustive." />
+</svelte:head>
+
+# Attribute Macros
+
+Attribute macros are JSDoc annotations that transform or gate a declaration, rather than generating methods for it. They're configured from `macroforge.config.ts` and run as a **pre-pass**, before declarative and derive macros.
+
+They apply to top-level `function`, `const`, `type` and `class` declarations.
+
+```typescript
+/** @cfg({ feature: "experimental" }) */
+export function experimentalApi() { }
+
+/** @deprecated("Use parseV2 instead", { since: "0.2.0" }) */
+export function parse() { }
+
+/** @mustUse("Ignoring the result discards validation errors") */
+export function validate(input: string) { }
+
+/** @nonExhaustive */
+export type Status = "active" | "inactive";
+```
+
+## `@cfg` — conditional compilation
+
+`@cfg({ … })` keeps a declaration only when its predicate matches. **All keys must match** (they're ANDed together).
+
+```typescript
+/** @cfg({ feature: "beta" }) */
+export function betaOnly() { }
+
+/** @cfg({ target: "node", debugAssertions: true }) */
+export function nodeDebugHelper() { }
+```
+
+| Key | Matches against |
+| --- | --- |
+| `feature` | Membership in `cfg.features` |
+| `target` | Exact match with `cfg.target` |
+| `debugAssertions` | Boolean match with `cfg.debugAssertions` |
+| anything else | Exact match against `cfg.custom[key]` |
+
+On a **match**, the annotation's JSDoc comment is stripped and the declaration is kept. On a **mismatch, the entire declaration is deleted** — not just commented out. Downstream code referencing it will fail to compile, which is the intended behavior for a feature gate.
+
+The predicate accepts JS-ish literals: single quotes, unquoted identifier keys, and trailing commas are all fine.
+
+## `@deprecated` — mark and optionally fail
+
+```typescript
+/** @deprecated("Use parseV2 instead", { since: "0.2.0" }) */
+export function parse() { }
+```
+
+The annotation is rewritten to a plain `/** @deprecated … */` comment, which is what makes TypeScript itself surface the strikethrough and warning in editors.
+
+With `failOnUse` enabled, using the symbol becomes a hard macro-expansion error instead of an editor hint.
+
+**`runtimeWarn` does nothing today.** It defaults to `true` and is parsed, but no runtime `console.warn` is injected. Don't rely on it.
+
+## `@mustUse` — flag discarded results
+
+Emits an error diagnostic when a call's return value is thrown away.
+
+```typescript
+/** @mustUse("Ignoring this discards validation errors") */
+export function validate(input: string): Result { }
+
+validate(x);              // error: unused result
+const r = validate(x);    // fine
+```
+
+The current implementation has real limits, worth knowing before you rely on it:
+
+- **Same-file call sites only.**
+- **Top-level expression statements only** — it does not descend into function bodies.
+- **Method calls are not caught.** `obj.validate()` is missed; only bare function calls are checked.
+
+## `@nonExhaustive` — prevent exhaustive narrowing
+
+Brands a type alias so consumers can't write an exhaustive `switch` that breaks when you add a variant:
+
+```typescript
+/** @nonExhaustive */
+export type Status = "active" | "inactive";
+```
+
+becomes
+
+```typescript
+export type Status = ("active" | "inactive") & {
+  readonly __nonExhaustive: unique symbol;
+};
+```
+
+It applies to **type aliases only** — using it on anything else is an error. The brand field name is configurable.
+
+## Configuration
+
+```typescript
+// macroforge.config.ts
+export default {
+  cfg: {
+    features: ["beta", "experimental"],
+    target: "node",
+    debugAssertions: false,
+    custom: { tier: "pro" }
+  },
+  deprecated: {
+    runtimeWarn: true,   // parsed, currently no effect
+    failOnUse: false
+  },
+  mustUse: { mode: "lint" },
+  nonExhaustive: { brand: "__nonExhaustive" }
+};
+```
+
+| Option | Type | Default |
+| --- | --- | --- |
+| `cfg.features` | `string \| string[]` | `[]` |
+| `cfg.target` | string | none |
+| `cfg.debugAssertions` | boolean | `false` |
+| `cfg.custom` | object | `{}` |
+| `deprecated.runtimeWarn` | boolean | `true` *(no effect)* |
+| `deprecated.failOnUse` | boolean | `false` |
+| `mustUse.mode` | `"lint"` | `"lint"` |
+| `nonExhaustive.brand` | string | `"__nonExhaustive"` |
