@@ -1,14 +1,27 @@
 {
-  "workspace": [
-    "./shared",
-    "./mcp-server",
-    "./svelte-language-server",
-    "./typescript-plugin",
-    "./vite-plugin",
-    "./svelte-preprocessor",
-    "./deno-plugin"
-  ],
-  "unstable": [
-    "sloppy-imports"
-  ]
+    "fmt": {
+        "exclude": [
+            "**/dist",
+            "**/build",
+            "**/node_modules"
+        ],
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "semiColons": true,
+        "singleQuote": true,
+        "trailingCommas": "never",
+        "useTabs": false
+    },
+    "unstable": [
+        "sloppy-imports"
+    ],
+    "workspace": [
+        "./shared",
+        "./mcp-server",
+        "./svelte-language-server",
+        "./typescript-plugin",
+        "./vite-plugin",
+        "./svelte-preprocessor",
+        "./deno-plugin"
+    ]
 }

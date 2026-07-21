@@ -1,4 +1,17 @@
 {
+    "fmt": {
+        "exclude": [
+            "**/dist",
+            "**/build",
+            "**/node_modules"
+        ],
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "semiColons": true,
+        "singleQuote": true,
+        "trailingCommas": "never",
+        "useTabs": false
+    },
     "tasks": {
         "dev": "deno run -A --unstable-detect-cjs --node-modules-dir=manual --env-file=../../.env npm:vite",
         "build": "deno run -A --unstable-detect-cjs --node-modules-dir=manual --env-file=../../.env npm:vite build",
