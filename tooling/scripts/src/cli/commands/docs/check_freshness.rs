@@ -33,6 +33,7 @@ const RUST_JSON_FILES: &[&str] = &[
     "website/static/api-data/rust/macroforge_ts_quote.json",
     "website/static/api-data/rust/macroforge_ts_macros.json",
     "website/static/api-data/rust/builtin-macros.json",
+    "website/static/api-data/rust/cli.json",
 ];
 
 /// TypeScript JSON data files
@@ -125,6 +126,7 @@ fn normalize_content(path: &Path) -> Result<String> {
     }
 }
 
+/// Entry point for `mf docs check-freshness`: verifies generated docs match the sources.
 pub fn run() -> Result<()> {
     let config = Config::load()?;
 

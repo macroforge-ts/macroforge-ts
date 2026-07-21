@@ -1,6 +1,9 @@
 //! Verify release command
 //!
 //! Bumps versions, builds packages, runs tests, and generates documentation.
+//! The pipeline first gates on repo-wide diagnostics (format + lint), swaps
+//! manifests between local-path and registry dependencies around the build,
+//! and rolls back version and manifest changes on failure or Ctrl+C.
 
 use crate::cli::VerifyArgs;
 use crate::cli::commands::docs::{build_book, extract_rust, extract_ts};
@@ -89,7 +92,7 @@ fn cascade_to_dependents(
 /// When `cache_build` is `true`, incremental caches are preserved:
 /// the `rm -rf node_modules dist` / `rm -rf node_modules .svelte-kit`
 /// step is skipped for TS and Website repos, and the Rust `core`
-/// crate runs `build:rust` (incremental) instead of `cleanbuild`.
+/// crate runs `deno task build` (incremental) instead of `cleanbuild`.
 fn build_repo(repo: &Repo, verbose: bool, cache_build: bool) -> Result<()> {
     match repo.repo_type {
         RepoType::Rust if repo.name == "core" => {
@@ -139,6 +142,7 @@ fn build_repo(repo: &Repo, verbose: bool, cache_build: bool) -> Result<()> {
     Ok(())
 }
 
+/// Entry point for `mf verify`: runs the full release-verification pipeline.
 pub fn run(args: VerifyArgs) -> Result<()> {
     let config = Config::load()?;
     let verbose = std::env::var("VERBOSE").is_ok() || std::env::var("DEBUG").is_ok();
@@ -419,7 +423,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         versions_cache.save(&config.root)?;
     }
 
-    // [2/10] Extract API documentation
+    // [2/11] Extract API documentation
     if !args.skip_docs && !args.bump_only {
         let step = Step {
             number: 2.0,
@@ -428,16 +432,26 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         };
         step.print();
 
+        // Extraction failures are propagated rather than discarded: swallowing
+        // them is how the published docs silently rotted (the website's copy sat
+        // at 0.1.79 with 2 items while the crate moved on).
         let docs_output = config.root.join("docs/api");
-        let _ = extract_rust::run(&docs_output);
-        let _ = extract_ts::run(&docs_output);
+        extract_rust::run(&docs_output).context("Failed to extract Rust docs to docs/api")?;
+        extract_ts::run(&docs_output).context("Failed to extract TS docs to docs/api")?;
+
+        // The website reads a separate output tree; verify used to regenerate
+        // only `docs/api`, so the site's data could never be refreshed by CI.
+        extract_rust::run(&config.root.join("website/static/api-data/rust"))
+            .context("Failed to extract Rust docs to website/static/api-data/rust")?;
+        extract_ts::run(&config.root.join("website/static/api-data/typescript"))
+            .context("Failed to extract TS docs to website/static/api-data/typescript")?;
     } else {
-        println!("\n{} Skipping API extraction", "[2/10]".dimmed());
+        println!("\n{} Skipping API extraction", "[2/11]".dimmed());
     }
 
-    // [3/10] Clean building packages
+    // [3/11] Clean building packages
     if args.skip_build || args.bump_only {
-        println!("\n{} Skipping build/fmt/clippy/test...", "[3/10]".dimmed());
+        println!("\n{} Skipping build/fmt/clippy/test...", "[3/11]".dimmed());
     } else {
         let step = Step {
             number: 3.0,
@@ -506,7 +520,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             }
         }
 
-        // [5/10] Run clippy
+        // [5/11] Run clippy
         if !rust_repos.is_empty() {
             let step = Step {
                 number: 5.0,
@@ -535,7 +549,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             }
         }
 
-        // [6/10] Run tests
+        // [6/11] Run tests
         if !rust_repos.is_empty() {
             let step = Step {
                 number: 6.0,
@@ -558,7 +572,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             }
         }
 
-        // [6.5/10] Run tooling checks (fmt, clippy, deno lint)
+        // [6.5/11] Run tooling checks (fmt, clippy, deno lint)
         let step = Step {
             number: 6.5,
             total: 11,
@@ -619,7 +633,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             }
         }
 
-        // [6.6/10] Run tests for TypeScript packages (using deno)
+        // [6.6/11] Run tests for TypeScript packages (using deno)
         let ts_repos_with_tests: Vec<_> = repos
             .iter()
             .filter(|r| r.repo_type == RepoType::Ts)
@@ -658,7 +672,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             }
         }
 
-        // [6.7/10] Run playground e2e tests
+        // [6.7/11] Run playground e2e tests
         let step = Step {
             number: 6.7,
             total: 11,
@@ -720,7 +734,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             }
         }
 
-        // [6.8/10] Run extension checks (wasm32-wasip1 build, clippy, fmt)
+        // [6.8/11] Run extension checks (wasm32-wasip1 build, clippy, fmt)
         let extensions_path = config.root.join("crates/extensions");
         let extension_crates = ["svelte-macroforge", "vtsls-macroforge"];
 
@@ -819,7 +833,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         manifests::swap_npm_registry(&config, &versions_cache)?;
     }
 
-    // [8/10] Rebuild docs book
+    // [8/11] Rebuild docs book
     if !args.skip_docs && !args.bump_only {
         let step = Step {
             number: 8.0,
@@ -831,10 +845,10 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         let book_output = config.root.join("docs/book.md");
         let _ = build_book::run(&book_output);
     } else {
-        println!("\n{} Skipping docs book", "[8/10]".dimmed());
+        println!("\n{} Skipping docs book", "[8/11]".dimmed());
     }
 
-    // [9/10] Sync MCP server docs
+    // [9/11] Sync MCP server docs
     if !args.skip_docs && !args.bump_only {
         let step = Step {
             number: 9.0,
@@ -846,10 +860,10 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         let mcp_path = config.root.join("packages/mcp-server");
         let _ = shell::deno::task(&mcp_path, "build:docs");
     } else {
-        println!("\n{} Skipping MCP docs", "[9/10]".dimmed());
+        println!("\n{} Skipping MCP docs", "[9/11]".dimmed());
     }
 
-    // [10/10] Done
+    // [10/11] Done
     let step = Step {
         number: 10.0,
         total: 11,
@@ -940,10 +954,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
     println!("{} Ready to commit!", "✓".green());
     println!("\n{}", "═".repeat(80));
     println!("\n{}", "Next step:".bold());
-    println!(
-        "  {}",
-        format!("pixi run commit --repos {}", args.repos).cyan()
-    );
+    println!("  {}", "pixi run commit".cyan());
     println!();
 
     Ok(())

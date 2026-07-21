@@ -10,7 +10,7 @@ use crate::utils::format;
 use anyhow::Result;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
@@ -39,6 +39,25 @@ const CRATES: &[(&str, &str)] = &[
     ("macroforge_ts_quote", "src/lib.rs"),
     ("macroforge_ts_macros", "src/lib.rs"),
 ];
+
+/// Additional per-crate sources to harvest item docs from. `lib.rs` for these
+/// crates is mostly `mod` declarations, so scanning it alone yields almost
+/// nothing — the public API that the website's API reference documents lives
+/// in these modules.
+const EXTRA_ITEM_FILES: &[(&str, &[&str])] = &[(
+    "macroforge_ts",
+    &[
+        "src/api.rs",
+        "src/api_types.rs",
+        "src/bindings_napi.rs",
+        "src/bindings_wasm.rs",
+        "src/plugin.rs",
+        "src/position_mapper.rs",
+    ],
+)];
+
+/// Source of the `cli.json` payload backing the website's CLI page.
+const CLI_ENTRY: (&str, &str) = ("macroforge_ts", "src/bin/cli/main.rs");
 
 /// Builtin macro configurations
 const BUILTIN_MACROS: &[(&str, &str, &str)] = &[
@@ -69,6 +88,7 @@ const BUILTIN_MACROS: &[(&str, &str, &str)] = &[
     ),
 ];
 
+/// Entry point for `mf docs extract-rust`: extracts Rust doc comments to JSON/.svx/markdown.
 pub fn run(output_dir: &Path) -> Result<()> {
     let config = Config::load()?;
     let crates_root = config.root.join("crates");
@@ -94,13 +114,29 @@ pub fn run(output_dir: &Path) -> Result<()> {
 
         print!("Processing {}... ", crate_name);
 
-        let docs = match extract_crate_docs(&crate_path, entry_file) {
+        let mut docs = match extract_crate_docs(&crate_path, entry_file) {
             Ok(d) => d,
             Err(e) => {
                 println!("failed: {}", e);
                 continue;
             }
         };
+
+        for (extra_crate, files) in EXTRA_ITEM_FILES {
+            if extra_crate != crate_name {
+                continue;
+            }
+            for file in *files {
+                let path = crate_path.join(file);
+                if !path.exists() {
+                    format::warning(&format!("Extra source not found: {}", path.display()));
+                    continue;
+                }
+                if let Ok(source) = fs::read_to_string(&path) {
+                    docs.items.extend(rust_docs::extract_item_docs(&source));
+                }
+            }
+        }
 
         let item_count = docs.items.len();
         total_items += item_count;
@@ -113,9 +149,41 @@ pub fn run(output_dir: &Path) -> Result<()> {
         all_docs.push(docs);
     }
 
+    // Regenerate the CLI payload from the `mf`-facing binary's module docs.
+    // Without this, cli.json is a hand-committed artifact that silently rots.
+    {
+        let (cli_crate, cli_file) = CLI_ENTRY;
+        let cli_path = crates_root.join(cli_crate).join(cli_file);
+        if cli_path.exists() {
+            print!("\nProcessing CLI... ");
+            let source = fs::read_to_string(&cli_path)?;
+            let version = all_docs
+                .iter()
+                .find(|d| d.name == "macroforge_ts")
+                .map(|d| d.version.clone())
+                .unwrap_or_else(|| "0.0.0".to_string());
+            let cli_doc = CrateDoc {
+                name: "macroforge".to_string(),
+                kind: "cli".to_string(),
+                version,
+                description: "Command-line interface for expanding Macroforge macros".to_string(),
+                overview: rust_docs::extract_module_docs(&source),
+                items: rust_docs::extract_item_docs(&source),
+            };
+            let out_path = output_path.join("cli.json");
+            fs::write(&out_path, serde_json::to_string_pretty(&cli_doc)?)?;
+            println!("{} items", cli_doc.items.len());
+        } else {
+            format::warning(&format!("CLI entry not found: {}", cli_path.display()));
+        }
+    }
+
     // Process builtin macros
     println!("\nProcessing builtin macros...");
-    let mut builtin_docs: HashMap<String, serde_json::Value> = HashMap::new();
+    // BTreeMap, not HashMap: this map is serialized directly to builtin-macros.json
+    // and its keys drive index.json. HashMap ordering is nondeterministic, which
+    // made both files differ on every run and kept `docs check-freshness` red.
+    let mut builtin_docs: BTreeMap<String, serde_json::Value> = BTreeMap::new();
     let mut macro_data: Vec<BuiltinMacroData> = Vec::new();
 
     for (name, file, display_name) in BUILTIN_MACROS {
