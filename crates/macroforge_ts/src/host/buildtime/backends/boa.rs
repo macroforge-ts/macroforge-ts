@@ -236,7 +236,7 @@ fn install_buildtime_api(
     install_crypto(&buildtime, context)?;
     install_time(&buildtime, context)?;
     install_env(&buildtime, context, &state.borrow().options)?;
-    install_flags(&buildtime, context)?;
+    install_flags(&buildtime, context, &state.borrow().options)?;
     install_location(&buildtime, context, &state.borrow().options)?;
 
     context
@@ -413,11 +413,40 @@ fn install_env(
     Ok(())
 }
 
-fn install_flags(buildtime: &JsObject, context: &mut Context) -> Result<(), SandboxError> {
+fn install_flags(
+    buildtime: &JsObject,
+    context: &mut Context,
+    options: &SandboxOptions,
+) -> Result<(), SandboxError> {
     let flags = JsObject::with_null_proto();
-    let has = NativeFunction::from_copy_closure(|_this, _args, _ctx| Ok(JsValue::from(false)));
+
+    // `has` / `get` close over a snapshot of the configured flags so the
+    // lookup needs no access to sandbox state at call time.
+    let configured: std::collections::BTreeMap<String, String> = options.flags.clone();
+
+    // `stateful_fn` (not `from_copy_closure`): the captured map is plain
+    // Rust data with no GC-traceable values, matching its safety invariant.
+    let for_has = configured.clone();
+    let has = stateful_fn(move |_this, args, ctx| {
+        let Some(name) = args.first() else {
+            return Ok(JsValue::from(false));
+        };
+        let name = name.to_string(ctx)?.to_std_string_escaped();
+        Ok(JsValue::from(for_has.contains_key(&name)))
+    });
     register_method(&flags, "has", has, context)?;
-    let get = NativeFunction::from_copy_closure(|_this, _args, _ctx| Ok(JsValue::undefined()));
+
+    let for_get = configured;
+    let get = stateful_fn(move |_this, args, ctx| {
+        let Some(name) = args.first() else {
+            return Ok(JsValue::undefined());
+        };
+        let name = name.to_string(ctx)?.to_std_string_escaped();
+        Ok(match for_get.get(&name) {
+            Some(v) => JsValue::from(js_string!(v.as_str())),
+            None => JsValue::undefined(),
+        })
+    });
     register_method(&flags, "get", get, context)?;
     let _ = buildtime
         .set(js_string!("flags"), flags, true, context)

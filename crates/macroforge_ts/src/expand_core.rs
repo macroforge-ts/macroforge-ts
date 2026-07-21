@@ -240,6 +240,7 @@ fn run_buildtime_prepass_oxc(
     code: &str,
     filepath: &str,
     source_type: oxc::span::SourceType,
+    config: &macroforge_ts_syn::config::BuildtimeConfig,
 ) -> Result<(
     Option<String>,
     Vec<std::path::PathBuf>,
@@ -262,16 +263,26 @@ fn run_buildtime_prepass_oxc(
 
     let origin_path = std::path::PathBuf::from(filepath);
     let mut options = crate::host::buildtime::SandboxOptions::new(origin_path.clone());
-    // PR 4 ships with a permissive default capability set so built-in
-    // tests and simple user code (arithmetic, crypto, string ops) work
-    // out of the box. PR 5 will thread per-project config from
-    // `macroforge.config.js` through `ExpandOptions.config_path`.
-    options.capabilities = crate::host::buildtime::CapabilitySet {
-        fs_read: vec![crate::host::buildtime::PathPattern::new("**").expect("valid glob")],
-        fs_write: vec![],
-        env_allow: vec![],
-        network: false,
+    // Capabilities come from the `buildtime` block of macroforge.config.*
+    // (see `BuildtimeConfig`), falling back to its defaults — permissive
+    // reads, no writes, no network, no env — when the block is absent.
+    // An unparseable glob is skipped rather than failing the build; the
+    // effect is a narrower capability set, never a wider one.
+    let compile_globs = |patterns: &[String]| {
+        patterns
+            .iter()
+            .filter_map(|p| crate::host::buildtime::PathPattern::new(p).ok())
+            .collect::<Vec<_>>()
     };
+    options.capabilities = crate::host::buildtime::CapabilitySet {
+        fs_read: compile_globs(&config.fs_read),
+        fs_write: compile_globs(&config.fs_write),
+        env_allow: config.env_allow.clone(),
+        network: config.network,
+    };
+    options.timeout = std::time::Duration::from_millis(config.timeout_ms);
+    options.max_heap = config.max_heap_mb.saturating_mul(1024 * 1024);
+    options.flags = config.flags.clone();
 
     let out = crate::host::buildtime::run_prepass(
         &ret.program,
@@ -324,7 +335,12 @@ impl CompilerBackend for OxcBackend {
         // text-contains check plus the initial parse — cheap.
         #[cfg(not(feature = "swc"))]
         let (buildtime_rewritten, buildtime_deps, buildtime_diagnostics) =
-            run_buildtime_prepass_oxc(code_after_attributes, filepath, source_type)?;
+            run_buildtime_prepass_oxc(
+                code_after_attributes,
+                filepath,
+                source_type,
+                &attribute_config.buildtime,
+            )?;
         #[cfg(not(feature = "swc"))]
         let code_after_buildtime: &str = buildtime_rewritten
             .as_deref()

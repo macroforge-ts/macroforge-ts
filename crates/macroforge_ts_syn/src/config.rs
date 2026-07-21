@@ -7,7 +7,7 @@
 //! The config parsing logic (reading `macroforge.config.ts` via SWC) remains in
 //! `macroforge_ts::host::config`.
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use serde::{Deserialize, Serialize};
 
@@ -212,6 +212,10 @@ pub struct CfgFlags {
 pub struct DeprecatedConfig {
     /// Inject a one-shot `console.warn(...)` into the deprecated declaration's
     /// body so runtime use is visible alongside tsc's static `@deprecated` tag.
+    ///
+    /// Parsed but currently not acted on: the attribute pass only rewrites
+    /// the JSDoc; runtime warn injection is not yet implemented, so this
+    /// flag has no effect today (despite defaulting to `true`).
     #[serde(default = "crate::config::default_true")]
     pub runtime_warn: bool,
 
@@ -246,6 +250,84 @@ pub enum MustUseMode {
 pub struct MustUseConfig {
     #[serde(default)]
     pub mode: MustUseMode,
+}
+
+/// Sandbox configuration for `@buildtime` evaluation.
+///
+/// Mirrors the `buildtime` block of `macroforge.config.*`:
+///
+/// ```js
+/// buildtime: {
+///   timeout: 5000,                                  // ms
+///   maxHeap: 256,                                   // MiB (advisory)
+///   filesystem: { read: ["**"], write: [] },
+///   env: ["HOME"],
+///   network: false,
+///   flags: { RELEASE: "1" }
+/// }
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BuildtimeConfig {
+    /// Wall-clock evaluation budget in milliseconds.
+    #[serde(default = "default_buildtime_timeout_ms")]
+    pub timeout_ms: u64,
+
+    /// JS heap ceiling in MiB. Advisory — the Boa backend exposes no
+    /// memory-limit hook, so this is carried but not enforced.
+    #[serde(default = "default_buildtime_max_heap_mb")]
+    pub max_heap_mb: usize,
+
+    /// Glob patterns readable via `buildtime.fs`. Defaults to everything.
+    #[serde(default = "default_buildtime_fs_read")]
+    pub fs_read: Vec<String>,
+
+    /// Glob patterns writable via `buildtime.fs`. Empty by default; no
+    /// write API is currently exposed to sandboxed code.
+    #[serde(default)]
+    pub fs_write: Vec<String>,
+
+    /// Environment variable names exposed as `buildtime.env.NAME`.
+    #[serde(default)]
+    pub env_allow: Vec<String>,
+
+    /// Whether sandboxed code may reach the network. No network API is
+    /// currently exposed, so this is carried for forward compatibility.
+    #[serde(default)]
+    pub network: bool,
+
+    /// Build flags exposed as `buildtime.flags.has(name)` / `.get(name)`.
+    #[serde(default)]
+    pub flags: BTreeMap<String, String>,
+}
+
+impl Default for BuildtimeConfig {
+    fn default() -> Self {
+        Self {
+            timeout_ms: default_buildtime_timeout_ms(),
+            max_heap_mb: default_buildtime_max_heap_mb(),
+            fs_read: default_buildtime_fs_read(),
+            fs_write: Vec::new(),
+            env_allow: Vec::new(),
+            network: false,
+            flags: BTreeMap::new(),
+        }
+    }
+}
+
+/// Default `@buildtime` evaluation timeout (5s), in milliseconds.
+pub fn default_buildtime_timeout_ms() -> u64 {
+    5_000
+}
+
+/// Default `@buildtime` heap ceiling (256 MiB).
+pub fn default_buildtime_max_heap_mb() -> usize {
+    256
+}
+
+/// Default readable globs for `@buildtime` (`**`).
+pub fn default_buildtime_fs_read() -> Vec<String> {
+    vec!["**".to_string()]
 }
 
 /// Behavior knobs for the `@nonExhaustive` attribute macro.
@@ -317,6 +399,10 @@ pub struct MacroforgeConfig {
     #[serde(default)]
     pub non_exhaustive: NonExhaustiveConfig,
 
+    /// Sandbox settings for `@buildtime`. Missing key uses the defaults.
+    #[serde(default)]
+    pub buildtime: BuildtimeConfig,
+
     /// Import sources from the config file itself.
     ///
     /// Maps imported names (e.g., "DateTime", "Option") to their import info
@@ -341,6 +427,7 @@ impl Default for MacroforgeConfig {
             deprecated: DeprecatedConfig::default(),
             must_use: MustUseConfig::default(),
             non_exhaustive: NonExhaustiveConfig::default(),
+            buildtime: BuildtimeConfig::default(),
             config_imports: HashMap::new(),
         }
     }

@@ -7,7 +7,7 @@
 //! we centralise it here. New keys only need to be added in one place.
 
 use macroforge_ts_syn::config::{
-    CfgFlags, DeprecatedConfig, MustUseConfig, MustUseMode, NonExhaustiveConfig,
+    BuildtimeConfig, CfgFlags, DeprecatedConfig, MustUseConfig, MustUseMode, NonExhaustiveConfig,
 };
 use serde_json::Value;
 
@@ -31,7 +31,9 @@ pub(crate) fn parse_cfg_flags(obj: &serde_json::Map<String, Value>) -> CfgFlags 
     flags
 }
 
-/// Parse `deprecated: { runtimeWarn, failOnUse }`.
+/// Parse `deprecated: { runtimeWarn, failOnUse }`. Note that `runtimeWarn`
+/// is parsed but currently has no effect — the attribute pass does not yet
+/// inject the runtime `console.warn`.
 pub(crate) fn parse_deprecated_config(obj: &serde_json::Map<String, Value>) -> DeprecatedConfig {
     let mut config = DeprecatedConfig::default();
     if let Some(b) = obj.get("runtimeWarn").and_then(Value::as_bool) {
@@ -68,6 +70,65 @@ pub(crate) fn parse_non_exhaustive_config(
 /// `extract_string_or_array` produces from AST nodes) and flatten to a
 /// `Vec<String>`. Non-string members are skipped — parser-side validation
 /// can't express "string only" in JSON.
+/// Parse the `buildtime` block:
+/// `{ timeout, maxHeap, filesystem: { read, write }, env, network, flags }`.
+///
+/// Unset keys keep their defaults, so a partial block only overrides what it
+/// names. `timeout` is milliseconds; `maxHeap` is MiB.
+pub(crate) fn parse_buildtime_config(obj: &serde_json::Map<String, Value>) -> BuildtimeConfig {
+    // Config numbers arrive as JSON floats (both parsers build them with
+    // `Number::from_f64`), so `as_u64` alone would silently miss every value.
+    fn as_unsigned(value: &Value) -> Option<u64> {
+        value
+            .as_u64()
+            .or_else(|| value.as_f64().filter(|f| *f >= 0.0).map(|f| f as u64))
+    }
+
+    let mut config = BuildtimeConfig::default();
+
+    // Capability keys are canonically nested under `capabilities` — that is
+    // the path every sandbox diagnostic points users at. The flat form
+    // (`buildtime.timeout`, …) is accepted too so a short config doesn't
+    // need the extra level.
+    let caps = obj.get("capabilities").and_then(Value::as_object);
+    let lookup = |key: &str| caps.and_then(|c| c.get(key)).or_else(|| obj.get(key));
+
+    if let Some(ms) = lookup("timeout").and_then(as_unsigned) {
+        config.timeout_ms = ms;
+    }
+    if let Some(mb) = lookup("maxHeap").and_then(as_unsigned) {
+        config.max_heap_mb = mb as usize;
+    }
+    if let Some(fs) = lookup("filesystem").and_then(Value::as_object) {
+        if let Some(read) = fs.get("read") {
+            config.fs_read = extract_string_array(read);
+        }
+        if let Some(write) = fs.get("write") {
+            config.fs_write = extract_string_array(write);
+        }
+    }
+    if let Some(env) = lookup("env") {
+        config.env_allow = extract_string_array(env);
+    }
+    if let Some(network) = lookup("network").and_then(Value::as_bool) {
+        config.network = network;
+    }
+    if let Some(flags) = obj.get("flags").and_then(Value::as_object) {
+        for (k, v) in flags {
+            // Flags are surfaced to JS as strings; accept scalars and
+            // stringify them rather than silently dropping non-strings.
+            let text = match v {
+                Value::String(s) => s.clone(),
+                Value::Bool(b) => b.to_string(),
+                Value::Number(n) => n.to_string(),
+                _ => continue,
+            };
+            config.flags.insert(k.clone(), text);
+        }
+    }
+    config
+}
+
 fn extract_string_array(value: &Value) -> Vec<String> {
     match value {
         Value::String(s) => vec![s.clone()],

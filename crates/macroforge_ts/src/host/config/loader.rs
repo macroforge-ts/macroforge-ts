@@ -278,6 +278,11 @@ fn parse_config_object_oxc(
                         super::attribute_blocks::parse_non_exhaustive_config(&map);
                 }
             }
+            "buildtime" => {
+                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                    config.buildtime = super::attribute_blocks::parse_buildtime_config(&map);
+                }
+            }
             _ => {}
         }
     }

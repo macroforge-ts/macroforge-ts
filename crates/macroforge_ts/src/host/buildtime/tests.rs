@@ -1060,3 +1060,51 @@ fn serializer_table_matches_spec() {
         "{a: 1, b: 2}"
     );
 }
+
+#[test]
+fn flags_resolve_from_configured_values() {
+    let sandbox = BoaSandbox::new();
+    let mut opts = default_options();
+    opts.flags = BTreeMap::from([
+        ("RELEASE".to_string(), "1".to_string()),
+        ("CHANNEL".to_string(), "beta".to_string()),
+    ]);
+
+    let result = sandbox
+        .evaluate(
+            "return [\
+                buildtime.flags.has('RELEASE'),\
+                buildtime.flags.get('CHANNEL'),\
+                buildtime.flags.has('MISSING'),\
+                buildtime.flags.get('MISSING') === undefined\
+            ];",
+            &PathBuf::from("<test>"),
+            &opts,
+        )
+        .unwrap();
+
+    let SandboxValue::Array(items) = result.value else {
+        panic!("expected array, got {:?}", result.value);
+    };
+    assert_eq!(items[0], SandboxValue::Bool(true), "has(RELEASE)");
+    assert_eq!(
+        items[1],
+        SandboxValue::String("beta".to_string()),
+        "get(CHANNEL)"
+    );
+    assert_eq!(items[2], SandboxValue::Bool(false), "has(MISSING)");
+    assert_eq!(items[3], SandboxValue::Bool(true), "get(MISSING)");
+}
+
+#[test]
+fn flags_are_empty_when_unconfigured() {
+    let sandbox = BoaSandbox::new();
+    let result = sandbox
+        .evaluate(
+            "return buildtime.flags.has('ANYTHING');",
+            &PathBuf::from("<test>"),
+            &default_options(),
+        )
+        .unwrap();
+    assert_eq!(result.value, SandboxValue::Bool(false));
+}

@@ -76,11 +76,21 @@ export interface BuildtimeTime {
   iso(): string;
 }
 
+/**
+ * Build flags, populated from the `buildtime.flags` block of
+ * `macroforge.config.*`:
+ *
+ * ```js
+ * export default { buildtime: { flags: { CHANNEL: "beta" } } };
+ * ```
+ *
+ * Values are strings; booleans and numbers written in config are
+ * stringified. Flags that were not configured read as unset.
+ */
 export interface BuildtimeFlags {
-  /** True if the named flag was passed to the build (e.g. from a
-   *  `--define` argument or from `config.buildtime.flags`). */
+  /** Whether the named flag was set in `buildtime.flags`. */
   has(flag: string): boolean;
-  /** Value of the named flag, or undefined if not set. */
+  /** Value of the named flag, or `undefined` when it was not set. */
   get(flag: string): string | undefined;
 }
 

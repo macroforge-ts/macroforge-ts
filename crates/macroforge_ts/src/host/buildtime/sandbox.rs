@@ -80,10 +80,9 @@ pub struct SandboxOptions {
     /// Backends enforce this via their interrupt/event-loop machinery.
     pub timeout: Duration,
 
-    /// Maximum bytes the JS heap may allocate. Backends enforce this
-    /// through their memory-limit API (e.g. `JS_SetMemoryLimit` for
-    /// Boa enforces this through its memory tracking; callers can also
-    /// abandon contexts that go over budget.
+    /// Maximum bytes the JS heap may allocate. Currently advisory: the
+    /// Boa backend does not read this field (Boa exposes no memory-limit
+    /// hook), so [`SandboxError::OutOfMemory`] is never produced today.
     pub max_heap: usize,
 
     /// Absolute path of the source file the `@buildtime` declaration
@@ -98,6 +97,11 @@ pub struct SandboxOptions {
     /// 1-based column number of the `@buildtime` JSDoc annotation in the
     /// source file. Available as `buildtime.location.column`.
     pub source_column: u32,
+
+    /// Build flags surfaced as `buildtime.flags.has(name)` and
+    /// `buildtime.flags.get(name)`. Populated from the `buildtime.flags`
+    /// block of `macroforge.config.*`.
+    pub flags: std::collections::BTreeMap<String, String>,
 }
 
 impl SandboxOptions {
@@ -115,6 +119,7 @@ impl SandboxOptions {
             source_file,
             source_line: 1,
             source_column: 1,
+            flags: std::collections::BTreeMap::new(),
         }
     }
 }
@@ -140,6 +145,7 @@ pub enum SandboxError {
     Timeout { duration: Duration },
 
     /// The script allocated more than [`SandboxOptions::max_heap`] bytes.
+    /// Never produced by the Boa backend today — see [`SandboxOptions::max_heap`].
     #[error("script exceeded heap limit of {limit} bytes")]
     OutOfMemory { limit: usize },
 
@@ -149,17 +155,21 @@ pub enum SandboxError {
     UnauthorizedRead { path: PathBuf },
 
     /// A `buildtime.fs.write*` call tried to touch a path not in the
-    /// capability allowlist.
+    /// capability allowlist. Currently unreachable: the Boa backend
+    /// exposes no `buildtime.fs.write*` API.
     #[error("script tried to write disallowed path {}", .path.display())]
     UnauthorizedWrite { path: PathBuf },
 
     /// The script accessed `buildtime.env[X]` for an `X` not in the
-    /// env allowlist.
+    /// env allowlist. Currently unreachable: the Boa backend pre-injects
+    /// only allowlisted vars into `buildtime.env`, so disallowed reads
+    /// see `undefined` rather than erroring.
     #[error("script tried to read disallowed env var {var}")]
     UnauthorizedEnv { var: String },
 
     /// The script attempted network access while `capabilities.network`
-    /// was false.
+    /// was false. Currently unreachable: the Boa backend exposes no
+    /// network API at all.
     #[error("script tried to make network request to {url} (network capability is off)")]
     UnauthorizedNetwork { url: String },
 
@@ -204,8 +214,8 @@ pub trait BuildtimeSandbox: Send + Sync {
     ///
     /// Contract: this call runs synchronously and does not return until
     /// either the top-level promise resolves, the timeout fires, or an
-    /// error occurs. Backends that are naturally async (V8, deno_core)
-    /// drive their event loop internally.
+    /// error occurs. A naturally-async backend would drive its event
+    /// loop internally (Boa does this with a deadline-aware poll loop).
     fn evaluate(
         &self,
         source: &str,
