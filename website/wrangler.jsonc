@@ -1,0 +1,11 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "macroforge-website",
+    "compatibility_date": "2026-07-21",
+    // Assets-only Worker: no script, Cloudflare serves the prerendered
+    // SvelteKit output directly from its edge cache.
+    "assets": {
+        "directory": "./build",
+        "html_handling": "auto-trailing-slash"
+    }
+}

@@ -25,7 +25,8 @@
         "svelte-check": "^4.3.4",
         "tailwindcss": "^4.1.17",
         "typescript": "^5.9.3",
-        "vite": "^7.2.2"
+        "vite": "^7.2.2",
+        "wrangler": "^4.112.0"
     },
     "name": "website",
     "private": true,
@@ -34,6 +35,7 @@
         "build:clean": "rm -rf node_modules && rm -rf .svelte-kit build && deno install --node-modules-dir && vite build",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "deploy": "vite build && wrangler deploy",
         "dev": "vite dev",
         "lint": "deno lint",
         "prepare": "svelte-kit sync || echo ''",
