@@ -11,6 +11,7 @@
  *
  * Environment:
  *   MACROFORGE_TYPE_REGISTRY_PATH — path to pre-built type registry JSON
+ *   MACROFORGE_DECLARATIVE_REGISTRY_PATH — path to pre-built declarative macro registry JSON
  */
 const { createRequire } = require("module");
 const fs = require("fs");

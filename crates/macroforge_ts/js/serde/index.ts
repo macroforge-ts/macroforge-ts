@@ -410,19 +410,17 @@ export interface FieldError {
 /**
  * Error class that carries structured field validation errors.
  *
- * Thrown by deserialization methods when validation fails. Contains
- * an array of `FieldError` objects that can be displayed to users
- * or used for form validation feedback.
+ * Used internally by generated `deserializeWithContext` implementations.
+ * The generated top-level `deserialize` functions do not throw it: they
+ * return `{ success: false, errors }` with the collected `FieldError`
+ * objects instead, suitable for display or form validation feedback.
  *
  * @example
  * ```typescript
- * try {
- *   const user = User.fromStringifiedJSON(json);
- * } catch (e) {
- *   if (e instanceof DeserializeError) {
- *     for (const { field, message } of e.errors) {
- *       console.error(`${field}: ${message}`);
- *     }
+ * const result = User.deserialize(json);
+ * if (!result.success) {
+ *   for (const { field, message } of result.errors) {
+ *     console.error(`${field}: ${message}`);
  *   }
  * }
  * ```
