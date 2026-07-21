@@ -241,16 +241,27 @@ pub mod cargo {
             .run()
     }
 
-    /// Run cargo test, automatically detecting workspace
+    /// Run tests via cargo-nextest, automatically detecting workspace.
+    /// nextest executes each test in its own process, so process-global
+    /// state (config caches, registries) cannot leak between tests.
+    /// nextest does not run doctests, so a `cargo test --doc` pass follows.
     pub fn test(cwd: &Path) -> Result<CommandResult> {
-        if has_workspace(cwd) {
-            Shell::new("cargo")
-                .args(&["test", "--workspace"])
-                .dir(cwd)
-                .run_checked()
-        } else {
-            Shell::new("cargo").arg("test").dir(cwd).run_checked()
+        let workspace = has_workspace(cwd);
+
+        let mut nextest_args = vec!["nextest", "run"];
+        if workspace {
+            nextest_args.push("--workspace");
         }
+        Shell::new("cargo")
+            .args(&nextest_args)
+            .dir(cwd)
+            .run_checked()?;
+
+        let mut doc_args = vec!["test", "--doc"];
+        if workspace {
+            doc_args.push("--workspace");
+        }
+        Shell::new("cargo").args(&doc_args).dir(cwd).run_checked()
     }
 
     /// Check if a directory has a Cargo.toml with a [workspace] section
