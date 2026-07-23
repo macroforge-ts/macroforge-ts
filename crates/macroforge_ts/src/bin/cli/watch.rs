@@ -7,8 +7,9 @@ use std::{
 };
 
 use crate::cache::{
-    CacheEntry, collect_watch_files, compute_config_hash, content_hash, expand_for_cache,
-    init_cache, is_watchable_ts_file, normalized_content_hash, warm_cache, write_cache_file,
+    CONFIG_FILE_NAMES, CacheEntry, collect_watch_files, compute_config_hash, content_hash,
+    expand_for_cache, init_cache, is_watchable_ts_file, normalized_content_hash, warm_cache,
+    write_cache_file,
 };
 
 // =========================================================================
@@ -256,10 +257,12 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
 
                 for event in &events {
                     for event_path in &event.paths {
-                        // Check for config file changes
+                        // Check for config file changes. Exact names only:
+                        // editor/bundler siblings (macroforge.config.ts~,
+                        // .swp, .timestamp-*.mjs) are not the config.
                         if let Some(name) = event_path.file_name() {
                             let name_str = name.to_string_lossy();
-                            if name_str.starts_with("macroforge.config.") {
+                            if CONFIG_FILE_NAMES.iter().any(|c| name_str == *c) {
                                 config_changed = true;
                                 continue;
                             }
@@ -282,6 +285,20 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
 
                 changed_files.sort();
                 changed_files.dedup();
+
+                // An event on the config file does not mean its content
+                // changed (attrib updates, relinks, and watcher rescans all
+                // land here). Re-expanding every file takes minutes and
+                // gigabytes, so only do it for a real content change.
+                if config_changed {
+                    let new_config_hash = compute_config_hash(&root);
+                    if new_config_hash == manifest.config_hash {
+                        eprintln!(
+                            "[macroforge watch] Config file event with unchanged content — ignoring"
+                        );
+                        config_changed = false;
+                    }
+                }
 
                 // Macro source change: rebuild then full re-expand
                 if let Some(macro_info) = macro_source_changed {
