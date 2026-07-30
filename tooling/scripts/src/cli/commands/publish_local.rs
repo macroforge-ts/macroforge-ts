@@ -59,6 +59,20 @@ fn jsr_name(dir: &Path) -> String {
     }
 }
 
+/// True if package.json marks the package private, i.e. npm refuses to publish
+/// it (EPRIVATE). Deno-only packages such as `@macroforge/deno-plugin` set this
+/// deliberately and ship through JSR instead.
+fn npm_private(dir: &Path) -> bool {
+    let path = dir.join("package.json");
+    if let Ok(content) = std::fs::read_to_string(&path)
+        && let Ok(pkg) = serde_json::from_str::<serde_json::Value>(&content)
+    {
+        pkg.get("private").and_then(|v| v.as_bool()) == Some(true)
+    } else {
+        false
+    }
+}
+
 fn wait_for_npm(package: &str, version: &str) -> Result<()> {
     let start = Instant::now();
     loop {
@@ -113,6 +127,10 @@ fn wait_for_crate(crate_name: &str, version: &str) -> Result<()> {
 
 /// Returns true if actually published, false if skipped.
 fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Result<bool> {
+    if npm_private(dir) {
+        format::warning(&format!("{} is private, skipping npm", package));
+        return Ok(false);
+    }
     if npm_already_published(package, version) {
         format::warning(&format!("{}@{} already on npm, skipping", package, version));
         return Ok(false);
@@ -343,10 +361,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
                     .crate_name
                     .as_deref()
                     .is_some_and(|c| !crate_already_published(c, &pkg_version));
-                let needs_npm = repo
-                    .npm_name
-                    .as_deref()
-                    .is_some_and(|n| !npm_already_published(n, &pkg_version));
+                let needs_npm = !npm_private(&repo.abs_path)
+                    && repo
+                        .npm_name
+                        .as_deref()
+                        .is_some_and(|n| !npm_already_published(n, &pkg_version));
                 let needs_jsr =
                     has_jsr && !jsr_already_published(&jsr_name(&repo.abs_path), &pkg_version);
 
@@ -362,10 +381,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
                 }
             }
             RepoType::Ts => {
-                let needs_npm = repo
-                    .npm_name
-                    .as_deref()
-                    .is_some_and(|n| !npm_already_published(n, &pkg_version));
+                let needs_npm = !npm_private(&repo.abs_path)
+                    && repo
+                        .npm_name
+                        .as_deref()
+                        .is_some_and(|n| !npm_already_published(n, &pkg_version));
                 let needs_jsr = has_jsr
                     && repo
                         .npm_name
