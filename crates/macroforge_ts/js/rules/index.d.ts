@@ -57,10 +57,10 @@ export declare function macroRules(_strings: TemplateStringsArray, ..._values: u
 /**
  * Configuration for a macro's reverse-monomorphization behavior.
  *
- * Currently a type-only declaration — the object form
- * `macroRules({ expand, runtime, call, mode })` is part of the reverse-mono
- * follow-up and is not yet wired through the build pass. The type is
- * exported now so consumer code can start using the shape.
+ * The object form `macroRules({ expand, runtime, call, mode, kind,
+ * megamorphismThreshold, runtimeName })` is parsed and validated by the
+ * build pass and feeds the megamorphism analyzer, which decides per call
+ * site whether to expand inline or emit calls to a shared runtime helper.
  */
 export interface MacroConfig {
     /**
@@ -91,4 +91,16 @@ export interface MacroConfig {
      * the megamorphism analyzer emits a warning. Default: 4.
      */
     readonly megamorphismThreshold?: number;
+    /**
+     * Whether the macro expands in value position (`"value"`, the default)
+     * or in type position (`"type"`).
+     */
+    readonly kind?: "value" | "type";
+    /**
+     * Template for the shared runtime helper's name, specialized per cluster.
+     * Must contain the literal token `$__cluster__` exactly once; the rewriter
+     * replaces it with the cluster id per cluster variant
+     * (e.g., `"__serialize_$__cluster__"`).
+     */
+    readonly runtimeName?: string;
 }
