@@ -2021,12 +2021,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                             {#if is_internally_tagged}
                                 // Internally tagged: keep the tag field. A dispatched
-                                // per-variant result carries `__type`; map it back to the
-                                // tag field. A passed-through value already carries the tag
-                                // field, so return it unchanged.
+                                // per-variant result carries the inner struct's `__type`
+                                // (e.g. `PartialUser`), which differs from the union's
+                                // variant label (e.g. `User`) whenever the variant name and
+                                // its payload type name differ — so restore the discriminator
+                                // from the value's own tag field, falling back to `__type`
+                                // only when the value carries no tag. A passed-through value
+                                // already carries the tag field.
                                 if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
                                     const { __type: __typeName, ...fields } = __variant as any;
-                                    return { "@{tag_field}": __typeName, ...fields };
+                                    return { "@{tag_field}": (value as any)["@{tag_field}"] ?? __typeName, ...fields };
                                 }
                                 return __variant;
                             {:else}
@@ -2092,12 +2096,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                             {#if is_internally_tagged}
                                 // Internally tagged: keep the tag field. A dispatched
-                                // per-variant result carries `__type`; map it back to the
-                                // tag field. A passed-through value already carries the tag
-                                // field, so return it unchanged.
+                                // per-variant result carries the inner struct's `__type`
+                                // (e.g. `PartialUser`), which differs from the union's
+                                // variant label (e.g. `User`) whenever the variant name and
+                                // its payload type name differ — so restore the discriminator
+                                // from the value's own tag field, falling back to `__type`
+                                // only when the value carries no tag. A passed-through value
+                                // already carries the tag field.
                                 if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
                                     const { __type: __typeName, ...fields } = __variant as any;
-                                    return { "@{tag_field}": __typeName, ...fields };
+                                    return { "@{tag_field}": (value as any)["@{tag_field}"] ?? __typeName, ...fields };
                                 }
                                 return __variant;
                             {:else}

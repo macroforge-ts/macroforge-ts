@@ -315,3 +315,71 @@ class Point {
         result.code
     );
 }
+
+#[test]
+fn test_serialize_internally_tagged_union_uses_variant_label_not_payload_type() {
+    // Regression: an internally-tagged union whose variant *label* differs from
+    // its payload *type name* — `{ variant: 'User' } & PartialUser` — must
+    // serialize the discriminator as the variant label ("User"), not the
+    // payload's type name ("PartialUser").
+    //
+    // The dispatched per-variant serializer (`partialUserSerializeWithContext`)
+    // tags its output with the payload's `__type` ("PartialUser"). The union
+    // serializer must then restore the discriminator from the value's own tag
+    // field; the old codegen instead re-emitted `__type`, so serialize produced
+    // `{ variant: "PartialUser" }` while deserialize dispatched on "User" — the
+    // round-trip threw. (This broke drag-rescheduling any record whose payload
+    // carried such a union, e.g. an event's `activity` Did with an
+    // `in: RecordLink<Actor>`.) Unions whose variant label equals the payload
+    // type name hid the bug because `__type` happened to match.
+    let source = r#"
+/** @derive(Serialize, Deserialize) */
+interface PartialUser { id: string; }
+
+/** @derive(Serialize, Deserialize) */
+interface PartialEmployee { id: string; }
+
+/** @derive(Serialize, Deserialize) */
+/** @serde({ tag: "variant" }) */
+export type Actor =
+    | ({ variant: 'User' } & PartialUser)
+    | ({ variant: 'Employee' } & PartialEmployee);
+"#;
+
+    let result = expand_test(source);
+
+    let error_count = result
+        .diagnostics
+        .iter()
+        .filter(|d| d.level == DiagnosticLevel::Error)
+        .count();
+    assert_eq!(
+        error_count, 0,
+        "internally-tagged union should expand without errors. Got: {:?}",
+        result.diagnostics
+    );
+
+    // The per-variant dispatch + `__type` rewrap path must actually be
+    // exercised, or the guards below pass vacuously.
+    assert!(
+        result.code.contains("actorSerializeWithContext"),
+        "Should generate the union serializer. Got:\n{}",
+        result.code
+    );
+
+    // The bug: the discriminator was emitted straight from the payload type
+    // name via `return { "variant": __typeName, ...fields };`.
+    assert!(
+        !result.code.contains(r#""variant": __typeName,"#),
+        "union serialize must not use the payload type name as the internal tag. Got:\n{}",
+        result.code
+    );
+
+    // The fix restores the discriminator from the value's own tag field,
+    // falling back to `__type` only when the value carries no tag.
+    assert!(
+        result.code.contains("?? __typeName"),
+        "union serialize should restore the internal tag from the value, not the payload type. Got:\n{}",
+        result.code
+    );
+}
