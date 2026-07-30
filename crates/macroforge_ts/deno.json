@@ -31,9 +31,11 @@
     ]
   },
   "name": "@macroforge/core",
+  "nodeModulesDir": "auto",
   "publish": {
     "include": [
       "pkg/",
+      "pkg/macroforge_ts_bg.wasm",
       "js/buildtime/",
       "js/serde/",
       "js/traits/",

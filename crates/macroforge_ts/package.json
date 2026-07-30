@@ -4,6 +4,9 @@
     "url": "https://github.com/macroforge-ts/macroforge-ts/issues"
   },
   "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  },
   "exports": {
     ".": {
       "default": "./pkg/macroforge_ts.js",
