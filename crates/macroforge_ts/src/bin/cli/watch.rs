@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
+use ignore::WalkBuilder;
 use notify_debouncer_full::{new_debouncer, notify::RecursiveMode};
 use std::{
+    collections::HashSet,
     fs,
     path::{Path, PathBuf},
     time::Duration,
@@ -207,6 +209,26 @@ fn rebuild_macro(info: &MacroSourceInfo, build_system: BuildSystem, _root: &Path
     Ok(())
 }
 
+/// Directories to watch: every directory under `root` that survives
+/// .gitignore filtering (ancestor gitignores apply), minus `.git` and our
+/// own cache output. Mirrors cargo-watch's registration model.
+fn gitignore_watch_dirs(root: &Path, cache_dir: &Path) -> Vec<PathBuf> {
+    let cache_dir = cache_dir.to_path_buf();
+    WalkBuilder::new(root)
+        .hidden(false)
+        .git_ignore(true)
+        .git_global(false)
+        .git_exclude(false)
+        .filter_entry(move |entry| {
+            entry.file_name() != ".git" && !entry.path().starts_with(&cache_dir)
+        })
+        .build()
+        .flatten()
+        .filter(|entry| entry.path().is_dir())
+        .map(|entry| entry.into_path())
+        .collect()
+}
+
 /// Main watch loop: warm cache then watch for changes.
 pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
     let (root, cache_dir, mut manifest) = init_cache(root, "watch")?;
@@ -233,9 +255,20 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
     let mut debouncer = new_debouncer(Duration::from_millis(debounce_ms), None, tx)
         .context("failed to create file watcher")?;
 
-    debouncer
-        .watch(&root, RecursiveMode::Recursive)
-        .context("failed to start watching")?;
+    // Register watches the cargo-watch way: walk the tree honoring
+    // .gitignore (ancestor gitignores included), and always exclude our own
+    // cache output. Ignored trees (node_modules, .svelte-kit, …) never
+    // reach the kernel, so their write bursts can't overflow the inotify
+    // event queue and trigger notify's rescan storms. Watches are
+    // per-directory (non-recursive): a recursive watch on an included
+    // directory would silently re-include its ignored children.
+    let mut watched: HashSet<PathBuf> = HashSet::new();
+    for dir in gitignore_watch_dirs(&root, &cache_dir) {
+        debouncer
+            .watch(&dir, RecursiveMode::NonRecursive)
+            .with_context(|| format!("failed to watch {}", dir.display()))?;
+        watched.insert(dir);
+    }
 
     // Watch macro source directories that are outside root
     for src in &macro_sources {
@@ -251,11 +284,59 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
     for result in rx {
         match result {
             Ok(events) => {
+                // Kernel event-queue overflow makes the backend synthesize
+                // events for every tracked file (rescan flag) — none of
+                // them describe real changes. Resync against content
+                // hashes once (sub-second when nothing changed) instead of
+                // processing thousands of phantom "changes".
+                if events.iter().any(|event| event.need_rescan()) {
+                    eprintln!(
+                        "[macroforge watch] Watch backend requested a rescan \
+                         (event queue overflow) — resyncing against content hashes"
+                    );
+                    warm_cache("watch", &root, &cache_dir, &mut manifest)?;
+                    continue;
+                }
+
+                // Per-directory registration means new directories need
+                // their own watches; deletions free theirs (and must be
+                // forgotten so a recreated dir gets a fresh watch).
+                let mut dir_created = false;
+                for event in &events {
+                    if event.kind.is_remove() {
+                        for event_path in &event.paths {
+                            watched.remove(event_path);
+                        }
+                    } else if event.kind.is_create() && event.paths.iter().any(|p| p.is_dir()) {
+                        dir_created = true;
+                    }
+                }
+                if dir_created {
+                    for dir in gitignore_watch_dirs(&root, &cache_dir) {
+                        if watched.insert(dir.clone())
+                            && let Err(e) = debouncer.watch(&dir, RecursiveMode::NonRecursive)
+                        {
+                            eprintln!(
+                                "[macroforge watch] failed to watch new dir {}: {e}",
+                                dir.display()
+                            );
+                        }
+                    }
+                }
+
                 let mut config_changed = false;
+                let mut config_event_path: Option<PathBuf> = None;
                 let mut macro_source_changed: Option<&MacroSourceInfo> = None;
                 let mut changed_files: Vec<PathBuf> = Vec::new();
 
                 for event in &events {
+                    // Reads are not changes. Reacting to access events feeds
+                    // back: the config hash guard below reads the config to
+                    // compare it, which emits the next access event — an
+                    // endless read→event→read loop on an untouched file.
+                    if event.kind.is_access() || event.kind.is_other() {
+                        continue;
+                    }
                     for event_path in &event.paths {
                         // Check for config file changes. Exact names only:
                         // editor/bundler siblings (macroforge.config.ts~,
@@ -264,6 +345,7 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                             let name_str = name.to_string_lossy();
                             if CONFIG_FILE_NAMES.iter().any(|c| name_str == *c) {
                                 config_changed = true;
+                                config_event_path = Some(event_path.clone());
                                 continue;
                             }
                         }
@@ -294,7 +376,12 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                     let new_config_hash = compute_config_hash(&root);
                     if new_config_hash == manifest.config_hash {
                         eprintln!(
-                            "[macroforge watch] Config file event with unchanged content — ignoring"
+                            "[macroforge watch] Config file event with unchanged content — \
+                             ignoring ({})",
+                            config_event_path
+                                .as_deref()
+                                .map(|p| p.display().to_string())
+                                .unwrap_or_else(|| "unknown path".to_string())
                         );
                         config_changed = false;
                     }
