@@ -643,10 +643,18 @@ export async function macroforge() {
     function getMacroforgeVersion() {
         const req = createRequire(process.cwd() + '/');
         try {
-            return JSON.parse(
-                fs.readFileSync(req.resolve('macroforge/package.json'), 'utf-8')
-            ).version;
-        } catch { /* exports map may block ./package.json */ }
+            let current = path.dirname(req.resolve('macroforge'));
+            while (current !== path.dirname(current)) {
+                const packageJson = path.join(current, 'package.json');
+                if (fs.existsSync(packageJson)) {
+                    const manifest = JSON.parse(fs.readFileSync(packageJson, 'utf-8'));
+                    if (manifest.name === 'macroforge' && typeof manifest.version === 'string') {
+                        return manifest.version;
+                    }
+                }
+                current = path.dirname(current);
+            }
+        } catch { /* package may not be resolvable */ }
         try {
             return JSON.parse(
                 fs.readFileSync(
