@@ -1,74 +1,218 @@
 [
-    {
-        "id": "debug",
-        "title": "Debug",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/debug.md",
-        "use_cases": "toString, debugging, logging, output, print"
-    },
-    {
-        "id": "clone",
-        "title": "Clone",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/clone.md",
-        "use_cases": "copy, clone, duplicate, shallow copy, immutable"
-    },
-    {
-        "id": "default",
-        "title": "Default",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/default.md",
-        "use_cases": "default values, factory, initialization, constructor"
-    },
-    {
-        "id": "hash",
-        "title": "Hash",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/hash.md",
-        "use_cases": "hashCode, hashing, hash map, equality, hash function"
-    },
-    {
-        "id": "ord",
-        "title": "Ord",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/ord.md",
-        "use_cases": "compareTo, ordering, sorting, comparison, total order"
-    },
-    {
-        "id": "partial-eq",
-        "title": "PartialEq",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/partial-eq.md",
-        "use_cases": "equals, equality, comparison, value equality"
-    },
-    {
-        "id": "partial-ord",
-        "title": "PartialOrd",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/partial-ord.md",
-        "use_cases": "compareTo, partial ordering, sorting, nullable comparison"
-    },
-    {
-        "id": "serialize",
-        "title": "Serialize",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/serialize.md",
-        "use_cases": "toJSON, serialization, json, api, data transfer"
-    },
-    {
-        "id": "deserialize",
-        "title": "Deserialize",
-        "category": "builtin-macros",
-        "category_title": "Built-in Macros",
-        "path": "builtin-macros/deserialize.md",
-        "use_cases": "fromJSON, deserialization, parsing, validation, json"
-    }
+  {
+    "id": "declarative-macros",
+    "title": "Declarative Macros",
+    "category": "concepts",
+    "category_title": "Core Concepts",
+    "path": "concepts/declarative-macros.md",
+    "use_cases": "declarative macros"
+  },
+  {
+    "id": "declarative-macros",
+    "title": "Overview",
+    "category": "declarative-macros",
+    "category_title": "Declarative Macros",
+    "path": "declarative-macros/declarative-macros.md",
+    "use_cases": "overview"
+  },
+  {
+    "id": "defining",
+    "title": "Defining Macros",
+    "category": "declarative-macros",
+    "category_title": "Declarative Macros",
+    "path": "declarative-macros/defining.md",
+    "use_cases": "defining macros"
+  },
+  {
+    "id": "patterns",
+    "title": "Patterns & Fragments",
+    "category": "declarative-macros",
+    "category_title": "Declarative Macros",
+    "path": "declarative-macros/patterns.md",
+    "use_cases": "patterns & fragments"
+  },
+  {
+    "id": "repetitions",
+    "title": "Repetitions & Backtracking",
+    "category": "declarative-macros",
+    "category_title": "Declarative Macros",
+    "path": "declarative-macros/repetitions.md",
+    "use_cases": "repetitions & backtracking"
+  },
+  {
+    "id": "expansion",
+    "title": "Expansion & Hygiene",
+    "category": "declarative-macros",
+    "category_title": "Declarative Macros",
+    "path": "declarative-macros/expansion.md",
+    "use_cases": "expansion & hygiene"
+  },
+  {
+    "id": "type-macros",
+    "title": "Type-Position Macros",
+    "category": "declarative-macros",
+    "category_title": "Declarative Macros",
+    "path": "declarative-macros/type-macros.md",
+    "use_cases": "type-position macros"
+  },
+  {
+    "id": "sharing",
+    "title": "Reverse Monomorphization",
+    "category": "declarative-macros",
+    "category_title": "Declarative Macros",
+    "path": "declarative-macros/sharing.md",
+    "use_cases": "reverse monomorphization"
+  },
+  {
+    "id": "cross-file",
+    "title": "Cross-File & Diagnostics",
+    "category": "declarative-macros",
+    "category_title": "Declarative Macros",
+    "path": "declarative-macros/cross-file.md",
+    "use_cases": "cross-file & diagnostics"
+  },
+  {
+    "id": "debug",
+    "title": "Debug",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/debug.md",
+    "use_cases": "toString, debugging, logging, output, print"
+  },
+  {
+    "id": "clone",
+    "title": "Clone",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/clone.md",
+    "use_cases": "copy, clone, duplicate, shallow copy, immutable"
+  },
+  {
+    "id": "default",
+    "title": "Default",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/default.md",
+    "use_cases": "default values, factory, initialization, constructor"
+  },
+  {
+    "id": "hash",
+    "title": "Hash",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/hash.md",
+    "use_cases": "hashCode, hashing, hash map, equality, hash function"
+  },
+  {
+    "id": "ord",
+    "title": "Ord",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/ord.md",
+    "use_cases": "compareTo, ordering, sorting, comparison, total order"
+  },
+  {
+    "id": "partial-eq",
+    "title": "PartialEq",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/partial-eq.md",
+    "use_cases": "equals, equality, comparison, value equality"
+  },
+  {
+    "id": "partial-ord",
+    "title": "PartialOrd",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/partial-ord.md",
+    "use_cases": "compareTo, partial ordering, sorting, nullable comparison"
+  },
+  {
+    "id": "serialize",
+    "title": "Serialize",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/serialize.md",
+    "use_cases": "toJSON, serialization, json, api, data transfer"
+  },
+  {
+    "id": "deserialize",
+    "title": "Deserialize",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize.md",
+    "use_cases": "fromJSON, deserialization, parsing, validation, json"
+  },
+  {
+    "id": "serde",
+    "title": "Overview",
+    "category": "serde",
+    "category_title": "Serde Reference",
+    "path": "serde/serde.md",
+    "use_cases": "overview"
+  },
+  {
+    "id": "validators",
+    "title": "Validators",
+    "category": "serde",
+    "category_title": "Serde Reference",
+    "path": "serde/validators.md",
+    "use_cases": "validators"
+  },
+  {
+    "id": "container-options",
+    "title": "Container Options",
+    "category": "serde",
+    "category_title": "Serde Reference",
+    "path": "serde/container-options.md",
+    "use_cases": "container options"
+  },
+  {
+    "id": "field-options",
+    "title": "Field Options",
+    "category": "serde",
+    "category_title": "Serde Reference",
+    "path": "serde/field-options.md",
+    "use_cases": "field options"
+  },
+  {
+    "id": "foreign-types",
+    "title": "Foreign Types",
+    "category": "serde",
+    "category_title": "Serde Reference",
+    "path": "serde/foreign-types.md",
+    "use_cases": "foreign types"
+  },
+  {
+    "id": "cycles-and-references",
+    "title": "Cycles & References",
+    "category": "serde",
+    "category_title": "Serde Reference",
+    "path": "serde/cycles-and-references.md",
+    "use_cases": "cycles & references"
+  },
+  {
+    "id": "attributes",
+    "title": "Attribute Macros",
+    "category": "attributes",
+    "category_title": "Attributes & Buildtime",
+    "path": "attributes/attributes.md",
+    "use_cases": "attribute macros"
+  },
+  {
+    "id": "buildtime",
+    "title": "Buildtime Evaluation",
+    "category": "attributes",
+    "category_title": "Attributes & Buildtime",
+    "path": "attributes/buildtime.md",
+    "use_cases": "buildtime evaluation"
+  },
+  {
+    "id": "deno-plugin",
+    "title": "Deno Plugin",
+    "category": "integration",
+    "category_title": "Integration",
+    "path": "integration/deno-plugin.md",
+    "use_cases": "deno plugin"
+  }
 ]

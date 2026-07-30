@@ -1,0 +1,59 @@
+# Cycles & Forward References
+
+`JSON.stringify` throws on a cycle. Macroforge's generated serializers handle cyclic graphs by assigning identities and emitting back-references.
+
+```typescript
+/** @derive(Serialize, Deserialize) */
+class Node {
+  name: string;
+  parent?: Node;
+  children: Node[];
+}
+
+const root = new Node();
+const child = new Node();
+root.children = [child];
+child.parent = root;   // cycle
+
+const json = Node.serialize(root, true); // keepMetadata
+```
+
+## Metadata
+
+Cycle detection works by tagging objects with `__type` and `__id` as they're visited; a repeat visit emits a reference to the existing id instead of recursing.
+
+Those fields are **stripped from the output by default**. Pass `keepMetadata: true` to retain them — which you must do if you intend to deserialize a cyclic graph back, since the ids are what reconnect it.
+
+```typescript
+Node.serialize(root);        // clean payload, cycles flattened
+Node.serialize(root, true);  // round-trippable, includes __type/__id
+```
+
+For API responses you usually want the default. For persistence or transferring an object graph, keep the metadata.
+
+## The context object
+
+`serializeWithContext` / `deserializeWithContext` take a context that carries the identity map. The top-level `serialize` / `deserialize` create one for you; you only need the context form when composing serializers by hand.
+
+## Forward references
+
+While deserializing, a reference may point at an object that hasn't been constructed yet. Rather than failing, the deserializer records a `PendingRef` placeholder and patches it once the target exists.
+
+Two consequences worth knowing:
+
+- The field is temporarily `null` between the placeholder being recorded and patches being applied. If you read the graph mid-deserialization you may observe that.
+- `ctx.applyPatches()` performs the fix-up. The top-level `deserialize` calls it for you.
+
+## `freeze`
+
+Pass `freeze: true` to deep-freeze every object produced:
+
+```typescript
+const r = Node.deserialize(input, { freeze: true });
+```
+
+Freezing happens after patches are applied, so cyclic graphs freeze correctly rather than being frozen mid-construction.
+
+## Errors
+
+Structural failures inside `deserializeWithContext` throw `DeserializeError`. The top-level `deserialize` catches these and returns `{ success: false, errors }` instead — so the entry point never throws, while the internal context form does.

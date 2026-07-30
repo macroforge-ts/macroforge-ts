@@ -64,25 +64,25 @@
       "name": "MacroManifestEntry",
       "kind": "interface",
       "type": null,
-      "description": ""
+      "description": "One macro exported by an external macro package (from `__macroforgeGetManifest*`)."
     },
     {
       "name": "DecoratorManifestEntry",
       "kind": "interface",
       "type": null,
-      "description": ""
+      "description": "One decorator exported by an external macro package. Note: docs live in `docs`, not `description`."
     },
     {
       "name": "ExpandOptions",
       "kind": "interface",
       "type": null,
-      "description": ""
+      "description": "Options accepted by the native engine's `expandSync(code, filepath, options)`. Mirrors the napi `ExpandOptions` object (camelCase over the ABI boundary)."
     },
     {
       "name": "MacroManifest",
       "kind": "interface",
       "type": null,
-      "description": ""
+      "description": "Aggregated manifest for an external macro package."
     },
     {
       "name": "RequireFunction",
@@ -170,7 +170,7 @@
       ],
       "returns": "The decorator manifest entry, or null if not found",
       "examples": [
-        "```typescript\nconst decoratorInfo = getExternalDecoratorInfo(\"hiddenController\", \"@playground/macro\");\nif (decoratorInfo) {\nconsole.log(decoratorInfo.description);\n}\n```"
+        "```typescript\nconst decoratorInfo = getExternalDecoratorInfo(\"hiddenController\", \"@playground/macro\");\nif (decoratorInfo) {\nconsole.log(decoratorInfo.docs);\n}\n```"
       ]
     },
     {
@@ -183,7 +183,7 @@
       "name": "ConfigLoadResult",
       "kind": "interface",
       "type": null,
-      "description": "Result from parsing a config file."
+      "description": "Result from parsing a config file (as returned by the native `loadConfig`). Note that `loadMacroConfig` forwards only `keepDecorators`, `generateConvenienceConst`, and `hasForeignTypes` into its `MacroConfig` result; the remaining flags are informational for the caller."
     },
     {
       "name": "CfgFlags",
@@ -267,11 +267,11 @@
           "description": "Optional function to parse the config file content. If provided, will be called with (content, filepath). If not provided, only the configPath will be set."
         }
       ],
-      "returns": "The loaded configuration, or default values if no config file is found",
+      "returns": "The loaded configuration subset, or default values if no config file is found",
       "examples": [
         "```typescript\n// Basic usage (no parsing, just find the config path)\nconst config = loadMacroConfig('/project/src');\n// => { keepDecorators: false, configPath: '/project/macroforge.config.js' }\n\n// With Rust binary parser\nconst config = loadMacroConfig('/project/src', rustTransformer.loadConfig);\n// => { keepDecorators: true, configPath: '...', hasForeignTypes: true }\n```"
       ],
-      "remarks": "Starting from the given directory, this function walks up the filesystem hierarchy looking for a macroforge config file. The first one found is parsed using the provided loader function (if any), which extracts configuration including foreign type handlers."
+      "remarks": "Starting from the given directory, this function walks up the filesystem hierarchy looking for a macroforge config file. The first one found is parsed using the provided loader function (if any), which extracts configuration including foreign type handlers. The returned `MacroConfig` is a subset: only `keepDecorators`, `generateConvenienceConst`, `configPath`, and `hasForeignTypes` are ever populated. The macro-behavior sections (`cfg`, `deprecated`, `mustUse`, `nonExhaustive`) and the `vite` section are NOT surfaced here — the native engine consumes them itself from its cache keyed by `configPath` (pass `configPath` through in `ExpandOptions`), and the Vite plugin re-imports the config file to read its `vite` section. If the loader function throws, the error is swallowed and the fallback (defaults plus `configPath`) is returned."
     }
   ]
 }

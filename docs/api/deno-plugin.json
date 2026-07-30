@@ -19,7 +19,7 @@
       "name": "expand",
       "kind": "function",
       "type": "(code: tring,, filepath: tring,, options?: xpandOptions) => xpandResult",
-      "description": "Expand a single in-memory TypeScript source string. Looks up `macroforge.config.*` from `projectRoot` (or `Deno.cwd()`) on first call, caches the parsed config, and forwards every other concern to the Rust engine.",
+      "description": "Expand a single in-memory TypeScript source string. Looks up and parses `macroforge.config.*` from `projectRoot` (or `Deno.cwd()`) on every call — the config is not cached — and forwards every other concern to the Rust engine.",
       "params": [
         {
           "name": "code",

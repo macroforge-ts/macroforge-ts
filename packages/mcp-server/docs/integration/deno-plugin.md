@@ -1,0 +1,58 @@
+# Deno Plugin
+
+`@macroforge/deno-plugin` expands macros in Deno projects. Deno has no Vite-style plugin hook for arbitrary transforms, so rather than hooking the module graph it expands sources into a cache directory that you then run or bundle.
+
+## CLI
+
+```bash
+deno run -A jsr:@macroforge/deno-plugin/cli expand
+deno run -A jsr:@macroforge/deno-plugin/cli watch
+deno run -A jsr:@macroforge/deno-plugin/cli clean
+```
+
+| Command | Purpose |
+| --- | --- |
+| `expand` | Expand the project once |
+| `watch` | Expand, then re-expand on change |
+| `clean` | Remove the output directory |
+
+### Options
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--root <path>` | current directory | Project root to scan |
+| `--out <path>` | `.macroforge/cache` | Output directory for expanded files |
+| `--build-mode <dev\|prod>` | `prod` | Expansion mode. `prod` enables reverse monomorphization for declarative macros; `dev` expands inline |
+| `--copy-passthrough` | off | Also copy files that contain no macros, so the output tree is complete |
+
+Note that `--build-mode` defaults to `prod` here — the opposite of the Vite plugin, which follows Vite's own dev/build state.
+
+## Programmatic API
+
+```typescript
+import { expand, expandFile, expandProject, watchProject } from "@macroforge/deno-plugin";
+
+// Expand a source string
+const result = await expand(source, "src/user.ts", { root: Deno.cwd() });
+
+// Expand a single file on disk
+await expandFile("src/user.ts", { root: Deno.cwd(), out: ".macroforge/cache" });
+
+// Expand every macro-using file under the root
+await expandProject({ root: Deno.cwd(), out: ".macroforge/cache" });
+
+// Watch and re-expand
+await watchProject({ root: Deno.cwd(), out: ".macroforge/cache" });
+```
+
+`expandProject` and `watchProject` report per-file events including whether the file was expanded, skipped, or unchanged, along with any diagnostics.
+
+The config file is read on **every** `expand()` call — it is not cached — so a long-running `watchProject` picks up `macroforge.config.ts` edits without a restart.
+
+## Attribute macros
+
+The Deno plugin supports the same [attribute macros](/docs/attributes) as the other integrations — `@cfg`, `@deprecated`, `@mustUse` and `@nonExhaustive` — driven by the same `macroforge.config.ts`.
+
+## Availability
+
+The package is developed in-repo and its manifest is currently marked private, so the `jsr:` specifier above may not resolve until it is published. To use it today, vendor the `packages/deno-plugin` directory or import it by relative path from a checkout.

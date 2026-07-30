@@ -1,0 +1,28 @@
+# Declarative Macros
+
+Declarative macros let you define compile-time code transformations entirely in TypeScript, using pattern-matching syntax inspired by Rust's `macro_rules!`. No Rust toolchain is involved — the macro lives in the same `.ts` file that uses it.
+
+```typescript
+import { macroRules } from "macroforge/rules";
+
+const $double = macroRules`
+  ($x:Expr) => ($x) * 2
+`;
+
+const four = $double(2); // → (2) * 2
+```
+
+They run as a pre-pass, before attribute and derive macros, so a declarative macro can expand into code that later macros then process.
+
+## Full documentation
+
+This page is a conceptual overview. The complete reference lives in its own section:
+
+- **[Declarative Macros overview](/docs/declarative-macros)** — what they are and when to use them
+- **[Defining Macros](/docs/declarative-macros/defining)** — tag form, object form, scoping
+- **[Patterns & Fragments](/docs/declarative-macros/patterns)** — all 11 fragment specifiers
+- **[Repetitions & Backtracking](/docs/declarative-macros/repetitions)** — variable-length patterns
+- **[Expansion & Hygiene](/docs/declarative-macros/expansion)** — contexts, IIFE wrapping, composition
+- **[Type-Position Macros](/docs/declarative-macros/type-macros)** — `$Macro<T>`
+- **[Reverse Monomorphization](/docs/declarative-macros/sharing)** — shared runtime helpers
+- **[Cross-File Macros & Diagnostics](/docs/declarative-macros/cross-file)** — imports and error reference

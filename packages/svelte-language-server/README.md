@@ -20,7 +20,8 @@ npm install @macroforge/svelte-language-server
 
 ### Classes
 
-- **`SvelteCheck`** - Small wrapper around PluginHost's Diagnostic Capabilities for svelte-check, without the overhead of the lsp.
+- **`SvelteCheck`** - Small wrapper around PluginHost's Diagnostic Capabilities for svelte-check,
+  without the overhead of the lsp.
 
 ### Interfaces
 
@@ -33,7 +34,8 @@ npm install @macroforge/svelte-language-server
 
 ## Documentation
 
-See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/svelte-language-server) on
+See the
+[full documentation](https://macroforge.dev/docs/api/reference/typescript/svelte-language-server) on
 the Macroforge website.
 
 ## License

@@ -7,10 +7,11 @@
       "name": "macroforge",
       "kind": "function",
       "type": "() => romise<Plugin<any>>;",
-      "description": "Creates a Vite plugin for Macroforge compile-time macro expansion. Configuration is loaded from `macroforge.config.js` (or .ts/.mjs/.cjs). Vite-specific options can be set under the `vite` key in the config file. ```",
+      "description": "Creates a Vite plugin for Macroforge compile-time macro expansion. Configuration is loaded from `macroforge.config.js` (or .ts/.mjs/.cjs). Vite-specific options can be set under the `vite` key in the config file. ``` ```",
       "returns": "romise<Plugin<any>>;",
       "examples": [
-        "```typescript\n// vite.config.ts\nimport { macroforge } from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [macroforge()],\n});\n```"
+        "```typescript\n// vite.config.ts\nimport { macroforge } from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [macroforge()],\n});\n```",
+        "```typescript\n// macroforge.config.ts\nexport default {\nkeepDecorators: false,\nvite: {\ngenerateTypes: true,                   // Generate .d.ts files (default: true)\ntypesOutputDir: \".macroforge/types\",   // Types output dir (default: \".macroforge/types\")\nemitMetadata: true,                    // Emit metadata JSON (default: true)\nmetadataOutputDir: \".macroforge/meta\", // Metadata output dir (default: \".macroforge/meta\")\ndevCache: true,                        // Disk cache for dev mode (default: true)\n},\n};\n```"
       ]
     },
     {

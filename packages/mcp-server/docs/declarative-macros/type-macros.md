@@ -1,0 +1,66 @@
+# Type-Position Macros
+
+A type-position macro rewrites TypeScript **types** rather than values. It's invoked with angle brackets:
+
+```typescript
+const $Nullable = macroRules({
+  kind: "type",
+  expand: macroRules`
+    ($t:Type) => $t | null | undefined
+  `,
+});
+
+type MaybeUser = $Nullable<User>;
+// → type MaybeUser = User | null | undefined;
+```
+
+## Requirements
+
+**The object form is mandatory.** A tag-form `` macroRules`…` `` always declares a value macro; there is no way to mark it as a type macro. You must use `macroRules({ kind: "type", expand: … })`.
+
+Only `Type` and `Tt` fragment kinds are accepted in type-position patterns. Any other kind produces a dedicated error.
+
+## Zero-argument references
+
+A bare `$Foo` with no type arguments matches only an arm whose pattern is `()`:
+
+```typescript
+const $Id = macroRules({
+  kind: "type",
+  expand: macroRules`
+    () => string
+    ($t:Type) => $t
+  `,
+});
+
+type A = $Id;        // → string
+type B = $Id<number>; // → number
+```
+
+Qualified names never resolve — `a.$Foo` is not a macro reference.
+
+## Sharing modes are rejected
+
+Types have no runtime representation, so a type macro cannot share a runtime helper. Setting `mode` to `share-only` or `share-anyway` with `kind: "type"` is an error — and so is supplying `runtime` or `call` at all, independently of the mode.
+
+## Cross-position misuse
+
+The two directions behave differently:
+
+- Using a **value macro in type position** is a hard error: *"macro `$X` is value-only; cannot use it in type position"*.
+- Using a **type macro in value position** falls through to the ordinary no-arm-matched path, since the value-position matcher never sees its type arms.
+
+## No backtracking
+
+Type-position repetition matching is greedy with no retry. A pattern like `($($t:Type),* $last:Type)` that works in value position will never match in type position. Keep the variable-length group last, or write one arm per arity. See [Repetitions & Backtracking](/docs/declarative-macros/repetitions).
+
+## Composition
+
+Type macros compose with each other exactly like value macros, and nested expansions run in type context:
+
+```typescript
+const $Wrap = macroRules({
+  kind: "type",
+  expand: macroRules`($t:Type) => Array<$Nullable<$t>>`,
+});
+```

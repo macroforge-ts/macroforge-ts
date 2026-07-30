@@ -1,6 +1,6 @@
 # Macroforge Documentation
 
-_Generated: 2026-04-13 21:57:33 UTC_
+_Generated: 2026-07-30 22:32:45 UTC_
 
 ---
 

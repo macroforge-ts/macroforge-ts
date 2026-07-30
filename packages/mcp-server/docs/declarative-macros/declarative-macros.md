@@ -1,0 +1,66 @@
+# Declarative Macros
+
+Declarative macros let you define compile-time code transformations entirely in TypeScript. They use pattern-matching syntax inspired by Rust's `macro_rules!`, adapted to TypeScript's grammar. No Rust knowledge and no native build step are required — you define the macro in the same `.ts` file where you use it.
+
+## Quick Example
+
+```typescript
+import { macroRules } from "macroforge/rules";
+
+const $vec = macroRules`
+  () => []
+
+  ($($x:Expr),+) => {
+    const __v: unknown[] = [];
+    $( __v.push($x); )+
+    __v
+  }
+`;
+
+// Usage — expanded at compile time:
+const empty = $vec();        // → []
+const xs = $vec(1, 2, 3);
+```
+
+The `$vec` definition is erased from the output, and every `$vec(...)` call site is replaced with the matched arm's expansion. Here `xs` becomes:
+
+```typescript
+const xs = (() => {
+    const __v$1 = [];
+    __v$1.push(1);
+    __v$1.push(2);
+    __v$1.push(3);
+    return __v$1;
+})();
+```
+
+Two things are happening in that output that are worth understanding early:
+
+- The block body is wrapped in an **IIFE** because the call sits in expression position, and the trailing expression gets an injected `return`. See [Expansion & Hygiene](/docs/declarative-macros/expansion).
+- `__v` was renamed to `__v$1` by **hygiene**, so the macro can't collide with a `__v` at the call site.
+
+## When to use declarative macros
+
+| Use a declarative macro when… | Use a [Rust macro](/docs/custom-macros) when… |
+| --- | --- |
+| The transformation is syntactic — you can express it as pattern → template | You need to inspect resolved types, fields, or the type registry |
+| You want it to live next to the code that uses it | You want to publish reusable macros as a package |
+| You don't want a Rust toolchain in the build | You need to derive from a type's structure (`@derive(...)`) |
+
+Declarative macros run as a **pre-pass**, before derive and attribute macros. The full order is: declarative expansion → attribute macros → derive macros → codegen. That means a declarative macro can expand *into* a class carrying `@derive(...)`, and the derive will still see it.
+
+## The `$` prefix is required
+
+A macro binding's name **must** start with `$`. This is not a convention — discovery skips any binding that doesn't start with `$`, so `const vec = macroRules\`…\`` is simply not registered as a macro.
+
+The `$` prefix also marks a reserved namespace: a `$`-prefixed call whose callee isn't a declarative macro is dispatched to the [proc-macro fallback](/docs/declarative-macros/cross-file) instead.
+
+## Section contents
+
+- **[Defining Macros](/docs/declarative-macros/defining)** — tag form, object form, erasure, scoping and shadowing
+- **[Patterns & Fragments](/docs/declarative-macros/patterns)** — all 11 fragment kinds and what each accepts
+- **[Repetitions & Backtracking](/docs/declarative-macros/repetitions)** — `$( … )sep*` on both sides of the arrow
+- **[Expansion & Hygiene](/docs/declarative-macros/expansion)** — contexts, IIFE wrapping, `__` renaming, composition
+- **[Type-Position Macros](/docs/declarative-macros/type-macros)** — `$Macro<T>` in type position
+- **[Reverse Monomorphization](/docs/declarative-macros/sharing)** — sharing a runtime helper instead of inlining
+- **[Cross-File Macros & Diagnostics](/docs/declarative-macros/cross-file)** — importing macros, and every error you can hit

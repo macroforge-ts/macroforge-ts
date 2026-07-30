@@ -1,0 +1,101 @@
+# Expansion, Hygiene & Composition
+
+## Expansion contexts
+
+Every macro call expands in one of three contexts, and the context changes the output:
+
+| Context | When | Effect |
+| --- | --- | --- |
+| **Statement** | The call is the whole expression statement | Block body is spliced as-is |
+| **Expression** | Anywhere else in value position | Block body is wrapped in an IIFE |
+| **Type** | A `$Macro<…>` reference in type position | No wrapping |
+
+Statement position is detected by unwrapping parentheses and TypeScript casts first — so `($m(x));` and `$m(x) as unknown;` are both still statement position.
+
+## Block bodies: IIFE wrapping and `return` injection
+
+A `{ … }` macro body follows Rust's block semantics: the final expression is the block's value. JavaScript arrow bodies don't do that, so in **expression position** the expander wraps the block and injects a `return`:
+
+```typescript
+const $vec = macroRules`
+  ($($x:Expr),+) => {
+    const __v = [];
+    $( __v.push($x); )+
+    __v
+  }
+`;
+
+const xs = $vec(1, 2);
+```
+
+expands to:
+
+```typescript
+const xs = (() => {
+    const __v$1 = [];
+    __v$1.push(1);
+    __v$1.push(2);
+    return __v$1;
+})();
+```
+
+The `return` is injected **only when the trailing expression has no `;`**. A trailing semicolon means "discard this value", exactly as in Rust:
+
+```typescript
+($x:Expr) => { compute($x) }    // value is compute($x)
+($x:Expr) => { compute($x); }   // value is undefined
+```
+
+An explicit `return`, or a trailing `if` / `throw` / nested block, is left alone — no double injection.
+
+In statement and type position there is no wrapping at all.
+
+## Hygiene
+
+Identifiers beginning with `__` that are **declared inside the macro body** get a unique per-expansion suffix, so a macro's temporaries can't collide with names at the call site:
+
+```typescript
+const __v = "mine";
+const xs = $vec(1, 2);   // macro's __v becomes __v$1 — yours is untouched
+```
+
+The precise rule matters:
+
+- Only names **declared** by `const`, `let`, or `var` inside the expansion are renamed.
+- Names containing `$` are skipped.
+- Pure *references* to externally-declared `__` names are deliberately left alone — this is what lets a shared-runtime macro call its `__helper` without breaking the link.
+- Destructuring binders (`const { __x } = …`) are out of scope and are not renamed.
+
+Renaming is lexically aware: it respects string literals, comments, regex literals, and template-literal text, so `console.log("__v")` is never corrupted.
+
+## Escaping
+
+`$$` emits a literal `$`. The body parser is string-literal aware, so `$name` inside a string is still substituted, while `$$name` is not.
+
+## Composition
+
+A macro body may call another macro. Composition re-parses the intermediate output, so the result is real syntax rather than text splicing:
+
+```typescript
+const $double = macroRules`($x:Expr) => ($x * 2)`;
+const $quad   = macroRules`($x:Expr) => $double($double($x))`;
+
+$quad(3);  // → ((3 * 2) * 2)
+```
+
+Two disambiguation rules govern when a `$name` is treated as a call:
+
+- **`$ident(`** is a macro call only when the `(` is on the **same line** (horizontal whitespace only).
+- **`$Ident<`** is a type-macro call only under **strict adjacency**, with a conservative angle-bracket balance check.
+
+`$__cluster__` is reserved and never parses as a call.
+
+Nested value expansions run in statement context, and nested type expansions in type context. Composition always uses the callee's `expand` arms — its `mode` and `call` arms are ignored.
+
+## Recursion limit
+
+Expansion depth is capped at **256**. Mutual recursion between macros is caught by that cap rather than by static analysis — there is no cycle detection wired into the pipeline, so a recursive macro that never bottoms out fails with `RecursionLimit` rather than a "cycle detected" error.
+
+## Where calls are recognized
+
+Rewriting works in more places than plain statements and initializers, including JSX expression containers, class field initializers, decorator arguments, and tuple type elements.
