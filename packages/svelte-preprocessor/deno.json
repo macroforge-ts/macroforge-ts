@@ -1,20 +1,20 @@
 {
-    "exports": {
-        ".": "./src/index.ts"
-    },
-    "imports": {
-        "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
-        "macroforge": "npm:macroforge@^0.1.79",
-        "svelte/compiler": "npm:svelte@^5.43.8/compiler"
-    },
-    "license": "MIT",
-    "name": "@macroforge/svelte-preprocessor",
-    "publish": {
-        "exclude": [
-            "tests/",
-            "dist/",
-            "node_modules/"
-        ]
-    },
-    "version": "0.1.81"
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "imports": {
+    "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
+    "macroforge": "npm:macroforge@^0.1.79",
+    "svelte/compiler": "npm:svelte@^5.43.8/compiler"
+  },
+  "license": "MIT",
+  "name": "@macroforge/svelte-preprocessor",
+  "publish": {
+    "exclude": [
+      "tests/",
+      "dist/",
+      "node_modules/"
+    ]
+  },
+  "version": "0.1.83"
 }

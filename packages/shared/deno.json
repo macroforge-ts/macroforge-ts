@@ -1,46 +1,46 @@
 {
-    "exports": {
-        ".": "./src/index.ts"
-    },
-    "fmt": {
-        "exclude": [
-            "**/dist",
-            "**/build",
-            "**/node_modules"
-        ],
-        "indentWidth": 4,
-        "lineWidth": 100,
-        "semiColons": true,
-        "singleQuote": true,
-        "trailingCommas": "never",
-        "useTabs": false
-    },
-    "lint": {
-        "exclude": [
-            "**/dist",
-            "**/build",
-            "**/node_modules",
-            "**/*.test.ts",
-            "**/*.spec.ts",
-            "**/*.config.ts",
-            "**/*.config.js"
-        ],
-        "rules": {
-            "exclude": [
-                "require-await",
-                "no-process-global",
-                "no-node-globals",
-                "no-irregular-whitespace",
-                "no-sloppy-imports"
-            ],
-            "include": [
-                "eqeqeq"
-            ],
-            "tags": [
-                "recommended"
-            ]
-        }
-    },
-    "name": "@macroforge/shared",
-    "version": "0.1.81"
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "fmt": {
+    "exclude": [
+      "**/dist",
+      "**/build",
+      "**/node_modules"
+    ],
+    "indentWidth": 4,
+    "lineWidth": 100,
+    "semiColons": true,
+    "singleQuote": true,
+    "trailingCommas": "never",
+    "useTabs": false
+  },
+  "lint": {
+    "exclude": [
+      "**/dist",
+      "**/build",
+      "**/node_modules",
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "**/*.config.ts",
+      "**/*.config.js"
+    ],
+    "rules": {
+      "exclude": [
+        "require-await",
+        "no-process-global",
+        "no-node-globals",
+        "no-irregular-whitespace",
+        "no-sloppy-imports"
+      ],
+      "include": [
+        "eqeqeq"
+      ],
+      "tags": [
+        "recommended"
+      ]
+    }
+  },
+  "name": "@macroforge/shared",
+  "version": "0.1.83"
 }

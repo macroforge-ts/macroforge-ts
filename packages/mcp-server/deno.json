@@ -1,63 +1,63 @@
 {
-    "compilerOptions": {
-        "lib": [
-            "esnext",
-            "deno.window"
-        ]
-    },
-    "exports": {
-        ".": "./src/index.ts"
-    },
-    "fmt": {
-        "exclude": [
-            "**/dist",
-            "**/build",
-            "**/node_modules"
-        ],
-        "indentWidth": 4,
-        "lineWidth": 100,
-        "semiColons": true,
-        "singleQuote": true,
-        "trailingCommas": "never",
-        "useTabs": false
-    },
-    "imports": {
-        "@modelcontextprotocol/sdk/server/index.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/index.js",
-        "@modelcontextprotocol/sdk/server/stdio.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/stdio.js",
-        "@modelcontextprotocol/sdk/types.js": "npm:@modelcontextprotocol/sdk@^1.11.1/types.js"
-    },
-    "lint": {
-        "exclude": [
-            "**/dist",
-            "**/build",
-            "**/node_modules",
-            "**/*.test.ts",
-            "**/*.spec.ts",
-            "**/*.config.ts",
-            "**/*.config.js"
-        ],
-        "rules": {
-            "exclude": [
-                "require-await",
-                "no-process-global",
-                "no-node-globals"
-            ],
-            "include": [
-                "eqeqeq"
-            ],
-            "tags": [
-                "recommended"
-            ]
-        }
-    },
-    "name": "@macroforge/mcp-server",
-    "publish": {
-        "exclude": [
-            "tests/",
-            "scripts/",
-            "dist/",
-            "node_modules/"
-        ]
-    },
-    "version": "0.1.81"
+  "compilerOptions": {
+    "lib": [
+      "esnext",
+      "deno.window"
+    ]
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "fmt": {
+    "exclude": [
+      "**/dist",
+      "**/build",
+      "**/node_modules"
+    ],
+    "indentWidth": 4,
+    "lineWidth": 100,
+    "semiColons": true,
+    "singleQuote": true,
+    "trailingCommas": "never",
+    "useTabs": false
+  },
+  "imports": {
+    "@modelcontextprotocol/sdk/server/index.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/index.js",
+    "@modelcontextprotocol/sdk/server/stdio.js": "npm:@modelcontextprotocol/sdk@^1.11.1/server/stdio.js",
+    "@modelcontextprotocol/sdk/types.js": "npm:@modelcontextprotocol/sdk@^1.11.1/types.js"
+  },
+  "lint": {
+    "exclude": [
+      "**/dist",
+      "**/build",
+      "**/node_modules",
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "**/*.config.ts",
+      "**/*.config.js"
+    ],
+    "rules": {
+      "exclude": [
+        "require-await",
+        "no-process-global",
+        "no-node-globals"
+      ],
+      "include": [
+        "eqeqeq"
+      ],
+      "tags": [
+        "recommended"
+      ]
+    }
+  },
+  "name": "@macroforge/mcp-server",
+  "publish": {
+    "exclude": [
+      "tests/",
+      "scripts/",
+      "dist/",
+      "node_modules/"
+    ]
+  },
+  "version": "0.1.83"
 }

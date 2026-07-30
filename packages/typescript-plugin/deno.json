@@ -1,62 +1,62 @@
 {
-    "exports": {
-        ".": "./src/index.ts"
-    },
-    "fmt": {
-        "exclude": [
-            "**/fixtures/**",
-            "**/dist",
-            "**/build",
-            "**/node_modules"
-        ],
-        "indentWidth": 4,
-        "lineWidth": 100,
-        "semiColons": true,
-        "singleQuote": true,
-        "trailingCommas": "never",
-        "useTabs": false
-    },
-    "imports": {
-        "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
-        "macroforge": "npm:macroforge@^0.1.79",
-        "typescript/lib/tsserverlibrary": "npm:typescript@^5.9.3/lib/tsserverlibrary"
-    },
-    "license": "MIT",
-    "lint": {
-        "exclude": [
-            "**/fixtures/**",
-            "**/tests/**",
-            "**/dist",
-            "**/build",
-            "**/node_modules",
-            "**/*.config.ts",
-            "**/*.config.js"
-        ],
-        "rules": {
-            "exclude": [
-                "require-await",
-                "no-process-global",
-                "no-node-globals",
-                "no-irregular-whitespace",
-                "no-explicit-any",
-                "no-inner-declarations"
-            ],
-            "include": [
-                "eqeqeq"
-            ],
-            "tags": [
-                "recommended"
-            ]
-        }
-    },
-    "name": "@macroforge/typescript-plugin",
-    "publish": {
-        "exclude": [
-            "tests/",
-            "dist/",
-            "scripts/",
-            "node_modules/"
-        ]
-    },
-    "version": "0.1.81"
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "fmt": {
+    "exclude": [
+      "**/fixtures/**",
+      "**/dist",
+      "**/build",
+      "**/node_modules"
+    ],
+    "indentWidth": 4,
+    "lineWidth": 100,
+    "semiColons": true,
+    "singleQuote": true,
+    "trailingCommas": "never",
+    "useTabs": false
+  },
+  "imports": {
+    "@macroforge/shared": "npm:@macroforge/shared@^0.1.79",
+    "macroforge": "npm:macroforge@^0.1.79",
+    "typescript/lib/tsserverlibrary": "npm:typescript@^5.9.3/lib/tsserverlibrary"
+  },
+  "license": "MIT",
+  "lint": {
+    "exclude": [
+      "**/fixtures/**",
+      "**/tests/**",
+      "**/dist",
+      "**/build",
+      "**/node_modules",
+      "**/*.config.ts",
+      "**/*.config.js"
+    ],
+    "rules": {
+      "exclude": [
+        "require-await",
+        "no-process-global",
+        "no-node-globals",
+        "no-irregular-whitespace",
+        "no-explicit-any",
+        "no-inner-declarations"
+      ],
+      "include": [
+        "eqeqeq"
+      ],
+      "tags": [
+        "recommended"
+      ]
+    }
+  },
+  "name": "@macroforge/typescript-plugin",
+  "publish": {
+    "exclude": [
+      "tests/",
+      "dist/",
+      "scripts/",
+      "node_modules/"
+    ]
+  },
+  "version": "0.1.83"
 }
