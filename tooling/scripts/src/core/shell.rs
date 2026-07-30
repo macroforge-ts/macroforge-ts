@@ -217,20 +217,64 @@ pub mod cargo {
             .run_checked()
     }
 
+    /// PATH override that puts the toolchain pinned by `rust-toolchain.toml`
+    /// ahead of every other Rust on PATH, or `None` if rustup cannot resolve
+    /// one.
+    ///
+    /// The pixi environment ships a conda-provided `rust` whose `bin` shadows
+    /// the rustup shims, and that compiler carries std for the host and
+    /// `wasm32-unknown-unknown` only — conda-forge publishes no
+    /// `wasm32-wasip1` std, so cross-target builds fail there with a missing
+    /// `core`. `rustup which cargo` resolves the pinned toolchain, which does
+    /// list the target; prepending its `bin` makes cargo, rustc, and
+    /// clippy-driver all come from it.
+    ///
+    /// `rustup run <toolchain> cargo …` is not enough: it execs the requested
+    /// binary without putting the toolchain ahead of the conda one on PATH,
+    /// so the cargo it starts still picks up the shadowing rustc.
+    fn pinned_toolchain_env(cwd: &Path) -> Option<Vec<(String, String)>> {
+        let result = Shell::new("rustup")
+            .args(&["which", "cargo"])
+            .dir(cwd)
+            .run()
+            .ok()?;
+        if !result.success {
+            return None;
+        }
+
+        let bin = Path::new(result.stdout.trim()).parent()?.to_path_buf();
+        let mut dirs = vec![bin];
+        if let Some(existing) = std::env::var_os("PATH") {
+            dirs.extend(std::env::split_paths(&existing));
+        }
+        let path = std::env::join_paths(dirs).ok()?;
+
+        Some(vec![(
+            "PATH".to_string(),
+            path.to_string_lossy().into_owned(),
+        )])
+    }
+
     /// Run cargo clippy with a specific target
     pub fn clippy_target(cwd: &Path, target: &str) -> Result<CommandResult> {
-        Shell::new("cargo")
+        let mut shell = Shell::new("cargo")
             .args(&["clippy", "--target", target, "--", "-D", "warnings"])
-            .dir(cwd)
-            .run_checked()
+            .dir(cwd);
+        if let Some(envs) = pinned_toolchain_env(cwd) {
+            shell = shell.envs(envs);
+        }
+        shell.run_checked()
     }
 
     /// Run cargo build with a specific target
     pub fn build_target(cwd: &Path, target: &str) -> Result<CommandResult> {
-        Shell::new("cargo")
+        let mut shell = Shell::new("cargo")
             .args(&["build", "--target", target, "--release"])
-            .dir(cwd)
-            .run_checked()
+            .dir(cwd);
+        if let Some(envs) = pinned_toolchain_env(cwd) {
+            shell = shell.envs(envs);
+        }
+        shell.run_checked()
     }
 
     /// Run cargo clippy with JSON output for diagnostics parsing
