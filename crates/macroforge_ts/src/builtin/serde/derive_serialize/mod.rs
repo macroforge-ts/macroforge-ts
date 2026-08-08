@@ -1923,6 +1923,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     has_shape_fn: crate::swc_ecma_ast::Ident,
                 }
                 let mut ser_variants: Vec<SerVariant> = Vec::new();
+                // Externally-tagged single-key object variants (`{ Name: Payload }`)
+                // whose payload is a configured foreign type (BigDecimal, DateTime):
+                // without the inline serialize expression, the runtime instance
+                // passes through and JSON.stringify emits its internal object
+                // shape. Mirrors `external_object_variants` on the deserialize side.
+                struct ExternalSerVariant {
+                    name: String,
+                    foreign_serialize_inline: Option<String>,
+                }
+                let mut external_ser_variants: Vec<ExternalSerVariant> = Vec::new();
                 if let Some(members) = type_alias.as_union() {
                     use crate::ts_syn::abi::ir::type_alias::TypeMemberKind;
                     for m in members {
@@ -1976,11 +1986,30 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     has_shape_fn: ts_ident!("{}HasShape", camel),
                                 });
                             }
+                            TypeMemberKind::Object { fields }
+                                if is_externally_tagged && !fields.is_empty() =>
+                            {
+                                let foreign_types = get_foreign_types();
+                                let foreign_serialize_inline = TypeCategory::match_foreign_type(
+                                    fields[0].ts_type.as_str(),
+                                    &foreign_types,
+                                )
+                                .config
+                                .and_then(|ft| ft.serialize_expr.clone())
+                                .map(|expr| rewrite_expression_namespaces(&expr));
+                                if foreign_serialize_inline.is_some() {
+                                    external_ser_variants.push(ExternalSerVariant {
+                                        name: fields[0].name.clone(),
+                                        foreign_serialize_inline,
+                                    });
+                                }
+                            }
                             _ => {}
                         }
                     }
                 }
                 let has_ser_variants = !ser_variants.is_empty();
+                let has_external_ser_variants = !external_ser_variants.is_empty();
                 let dispatch_by_tag = !is_untagged;
 
                 let mut result = if let Some(params) = &type_params_ident {
@@ -2013,6 +2042,20 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 if (!__matched && @{v.has_shape_fn}(value)) { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
                                 {/for}
                                 {/if}
+                            }
+                            {/if}
+                            {#if has_external_ser_variants}
+                            if (!__matched && value !== null && typeof value === "object") {
+                                const __exName = Object.keys(value as object)[0];
+                                {#for ov in &external_ser_variants}
+                                {#if let Some(ref ser_inline) = ov.foreign_serialize_inline}
+                                {$let foreign_ser_expr: Expr = *parse_ts_expr(ser_inline).expect("inner foreign serialize expr should parse")}
+                                if (!__matched && __exName === "@{ov.name}") {
+                                    __variant = ({ "@{ov.name}": (@{foreign_ser_expr})((value as any)["@{ov.name}"]) });
+                                    __matched = true;
+                                }
+                                {/if}
+                                {/for}
                             }
                             {/if}
                             if (!__matched) {
@@ -2088,6 +2131,20 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 if (!__matched && @{v.has_shape_fn}(value)) { __variant = @{v.ser_fn}(value as any, ctx); __matched = true; }
                                 {/for}
                                 {/if}
+                            }
+                            {/if}
+                            {#if has_external_ser_variants}
+                            if (!__matched && value !== null && typeof value === "object") {
+                                const __exName = Object.keys(value as object)[0];
+                                {#for ov in &external_ser_variants}
+                                {#if let Some(ref ser_inline) = ov.foreign_serialize_inline}
+                                {$let foreign_ser_expr: Expr = *parse_ts_expr(ser_inline).expect("inner foreign serialize expr should parse")}
+                                if (!__matched && __exName === "@{ov.name}") {
+                                    __variant = ({ "@{ov.name}": (@{foreign_ser_expr})((value as any)["@{ov.name}"]) });
+                                    __matched = true;
+                                }
+                                {/if}
+                                {/for}
                             }
                             {/if}
                             if (!__matched) {

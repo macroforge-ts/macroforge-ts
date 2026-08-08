@@ -481,14 +481,38 @@ export async function macroforge() {
         if (rustTransformer.setupExternalMacros) {
             const req = createRequire(process.cwd() + '/package.json');
 
+            /**
+             * Every JSDoc annotation name a manifest contributes.
+             *
+             * `decorators` are helper attributes a derive macro declares via
+             * `attributes((serde, "…"))`, keyed by `export`. `macros` are the
+             * macros themselves, keyed by `name`; only `kind === 'attribute'`
+             * ones are annotations, because an attribute macro is invoked as
+             * `@traced` — its name *is* the annotation. Derive macros are
+             * invoked as `@derive(Name)` and `derive` is already seeded, so
+             * including them here would be wrong.
+             *
+             * Mirrors `annotation_names_from_manifest` in
+             * `host/expand/external_loader.rs`; keep the two in step.
+             * @param {any} manifest
+             * @returns {string[]}
+             */
+            const annotationNamesFrom = function (manifest) {
+                const decorators = (manifest?.decorators || []).map(
+                    (d) => d.export
+                );
+                const attributes = (manifest?.macros || [])
+                    .filter((m) => m?.kind === 'attribute')
+                    .map((m) => m.name);
+                return [...decorators, ...attributes].filter(Boolean);
+            };
+
             const resolveDecoratorNames = function (packagePath) {
                 const pkg = req(packagePath);
                 const names = [];
                 if (pkg.__macroforgeGetManifest) {
                     names.push(
-                        ...(pkg.__macroforgeGetManifest().decorators || []).map(
-                            (d) => d.export
-                        )
+                        ...annotationNamesFrom(pkg.__macroforgeGetManifest())
                     );
                 }
                 for (const key of Object.keys(pkg)) {
@@ -496,9 +520,7 @@ export async function macroforge() {
                         key.startsWith('__macroforgeGetManifest_') &&
                         typeof pkg[key] === 'function'
                     ) {
-                        names.push(
-                            ...(pkg[key]().decorators || []).map((d) => d.export)
-                        );
+                        names.push(...annotationNamesFrom(pkg[key]()));
                     }
                 }
                 if (names.length > 0) return [...new Set(names)];
@@ -684,19 +706,51 @@ export async function macroforge() {
         // (readdir order varies across Node/Deno/Rust), then hash.
         const parts = [];
 
+        /**
+         * A macro package's artifacts live wherever its build put them:
+         * NAPI packages emit `index.js` + `*.node` at the package root, while
+         * `macroforge build` (wasm-bindgen) emits `pkg/<name>.js` +
+         * `pkg/<name>_bg.wasm` and the root has no `index.js` at all. Probing
+         * only the root therefore missed every wasm package, pinning this hash
+         * at 'none' so a rebuilt macro never invalidated the cache.
+         * @param {string} pkgDir
+         */
         const checkPackage = (pkgDir) => {
-            const indexJs = path.join(pkgDir, 'index.js');
+            // Directories to probe: the package root and, if present, `pkg/`.
+            const dirs = [pkgDir];
+            const pkgSubdir = path.join(pkgDir, 'pkg');
             try {
-                const content = fs.readFileSync(indexJs, 'utf-8');
-                if (!content.includes('__macroforgeRun')) return;
-            } catch {
-                return;
-            }
-            try {
-                for (const entry of fs.readdirSync(pkgDir)) {
-                    const ext = path.extname(entry);
-                    if (ext === '.node' || ext === '.wasm' || entry === 'index.js') {
-                        const full = path.join(pkgDir, entry);
+                if (fs.statSync(pkgSubdir).isDirectory()) dirs.push(pkgSubdir);
+            } catch { /* no pkg/ subdir */ }
+
+            // A package qualifies if any candidate entry script carries the
+            // generated `__macroforgeRun` exports.
+            const isMacroPackage = dirs.some((dir) => {
+                try {
+                    return fs.readdirSync(dir).some((entry) => {
+                        if (path.extname(entry) !== '.js') return false;
+                        try {
+                            return fs
+                                .readFileSync(path.join(dir, entry), 'utf-8')
+                                .includes('__macroforgeRun');
+                        } catch {
+                            return false;
+                        }
+                    });
+                } catch {
+                    return false;
+                }
+            });
+            if (!isMacroPackage) return;
+
+            for (const dir of dirs) {
+                try {
+                    for (const entry of fs.readdirSync(dir)) {
+                        const ext = path.extname(entry);
+                        if (ext !== '.node' && ext !== '.wasm' && ext !== '.js') {
+                            continue;
+                        }
+                        const full = path.join(dir, entry);
                         try {
                             const stat = fs.statSync(full);
                             parts.push(
@@ -704,8 +758,8 @@ export async function macroforge() {
                             );
                         } catch { /* expected */ }
                     }
-                }
-            } catch { /* expected */ }
+                } catch { /* expected */ }
+            }
         };
 
         try {
@@ -784,11 +838,15 @@ export async function macroforge() {
                 return null;
             }
 
+            // Compared unconditionally. Both writers normally emit a hash, so
+            // the truthiness guard this replaces was near-dead — but the CLI
+            // deserializes `external_macro_hash` with `#[serde(default)]`, so a
+            // manifest missing the field round-trips as `""`. That is falsy,
+            // which skipped the check and let a stale cache outlive an
+            // arbitrarily broken macro package. An empty hash is missing
+            // evidence, not a match.
             const currentExternalHash = getExternalMacroHash();
-            if (
-                manifest.externalMacroHash &&
-                manifest.externalMacroHash !== currentExternalHash
-            ) {
+            if (manifest.externalMacroHash !== currentExternalHash) {
                 console.log(
                     '[@macroforge/vite-plugin] Cache invalidated: external macro binary changed'
                 );

@@ -5,6 +5,7 @@
     "npm:@types/node@^22.10.2": "22.19.3",
     "npm:effect@^3.19.4": "3.19.13",
     "npm:typescript@^5.9.3": "5.9.3",
+    "npm:vite@*": "7.3.0_@types+node@22.19.3_picomatch@4.0.3",
     "npm:vite@^7.2.4": "7.3.0_@types+node@22.19.3_picomatch@4.0.3"
   },
   "npm": {

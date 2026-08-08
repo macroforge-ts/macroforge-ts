@@ -422,9 +422,20 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             pub use #run_macro_wasm_mod_ident::*;
         }
 
-        // --- C-ABI FFI Exports (for dlopen from native CLI) ---
-        // Allows the macroforge CLI to call external macros via libloading
-        // without spawning a Node.js subprocess.
+        // --- C-ABI Exports ---
+        //
+        // Emitted for every target, not just node. This is a plain C ABI over
+        // pointers and lengths — nothing about it is native-specific, and on
+        // wasm32 each function becomes an ordinary wasm export addressing the
+        // module's linear memory. It was previously gated behind the `node`
+        // feature, which enables napi and therefore cannot be turned on for a
+        // wasm build; that left wasm packages with no host-agnostic entry point
+        // and made the native CLI unable to load them at all.
+        //
+        // Hosts:
+        //   native — dlopen + libloading
+        //   wasm32 — instantiate + call the export, read the result out of
+        //            exported memory
         //
         // Run protocol:
         //   Input:  ctx_ptr/ctx_len — UTF-8 JSON of MacroContextIR
@@ -436,7 +447,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
         //   Return: 0 = success
         //
         // Caller must free output buffers via `__macroforge_ffi_free`.
-        macroforge_ts::if_node! {
+        const _: () = {
             #[unsafe(no_mangle)]
             pub unsafe extern "C" fn #ffi_run_ident(
                 ctx_ptr: *const u8,
@@ -467,8 +478,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
                     }
                 }
             }
-
-        }
+        };
     };
 
     let output = quote! {

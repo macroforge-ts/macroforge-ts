@@ -109,10 +109,18 @@ pub(crate) fn compute_config_hash(root: &Path) -> String {
 /// Computes a hash over external macro package binaries so the cache
 /// invalidates when a local macro package is rebuilt.
 ///
-/// Scans `node_modules` for packages whose `index.js` exports
-/// `__macroforgeRun` (the marker for macro packages), then hashes
-/// the metadata (mtime + size) of all binary artifacts (`.node`, `.wasm`)
-/// and the JS entry itself.
+/// Scans `node_modules` for packages that export `__macroforgeRun` from any of
+/// their JS entry scripts, then hashes the metadata (mtime + size) of their
+/// `.node` / `.wasm` / `.js` artifacts.
+///
+/// Both the package root and its `pkg/` subdirectory are probed: NAPI builds
+/// emit `index.js` + `*.node` at the root, while `macroforge build`
+/// (wasm-bindgen) emits `pkg/<name>.js` + `pkg/<name>_bg.wasm` and leaves no
+/// root `index.js` at all.
+///
+/// Must stay byte-for-byte equivalent to `getExternalMacroHash` in
+/// `packages/vite-plugin/src/index.js`. The two writers share one manifest, so
+/// any disagreement makes each invalidate the other's entries on every run.
 pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
     let node_modules = root.join("node_modules");
     if !node_modules.exists() {
@@ -124,27 +132,46 @@ pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
     let mut parts: Vec<String> = Vec::new();
 
     let mut check_package = |pkg_dir: &Path| {
-        let index_js = pkg_dir.join("index.js");
-        let is_macro_pkg = fs::read_to_string(&index_js)
-            .map(|content| content.contains("__macroforgeRun"))
-            .unwrap_or(false);
+        let mut dirs = vec![pkg_dir.to_path_buf()];
+        let pkg_subdir = pkg_dir.join("pkg");
+        if pkg_subdir.is_dir() {
+            dirs.push(pkg_subdir);
+        }
+
+        let is_macro_pkg = dirs.iter().any(|dir| {
+            fs::read_dir(dir)
+                .map(|entries| {
+                    entries.flatten().any(|entry| {
+                        let path = entry.path();
+                        if path.extension().and_then(|e| e.to_str()) != Some("js") {
+                            return false;
+                        }
+                        fs::read_to_string(&path)
+                            .map(|content| content.contains("__macroforgeRun"))
+                            .unwrap_or(false)
+                    })
+                })
+                .unwrap_or(false)
+        });
         if !is_macro_pkg {
             return;
         }
 
-        let extensions = ["node", "wasm"];
-        if let Ok(entries) = fs::read_dir(pkg_dir) {
+        let extensions = ["node", "wasm", "js"];
+        for dir in &dirs {
+            let Ok(entries) = fs::read_dir(dir) else {
+                continue;
+            };
             for entry in entries.flatten() {
                 let path = entry.path();
                 if !path.is_file() {
                     continue;
                 }
-                let is_binary = path
+                let tracked = path
                     .extension()
                     .and_then(|e| e.to_str())
                     .is_some_and(|ext| extensions.contains(&ext));
-                let is_entry = path.file_name().is_some_and(|n| n == "index.js");
-                if !is_binary && !is_entry {
+                if !tracked {
                     continue;
                 }
                 if let Ok(meta) = fs::metadata(&path) {

@@ -24,6 +24,47 @@ type FfiManifestFn = unsafe extern "C" fn(out_ptr: *mut *mut u8, out_len: *mut u
 #[cfg(not(target_arch = "wasm32"))]
 type FfiFreeFn = unsafe extern "C" fn(ptr: *mut u8, len: usize);
 
+/// Extract every JSDoc annotation name a macro package's manifest contributes.
+///
+/// `decorators` holds helper attributes declared via `attributes((serde, "…"))`
+/// and is keyed by `export`. `macros` holds the macros themselves, keyed by
+/// `name`; only `kind == "attribute"` entries are annotations, because an
+/// attribute macro is invoked as `@traced` — its name *is* the annotation.
+/// Derive macros are invoked as `@derive(Name)`, and `derive` is already seeded
+/// unconditionally, so including them here would be wrong.
+///
+/// Native-only: WASM builds have no dynamic library to read a manifest from and
+/// resolve these names through the host's JS callback instead, which applies the
+/// same two rules in `packages/vite-plugin/src/index.js`. Keep the two in step.
+#[cfg(any(not(target_arch = "wasm32"), test))]
+pub(crate) fn annotation_names_from_manifest(manifest: &serde_json::Value) -> Vec<String> {
+    let mut names = Vec::new();
+
+    if let Some(arr) = manifest.get("decorators").and_then(|d| d.as_array()) {
+        names.extend(
+            arr.iter()
+                .filter_map(|d| d.get("export").and_then(|e| e.as_str()).map(String::from)),
+        );
+    }
+
+    if let Some(arr) = manifest.get("macros").and_then(|m| m.as_array()) {
+        names.extend(arr.iter().filter_map(|m| {
+            let is_attribute = m
+                .get("kind")
+                .and_then(|k| k.as_str())
+                .is_some_and(|k| k.eq_ignore_ascii_case("attribute"));
+            if !is_attribute {
+                return None;
+            }
+            m.get("name").and_then(|n| n.as_str()).map(String::from)
+        }));
+    }
+
+    names.sort_unstable();
+    names.dedup();
+    names
+}
+
 pub(crate) struct ExternalMacroLoader {
     #[cfg(not(target_arch = "wasm32"))]
     root_dir: std::path::PathBuf,
@@ -31,6 +72,16 @@ pub(crate) struct ExternalMacroLoader {
     /// Libraries must be kept alive for the symbols to remain valid.
     #[cfg(not(target_arch = "wasm32"))]
     loaded_libs: std::sync::Mutex<std::collections::HashMap<String, libloading::Library>>,
+    /// Cache of instantiated wasm packages, keyed by module path.
+    ///
+    /// Instantiation parses and validates the whole module, which is far from
+    /// free, and a watch session expands thousands of files — so a package is
+    /// instantiated once and reused. Held behind a mutex because calling into a
+    /// `wasmi::Store` needs `&mut`.
+    #[cfg(not(target_arch = "wasm32"))]
+    loaded_wasm: std::sync::Mutex<
+        std::collections::HashMap<String, super::wasm_loader::WasmMacroModule>,
+    >,
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -39,18 +90,31 @@ impl ExternalMacroLoader {
         Self {
             root_dir,
             loaded_libs: std::sync::Mutex::new(std::collections::HashMap::new()),
+            loaded_wasm: std::sync::Mutex::new(std::collections::HashMap::new()),
         }
     }
 
-    /// Resolve decorator export names from an external macro package via FFI.
+    /// Resolve the annotation names an external macro package contributes.
     ///
     /// Loads the `.node`/`.dylib` shared library and calls the
-    /// `__macroforge_ffi_get_manifest` symbol to get the full manifest,
-    /// then extracts decorator names from it.
+    /// `__macroforge_ffi_get_manifest` symbol to get the full manifest, then
+    /// extracts every name that may legally appear after `@` in a JSDoc
+    /// annotation. Two manifest sections contribute:
+    ///
+    /// - `decorators` — helper attributes a derive macro declares via
+    ///   `attributes((serde, "…"))`, used as `@serde`.
+    /// - `macros` with `kind == "attribute"` — attribute macros, where the
+    ///   macro's own name *is* the annotation, used as `@traced`.
+    ///
+    /// Derive macros are deliberately excluded: they are invoked as
+    /// `@derive(Name)`, and `derive` is seeded unconditionally by
+    /// `valid_annotation_names`.
     pub(crate) fn resolve_decorator_names(&self, package_path: &str) -> Vec<String> {
         let lib_path = match self.find_native_lib(package_path) {
             Some(p) => p,
-            None => return Vec::new(),
+            // No native library — the package may still ship wasm, which is
+            // what `macroforge build` produces.
+            None => return self.resolve_decorator_names_wasm(package_path),
         };
 
         let mut libs = match self.loaded_libs.lock() {
@@ -99,21 +163,47 @@ impl ExternalMacroLoader {
             s
         };
 
-        // Parse the manifest and extract decorator export names
         let manifest: serde_json::Value = match serde_json::from_str(&json) {
             Ok(v) => v,
             Err(_) => return Vec::new(),
         };
 
-        manifest
-            .get("decorators")
-            .and_then(|d| d.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|d| d.get("export").and_then(|e| e.as_str()).map(String::from))
-                    .collect()
-            })
-            .unwrap_or_default()
+        annotation_names_from_manifest(&manifest)
+    }
+
+    /// Reads annotation names from a package's wasm manifest export.
+    ///
+    /// Returns empty on any failure rather than propagating: an unreadable
+    /// package should degrade to "contributes no annotations", which surfaces
+    /// as a clear "unknown macro" at the use site, rather than aborting the
+    /// whole expansion of an unrelated file.
+    fn resolve_decorator_names_wasm(&self, package_path: &str) -> Vec<String> {
+        let Some(module_path) = self.find_wasm_for(package_path) else {
+            return Vec::new();
+        };
+
+        let Ok(mut cache) = self.loaded_wasm.lock() else {
+            return Vec::new();
+        };
+
+        let module = match cache.entry(package_path.to_string()) {
+            std::collections::hash_map::Entry::Occupied(entry) => entry.into_mut(),
+            std::collections::hash_map::Entry::Vacant(entry) => {
+                match super::wasm_loader::WasmMacroModule::load(&module_path) {
+                    Ok(module) => entry.insert(module),
+                    Err(_) => return Vec::new(),
+                }
+            }
+        };
+
+        let Ok(json) = module.manifest() else {
+            return Vec::new();
+        };
+        let Ok(manifest) = serde_json::from_str::<serde_json::Value>(&json) else {
+            return Vec::new();
+        };
+
+        annotation_names_from_manifest(&manifest)
     }
 
     pub(crate) fn run_macro(&self, ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
@@ -121,12 +211,72 @@ impl ExternalMacroLoader {
             return Ok(result);
         }
 
+        // A package built by `macroforge build` ships wasm and no native
+        // library, so this is the path that makes the CLI able to load what
+        // that command produces.
+        if let Some(result) = self.try_run_wasm(ctx)? {
+            return Ok(result);
+        }
+
         bail!(
-            "External macro '{}' from '{}' not found via FFI. \
-             Ensure the package exports FFI symbols (built with #[ts_macro_derive]).",
+            "External macro '{}' from '{}' could not be loaded. The package must \
+             ship either a native library (.node/.dylib/.so) or a wasm module \
+             exporting `__macroforge_ffi_run_{}`.",
             ctx.macro_name,
-            ctx.module_path
+            ctx.module_path,
+            {
+                use convert_case::{Case, Casing};
+                ctx.macro_name.to_case(Case::Snake)
+            },
         )
+    }
+
+    /// Runs a macro from the package's wasm module.
+    ///
+    /// `Ok(None)` when the package ships no wasm, or ships one without this
+    /// macro's export — both mean "try something else", not "fail".
+    fn try_run_wasm(&self, ctx: &MacroContextIR) -> anyhow::Result<Option<MacroResult>> {
+        use convert_case::{Case, Casing};
+
+        let Some(module_path) = self.find_wasm_for(&ctx.module_path) else {
+            return Ok(None);
+        };
+
+        let ctx_json = serde_json::to_string(ctx)
+            .map_err(|e| anyhow!("Failed to serialize context: {e}"))?;
+        let symbol = format!(
+            "__macroforge_ffi_run_{}",
+            ctx.macro_name.to_case(Case::Snake)
+        );
+
+        let mut cache = self
+            .loaded_wasm
+            .lock()
+            .map_err(|e| anyhow!("Lock poisoned: {e}"))?;
+
+        let module = match cache.entry(ctx.module_path.clone()) {
+            std::collections::hash_map::Entry::Occupied(entry) => entry.into_mut(),
+            std::collections::hash_map::Entry::Vacant(entry) => {
+                entry.insert(super::wasm_loader::WasmMacroModule::load(&module_path)?)
+            }
+        };
+
+        let Some(json) = module.run(&symbol, &ctx_json)? else {
+            return Ok(None);
+        };
+
+        serde_json::from_str(&json)
+            .map(Some)
+            .map_err(|e| anyhow!("wasm macro returned malformed MacroResult: {e}"))
+    }
+
+    /// Locates a package's wasm artifact under `node_modules`.
+    fn find_wasm_for(&self, module_path: &str) -> Option<std::path::PathBuf> {
+        let pkg_dir = self.root_dir.join("node_modules").join(module_path);
+        if !pkg_dir.is_dir() {
+            return None;
+        }
+        super::wasm_loader::find_wasm_module(&pkg_dir)
     }
 
     /// Attempt to call the macro via FFI by loading the `.node` shared library directly.
@@ -362,5 +512,56 @@ impl ExternalMacroLoader {
 
     pub(crate) fn run_macro(&self, _ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
         bail!("External macros are not supported in this WASM build (wasm feature disabled)")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::annotation_names_from_manifest;
+    use serde_json::json;
+
+    /// The shape `__macroforgeGetManifest` returns for a package that declares
+    /// one attribute macro, one derive macro, and a helper decorator.
+    fn manifest() -> serde_json::Value {
+        json!({
+            "version": 1,
+            "macros": [
+                { "name": "Serialize", "kind": "derive",    "package": "macroforge_ts" },
+                { "name": "traced",    "kind": "attribute", "package": "playground_macros" },
+                { "name": "stringify", "kind": "call",      "package": "playground_macros" },
+            ],
+            "decorators": [
+                { "module": "macroforge_ts", "export": "serde", "kind": "property" },
+            ],
+        })
+    }
+
+    #[test]
+    fn attribute_macros_are_annotation_names() {
+        // Regression: attribute macros register under `macros`, not
+        // `decorators`. Omitting them left `@traced` out of
+        // `valid_annotation_names`, so the decorator was stripped during
+        // lowering and no attribute target was ever collected.
+        assert!(annotation_names_from_manifest(&manifest()).contains(&"traced".to_string()));
+    }
+
+    #[test]
+    fn helper_decorators_are_annotation_names() {
+        assert!(annotation_names_from_manifest(&manifest()).contains(&"serde".to_string()));
+    }
+
+    #[test]
+    fn derive_and_call_macros_are_not_annotation_names() {
+        // `@derive(Serialize)` annotates as `derive`, which is seeded
+        // unconditionally; `$stringify` is a call expression, not an
+        // annotation. Neither belongs in this set.
+        let names = annotation_names_from_manifest(&manifest());
+        assert!(!names.contains(&"Serialize".to_string()));
+        assert!(!names.contains(&"stringify".to_string()));
+    }
+
+    #[test]
+    fn missing_sections_yield_no_names() {
+        assert!(annotation_names_from_manifest(&json!({})).is_empty());
     }
 }

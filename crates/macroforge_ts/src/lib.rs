@@ -294,8 +294,19 @@ pub use bindings_napi::{
 };
 
 // ============================================================================
-// C-ABI FFI support for dlopen-based external macro loading
+// C-ABI support for external macro loading
 // ============================================================================
+//
+// Host-agnostic by construction: pointers and lengths only, never JS values. A
+// native host reaches these through dlopen; a wasm host instantiates the module
+// and calls the same names as ordinary wasm exports, reading results out of
+// exported linear memory.
+//
+// These two have always been ungated and so already appear in wasm builds. The
+// per-macro `__macroforge_ffi_run_*` in `macroforge_ts_macros` was gated behind
+// the `node` feature — which enables napi and therefore cannot be set for a
+// wasm target — leaving wasm packages with a manifest and a deallocator but no
+// way to actually invoke a macro. It is now emitted for every target to match.
 
 /// Free a buffer allocated by an FFI function.
 /// Must be called by the host after reading the output.

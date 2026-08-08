@@ -93,6 +93,10 @@ mod external_loader;
 mod helpers;
 pub mod imports;
 mod registration;
+/// Only the native host instantiates wasm; a wasm build reaches macros through
+/// its JS callbacks instead.
+#[cfg(not(target_arch = "wasm32"))]
+mod wasm_loader;
 #[cfg(test)]
 mod tests;
 

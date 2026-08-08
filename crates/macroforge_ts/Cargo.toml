@@ -110,6 +110,19 @@ rayon = "1.10"
 # Build script utilities (optional, for napi auto-build)
 libc = { version = "0.2", optional = true }
 
+# Runs wasm macro packages from the native host, so a crate built by
+# `macroforge build` is loadable by the CLI and not only by a JS host.
+#
+# `wasmi` rather than wasmtime deliberately: a pure-Rust interpreter with no
+# Cranelift backend keeps `cargo install macroforge` fast and the binary small.
+# Macro expansion is a short, infrequent call, so JIT warm-up would cost more
+# than it would save.
+#
+# Excluded from wasm builds — a wasm host has no business instantiating another
+# wasm module, and the JS side already calls macros directly.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+wasmi = "0.51"
+
 [features]
 default = ["wasm", "oxc", "buildtime-boa"]
 swc = ["dep:swc_core", "macroforge_ts_syn/swc", "macroforge_ts_quote/swc"]
