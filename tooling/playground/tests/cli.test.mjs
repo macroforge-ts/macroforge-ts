@@ -11,7 +11,7 @@ import { assert, assertEquals } from '@std/assert';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs';
 import path from 'node:path';
-import { repoRoot, runCli } from './test-utils.mjs';
+import { cliBinary, repoRoot, runCli } from './test-utils.mjs';
 
 // Temporary directory for test files
 const tmpDir = path.join(
@@ -463,6 +463,175 @@ interface Custom { x: number; }`
             `CLI should succeed. stderr: ${result.stderr}`
         );
         assert(existsSync(outputFile), 'Custom output file should exist');
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+// ============================================================================
+// Project lock
+// ============================================================================
+
+/** Spawns the CLI without waiting, returning the child process. */
+function spawnCli(args) {
+    return new Deno.Command(cliBinary, {
+        args,
+        cwd: globalThis.process.cwd(),
+        stdout: 'piped',
+        stderr: 'piped'
+    }).spawn();
+}
+
+/** Decodes a child's stdout and stderr once it exits. */
+async function collectCli(child) {
+    const { code, success, stdout, stderr } = await child.output();
+    const decoder = new TextDecoder();
+    return {
+        status: code,
+        success,
+        stdout: decoder.decode(stdout),
+        stderr: decoder.decode(stderr)
+    };
+}
+
+Deno.test('CLI lock: waits for a lock held by another process', async () => {
+    setupTmpDir();
+    fs.mkdirSync(path.join(tmpDir, '.macroforge'), { recursive: true });
+    const lockPath = path.join(tmpDir, '.macroforge', '.lock');
+
+    // Stand in for a second macroforge process by taking the same advisory
+    // lock the CLI takes. This makes contention deterministic instead of
+    // depending on two real runs overlapping.
+    const holder = Deno.openSync(lockPath, {
+        create: true,
+        read: true,
+        write: true
+    });
+    holder.lockSync(true);
+
+    let released = false;
+    const release = () => {
+        if (released) return;
+        released = true;
+        try {
+            holder.unlockSync();
+        } finally {
+            holder.close();
+        }
+    };
+
+    try {
+        const child = spawnCli(['cache', tmpDir]);
+        const pending = collectCli(child);
+
+        // Give the CLI long enough that an unblocked run would have finished
+        // this tiny project several times over. It must still be waiting.
+        const settled = await Promise.race([
+            pending.then(() => 'exited'),
+            new Promise((resolve) => setTimeout(() => resolve('waiting'), 3000))
+        ]);
+        assertEquals(
+            settled,
+            'waiting',
+            'the CLI must block while another process holds the lock'
+        );
+        assert(
+            !existsSync(path.join(cacheDir, 'manifest.json')),
+            'the blocked process must not write the cache before acquiring'
+        );
+
+        release();
+
+        const result = await pending;
+        assertEquals(
+            result.success,
+            true,
+            `CLI should complete once the lock frees. stderr: ${result.stderr}`
+        );
+        assert(
+            result.stderr.includes('waiting for the project lock'),
+            `CLI should report that it was blocked. stderr: ${result.stderr}`
+        );
+        assert(
+            existsSync(path.join(cacheDir, 'manifest.json')),
+            'the cache should be written after the lock is acquired'
+        );
+    } finally {
+        release();
+        cleanupTmpDir();
+    }
+});
+
+Deno.test('CLI lock: concurrent runs all succeed with an intact manifest', async () => {
+    setupTmpDir();
+    try {
+        for (let i = 0; i < 8; i++) {
+            fs.writeFileSync(
+                path.join(tmpDir, `concurrent-${i}.ts`),
+                `/** @derive(Debug) */\ninterface Concurrent${i} { id: string; }\n`
+            );
+        }
+
+        const results = await Promise.all(
+            [0, 1, 2].map((_) => collectCli(spawnCli(['cache', tmpDir])))
+        );
+
+        for (const result of results) {
+            assertEquals(
+                result.success,
+                true,
+                `every concurrent run should succeed. stderr: ${result.stderr}`
+            );
+        }
+
+        // Serialized writes mean the manifest is never a blend of two writers.
+        const manifest = JSON.parse(
+            fs.readFileSync(path.join(cacheDir, 'manifest.json'), 'utf8')
+        );
+        for (let i = 0; i < 8; i++) {
+            assert(
+                manifest.entries[`concurrent-${i}.ts`],
+                `manifest should list concurrent-${i}.ts`
+            );
+        }
+
+        // Same for the registry the Vite plugin reads.
+        JSON.parse(
+            fs.readFileSync(
+                path.join(tmpDir, '.macroforge', 'type-registry.json'),
+                'utf8'
+            )
+        );
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
+Deno.test('CLI lock: leaves no temp files in .macroforge', () => {
+    setupTmpDir();
+    try {
+        fs.writeFileSync(
+            path.join(tmpDir, 'leftovers.ts'),
+            `/** @derive(Debug) */\ninterface Leftovers { id: string; }\n`
+        );
+
+        assertEquals(runCli(['cache', tmpDir]).success, true);
+
+        const strays = [];
+        const walk = (dir) => {
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const full = path.join(dir, entry.name);
+                if (entry.isDirectory()) walk(full);
+                else if (entry.name.endsWith('.tmp')) strays.push(full);
+            }
+        };
+        walk(path.join(tmpDir, '.macroforge'));
+
+        assertEquals(
+            strays,
+            [],
+            'atomic writes should not leave temp files behind'
+        );
     } finally {
         cleanupTmpDir();
     }

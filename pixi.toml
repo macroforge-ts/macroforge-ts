@@ -83,7 +83,11 @@ publish = { cmd = "tooling/scripts/target/release/mf publish-local" }
 "manifest:swap-local" = { cmd = "tooling/scripts/target/release/mf manifest swap-local" }
 "manifest:swap-registry" = { cmd = "tooling/scripts/target/release/mf manifest swap-registry" }
 
-"install:cli" = {cmd= "cargo install --path crates/macroforge_ts"}
+# `--force` because cargo skips the install when the installed version matches
+# the one being built — a same-version rebuild is a no-op, so editing the CLI
+# and re-running this would silently leave the old binary in place. `--locked`
+# builds against the committed Cargo.lock rather than re-resolving.
+"install:cli" = { cmd = "cargo install --path crates/macroforge_ts --locked --force" }
 bench = { cmd = "deno run -A tooling/scripts/bench.mjs" }
 "bench:all" = { cmd = "deno run -A tooling/scripts/bench.mjs --all" }
 "bench:build" = { cmd = "deno run -A tooling/scripts/bench.mjs --build" }
@@ -121,6 +125,14 @@ cargo-nextest = ">=0.9.140,<0.10"
 
 [activation.env]
 RUSTUP_HOME = "$HOME/.pixi/envs/rustup/.rustup"
+# Pixi's rust integration defaults CARGO_HOME to the env (`$CONDA_PREFIX/.cargo`),
+# which the rustup activate.d script puts on PATH ahead of ~/.cargo/bin — so
+# `cargo install` drops a per-env copy of `macroforge` that shadows the global
+# one inside `pixi run`, while a plain shell keeps resolving the older
+# ~/.cargo/bin copy. The two then diverge silently: `install:cli` reports
+# success and `macroforge` outside pixi is still the previous build. Pin
+# CARGO_HOME to the user default so there is one cargo bin shared across envs.
+CARGO_HOME = "$HOME/.cargo"
 
 # mold linker — Linux only. `.cargo/config.toml` sets `-fuse-ld=mold` for the
 # linux target; this puts `mold` on the env PATH so cargo finds it. macOS uses

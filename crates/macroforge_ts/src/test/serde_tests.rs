@@ -383,3 +383,46 @@ export type Actor =
         result.code
     );
 }
+
+#[test]
+fn test_deserialize_external_variant_keeps_a_non_object_payload() {
+    // A link-shaped payload: serializable in its own right, but carried as a
+    // bare id string as often as an object — the shape `RecordLink<T>` takes.
+    let source = r#"
+/** @derive(Serialize, Deserialize) */
+export type Ref = string | { id: string };
+
+/** @derive(Serialize, Deserialize) */
+/** @serde({ externallyTagged: true }) */
+export type Stage = 'Active' | { Invoice: Ref };
+"#;
+
+    let result = expand_test(source);
+    assert!(result.changed, "expand() should report changes");
+
+    // The bug: dispatching an external variant's payload into its own
+    // deserializer guarded the argument with
+    // `typeof __inner === "object" ? __inner : {}`, so a variant holding a
+    // bare id decoded to `{}` — the link vanished and the result still
+    // reported success, which is worse than failing.
+    let invoice_branch = result
+        .code
+        .lines()
+        .find(|line| line.contains(r#"__variantName === "Invoice""#))
+        .unwrap_or_else(|| {
+            panic!(
+                "expected a deserialize branch for the Invoice variant. Got:\n{}",
+                result.code
+            )
+        });
+
+    assert!(
+        !invoice_branch.contains(r#"typeof __inner === "object""#),
+        "an external variant's payload must reach its deserializer intact, not \
+         be coerced away when it is not an object. Got:\n{invoice_branch}"
+    );
+    assert!(
+        invoice_branch.contains("__inner"),
+        "the Invoice branch should pass the payload through. Got:\n{invoice_branch}"
+    );
+}

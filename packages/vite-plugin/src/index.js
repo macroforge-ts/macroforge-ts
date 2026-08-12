@@ -645,6 +645,42 @@ export async function macroforge() {
         }
     }
 
+    /** Distinguishes temp files written by this process within one millisecond. */
+    let atomicWriteCounter = 0;
+
+    /**
+     * Writes a file atomically: into a temporary sibling, then renamed over the
+     * destination.
+     *
+     * Everything this plugin writes has another reader — the macroforge CLI
+     * reads back `manifest.json`, `tsc` and editors read the emitted `.d.ts`,
+     * and a subsequent dev-server start reads the `.cache` entries. A plain
+     * `writeFileSync` leaves those readers a window in which the file is
+     * truncated or half-written; renaming over the destination means they see
+     * either the previous contents or the complete new ones.
+     *
+     * The temporary file is a sibling of the destination so the rename stays on
+     * one filesystem, and is tagged with the pid so two writers never collide
+     * on it.
+     *
+     * @param {string} filePath - Destination path
+     * @param {string} data - File contents
+     */
+    function writeFileAtomic(filePath, data) {
+        const tmpPath = `${filePath}.${process.pid}.${atomicWriteCounter++}.tmp`;
+        fs.writeFileSync(tmpPath, data, 'utf-8');
+        try {
+            fs.renameSync(tmpPath, filePath);
+        } catch (error) {
+            try {
+                fs.unlinkSync(tmpPath);
+            } catch {
+                // Best effort — the rename failure is what matters.
+            }
+            throw error;
+        }
+    }
+
     // --- Dev cache helpers ---
 
     /**
@@ -699,9 +735,6 @@ export async function macroforge() {
      * @returns {string}
      */
     function getExternalMacroHash() {
-        const nodeModules = path.join(projectRoot || process.cwd(), 'node_modules');
-        if (!fs.existsSync(nodeModules)) return 'none';
-
         // Collect path:size:mtime_seconds parts, sort for deterministic ordering
         // (readdir order varies across Node/Deno/Rust), then hash.
         const parts = [];
@@ -762,22 +795,39 @@ export async function macroforge() {
             }
         };
 
-        try {
-            for (const entry of fs.readdirSync(nodeModules)) {
-                const full = path.join(nodeModules, entry);
-                if (!fs.statSync(full).isDirectory()) continue;
-                if (entry.startsWith('@')) {
-                    try {
-                        for (const sub of fs.readdirSync(full)) {
-                            const subFull = path.join(full, sub);
-                            if (fs.statSync(subFull).isDirectory()) checkPackage(subFull);
-                        }
-                    } catch { /* expected */ }
-                } else if (!entry.startsWith('.')) {
-                    checkPackage(full);
+        // Every ancestor's `node_modules`, not just the project's own, because
+        // that is where Node finds a package and therefore where a workspace
+        // installs one — a package in `apps/web` gets its dependencies from the
+        // repository root. Scanning only `<root>/node_modules` finds nothing
+        // there and pins this hash at 'none', so a rebuilt macro package never
+        // invalidates the cache and dev keeps serving the previous expansion.
+        //
+        // `dirname` stops changing at the filesystem root, which visits the same
+        // set the Rust twin reaches via `Path::parent` returning `None`.
+        let dir = path.resolve(projectRoot || process.cwd());
+        for (;;) {
+            const nodeModules = path.join(dir, 'node_modules');
+            try {
+                for (const entry of fs.readdirSync(nodeModules)) {
+                    const full = path.join(nodeModules, entry);
+                    if (!fs.statSync(full).isDirectory()) continue;
+                    if (entry.startsWith('@')) {
+                        try {
+                            for (const sub of fs.readdirSync(full)) {
+                                const subFull = path.join(full, sub);
+                                if (fs.statSync(subFull).isDirectory()) checkPackage(subFull);
+                            }
+                        } catch { /* expected */ }
+                    } else if (!entry.startsWith('.')) {
+                        checkPackage(full);
+                    }
                 }
-            }
-        } catch { /* expected */ }
+            } catch { /* no node_modules at this level */ }
+
+            const parent = path.dirname(dir);
+            if (parent === dir) break;
+            dir = parent;
+        }
 
         if (parts.length === 0) return 'none';
         parts.sort();
@@ -1009,7 +1059,7 @@ export async function macroforge() {
             if (hasMacros) {
                 const cachePath = cachePathFor(relPath);
                 ensureDir(path.dirname(cachePath));
-                fs.writeFileSync(cachePath, expandedCode, 'utf-8');
+                writeFileAtomic(cachePath, expandedCode);
             }
 
             if (!cacheManifest) {
@@ -1049,10 +1099,12 @@ export async function macroforge() {
         if (!cacheManifestDirty || !cacheManifest || !cacheDir) return;
         try {
             ensureDir(cacheDir);
-            fs.writeFileSync(
+            // The macroforge CLI writes this same file (`macroforge watch`
+            // running beside `vite dev` is the documented pairing), so it has
+            // to land as a single rename rather than a progressive overwrite.
+            writeFileAtomic(
                 path.join(cacheDir, 'manifest.json'),
-                JSON.stringify(cacheManifest, null, 2),
-                'utf-8'
+                JSON.stringify(cacheManifest, null, 2)
             );
             cacheManifestDirty = false;
         } catch (error) {
@@ -1080,7 +1132,7 @@ export async function macroforge() {
                 ? fs.readFileSync(targetPath, 'utf-8')
                 : null;
             if (existing !== types) {
-                fs.writeFileSync(targetPath, types, 'utf-8');
+                writeFileAtomic(targetPath, types);
                 console.log(
                     `[@macroforge/vite-plugin] Wrote types for ${relativePath} -> ${
                         path.relative(projectRoot, targetPath)
@@ -1112,7 +1164,7 @@ export async function macroforge() {
                 ? fs.readFileSync(targetPath, 'utf-8')
                 : null;
             if (existing !== metadata) {
-                fs.writeFileSync(targetPath, metadata, 'utf-8');
+                writeFileAtomic(targetPath, metadata);
                 console.log(
                     `[@macroforge/vite-plugin] Wrote metadata for ${relativePath} -> ${
                         path.relative(projectRoot, targetPath)

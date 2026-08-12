@@ -8,6 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::atomic_fs::write_atomic;
 use crate::wrappers::{
     DECLARATIVE_REGISTRY_CACHE_PATH, TYPE_REGISTRY_CACHE_PATH, ensure_type_registry_cache,
 };
@@ -113,6 +114,14 @@ pub(crate) fn compute_config_hash(root: &Path) -> String {
 /// their JS entry scripts, then hashes the metadata (mtime + size) of their
 /// `.node` / `.wasm` / `.js` artifacts.
 ///
+/// Every ancestor's `node_modules` is scanned, not just the project's own,
+/// because that is where Node finds a package and therefore where a workspace
+/// installs one: a package in `apps/web` gets its dependencies from the
+/// repository root. Looking only in `<root>/node_modules` finds nothing there
+/// and pins this hash at `"none"`, so rebuilding a macro package never
+/// invalidates anything and every consumer keeps serving expansions produced by
+/// the previous build.
+///
 /// Both the package root and its `pkg/` subdirectory are probed: NAPI builds
 /// emit `index.js` + `*.node` at the root, while `macroforge build`
 /// (wasm-bindgen) emits `pkg/<name>.js` + `pkg/<name>_bg.wasm` and leaves no
@@ -122,11 +131,6 @@ pub(crate) fn compute_config_hash(root: &Path) -> String {
 /// `packages/vite-plugin/src/index.js`. The two writers share one manifest, so
 /// any disagreement makes each invalidate the other's entries on every run.
 pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
-    let node_modules = root.join("node_modules");
-    if !node_modules.exists() {
-        return "none".to_string();
-    }
-
     // Collect path:size:mtime parts, sort for deterministic ordering
     // (readdir order varies across platforms and runtimes), then hash.
     let mut parts: Vec<String> = Vec::new();
@@ -195,25 +199,33 @@ pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
         }
     };
 
-    if let Ok(entries) = fs::read_dir(&node_modules) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                let name = entry.file_name();
-                let name_str = name.to_string_lossy();
-                if name_str.starts_with('@') {
-                    if let Ok(scoped) = fs::read_dir(&path) {
-                        for sub in scoped.flatten() {
-                            if sub.path().is_dir() {
-                                check_package(&sub.path());
+    // `Path::parent` yields `None` at the filesystem root, so this visits the
+    // project directory and every ancestor exactly once. The JS twin breaks
+    // when `dirname` stops changing, which reaches the same set.
+    let mut dir = Some(root);
+    while let Some(current) = dir {
+        let node_modules = current.join("node_modules");
+        if let Ok(entries) = fs::read_dir(&node_modules) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    let name = entry.file_name();
+                    let name_str = name.to_string_lossy();
+                    if name_str.starts_with('@') {
+                        if let Ok(scoped) = fs::read_dir(&path) {
+                            for sub in scoped.flatten() {
+                                if sub.path().is_dir() {
+                                    check_package(&sub.path());
+                                }
                             }
                         }
+                    } else if !name_str.starts_with('.') {
+                        check_package(&path);
                     }
-                } else if !name_str.starts_with('.') {
-                    check_package(&path);
                 }
             }
         }
+        dir = current.parent();
     }
 
     if parts.is_empty() {
@@ -251,31 +263,30 @@ impl CacheManifest {
     }
 
     /// Atomically saves the manifest via write-to-tmp + rename.
+    ///
+    /// The Vite plugin writes this same file, so the temporary name has to be
+    /// unique per writer — a fixed `.manifest.json.tmp` would have two writers
+    /// filling one buffer.
     pub(crate) fn save(&self, cache_dir: &Path) -> Result<()> {
-        fs::create_dir_all(cache_dir)?;
-        let manifest_path = cache_dir.join("manifest.json");
         let json = serde_json::to_string_pretty(self)?;
-
-        // Atomic write: temp file in same directory, then rename
-        let tmp_path = cache_dir.join(".manifest.json.tmp");
-        fs::write(&tmp_path, &json)?;
-        fs::rename(&tmp_path, &manifest_path)?;
-        Ok(())
+        write_atomic(&cache_dir.join("manifest.json"), json.as_bytes())
     }
 }
 
 /// Writes expanded code to `<cache_dir>/<rel_path>.cache`.
+///
+/// Written atomically: the Vite plugin reads these entries while `watch` is
+/// rewriting them, and a partially-written entry would be served to the browser
+/// as if it were valid expanded output.
 pub(crate) fn write_cache_file(
     cache_dir: &Path,
     rel_path: &str,
     expanded_code: &str,
 ) -> Result<()> {
-    let cache_path = cache_dir.join(format!("{rel_path}.cache"));
-    if let Some(parent) = cache_path.parent() {
-        fs::create_dir_all(parent)?;
-    }
-    fs::write(&cache_path, expanded_code)?;
-    Ok(())
+    write_atomic(
+        &cache_dir.join(format!("{rel_path}.cache")),
+        expanded_code.as_bytes(),
+    )
 }
 
 /// Returns true if `path` is a `.ts` or `.tsx` file that should be processed.
@@ -365,7 +376,19 @@ pub(crate) fn has_macro_annotations(source: &str) -> bool {
     false
 }
 
-pub(crate) fn expand_for_cache(path: &Path, source: &str) -> Result<Option<String>> {
+/// One file's expansion, together with anything the macros reported as an error.
+///
+/// The errors travel with the code rather than being logged and dropped inside
+/// the expander, because whether they are fatal depends on the caller: a watch
+/// loop should report and keep going, while a command that publishes a package
+/// has no business writing output a macro said it could not produce.
+pub(crate) struct CacheExpansion {
+    pub(crate) code: String,
+    /// Error-level diagnostics, already rendered for display.
+    pub(crate) errors: Vec<String>,
+}
+
+pub(crate) fn expand_for_cache(path: &Path, source: &str) -> Result<Option<CacheExpansion>> {
     // Quick check: skip files without @derive (ignoring fenced code blocks in docs)
     if !has_macro_annotations(source) {
         return Ok(None);
@@ -409,11 +432,26 @@ pub(crate) fn expand_for_cache(path: &Path, source: &str) -> Result<Option<Strin
     macroforge_ts::host::clear_registry();
     macroforge_ts::host::clear_foreign_types();
 
-    if !expansion.changed {
+    let errors: Vec<String> = expansion
+        .diagnostics
+        .iter()
+        .filter(|d| d.level == macroforge_ts::host::DiagnosticLevel::Error)
+        .map(|d| d.message.clone())
+        .collect();
+
+    // Errors are reported even when nothing was rewritten. A macro that fails
+    // to load contributes no output at all, so `changed` stays false and the
+    // file is otherwise indistinguishable from one that simply has no macros —
+    // which is exactly how a broken macro package disappears from a build
+    // without anyone noticing.
+    if !expansion.changed && errors.is_empty() {
         return Ok(None);
     }
 
-    Ok(Some(expansion.code))
+    Ok(Some(CacheExpansion {
+        code: expansion.code,
+        errors,
+    }))
 }
 
 /// Warm the cache: expand all files and save the manifest. Returns the manifest for reuse.
@@ -428,7 +466,7 @@ pub(crate) fn warm_cache(
     eprintln!("[macroforge {label}] Warming cache for {}", root.display());
 
     // Build the type registry before expanding so macros have cross-module type awareness
-    ensure_type_registry_cache();
+    ensure_type_registry_cache(root);
 
     let start = std::time::Instant::now();
     let files = collect_watch_files(root);
@@ -493,8 +531,11 @@ pub(crate) fn warm_cache(
     // Phase 3: Apply results to manifest (sequential)
     for (rel_path, source_hash, norm_hash, result) in results {
         match result {
-            Ok(Some(expanded)) => {
-                if let Err(e) = write_cache_file(cache_dir, &rel_path, &expanded) {
+            Ok(Some(expansion)) => {
+                for error in &expansion.errors {
+                    eprintln!("  [!] {rel_path} — {error}");
+                }
+                if let Err(e) = write_cache_file(cache_dir, &rel_path, &expansion.code) {
                     eprintln!("  [!] {} — write failed: {}", rel_path, e);
                     continue;
                 }
@@ -536,19 +577,15 @@ pub(crate) fn warm_cache(
     Ok(())
 }
 
-/// Resolves root path, creates cache dir reference, and loads/creates the manifest.
-pub(crate) fn init_cache(
-    root: Option<PathBuf>,
-    label: &str,
-) -> Result<(PathBuf, PathBuf, CacheManifest)> {
-    let root = root
-        .unwrap_or_else(|| PathBuf::from("."))
-        .canonicalize()
-        .unwrap_or_else(|_| PathBuf::from("."));
+/// Derives the cache directory for `root` and loads (or creates) its manifest.
+///
+/// `root` is the resolved project root — the same path the project lock is
+/// keyed on — so every subcommand agrees on which `.macroforge/` it is using.
+pub(crate) fn init_cache(root: &Path, label: &str) -> Result<(PathBuf, CacheManifest)> {
     let cache_dir = root.join(".macroforge").join("cache");
     let version = env!("CARGO_PKG_VERSION").to_string();
-    let config_hash = compute_config_hash(&root);
-    let external_macro_hash = compute_external_macro_hash(&root);
+    let config_hash = compute_config_hash(root);
+    let external_macro_hash = compute_external_macro_hash(root);
 
     let manifest = CacheManifest::load(&cache_dir)
         .filter(|m| {
@@ -575,24 +612,23 @@ pub(crate) fn init_cache(
             )
         });
 
-    Ok((root, cache_dir, manifest))
+    Ok((cache_dir, manifest))
 }
 
 /// Build the .macroforge/cache once and exit.
-pub fn run_cache(root: Option<PathBuf>) -> Result<()> {
-    let (root, cache_dir, mut manifest) = init_cache(root, "cache")?;
-    warm_cache("cache", &root, &cache_dir, &mut manifest)?;
+pub fn run_cache(root: &Path) -> Result<()> {
+    let (cache_dir, mut manifest) = init_cache(root, "cache")?;
+    warm_cache("cache", root, &cache_dir, &mut manifest)?;
     Ok(())
 }
 
 /// Delete the .macroforge/cache directory and rebuild from scratch.
-pub fn run_refresh(root: Option<PathBuf>) -> Result<()> {
-    let root_resolved = root
-        .clone()
-        .unwrap_or_else(|| PathBuf::from("."))
-        .canonicalize()
-        .unwrap_or_else(|_| PathBuf::from("."));
-    let cache_dir = root_resolved.join(".macroforge").join("cache");
+///
+/// Also discards the `svelte-package` build state and its expanded tree. This
+/// command is the answer to "give me a guaranteed clean state", so leaving
+/// another cache behind would make it only partly true.
+pub fn run_refresh(root: &Path) -> Result<()> {
+    let cache_dir = root.join(".macroforge").join("cache");
 
     if cache_dir.exists() {
         eprintln!("[macroforge refresh] Deleting {}", cache_dir.display());
@@ -601,7 +637,13 @@ pub fn run_refresh(root: Option<PathBuf>) -> Result<()> {
         eprintln!("[macroforge refresh] No existing cache found, building fresh");
     }
 
-    let (root, cache_dir, mut manifest) = init_cache(root, "refresh")?;
-    warm_cache("refresh", &root, &cache_dir, &mut manifest)?;
+    let package_dir = crate::package_state::state_dir(root);
+    if package_dir.exists() {
+        eprintln!("[macroforge refresh] Deleting {}", package_dir.display());
+        fs::remove_dir_all(&package_dir).context("failed to delete .macroforge/svelte-package")?;
+    }
+
+    let (cache_dir, mut manifest) = init_cache(root, "refresh")?;
+    warm_cache("refresh", root, &cache_dir, &mut manifest)?;
     Ok(())
 }

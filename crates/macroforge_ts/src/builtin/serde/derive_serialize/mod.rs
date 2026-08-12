@@ -1931,6 +1931,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 struct ExternalSerVariant {
                     name: String,
                     foreign_serialize_inline: Option<String>,
+                    /// Set when the payload is a generated type instead: without
+                    /// dispatching to its serializer the payload is emitted
+                    /// verbatim, so every field inside it that needs a non-identity
+                    /// serialization (decimals, dates, record links) leaks its
+                    /// runtime shape.
+                    payload_ser_fn: Option<crate::swc_ecma_ast::Ident>,
                 }
                 let mut external_ser_variants: Vec<ExternalSerVariant> = Vec::new();
                 if let Some(members) = type_alias.as_union() {
@@ -1990,17 +1996,31 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 if is_externally_tagged && !fields.is_empty() =>
                             {
                                 let foreign_types = get_foreign_types();
+                                let payload_ts_type = fields[0].ts_type.as_str();
                                 let foreign_serialize_inline = TypeCategory::match_foreign_type(
-                                    fields[0].ts_type.as_str(),
+                                    payload_ts_type,
                                     &foreign_types,
                                 )
                                 .config
                                 .and_then(|ft| ft.serialize_expr.clone())
                                 .map(|expr| rewrite_expression_namespaces(&expr));
-                                if foreign_serialize_inline.is_some() {
+                                let payload_ser_fn = if foreign_serialize_inline.is_some() {
+                                    None
+                                } else if let TypeCategory::Serializable(base) =
+                                    TypeCategory::from_ts_type(payload_ts_type)
+                                {
+                                    Some(ts_ident!(
+                                        "{}SerializeWithContext",
+                                        base.to_case(Case::Camel)
+                                    ))
+                                } else {
+                                    None
+                                };
+                                if foreign_serialize_inline.is_some() || payload_ser_fn.is_some() {
                                     external_ser_variants.push(ExternalSerVariant {
                                         name: fields[0].name.clone(),
                                         foreign_serialize_inline,
+                                        payload_ser_fn,
                                     });
                                 }
                             }
@@ -2052,6 +2072,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 {$let foreign_ser_expr: Expr = *parse_ts_expr(ser_inline).expect("inner foreign serialize expr should parse")}
                                 if (!__matched && __exName === "@{ov.name}") {
                                     __variant = ({ "@{ov.name}": (@{foreign_ser_expr})((value as any)["@{ov.name}"]) });
+                                    __matched = true;
+                                }
+                                {/if}
+                                {#if let Some(ref payload_ser_fn) = ov.payload_ser_fn}
+                                if (!__matched && __exName === "@{ov.name}") {
+                                    __variant = ({ "@{ov.name}": @{payload_ser_fn}((value as any)["@{ov.name}"], ctx) });
                                     __matched = true;
                                 }
                                 {/if}
@@ -2141,6 +2167,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 {$let foreign_ser_expr: Expr = *parse_ts_expr(ser_inline).expect("inner foreign serialize expr should parse")}
                                 if (!__matched && __exName === "@{ov.name}") {
                                     __variant = ({ "@{ov.name}": (@{foreign_ser_expr})((value as any)["@{ov.name}"]) });
+                                    __matched = true;
+                                }
+                                {/if}
+                                {#if let Some(ref payload_ser_fn) = ov.payload_ser_fn}
+                                if (!__matched && __exName === "@{ov.name}") {
+                                    __variant = ({ "@{ov.name}": @{payload_ser_fn}((value as any)["@{ov.name}"], ctx) });
                                     __matched = true;
                                 }
                                 {/if}

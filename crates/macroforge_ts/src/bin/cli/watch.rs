@@ -13,6 +13,7 @@ use crate::cache::{
     expand_for_cache, init_cache, is_watchable_ts_file, normalized_content_hash, warm_cache,
     write_cache_file,
 };
+use crate::lock::ProjectLock;
 
 // =========================================================================
 // Macro source watching: discover, detect build system, rebuild
@@ -230,13 +231,22 @@ fn gitignore_watch_dirs(root: &Path, cache_dir: &Path) -> Vec<PathBuf> {
 }
 
 /// Main watch loop: warm cache then watch for changes.
-pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
-    let (root, cache_dir, mut manifest) = init_cache(root, "watch")?;
-    warm_cache("watch", &root, &cache_dir, &mut manifest)?;
+///
+/// Unlike the one-shot subcommands, which hold the project lock for their whole
+/// run, the watcher takes it only around the bursts below and is unlocked while
+/// idle. Holding it for the lifetime of a daemon would block `svelte-package`,
+/// `tsc` and every other command until the watcher was killed; scoping it per
+/// burst gives the same protection with a delay of one burst instead.
+pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
+    let (cache_dir, mut manifest) = init_cache(root, "watch")?;
+    {
+        let _lock = ProjectLock::acquire(root, "watch", false)?;
+        warm_cache("watch", root, &cache_dir, &mut manifest)?;
+    }
 
     // Discover macro source packages and watch them
-    let macro_sources = discover_macro_sources(&root);
-    let build_system = detect_build_system(&root);
+    let macro_sources = discover_macro_sources(root);
+    let build_system = detect_build_system(root);
 
     if !macro_sources.is_empty() {
         eprintln!(
@@ -263,7 +273,7 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
     // per-directory (non-recursive): a recursive watch on an included
     // directory would silently re-include its ignored children.
     let mut watched: HashSet<PathBuf> = HashSet::new();
-    for dir in gitignore_watch_dirs(&root, &cache_dir) {
+    for dir in gitignore_watch_dirs(root, &cache_dir) {
         debouncer
             .watch(&dir, RecursiveMode::NonRecursive)
             .with_context(|| format!("failed to watch {}", dir.display()))?;
@@ -273,7 +283,7 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
     // Watch macro source directories that are outside root
     for src in &macro_sources {
         for dir in &src.source_dirs {
-            if dir.exists() && !dir.starts_with(&root) {
+            if dir.exists() && !dir.starts_with(root) {
                 debouncer
                     .watch(dir, RecursiveMode::Recursive)
                     .with_context(|| format!("failed to watch macro source: {}", dir.display()))?;
@@ -294,7 +304,8 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                         "[macroforge watch] Watch backend requested a rescan \
                          (event queue overflow) — resyncing against content hashes"
                     );
-                    warm_cache("watch", &root, &cache_dir, &mut manifest)?;
+                    let _lock = ProjectLock::acquire(root, "watch", false)?;
+                    warm_cache("watch", root, &cache_dir, &mut manifest)?;
                     continue;
                 }
 
@@ -312,7 +323,7 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                     }
                 }
                 if dir_created {
-                    for dir in gitignore_watch_dirs(&root, &cache_dir) {
+                    for dir in gitignore_watch_dirs(root, &cache_dir) {
                         if watched.insert(dir.clone())
                             && let Err(e) = debouncer.watch(&dir, RecursiveMode::NonRecursive)
                         {
@@ -359,7 +370,7 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                             continue;
                         }
 
-                        if is_watchable_ts_file(event_path, &root) {
+                        if is_watchable_ts_file(event_path, root) {
                             changed_files.push(event_path.clone());
                         }
                     }
@@ -373,7 +384,7 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                 // land here). Re-expanding every file takes minutes and
                 // gigabytes, so only do it for a real content change.
                 if config_changed {
-                    let new_config_hash = compute_config_hash(&root);
+                    let new_config_hash = compute_config_hash(root);
                     if new_config_hash == manifest.config_hash {
                         eprintln!(
                             "[macroforge watch] Config file event with unchanged content — \
@@ -394,15 +405,20 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                         macro_info.name
                     );
 
-                    match rebuild_macro(macro_info, build_system, &root) {
+                    // The rebuild shells out to a package manager and can take
+                    // minutes; it touches the macro package, not this
+                    // project's `.macroforge/`, so it runs unlocked. Only the
+                    // re-expansion that consumes its output needs the lock.
+                    match rebuild_macro(macro_info, build_system, root) {
                         Ok(()) => {
                             eprintln!(
                                 "[macroforge watch] Macro '{}' rebuilt, re-expanding all files...",
                                 macro_info.name
                             );
+                            let _lock = ProjectLock::acquire(root, "watch", false)?;
                             manifest.entries.clear();
                             macroforge_ts::host::clear_config_cache();
-                            warm_cache("watch", &root, &cache_dir, &mut manifest)?;
+                            warm_cache("watch", root, &cache_dir, &mut manifest)?;
                         }
                         Err(e) => {
                             eprintln!("[macroforge watch] Macro rebuild failed: {}", e);
@@ -411,19 +427,21 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                 } else if config_changed {
                     use rayon::prelude::*;
 
-                    let new_config_hash = compute_config_hash(&root);
+                    let _lock = ProjectLock::acquire(root, "watch", false)?;
+
+                    let new_config_hash = compute_config_hash(root);
                     manifest.config_hash = new_config_hash;
                     manifest.entries.clear();
                     eprintln!("[macroforge watch] Config changed, re-expanding all files...");
 
-                    let all_files = collect_watch_files(&root);
+                    let all_files = collect_watch_files(root);
 
                     // Read and hash all files (sequential)
                     let files_with_source: Vec<_> = all_files
                         .iter()
                         .filter_map(|file_path| {
                             let rel_path = file_path
-                                .strip_prefix(&root)
+                                .strip_prefix(root)
                                 .unwrap_or(file_path)
                                 .to_string_lossy()
                                 .to_string();
@@ -452,8 +470,11 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                     let mut count = 0u32;
                     for (rel_path, source_hash, norm_hash, result) in results {
                         match result {
-                            Ok(Some(expanded)) => {
-                                let _ = write_cache_file(&cache_dir, &rel_path, &expanded);
+                            Ok(Some(expansion)) => {
+                                for error in &expansion.errors {
+                                    eprintln!("  [!] {rel_path} — {error}");
+                                }
+                                let _ = write_cache_file(&cache_dir, &rel_path, &expansion.code);
                                 manifest.entries.insert(
                                     rel_path.clone(),
                                     CacheEntry {
@@ -481,9 +502,11 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                     manifest.save(&cache_dir)?;
                     eprintln!("[macroforge watch] Re-expanded {} files", count);
                 } else if !changed_files.is_empty() {
+                    let _lock = ProjectLock::acquire(root, "watch", false)?;
+
                     for file_path in &changed_files {
                         let rel_path = file_path
-                            .strip_prefix(&root)
+                            .strip_prefix(root)
                             .unwrap_or(file_path)
                             .to_string_lossy()
                             .to_string();
@@ -532,8 +555,14 @@ pub fn run_watch(root: Option<PathBuf>, debounce_ms: u64) -> Result<()> {
                         let file_start = std::time::Instant::now();
 
                         match expand_for_cache(file_path, &source) {
-                            Ok(Some(expanded)) => {
-                                let _ = write_cache_file(&cache_dir, &rel_path, &expanded);
+                            Ok(Some(expansion)) => {
+                                // Reported, not fatal: a watch loop that exits
+                                // on the first bad edit is worse than one that
+                                // says what is wrong and waits for the fix.
+                                for error in &expansion.errors {
+                                    eprintln!("  [!] {rel_path} — {error}");
+                                }
+                                let _ = write_cache_file(&cache_dir, &rel_path, &expansion.code);
                                 manifest.entries.insert(
                                     rel_path.clone(),
                                     CacheEntry {

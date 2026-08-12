@@ -439,3 +439,134 @@ fn emit_expanded_rejected_in_single_file_mode() {
         "stderr should explain the misuse, got: {stderr}"
     );
 }
+
+/// Takes the project lock for `root` the way a second macroforge process would,
+/// returning the locked handle. Dropping it releases the lock.
+fn hold_project_lock(root: &Path) -> std::fs::File {
+    let dir = root.join(".macroforge");
+    std::fs::create_dir_all(&dir).unwrap();
+    let file = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(dir.join(".lock"))
+        .unwrap();
+    file.lock().unwrap();
+    file
+}
+
+/// Sets up a project root whose only source file has no macros, so a run over
+/// it does no real work and any delay is the lock.
+fn setup_lock_fixture(root: &Path, name: &str) {
+    std::fs::write(
+        root.join("package.json"),
+        format!("{{ \"name\": \"{name}\" }}"),
+    )
+    .unwrap();
+    std::fs::write(
+        root.join("plain.ts"),
+        "export interface Plain {\n  x: number;\n}\n",
+    )
+    .unwrap();
+}
+
+/// Waits until `child` has been running long enough that it can only be blocked
+/// on the lock, and fails if it finished instead.
+///
+/// The window has to clear process startup — a debug build's dynamic linking
+/// alone can outlast a naive timeout — or the child would still be starting
+/// when the lock is released and would never contend at all, leaving the test
+/// asserting nothing.
+fn assert_blocked(child: &mut std::process::Child) {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(3);
+    while std::time::Instant::now() < deadline {
+        assert!(
+            child.try_wait().unwrap().is_none(),
+            "macroforge should block while another process holds the project lock"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+}
+
+#[test]
+fn contended_lock_is_announced_and_then_acquired() {
+    let temp_dir = TempDir::new().unwrap();
+    let root = temp_dir.path();
+    setup_lock_fixture(root, "locked");
+
+    let held = hold_project_lock(root);
+
+    let mut child = macroforge_bin()
+        .arg("expand")
+        .arg("plain.ts")
+        .current_dir(root)
+        .stderr(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .expect("failed to run macroforge");
+
+    assert_blocked(&mut child);
+    drop(held);
+
+    let output = child.wait_with_output().unwrap();
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("waiting for the project lock"),
+        "a blocked run should say what it is waiting for, got: {stderr}"
+    );
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "the run should complete normally once the lock frees, got: {stderr}"
+    );
+}
+
+#[test]
+fn contended_lock_stays_silent_in_quiet_mode() {
+    // `--quiet` exists so callers can parse stderr; a lock this process
+    // happened to contend on must not leak into it.
+    let temp_dir = TempDir::new().unwrap();
+    let root = temp_dir.path();
+    setup_lock_fixture(root, "locked-quiet");
+
+    let held = hold_project_lock(root);
+
+    let mut child = macroforge_bin()
+        .arg("expand")
+        .arg("plain.ts")
+        .arg("--quiet")
+        .current_dir(root)
+        .stderr(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .expect("failed to run macroforge");
+
+    assert_blocked(&mut child);
+    drop(held);
+
+    let output = child.wait_with_output().unwrap();
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.is_empty(),
+        "stderr should be empty in quiet mode even when the lock was contended, got: {stderr}"
+    );
+    assert_eq!(output.status.code(), Some(2));
+}
+
+#[test]
+fn svelte_package_accepts_full_rebuild() {
+    // Packaging is incremental by default, so the escape hatch has to exist and
+    // be discoverable — a user staring at a stale `dist` reaches for `--help`.
+    let output = macroforge_bin()
+        .args(["svelte-package", "--help"])
+        .output()
+        .expect("failed to run macroforge");
+
+    assert!(output.status.success());
+    let help = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        help.contains("--full-rebuild"),
+        "svelte-package --help should document --full-rebuild:\n{help}"
+    );
+}

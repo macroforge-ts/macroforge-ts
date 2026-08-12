@@ -5,3 +5,9 @@ tooling/bench-bins/
 **/.pixi/
 .claude/
 crates/macroforge_ts/.macroforge/debug.log
+
+# Runtime state: the per-project advisory lock, and the temporary siblings
+# atomic writes rename over their destination.
+**/.macroforge/.lock
+**/*.macroforge-staging-*
+**/*.macroforge-old-*

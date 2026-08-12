@@ -79,9 +79,8 @@ pub(crate) struct ExternalMacroLoader {
     /// instantiated once and reused. Held behind a mutex because calling into a
     /// `wasmi::Store` needs `&mut`.
     #[cfg(not(target_arch = "wasm32"))]
-    loaded_wasm: std::sync::Mutex<
-        std::collections::HashMap<String, super::wasm_loader::WasmMacroModule>,
-    >,
+    loaded_wasm:
+        std::sync::Mutex<std::collections::HashMap<String, super::wasm_loader::WasmMacroModule>>,
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -242,8 +241,8 @@ impl ExternalMacroLoader {
             return Ok(None);
         };
 
-        let ctx_json = serde_json::to_string(ctx)
-            .map_err(|e| anyhow!("Failed to serialize context: {e}"))?;
+        let ctx_json =
+            serde_json::to_string(ctx).map_err(|e| anyhow!("Failed to serialize context: {e}"))?;
         let symbol = format!(
             "__macroforge_ffi_run_{}",
             ctx.macro_name.to_case(Case::Snake)
@@ -270,12 +269,29 @@ impl ExternalMacroLoader {
             .map_err(|e| anyhow!("wasm macro returned malformed MacroResult: {e}"))
     }
 
+    /// Locates an installed package directory, the way Node resolves it.
+    ///
+    /// Node checks `node_modules` in the starting directory and then in every
+    /// ancestor, which is what makes a workspace work at all: a package in
+    /// `apps/web` finds its dependencies in the repository root's
+    /// `node_modules`. Looking only in `root_dir/node_modules` finds nothing
+    /// there, and a macro package that cannot be found is a macro that silently
+    /// contributes no output.
+    fn find_package_dir(&self, module_path: &str) -> Option<std::path::PathBuf> {
+        let mut dir = Some(self.root_dir.as_path());
+        while let Some(current) = dir {
+            let candidate = current.join("node_modules").join(module_path);
+            if candidate.is_dir() {
+                return Some(candidate);
+            }
+            dir = current.parent();
+        }
+        None
+    }
+
     /// Locates a package's wasm artifact under `node_modules`.
     fn find_wasm_for(&self, module_path: &str) -> Option<std::path::PathBuf> {
-        let pkg_dir = self.root_dir.join("node_modules").join(module_path);
-        if !pkg_dir.is_dir() {
-            return None;
-        }
+        let pkg_dir = self.find_package_dir(module_path)?;
         super::wasm_loader::find_wasm_module(&pkg_dir)
     }
 
@@ -361,12 +377,7 @@ impl ExternalMacroLoader {
 
     /// Finds the native shared library (.node, .dylib, .so) for a given module path.
     fn find_native_lib(&self, module_path: &str) -> Option<std::path::PathBuf> {
-        // Walk up from root_dir looking for node_modules/<module_path>
-        let node_modules = self.root_dir.join("node_modules");
-        let pkg_dir = node_modules.join(module_path);
-        if !pkg_dir.is_dir() {
-            return None;
-        }
+        let pkg_dir = self.find_package_dir(module_path)?;
 
         // Find the first .node file in the package directory
         let entries = std::fs::read_dir(&pkg_dir).ok()?;

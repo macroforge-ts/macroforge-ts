@@ -6,6 +6,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::atomic_fs::write_atomic;
+
 /// Output routing for a directory scan.
 ///
 /// A scan can emit into one or more destinations, each independent:
@@ -43,11 +45,15 @@ pub struct ScanOptions {
 /// expanded, but are copied verbatim into `out_dir` when a mirrored tree is
 /// requested.
 ///
+/// `project_root` is the resolved project root that owns `.macroforge/`. It is
+/// distinct from `root`: a scan is frequently rooted at a subdirectory
+/// (`--scan src/`) while the registries it reads belong to the project above it.
+///
 /// # Returns
 ///
 /// Returns `Ok(())` on success. Returns an error if any file fails to expand —
 /// a partially-populated staging tree must never silently feed a packager.
-pub fn scan_and_expand(root: PathBuf, opts: ScanOptions) -> Result<()> {
+pub fn scan_and_expand(project_root: &Path, root: PathBuf, opts: ScanOptions) -> Result<()> {
     use rayon::prelude::*;
 
     let root = root.canonicalize().unwrap_or(root);
@@ -125,7 +131,7 @@ pub fn scan_and_expand(root: PathBuf, opts: ScanOptions) -> Result<()> {
     let results: Vec<(PathBuf, Result<Option<FileExpansion>>)> = pool.install(|| {
         ts_files
             .par_iter()
-            .map(|path| (path.clone(), expand_file_in_memory(path)))
+            .map(|path| (path.clone(), expand_file_in_memory(project_root, path)))
             .collect()
     });
 
@@ -227,6 +233,7 @@ fn canonicalized_target(path: &Path) -> PathBuf {
 ///
 /// # Arguments
 ///
+/// * `project_root` - The resolved project root that owns `.macroforge/`
 /// * `input` - Path to the input TypeScript file
 /// * `out` - Optional path for the expanded output (default: `input.expanded.ts`)
 /// * `types_out` - Optional path for the `.d.ts` type output
@@ -238,13 +245,14 @@ fn canonicalized_target(path: &Path) -> PathBuf {
 /// Calls `std::process::exit(2)` whenever no macros are found; `quiet`
 /// only suppresses the stderr message, not the exit code.
 pub fn expand_file(
+    project_root: &Path,
     input: PathBuf,
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
     print: bool,
     quiet: bool,
 ) -> Result<()> {
-    match try_expand_file(input.clone(), out, types_out, print)? {
+    match try_expand_file(project_root, input.clone(), out, types_out, print)? {
         true => Ok(()),
         false => {
             if !quiet {
@@ -280,7 +288,10 @@ pub(crate) struct FileExpansion {
 /// - `Ok(Some(_))` - Macros were found and successfully expanded
 /// - `Ok(None)` - No macros were found (the source is unchanged)
 /// - `Err(...)` - An error occurred while reading or expanding the file
-pub(crate) fn expand_file_in_memory(input: &Path) -> Result<Option<FileExpansion>> {
+pub(crate) fn expand_file_in_memory(
+    project_root: &Path,
+    input: &Path,
+) -> Result<Option<FileExpansion>> {
     use macroforge_ts::host::MacroforgeConfigLoader;
 
     // Load config if available (for foreign types support).
@@ -307,7 +318,7 @@ pub(crate) fn expand_file_in_memory(input: &Path) -> Result<Option<FileExpansion
     // would otherwise emit "[macroforge] Type scan: …" stderr noise that
     // breaks tools relying on a clean stderr in `--quiet` mode.
     if super::cache::has_macro_annotations(&source) {
-        super::wrappers::ensure_type_registry_cache();
+        super::wrappers::ensure_type_registry_cache(project_root);
         let registry_path = super::wrappers::TYPE_REGISTRY_CACHE_PATH
             .lock()
             .unwrap()
@@ -356,12 +367,14 @@ pub(crate) fn expand_file_in_memory(input: &Path) -> Result<Option<FileExpansion
 /// - `Ok(false)` - No macros were found in the file
 /// - `Err(...)` - An error occurred during expansion
 pub(crate) fn try_expand_file(
+    project_root: &Path,
     input: PathBuf,
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
     print: bool,
 ) -> Result<bool> {
-    let Some(FileExpansion { source, expansion }) = expand_file_in_memory(&input)? else {
+    let Some(FileExpansion { source, expansion }) = expand_file_in_memory(project_root, &input)?
+    else {
         return Ok(false);
     };
 
@@ -472,14 +485,13 @@ fn emit_type_output(
     Ok(())
 }
 
-/// Writes content to a file, creating parent directories as needed.
+/// Writes content to a file atomically, creating parent directories as needed.
+///
+/// A scan's `--out` tree is consumed by a packager and its `--types-out` tree by
+/// a type checker, often while the scan is still running; each file has to
+/// appear complete or not at all.
 fn write_file(path: &Path, contents: &str) -> Result<()> {
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent)
-            .with_context(|| format!("failed to create {}", parent.display()))?;
-    }
-    fs::write(path, contents).with_context(|| format!("failed to write {}", path.display()))?;
-    Ok(())
+    write_atomic(path, contents.as_bytes())
 }
 
 /// Copies a file verbatim, creating parent directories as needed.

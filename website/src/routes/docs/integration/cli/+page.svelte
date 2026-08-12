@@ -252,8 +252,55 @@ cargo build --release --bin macroforge
             <td><code>--no-types</code></td>
             <td>Skip generating type declarations</td>
         </tr>
+        <tr>
+            <td><code>--full-rebuild</code></td>
+            <td>Ignore the previous build and repackage everything</td>
+        </tr>
     </tbody>
 </table>
+
+<h4>Incremental builds</h4>
+
+<p>
+    Packaging is incremental. Each run records what it consumed and produced under
+    <code>.macroforge/svelte-package/</code>, and a run whose inputs all match the previous one
+    exits without repackaging. When a rebuild is needed, only the files that changed are
+    re-expanded — the rest keep the expanded output from last time.
+</p>
+
+<p>
+    A file that differs only in formatting — trailing whitespace, runs of blank lines — does not
+    count as a change. Note that <code>.ts</code> is transpiled on the way into the package so its
+    layout is discarded anyway, but <code>.svelte</code> and <code>.js</code> are copied through
+    verbatim: a formatting-only edit to those will not reach the package until the next real
+    change or a <code>--full-rebuild</code>.
+</p>
+
+<p>Any of these forces a full rebuild on its own:</p>
+
+<ul>
+    <li>a changed macroforge version, <code>macroforge.config.*</code>, or external macro binary</li>
+    <li>a changed <code>svelte.config.*</code>, <code>package.json</code>, or tsconfig</li>
+    <li>
+        a changed <code>@sveltejs/package</code>, <code>macroforge</code>, or
+        <code>@macroforge/svelte-preprocessor</code> version
+    </li>
+    <li>different command-line options</li>
+    <li>a changed project source outside the input directory</li>
+    <li>an output directory that was deleted or modified behind the CLI's back</li>
+</ul>
+
+<p>
+    A locally rebuilt linked package whose version did not change is the one thing this cannot
+    see; <code>--full-rebuild</code> is the escape hatch. <code>macroforge refresh</code> also
+    discards the build state along with the expansion cache.
+</p>
+
+<p>
+    Expansion failures fail the build. A module that cannot be expanded has no correct packaged
+    form, and shipping its unexpanded source publishes a library whose generated runtime is
+    silently missing.
+</p>
 
 <h3 id="watch">macroforge watch</h3>
 

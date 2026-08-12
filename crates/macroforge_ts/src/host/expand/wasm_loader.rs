@@ -20,7 +20,7 @@
 
 use std::path::{Path, PathBuf};
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 
 /// A loaded wasm macro package.
 pub(crate) struct WasmMacroModule {
@@ -73,7 +73,11 @@ impl WasmMacroModule {
             linker
                 .define(import.module(), import.name(), func)
                 .with_context(|| {
-                    format!("failed to stub import `{}::{}`", import.module(), import.name())
+                    format!(
+                        "failed to stub import `{}::{}`",
+                        import.module(),
+                        import.name()
+                    )
                 })?;
         }
 

@@ -1028,6 +1028,10 @@ fn handle_union_type_alias(
         /// passthrough returns the raw JSON (e.g. an ISO string) and downstream
         /// code expecting a `DateTime` object breaks.
         inner_foreign_deserialize_inline: Option<String>,
+        /// Set when the payload is a generated type instead: without dispatching
+        /// to its deserializer the payload is kept verbatim, so decimals stay
+        /// strings and dates stay ISO text inside the variant.
+        payload_deserialize_fn: Option<crate::swc_ecma_ast::Ident>,
     }
     let mut external_object_variants: Vec<ExternalObjectVariant> = Vec::new();
 
@@ -1042,9 +1046,21 @@ fn handle_union_type_alias(
                         .config
                         .and_then(|ft| ft.deserialize_expr.clone())
                         .map(|expr| rewrite_expression_namespaces(&expr));
+                let payload_deserialize_fn = if inner_foreign_deserialize_inline.is_some() {
+                    None
+                } else if let TypeCategory::Serializable(base) =
+                    TypeCategory::from_ts_type(payload_ts_type)
+                {
+                    Some(ts_ident!(nested_deserialize_fn_name(&extract_base_type(
+                        &base
+                    ))))
+                } else {
+                    None
+                };
                 external_object_variants.push(ExternalObjectVariant {
                     name: fields[0].name.clone(),
                     inner_foreign_deserialize_inline,
+                    payload_deserialize_fn,
                 });
             }
             crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Object { fields } => {
@@ -1467,7 +1483,11 @@ fn handle_union_type_alias(
                                                     {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
                                                     return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
                                                 {:else}
-                                                    return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                    {#if let Some(ref payload_deser_fn) = ov.payload_deserialize_fn}
+                                                        return ({ "@{ov.name}": @{payload_deser_fn}(__inner ?? {}, ctx) }) as @{full_type_ident};
+                                                    {:else}
+                                                        return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                    {/if}
                                                 {/if}
                                             }
                                         {/for}
@@ -1734,7 +1754,11 @@ fn handle_union_type_alias(
                                                     {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
                                                     return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
                                                 {:else}
-                                                    return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                    {#if let Some(ref payload_deser_fn) = ov.payload_deserialize_fn}
+                                                        return ({ "@{ov.name}": @{payload_deser_fn}(__inner ?? {}, ctx) }) as @{full_type_ident};
+                                                    {:else}
+                                                        return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                    {/if}
                                                 {/if}
                                             }
                                         {/for}
@@ -1926,7 +1950,11 @@ fn handle_union_type_alias(
                                                     {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
                                                     return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
                                                 {:else}
-                                                    return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                    {#if let Some(ref payload_deser_fn) = ov.payload_deserialize_fn}
+                                                        return ({ "@{ov.name}": @{payload_deser_fn}(__inner ?? {}, ctx) }) as @{full_type_ident};
+                                                    {:else}
+                                                        return ({ "@{ov.name}": __inner }) as @{full_type_ident};
+                                                    {/if}
                                                 {/if}
                                             }
                                         {/for}

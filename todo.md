@@ -54,3 +54,6 @@
       sets `"private": true` while its README (and the new website page) reference
       `jsr:@macroforge/deno-plugin`. Publish it or correct the install instructions —
       the website page currently carries a caveat saying the specifier may not resolve.
+
+[] add support for export { default } from '../macroforge.config.ts';
+in the config file

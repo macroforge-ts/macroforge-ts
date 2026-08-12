@@ -93,12 +93,12 @@ mod external_loader;
 mod helpers;
 pub mod imports;
 mod registration;
+#[cfg(test)]
+mod tests;
 /// Only the native host instantiates wasm; a wasm build reaches macros through
 /// its JS callbacks instead.
 #[cfg(not(target_arch = "wasm32"))]
 mod wasm_loader;
-#[cfg(test)]
-mod tests;
 
 #[cfg(feature = "swc")]
 pub use imports::{ImportCollectionResult, collect_import_sources};

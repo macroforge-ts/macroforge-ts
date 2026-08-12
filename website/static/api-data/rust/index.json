@@ -14,23 +14,23 @@
     {
       "itemCount": 52,
       "name": "macroforge_ts",
-      "version": "0.1.80"
+      "version": "0.1.83"
     },
     {
       "itemCount": 25,
       "name": "macroforge_ts_syn",
-      "version": "0.1.82"
+      "version": "0.1.83"
     },
     {
       "itemCount": 2,
       "name": "macroforge_ts_quote",
-      "version": "0.1.82"
+      "version": "0.1.83"
     },
     {
       "itemCount": 3,
       "name": "macroforge_ts_macros",
-      "version": "0.1.82"
+      "version": "0.1.83"
     }
   ],
-  "generated": "2026-07-30T22:15:48.450477+00:00"
+  "generated": "2026-08-06T03:32:02.931853+00:00"
 }

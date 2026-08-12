@@ -85,10 +85,10 @@
 //!
 //! ### `macroforge svelte-package`
 //!
-//! Run `@sveltejs/package` with macro expansion baked into its file reads, so a
-//! published library ships the generated derive runtime (and correct `.d.ts`)
-//! for its `.ts`/`.svelte.ts` type modules — no separate expand step or staging
-//! tree. Drop-in replacement for `svelte-package` in a library build:
+//! Run `@sveltejs/package` over macro-expanded sources, so a published library
+//! ships the generated derive runtime (and correct `.d.ts`) for its
+//! `.ts`/`.svelte.ts` type modules — no separate expand step or staging tree.
+//! Drop-in replacement for `svelte-package` in a library build:
 //!
 //! ```bash
 //! # Package src/lib into dist with macros expanded
@@ -96,7 +96,32 @@
 //!
 //! # Explicit tsconfig; skip .d.ts emission
 //! macroforge svelte-package --tsconfig tsconfig.json --no-types
+//!
+//! # Ignore the previous build and repackage from nothing
+//! macroforge svelte-package --full-rebuild
 //! ```
+//!
+//! Builds are incremental. Each run records what it consumed and produced in
+//! `.macroforge/svelte-package/`, and a run whose inputs all match the previous
+//! one exits without repackaging. When a rebuild is needed, only the files that
+//! changed are re-expanded; the rest keep the expanded output from last time.
+//!
+//! A file that differs only in formatting — trailing whitespace, blank-line runs
+//! — does not count as changed. `.ts` is transpiled on the way into the package
+//! so its formatting is discarded anyway, but `.svelte` and `.js` are copied
+//! through verbatim, which means a formatting-only edit to those will not reach
+//! the package until the next real change or a `--full-rebuild`.
+//!
+//! Any of these forces a full rebuild on its own: a changed macroforge version,
+//! `macroforge.config.*`, or external macro binary; a changed `svelte.config.*`,
+//! `package.json`, or tsconfig; a changed `@sveltejs/package`, `macroforge`, or
+//! `@macroforge/svelte-preprocessor` version; different command-line options; a
+//! changed project source outside the input directory; or an output directory
+//! that was deleted or modified behind the CLI's back.
+//!
+//! Expansion failures fail the build. A module that cannot be expanded has no
+//! correct packaged form, and shipping its unexpanded source publishes a library
+//! whose generated runtime is silently missing.
 //!
 //! ## Configuration
 //!
@@ -158,9 +183,13 @@
 //! The config is parsed natively without requiring Node.js. External macros are
 //! supported via FFI (compiled `.node`/`.dylib`/`.so` packages loaded with dlopen).
 
+mod atomic_fs;
 mod build;
 mod cache;
 mod expand;
+mod lock;
+mod package_expand;
+mod package_state;
 mod watch;
 mod wrappers;
 
@@ -174,6 +203,7 @@ use std::path::PathBuf;
 use build::run_build;
 use cache::{run_cache, run_refresh};
 use expand::{ScanOptions, expand_file, scan_and_expand};
+use lock::{ProjectLock, resolve_project_root};
 use watch::run_watch;
 use wrappers::{run_svelte_check_wrapper, run_svelte_package_wrapper, run_tsc_wrapper};
 
@@ -263,6 +293,9 @@ enum Command {
         /// Do not emit type declarations (.d.ts)
         #[arg(long)]
         no_types: bool,
+        /// Re-expand and repackage everything, ignoring the previous build
+        #[arg(long)]
+        full_rebuild: bool,
     },
     /// Watch source files and maintain a .macroforge/cache for fast Vite dev mode.
     ///
@@ -306,8 +339,72 @@ enum Command {
     },
 }
 
+impl Command {
+    /// The subcommand's name, recorded in the project lock so a waiting process
+    /// can report what it is waiting for.
+    fn label(&self) -> &'static str {
+        match self {
+            Command::Expand { .. } => "expand",
+            Command::Tsc { .. } => "tsc",
+            Command::SvelteCheck { .. } => "svelte-check",
+            Command::SveltePackage { .. } => "svelte-package",
+            Command::Watch { .. } => "watch",
+            Command::Cache { .. } => "cache",
+            Command::Refresh { .. } => "refresh",
+            Command::Build { .. } => "build",
+        }
+    }
+
+    /// The directory this subcommand operates on, if it names one.
+    ///
+    /// The cache-oriented subcommands take a project root. `build` takes a
+    /// crate directory and writes its WASM package there, so keying on that
+    /// rather than the current directory makes two builds of the same crate
+    /// serialize no matter where they were invoked from. Everything else works
+    /// from the current directory.
+    fn explicit_root(&self) -> Option<&PathBuf> {
+        match self {
+            Command::Watch { root, .. } | Command::Cache { root } | Command::Refresh { root } => {
+                root.as_ref()
+            }
+            Command::Build { crate_dir, .. } => crate_dir.as_ref(),
+            _ => None,
+        }
+    }
+
+    /// Whether this invocation promises a clean stderr.
+    ///
+    /// `expand --quiet` exists so callers can parse stderr; a message about
+    /// waiting on a lock this process happened to contend on would break that.
+    fn is_quiet(&self) -> bool {
+        matches!(self, Command::Expand { quiet: true, .. })
+    }
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
+
+    // One lock per project, taken here so every subcommand is covered by the
+    // same rule. `.macroforge/` — the type registry, the declarative registry,
+    // the expansion cache and its manifest — is shared mutable state, and
+    // running two macroforge processes against one project is routine
+    // (`watch` beside `vite dev`, `svelte-package` from another terminal, an
+    // editor invoking `svelte-check`).
+    let root = resolve_project_root(cli.command.explicit_root().map(PathBuf::as_path));
+
+    // `watch` is the exception: it is a daemon, so holding the lock for its
+    // lifetime would block every other command until the watcher is killed. It
+    // locks around each cache-mutation burst instead and runs unlocked while
+    // idle — the granularity cargo-watch gets for free by re-invoking a fresh
+    // `cargo` per change.
+    let _lock = match cli.command {
+        Command::Watch { .. } => None,
+        _ => Some(ProjectLock::acquire(
+            &root,
+            cli.command.label(),
+            cli.command.is_quiet(),
+        )?),
+    };
 
     match cli.command {
         Command::Expand {
@@ -328,8 +425,8 @@ fn main() -> Result<()> {
             };
 
             if scan {
-                let root = input.unwrap_or_else(|| PathBuf::from("."));
-                scan_and_expand(root, scan_options())
+                let scan_root = input.unwrap_or_else(|| PathBuf::from("."));
+                scan_and_expand(&root, scan_root, scan_options())
             } else {
                 let input = input.ok_or_else(|| {
                     anyhow!("input file required (use --scan to scan a directory)")
@@ -337,33 +434,34 @@ fn main() -> Result<()> {
 
                 // If input is a directory, treat it as --scan
                 if input.is_dir() {
-                    scan_and_expand(input, scan_options())
+                    scan_and_expand(&root, input, scan_options())
                 } else {
                     if emit_expanded {
                         return Err(anyhow!(
                             "--emit-expanded is only valid with --scan; single-file mode already writes a sibling .expanded file (use --out to redirect)"
                         ));
                     }
-                    expand_file(input, out, types_out, print, quiet)
+                    expand_file(&root, input, out, types_out, print, quiet)
                 }
             }
         }
-        Command::Tsc { project } => run_tsc_wrapper(project),
+        Command::Tsc { project } => run_tsc_wrapper(&root, project),
         Command::SvelteCheck {
             workspace,
             tsconfig,
             output,
             fail_on_warnings,
-        } => run_svelte_check_wrapper(workspace, tsconfig, output, fail_on_warnings),
+        } => run_svelte_check_wrapper(&root, workspace, tsconfig, output, fail_on_warnings),
         Command::SveltePackage {
             input,
             output,
             tsconfig,
             no_types,
-        } => run_svelte_package_wrapper(input, output, tsconfig, no_types),
-        Command::Watch { root, debounce_ms } => run_watch(root, debounce_ms),
-        Command::Cache { root } => run_cache(root),
-        Command::Refresh { root } => run_refresh(root),
+            full_rebuild,
+        } => run_svelte_package_wrapper(&root, input, output, tsconfig, no_types, full_rebuild),
+        Command::Watch { debounce_ms, .. } => run_watch(&root, debounce_ms),
+        Command::Cache { .. } => run_cache(&root),
+        Command::Refresh { .. } => run_refresh(&root),
         Command::Build { crate_dir, out } => run_build(crate_dir, out),
     }
 }
