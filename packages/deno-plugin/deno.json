@@ -36,5 +36,5 @@
     "test": "deno test -A tests/",
     "watch": "deno run -A src/cli.ts watch"
   },
-  "version": "0.1.83"
+  "version": "0.1.84"
 }

@@ -1,13 +1,14 @@
 # Container Options
 
-Container options are written in a `@serde(...)` decorator on the **type** itself, alongside `@derive`.
+Container options are written in a `@serde(...)` decorator on the **type** itself, alongside
+`@derive`.
 
 ```typescript
 /** @derive(Serialize, Deserialize) */
 /** @serde(renameAll: "snake_case", denyUnknownFields) */
 class UserAccount {
-  firstName: string;
-  lastName: string;
+    firstName: string;
+    lastName: string;
 }
 ```
 
@@ -15,21 +16,23 @@ class UserAccount {
 
 Applies a naming convention to every field's JSON key. Per-field `rename` still wins.
 
-| Value | `firstName` becomes |
-| --- | --- |
-| `"camelCase"` | `firstName` |
-| `"snake_case"` | `first_name` |
-| `"SCREAMING_SNAKE_CASE"` | `FIRST_NAME` |
-| `"kebab-case"` | `first-name` |
-| `"PascalCase"` | `FirstName` |
+| Value                    | `firstName` becomes |
+| ------------------------ | ------------------- |
+| `"camelCase"`            | `firstName`         |
+| `"snake_case"`           | `first_name`        |
+| `"SCREAMING_SNAKE_CASE"` | `FIRST_NAME`        |
+| `"kebab-case"`           | `first-name`        |
+| `"PascalCase"`           | `FirstName`         |
 
 ## `denyUnknownFields`
 
-By default, JSON keys with no matching field are ignored. With `denyUnknownFields`, an unexpected key becomes a validation error instead — useful for catching typos in config files and API payloads.
+By default, JSON keys with no matching field are ignored. With `denyUnknownFields`, an unexpected
+key becomes a validation error instead — useful for catching typos in config files and API payloads.
 
 ## Union tagging
 
-When a type alias is a union of object types, the serializer needs to record which variant a value is. There are four strategies.
+When a type alias is a union of object types, the serializer needs to record which variant a value
+is. There are four strategies.
 
 ### Internally tagged (default)
 
@@ -78,7 +81,8 @@ type Shape = Circle | Square;
 
 ### Untagged
 
-No discriminator at all — the deserializer identifies the variant structurally, using each variant's `hasShape` check.
+No discriminator at all — the deserializer identifies the variant structurally, using each variant's
+`hasShape` check.
 
 ```typescript
 /** @serde(untagged) */
@@ -89,15 +93,16 @@ type Shape = Circle | Square;
 { "radius": 10 }
 ```
 
-Untagged unions are the most fragile: if two variants have overlapping shapes, the first match wins. Prefer a tagged representation when you control the format.
+Untagged unions are the most fragile: if two variants have overlapping shapes, the first match wins.
+Prefer a tagged representation when you control the format.
 
 ## Summary
 
-| Option | Type | Default |
-| --- | --- | --- |
-| `renameAll` | string | none |
-| `denyUnknownFields` | flag | off |
-| `tag` | string | `"__type"` |
-| `content` | string | none (switches to adjacent tagging) |
-| `untagged` | flag | off |
-| `externallyTagged` | flag | off |
+| Option              | Type   | Default                             |
+| ------------------- | ------ | ----------------------------------- |
+| `renameAll`         | string | none                                |
+| `denyUnknownFields` | flag   | off                                 |
+| `tag`               | string | `"__type"`                          |
+| `content`           | string | none (switches to adjacent tagging) |
+| `untagged`          | flag   | off                                 |
+| `externallyTagged`  | flag   | off                                 |

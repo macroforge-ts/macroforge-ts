@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@macroforge/shared": "file:../shared",
-    "macroforge": "file:../../crates/macroforge_ts"
+    "@macroforge/shared": "^0.1.84",
+    "macroforge": "^0.1.84"
   },
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "devDependencies": {
@@ -44,5 +44,5 @@
   },
   "type": "module",
   "types": "dist/index.d.ts",
-  "version": "0.1.83"
+  "version": "0.1.84"
 }

@@ -15,7 +15,8 @@ $( … );+       one or more, semicolon-separated
 
 **Only `,` and `;` are valid separators.** Anything else is a parse error.
 
-The same syntax works on both sides of the arrow. On the pattern side it captures a sequence; on the body side it replays one:
+The same syntax works on both sides of the arrow. On the pattern side it captures a sequence; on the
+body side it replays one:
 
 ```typescript
 const $vec = macroRules`
@@ -29,7 +30,8 @@ const $vec = macroRules`
 
 ## Body-side separators use a lookahead
 
-On the body side, a `,` or `;` immediately after `$( … )` is only treated as a separator when a `*`, `+`, or `?` follows it. Otherwise it stays literal text. That is what makes this work as written:
+On the body side, a `,` or `;` immediately after `$( … )` is only treated as a separator when a `*`,
+`+`, or `?` follows it. Otherwise it stays literal text. That is what makes this work as written:
 
 ```typescript
 $($rest),+     // comma is the separator
@@ -38,9 +40,11 @@ $( stmt; )+    // semicolon is inside the group, emitted each time
 
 ## Length inference
 
-The number of iterations is inferred from the sequence-bound metavariables mentioned *inside* the group:
+The number of iterations is inferred from the sequence-bound metavariables mentioned _inside_ the
+group:
 
-- Mention **none** → `UnanchoredRepetition` error. The expander has no way to know how many times to repeat.
+- Mention **none** → `UnanchoredRepetition` error. The expander has no way to know how many times to
+  repeat.
 - Mention **two of different lengths** → `InconsistentSequenceLength` error.
 
 ```typescript
@@ -48,11 +52,13 @@ The number of iterations is inferred from the sequence-bound metavariables menti
 ($($x:Expr),*) => { $( console.log("hi"); )* }
 ```
 
-Nested repetitions are supported in bodies, and each level infers its own length from the variables it mentions.
+Nested repetitions are supported in bodies, and each level infers its own length from the variables
+it mentions.
 
 ## Bounded backtracking (value position)
 
-Repetitions are greedy, but the matcher will backtrack to let a trailing metavariable match. This pattern works:
+Repetitions are greedy, but the matcher will backtrack to let a trailing metavariable match. This
+pattern works:
 
 ```typescript
 const $last = macroRules`
@@ -62,15 +68,20 @@ const $last = macroRules`
 $last(1, 2, 3); // → 3
 ```
 
-The matcher first lets `$($init),*` consume everything, fails to bind `$last`, then gives back one element and succeeds. Backtracking is bounded — it gives back one element at a time rather than exploring every split — so it's predictable and cheap.
+The matcher first lets `$($init),*` consume everything, fails to bind `$last`, then gives back one
+element and succeeds. Backtracking is bounded — it gives back one element at a time rather than
+exploring every split — so it's predictable and cheap.
 
 ## No backtracking in type position
 
-This is the important limitation: **type-position matching is greedy with no retry.** The identical pattern in a `kind: "type"` macro cannot match, because the repetition consumes every type argument and never gives one back:
+This is the important limitation: **type-position matching is greedy with no retry.** The identical
+pattern in a `kind: "type"` macro cannot match, because the repetition consumes every type argument
+and never gives one back:
 
 ```typescript
 // Works in value position, never matches in type position:
 ($($t:Type),* $last:Type) => …
 ```
 
-Restructure type-position patterns so the variable-length group is last, or match a fixed arity per arm.
+Restructure type-position patterns so the variable-length group is last, or match a fixed arity per
+arm.

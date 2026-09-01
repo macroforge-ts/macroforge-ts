@@ -1,13 +1,14 @@
 # Reverse Monomorphization
 
-Inlining a macro at every call site is fast but duplicates code. Reverse monomorphization does the opposite: emit the logic **once** as a runtime helper, and rewrite each call site into a call to it.
+Inlining a macro at every call site is fast but duplicates code. Reverse monomorphization does the
+opposite: emit the logic **once** as a runtime helper, and rewrite each call site into a call to it.
 
 ```typescript
 const $serialize = macroRules({
-  mode: "auto",
-  expand: macroRules`($x:Expr) => JSON.stringify($x)`,
-  runtime: "function __serialize(value) { return JSON.stringify(value); }",
-  call: macroRules`($x:Expr) => __serialize($x)`,
+    mode: 'auto',
+    expand: macroRules`($x:Expr) => JSON.stringify($x)`,
+    runtime: 'function __serialize(value) { return JSON.stringify(value); }',
+    call: macroRules`($x:Expr) => __serialize($x)`
 });
 ```
 
@@ -15,19 +16,23 @@ const $serialize = macroRules({
 
 ## Modes
 
-| Mode | Behavior |
-| --- | --- |
-| `expand-only` | Always inline using `expand`. |
-| `share-only` | Always emit the runtime helper and rewrite calls, in dev and prod alike. |
+| Mode           | Behavior                                                                                                          |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `expand-only`  | Always inline using `expand`.                                                                                     |
+| `share-only`   | Always emit the runtime helper and rewrite calls, in dev and prod alike.                                          |
 | `share-anyway` | Same as `share-only`, but documented as the deliberate escape hatch when the analyzer has warned you off sharing. |
-| `auto` | Let the megamorphism analyzer choose per macro. |
+| `auto`         | Let the megamorphism analyzer choose per macro.                                                                   |
 
 Two honest notes:
 
-- **`share-only` and `share-anyway` are currently behaviorally identical.** Neither emits a megamorphism warning, because the analyzer only examines `auto` macros. `share-anyway` is meaningful as intent — it's the mode the `auto` warning tells you to switch to.
-- **Sharing applies in dev too.** The share modes are not prod-only; they emit the helper regardless of build mode.
+- **`share-only` and `share-anyway` are currently behaviorally identical.** Neither emits a
+  megamorphism warning, because the analyzer only examines `auto` macros. `share-anyway` is
+  meaningful as intent — it's the mode the `auto` warning tells you to switch to.
+- **Sharing applies in dev too.** The share modes are not prod-only; they emit the helper regardless
+  of build mode.
 
-The default mode is inferred, not fixed: object-form macros with both `runtime` and `call` default to `auto`, everything else to `expand-only`.
+The default mode is inferred, not fixed: object-form macros with both `runtime` and `call` default
+to `auto`, everything else to `expand-only`.
 
 ## The megamorphism analyzer
 
@@ -35,40 +40,54 @@ In `auto` mode the analyzer inspects every call site of the macro and recommends
 
 - **Share** — call sites are homogeneous enough for one helper.
 - **Cluster** — call sites fall into distinct groups; emit one helper per cluster.
-- **ForceExpand** — too many distinct shapes; a shared helper would be megamorphic and slow, so inline instead. Emits a warning.
+- **ForceExpand** — too many distinct shapes; a shared helper would be megamorphic and slow, so
+  inline instead. Emits a warning.
 
 ### How shapes are extracted
 
 This is the part that most affects whether `auto` works for you. For each argument:
 
-| Argument | Shape |
-| --- | --- |
-| `User` (capitalized identifier) | `Named("User")` + field fingerprint |
-| `new User(...)` | `Named("User")` + field fingerprint |
-| `"a"`, `1`, `true`, `null`, `1n`, `` `t` `` | `Literal("string" / "number" / …)` |
-| **`user` (lowercase identifier)** | **`Opaque`** |
-| anything else | `Opaque` |
+| Argument                                    | Shape                               |
+| ------------------------------------------- | ----------------------------------- |
+| `User` (capitalized identifier)             | `Named("User")` + field fingerprint |
+| `new User(...)`                             | `Named("User")` + field fingerprint |
+| `"a"`, `1`, `true`, `null`, `1n`, `` `t` `` | `Literal("string" / "number" / …)`  |
+| **`user` (lowercase identifier)**           | **`Opaque`**                        |
+| anything else                               | `Opaque`                            |
 
-Lowercase identifiers become `Opaque` because a local variable name doesn't bound the type. This is the common case in real code — `$serialize(user)` contributes no type information. If you want the analyzer to cluster usefully, call it with type-bearing expressions, or accept that it will see opaque shapes and fall back accordingly.
+Lowercase identifiers become `Opaque` because a local variable name doesn't bound the type. This is
+the common case in real code — `$serialize(user)` contributes no type information. If you want the
+analyzer to cluster usefully, call it with type-bearing expressions, or accept that it will see
+opaque shapes and fall back accordingly.
 
 ### How clustering works
 
 1. Call sites are bucketed by **arity** first.
-2. Within a bucket, a tuple joins a cluster when its **mean pairwise Jaccard similarity across all argument positions** is ≥ **0.60** against the cluster's existing members.
-3. Field fingerprints come from the **project type registry**. Without it, the analyzer falls back to a name-prefix heuristic and emits an `Info` diagnostic saying structural clustering is disabled.
-4. If a cluster's distinct-fingerprint count exceeds `megamorphismThreshold`, the macro is forced to expand inline.
+2. Within a bucket, a tuple joins a cluster when its **mean pairwise Jaccard similarity across all
+   argument positions** is ≥ **0.60** against the cluster's existing members.
+3. Field fingerprints come from the **project type registry**. Without it, the analyzer falls back
+   to a name-prefix heuristic and emits an `Info` diagnostic saying structural clustering is
+   disabled.
+4. If a cluster's distinct-fingerprint count exceeds `megamorphismThreshold`, the macro is forced to
+   expand inline.
 
-Cluster ids appear in the generated helper names — derived from the member type names, or `empty` / `lit` / `opaque` for the degenerate buckets.
+Cluster ids appear in the generated helper names — derived from the member type names, or `empty` /
+`lit` / `opaque` for the degenerate buckets.
 
 ### Requirements
 
-Structural clustering needs `typeRegistryJson` passed in `ExpandOptions` (produced by a project scan). Without it clustering still runs, but on the weaker name-prefix heuristic.
+Structural clustering needs `typeRegistryJson` passed in `ExpandOptions` (produced by a project
+scan). Without it clustering still runs, but on the weaker name-prefix heuristic.
 
 ## `runtimeName` and clustering
 
 When clustering emits more than one helper, each needs a distinct name. Two ways to get that:
 
-- **Provide `runtimeName`** containing `$__cluster__`, which is substituted with the cluster id. Use the same placeholder in your `call` arms.
-- **Omit it**, and the rewriter auto-suffixes `__{cluster_id}` onto the name it parses out of the first `function NAME(` in your `runtime` string. This means `runtime` must contain a `function NAME(` declaration for clustering to work.
+- **Provide `runtimeName`** containing `$__cluster__`, which is substituted with the cluster id. Use
+  the same placeholder in your `call` arms.
+- **Omit it**, and the rewriter auto-suffixes `__{cluster_id}` onto the name it parses out of the
+  first `function NAME(` in your `runtime` string. This means `runtime` must contain a
+  `function NAME(` declaration for clustering to work.
 
-The helper is inserted once near the top of the file and deduplicated per (macro, cluster). If a call site's shape matches no cluster, it falls back to the single helper and emits a warning.
+The helper is inserted once near the top of the file and deduplicated per (macro, cluster). If a
+call site's shape matches no cluster, it falls back to the single helper and emits a warning.
