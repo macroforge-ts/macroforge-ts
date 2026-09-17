@@ -337,11 +337,11 @@ fn expand_value_macro_call(
     let wrapper_source = format!("__m4cr0f0rg3_dummy__({});", rendered_args.trim());
     let allocator = Allocator::default();
     let parsed = Parser::new(&allocator, &wrapper_source, SourceType::ts()).parse();
-    if !parsed.errors.is_empty() {
+    if !parsed.diagnostics.is_empty() {
         return Err(ExpandError::MalformedMacroCallArgs {
             callee: callee_name.to_string(),
             reason: parsed
-                .errors
+                .diagnostics
                 .iter()
                 .map(|e| e.to_string())
                 .collect::<Vec<_>>()
@@ -413,11 +413,11 @@ fn expand_type_macro_call(
     );
     let allocator = Allocator::default();
     let parsed = Parser::new(&allocator, &wrapper_source, SourceType::ts()).parse();
-    if !parsed.errors.is_empty() {
+    if !parsed.diagnostics.is_empty() {
         return Err(ExpandError::MalformedMacroCallArgs {
             callee: callee_name.to_string(),
             reason: parsed
-                .errors
+                .diagnostics
                 .iter()
                 .map(|e| e.to_string())
                 .collect::<Vec<_>>()
@@ -652,11 +652,11 @@ fn rewrite_block_with_return(block_source: &str) -> Option<String> {
     // to use `as`-casts) and fall back to TSX if it fails so JSX-producing
     // macro bodies also work.
     let parsed = Parser::new(&allocator, block_source, SourceType::ts()).parse();
-    let parsed = if parsed.errors.is_empty() {
+    let parsed = if parsed.diagnostics.is_empty() {
         parsed
     } else {
         let tsx = Parser::new(&allocator, block_source, SourceType::tsx()).parse();
-        if !tsx.errors.is_empty() {
+        if !tsx.diagnostics.is_empty() {
             return None;
         }
         tsx

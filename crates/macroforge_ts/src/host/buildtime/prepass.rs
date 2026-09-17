@@ -428,15 +428,18 @@ fn build_same_file_prelude(
             | Statement::TSTypeAliasDeclaration(_)
             | Statement::TSInterfaceDeclaration(_)
             | Statement::TSEnumDeclaration(_)
-            | Statement::TSModuleDeclaration(_)
+            | Statement::TSExternalModuleDeclaration(_)
+            | Statement::TSNamespaceDeclaration(_)
             | Statement::ImportDeclaration(_)
+            | Statement::ExportNamedDeclaration(_)
+            | Statement::ExportFromDeclaration(_)
             | Statement::ExportAllDeclaration(_)
             | Statement::ExportDefaultDeclaration(_) => {}
-            Statement::ExportNamedDeclaration(export) => {
+            Statement::ExportDeclaration(export) => {
                 if is_buildtime(export.span.start, export.span.end) {
                     continue;
                 }
-                if let Some(Declaration::VariableDeclaration(var)) = &export.declaration
+                if let Declaration::VariableDeclaration(var) = &export.declaration
                     && let Some(reason) = impure_init_reason(var)
                 {
                     impure_diag.get_or_insert_with(|| {
@@ -491,14 +494,11 @@ fn build_same_file_prelude(
                 prelude.push_str(text);
                 prelude.push('\n');
             }
-            Statement::ExportNamedDeclaration(export) => {
+            Statement::ExportDeclaration(export) => {
                 if is_buildtime(export.span.start, export.span.end) {
                     continue;
                 }
-                let Some(declaration) = &export.declaration else {
-                    continue;
-                };
-                match declaration {
+                match &export.declaration {
                     Declaration::VariableDeclaration(var) => {
                         let text = &source[var.span.start as usize..var.span.end as usize];
                         if looks_ts_only(text) {
@@ -672,11 +672,11 @@ fn strip_ts_from_body(body: &str) -> Result<String, String> {
     let wrapped = format!("async function __mf_body() {{\n{}\n}}", body);
     let allocator = Allocator::default();
     let parsed = OxcParser::new(&allocator, &wrapped, SourceType::ts()).parse();
-    if !parsed.errors.is_empty() {
+    if !parsed.diagnostics.is_empty() {
         return Err(format!(
             "parse error while stripping TS: {}",
             parsed
-                .errors
+                .diagnostics
                 .iter()
                 .map(|d| d.to_string())
                 .collect::<Vec<_>>()
@@ -693,10 +693,10 @@ fn strip_ts_from_body(body: &str) -> Result<String, String> {
         &options,
     )
     .build_with_scoping(scoping, &mut program);
-    if !ret.errors.is_empty() {
+    if !ret.diagnostics.is_empty() {
         return Err(format!(
             "TS strip failed: {}",
-            ret.errors
+            ret.diagnostics
                 .iter()
                 .map(|e| e.to_string())
                 .collect::<Vec<_>>()

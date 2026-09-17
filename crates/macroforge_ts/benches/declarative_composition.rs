@@ -84,9 +84,9 @@ fn run_rewrite(source: &str) {
     let allocator = Allocator::default();
     let parsed = Parser::new(&allocator, source, SourceType::ts()).parse();
     assert!(
-        parsed.errors.is_empty(),
+        parsed.diagnostics.is_empty(),
         "parse errors in bench fixture: {:?}",
-        parsed.errors
+        parsed.diagnostics
     );
     let discovered = discover(&parsed.program, source).expect("discover");
     let mut registry = DeclarativeMacroRegistry::new();
@@ -194,9 +194,9 @@ fn bench_cluster(c: &mut Criterion) {
             let allocator = Allocator::default();
             let parsed = Parser::new(&allocator, &source, SourceType::ts()).parse();
             assert!(
-                parsed.errors.is_empty(),
+                parsed.diagnostics.is_empty(),
                 "parse errors: {:?}",
-                parsed.errors
+                parsed.diagnostics
             );
             let discovered = discover(&parsed.program, &source).expect("discover");
             let mut registry = DeclarativeMacroRegistry::new();

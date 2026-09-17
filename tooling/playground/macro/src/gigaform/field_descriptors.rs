@@ -25,7 +25,14 @@ pub fn generate_factory(
     let gigaform_name = type_name_prefixed(interface_name, "Gigaform");
 
     // Generate complete statements for state declarations
-    let data_state = generate_data_state(interface_name, options, "", &errors_name, &tainted_name);
+    let data_state = generate_data_state(
+        interface_name,
+        options,
+        "",
+        &errors_name,
+        &tainted_name,
+        fields,
+    );
     let data_state_reset = generate_data_state_reset(interface_name, options, "");
     let errors_state_reset = generate_errors_state_reset(fields);
     let tainted_state_reset = generate_tainted_state_reset(fields);
@@ -107,6 +114,7 @@ pub fn generate_factory_with_generics(
         &generic_args,
         &errors_name,
         &tainted_name,
+        fields,
     );
     let data_state_reset = generate_data_state_reset(interface_name, options, &generic_args);
     let errors_state_reset = generate_errors_state_reset(fields);
@@ -635,26 +643,48 @@ fn get_type_ref_default_with_style(type_ref: &str, cast_type: &str) -> String {
 // State Declaration Generators (Complete Statements)
 // =============================================================================
 
-/// Generates complete state declarations: data, errors, tainted
+/// Generates complete state declarations: data, errors, tainted.
+///
+/// Every field starts with `Option.none()`, the same shape `reset()` restores,
+/// so field controllers never hand out `undefined`.
 fn generate_data_state(
     interface_name: &str,
     options: &GigaformOptions,
     generic_args: &str,
     errors_name: &str,
     tainted_name: &str,
+    fields: &[ParsedField],
 ) -> TsStream {
     let default_expr = call_default_value(interface_name, generic_args);
     if let Some(override_fn) = &options.default_override {
         ts_template! {
             let data = $state({ ...@{default_expr}, ...@{override_fn}(), ...overrides });
-            let errors = $state<@{errors_name}>({ _errors: Option.none() } as @{errors_name});
-            let tainted = $state<@{tainted_name}>({} as @{tainted_name});
+            let errors = $state<@{errors_name}>({
+                _errors: Option.none(),
+                {#for field in fields}
+                    @{&field.name}: Option.none(),
+                {/for}
+            });
+            let tainted = $state<@{tainted_name}>({
+                {#for field in fields}
+                    @{&field.name}: Option.none(),
+                {/for}
+            });
         }
     } else {
         ts_template! {
             let data = $state({ ...@{default_expr}, ...overrides });
-            let errors = $state<@{errors_name}>({ _errors: Option.none() } as @{errors_name});
-            let tainted = $state<@{tainted_name}>({} as @{tainted_name});
+            let errors = $state<@{errors_name}>({
+                _errors: Option.none(),
+                {#for field in fields}
+                    @{&field.name}: Option.none(),
+                {/for}
+            });
+            let tainted = $state<@{tainted_name}>({
+                {#for field in fields}
+                    @{&field.name}: Option.none(),
+                {/for}
+            });
         }
     }
 }

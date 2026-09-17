@@ -89,7 +89,9 @@ impl BuildtimeSandbox for BoaSandbox {
         let executor = Rc::new(SimpleJobExecutor::new());
         let mut context = ContextBuilder::default()
             .job_executor(executor.clone())
-            .clock(Rc::new(WebTimeClock))
+            .clock(Rc::new(WebTimeClock {
+                base: Instant::now(),
+            }))
             .build()
             .map_err(|e| SandboxError::Backend(format!("context build: {e}")))?;
         install_buildtime_api(&mut context, Rc::clone(&state))?;
@@ -146,20 +148,28 @@ impl BuildtimeSandbox for BoaSandbox {
     }
 }
 
-/// Custom Boa clock that reads time via `web_time::SystemTime`.
+/// Custom Boa clock that reads time via `web_time`.
 ///
-/// Boa's default `StdClock` calls `std::time::SystemTime::now()`,
-/// which panics on `wasm32-unknown-unknown` (no monotonic clock in
-/// std). `web_time` is a drop-in shim that uses `performance.now()`
-/// in the browser; on native it re-exports std's clock.
-struct WebTimeClock;
+/// Boa's default `StdClock` reads `std::time`, which panics on
+/// `wasm32-unknown-unknown` (no clock in std). `web_time` is a drop-in
+/// shim that uses `performance.now()` in the browser; on native it
+/// re-exports std's clock.
+struct WebTimeClock {
+    /// Origin of the monotonic timeline Boa measures durations against.
+    base: Instant,
+}
 
 impl Clock for WebTimeClock {
     fn now(&self) -> JsInstant {
-        let dur = SystemTime::now()
+        let elapsed = self.base.elapsed();
+        JsInstant::new(elapsed.as_secs(), elapsed.subsec_nanos())
+    }
+
+    fn system_time_millis(&self) -> i64 {
+        let since_epoch = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default();
-        JsInstant::new(dur.as_secs(), dur.subsec_nanos())
+        i64::try_from(since_epoch.as_millis()).unwrap_or(i64::MAX)
     }
 }
 
@@ -323,7 +333,7 @@ fn install_fs(
         let path = arg_as_string(args, 0, ctx)?;
         match fs_list_dir_impl(&st, &path) {
             Ok(names) => {
-                let arr = JsArray::new(ctx);
+                let arr = JsArray::new(ctx)?;
                 for (i, n) in names.into_iter().enumerate() {
                     arr.set(i as u32, js_string!(n.as_str()), true, ctx)?;
                 }

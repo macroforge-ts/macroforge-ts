@@ -25,7 +25,8 @@ use std::collections::HashSet;
 
 use oxc::ast::ast::{
     BindingPattern, CallExpression, Decorator, Expression, JSXExpressionContainer, Program,
-    PropertyDefinition, TSTypeReference, VariableDeclarationKind, VariableDeclarator,
+    PropertyDefinition, TSTypeReference, VariableDeclaration, VariableDeclarationKind,
+    VariableDeclarator,
 };
 use oxc::ast_visit::{Visit, walk};
 use oxc::span::GetSpan;
@@ -272,12 +273,13 @@ impl<'a> Visit<'a> for CollectVisitor<'_> {
         walk::walk_call_expression(self, call);
     }
 
-    fn visit_variable_declarator(&mut self, decl: &VariableDeclarator<'a>) {
-        if is_macro_definition_declarator(decl) {
+    fn visit_variable_declaration(&mut self, decl: &VariableDeclaration<'a>) {
+        for declarator in &decl.declarations {
             // Don't descend into the macro-definition template literal.
-            return;
+            if !is_macro_definition_declarator(decl.kind, declarator) {
+                self.visit_variable_declarator(declarator);
+            }
         }
-        walk::walk_variable_declarator(self, decl);
     }
 }
 
@@ -358,15 +360,16 @@ fn unwrap_paren_and_casts<'b, 'a>(expr: &'b Expression<'a>) -> &'b Expression<'a
 }
 
 impl<'a> Visit<'a> for RewriteVisitor<'_> {
-    fn visit_variable_declarator(&mut self, decl: &VariableDeclarator<'a>) {
+    fn visit_variable_declaration(&mut self, decl: &VariableDeclaration<'a>) {
         // Skip the declarations of the declarative macros themselves —
         // `rewrite()` already queued `Patch::Delete` for their full span.
         // Descending would re-parse the template-literal body as user
         // code, which is wrong.
-        if is_macro_definition_declarator(decl) {
-            return;
+        for declarator in &decl.declarations {
+            if !is_macro_definition_declarator(decl.kind, declarator) {
+                self.visit_variable_declarator(declarator);
+            }
         }
-        walk::walk_variable_declarator(self, decl);
     }
 
     fn visit_expression_statement(&mut self, es: &oxc::ast::ast::ExpressionStatement<'a>) {
@@ -429,8 +432,11 @@ impl<'a> Visit<'a> for RewriteVisitor<'_> {
 /// Predicate used by both visitors to recognize a `VariableDeclarator`
 /// that is the declaration of a declarative macro, i.e. a `const`-kind
 /// binding of the form `` const $name = macroRules`...` ``.
-fn is_macro_definition_declarator(d: &VariableDeclarator<'_>) -> bool {
-    if d.kind != VariableDeclarationKind::Const {
+fn is_macro_definition_declarator(
+    kind: VariableDeclarationKind,
+    d: &VariableDeclarator<'_>,
+) -> bool {
+    if kind != VariableDeclarationKind::Const {
         return false;
     }
     let BindingPattern::BindingIdentifier(bi) = &d.id else {

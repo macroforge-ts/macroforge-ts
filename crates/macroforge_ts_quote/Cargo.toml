@@ -26,21 +26,21 @@ compiler = []
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(swc_ast_unknown)'] }
 
 [dependencies]
-proc-macro2 = { version = "1.0.95", features = ["proc-macro", "span-locations"] }
-quote = "1.0.40"
-syn = { version = "2.0.104", features = ["full"] }
-convert_case = "0.11.0"
-rowan = "0.16.1"
+proc-macro2 = { version = "1.0.107", features = ["proc-macro", "span-locations"] }
+quote = "1.0.47"
+syn = { version = "3.0.6", features = ["full"] }
+convert_case = "0.12.0"
+rowan = "0.17.0"
 anyhow = "1.0"
-rustc-hash = "2.1.1"
-smallvec = "1.13"
+rustc-hash = "2.1.3"
+smallvec = "1.16"
 
 swc_macros_common = { version = "1.0", optional = true }
-swc_core = { version = "59.0.1", optional = true, default-features = false, features = [
+swc_core = { version = "79.0.0", optional = true, default-features = false, features = [
   "common",
   "ecma_ast",
   "ecma_parser",
   "ecma_visit",
 ] }
 
-oxc = { version = "0.123", optional = true, features = ["codegen"] }
+oxc = { version = "0.150", optional = true, features = ["codegen"] }

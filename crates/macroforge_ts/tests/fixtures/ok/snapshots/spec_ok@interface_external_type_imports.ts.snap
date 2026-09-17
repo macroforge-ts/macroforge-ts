@@ -15,14 +15,14 @@ export interface User {
 
 ## Output
 
+import { metadataDeserializeWithContext } from "./metadata.svelte";
+import { metadataSerializeWithContext } from "./metadata.svelte";
+import { metadataDefaultValue } from "./metadata.svelte";
 import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
 import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
 import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
 import { PendingRef as __mf_PendingRef } from "macroforge/serde";
-import { metadataDefaultValue } from "./metadata.svelte";
-import { metadataSerializeWithContext } from "./metadata.svelte";
-import { metadataDeserializeWithContext } from "./metadata.svelte";
 import { Metadata } from './metadata.svelte';
 
 
@@ -33,7 +33,7 @@ export interface User {
 export function userDefaultValue(): User {
                         return {
 metadata: metadataDefaultValue(),
-} as User;
+};
                     }
 
 /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -239,25 +239,62 @@ metadata: metadataDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_metadata = obj["metadata"] as Metadata;
-                                        ctx.pushScope("metadata");
-                                        try {
-                                            const __result = metadataDeserializeWithContext(__raw_metadata, ctx);
-                                            ctx.assignOrDefer(instance, "metadata", __result);
-                                        } catch (__e) {
-                                            if (__e instanceof __mf_DeserializeError) {
-                                                for (const __err of __e.errors) {
-                                                    errors.push({
-                                                        field: __err.field === "_root" ? "metadata" : "metadata." + __err.field,
-                                                        message: __err.message
-                                                    });
+                                const __raw_metadata = obj["metadata"] as Metadata;ctx.pushScope("metadata");
+                                            try {
+                                                const __result = metadataDeserializeWithContext(__raw_metadata, ctx);
+                                                ctx.assignOrDefer(instance, "metadata", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "metadata" : "metadata." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
                                                 }
-                                            } else {
-                                                throw __e;
+                                            } finally {
+                                                ctx.popScope();
                                             }
-                                        } finally {
-                                            ctx.popScope();
-                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -482,6 +519,82 @@ metadata: metadataDefaultValue(),
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1051,9 +1164,6 @@ export const User = {
 
 ## DTS
 
-import { metadataDefaultValue } from "./metadata.svelte";
-import { metadataSerializeWithContext } from "./metadata.svelte";
-import { metadataDeserializeWithContext } from "./metadata.svelte";
 import { Metadata } from './metadata.svelte';
 
 
@@ -1064,7 +1174,7 @@ export interface User {
 export function userDefaultValue(): User {
                         return {
 metadata: metadataDefaultValue(),
-} as User;
+};
                     }
 
 /** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
@@ -1270,25 +1380,62 @@ metadata: metadataDefaultValue(),
                 }
 
                 ctx.trackForFreeze(instance);{
-                                const __raw_metadata = obj["metadata"] as Metadata;
-                                        ctx.pushScope("metadata");
-                                        try {
-                                            const __result = metadataDeserializeWithContext(__raw_metadata, ctx);
-                                            ctx.assignOrDefer(instance, "metadata", __result);
-                                        } catch (__e) {
-                                            if (__e instanceof __mf_DeserializeError) {
-                                                for (const __err of __e.errors) {
-                                                    errors.push({
-                                                        field: __err.field === "_root" ? "metadata" : "metadata." + __err.field,
-                                                        message: __err.message
-                                                    });
+                                const __raw_metadata = obj["metadata"] as Metadata;ctx.pushScope("metadata");
+                                            try {
+                                                const __result = metadataDeserializeWithContext(__raw_metadata, ctx);
+                                                ctx.assignOrDefer(instance, "metadata", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "metadata" : "metadata." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
                                                 }
-                                            } else {
-                                                throw __e;
+                                            } finally {
+                                                ctx.popScope();
                                             }
-                                        } finally {
-                                            ctx.popScope();
-                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1513,6 +1660,82 @@ metadata: metadataDefaultValue(),
 
 
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

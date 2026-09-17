@@ -357,8 +357,66 @@ constructor(props: { name: string; age: number }) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }{
                             const __raw_age = obj["age"] as number;instance.age = __raw_age;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1031,8 +1089,66 @@ constructor(props: { name: string; age: number }) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }{
                             const __raw_age = obj["age"] as number;instance.age = __raw_age;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

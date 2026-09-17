@@ -33,7 +33,10 @@ export type EntityRecord =
     | ({ variant: 'Person' } & PersonRecord);
 
 export function entityRecordDefaultValue(): EntityRecord {
-                            return ({ variant: "Unknown" });
+                            return ({
+	variant: "Unknown",
+	...unknownRecordDefaultValue()
+});
                         }
 
 export const EntityRecord = {
@@ -55,7 +58,10 @@ export type EntityRecord =
     | ({ variant: 'Person' } & PersonRecord);
 
 export function entityRecordDefaultValue(): EntityRecord {
-                            return ({ variant: "Unknown" });
+                            return ({
+	variant: "Unknown",
+	...unknownRecordDefaultValue()
+});
                         }
 
 export const EntityRecord = {

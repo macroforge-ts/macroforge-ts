@@ -17,7 +17,11 @@ use super::run_prepass;
 fn run(code: &str, config: &MacroforgeConfig) -> super::AttributePrepassOutput {
     let allocator = Allocator::default();
     let ret = OxcParser::new(&allocator, code, SourceType::ts()).parse();
-    assert!(ret.errors.is_empty(), "parse errors: {:?}", ret.errors);
+    assert!(
+        ret.diagnostics.is_empty(),
+        "parse errors: {:?}",
+        ret.diagnostics
+    );
     run_prepass(&ret.program, code, &PathBuf::from("/tmp/test.ts"), config)
 }
 

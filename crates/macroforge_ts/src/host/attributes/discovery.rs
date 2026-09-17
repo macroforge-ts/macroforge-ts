@@ -139,8 +139,8 @@ fn collect_from_statement(stmt: &Statement<'_>, source: &str, out: &mut Vec<Attr
                     .unwrap_or_default();
             (Visibility::Private, DeclKind::Class, name, None)
         }
-        Statement::ExportNamedDeclaration(export) => match &export.declaration {
-            Some(Declaration::VariableDeclaration(d)) => {
+        Statement::ExportDeclaration(export) => match &export.declaration {
+            Declaration::VariableDeclaration(d) => {
                 let name = d
                     .declarations
                     .first()
@@ -149,14 +149,14 @@ fn collect_from_statement(stmt: &Statement<'_>, source: &str, out: &mut Vec<Attr
                     .unwrap_or_default();
                 (Visibility::Export, DeclKind::Const, name, None)
             }
-            Some(Declaration::FunctionDeclaration(d)) => {
+            Declaration::FunctionDeclaration(d) => {
                 let name =
                     d.id.as_ref()
                         .map(|id| id.name.to_string())
                         .unwrap_or_default();
                 (Visibility::Export, DeclKind::Function, name, None)
             }
-            Some(Declaration::TSTypeAliasDeclaration(d)) => {
+            Declaration::TSTypeAliasDeclaration(d) => {
                 let name = d.id.name.to_string();
                 let rhs = d.type_annotation.span();
                 (
@@ -169,7 +169,7 @@ fn collect_from_statement(stmt: &Statement<'_>, source: &str, out: &mut Vec<Attr
                     }),
                 )
             }
-            Some(Declaration::ClassDeclaration(d)) => {
+            Declaration::ClassDeclaration(d) => {
                 let name =
                     d.id.as_ref()
                         .map(|id| id.name.to_string())
@@ -206,7 +206,7 @@ fn stmt_byte_span(stmt: &Statement<'_>) -> SpanIR {
         Statement::FunctionDeclaration(d) => d.span,
         Statement::TSTypeAliasDeclaration(d) => d.span,
         Statement::ClassDeclaration(d) => d.span,
-        Statement::ExportNamedDeclaration(d) => d.span,
+        Statement::ExportDeclaration(d) => d.span,
         _ => oxc::span::Span::default(),
     };
     SpanIR {

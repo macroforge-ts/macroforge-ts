@@ -260,8 +260,8 @@ impl ProjectScanner {
             let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
             let ret = Parser::new(&allocator, &source, source_type).parse();
 
-            if !ret.errors.is_empty() {
-                return Err(anyhow::anyhow!("Oxc parse errors: {:?}", ret.errors));
+            if !ret.diagnostics.is_empty() {
+                return Err(anyhow::anyhow!("Oxc parse errors: {:?}", ret.diagnostics));
             }
 
             // Declarative macro discovery shares the same parse. Fast path:

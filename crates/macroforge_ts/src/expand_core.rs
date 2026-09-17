@@ -224,10 +224,10 @@ fn run_attributes_prepass_oxc(
     }
     let allocator = Allocator::default();
     let ret = OxcParser::new(&allocator, code, source_type).parse();
-    if !ret.errors.is_empty() {
+    if !ret.diagnostics.is_empty() {
         return Err(anyhow!(
             "Oxc parse errors (attributes pre-pass): {:?}",
-            ret.errors
+            ret.diagnostics
         ));
     }
     let origin_path = std::path::PathBuf::from(filepath);
@@ -254,10 +254,10 @@ fn run_buildtime_prepass_oxc(
     };
     let allocator = Allocator::default();
     let ret = OxcParser::new(&allocator, code, source_type).parse();
-    if !ret.errors.is_empty() {
+    if !ret.diagnostics.is_empty() {
         return Err(anyhow!(
             "Oxc parse errors (buildtime pre-pass): {:?}",
-            ret.errors
+            ret.diagnostics
         ));
     }
 
@@ -364,8 +364,8 @@ impl CompilerBackend for OxcBackend {
             let code = code_after_buildtime;
             let allocator = Allocator::default();
             let ret = OxcParser::new(&allocator, code, source_type).parse();
-            if !ret.errors.is_empty() {
-                return Err(anyhow!("Oxc parse errors: {:?}", ret.errors));
+            if !ret.diagnostics.is_empty() {
+                return Err(anyhow!("Oxc parse errors: {:?}", ret.diagnostics));
             }
             let discovered = crate::host::declarative::discover(&ret.program, code)
                 .map_err(|e| anyhow!("Declarative macro error: {}", e))?;
@@ -478,7 +478,7 @@ impl CompilerBackend for OxcBackend {
         let allocator = Allocator::default();
         let ret = OxcParser::new(&allocator, code, source_type).parse();
 
-        if !ret.errors.is_empty() {
+        if !ret.diagnostics.is_empty() {
             #[cfg(not(feature = "swc"))]
             let ctx = if changed_by_decl {
                 "Oxc parse errors after declarative macro expansion"
@@ -487,7 +487,7 @@ impl CompilerBackend for OxcBackend {
             };
             #[cfg(feature = "swc")]
             let ctx = "Oxc parse errors";
-            return Err(anyhow!("{}: {:?}", ctx, ret.errors));
+            return Err(anyhow!("{}: {:?}", ctx, ret.diagnostics));
         }
 
         #[cfg(feature = "swc")]
@@ -655,8 +655,8 @@ impl CompilerBackend for OxcBackend {
 
         let ret = OxcParser::new(&allocator, code, source_type).parse();
 
-        if !ret.errors.is_empty() {
-            return Err(anyhow!("Oxc parse errors: {:?}", ret.errors));
+        if !ret.diagnostics.is_empty() {
+            return Err(anyhow!("Oxc parse errors: {:?}", ret.diagnostics));
         }
 
         let generated = OxcCodegen::new().build(&ret.program).code;

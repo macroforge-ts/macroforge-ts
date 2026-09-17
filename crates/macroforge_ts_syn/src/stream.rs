@@ -255,10 +255,10 @@ impl TsStream {
             .with_typescript(true)
             .with_jsx(self.file_name.ends_with(".tsx"));
         let ret = oxc::parser::Parser::new(allocator, &self.source, source_type).parse();
-        if !ret.errors.is_empty() {
+        if !ret.diagnostics.is_empty() {
             return Err(TsSynError::Parse(format!(
                 "Oxc parse errors: {:?}",
-                ret.errors
+                ret.diagnostics
             )));
         }
 

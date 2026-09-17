@@ -111,6 +111,7 @@ impl ToCode for TsType {
 
 // TsTypeAnn - wraps a type with span
 impl_struct!(TsTypeAnn, [span, type_ann]);
+impl_struct!(TsThisParam, [span, this_span, type_ann]);
 
 // TsTypeRef - reference to a named type
 impl_struct!(TsTypeRef, [span, type_name, type_params]);

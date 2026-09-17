@@ -90,6 +90,7 @@ export class User {
     let output = macroforge_bin()
         .arg("expand")
         .arg(&input_path)
+        .current_dir(temp_dir.path())
         .output()
         .expect("failed to run macroforge");
 
@@ -111,6 +112,7 @@ export class User {
         .arg("expand")
         .arg(&input_path)
         .arg("--quiet")
+        .current_dir(temp_dir.path())
         .output()
         .expect("failed to run macroforge");
 
@@ -150,6 +152,7 @@ class User {
     let output = macroforge_bin()
         .arg("expand")
         .arg(&input_path)
+        .current_dir(temp_dir.path())
         .output()
         .expect("failed to run macroforge");
 
@@ -426,6 +429,7 @@ fn emit_expanded_rejected_in_single_file_mode() {
         .arg("expand")
         .arg(&input)
         .arg("--emit-expanded")
+        .current_dir(temp.path())
         .output()
         .expect("failed to run macroforge");
 
@@ -552,6 +556,41 @@ fn contended_lock_stays_silent_in_quiet_mode() {
         "stderr should be empty in quiet mode even when the lock was contended, got: {stderr}"
     );
     assert_eq!(output.status.code(), Some(2));
+}
+
+#[test]
+fn cache_with_explicit_root_keeps_state_in_that_project() {
+    // State and debug logs belong to the project being cached, not to the
+    // directory the command happens to run from.
+    let temp = TempDir::new().unwrap();
+    let root = temp.path().join("project");
+    let elsewhere = temp.path().join("elsewhere");
+    std::fs::create_dir_all(root.join("src")).unwrap();
+    std::fs::create_dir_all(&elsewhere).unwrap();
+    std::fs::write(root.join("macroforge.config.ts"), "export default {};\n").unwrap();
+    std::fs::write(
+        root.join("src").join("point.ts"),
+        "/** @derive(Debug) */\nexport class Point {\n  x: number;\n}\n",
+    )
+    .unwrap();
+
+    let output = macroforge_bin()
+        .arg("cache")
+        .arg(&root)
+        .current_dir(&elsewhere)
+        .output()
+        .expect("failed to run macroforge");
+
+    assert!(
+        output.status.success(),
+        "cache failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(root.join(".macroforge").join("debug.log").is_file());
+    assert!(
+        !elsewhere.join(".macroforge").exists(),
+        "cache wrote state into the working directory"
+    );
 }
 
 #[test]

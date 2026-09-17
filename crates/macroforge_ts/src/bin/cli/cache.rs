@@ -388,19 +388,37 @@ pub(crate) struct CacheExpansion {
     pub(crate) errors: Vec<String>,
 }
 
-pub(crate) fn expand_for_cache(path: &Path, source: &str) -> Result<Option<CacheExpansion>> {
+/// `root` is the project the command runs on. The file's own macroforge config
+/// takes precedence, since external macros resolve from its `node_modules`
+/// whatever the working directory is.
+pub(crate) fn expand_for_cache(
+    root: &Path,
+    path: &Path,
+    source: &str,
+) -> Result<Option<CacheExpansion>> {
     // Quick check: skip files without @derive (ignoring fenced code blocks in docs)
     if !has_macro_annotations(source) {
         return Ok(None);
     }
 
-    use macroforge_ts::host::MacroforgeConfigLoader;
+    use macroforge_ts::host::{MacroConfig, MacroforgeConfigLoader};
 
-    if let Ok(Some(config)) = MacroforgeConfigLoader::find_from_path(path) {
-        macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
-    }
+    let discovered = MacroforgeConfigLoader::find_with_root_from_path(path).with_context(|| {
+        format!(
+            "failed to load the macroforge config for {}",
+            path.display()
+        )
+    })?;
+    let (config, project_root) = match discovered {
+        Some((config, config_root)) => {
+            macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
+            (MacroConfig::from(config), config_root)
+        }
+        None => (MacroConfig::default(), root.to_path_buf()),
+    };
 
-    let mut expander = MacroExpander::new().context("failed to initialize macro expander")?;
+    let mut expander = MacroExpander::with_config(config, project_root)
+        .context("failed to initialize macro expander")?;
 
     // Load the pre-built type registry so generic types (e.g. RecordLink<T>)
     // can be resolved inline at each call site.
@@ -517,7 +535,7 @@ pub(crate) fn warm_cache(
         files_to_expand
             .par_iter()
             .map(|(file_path, rel_path, source, source_hash, norm_hash)| {
-                let result = expand_for_cache(file_path, source);
+                let result = expand_for_cache(root, file_path, source);
                 (
                     rel_path.clone(),
                     source_hash.clone(),

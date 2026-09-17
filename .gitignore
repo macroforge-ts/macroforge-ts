@@ -4,10 +4,13 @@ tooling/bench-bins/
 **/node_modules/
 **/.pixi/
 .claude/
-crates/macroforge_ts/.macroforge/debug.log
+# Per-project macroforge state: registries, cache, lock and debug log. The
+# registries record absolute paths, so they must never be committed.
+**/.macroforge/
 
-# Runtime state: the per-project advisory lock, and the temporary siblings
-# atomic writes rename over their destination.
-**/.macroforge/.lock
+# Temporary siblings atomic writes rename over their destination.
 **/*.macroforge-staging-*
 **/*.macroforge-old-*
+
+# Captured Zed log output from the e2e harness.
+tooling/tests/e2e/zed-diagnostics.log

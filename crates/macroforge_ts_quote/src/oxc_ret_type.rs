@@ -198,17 +198,17 @@ fn validate_output(source: &str, output: OutputKind) -> Result<(), Error> {
             .context("failed to parse input as `Expr`"),
         OutputKind::Program => {
             let parsed = Parser::new(&allocator, source, source_type).parse();
-            if parsed.errors.is_empty() {
+            if parsed.diagnostics.is_empty() {
                 Ok(())
             } else {
-                Err(format_parse_errors(parsed.errors))
+                Err(format_parse_errors(parsed.diagnostics))
                     .context("failed to parse input as `Program`")
             }
         }
         OutputKind::Stmt | OutputKind::ModuleItem => {
             let parsed = Parser::new(&allocator, source, source_type).parse();
-            if !parsed.errors.is_empty() {
-                return Err(format_parse_errors(parsed.errors))
+            if !parsed.diagnostics.is_empty() {
+                return Err(format_parse_errors(parsed.diagnostics))
                     .context(format!("failed to parse input as `{}`", output.name()));
             }
             if parsed.program.body.is_empty() {
@@ -222,8 +222,8 @@ fn validate_output(source: &str, output: OutputKind) -> Result<(), Error> {
         OutputKind::AssignTarget => {
             let wrapped = format!("({source}) = __macroforge_target;");
             let parsed = Parser::new(&allocator, &wrapped, source_type).parse();
-            if !parsed.errors.is_empty() {
-                return Err(format_parse_errors(parsed.errors))
+            if !parsed.diagnostics.is_empty() {
+                return Err(format_parse_errors(parsed.diagnostics))
                     .context("failed to parse input as `AssignTarget`");
             }
             Ok(())
@@ -231,8 +231,8 @@ fn validate_output(source: &str, output: OutputKind) -> Result<(), Error> {
         OutputKind::Pat => {
             let wrapped = format!("function __macroforge__({source}) {{}}");
             let parsed = Parser::new(&allocator, &wrapped, source_type).parse();
-            if !parsed.errors.is_empty() {
-                return Err(format_parse_errors(parsed.errors))
+            if !parsed.diagnostics.is_empty() {
+                return Err(format_parse_errors(parsed.diagnostics))
                     .context("failed to parse input as `Pat`");
             }
             Ok(())
@@ -240,8 +240,8 @@ fn validate_output(source: &str, output: OutputKind) -> Result<(), Error> {
         OutputKind::TsType => {
             let wrapped = format!("type __MacroforgeType = {source};");
             let parsed = Parser::new(&allocator, &wrapped, source_type).parse();
-            if !parsed.errors.is_empty() {
-                return Err(format_parse_errors(parsed.errors))
+            if !parsed.diagnostics.is_empty() {
+                return Err(format_parse_errors(parsed.diagnostics))
                     .context("failed to parse input as `TsType`");
             }
             Ok(())
@@ -257,7 +257,7 @@ fn validate_output(source: &str, output: OutputKind) -> Result<(), Error> {
     }
 }
 
-fn format_parse_errors(errors: Vec<impl fmt::Display>) -> Error {
+fn format_parse_errors(errors: impl IntoIterator<Item = impl fmt::Display>) -> Error {
     Error::msg(
         errors
             .into_iter()

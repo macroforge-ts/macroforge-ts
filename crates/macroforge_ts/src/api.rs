@@ -100,7 +100,7 @@ impl CoreEngine {
             let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
             let parsed = Parser::new(&allocator, code, source_type).parse();
 
-            if parsed.errors.is_empty() {
+            if parsed.diagnostics.is_empty() {
                 Ok(SyntaxCheckResult {
                     ok: true,
                     error: None,
@@ -110,7 +110,7 @@ impl CoreEngine {
                     ok: false,
                     error: Some(
                         parsed
-                            .errors
+                            .diagnostics
                             .into_iter()
                             .map(|diagnostic| diagnostic.to_string())
                             .collect::<Vec<_>>()
@@ -154,9 +154,9 @@ impl CoreEngine {
             let allocator = Allocator::default();
             let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
             let parsed = Parser::new(&allocator, code, source_type).parse();
-            if !parsed.errors.is_empty() {
+            if !parsed.diagnostics.is_empty() {
                 return Err(parsed
-                    .errors
+                    .diagnostics
                     .into_iter()
                     .map(|diagnostic| diagnostic.to_string())
                     .collect::<Vec<_>>()

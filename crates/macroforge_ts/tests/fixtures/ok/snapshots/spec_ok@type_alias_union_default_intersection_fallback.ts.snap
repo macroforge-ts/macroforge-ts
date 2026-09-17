@@ -33,7 +33,10 @@ export type Status =
     | ({ kind: 'Inactive' } & InactiveData);
 
 export function statusDefaultValue(): Status {
-                            return ({ kind: "Active" });
+                            return ({
+	kind: "Active",
+	...activeDataDefaultValue()
+});
                         }
 
 export const Status = {
@@ -55,7 +58,10 @@ export type Status =
     | ({ kind: 'Inactive' } & InactiveData);
 
 export function statusDefaultValue(): Status {
-                            return ({ kind: "Active" });
+                            return ({
+	kind: "Active",
+	...activeDataDefaultValue()
+});
                         }
 
 export const Status = {

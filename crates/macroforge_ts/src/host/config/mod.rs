@@ -106,7 +106,7 @@ pub fn clear_config_cache() {
 }
 
 /// Supported config file names in order of precedence.
-const CONFIG_FILES: &[&str] = &[
+pub(crate) const CONFIG_FILES: &[&str] = &[
     "macroforge.config.ts",
     "macroforge.config.mts",
     "macroforge.config.js",

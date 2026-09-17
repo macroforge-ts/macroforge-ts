@@ -170,7 +170,7 @@ impl_enum!(ObjectPatProp, [KeyValue, Assign, Rest]);
 impl_enum!(PropName, [Ident, Str, Num, Computed, BigInt]);
 impl_enum!(ParamOrTsParamProp, [TsParamProp, Param]);
 impl_enum!(PropOrSpread, [Spread, Prop]);
-impl_enum!(BlockStmtOrExpr, [BlockStmt, Expr]);
+impl_enum!(ArrowFunctionBody, [FunctionBody, Expr]);
 impl_enum!(MemberProp, [Ident, PrivateName, Computed]);
 impl_enum!(SuperProp, [Ident, Computed]);
 impl_enum!(JSXObject, [Ident, JSXMemberExpr]);
@@ -410,21 +410,20 @@ mod tests {
         assert!(code_str.contains("Spread"));
     }
 
-    // ==================== BlockStmtOrExpr Tests ====================
+    // ==================== ArrowFunctionBody Tests ====================
 
     #[test]
-    fn test_block_stmt_or_expr_block_to_code() {
+    fn test_arrow_function_body_block_to_code() {
         let cx = empty_ctx();
-        let block = BlockStmt {
+        let body = FunctionBody {
             span: Span::default(),
-            ctxt: SyntaxContext::empty(),
             stmts: vec![],
         };
-        let block_or_expr = BlockStmtOrExpr::BlockStmt(block);
-        let code = block_or_expr.to_code(&cx);
+        let arrow_body = ArrowFunctionBody::FunctionBody(body);
+        let code = arrow_body.to_code(&cx);
         let code_str = code.to_token_stream().to_string();
-        assert!(code_str.contains("BlockStmtOrExpr"));
-        assert!(code_str.contains("BlockStmt"));
+        assert!(code_str.contains("ArrowFunctionBody"));
+        assert!(code_str.contains("FunctionBody"));
     }
 
     // ==================== Nested Type Tests ====================
