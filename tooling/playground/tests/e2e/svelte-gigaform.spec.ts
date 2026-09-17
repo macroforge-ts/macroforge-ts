@@ -4,19 +4,28 @@ import { expect, test } from '@playwright/test';
 // `window.gigaformResults`. Deliberately loose — each form shape is
 // macro-generated, so tests drill in with runtime-typed access rather
 // than enumerate every field controller method.
+type EffectOption<T> = { readonly _tag: 'Some' | 'None'; readonly value?: T };
+type EffectOptionModule = {
+    some: <T>(value: T) => EffectOption<T>;
+    isNone: <T>(option: EffectOption<T>) => boolean;
+    getOrElse: <T>(option: EffectOption<T>, onNone: () => T) => T;
+};
 type GigaformField = {
     set: (v: unknown) => void;
-    setTainted: (v: boolean) => void;
-    getTainted: () => boolean;
-    setError: (errs: string[]) => void;
-    getErrors: () => string[] | null;
+    setTainted: (v: EffectOption<boolean>) => void;
+    getTainted: () => EffectOption<boolean>;
+    setError: (errs: EffectOption<string[]>) => void;
+    getError: () => EffectOption<string[]>;
     [method: string]: unknown;
 };
 type GigaformForm = {
     fields: Record<string, GigaformField>;
     [k: string]: unknown;
 };
-type GigaformWindow = { gigaformResults: Record<string, GigaformForm> };
+type GigaformWindow = {
+    gigaformResults: Record<string, GigaformForm>;
+    effectOption: EffectOptionModule;
+};
 
 test.describe('Gigaform E2E Tests', () => {
     test.describe('Basic Field Operations', () => {
@@ -57,27 +66,31 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('getTainted() returns false initially', async ({ page }) => {
-            const tainted = await page.evaluate(() =>
-                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
-                    .fields.phoneType
-                    .getTainted()
-            );
+            const tainted = await page.evaluate(() => {
+                const w = globalThis as unknown as GigaformWindow;
+                return w.effectOption.getOrElse(
+                    w.gigaformResults.phoneNumber.fields.phoneType.getTainted(),
+                    () => false
+                );
+            });
             expect(tainted).toBe(false);
         });
 
         test('setTainted() marks field as touched', async ({ page }) => {
             await page.evaluate(() => {
-                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
-                    .fields.phoneType.setTainted(
-                        true
-                    );
+                const w = globalThis as unknown as GigaformWindow;
+                w.gigaformResults.phoneNumber.fields.phoneType.setTainted(
+                    w.effectOption.some(true)
+                );
             });
 
-            const tainted = await page.evaluate(() =>
-                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
-                    .fields.phoneType
-                    .getTainted()
-            );
+            const tainted = await page.evaluate(() => {
+                const w = globalThis as unknown as GigaformWindow;
+                return w.effectOption.getOrElse(
+                    w.gigaformResults.phoneNumber.fields.phoneType.getTainted(),
+                    () => false
+                );
+            });
             expect(tainted).toBe(true);
 
             // Verify UI updates
@@ -88,20 +101,22 @@ test.describe('Gigaform E2E Tests', () => {
         test('UI input triggers tainted via oninput handler', async ({ page }) => {
             await page.fill('[data-testid="phone-type"]', 'Work');
 
-            const tainted = await page.evaluate(() =>
-                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
-                    .fields.phoneType
-                    .getTainted()
-            );
+            const tainted = await page.evaluate(() => {
+                const w = globalThis as unknown as GigaformWindow;
+                return w.effectOption.getOrElse(
+                    w.gigaformResults.phoneNumber.fields.phoneType.getTainted(),
+                    () => false
+                );
+            });
             expect(tainted).toBe(true);
         });
 
         test('setError() stores and displays error', async ({ page }) => {
             await page.evaluate(() => {
-                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
-                    .fields.phoneType.setError([
-                        'Phone type is required'
-                    ]);
+                const w = globalThis as unknown as GigaformWindow;
+                w.gigaformResults.phoneNumber.fields.phoneType.setError(
+                    w.effectOption.some(['Phone type is required'])
+                );
             });
             await page.waitForTimeout(50);
 
@@ -892,9 +907,10 @@ test.describe('Gigaform E2E Tests', () => {
 
             // Set error and tainted
             await page.evaluate(() => {
-                const form = (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber;
-                form.fields.phoneType.setError(['Test error']);
-                form.fields.phoneType.setTainted(true);
+                const w = globalThis as unknown as GigaformWindow;
+                const form = w.gigaformResults.phoneNumber;
+                form.fields.phoneType.setError(w.effectOption.some(['Test error']));
+                form.fields.phoneType.setTainted(w.effectOption.some(true));
             });
             await page.waitForTimeout(50);
 
@@ -906,14 +922,18 @@ test.describe('Gigaform E2E Tests', () => {
             expect(await page.inputValue('[data-testid="phone-type"]')).toBe('');
 
             const state = await page.evaluate(() => {
-                const form = (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber;
+                const w = globalThis as unknown as GigaformWindow;
+                const form = w.gigaformResults.phoneNumber;
                 return {
-                    error: form.fields.phoneType.getError(),
-                    tainted: form.fields.phoneType.getTainted()
+                    errorCleared: w.effectOption.isNone(form.fields.phoneType.getError()),
+                    tainted: w.effectOption.getOrElse(
+                        form.fields.phoneType.getTainted(),
+                        () => false
+                    )
                 };
             });
 
-            expect(state.error).toBeUndefined();
+            expect(state.errorCleared).toBe(true);
             expect(state.tainted).toBe(false);
         });
     });

@@ -115,8 +115,8 @@ pub fn lower_classes_oxc(
                     classes.push(class_ir);
                 }
             }
-            Statement::ExportNamedDeclaration(decl) => {
-                if let Some(Declaration::ClassDeclaration(class_decl)) = &decl.declaration
+            Statement::ExportDeclaration(decl) => {
+                if let Declaration::ClassDeclaration(class_decl) = &decl.declaration
                     && let Some(class_ir) = lower_class(class_decl, source, filter)
                 {
                     classes.push(class_ir);
@@ -152,8 +152,8 @@ fn lower_class(
         .unwrap_or_default();
 
     let mut heritage = Vec::new();
-    if let Some(super_class) = &decl.super_class
-        && let Expression::Identifier(ident) = super_class
+    if let Some(super_class) = &decl.heritage
+        && let Expression::Identifier(ident) = &super_class.expression
     {
         heritage.push(ident.name.to_string());
     }
@@ -321,8 +321,8 @@ pub fn lower_interfaces_oxc(
     for stmt in &program.body {
         let decl = match stmt {
             Statement::TSInterfaceDeclaration(d) => Some(d.as_ref()),
-            Statement::ExportNamedDeclaration(d) => match &d.declaration {
-                Some(Declaration::TSInterfaceDeclaration(d)) => Some(d.as_ref()),
+            Statement::ExportDeclaration(d) => match &d.declaration {
+                Declaration::TSInterfaceDeclaration(d) => Some(d.as_ref()),
                 _ => None,
             },
             _ => None,
@@ -351,7 +351,7 @@ fn lower_interface(
 
     let mut heritage = Vec::new();
     for ext in &decl.extends {
-        if let Expression::Identifier(ident) = &ext.expression {
+        if let TSTypeName::IdentifierReference(ident) = &ext.type_name {
             heritage.push(ident.name.to_string());
         }
     }
@@ -462,8 +462,8 @@ pub fn lower_enums_oxc(
     for stmt in &program.body {
         let decl = match stmt {
             Statement::TSEnumDeclaration(d) => Some(d.as_ref()),
-            Statement::ExportNamedDeclaration(d) => match &d.declaration {
-                Some(Declaration::TSEnumDeclaration(d)) => Some(d.as_ref()),
+            Statement::ExportDeclaration(d) => match &d.declaration {
+                Declaration::TSEnumDeclaration(d) => Some(d.as_ref()),
                 _ => None,
             },
             _ => None,
@@ -570,8 +570,8 @@ pub fn lower_type_aliases_oxc(
     for stmt in &program.body {
         let decl = match stmt {
             Statement::TSTypeAliasDeclaration(d) => Some(d.as_ref()),
-            Statement::ExportNamedDeclaration(d) => match &d.declaration {
-                Some(Declaration::TSTypeAliasDeclaration(d)) => Some(d.as_ref()),
+            Statement::ExportDeclaration(d) => match &d.declaration {
+                Declaration::TSTypeAliasDeclaration(d) => Some(d.as_ref()),
                 _ => None,
             },
             _ => None,
@@ -689,8 +689,8 @@ pub fn lower_functions_oxc(
                     functions.push(func_ir);
                 }
             }
-            Statement::ExportNamedDeclaration(decl) => {
-                if let Some(Declaration::FunctionDeclaration(func_decl)) = &decl.declaration
+            Statement::ExportDeclaration(decl) => {
+                if let Declaration::FunctionDeclaration(func_decl) = &decl.declaration
                     && let Some(func_ir) =
                         lower_function(func_decl, source, true, false, Some(decl.span))
                 {
@@ -857,27 +857,30 @@ pub fn collect_exported_names_oxc(program: &Program<'_>) -> HashSet<String> {
 
     for stmt in &program.body {
         match stmt {
-            Statement::ExportNamedDeclaration(decl) => {
-                if let Some(decl) = &decl.declaration {
-                    match decl {
-                        Declaration::ClassDeclaration(c) => {
-                            if let Some(id) = &c.id {
-                                names.insert(id.name.to_string());
-                            }
-                        }
-                        Declaration::TSInterfaceDeclaration(i) => {
-                            names.insert(i.id.name.to_string());
-                        }
-                        Declaration::TSEnumDeclaration(e) => {
-                            names.insert(e.id.name.to_string());
-                        }
-                        Declaration::TSTypeAliasDeclaration(t) => {
-                            names.insert(t.id.name.to_string());
-                        }
-                        _ => {}
+            Statement::ExportDeclaration(decl) => match &decl.declaration {
+                Declaration::ClassDeclaration(c) => {
+                    if let Some(id) = &c.id {
+                        names.insert(id.name.to_string());
                     }
                 }
+                Declaration::TSInterfaceDeclaration(i) => {
+                    names.insert(i.id.name.to_string());
+                }
+                Declaration::TSEnumDeclaration(e) => {
+                    names.insert(e.id.name.to_string());
+                }
+                Declaration::TSTypeAliasDeclaration(t) => {
+                    names.insert(t.id.name.to_string());
+                }
+                _ => {}
+            },
+            Statement::ExportNamedDeclaration(decl) => {
                 // Handle export { foo, bar }
+                for spec in &decl.specifiers {
+                    names.insert(spec.local.name().to_string());
+                }
+            }
+            Statement::ExportFromDeclaration(decl) => {
                 for spec in &decl.specifiers {
                     names.insert(spec.local.name().to_string());
                 }

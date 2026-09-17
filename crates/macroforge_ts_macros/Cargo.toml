@@ -15,10 +15,10 @@ readme = "README.md"
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "1.0.95"
-quote = "1.0.40"
-syn = { version = "2.0.104", features = ["full"] }
-convert_case = "0.11.0"
+proc-macro2 = "1.0.107"
+quote = "1.0.47"
+syn = { version = "3.0.6", features = ["full"] }
+convert_case = "0.12.0"
 
 
 [features]
@@ -27,4 +27,4 @@ default = []
 [dev-dependencies]
 trybuild = "1.0"
 macroforge_ts = { version = "0.1.79", path = "../macroforge_ts", features = ["node"] }
-napi = "3.0"
+napi = "3.12"

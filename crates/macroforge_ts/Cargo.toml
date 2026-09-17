@@ -20,16 +20,16 @@ path = "src/bin/cli/main.rs"
 
 [dependencies]
 # NAPI-RS for Node.js bindings
-napi = { version = "3.5.2", features = ["napi8", "compat-mode", "tokio_rt"], optional = true }
-napi-derive = { version = "3.3.3", optional = true, features = ["type-def"] }
+napi = { version = "3.12.6", features = ["napi8", "compat-mode", "tokio_rt"], optional = true }
+napi-derive = { version = "3.6.7", optional = true, features = ["type-def"] }
 
 # WASM Bindings
-wasm-bindgen = { version = "0.2.100", optional = true }
+wasm-bindgen = { version = "0.2.128", optional = true }
 serde-wasm-bindgen = { version = "0.6", optional = true }
 js-sys = { version = "0.3", optional = true }
 
 # SWC Core for TypeScript parsing and transformation
-swc_core = { version = "59.0.1", optional = true, features = [
+swc_core = { version = "79.0.0", optional = true, features = [
     "ecma_ast",
     "ecma_parser",
     "ecma_codegen",
@@ -39,7 +39,7 @@ swc_core = { version = "59.0.1", optional = true, features = [
 ] }
 
 # Oxc for TypeScript parsing and transformation
-oxc = { version = "0.123", optional = true, features = ["codegen", "ast_visit", "transformer", "semantic"] }
+oxc = { version = "0.150", optional = true, features = ["codegen", "ast_visit", "transformer", "semantic"] }
 
 # Macroforge crates
 macroforge_ts_syn = { version = "0.1.84", path = "../macroforge_ts_syn" }
@@ -51,33 +51,33 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 # Case conversion
-convert_case = "0.11"
+convert_case = "0.12"
 
-inventory = "0.3.21"
+inventory = "0.3.24"
 
 # Error handling
 anyhow = "1.0"
 thiserror = "2.0"
 
 # CLI
-clap = { version = "4.5", features = ["derive"] }
+clap = { version = "4.6", features = ["derive"] }
 ignore = "0.4"
 libloading = "0.9"
 
 # Watch command
 notify-debouncer-full = "0.7"
 sha2 = "0.11"
-tempfile = "3.13.0"
+tempfile = "3.27.0"
 
 # Buildtime sandbox — Boa (pure Rust JS engine). Compiles to both
 # native and wasm32-unknown-unknown since there's no C code in the
 # dependency tree. Optional; gated by `buildtime-boa`.
-boa_engine = { version = "0.21", optional = true }
+boa_engine = { version = "0.22", optional = true }
 
 # Boa pulls in `getrandom` transitively. On wasm32 it requires a
 # backend selection — we use the wasm-bindgen Crypto.getRandomValues
 # bridge. The matching cfg flag is set in `crates/.cargo/config.toml`.
-getrandom = { version = "0.3", features = ["wasm_js"], optional = true }
+getrandom = { version = "0.4", features = ["wasm_js"], optional = true }
 
 # `web_time` is a drop-in replacement for `std::time::Instant` that
 # works on wasm32-unknown-unknown (which has no monotonic clock in
@@ -94,7 +94,7 @@ globset = "0.4"
 hex = "0.4"
 
 # Ordered maps
-indexmap = "2.7"
+indexmap = "2.14"
 
 # Unicode-aware identifier classification (UAX #31). Used by the
 # declarative macro hygiene cursor to recognize identifier boundaries
@@ -104,8 +104,8 @@ indexmap = "2.7"
 unicode-ident = "1"
 
 # Concurrency
-dashmap = "6.1"
-rayon = "1.10"
+dashmap = "6.2"
+rayon = "1.12"
 
 # Build script utilities (optional, for napi auto-build)
 libc = { version = "0.2", optional = true }
@@ -121,7 +121,7 @@ libc = { version = "0.2", optional = true }
 # Excluded from wasm builds — a wasm host has no business instantiating another
 # wasm module, and the JS side already calls macros directly.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-wasmi = "0.51"
+wasmi = "2.0"
 
 [features]
 default = ["wasm", "oxc", "buildtime-boa"]
@@ -146,18 +146,18 @@ build = ["libc"]
 test-macros = []
 
 [build-dependencies]
-napi-build = { version = "2.3.1", optional = true }
+napi-build = { version = "2.4.3", optional = true }
 libc = "0.2"
 
 [dev-dependencies]
 trybuild = "1.0"
-insta = { version = "1.42", features = ["glob"] }
+insta = { version = "1.48", features = ["glob"] }
 
 # Criterion for microbenchmarking the declarative macro hot paths
 # (PR 16). The `html_reports` feature generates an HTML report with
 # throughput charts so regressions are easier to spot than raw
 # stdout numbers.
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 
 [[bench]]
 name = "declarative_composition"

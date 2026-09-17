@@ -186,12 +186,12 @@ pub fn reparse_for_validation(
     let source_type = SourceType::ts().with_jsx(jsx);
     let parsed = Parser::new(&allocator, source, source_type).parse();
 
-    if parsed.errors.is_empty() {
+    if parsed.diagnostics.is_empty() {
         return Ok(());
     }
 
     let diagnostics = parsed
-        .errors
+        .diagnostics
         .into_iter()
         .map(|err| Diagnostic {
             level: DiagnosticLevel::Error,
@@ -233,23 +233,19 @@ pub fn validate_expanded_source(
     let source_type = SourceType::ts().with_jsx(jsx);
     let parsed = Parser::new(&allocator, source, source_type).parse();
 
-    if parsed.errors.is_empty() {
+    if parsed.diagnostics.is_empty() {
         return Vec::new();
     }
 
     parsed
-        .errors
+        .diagnostics
         .into_iter()
         .map(|err| {
-            // OXC diagnostics carry a `Vec<LabeledSpan>` (from
-            // oxc-miette) via a `Deref` on `OxcDiagnostic`. The
-            // first label is the "this is where it broke" marker;
-            // its byte offset is what we feed to `generated_by`.
-            let offset: Option<u32> = err
-                .labels
-                .as_ref()
-                .and_then(|v| v.first())
-                .map(|ls| ls.offset() as u32);
+            // OXC diagnostics carry their `LabeledSpan`s via a `Deref`
+            // on `OxcDiagnostic`. The first label is the "this is where
+            // it broke" marker; its byte offset is what we feed to
+            // `generated_by`.
+            let offset: Option<u32> = err.labels.first().map(|ls| ls.offset());
 
             let attribution = offset.and_then(|o| mapping.generated_by(o).map(|s| s.to_string()));
 

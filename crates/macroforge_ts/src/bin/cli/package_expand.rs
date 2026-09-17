@@ -52,6 +52,7 @@ pub(crate) fn is_expandable(rel: &str) -> bool {
 /// date — normally the changed files, or every file when the project's type
 /// surface moved. Everything else keeps the artifact it already has.
 pub(crate) fn run_expansion_pass(
+    root: &Path,
     input: &Path,
     expanded_dir: &Path,
     targets: &[String],
@@ -89,7 +90,7 @@ pub(crate) fn run_expansion_pass(
 
     let results: Vec<(String, Result<Option<CacheExpansion>>)> = pool.install(|| {
         work.par_iter()
-            .map(|(rel, path, source)| (rel.clone(), expand_for_cache(path, source)))
+            .map(|(rel, path, source)| (rel.clone(), expand_for_cache(root, path, source)))
             .collect()
     });
 

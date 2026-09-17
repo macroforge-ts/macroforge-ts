@@ -38,6 +38,9 @@ if (typeof window !== 'undefined') {
         gradient: gradientForm,
         coordinates: coordinatesForm
     };
+    // Field errors and tainted flags are Options, so tests build and read them
+    // with the same module the forms use.
+    (window as any).effectOption = Option;
 }
 
 function submitPhone() {

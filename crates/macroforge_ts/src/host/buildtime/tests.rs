@@ -436,9 +436,9 @@ fn run_prepass_fixture(source: &str) -> crate::host::buildtime::prepass::Prepass
     let allocator = Allocator::default();
     let ret = OxcParser::new(&allocator, source, SourceType::ts()).parse();
     assert!(
-        ret.errors.is_empty(),
+        ret.diagnostics.is_empty(),
         "parse errors in fixture: {:?}",
-        ret.errors
+        ret.diagnostics
     );
     let sandbox = BoaSandbox::new();
     let mut opts = SandboxOptions::new(PathBuf::from("/tmp/fixture.ts"));
@@ -743,7 +743,11 @@ fn prepass_actual_playground_demo_file() {
     };
     let allocator = oxc::allocator::Allocator::default();
     let parsed = oxc::parser::Parser::new(&allocator, &src, oxc::span::SourceType::ts()).parse();
-    assert!(parsed.errors.is_empty(), "parse: {:?}", parsed.errors);
+    assert!(
+        parsed.diagnostics.is_empty(),
+        "parse: {:?}",
+        parsed.diagnostics
+    );
     let sandbox = BoaSandbox::new();
     let mut opts = SandboxOptions::new(path.clone());
     opts.capabilities = CapabilitySet::unrestricted();

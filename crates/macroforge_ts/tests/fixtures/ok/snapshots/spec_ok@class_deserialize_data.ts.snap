@@ -352,6 +352,35 @@ constructor(props: { val: number }) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         }
 
 
@@ -552,6 +581,35 @@ constructor(props: { val: number }) {
 
             ctx.trackForFreeze(instance);{
                             const __raw_val = obj["val"] as number;instance.val = __raw_val;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

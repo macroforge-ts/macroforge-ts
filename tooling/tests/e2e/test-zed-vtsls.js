@@ -3,10 +3,22 @@
  */
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
-const ZED_VTSLS =
-    '~/Library/Application Support/Zed/languages/vtsls/node_modules/@vtsls/language-server/bin/vtsls.js';
+const ZED_VTSLS = path.join(
+    os.homedir(),
+    'Library',
+    'Application Support',
+    'Zed',
+    'languages',
+    'vtsls',
+    'node_modules',
+    '@vtsls',
+    'language-server',
+    'bin',
+    'vtsls.js',
+);
 const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
 const PLUGIN_PATH = path.join(REPO_ROOT, 'packages', 'typescript-plugin', 'dist', 'index.js');
 const LOG_DIR = path.join(REPO_ROOT, '.tmp', 'zed-vtsls-logs');

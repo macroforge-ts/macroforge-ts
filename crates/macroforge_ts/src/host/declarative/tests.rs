@@ -31,9 +31,9 @@ const $vec = macroRules`
     let allocator = Allocator::default();
     let parsed = parse_program(&allocator, source);
     assert!(
-        parsed.errors.is_empty(),
+        parsed.diagnostics.is_empty(),
         "parse errors: {:?}",
-        parsed.errors
+        parsed.diagnostics
     );
     let defs = discover(&parsed.program, source).expect("discover");
     assert_eq!(defs.len(), 1);
@@ -374,7 +374,7 @@ const ys = $vec();
 "#;
     let allocator = Allocator::default();
     let parsed = parse_program(&allocator, source);
-    assert!(parsed.errors.is_empty());
+    assert!(parsed.diagnostics.is_empty());
     let discovered = discover(&parsed.program, source).unwrap();
     let mut registry = DeclarativeMacroRegistry::new();
     for dm in &discovered {
@@ -548,9 +548,9 @@ const $serialize = macroRules({
     let allocator = Allocator::default();
     let parsed = parse_program(&allocator, source);
     assert!(
-        parsed.errors.is_empty(),
+        parsed.diagnostics.is_empty(),
         "parse errors: {:?}",
-        parsed.errors
+        parsed.diagnostics
     );
     let defs = discover(&parsed.program, source).expect("discover");
     assert_eq!(defs.len(), 1);
@@ -728,9 +728,9 @@ type Result = $Wrap<string>;
     let allocator = Allocator::default();
     let parsed = parse_program(&allocator, source);
     assert!(
-        parsed.errors.is_empty(),
+        parsed.diagnostics.is_empty(),
         "parse errors: {:?}",
-        parsed.errors
+        parsed.diagnostics
     );
     let discovered = discover(&parsed.program, source).expect("discover");
     assert_eq!(discovered.len(), 1, "should discover one type macro");
@@ -786,9 +786,9 @@ type T = $Tup<string, number>;
     let allocator = Allocator::default();
     let parsed = parse_program(&allocator, source);
     assert!(
-        parsed.errors.is_empty(),
+        parsed.diagnostics.is_empty(),
         "parse errors: {:?}",
-        parsed.errors
+        parsed.diagnostics
     );
     let discovered = discover(&parsed.program, source).expect("discover");
     let mut registry = DeclarativeMacroRegistry::new();
@@ -890,9 +890,9 @@ fn rewrite_source(source: &str, build_mode: BuildMode) -> super::rewriter::Rewri
     let allocator = Allocator::default();
     let parsed = parse_program(&allocator, source);
     assert!(
-        parsed.errors.is_empty(),
+        parsed.diagnostics.is_empty(),
         "parse errors: {:?}",
-        parsed.errors
+        parsed.diagnostics
     );
     let discovered = discover(&parsed.program, source).expect("discover");
     let mut registry = DeclarativeMacroRegistry::new();
@@ -1232,9 +1232,9 @@ fn rewrite_tsx_source(source: &str, build_mode: BuildMode) -> super::rewriter::R
     let allocator = Allocator::default();
     let parsed = Parser::new(&allocator, source, SourceType::tsx()).parse();
     assert!(
-        parsed.errors.is_empty(),
+        parsed.diagnostics.is_empty(),
         "parse errors: {:?}",
-        parsed.errors
+        parsed.diagnostics
     );
     let discovered = discover(&parsed.program, source).expect("discover");
     let mut registry = DeclarativeMacroRegistry::new();

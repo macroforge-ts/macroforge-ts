@@ -355,6 +355,24 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
 
@@ -528,7 +546,61 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1333,6 +1405,24 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }{
                                 const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
 
@@ -1506,7 +1596,61 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

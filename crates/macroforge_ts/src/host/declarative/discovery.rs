@@ -205,16 +205,16 @@ impl<'a> oxc::ast_visit::Visit<'a> for DiscoveryVisitor<'_> {
         // template body is a string literal to us, not nested code.
     }
 
-    fn visit_export_named_declaration(&mut self, decl: &oxc::ast::ast::ExportNamedDeclaration<'a>) {
+    fn visit_export_declaration(&mut self, decl: &oxc::ast::ast::ExportDeclaration<'a>) {
         // `export const $name = macroRules\`...\``: OXC models this as an
-        // `ExportNamedDeclaration` whose inner `declaration` is a
+        // `ExportDeclaration` whose inner `declaration` is a
         // `VariableDeclaration`. The default walker would descend to the
         // inner decl, which would then call `try_collect_decl` with the
         // *inner* span — causing the rewriter to erase only the
         // `const $name = ...` portion and leave the `export` keyword
         // orphaned. To fix that we intercept here and pass the *outer*
         // span (which covers `export`), then skip the default descent.
-        if let Some(oxc::ast::ast::Declaration::VariableDeclaration(var_decl)) = &decl.declaration {
+        if let oxc::ast::ast::Declaration::VariableDeclaration(var_decl) = &decl.declaration {
             // Use the outer `export ...` span so the rewriter deletes the
             // entire statement including the `export` keyword.
             self.try_collect_decl(var_decl, decl.span);
@@ -224,7 +224,7 @@ impl<'a> oxc::ast_visit::Visit<'a> for DiscoveryVisitor<'_> {
         }
         // Non-macro export: let the default walker descend so nested
         // declarations (e.g. function bodies) are still visited.
-        oxc::ast_visit::walk::walk_export_named_declaration(self, decl);
+        oxc::ast_visit::walk::walk_export_declaration(self, decl);
     }
 
     fn visit_block_statement(&mut self, block: &oxc::ast::ast::BlockStatement<'a>) {

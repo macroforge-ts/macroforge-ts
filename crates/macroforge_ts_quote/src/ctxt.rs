@@ -120,6 +120,7 @@ pub(super) fn prepare_vars(
                         leading_colon: None,
                         segments,
                     },
+                ..
             })) => {
                 let segment = segments.first().unwrap();
                 match segment.ident.to_string().as_str() {

@@ -11,6 +11,8 @@ import { expect, test } from '@playwright/test';
 test.describe('Svelte Playground attribute macro tests', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/attributes');
+        // The results reach globalThis during hydration, after the SSR markup shows.
+        await page.waitForSelector('body.hydrated', { timeout: 10000 });
         await page.waitForSelector('[data-testid="attributes-results"]');
     });
 

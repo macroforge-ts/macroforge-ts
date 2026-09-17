@@ -509,7 +509,7 @@ pub fn run_svelte_package_wrapper(
     };
 
     let considered = targets.len();
-    let outcome = run_expansion_pass(&resolved.input, &expanded, &targets, &current.files)?;
+    let outcome = run_expansion_pass(root, &resolved.input, &expanded, &targets, &current.files)?;
     let total = outcome.entries.len();
 
     // Report the work, and when it was more than the edit seemed to warrant,

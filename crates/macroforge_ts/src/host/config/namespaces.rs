@@ -75,9 +75,9 @@ fn collect_member_expression_roots(
         }
         // Arrow function: (v) => DateTime.formatIso(v)
         Expr::Arrow(arrow) => match &*arrow.body {
-            BlockStmtOrExpr::Expr(e) => collect_member_expression_roots(e, namespaces),
-            BlockStmtOrExpr::BlockStmt(block) => {
-                for stmt in &block.stmts {
+            ArrowFunctionBody::Expr(e) => collect_member_expression_roots(e, namespaces),
+            ArrowFunctionBody::FunctionBody(body) => {
+                for stmt in &body.stmts {
                     collect_statement_namespaces(stmt, namespaces);
                 }
             }

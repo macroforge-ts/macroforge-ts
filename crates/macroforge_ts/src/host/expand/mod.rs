@@ -437,7 +437,7 @@ impl MacroExpander {
         // calls), so we don't need to thread the JSX flag through here.
         let source_type = SourceType::ts();
         let parsed = Parser::new(&allocator, source, source_type).parse();
-        if !parsed.errors.is_empty() {
+        if !parsed.diagnostics.is_empty() {
             // Parse errors are surfaced by the main path — don't duplicate.
             return Ok((None, Vec::new()));
         }
@@ -584,7 +584,7 @@ impl MacroExpander {
         let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
         let parsed = Parser::new(&allocator, source, source_type).parse();
 
-        if !parsed.errors.is_empty() {
+        if !parsed.diagnostics.is_empty() {
             let context = if changed_by_decl {
                 "Parse error after declarative macro expansion: "
             } else {
@@ -594,7 +594,7 @@ impl MacroExpander {
                 "{}{}",
                 context,
                 parsed
-                    .errors
+                    .diagnostics
                     .into_iter()
                     .map(|diagnostic| diagnostic.to_string())
                     .collect::<Vec<_>>()
@@ -959,7 +959,7 @@ impl MacroExpander {
 
         if derive_targets.is_empty() && attribute_targets.is_empty() {
             trace_logs.push("no derive or attribute targets found, returning early".to_string());
-            flush_trace(&trace_logs, diagnostics);
+            flush_trace(file_name, &trace_logs, diagnostics);
             return (collector, std::mem::take(diagnostics));
         }
 
@@ -1653,7 +1653,7 @@ impl MacroExpander {
             }
         }
 
-        flush_trace(&trace_logs, diagnostics);
+        flush_trace(file_name, &trace_logs, diagnostics);
         (collector, std::mem::take(diagnostics))
     }
 
@@ -2066,12 +2066,12 @@ impl Default for MacroExpander {
     }
 }
 
-fn flush_trace(logs: &[String], diagnostics: &mut Vec<Diagnostic>) {
+fn flush_trace(file_name: &str, logs: &[String], diagnostics: &mut Vec<Diagnostic>) {
     let emit = std::env::var("MF_LOG")
         .ok()
         .is_some_and(|v| matches!(v.as_str(), "trace" | "debug" | "1" | "true"));
+    crate::debug::log_for_file(file_name, "expand", logs);
     for msg in logs {
-        crate::debug::log("expand", msg);
         if emit {
             diagnostics.push(Diagnostic {
                 level: DiagnosticLevel::Info,

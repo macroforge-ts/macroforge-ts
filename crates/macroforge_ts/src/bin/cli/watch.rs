@@ -456,7 +456,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                     let results: Vec<_> = files_with_source
                         .par_iter()
                         .map(|(file_path, rel_path, source, source_hash, norm_hash)| {
-                            let result = expand_for_cache(file_path, source);
+                            let result = expand_for_cache(root, file_path, source);
                             (
                                 rel_path.clone(),
                                 source_hash.clone(),
@@ -554,7 +554,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
 
                         let file_start = std::time::Instant::now();
 
-                        match expand_for_cache(file_path, &source) {
+                        match expand_for_cache(root, file_path, &source) {
                             Ok(Some(expansion)) => {
                                 // Reported, not fatal: a watch loop that exits
                                 // on the first bad edit is worse than one that

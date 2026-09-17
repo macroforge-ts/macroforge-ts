@@ -23,11 +23,11 @@ fn leak_parse_inputs(source: &str) -> (&'static Allocator, &'static str) {
 fn parse_program_internal(source: &str) -> Result<Program<'static>, TsSynError> {
     let (allocator, leaked_source) = leak_parse_inputs(source);
     let parsed = Parser::new(allocator, leaked_source, source_type()).parse();
-    if !parsed.errors.is_empty() {
+    if !parsed.diagnostics.is_empty() {
         return Err(TsSynError::Parse(format!(
             "Oxc parse errors: {}",
             parsed
-                .errors
+                .diagnostics
                 .into_iter()
                 .map(|diagnostic| diagnostic.to_string())
                 .collect::<Vec<_>>()

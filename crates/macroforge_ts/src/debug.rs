@@ -1,8 +1,9 @@
 //! Debug logging for external macros.
 //!
-//! Writes timestamped log entries to `.macroforge/debug.log` relative to the
-//! project root (discovered by walking up from CWD). The file is created on
-//! first write and appended to thereafter.
+//! Writes timestamped log entries to `.macroforge/debug.log` in the macroforge
+//! project the logging code is working on: the nearest ancestor holding a
+//! `macroforge.config.*`. Outside such a project nothing is written. The file
+//! is created on first write and appended to thereafter.
 //!
 //! On WASM (`wasm32-unknown-unknown`), falls back to `eprintln!` since there
 //! is no filesystem access.
@@ -30,42 +31,67 @@ use crate::ts_syn::abi::{MacroContextIR, MacroResult, TargetIR};
 #[cfg(not(target_arch = "wasm32"))]
 mod fs_log {
     use std::io::Write;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
     use std::sync::LazyLock;
 
-    /// Resolved path to the log file (computed once per process).
-    static LOG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
-        let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-
-        // Walk up from CWD looking for an existing `.macroforge` directory
-        let mut dir = cwd.as_path();
-        loop {
-            let candidate = dir.join(".macroforge");
-            if candidate.is_dir() {
-                return candidate.join("debug.log");
-            }
-            match dir.parent() {
-                Some(parent) => dir = parent,
-                None => break,
-            }
-        }
-
-        // Fallback: create `.macroforge` in CWD
-        let fallback = cwd.join(".macroforge");
-        let _ = std::fs::create_dir_all(&fallback);
-        fallback.join("debug.log")
+    /// Log file of the project containing the working directory (computed once
+    /// per process). Used when the caller does not say which file it is on.
+    static CWD_LOG_PATH: LazyLock<Option<PathBuf>> = LazyLock::new(|| {
+        std::env::current_dir()
+            .ok()
+            .and_then(|cwd| log_path_for(&cwd))
     });
 
-    pub fn write(line: &str) {
-        let _ = std::fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(LOG_PATH.as_path())
-            .and_then(|mut f| f.write_all(line.as_bytes()));
+    /// `.macroforge/debug.log` of the nearest ancestor of `start` that holds a
+    /// macroforge config, or `None` when `start` is in no macroforge project.
+    pub fn log_path_for(start: &Path) -> Option<PathBuf> {
+        start
+            .ancestors()
+            .find(|dir| {
+                crate::host::config::CONFIG_FILES
+                    .iter()
+                    .any(|name| dir.join(name).is_file())
+            })
+            .map(|root| root.join(".macroforge").join("debug.log"))
     }
 
-    pub fn clear() {
-        let _ = std::fs::write(LOG_PATH.as_path(), "");
+    /// Log file of the project containing `file`; relative paths are taken
+    /// from the working directory.
+    pub fn log_path_for_file(file: &str) -> Option<PathBuf> {
+        let path = Path::new(file);
+        if path.is_absolute() {
+            return log_path_for(path);
+        }
+        let cwd = std::env::current_dir().ok()?;
+        log_path_for(&cwd.join(path))
+    }
+
+    pub fn cwd_log_path() -> Option<&'static Path> {
+        CWD_LOG_PATH.as_deref()
+    }
+
+    pub fn append(log_path: &Path, text: &str) {
+        let written = log_path
+            .parent()
+            .map_or(Ok(()), std::fs::create_dir_all)
+            .and_then(|()| {
+                std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(log_path)
+            })
+            .and_then(|mut f| f.write_all(text.as_bytes()));
+        if let Err(err) = written {
+            eprintln!("[macroforge] cannot write {}: {err}", log_path.display());
+        }
+    }
+
+    pub fn clear(log_path: &Path) {
+        if let Err(err) = std::fs::write(log_path, "")
+            && err.kind() != std::io::ErrorKind::NotFound
+        {
+            eprintln!("[macroforge] cannot clear {}: {err}", log_path.display());
+        }
     }
 }
 
@@ -86,16 +112,42 @@ fn timestamp() -> String {
     }
 }
 
-/// Append a single line to the debug log.
+fn format_line(tag: &str, msg: &str) -> String {
+    format!("[{}] [{}] {}\n", timestamp(), tag, msg)
+}
+
+/// Append a single line to the debug log of the project containing the
+/// working directory.
 pub fn log(tag: &str, msg: &str) {
-    let line = format!("[{}] [{}] {}\n", timestamp(), tag, msg);
+    let line = format_line(tag, msg);
     #[cfg(not(target_arch = "wasm32"))]
     {
-        fs_log::write(&line);
+        if let Some(log_path) = fs_log::cwd_log_path() {
+            fs_log::append(log_path, &line);
+        }
     }
     #[cfg(target_arch = "wasm32")]
     {
         eprintln!("{}", line.trim_end());
+    }
+}
+
+/// Append lines to the debug log of the project containing `file`, the file
+/// the lines are about.
+pub(crate) fn log_for_file(file: &str, tag: &str, msgs: &[String]) {
+    if msgs.is_empty() {
+        return;
+    }
+    let text: String = msgs.iter().map(|msg| format_line(tag, msg)).collect();
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        if let Some(log_path) = fs_log::log_path_for_file(file) {
+            fs_log::append(&log_path, &text);
+        }
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        eprint!("{file}:\n{text}");
     }
 }
 
@@ -161,7 +213,9 @@ pub fn log_result(tag: &str, result: &MacroResult) {
 pub fn clear() {
     #[cfg(not(target_arch = "wasm32"))]
     {
-        fs_log::clear();
+        if let Some(log_path) = fs_log::cwd_log_path() {
+            fs_log::clear(log_path);
+        }
     }
 }
 
@@ -177,4 +231,61 @@ macro_rules! debug_log {
     ($tag:expr, $($arg:tt)*) => {
         $crate::debug::log($tag, &format!($($arg)*))
     };
+}
+
+#[cfg(all(test, not(target_arch = "wasm32")))]
+mod tests {
+    use super::*;
+
+    fn write_config(dir: &std::path::Path) {
+        std::fs::create_dir_all(dir).unwrap();
+        std::fs::write(dir.join("macroforge.config.ts"), "export default {};\n").unwrap();
+    }
+
+    #[test]
+    fn log_path_is_the_nearest_macroforge_project() {
+        let temp = tempfile::TempDir::new().unwrap();
+        let outer = temp.path().join("outer");
+        let inner = outer.join("packages").join("inner");
+        write_config(&outer);
+        write_config(&inner);
+        let nested = inner.join("src").join("deep");
+        std::fs::create_dir_all(&nested).unwrap();
+
+        assert_eq!(
+            fs_log::log_path_for(&nested),
+            Some(inner.join(".macroforge").join("debug.log"))
+        );
+    }
+
+    #[test]
+    fn log_path_is_none_outside_a_macroforge_project() {
+        let temp = tempfile::TempDir::new().unwrap();
+        let plain = temp.path().join("plain").join("src");
+        std::fs::create_dir_all(&plain).unwrap();
+
+        assert_eq!(fs_log::log_path_for(&plain), None);
+    }
+
+    #[test]
+    fn log_for_file_writes_only_inside_the_file_project() {
+        let temp = tempfile::TempDir::new().unwrap();
+        let project = temp.path().join("project");
+        write_config(&project);
+        let plain = temp.path().join("plain");
+        std::fs::create_dir_all(&plain).unwrap();
+
+        let lines = vec!["hello".to_string()];
+        log_for_file(
+            project.join("src").join("a.ts").to_str().unwrap(),
+            "test",
+            &lines,
+        );
+        log_for_file(plain.join("b.ts").to_str().unwrap(), "test", &lines);
+
+        let log = std::fs::read_to_string(project.join(".macroforge").join("debug.log")).unwrap();
+        assert!(log.contains("[test] hello"), "unexpected log: {log}");
+        assert!(!plain.join(".macroforge").exists());
+        assert!(!temp.path().join(".macroforge").exists());
+    }
 }

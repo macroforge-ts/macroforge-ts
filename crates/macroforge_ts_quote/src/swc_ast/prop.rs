@@ -24,8 +24,8 @@ impl_struct!(KeyValueProp, [key, value]);
 
 impl_struct!(AssignProp, [span, key, value]);
 
-impl_struct!(GetterProp, [span, key, type_ann, body]);
-impl_struct!(SetterProp, [span, key, param, this_param, body]);
+impl_struct!(GetterProp, [span, key, function]);
+impl_struct!(SetterProp, [span, key, function]);
 
 impl_struct!(MethodProp, [key, function]);
 
@@ -151,8 +151,18 @@ mod tests {
                 span: Span::default(),
                 sym: Atom::from("value"),
             }),
-            type_ann: None,
-            body: None,
+            function: Box::new(Function {
+                ctxt: SyntaxContext::empty(),
+                this_param: None,
+                params: vec![],
+                decorators: vec![],
+                span: Span::default(),
+                body: None,
+                is_generator: false,
+                is_async: false,
+                type_params: None,
+                return_type: None,
+            }),
         };
         let code = prop.to_code(&cx);
         let code_str = code.to_token_stream().to_string();
@@ -172,17 +182,30 @@ mod tests {
                 span: Span::default(),
                 sym: Atom::from("value"),
             }),
-            param: Box::new(Pat::Ident(BindingIdent {
-                id: Ident {
+            function: Box::new(Function {
+                ctxt: SyntaxContext::empty(),
+                this_param: None,
+                params: vec![Param {
                     span: Span::default(),
-                    ctxt: SyntaxContext::empty(),
-                    sym: Atom::from("val"),
-                    optional: false,
-                },
-                type_ann: None,
-            })),
-            this_param: None,
-            body: None,
+                    decorators: vec![],
+                    pat: Pat::Ident(BindingIdent {
+                        id: Ident {
+                            span: Span::default(),
+                            ctxt: SyntaxContext::empty(),
+                            sym: Atom::from("val"),
+                            optional: false,
+                        },
+                        type_ann: None,
+                    }),
+                }],
+                decorators: vec![],
+                span: Span::default(),
+                body: None,
+                is_generator: false,
+                is_async: false,
+                type_params: None,
+                return_type: None,
+            }),
         };
         let code = prop.to_code(&cx);
         let code_str = code.to_token_stream().to_string();
@@ -203,6 +226,7 @@ mod tests {
             }),
             function: Box::new(Function {
                 ctxt: SyntaxContext::empty(),
+                this_param: None,
                 params: vec![],
                 decorators: vec![],
                 span: Span::default(),

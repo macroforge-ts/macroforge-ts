@@ -1017,7 +1017,17 @@ fn handle_union_type_alias(
         is_serializable: bool,
     }
 
+    // Inline object members without a tag field (e.g. `string | { id: string }`)
+    // can only be told apart by shape: every required field must be present.
+    struct UntaggedObjectVariant {
+        /// JS condition that is true when `value` has this member's shape.
+        shape_condition: String,
+        required_fields: Vec<String>,
+        optional_fields: Vec<String>,
+    }
+
     let mut object_variants: Vec<ObjectVariant> = Vec::new();
+    let mut untagged_object_variants: Vec<UntaggedObjectVariant> = Vec::new();
     let mut intersection_variants: Vec<IntersectionVariant> = Vec::new();
 
     struct ExternalObjectVariant {
@@ -1076,6 +1086,27 @@ fn handle_union_type_alias(
                         tag_value,
                         fields: fields.clone(),
                     });
+                } else {
+                    let (optional, required): (Vec<_>, Vec<_>) =
+                        fields.iter().partition(|f| f.optional);
+                    let required_fields: Vec<String> =
+                        required.iter().map(|f| f.name.clone()).collect();
+                    let shape_condition = std::iter::once(
+                        "typeof value === \"object\" && value !== null && !Array.isArray(value)"
+                            .to_string(),
+                    )
+                    .chain(
+                        required_fields
+                            .iter()
+                            .map(|name| format!("\"{name}\" in value")),
+                    )
+                    .collect::<Vec<_>>()
+                    .join(" && ");
+                    untagged_object_variants.push(UntaggedObjectVariant {
+                        shape_condition,
+                        required_fields,
+                        optional_fields: optional.iter().map(|f| f.name.clone()).collect(),
+                    });
                 }
             }
             crate::ts_syn::abi::ir::type_alias::TypeMemberKind::Intersection(sub_members) => {
@@ -1130,6 +1161,7 @@ fn handle_union_type_alias(
         }
     }
     let has_object_variants = !object_variants.is_empty();
+    let has_untagged_object_variants = !untagged_object_variants.is_empty();
     let has_intersection_variants = !intersection_variants.is_empty();
 
     // Per-variant `Is` type guards for inline variants. Type ref variants
@@ -1205,8 +1237,10 @@ fn handle_union_type_alias(
         TsStream::merge_all(guards)
     };
 
-    let has_tagged_variants =
-        has_object_variants || has_intersection_variants || !external_object_variants.is_empty();
+    let has_tagged_variants = has_object_variants
+        || has_untagged_object_variants
+        || has_intersection_variants
+        || !external_object_variants.is_empty();
     let is_literal_only = !literals.is_empty() && type_refs.is_empty() && !has_tagged_variants;
     let is_primitive_only = has_primitives
         && !has_serializables
@@ -1962,6 +1996,19 @@ fn handle_union_type_alias(
                                 }
                             {/if}
 
+                            {#for uv in &untagged_object_variants}
+                                if (@{uv.shape_condition}) {
+                                    const __result: Record<string, unknown> = {};
+                                    {#for name in &uv.required_fields}
+                                        __result["@{name}"] = (value as any)["@{name}"];
+                                    {/for}
+                                    {#for name in &uv.optional_fields}
+                                        if ("@{name}" in value) __result["@{name}"] = (value as any)["@{name}"];
+                                    {/for}
+                                    return __result as @{full_type_ident};
+                                }
+                            {/for}
+
                             throw new @{deserialize_error_expr}([{
                                 field: "_root",
                                 message: "@{type_name}.deserializeWithContext: value does not match any union member"
@@ -2131,6 +2178,9 @@ fn handle_union_type_alias(
                                     }
                                 }
                             {/if}
+                            {#for uv in &untagged_object_variants}
+                                if (@{uv.shape_condition}) return true;
+                            {/for}
                             {#if has_generic_params}
                                 return true;
                             {:else}

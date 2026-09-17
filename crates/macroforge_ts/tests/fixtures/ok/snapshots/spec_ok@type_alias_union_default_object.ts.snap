@@ -51,13 +51,49 @@ export function propValueDefaultValue(): PropValue {
 
                         /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
                         export function propValueSerializeWithContext(value: PropValue, ctx: __mf_SerializeContext): unknown {
-                            const __variant = typeof (value as any)?.serializeWithContext === "function"
-                                ? (value as any).serializeWithContext(ctx)
-                                : value;if (typeof __variant !== "object" || __variant === null) return __variant;
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (typeof __variant !== "object" || __variant === null) return __variant;
                                 const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
                                 if (typeof __typeName !== "string") return __variant;const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
                                     if (__idVal !== undefined) __outer.__id = __idVal;
                                     return __outer;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -227,24 +263,6 @@ export function propValueDefaultValue(): PropValue {
 
                                     }
                                 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -749,12 +767,76 @@ export function propValueDefaultValue(): PropValue {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
                                     const __typeName = (value as any)["type"];
                                     if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
                                 }return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -997,13 +1079,49 @@ export function propValueDefaultValue(): PropValue {
 
                         /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
                         export function propValueSerializeWithContext(value: PropValue, ctx: __mf_SerializeContext): unknown {
-                            const __variant = typeof (value as any)?.serializeWithContext === "function"
-                                ? (value as any).serializeWithContext(ctx)
-                                : value;if (typeof __variant !== "object" || __variant === null) return __variant;
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (typeof __variant !== "object" || __variant === null) return __variant;
                                 const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
                                 if (typeof __typeName !== "string") return __variant;const __outer: Record<string, unknown> = { "type": __typeName, "value": fields };
                                     if (__idVal !== undefined) __outer.__id = __idVal;
                                     return __outer;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1173,24 +1291,6 @@ export function propValueDefaultValue(): PropValue {
 
                                     }
                                 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1695,12 +1795,76 @@ export function propValueDefaultValue(): PropValue {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
                                     const __typeName = (value as any)["type"];
                                     if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
                                 }return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

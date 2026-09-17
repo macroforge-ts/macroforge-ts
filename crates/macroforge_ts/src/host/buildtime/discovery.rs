@@ -86,14 +86,14 @@ fn try_extract_decl(stmt: &Statement<'_>, source: &str) -> Option<BuildtimeDecl>
         Statement::TSTypeAliasDeclaration(ty) => {
             (Visibility::Private, StatementKind::TypeAlias(ty))
         }
-        Statement::ExportNamedDeclaration(export) => match &export.declaration {
-            Some(Declaration::VariableDeclaration(var_decl)) => {
+        Statement::ExportDeclaration(export) => match &export.declaration {
+            Declaration::VariableDeclaration(var_decl) => {
                 (Visibility::Export, StatementKind::Var(var_decl))
             }
-            Some(Declaration::FunctionDeclaration(func)) => {
+            Declaration::FunctionDeclaration(func) => {
                 (Visibility::Export, StatementKind::Func(func))
             }
-            Some(Declaration::TSTypeAliasDeclaration(ty)) => {
+            Declaration::TSTypeAliasDeclaration(ty) => {
                 (Visibility::Export, StatementKind::TypeAlias(ty))
             }
             _ => return None,
@@ -217,7 +217,7 @@ fn stmt_byte_span(stmt: &Statement<'_>) -> SpanIR {
         Statement::VariableDeclaration(d) => d.span,
         Statement::FunctionDeclaration(d) => d.span,
         Statement::TSTypeAliasDeclaration(d) => d.span,
-        Statement::ExportNamedDeclaration(d) => d.span,
+        Statement::ExportDeclaration(d) => d.span,
         _ => oxc::span::Span::default(),
     };
     // SpanIR is 1-based (the patch applicator subtracts 1 before

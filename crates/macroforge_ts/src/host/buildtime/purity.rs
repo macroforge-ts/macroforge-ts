@@ -57,10 +57,12 @@ fn impurity_of(stmt: &Statement<'_>) -> Option<(&'static str, SpanIR)> {
     match stmt {
         // Pure structural declarations.
         Statement::ImportDeclaration(_) => None,
-        Statement::ExportNamedDeclaration(export) => match &export.declaration {
-            Some(decl) => impurity_of_declaration(decl, export.span),
-            None => None, // re-export: `export { X }` has no side effects
-        },
+        Statement::ExportDeclaration(export) => {
+            impurity_of_declaration(&export.declaration, export.span)
+        }
+        // Re-exports: `export { X }` and `export { X } from "y"` have no side effects.
+        Statement::ExportNamedDeclaration(_) => None,
+        Statement::ExportFromDeclaration(_) => None,
         Statement::ExportDefaultDeclaration(_) => None,
         Statement::ExportAllDeclaration(_) => None,
         Statement::VariableDeclaration(var) => var.declarations.iter().find_map(|declarator| {
@@ -76,7 +78,8 @@ fn impurity_of(stmt: &Statement<'_>) -> Option<(&'static str, SpanIR)> {
         Statement::TSTypeAliasDeclaration(_) => None,
         Statement::TSInterfaceDeclaration(_) => None,
         Statement::TSEnumDeclaration(_) => None,
-        Statement::TSModuleDeclaration(_) => None,
+        Statement::TSExternalModuleDeclaration(_) => None,
+        Statement::TSNamespaceDeclaration(_) => None,
         // Side-effectful bare expressions like `console.log(...)` or
         // `init();` are rejected — even if the function is pure, the
         // act of calling at module load is a side effect.
@@ -117,7 +120,8 @@ fn impurity_of_declaration<'a>(
         Declaration::TSTypeAliasDeclaration(_) => None,
         Declaration::TSInterfaceDeclaration(_) => None,
         Declaration::TSEnumDeclaration(_) => None,
-        Declaration::TSModuleDeclaration(_) => None,
+        Declaration::TSExternalModuleDeclaration(_) => None,
+        Declaration::TSNamespaceDeclaration(_) => None,
         _ => Some(("unsupported export declaration", span_to_ir(fallback_span))),
     }
 }
@@ -219,7 +223,7 @@ mod tests {
     fn analyze_src(src: &str) -> Purity {
         let allocator = Allocator::default();
         let ret = OxcParser::new(&allocator, src, SourceType::ts()).parse();
-        assert!(ret.errors.is_empty(), "parse: {:?}", ret.errors);
+        assert!(ret.diagnostics.is_empty(), "parse: {:?}", ret.diagnostics);
         analyze(&ret.program)
     }
 

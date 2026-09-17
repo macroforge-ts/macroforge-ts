@@ -10,7 +10,7 @@
     },
     "files": ["pkg", "index.d.ts", "index.js", "*.node"],
     "scripts": {
-        "setup-vendor": "bash ../setup-vendor.sh && source ../../.env && mkdir -p vendor && ln -sfn \"$MACROFORGE_TS_CRATE\" vendor/macroforge_ts && ln -sfn \"$MACROFORGE_TS_MACROS_CRATE\" vendor/macroforge_ts_macros && ln -sfn \"$MACROFORGE_TS_QUOTE_CRATE\" vendor/macroforge_ts_quote && ln -sfn \"$MACROFORGE_TS_SYN_CRATE\" vendor/macroforge_ts_syn",
+        "setup-vendor": "bash ../setup-vendor.sh && bash -c 'source ../../.env && mkdir -p vendor && ln -sfn \"$MACROFORGE_TS_CRATE\" vendor/macroforge_ts && ln -sfn \"$MACROFORGE_TS_MACROS_CRATE\" vendor/macroforge_ts_macros && ln -sfn \"$MACROFORGE_TS_QUOTE_CRATE\" vendor/macroforge_ts_quote && ln -sfn \"$MACROFORGE_TS_SYN_CRATE\" vendor/macroforge_ts_syn'",
         "build": "deno task build:wasm",
         "build:native": "deno install --node-modules-dir && deno run -A npm:@napi-rs/cli/napi build --platform --release --package playground-macros",
         "_comment_build_wasm": "`macroforge build` rather than cargo + wasm-bindgen directly: it adds the `$` re-exports for Call macros ($state, $derived, $effect) that the vanilla playground imports. A raw wasm-bindgen run emits only the bare `state`/`derived`/`effect` exports, and the resulting package fails to type-check. Needs the CLI on PATH (`pixi run install:cli`).",

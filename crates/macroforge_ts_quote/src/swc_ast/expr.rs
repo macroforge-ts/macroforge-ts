@@ -113,6 +113,7 @@ impl_struct!(
     Function,
     [
         ctxt,
+        this_param,
         params,
         decorators,
         span,
@@ -394,7 +395,7 @@ mod tests {
             span: Span::default(),
             ctxt: SyntaxContext::empty(),
             params: vec![],
-            body: Box::new(BlockStmtOrExpr::Expr(Box::new(Expr::Lit(Lit::Num(
+            body: Box::new(ArrowFunctionBody::Expr(Box::new(Expr::Lit(Lit::Num(
                 Number {
                     span: Span::default(),
                     value: 42.0,

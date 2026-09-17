@@ -76,11 +76,11 @@ impl MacroforgeConfigLoader {
 
             let allocator = oxc::allocator::Allocator::default();
             let parsed = Parser::new(&allocator, content, source_type).parse();
-            if !parsed.errors.is_empty() {
+            if !parsed.diagnostics.is_empty() {
                 return Err(super::super::MacroError::InvalidConfig(format!(
                     "Parse error: {}",
                     parsed
-                        .errors
+                        .diagnostics
                         .into_iter()
                         .map(|diagnostic| diagnostic.to_string())
                         .collect::<Vec<_>>()
@@ -608,11 +608,18 @@ fn extract_expression_namespaces_oxc(expr_str: &str) -> Vec<String> {
                     collect_argument(arg, namespaces);
                 }
             }
-            Expression::ArrowFunctionExpression(arrow) => {
-                for stmt in &arrow.body.statements {
-                    collect_statement(stmt, namespaces);
+            Expression::ArrowFunctionExpression(arrow) => match arrow.get_function_body() {
+                Some(body) => {
+                    for stmt in &body.statements {
+                        collect_statement(stmt, namespaces);
+                    }
                 }
-            }
+                None => {
+                    if let Some(expr) = arrow.get_expression() {
+                        collect_expr(expr, namespaces);
+                    }
+                }
+            },
             Expression::FunctionExpression(function) => {
                 if let Some(body) = &function.body {
                     for stmt in &body.statements {

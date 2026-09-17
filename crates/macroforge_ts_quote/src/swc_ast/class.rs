@@ -230,6 +230,7 @@ mod tests {
             }),
             function: Box::new(Function {
                 ctxt: SyntaxContext::empty(),
+                this_param: None,
                 params: vec![],
                 decorators: vec![],
                 span: Span::default(),
@@ -264,6 +265,7 @@ mod tests {
             }),
             function: Box::new(Function {
                 ctxt: SyntaxContext::empty(),
+                this_param: None,
                 params: vec![],
                 decorators: vec![],
                 span: Span::default(),
@@ -378,6 +380,7 @@ mod tests {
             },
             function: Box::new(Function {
                 ctxt: SyntaxContext::empty(),
+                this_param: None,
                 params: vec![],
                 decorators: vec![],
                 span: Span::default(),
