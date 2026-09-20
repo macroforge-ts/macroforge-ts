@@ -4,7 +4,9 @@
 //! regenerating docs into a temp directory and comparing content hashes.
 //! Timestamps ("generated" fields in JSON) are stripped before comparison.
 
-use crate::cli::commands::docs::{extract_rust, extract_ts, generate_readmes};
+use crate::cli::commands::docs::{
+    extract_rust, extract_ts, generate_readmes, strip_generated_field,
+};
 use crate::core::config::Config;
 use crate::utils::format;
 use anyhow::Result;
@@ -105,14 +107,6 @@ fn all_generated_files() -> Vec<String> {
     }
 
     files
-}
-
-/// Strip the "generated" timestamp field from JSON content so that
-/// timestamps do not cause false-positive staleness.
-fn strip_generated_field(content: &str) -> String {
-    // Remove lines matching `"generated": "..."` (with optional trailing comma)
-    let re = regex::Regex::new(r#"(?m)^\s*"generated"\s*:\s*"[^"]*",?\s*\n?"#).unwrap();
-    re.replace_all(content, "").to_string()
 }
 
 /// Compute a normalized content string for comparison.

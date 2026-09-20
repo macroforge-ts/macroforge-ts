@@ -475,22 +475,60 @@ fn setup_lock_fixture(root: &Path, name: &str) {
     .unwrap();
 }
 
-/// Waits until `child` has been running long enough that it can only be blocked
-/// on the lock, and fails if it finished instead.
+/// Reads `stderr` on a thread, signalling as soon as the lock notice appears.
 ///
-/// The window has to clear process startup — a debug build's dynamic linking
-/// alone can outlast a naive timeout — or the child would still be starting
-/// when the lock is released and would never contend at all, leaving the test
-/// asserting nothing.
-fn assert_blocked(child: &mut std::process::Child) {
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(3);
-    while std::time::Instant::now() < deadline {
-        assert!(
-            child.try_wait().unwrap().is_none(),
-            "macroforge should block while another process holds the project lock"
-        );
-        std::thread::sleep(std::time::Duration::from_millis(100));
-    }
+/// Returns the receiver for that signal and a handle yielding everything read.
+fn watch_for_lock_notice(
+    stderr: std::process::ChildStderr,
+) -> (
+    std::sync::mpsc::Receiver<()>,
+    std::thread::JoinHandle<String>,
+) {
+    use std::io::{BufRead, BufReader};
+
+    let (tx, rx) = std::sync::mpsc::channel();
+    let handle = std::thread::spawn(move || {
+        let mut reader = BufReader::new(stderr);
+        let mut collected = String::new();
+        loop {
+            let mut line = String::new();
+            match reader.read_line(&mut line) {
+                Ok(0) | Err(_) => break,
+                Ok(_) => {
+                    if line.contains(LOCK_NOTICE) {
+                        let _ = tx.send(());
+                    }
+                    collected.push_str(&line);
+                }
+            }
+        }
+        collected
+    });
+
+    (rx, handle)
+}
+
+/// What a blocked run prints, and the signal both lock tests wait on.
+const LOCK_NOTICE: &str = "waiting for the project lock";
+
+/// How long to wait for a spawned child to reach the lock.
+///
+/// Generous because it covers process startup, which is what makes this a wait
+/// for an event rather than a sleep: the deadline only has to be longer than
+/// the slowest plausible start, not tuned to the actual one.
+const CONTENTION_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(60);
+
+/// Blocks until `rx` reports the lock notice, failing if the child never
+/// contends.
+///
+/// Waiting for the notice rather than for a fixed window is what keeps the test
+/// about contention. A timer cannot tell a process blocked on the lock from one
+/// still dynamically linking, so on a loaded machine the window expires while
+/// the child is still starting, the lock is released before it ever reaches it,
+/// and the assertions that follow pass without anything having been contended.
+fn await_contention(rx: &std::sync::mpsc::Receiver<()>) {
+    rx.recv_timeout(CONTENTION_TIMEOUT)
+        .expect("macroforge should announce that it is waiting for the project lock");
 }
 
 #[test]
@@ -510,17 +548,18 @@ fn contended_lock_is_announced_and_then_acquired() {
         .spawn()
         .expect("failed to run macroforge");
 
-    assert_blocked(&mut child);
+    let (notice, reader) = watch_for_lock_notice(child.stderr.take().expect("stderr is piped"));
+    await_contention(&notice);
     drop(held);
 
-    let output = child.wait_with_output().unwrap();
-    let stderr = String::from_utf8_lossy(&output.stderr);
+    let status = child.wait().unwrap();
+    let stderr = reader.join().unwrap();
     assert!(
-        stderr.contains("waiting for the project lock"),
+        stderr.contains(LOCK_NOTICE),
         "a blocked run should say what it is waiting for, got: {stderr}"
     );
     assert_eq!(
-        output.status.code(),
+        status.code(),
         Some(2),
         "the run should complete normally once the lock frees, got: {stderr}"
     );
@@ -536,7 +575,7 @@ fn contended_lock_stays_silent_in_quiet_mode() {
 
     let held = hold_project_lock(root);
 
-    let mut child = macroforge_bin()
+    let mut quiet = macroforge_bin()
         .arg("expand")
         .arg("plain.ts")
         .arg("--quiet")
@@ -546,16 +585,34 @@ fn contended_lock_stays_silent_in_quiet_mode() {
         .spawn()
         .expect("failed to run macroforge");
 
-    assert_blocked(&mut child);
+    // A quiet run announces nothing, so it cannot signal that it reached the
+    // lock. A second, speaking run does, and it was started later against the
+    // same lock — so once it reports waiting, the quiet one is waiting too.
+    let mut probe = macroforge_bin()
+        .arg("expand")
+        .arg("plain.ts")
+        .current_dir(root)
+        .stderr(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .expect("failed to run the probe");
+
+    let (notice, probe_reader) =
+        watch_for_lock_notice(probe.stderr.take().expect("stderr is piped"));
+    let (_, quiet_reader) = watch_for_lock_notice(quiet.stderr.take().expect("stderr is piped"));
+    await_contention(&notice);
     drop(held);
 
-    let output = child.wait_with_output().unwrap();
-    let stderr = String::from_utf8_lossy(&output.stderr);
+    let status = quiet.wait().unwrap();
+    probe.wait().unwrap();
+    probe_reader.join().unwrap();
+
+    let stderr = quiet_reader.join().unwrap();
     assert!(
         stderr.is_empty(),
         "stderr should be empty in quiet mode even when the lock was contended, got: {stderr}"
     );
-    assert_eq!(output.status.code(), Some(2));
+    assert_eq!(status.code(), Some(2));
 }
 
 #[test]

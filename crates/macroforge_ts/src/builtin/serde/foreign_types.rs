@@ -100,27 +100,58 @@ fn get_builtin_foreign_types() -> Vec<ForeignTypeConfig> {
 pub fn rewrite_expression_namespaces(expr: &str) -> String {
     with_registry(|r| {
         let mut result = expr.to_string();
-        let mut found_any = false;
 
         for import in r.generated_imports() {
             if let Some(ref original) = import.original_name
                 && !import.is_type_only
             {
-                let pattern = format!("{}.", original);
-                let replacement = format!("{}.", import.local_name);
-                if result.contains(&pattern) {
-                    result = result.replace(&pattern, &replacement);
-                    found_any = true;
-                }
+                result = replace_namespace_root(&result, original, &import.local_name);
             }
-        }
-
-        if !found_any {
-            return expr.to_string();
         }
 
         result
     })
+}
+
+/// Replace `<namespace>.` with `<alias>.` where the namespace is the root of a
+/// qualified name.
+///
+/// A member of the same name is left alone. `DateTime.DateTime.Input` is the
+/// `DateTime` export of the `DateTime` module, so rewriting every occurrence
+/// yields `__mf_DateTime.__mf_DateTime.Input` and a type error: the alias is
+/// bound to the module, and its members keep the names they were exported
+/// under. The same guard keeps `x.DateTime.y` and `myDateTime.z` untouched,
+/// neither of which refers to the namespace at all.
+fn replace_namespace_root(source: &str, namespace: &str, alias: &str) -> String {
+    let pattern = format!("{namespace}.");
+    let mut out = String::with_capacity(source.len());
+    let mut rest = source;
+
+    while let Some(offset) = rest.find(&pattern) {
+        let (before, after) = rest.split_at(offset);
+        out.push_str(before);
+
+        // Read the preceding character off the output rather than off `before`,
+        // which is empty whenever two matches touch. After a rewrite the output
+        // ends in the alias's `.`, which is what makes the second half of
+        // `DateTime.DateTime.` a member rather than another root.
+        let is_root = !out
+            .chars()
+            .next_back()
+            .is_some_and(|c| c == '.' || c == '_' || c == '$' || c.is_alphanumeric());
+
+        if is_root {
+            out.push_str(alias);
+            out.push('.');
+        } else {
+            out.push_str(&pattern);
+        }
+
+        rest = &after[pattern.len()..];
+    }
+
+    out.push_str(rest);
+    out
 }
 
 /// Register required namespace imports for a matched foreign type.
@@ -275,5 +306,73 @@ impl<'a> ForeignTypeMatch<'a> {
     /// Returns true if there was an error (import source mismatch).
     pub fn has_error(&self) -> bool {
         self.error.is_some()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::replace_namespace_root;
+
+    #[test]
+    fn rewrites_a_bare_namespace_qualifier() {
+        assert_eq!(
+            replace_namespace_root("(v) => DateTime.formatIso(v)", "DateTime", "__mf_DateTime"),
+            "(v) => __mf_DateTime.formatIso(v)"
+        );
+    }
+
+    #[test]
+    fn rewrites_only_the_root_of_a_qualified_name() {
+        // `DateTime.DateTime.Input` is the `DateTime` export of the `DateTime`
+        // module. The alias is bound to the module, so the member keeps its
+        // own name; rewriting both segments asks for a member that is not there.
+        assert_eq!(
+            replace_namespace_root(
+                "raw as DateTime.DateTime.Input",
+                "DateTime",
+                "__mf_DateTime"
+            ),
+            "raw as __mf_DateTime.DateTime.Input"
+        );
+    }
+
+    #[test]
+    fn leaves_a_property_of_the_same_name_alone() {
+        assert_eq!(
+            replace_namespace_root("config.DateTime.parse(v)", "DateTime", "__mf_DateTime"),
+            "config.DateTime.parse(v)"
+        );
+    }
+
+    #[test]
+    fn leaves_a_longer_identifier_alone() {
+        assert_eq!(
+            replace_namespace_root("myDateTime.value", "DateTime", "__mf_DateTime"),
+            "myDateTime.value"
+        );
+        assert_eq!(
+            replace_namespace_root("$DateTime.value", "DateTime", "__mf_DateTime"),
+            "$DateTime.value"
+        );
+    }
+
+    #[test]
+    fn rewrites_every_independent_occurrence() {
+        assert_eq!(
+            replace_namespace_root(
+                "(raw) => DateTime.unsafeMake(raw as DateTime.DateTime.Input)",
+                "DateTime",
+                "__mf_DateTime"
+            ),
+            "(raw) => __mf_DateTime.unsafeMake(raw as __mf_DateTime.DateTime.Input)"
+        );
+    }
+
+    #[test]
+    fn leaves_an_expression_without_the_namespace_untouched() {
+        assert_eq!(
+            replace_namespace_root("(v) => Option.getOrNull(v)", "DateTime", "__mf_DateTime"),
+            "(v) => Option.getOrNull(v)"
+        );
     }
 }

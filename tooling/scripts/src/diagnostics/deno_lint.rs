@@ -41,16 +41,7 @@ pub fn run(_root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic
     let mut all_diagnostics = Vec::new();
 
     for project_dir in project_dirs {
-        // Check if this project has a deno.json config
-        let has_config =
-            project_dir.join("deno.json").exists() || project_dir.join("deno.jsonc").exists();
-
-        // If no local config, use the tooling config
-        let config = if !has_config {
-            find_tooling_config(project_dir)
-        } else {
-            None
-        };
+        let config = governing_config(project_dir);
 
         let result = shell::deno::lint_json(project_dir, config.as_deref())?;
         let stdout = &result.stdout;
@@ -87,6 +78,22 @@ pub fn run(_root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic
     }
 
     Ok(all_diagnostics)
+}
+
+/// The config a `deno` invocation in `project_dir` should be given explicitly.
+///
+/// `None` when the project carries its own, which deno finds by itself.
+/// Otherwise the repo-wide `tooling/deno.json`, because deno's own discovery
+/// stops at the nearest `package.json` and would silently fall back to its
+/// built-in defaults: a different indent width, different quotes, and trailing
+/// commas the repo does not use.
+pub fn governing_config(project_dir: &Path) -> Option<std::path::PathBuf> {
+    let has_config =
+        project_dir.join("deno.json").exists() || project_dir.join("deno.jsonc").exists();
+    if has_config {
+        return None;
+    }
+    find_tooling_config(project_dir)
 }
 
 /// Find tooling/deno.json by walking up from project dir

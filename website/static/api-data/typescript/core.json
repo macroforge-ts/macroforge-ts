@@ -1,6 +1,6 @@
 {
   "name": "macroforge",
-  "version": "0.1.84",
+  "version": "0.1.85",
   "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
   "exports": []
 }

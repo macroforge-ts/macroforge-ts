@@ -63,6 +63,11 @@ const aliases = [
 
 export default defineConfig({
     plugins,
+    server: {
+        // Must agree with playwright.svelte.config.ts, which polls this port.
+        port: Number(globalThis.process.env.PLAYGROUND_SVELTE_PORT ?? 5173),
+        strictPort: true
+    },
     ssr: {
         noExternal: ['effect', '@playground/macro']
     },

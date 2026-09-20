@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/svelte-preprocessor",
-  "version": "0.1.84",
+  "version": "0.1.85",
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "exports": [
     {

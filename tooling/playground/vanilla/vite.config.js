@@ -13,7 +13,12 @@ const { macroforge } = await import(`${VITE_PLUGIN_PKG}/src/index.js`);
 export default defineConfig({
     plugins: [macroforge()],
     server: {
-        port: 3000
+        // Env-driven so a run can move off a port something else already holds.
+        // `strictPort` makes that collision an error instead of a silent shift
+        // to the next free port, which would leave the e2e suite polling an
+        // address this server never bound.
+        port: Number(globalThis.process.env.PLAYGROUND_VANILLA_PORT ?? 3000),
+        strictPort: true
     },
     build: {
         rollupOptions: {

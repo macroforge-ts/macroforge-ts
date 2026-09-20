@@ -4,6 +4,7 @@
 //! managing versions.json cache, and swapping dependency paths.
 
 use crate::core::config::{self, Config};
+use crate::core::repos::Repo;
 use crate::core::versions::VersionsCache;
 use crate::utils::format;
 use anyhow::{Context, Result};
@@ -53,6 +54,53 @@ pub fn is_using_local_paths(config: &Config) -> bool {
     }
 
     false
+}
+
+/// Check if npm dependencies are currently using local `file:` paths.
+///
+/// Tracked separately from the Cargo side: the two are swapped by different
+/// functions and a tree can sit with one local and the other on the registry,
+/// so deciding the npm restore from the Cargo answer leaves whichever one
+/// disagreed in the state the failed build put it in.
+pub fn is_using_local_npm_deps(config: &Config) -> bool {
+    let npm_names = config::npm_package_names();
+
+    for repo in config.repos.values() {
+        let Some(pkg_path) = &repo.package_json else {
+            continue;
+        };
+        let full_path = config.root.join(pkg_path);
+        let Ok(content) = fs::read_to_string(&full_path) else {
+            continue;
+        };
+        let Ok(pkg) = serde_json::from_str::<Value>(&content) else {
+            continue;
+        };
+
+        for npm_name in npm_names.values() {
+            for section in ["dependencies", "peerDependencies"] {
+                let is_local = pkg
+                    .get(section)
+                    .and_then(|d| d.get(*npm_name))
+                    .and_then(Value::as_str)
+                    .is_some_and(|v| v.starts_with("file:"));
+                if is_local {
+                    return true;
+                }
+            }
+        }
+    }
+
+    false
+}
+
+/// Relink every internal npm dependency to its local checkout.
+///
+/// [`swap_npm_local`] takes the set a build is about to produce; this takes
+/// them all, which is what restoring a tree wants.
+pub fn swap_npm_local_all(config: &Config) -> Result<()> {
+    let names: Vec<&str> = config::npm_package_names().into_keys().collect();
+    swap_npm_local(config, &names)
 }
 
 /// Swap internal crate dependencies to use workspace-relative paths with version.
@@ -328,6 +376,22 @@ pub fn restore_repo(config: &Config, versions: &VersionsCache, repo: &str) -> Re
     Ok(())
 }
 
+/// Write one repo's version into every manifest that carries it.
+///
+/// The single place that knows which files a version lives in. Bumping and
+/// rolling back both go through it, because when they each had their own list
+/// the rollback's was short one entry and left every `deno.json` at the version
+/// of the build that failed.
+fn write_repo_version(repo: &Repo, version: &str, versions: &VersionsCache) -> Result<()> {
+    if let Some(pkg_path) = &repo.package_json {
+        update_package_json(pkg_path, version, versions)?;
+    }
+    if let Some(cargo_path) = &repo.cargo_toml {
+        update_cargo_toml(cargo_path, version, versions)?;
+    }
+    update_jsr_json(&repo.abs_path, version)
+}
+
 /// Set version in a repo's manifest files
 pub fn set_version(
     config: &Config,
@@ -336,13 +400,7 @@ pub fn set_version(
     version: &str,
 ) -> Result<()> {
     if let Some(r) = config.repos.get(repo) {
-        if let Some(pkg_path) = &r.package_json {
-            update_package_json(pkg_path, version, versions)?;
-        }
-        if let Some(cargo_path) = &r.cargo_toml {
-            update_cargo_toml(cargo_path, version, versions)?;
-        }
-        update_jsr_json(&r.abs_path, version)?;
+        write_repo_version(r, version, versions)?;
     }
     versions.set_local(repo, version);
     Ok(())
@@ -408,8 +466,20 @@ fn update_package_json(path: &Path, version: &str, versions: &VersionsCache) -> 
 
     pkg["version"] = json!(version);
 
-    // Update internal dependencies
+    // Update internal dependencies.
+    //
+    // A `file:` reference is left alone. Whether a dependency points at the
+    // local checkout or at the registry is owned by the swap functions, and
+    // overwriting it here silently converts a tree that is mid-build back to
+    // registry deps: exactly what the rollback did to every package it touched.
     let update_dep = |deps: &mut serde_json::Map<String, Value>, key: &str, target_repo: &str| {
+        if deps
+            .get(key)
+            .and_then(Value::as_str)
+            .is_some_and(|current| current.starts_with("file:"))
+        {
+            return;
+        }
         if deps.contains_key(key)
             && let Some(v) = versions.get_local(target_repo)
         {
@@ -443,6 +513,7 @@ fn update_cargo_toml(path: &Path, version: &str, versions: &VersionsCache) -> Re
     }
 
     let content = fs::read_to_string(path).context("Failed to read Cargo.toml")?;
+    let had_trailing_newline = content.ends_with('\n');
 
     // Update version line
     let mut lines: Vec<String> = content
@@ -478,7 +549,11 @@ fn update_cargo_toml(path: &Path, version: &str, versions: &VersionsCache) -> Re
         }
     }
 
-    fs::write(path, lines.join("\n"))?;
+    let mut out = lines.join("\n");
+    if had_trailing_newline {
+        out.push('\n');
+    }
+    fs::write(path, out)?;
     format::success(&format!("Updated {}", path.display()));
 
     Ok(())
@@ -511,20 +586,9 @@ fn replace_const(content: &str, name: &str, val: &str) -> String {
 pub fn apply_versions(config: &Config, versions: &VersionsCache) -> Result<()> {
     for repo in config.repos.values() {
         if let Some(ver) = versions.get_local(&repo.name) {
-            if let Some(pkg_path) = &repo.package_json {
-                update_package_json(pkg_path, ver, versions).unwrap_or_else(|e| {
-                    eprintln!("  Warning: Failed to update {}: {}", pkg_path.display(), e);
-                });
-            }
-            if let Some(cargo_path) = &repo.cargo_toml {
-                update_cargo_toml(cargo_path, ver, versions).unwrap_or_else(|e| {
-                    eprintln!(
-                        "  Warning: Failed to update {}: {}",
-                        cargo_path.display(),
-                        e
-                    );
-                });
-            }
+            write_repo_version(repo, ver, versions).unwrap_or_else(|e| {
+                eprintln!("  Warning: Failed to restore {}: {}", repo.name, e);
+            });
         }
     }
     update_zed_extensions(&config.root, versions)?;

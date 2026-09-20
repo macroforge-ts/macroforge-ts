@@ -14,12 +14,14 @@ use crate::core::registry;
 use crate::core::repos::{Repo, RepoType};
 use crate::core::shell;
 use crate::core::versions;
+use crate::diagnostics::deno_lint;
 use crate::diagnostics::runner::{DiagnosticOptions, DiagnosticsRunner};
 use crate::utils::format;
 use anyhow::{Context, Result};
 use colored::Colorize;
 use std::collections::{HashMap, HashSet};
 use std::io::{self, Write};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -130,7 +132,6 @@ fn build_repo(repo: &Repo, verbose: bool, cache_build: bool) -> Result<()> {
             }
         }
         RepoType::Website => {
-            shell::git::pull(&repo.abs_path, "origin")?;
             if !cache_build {
                 shell::run("rm -rf node_modules .svelte-kit", &repo.abs_path, verbose)?;
             }
@@ -142,13 +143,91 @@ fn build_repo(repo: &Repo, verbose: bool, cache_build: bool) -> Result<()> {
     Ok(())
 }
 
+/// The trees `extract_api_docs` rewrites.
+const GENERATED_DOC_TREES: &[&str] = &[
+    "docs/api",
+    "website/static/api-data",
+    "website/src/routes/docs/builtin-macros",
+    "packages/mcp-server/docs/builtin-macros",
+];
+
+/// The generated documentation as it stood before a run touched it.
+///
+/// The docs carry the version they were extracted at, so a bump rewrites them
+/// and undoing the bump has to put them back. Restoring the bytes rather than
+/// re-extracting is what makes that exact: every extraction stamps a fresh
+/// `generated` time, so a regenerated file matches the original in content and
+/// still shows up as a change on a run that produced nothing.
+struct DocsSnapshot {
+    files: Vec<(PathBuf, Vec<u8>)>,
+}
+
+impl DocsSnapshot {
+    fn capture(config: &Config) -> Self {
+        let mut files = Vec::new();
+        for tree in GENERATED_DOC_TREES {
+            collect_files(&config.root.join(tree), &mut files);
+        }
+        Self { files }
+    }
+
+    fn restore(&self) {
+        for (path, contents) in &self.files {
+            if std::fs::read(path).is_ok_and(|current| current == *contents) {
+                continue;
+            }
+            if let Err(e) = std::fs::write(path, contents) {
+                eprintln!(
+                    "  {} Failed to restore {}: {}",
+                    "✗".red(),
+                    path.display(),
+                    e
+                );
+            }
+        }
+    }
+}
+
+/// Reads every file under `dir` into `out`, ignoring a tree that is not there.
+fn collect_files(dir: &Path, out: &mut Vec<(PathBuf, Vec<u8>)>) {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            collect_files(&path, out);
+        } else if let Ok(contents) = std::fs::read(&path) {
+            out.push((path, contents));
+        }
+    }
+}
+
+/// Regenerate both API documentation trees.
+fn extract_api_docs(config: &Config) -> Result<()> {
+    let docs_output = config.root.join("docs/api");
+    extract_rust::run(&docs_output).context("Failed to extract Rust docs to docs/api")?;
+    extract_ts::run(&docs_output).context("Failed to extract TS docs to docs/api")?;
+
+    // The website reads a separate output tree; verify used to regenerate
+    // only `docs/api`, so the site's data could never be refreshed by CI.
+    extract_rust::run(&config.root.join("website/static/api-data/rust"))
+        .context("Failed to extract Rust docs to website/static/api-data/rust")?;
+    extract_ts::run(&config.root.join("website/static/api-data/typescript"))
+        .context("Failed to extract TS docs to website/static/api-data/typescript")?;
+
+    Ok(())
+}
+
 /// Entry point for `mf verify`: runs the full release-verification pipeline.
 pub fn run(args: VerifyArgs) -> Result<()> {
     let config = Config::load()?;
     let verbose = std::env::var("VERBOSE").is_ok() || std::env::var("DEBUG").is_ok();
 
-    // Capture initial manifest state (local vs registry) for rollback
+    // Capture initial manifest state (local vs registry) for rollback. The
+    // Cargo and npm sides are swapped independently, so both are recorded.
     let was_using_local_paths = manifests::is_using_local_paths(&config);
+    let was_using_local_npm_deps = manifests::is_using_local_npm_deps(&config);
 
     // Set up Ctrl+C handler with full rollback capability
     let interrupted = Arc::new(AtomicBool::new(false));
@@ -174,6 +253,10 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             let _ = manifests::swap_local(&config_clone);
         } else {
             let _ = manifests::swap_registry(&config_clone, &original_versions_for_handler);
+        }
+        if was_using_local_npm_deps {
+            let _ = manifests::swap_npm_local_all(&config_clone);
+        } else {
             let _ = manifests::swap_npm_registry(&config_clone, &original_versions_for_handler);
         }
         eprintln!("{} Rollback complete. Exiting.", "✓".green());
@@ -281,6 +364,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
 
     // Save original versions for rollback
     let original_versions_cache = config.versions.clone();
+    let docs_snapshot = DocsSnapshot::capture(&config);
 
     // Rollback helper - restores original versions on failure
     let rollback = |config: &Config, original: &versions::VersionsCache| {
@@ -293,11 +377,21 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         if let Err(e) = manifests::apply_versions(config, original) {
             eprintln!("  {} Failed to restore manifest files: {}", "✗".red(), e);
         }
+        // Cargo.lock records workspace members by version, and the docs are
+        // stamped with it, so both belong to the bump being undone.
+        if let Err(e) = shell::cargo::sync_lock(&config.root.join("crates")) {
+            eprintln!("  {} Failed to restore Cargo.lock: {}", "✗".red(), e);
+        }
+        docs_snapshot.restore();
         // Restore to original dependency state (local or registry)
         if was_using_local_paths {
             let _ = manifests::swap_local(config);
         } else {
             let _ = manifests::swap_registry(config, original);
+        }
+        if was_using_local_npm_deps {
+            let _ = manifests::swap_npm_local_all(config);
+        } else {
             let _ = manifests::swap_npm_registry(config, original);
         }
         eprintln!("{} Rollback complete", "✓".green());
@@ -435,16 +529,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         // Extraction failures are propagated rather than discarded: swallowing
         // them is how the published docs silently rotted (the website's copy sat
         // at 0.1.79 with 2 items while the crate moved on).
-        let docs_output = config.root.join("docs/api");
-        extract_rust::run(&docs_output).context("Failed to extract Rust docs to docs/api")?;
-        extract_ts::run(&docs_output).context("Failed to extract TS docs to docs/api")?;
-
-        // The website reads a separate output tree; verify used to regenerate
-        // only `docs/api`, so the site's data could never be refreshed by CI.
-        extract_rust::run(&config.root.join("website/static/api-data/rust"))
-            .context("Failed to extract Rust docs to website/static/api-data/rust")?;
-        extract_ts::run(&config.root.join("website/static/api-data/typescript"))
-            .context("Failed to extract TS docs to website/static/api-data/typescript")?;
+        extract_api_docs(&config)?;
     } else {
         println!("\n{} Skipping API extraction", "[2/11]".dimmed());
     }
@@ -610,7 +695,11 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         // Format with deno fmt (auto-fix)
         print!("  {} deno fmt... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::deno_fmt(&tooling_path, &[]) {
+        match shell::deno::deno_fmt(
+            &tooling_path,
+            &[],
+            deno_lint::governing_config(&tooling_path).as_deref(),
+        ) {
             Ok(_) => println!("{}", "ok".green()),
             Err(e) => {
                 println!("{}", "failed".red());
@@ -701,7 +790,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         // Deno tests
         print!("  {} Deno tests... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::task(&playground_tests, "test") {
+        match shell::deno::task_inherit(&playground_tests, "test") {
             Ok(_) => println!("{}", "passed".green()),
             Err(e) => {
                 println!("{}", "failed".red());
@@ -713,7 +802,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         // Validator tests
         print!("  {} Validator tests... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::task(&playground_tests, "test:validators") {
+        match shell::deno::task_inherit(&playground_tests, "test:validators") {
             Ok(_) => println!("{}", "passed".green()),
             Err(e) => {
                 println!("{}", "failed".red());
@@ -725,7 +814,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         // E2E tests
         print!("  {} E2E tests... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::task(&playground_tests, "test:e2e") {
+        match shell::deno::task_inherit(&playground_tests, "test:e2e") {
             Ok(_) => println!("{}", "passed".green()),
             Err(e) => {
                 println!("{}", "failed".red());
@@ -801,7 +890,11 @@ pub fn run(args: VerifyArgs) -> Result<()> {
 
         print!("  {} deno fmt tooling/... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::deno_fmt(&tooling_path, &[]) {
+        match shell::deno::deno_fmt(
+            &tooling_path,
+            &[],
+            deno_lint::governing_config(&tooling_path).as_deref(),
+        ) {
             Ok(_) => println!("{}", "ok".green()),
             Err(e) => {
                 println!("{}", "failed".red());
