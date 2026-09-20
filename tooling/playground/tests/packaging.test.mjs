@@ -594,3 +594,68 @@ test('packaging: an unexpandable source fails the build and spares dist', () => 
         }
     );
 });
+
+/**
+ * Run `fn` with a macro package installed under the library's `node_modules`.
+ *
+ * `rebuild` rewrites its entry script, which is what the CLI's external-macro
+ * hash tracks. The marker export is the only thing that makes a package count
+ * as one, so the contents are otherwise irrelevant: nothing loads this, it just
+ * has to move the hash the way a real `napi build` would.
+ */
+function withMacroPackage(fn) {
+    const dir = path.join(libraryRoot, 'node_modules', 'macroforge-test-macros');
+    const entry = path.join(dir, 'index.js');
+    const rebuild = (marker) =>
+        writeFileSync(entry, `exports.__macroforgeRun = () => {};\n// ${marker}\n`);
+    try {
+        mkdirSync(dir, { recursive: true });
+        rebuild('first build');
+        return fn(rebuild);
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
+}
+
+test('packaging: a rebuilt macro binary re-expands rather than replaying the tree', () => {
+    ensureInstalled();
+
+    // The expanded tree persists under `.macroforge/`, and nothing about a
+    // rebuilt macro package touches a source file, so comparing sources finds
+    // nothing changed and the run republishes the previous binary's output.
+    // Whatever that output was is then recorded as this binary's work, which is
+    // how an expansion that would now fail outright gets shipped from cache
+    // with no error in sight.
+    const artifact = path.join(
+        libraryRoot,
+        '.macroforge/svelte-package/expanded/types/person-name.ts'
+    );
+
+    withMacroPackage((rebuild) => {
+        packageOk();
+
+        // Stands in for an expansion the rebuilt macro produces differently.
+        // Marking the cached artifact is the only way to tell a reused one from
+        // a freshly produced one by looking at the package.
+        writeFileSync(
+            artifact,
+            `${readFileSync(artifact, 'utf8')}\nexport const REPLAYED_FROM_CACHE = true;\n`
+        );
+
+        rebuild('second build');
+        const output = packageOk();
+
+        assert.match(
+            output,
+            /Re-expanded all 2 macro module\(s\) — the external macro binary changed/,
+            `a rebuilt macro binary must re-expand every module.\n${output}`
+        );
+        assert.ok(
+            !readFileSync(
+                path.join(distDir, 'types/person-name.js'),
+                'utf8'
+            ).includes('REPLAYED_FROM_CACHE'),
+            'the package must not ship an expansion the current macro binary never produced'
+        );
+    });
+});

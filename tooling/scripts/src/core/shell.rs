@@ -285,6 +285,19 @@ pub mod cargo {
             .run()
     }
 
+    /// Rewrite Cargo.lock so it agrees with the manifests on disk.
+    ///
+    /// Workspace members are recorded in the lock by version, so restoring a
+    /// bumped `Cargo.toml` leaves the lock naming a release that was abandoned.
+    /// `cargo metadata` resolves the graph and rewrites the lock without
+    /// building or touching the network.
+    pub fn sync_lock(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&["metadata", "--format-version", "1", "--offline"])
+            .dir(cwd)
+            .run()
+    }
+
     /// Run tests via cargo-nextest, automatically detecting workspace.
     /// nextest executes each test in its own process, so process-global
     /// state (config caches, registries) cannot leak between tests.
@@ -343,8 +356,12 @@ pub mod deno {
     }
 
     /// Run deno fmt to format code
-    pub fn deno_fmt(cwd: &Path, paths: &[&str]) -> Result<CommandResult> {
+    pub fn deno_fmt(cwd: &Path, paths: &[&str], config: Option<&Path>) -> Result<CommandResult> {
+        let config_arg = config.map(|p| p.to_string_lossy().into_owned());
         let mut shell = Shell::new("deno").arg("fmt");
+        if let Some(ref config_path) = config_arg {
+            shell = shell.arg("--config").arg(config_path);
+        }
         if paths.is_empty() {
             shell = shell.arg(".");
         } else {
@@ -368,14 +385,12 @@ pub mod deno {
 
     /// Run deno lint with JSON output
     pub fn lint_json(cwd: &Path, config: Option<&Path>) -> Result<CommandResult> {
+        let config_arg = config.map(|p| p.to_string_lossy().into_owned());
         let mut shell = Shell::new("deno");
         shell = shell.args(&["lint", "--json"]);
 
-        if let Some(config_path) = config {
-            // We need to convert to string and leak it for the lifetime
-            let config_str: &'static str =
-                Box::leak(config_path.to_string_lossy().into_owned().into_boxed_str());
-            shell = shell.args(&["--config", config_str]);
+        if let Some(ref config_path) = config_arg {
+            shell = shell.arg("--config").arg(config_path);
         }
 
         shell.arg(".").dir(cwd).run()
@@ -515,15 +530,6 @@ pub mod git {
             .dir(cwd)
             .run()?;
         Ok(result.stdout)
-    }
-
-    /// Pull from remote
-    pub fn pull(cwd: &Path, remote: &str) -> Result<()> {
-        Shell::new("git")
-            .args(&["pull", remote])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
     }
 
     /// Stage all changes

@@ -1,5 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// Env-driven, matching the vanilla playground's own `server.port`, so a run can
+// move off a port another project already holds. Both have to read the same
+// variable: pointing the suite at an address this config did not start is how a
+// green e2e run ends up having tested someone else's application.
+const port = globalThis.process.env.PLAYGROUND_VANILLA_PORT ?? '3000';
+const origin = `http://localhost:${port}`;
+
 export default defineConfig({
     testDir: './e2e',
     testMatch: '**/vanilla-*.spec.ts',
@@ -9,7 +16,7 @@ export default defineConfig({
     workers: globalThis.process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
-        baseURL: 'http://localhost:3000',
+        baseURL: origin,
         trace: 'on-first-retry'
     },
     projects: [
@@ -21,7 +28,7 @@ export default defineConfig({
     webServer: {
         command: 'deno task dev',
         cwd: '../vanilla',
-        url: 'http://localhost:3000',
+        url: origin,
         reuseExistingServer: !globalThis.process.env.CI,
         timeout: 120000
     }

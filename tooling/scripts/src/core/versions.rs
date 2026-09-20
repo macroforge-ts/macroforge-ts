@@ -2,7 +2,7 @@
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::path::Path;
 
 /// Version information for a package
@@ -14,11 +14,15 @@ pub struct VersionInfo {
     pub registry: String,
 }
 
-/// Version cache stored in versions.json
+/// Version cache stored in versions.json.
+///
+/// Ordered, so the file's text depends on its content alone. A hash map
+/// renders its keys in iteration order, which made every save reshuffle the
+/// whole file and bury a one-version change in a whole-file diff.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct VersionsCache {
     #[serde(flatten)]
-    pub versions: HashMap<String, Option<VersionInfo>>,
+    pub versions: BTreeMap<String, Option<VersionInfo>>,
 }
 
 impl VersionsCache {

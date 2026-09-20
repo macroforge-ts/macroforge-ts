@@ -3,6 +3,7 @@
 //! Parses TypeScript source files using SWC for proper AST-based extraction of
 //! JSDoc comments, exported declarations, and type signatures.
 
+use crate::cli::commands::docs::write_docs_json;
 use crate::core::config::Config;
 use crate::utils::format;
 use anyhow::Result;
@@ -117,7 +118,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
 
         let out_path = output_path.join(format!("{}.json", pkg_name));
         let json = serde_json::to_string_pretty(&docs)?;
-        fs::write(&out_path, json)?;
+        write_docs_json(&out_path, &json)?;
 
         println!("{} exports", export_count);
         all_docs.push(docs);
@@ -134,7 +135,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
     });
 
     let index_path = output_path.join("index.json");
-    fs::write(&index_path, serde_json::to_string_pretty(&index)?)?;
+    write_docs_json(&index_path, &serde_json::to_string_pretty(&index)?)?;
 
     println!();
     format::success(&format!(

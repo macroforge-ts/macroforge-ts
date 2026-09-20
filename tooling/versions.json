@@ -1,55 +1,55 @@
 {
-    "svelte-preprocessor": {
-        "local": "0.1.84",
-        "registry": "0.1.77"
+    "core": {
+        "local": "0.1.85",
+        "registry": "0.1.85"
     },
-    "website": {
-        "local": "0.1.84",
-        "registry": ""
-    },
-    "zed-extensions": null,
-    "syn": {
-        "local": "0.1.84",
-        "registry": "0.1.79"
-    },
-    "vite-plugin": {
-        "local": "0.1.84",
-        "registry": "0.1.77"
-    },
-    "shared": {
-        "local": "0.1.84",
-        "registry": "0.1.77"
-    },
-    "tooling": {
-        "local": "0.1.84",
+    "deno-plugin": {
+        "local": "0.1.85",
         "registry": ""
     },
     "macros": {
-        "local": "0.1.84",
+        "local": "0.1.85",
         "registry": "0.1.79"
-    },
-    "typescript-plugin": {
-        "local": "0.1.84",
-        "registry": "0.1.84"
-    },
-    "template": {
-        "local": "0.1.84",
-        "registry": "0.1.79"
-    },
-    "svelte-language-server": {
-        "local": "0.1.84",
-        "registry": "0.1.84"
     },
     "mcp-server": {
-        "local": "0.1.84",
+        "local": "0.1.85",
         "registry": "0.1.77"
     },
-    "core": {
-        "local": "0.1.84",
-        "registry": "0.1.84"
+    "shared": {
+        "local": "0.1.85",
+        "registry": "0.1.77"
     },
-    "deno-plugin": {
-        "local": "0.1.84",
+    "svelte-language-server": {
+        "local": "0.1.85",
+        "registry": "0.1.85"
+    },
+    "svelte-preprocessor": {
+        "local": "0.1.85",
+        "registry": "0.1.77"
+    },
+    "syn": {
+        "local": "0.1.85",
+        "registry": "0.1.79"
+    },
+    "template": {
+        "local": "0.1.85",
+        "registry": "0.1.79"
+    },
+    "tooling": {
+        "local": "0.1.85",
         "registry": ""
-    }
+    },
+    "typescript-plugin": {
+        "local": "0.1.85",
+        "registry": "0.1.85"
+    },
+    "vite-plugin": {
+        "local": "0.1.85",
+        "registry": "0.1.77"
+    },
+    "website": {
+        "local": "0.1.85",
+        "registry": ""
+    },
+    "zed-extensions": null
 }

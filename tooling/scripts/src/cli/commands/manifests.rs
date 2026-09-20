@@ -7,6 +7,7 @@ use crate::cli::ManifestArgs;
 use crate::core::config::Config;
 use crate::core::manifests;
 use crate::core::shell;
+use crate::diagnostics::deno_lint;
 use crate::utils::format;
 use anyhow::Result;
 
@@ -44,7 +45,12 @@ pub fn run(args: ManifestArgs) -> Result<()> {
             }
             versions.save(&config.root)?;
             // Format versions.json with deno fmt
-            let _ = shell::deno::deno_fmt(&config.root, &["tooling/versions.json"]);
+            let config_path = deno_lint::governing_config(&config.root);
+            let _ = shell::deno::deno_fmt(
+                &config.root,
+                &["tooling/versions.json"],
+                config_path.as_deref(),
+            );
         }
 
         crate::cli::ManifestCommands::ApplyVersions { local } => {

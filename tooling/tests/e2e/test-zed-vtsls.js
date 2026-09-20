@@ -17,7 +17,7 @@ const ZED_VTSLS = path.join(
     '@vtsls',
     'language-server',
     'bin',
-    'vtsls.js',
+    'vtsls.js'
 );
 const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
 const PLUGIN_PATH = path.join(REPO_ROOT, 'packages', 'typescript-plugin', 'dist', 'index.js');

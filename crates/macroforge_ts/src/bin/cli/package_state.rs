@@ -103,8 +103,8 @@ pub(crate) struct PackageState {
     /// Hash of the type and declarative registries the expanded tree was
     /// produced against. Unlike the rest of `inputs` this cannot participate in
     /// the skip decision — the registries are only rebuilt once a run is
-    /// already under way — so it instead decides whether that run re-expands
-    /// every file or only the ones that changed.
+    /// already under way — so it reaches the build through
+    /// [`Self::expansion_stale_reason`] instead.
     pub(crate) registry_hash: String,
     /// Input paths that had an expanded artifact when the run finished.
     ///
@@ -173,6 +173,44 @@ impl PackageState {
         }
         if previous.project_hash != current.project_hash {
             return Some("a project source outside the input directory changed".into());
+        }
+
+        None
+    }
+
+    /// Why every expanded artifact has to be produced again, or `None` if the
+    /// ones whose source did not move can be reused.
+    ///
+    /// [`Self::stale_reason`] decides whether to run at all; this decides what
+    /// that run re-expands, and the two answers are not the same. Most of what
+    /// makes a package stale (a tsconfig edit, a new `@sveltejs/package`, a
+    /// deleted output directory) changes how sources are *packaged*, and the
+    /// expansions still hold. What does not survive is a change to the engine
+    /// that produced them, the config it read, or the type surface it resolved
+    /// against. None of those touch a single input file, so comparing sources
+    /// finds nothing to do and the run republishes the previous build's
+    /// expansions under the new inputs, then records them as that build's work.
+    /// That covers the case this command exists to prevent: a macro that would
+    /// now fail is never invoked, and its last good output ships in place of
+    /// the error.
+    pub(crate) fn expansion_stale_reason(
+        &self,
+        current: &PackageInputs,
+        registry_hash: &str,
+    ) -> Option<&'static str> {
+        let previous = &self.inputs;
+
+        if previous.version != current.version {
+            return Some("the macroforge version changed");
+        }
+        if previous.config_hash != current.config_hash {
+            return Some("the macroforge config changed");
+        }
+        if previous.external_macro_hash != current.external_macro_hash {
+            return Some("the external macro binary changed");
+        }
+        if self.registry_hash != registry_hash {
+            return Some("the project's type surface changed");
         }
 
         None

@@ -1,5 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// Env-driven for the same reason as the vanilla config: a hardcoded port plus
+// `reuseExistingServer` silently runs the suite against whatever is already
+// listening there.
+const port = globalThis.process.env.PLAYGROUND_SVELTE_PORT ?? '5173';
+const origin = `http://localhost:${port}`;
+
 export default defineConfig({
     testDir: './e2e',
     testMatch: '**/svelte-*.spec.ts',
@@ -9,7 +15,7 @@ export default defineConfig({
     workers: globalThis.process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
-        baseURL: 'http://localhost:5173',
+        baseURL: origin,
         trace: 'on-first-retry'
     },
     projects: [
@@ -21,7 +27,7 @@ export default defineConfig({
     webServer: {
         command: 'deno task dev',
         cwd: '../svelte',
-        url: 'http://localhost:5173',
+        url: origin,
         reuseExistingServer: !globalThis.process.env.CI,
         timeout: 120000
     }

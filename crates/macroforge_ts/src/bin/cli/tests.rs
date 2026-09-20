@@ -11,8 +11,8 @@ use crate::expand::{get_expanded_path, offset_to_line_col, type_surface_rel_path
 use crate::lock::{ProjectLock, resolve_project_root};
 use crate::package_expand::is_expandable;
 use crate::package_state::{
-    PackageState, diff_files, output_fingerprint, project_hash, registry_hash, scan_input,
-    state_dir,
+    FileStamp, PackageInputs, PackageState, ResolvedPackageConfig, diff_files, output_fingerprint,
+    project_hash, registry_hash, scan_input, state_dir,
 };
 
 // =========================================================================
@@ -886,4 +886,122 @@ fn test_is_expandable_covers_sources_but_not_declarations() {
     assert!(!is_expandable("index.js"));
     assert!(!is_expandable("Card.svelte"));
     assert!(!is_expandable("styles.css"));
+}
+
+// =========================================================================
+// expanded-tree reuse tests
+// =========================================================================
+
+/// A state recording one macro module, with every hash at a known value.
+fn recorded_state(files: &[&str]) -> PackageState {
+    PackageState {
+        inputs: PackageInputs {
+            version: "1.0.0".to_string(),
+            config_hash: "config-a".to_string(),
+            external_macro_hash: "macros-a".to_string(),
+            resolver_hash: "resolver-a".to_string(),
+            project_hash: "project-a".to_string(),
+            tool_hashes: [("tsconfig".to_string(), "tsconfig-a".to_string())]
+                .into_iter()
+                .collect(),
+            files: files
+                .iter()
+                .map(|rel| {
+                    (
+                        (*rel).to_string(),
+                        FileStamp {
+                            source_hash: format!("{rel}-source"),
+                            normalized_hash: format!("{rel}-normalized"),
+                        },
+                    )
+                })
+                .collect(),
+            output_fingerprint: "output-a".to_string(),
+        },
+        resolved: ResolvedPackageConfig {
+            input: PathBuf::from("/project/src/lib"),
+            extensions: vec![".svelte".to_string()],
+        },
+        registry_hash: "registry-a".to_string(),
+        expanded_entries: files.iter().map(|rel| (*rel).to_string()).collect(),
+    }
+}
+
+#[test]
+fn test_a_rebuilt_macro_binary_re_expands_every_artifact() {
+    // The reported defect: rebuilding a macro package moves no source file, so
+    // the change comparison finds nothing to do and the packager is handed the
+    // previous binary's expansions. The run reports a rebuild and publishes a
+    // package the new macro never produced.
+    let state = recorded_state(&["types/person-name.ts"]);
+    let mut current = state.inputs.clone();
+    current.external_macro_hash = "macros-b".to_string();
+
+    assert_eq!(
+        state.stale_reason(&current).as_deref(),
+        Some("external macro binary changed"),
+        "a rebuilt macro binary must trigger a run at all"
+    );
+    assert_eq!(
+        state.expansion_stale_reason(&current, &state.registry_hash),
+        Some("the external macro binary changed"),
+        "and that run must produce every expansion again, not reuse the tree"
+    );
+}
+
+#[test]
+fn test_an_upgraded_macroforge_re_expands_every_artifact() {
+    // The expanded tree outlives an upgrade (it is persisted under
+    // `.macroforge/`), so a new engine that generates different code would
+    // otherwise republish the previous one's output verbatim.
+    let state = recorded_state(&["types/person-name.ts"]);
+    let mut current = state.inputs.clone();
+    current.version = "1.0.1".to_string();
+
+    assert_eq!(
+        state.expansion_stale_reason(&current, &state.registry_hash),
+        Some("the macroforge version changed")
+    );
+}
+
+#[test]
+fn test_a_changed_macroforge_config_re_expands_every_artifact() {
+    // `foreignTypes` and the `cfg` flags feed straight into generated code.
+    let state = recorded_state(&["types/person-name.ts"]);
+    let mut current = state.inputs.clone();
+    current.config_hash = "config-b".to_string();
+
+    assert_eq!(
+        state.expansion_stale_reason(&current, &state.registry_hash),
+        Some("the macroforge config changed")
+    );
+}
+
+#[test]
+fn test_a_changed_type_surface_re_expands_every_artifact() {
+    let state = recorded_state(&["types/person-name.ts"]);
+
+    assert_eq!(
+        state.expansion_stale_reason(&state.inputs, "registry-b"),
+        Some("the project's type surface changed")
+    );
+}
+
+#[test]
+fn test_repackaging_alone_keeps_the_expanded_tree() {
+    // The counterweight: everything that changes how sources are *packaged*
+    // leaves the expansions correct, and re-expanding a whole library over a
+    // deleted `dist` would give back the cost the incremental path exists for.
+    let state = recorded_state(&["types/person-name.ts"]);
+    let mut current = state.inputs.clone();
+    current.output_fingerprint = crate::package_state::MISSING_OUTPUT.to_string();
+    current
+        .tool_hashes
+        .insert("tsconfig".to_string(), "tsconfig-b".to_string());
+
+    assert!(state.stale_reason(&current).is_some());
+    assert_eq!(
+        state.expansion_stale_reason(&current, &state.registry_hash),
+        None
+    );
 }

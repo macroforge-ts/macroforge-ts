@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/svelte-language-server",
-  "version": "0.1.84",
+  "version": "0.1.85",
   "description": "A language server for Svelte with macroforge integration",
   "exports": [
     {

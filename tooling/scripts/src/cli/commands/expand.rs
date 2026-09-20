@@ -5,6 +5,7 @@
 use crate::cli::ExpandArgs;
 use crate::core::config::Config;
 use crate::core::shell;
+use crate::diagnostics::deno_lint;
 use crate::utils::format;
 use anyhow::Result;
 use colored::Colorize;
@@ -365,7 +366,8 @@ pub fn run(args: ExpandArgs) -> Result<()> {
             .and_then(|n| n.to_str())
             .unwrap_or("unknown");
 
-        let result = shell::deno::deno_fmt(playground_root, &["src"]);
+        let config = deno_lint::governing_config(playground_root);
+        let result = shell::deno::deno_fmt(playground_root, &["src"], config.as_deref());
 
         match result {
             Ok(output) if output.success => {

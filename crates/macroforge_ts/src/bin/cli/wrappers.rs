@@ -474,14 +474,17 @@ pub fn run_svelte_package_wrapper(
 
     let expanded = expanded_dir(root);
 
-    // Expansion output depends on the whole project's type surface, so a
-    // registry that moved invalidates every artifact, not just the ones whose
-    // own source changed.
-    let reusable = previous
-        .as_ref()
-        .filter(|state| state.registry_hash == registry_hash);
-    let (targets, full_reason): (Vec<String>, Option<&str>) = match reusable {
-        Some(state) => {
+    // An expansion depends on more than the file it was produced from: the
+    // engine, the config, the project's type surface. None of those leave a
+    // mark on a source file, so when one moves, comparing sources finds nothing
+    // changed and the whole tree has to be produced again regardless.
+    let full_reason: Option<&'static str> = match previous.as_ref() {
+        Some(state) => state.expansion_stale_reason(&current, &registry_hash),
+        None => Some("no previous build to reuse"),
+    };
+
+    let targets: Vec<String> = match (full_reason, previous.as_ref()) {
+        (None, Some(state)) => {
             let mut targets = diff_files(&state.inputs.files, &current.files).changed;
             // An artifact that went missing since the last run has to be
             // rebuilt even though its source did not change. Nothing else would
@@ -496,16 +499,9 @@ pub fn run_svelte_package_wrapper(
             );
             targets.sort();
             targets.dedup();
-            (targets, None)
+            targets
         }
-        None => (
-            current.files.keys().cloned().collect(),
-            Some(if previous.is_some() {
-                "the project's type surface changed"
-            } else {
-                "no previous build to reuse"
-            }),
-        ),
+        _ => current.files.keys().cloned().collect(),
     };
 
     let considered = targets.len();
