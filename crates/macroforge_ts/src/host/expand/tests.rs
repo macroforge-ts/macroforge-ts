@@ -9,7 +9,7 @@ mod builtin_import_warning_tests {
 
     #[test]
     fn warns_on_importing_debug_from_macroforge() {
-        let source = r#"import { Debug } from "macroforge";
+        let source = r#"import { Debug } from "@macroforge/core";
 
 /** @derive(Debug) */
 class User {
@@ -85,7 +85,7 @@ class User {
 
     #[test]
     fn no_warning_for_custom_macro_imports() {
-        let source = r#"import { MyCustomMacro } from "macroforge";
+        let source = r#"import { MyCustomMacro } from "@macroforge/core";
 
 /** @derive(MyCustomMacro) */
 class User {
@@ -101,7 +101,7 @@ class User {
 
     #[test]
     fn warns_with_correct_span() {
-        let source = r#"import { Debug } from "macroforge";"#;
+        let source = r#"import { Debug } from "@macroforge/core";"#;
 
         let module = parse_ts_module(source).unwrap();
         let warnings = check_builtin_import_warnings(&module, source);
@@ -115,7 +115,7 @@ class User {
 
     #[test]
     fn warns_all_ord_variants() {
-        let source = r#"import { Ord, PartialOrd, PartialEq } from "macroforge";
+        let source = r#"import { Ord, PartialOrd, PartialEq } from "@macroforge/core";
 
 /** @derive(Ord, PartialOrd, PartialEq) */
 class Comparable {

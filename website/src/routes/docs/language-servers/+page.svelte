@@ -81,7 +81,7 @@
 
 <ol>
     <li>
-        Fork or clone the <a href="https://github.com/macroforge-ts/macroforge-ts"
+        Fork or clone the <a href="https://gitlab.com/macroforge-ts/macroforge-ts"
             >macroforge-ts repository</a>
     </li>
     <li>Build the extension you need</li>

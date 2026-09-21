@@ -270,7 +270,7 @@ test('strips macro-only import comments', async (t) => {
     writeTestFile(
         tempDir,
         'src/with-import.ts',
-        `/** import macro from 'macroforge' */
+        `/** import macro from '@macroforge/core' */
 /** @derive(Debug) */
 class User {
   id: string;

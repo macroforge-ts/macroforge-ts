@@ -47,7 +47,7 @@
  * ctx.applyPatches();
  * ```
  *
- * @module macroforge/serde
+ * @module @macroforge/core/serde
  */
 /**
  * Context for tracking objects during serialization.

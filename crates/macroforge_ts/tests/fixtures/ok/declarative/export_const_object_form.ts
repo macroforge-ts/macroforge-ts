@@ -2,7 +2,7 @@
 //
 // Exercises that the `export` + object-form combination is handled
 // by the visitor — not just the tag-form template.
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 export const $ReadOnly = macroRules({
     kind: 'type',

@@ -71,7 +71,7 @@ fn composition_source(depth: usize) -> String {
         body = format!("$double({})", body);
     }
     format!(
-        "import {{ macroRules }} from \"macroforge/rules\";\n\
+        "import {{ macroRules }} from \"@macroforge/core/rules\";\n\
          const $double = macroRules`($x:Expr) => ($x * 2)`;\n\
          const $q = macroRules`($x:Expr) => {}`;\n\
          const out = $q(1);\n",
@@ -139,7 +139,7 @@ fn hygiene_source() -> String {
     }
     body.push_str("  __v0\n}");
     format!(
-        "import {{ macroRules }} from \"macroforge/rules\";\n\
+        "import {{ macroRules }} from \"@macroforge/core/rules\";\n\
          const $big = macroRules`() => {}`;\n\
          const out = $big();\n",
         body
@@ -170,7 +170,7 @@ fn cluster_source() -> String {
         }
     }
     format!(
-        "import {{ macroRules }} from \"macroforge/rules\";\n\
+        "import {{ macroRules }} from \"@macroforge/core/rules\";\n\
          const $serialize = macroRules({{\n\
            mode: \"auto\",\n\
            expand: macroRules`($x:Expr) => __inline($x)`,\n\

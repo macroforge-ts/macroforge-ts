@@ -14,11 +14,11 @@ export type Link = string | { id: string; label?: string };
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
-import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
-import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
 // An inline object member with no tag field is recognised by shape alone:
 // every required field must be present, and optional fields are copied only
 // when the input carries them.

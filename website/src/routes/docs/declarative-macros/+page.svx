@@ -10,7 +10,7 @@ Declarative macros let you define compile-time code transformations entirely in 
 ## Quick Example
 
 ```typescript
-import { macroRules } from "macroforge/rules";
+import { macroRules } from "@macroforge/core/rules";
 
 const $vec = macroRules`
   () => []

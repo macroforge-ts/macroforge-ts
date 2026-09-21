@@ -266,7 +266,7 @@ impl ProjectScanner {
 
             // Declarative macro discovery shares the same parse. Fast path:
             // the discovery helper bails out on files that don't import
-            // `macroRules` from `"macroforge/rules"`, so the cost on files
+            // `macroRules` from `"@macroforge/core/rules"`, so the cost on files
             // without declarative macros is a single import-statement scan.
             let declarative_macros: Vec<_> =
                 match crate::host::declarative::discover(&ret.program, &source) {

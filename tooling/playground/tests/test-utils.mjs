@@ -23,38 +23,19 @@ export const rootConfigPath = path.join(repoRoot, 'macroforge.config.ts');
 
 // Path to the macroforge CLI binary
 export const cliBinary = (() => {
-    const releaseInCrate = path.join(
-        repoRoot,
-        'crates',
-        'macroforge_ts',
-        'target',
-        'release',
-        'macroforge'
-    );
-    const debugInCrate = path.join(
-        repoRoot,
-        'crates',
-        'macroforge_ts',
-        'target',
-        'debug',
-        'macroforge'
-    );
     const release = path.join(
         repoRoot,
-        'crates',
         'target',
         'release',
         'macroforge'
     );
-    const debug = path.join(repoRoot, 'crates', 'target', 'debug', 'macroforge');
+    const debug = path.join(repoRoot, 'target', 'debug', 'macroforge');
     const cargoInstall = path.join(
         globalThis.process.env.HOME || globalThis.process.env.USERPROFILE || '',
         '.cargo',
         'bin',
         'macroforge'
     );
-    if (existsSync(releaseInCrate)) return releaseInCrate;
-    if (existsSync(debugInCrate)) return debugInCrate;
     if (existsSync(release)) return release;
     if (existsSync(debug)) return debug;
     if (existsSync(cargoInstall)) return cargoInstall;
@@ -164,23 +145,15 @@ function buildMacroforgeViteConfig() {
         resolve: {
             dedupe: ['effect'],
             alias: {
-                'macroforge/serde': path.resolve(
+                '@macroforge/core/serde': path.resolve(
                     repoRoot,
                     'crates/macroforge_ts/js/serde/index.mjs'
                 ),
-                'macroforge/traits': path.resolve(
+                '@macroforge/core/traits': path.resolve(
                     repoRoot,
                     'crates/macroforge_ts/js/traits/index.mjs'
                 ),
-                'macroforge/reexports': path.resolve(
-                    repoRoot,
-                    'crates/macroforge_ts/js/reexports/index.mjs'
-                ),
-                'macroforge/reexports/effect': path.resolve(
-                    repoRoot,
-                    'crates/macroforge_ts/js/reexports/effect.mjs'
-                ),
-                'macroforge': path.resolve(repoRoot, 'crates/macroforge_ts')
+                '@macroforge/core': path.resolve(repoRoot, 'crates/macroforge_ts')
             }
         }
     };

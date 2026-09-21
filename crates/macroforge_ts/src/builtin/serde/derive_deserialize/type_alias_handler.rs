@@ -868,10 +868,10 @@ fn handle_object_type_alias(
         }
     };
 
-    result.add_aliased_import("DeserializeContext", "macroforge/serde");
-    result.add_aliased_import("DeserializeError", "macroforge/serde");
-    result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
-    result.add_aliased_import("PendingRef", "macroforge/serde");
+    result.add_aliased_import("DeserializeContext", crate::package::SERDE);
+    result.add_aliased_import("DeserializeError", crate::package::SERDE);
+    result.add_aliased_type_import("DeserializeOptions", crate::package::SERDE);
+    result.add_aliased_import("PendingRef", crate::package::SERDE);
     Ok(result)
 }
 
@@ -1368,10 +1368,10 @@ fn handle_union_type_alias(
                 return @{fn_has_shape_expr}(value);
             }
         };
-        result.add_aliased_import("DeserializeContext", "macroforge/serde");
-        result.add_aliased_import("DeserializeError", "macroforge/serde");
-        result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
-        result.add_aliased_import("PendingRef", "macroforge/serde");
+        result.add_aliased_import("DeserializeContext", crate::package::SERDE);
+        result.add_aliased_import("DeserializeError", crate::package::SERDE);
+        result.add_aliased_type_import("DeserializeOptions", crate::package::SERDE);
+        result.add_aliased_import("PendingRef", crate::package::SERDE);
         return Ok(result);
     }
 
@@ -2194,10 +2194,10 @@ fn handle_union_type_alias(
         }
     };
     let mut result = result.merge(per_variant_is_stream);
-    result.add_aliased_import("DeserializeContext", "macroforge/serde");
-    result.add_aliased_import("DeserializeError", "macroforge/serde");
-    result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
-    result.add_aliased_import("PendingRef", "macroforge/serde");
+    result.add_aliased_import("DeserializeContext", crate::package::SERDE);
+    result.add_aliased_import("DeserializeError", crate::package::SERDE);
+    result.add_aliased_type_import("DeserializeOptions", crate::package::SERDE);
+    result.add_aliased_import("PendingRef", crate::package::SERDE);
     Ok(result)
 }
 
@@ -2328,8 +2328,8 @@ fn handle_fallback_type_alias(
             return @{fn_has_shape_expr}(value);
         }
     };
-    result.add_aliased_import("DeserializeContext", "macroforge/serde");
-    result.add_aliased_import("DeserializeError", "macroforge/serde");
-    result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
+    result.add_aliased_import("DeserializeContext", crate::package::SERDE);
+    result.add_aliased_import("DeserializeError", crate::package::SERDE);
+    result.add_aliased_type_import("DeserializeOptions", crate::package::SERDE);
     Ok(result)
 }

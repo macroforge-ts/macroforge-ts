@@ -32,12 +32,12 @@
  * build pass and no longer exist in the output. If you see the runtime
  * error, the build pass is not running on this file.
  *
- * @module macroforge/buildtime
+ * @module @macroforge/core/buildtime
  */
 
 const runtimeError = (method: string) =>
   new Error(
-    `macroforge/buildtime.${method}: @buildtime APIs are only available inside @buildtime declarations evaluated by macroforge. ` +
+    `@macroforge/core/buildtime.${method}: @buildtime APIs are only available inside @buildtime declarations evaluated by macroforge. ` +
       `If you're seeing this at runtime, the macroforge plugin is not installed or not running on this file.`,
   );
 

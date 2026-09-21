@@ -116,7 +116,7 @@
 
 <h2 id="example">Example</h2>
 
-<CodeBlock code={`import { expandSync } from "macroforge";
+<CodeBlock code={`import { expandSync } from "@macroforge/core";
 
 const sourceCode = \`
 /** @derive(Debug) */

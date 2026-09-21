@@ -4,9 +4,12 @@
 
 use crate::core::config::Config;
 use crate::utils::format;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
+
+/// Where the book is written, relative to the repository root.
+pub const BOOK_PATH: &str = "docs/BOOK.md";
 
 /// Markdown file to include in the book
 struct BookSection {
@@ -50,12 +53,9 @@ pub fn run(output_path: &Path) -> Result<()> {
     let mut book_content = String::new();
     let mut found_count = 0;
 
-    // Add title
+    // No generation timestamp: the file is committed, so git already records
+    // when it changed, and a stamp would rewrite it on every build.
     book_content.push_str("# Macroforge Documentation\n\n");
-    book_content.push_str(&format!(
-        "_Generated: {}_\n\n",
-        chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC")
-    ));
     book_content.push_str("---\n\n");
 
     for section in &sections {
@@ -64,20 +64,22 @@ pub fn run(output_path: &Path) -> Result<()> {
         if file_path.exists() {
             print!("Including {}... ", section.path);
 
-            if let Ok(content) = fs::read_to_string(&file_path) {
-                let heading = "#".repeat(section.level);
-                book_content.push_str(&format!("{} {}\n\n", heading, section.title));
-                book_content.push_str(&process_markdown(&content, section.level));
-                book_content.push_str("\n\n---\n\n");
-                println!("done");
-                found_count += 1;
-            } else {
-                println!("failed to read");
-            }
+            let content = fs::read_to_string(&file_path)
+                .with_context(|| format!("Failed to read {}", file_path.display()))?;
+            let heading = "#".repeat(section.level);
+            book_content.push_str(&format!("{} {}\n\n", heading, section.title));
+            book_content.push_str(&process_markdown(&content, section.level));
+            book_content.push_str("\n\n---\n\n");
+            println!("done");
+            found_count += 1;
         } else {
             format::warning(&format!("Section not found: {}", section.path));
         }
     }
+
+    // End on a single newline, as the formatter does, so the two agree.
+    book_content.truncate(book_content.trim_end().len());
+    book_content.push('\n');
 
     // Ensure output directory exists
     if let Some(parent) = output.parent() {

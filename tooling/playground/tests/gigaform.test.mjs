@@ -15,7 +15,7 @@ import { describe, test } from 'node:test';
 import { initExternalMacros } from './test-utils.mjs';
 
 const require = createRequire(import.meta.url);
-const macroforge = require('macroforge');
+const macroforge = require('@macroforge/core');
 const { expandSync } = macroforge;
 initExternalMacros(macroforge);
 

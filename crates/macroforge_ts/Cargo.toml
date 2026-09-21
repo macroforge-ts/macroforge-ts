@@ -1,12 +1,12 @@
 [package]
 name = "macroforge_ts"
 description = "TypeScript macro expansion engine - write compile-time macros in Rust"
-version = "0.1.85"
+version = "0.2.0"
 edition = "2024"
 authors = ["macroforge contributors"]
 license = "MIT"
-repository = "https://github.com/macroforge-ts/macroforge-ts"
-homepage = "https://github.com/macroforge-ts/macroforge-ts"
+repository = "https://gitlab.com/macroforge-ts/macroforge-ts"
+homepage = "https://macroforge.dev"
 keywords = ["typescript", "macros", "codegen", "derive"]
 categories = ["development-tools::procedural-macro-helpers"]
 readme = "README.md"
@@ -42,9 +42,9 @@ swc_core = { version = "79.0.0", optional = true, features = [
 oxc = { version = "0.150", optional = true, features = ["codegen", "ast_visit", "transformer", "semantic"] }
 
 # Macroforge crates
-macroforge_ts_syn = "0.1.85"
-macroforge_ts_quote = "0.1.85"
-macroforge_ts_macros = "0.1.85"
+macroforge_ts_syn = { version = "0.2.0", path = "../macroforge_ts_syn" }
+macroforge_ts_quote = { version = "0.2.0", path = "../macroforge_ts_quote" }
+macroforge_ts_macros = { version = "0.2.0", path = "../macroforge_ts_macros" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }

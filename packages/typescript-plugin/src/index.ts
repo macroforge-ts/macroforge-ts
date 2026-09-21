@@ -49,7 +49,11 @@
  */
 
 import type ts from 'typescript/lib/tsserverlibrary';
-import { __macroforgeGetManifest, loadConfig as nativeLoadConfig, NativePlugin } from 'macroforge';
+import {
+    __macroforgeGetManifest,
+    loadConfig as nativeLoadConfig,
+    NativePlugin
+} from '@macroforge/core';
 
 interface MacroManifestEntry {
     name: string;

@@ -17,7 +17,7 @@ version = "0.1.0"
 "setup-rust" = "bash scripts/setup-rust.sh"
 
 # Build mf tooling binary
-"build:mf" = { cmd = "cd tooling/scripts && cargo build --release" }
+"build:mf" = { cmd = "cargo build --release -p mf" }
 
 # Core builds
 build = { cmd = "pixi run build:rust && pixi run build:plugin" }
@@ -31,57 +31,57 @@ build = { cmd = "pixi run build:rust && pixi run build:plugin" }
 "build:playground" = "pixi run build:@playground/macro && pixi run build:@playground/svelte && pixi run build:@playground/vanilla && pixi run build:@playground/library"
 
 # Tests
-"test:rust" = { cmd = "tooling/scripts/target/release/mf test rust" }
-"test:packages" = { cmd = "tooling/scripts/target/release/mf test packages" }
-"test:playground" = { cmd = "tooling/scripts/target/release/mf test playground" }
-"test:all" = { cmd = "tooling/scripts/target/release/mf test all" }
+"test:rust" = { cmd = "target/release/mf test rust" }
+"test:packages" = { cmd = "target/release/mf test packages" }
+"test:playground" = { cmd = "target/release/mf test playground" }
+"test:all" = { cmd = "target/release/mf test all" }
 "test:e2e:zed" = { cmd = "./tooling/tests/e2e/run-zed-test.sh" }
 "test:e2e:zed:verbose" = { cmd = "./tooling/tests/e2e/run-zed-test.sh --verbose" }
 "test:e2e:zed:node" = { cmd = "node --test tooling/tests/e2e/zed-extension-startup.test.js" }
 
 # Diagnostics (using mf)
-diagnostics = { cmd = "tooling/scripts/target/release/mf diagnostics" }
-"diagnostics:log" = { cmd = "tooling/scripts/target/release/mf diagnostics --log" }
-"diagnostics:json" = { cmd = "tooling/scripts/target/release/mf diagnostics --json" }
+diagnostics = { cmd = "target/release/mf diagnostics" }
+"diagnostics:log" = { cmd = "target/release/mf diagnostics --log" }
+"diagnostics:json" = { cmd = "target/release/mf diagnostics --json" }
 
 # Macros
 "macro:expand" = { cmd = "cargo run -p ts_macro_cli -- expand --use-node" }
 "macro:tsc" = { cmd = "cargo run -p ts_macro_cli -- tsc" }
-"expand:playground" = { cmd = "tooling/scripts/target/release/mf expand" }
+"expand:playground" = { cmd = "target/release/mf expand" }
 
 # Clean builds (using mf)
-"cleanbuild:all" = { cmd = "tooling/scripts/target/release/mf build --repos all" }
-"cleanbuild:ts" = { cmd = "tooling/scripts/target/release/mf build --repos ts" }
-"cleanbuild:rust" = { cmd = "tooling/scripts/target/release/mf build --repos rust" }
+"cleanbuild:all" = { cmd = "target/release/mf build --repos all" }
+"cleanbuild:ts" = { cmd = "target/release/mf build --repos ts" }
+"cleanbuild:rust" = { cmd = "target/release/mf build --repos rust" }
 
 # Version management (using mf)
-bump = { cmd = "tooling/scripts/target/release/mf verify --bump-only" }
-sync = { cmd = "tooling/scripts/target/release/mf verify --sync-versions --bump-only" }
-rebase = { cmd = "tooling/scripts/target/release/mf versions" }
+bump = { cmd = "target/release/mf verify --bump-only" }
+sync = { cmd = "target/release/mf verify --sync-versions --bump-only" }
+rebase = { cmd = "target/release/mf versions" }
 
 # Documentation (using mf)
-"docs:book" = { cmd = "tooling/scripts/target/release/mf docs build-book" }
+"docs:book" = { cmd = "target/release/mf docs build-book" }
 "docs:mcp" = { cmd = "rust-script packages/mcp-server/scripts/extract-docs.rs" }
-"docs:api" = { cmd = "tooling/scripts/target/release/mf docs extract-rust && tooling/scripts/target/release/mf docs extract-ts" }
-"docs:readmes" = { cmd = "tooling/scripts/target/release/mf docs generate-readmes" }
-"docs:all" = { cmd = "tooling/scripts/target/release/mf docs all" }
-"docs:check" = { cmd = "tooling/scripts/target/release/mf docs check-freshness" }
+"docs:api" = { cmd = "target/release/mf docs extract-rust && target/release/mf docs extract-ts" }
+"docs:readmes" = { cmd = "target/release/mf docs generate-readmes" }
+"docs:all" = { cmd = "target/release/mf docs all" }
+"docs:check" = { cmd = "target/release/mf docs check-freshness" }
 
 # Release workflow (using mf)
-verify = { cmd = "tooling/scripts/target/release/mf verify" }
-"verify:dry" = { cmd = "tooling/scripts/target/release/mf verify --dry-run" }
-commit = { cmd = "tooling/scripts/target/release/mf commit" }
-"commit:dry" = { cmd = "tooling/scripts/target/release/mf commit --dry-run" }
-push = { cmd = "tooling/scripts/target/release/mf push" }
-"push:dry" = { cmd = "tooling/scripts/target/release/mf push --dry-run" }
-"publish:skip-build" = { cmd = "tooling/scripts/target/release/mf publish-local --skip-build" }
-publish = { cmd = "tooling/scripts/target/release/mf publish-local" }
-"publish:dry" = { cmd = "tooling/scripts/target/release/mf publish-local --dry-run" }
+verify = { cmd = "target/release/mf verify" }
+"verify:dry" = { cmd = "target/release/mf verify --dry-run" }
+commit = { cmd = "target/release/mf commit" }
+"commit:dry" = { cmd = "target/release/mf commit --dry-run" }
+push = { cmd = "target/release/mf push" }
+"push:dry" = { cmd = "target/release/mf push --dry-run" }
+"publish:skip-build" = { cmd = "target/release/mf publish-local --skip-build" }
+publish = { cmd = "target/release/mf publish-local" }
+"publish:dry" = { cmd = "target/release/mf publish-local --dry-run" }
 
 # Manifest manipulation (using mf)
-"manifest:list" = { cmd = "tooling/scripts/target/release/mf manifest list" }
-"manifest:swap-local" = { cmd = "tooling/scripts/target/release/mf manifest swap-local" }
-"manifest:swap-registry" = { cmd = "tooling/scripts/target/release/mf manifest swap-registry" }
+"manifest:list" = { cmd = "target/release/mf manifest list" }
+"manifest:swap-local" = { cmd = "target/release/mf manifest swap-local" }
+"manifest:swap-registry" = { cmd = "target/release/mf manifest swap-registry" }
 
 # `--force` because cargo skips the install when the installed version matches
 # the one being built — a same-version rebuild is a no-op, so editing the CLI
@@ -94,7 +94,7 @@ bench = { cmd = "deno run -A tooling/scripts/bench.mjs" }
 "build:all-concurrent" = { cmd = "deno run -A npm:concurrently -n cli,wasm,macro 'pixi run install:cli' 'pixi run build:rust' 'pixi run build:@playground/macro'" }
 
 # TUI dashboard
-scripts = { cmd = "tooling/scripts/target/release/mf --tui" }
+scripts = { cmd = "target/release/mf --tui" }
 
 # wasm-bindgen-cli is not on conda-forge, so we cargo-install it at the
 # exact version pinned by the Rust workspace lockfile. Without this, the

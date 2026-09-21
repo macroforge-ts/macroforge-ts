@@ -1,6 +1,23 @@
 import { Position, Range, TextDocument } from 'vscode-languageserver';
 import { getLineOffsets, offsetAt, positionAt } from './utils';
 
+function nextLineOffset(text: string, lineOffsets: number[], line: number): number {
+    return line + 1 < lineOffsets.length ? lineOffsets[line + 1] : text.length;
+}
+
+/** Offset where a line's content ends, before any carriage return or newline. */
+function endOfLineOffset(text: string, lineOffsets: number[], line: number): number {
+    let offset = nextLineOffset(text, lineOffsets, line);
+    while (offset > lineOffsets[line]) {
+        const code = text.charCodeAt(offset - 1);
+        if (code !== 10 && code !== 13) {
+            break;
+        }
+        offset--;
+    }
+    return offset;
+}
+
 /**
  * Represents a textual document.
  */
@@ -51,6 +68,50 @@ export abstract class ReadableDocument implements TextDocument {
      */
     offsetAt(position: Position): number {
         return offsetAt(position, this.getText(), this.getLineOffsets());
+    }
+
+    /**
+     * Get the range covering an entire line, excluding its terminator.
+     *
+     * A line past the end collapses onto the last line, and a negative line
+     * onto an empty range at the start.
+     */
+    getLineRange(line: number): Range {
+        const lineOffsets = this.getLineOffsets();
+        if (line >= lineOffsets.length) {
+            const lastLine = lineOffsets.length - 1;
+            return Range.create(
+                lastLine,
+                0,
+                lastLine,
+                this.getTextLength() - lineOffsets[lastLine]
+            );
+        }
+        if (line < 0) {
+            return Range.create(0, 0, 0, 0);
+        }
+        const text = this.getText();
+        return Range.create(
+            line,
+            0,
+            line,
+            endOfLineOffset(text, lineOffsets, line) - lineOffsets[line]
+        );
+    }
+
+    /**
+     * Get the terminator of a line, or an empty string when out of bounds.
+     */
+    getEOLCharacters(line: number): string {
+        const lineOffsets = this.getLineOffsets();
+        if (line < 0 || line >= lineOffsets.length) {
+            return '';
+        }
+        const text = this.getText();
+        return text.substring(
+            endOfLineOffset(text, lineOffsets, line),
+            nextLineOffset(text, lineOffsets, line)
+        );
     }
 
     private getLineOffsets() {

@@ -3,8 +3,8 @@
 // The Vite plugin runs macroforge before transforming this module, so
 // every `@buildtime` declaration below has been replaced with a TS
 // literal by the time the browser downloads it. None of the runtime
-// stubs in `macroforge/buildtime` should ever fire.
-import { buildtime } from 'macroforge/buildtime';
+// stubs in `@macroforge/core/buildtime` should ever fire.
+import { buildtime } from '@macroforge/core/buildtime';
 
 // ---------------------------------------------------------------------
 // Tier 1 — compile-time constants
@@ -70,7 +70,7 @@ export interface BuildtimeDemoResult {
     greetingAlice: string;
     greetingBob: string;
     greetingKeys: string[];
-    // Probe against the `macroforge/buildtime` runtime stub. If the
+    // Probe against the `@macroforge/core/buildtime` runtime stub. If the
     // Vite plugin is running, every real `@buildtime` use is spliced
     // into a TS literal — but importing the module and calling any
     // function on it at runtime still throws. That's the contract.

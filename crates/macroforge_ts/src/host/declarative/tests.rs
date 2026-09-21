@@ -23,7 +23,7 @@ fn parse_program<'a>(allocator: &'a Allocator, source: &'a str) -> oxc::parser::
 
 #[test]
 fn discovers_simple_macro() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $vec = macroRules`
   () => []
 `;
@@ -69,7 +69,7 @@ fn registry_rejects_duplicates() {
 
 #[test]
 fn matcher_binds_single_fragment() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $id = macroRules`
   ($x:Expr) => $x
 `;
@@ -94,7 +94,7 @@ $id(1 + 2);
 
 #[test]
 fn matcher_repetition_collects_sequence() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $vec = macroRules`
   ($($x:Expr),+) => [$($x),+]
 `;
@@ -119,7 +119,7 @@ $vec(1, 2, 3);
 
 #[test]
 fn matcher_no_arm_matches_returns_error() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $only = macroRules`
   ($x:Expr) => $x
 `;
@@ -229,7 +229,7 @@ fn expander_repetition_unrolls_sequence() {
 
 #[test]
 fn composition_simple_two_macros() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $double = macroRules`($x:Expr) => ($x * 2)`;
 const $quad = macroRules`($x:Expr) => $double($double($x))`;
 const result = $quad(3);
@@ -260,7 +260,7 @@ const result = $quad(3);
 
 #[test]
 fn composition_unknown_callee_errors() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $caller = macroRules`($x:Expr) => $nonexistent($x)`;
 const result = $caller(1);
 "#;
@@ -364,7 +364,7 @@ fn expander_recursion_limit_trips_at_max_depth() {
 
 #[test]
 fn rewriter_end_to_end_vec_basic() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $vec = macroRules`
   () => []
   ($($x:Expr),+) => [$($x),+]
@@ -533,7 +533,7 @@ fn project_registry_json_roundtrip() {
 
 #[test]
 fn object_form_explicit_share_only() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $serialize = macroRules({
   mode: "share-only",
   expand: macroRules`
@@ -566,7 +566,7 @@ const $serialize = macroRules({
 
 #[test]
 fn object_form_auto_mode() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $vec = macroRules({
   mode: "auto",
   expand: macroRules`
@@ -590,7 +590,7 @@ const $vec = macroRules({
 #[test]
 fn object_form_defaults_to_expand_only_when_no_runtime() {
     // `mode` omitted + no runtime/call → ExpandOnly.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $id = macroRules({
   expand: macroRules`
     ($x:Expr) => $x
@@ -609,7 +609,7 @@ const $id = macroRules({
 #[test]
 fn object_form_defaults_to_auto_with_runtime_and_call() {
     // `mode` omitted + runtime + call → Auto.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $x = macroRules({
   expand: macroRules`($y:Expr) => $y`,
   runtime: "function __h(v) { return v; }",
@@ -624,7 +624,7 @@ const $x = macroRules({
 
 #[test]
 fn object_form_requires_expand_field() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $broken = macroRules({
   mode: "expand-only",
 });
@@ -641,7 +641,7 @@ const $broken = macroRules({
 
 #[test]
 fn object_form_share_mode_requires_runtime_and_call() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $broken = macroRules({
   mode: "share-only",
   expand: macroRules`($x:Expr) => $x`,
@@ -659,7 +659,7 @@ const $broken = macroRules({
 
 #[test]
 fn object_form_rejects_unknown_mode_string() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $broken = macroRules({
   mode: "yolo",
   expand: macroRules`($x:Expr) => $x`,
@@ -677,7 +677,7 @@ const $broken = macroRules({
 
 #[test]
 fn object_form_rejects_unknown_option_key() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $broken = macroRules({
   expand: macroRules`($x:Expr) => $x`,
   mystery: "what is this",
@@ -695,7 +695,7 @@ const $broken = macroRules({
 
 #[test]
 fn object_form_accepts_custom_megamorphism_threshold() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $x = macroRules({
   mode: "auto",
   expand: macroRules`($y:Expr) => $y`,
@@ -716,7 +716,7 @@ const $x = macroRules({
 
 #[test]
 fn type_macro_simple_replaces_type_reference() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $Wrap = macroRules({
   kind: "type",
@@ -774,7 +774,7 @@ type Result = $Wrap<string>;
 
 #[test]
 fn type_macro_repetition_expands_tuple() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $Tup = macroRules({
   kind: "type",
@@ -821,7 +821,7 @@ type T = $Tup<string, number>;
 
 #[test]
 fn type_macro_rejects_sharing_mode() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $Bad = macroRules({
   kind: "type",
@@ -844,7 +844,7 @@ const $Bad = macroRules({
 
 #[test]
 fn type_macro_used_in_value_position_emits_error() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $Foo = macroRules({
   kind: "type",
@@ -919,7 +919,7 @@ fn rewrite_source(source: &str, build_mode: BuildMode) -> super::rewriter::Rewri
 fn share_only_emits_runtime_once_per_file() {
     // Two call sites of a `ShareOnly` macro should produce exactly one
     // runtime insert patch, not two.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $serialize = macroRules({
   mode: "share-only",
@@ -969,7 +969,7 @@ fn share_only_uses_call_arms_not_expand_arms() {
     // In share mode the rewriter should splice `call_arms`, not `arms`.
     // If it used `arms` we'd see `__inline_fallback` in the output; with
     // `call_arms` we see `__serialize`.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $serialize = macroRules({
   mode: "share-only",
@@ -1010,7 +1010,7 @@ const result = $serialize(user);
 #[test]
 fn expand_only_tag_form_ignores_build_mode() {
     // ExpandOnly macros should behave identically in Dev and Prod.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $vec = macroRules`
   () => []
@@ -1034,7 +1034,7 @@ const xs = $vec(1, 2, 3);
 #[test]
 fn auto_mode_dev_behaves_like_expand_only() {
     // In Dev, Auto macros expand inline for precise diagnostics.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $id = macroRules({
   mode: "auto",
@@ -1074,7 +1074,7 @@ fn auto_mode_prod_emits_megamorphism_warning_for_many_shapes() {
     // An Auto macro called with 6 distinct Named shapes starting with
     // the same letter — clusters collapse to one bucket of size 6 > 4,
     // so the recommendation is ForceExpand and a warning fires.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 class UserA {}
 class UserB {}
@@ -1114,7 +1114,7 @@ export const f = $serialize(UserF);
 fn auto_mode_prod_shares_for_few_shapes() {
     // Three distinct shapes → under threshold → Share. The runtime
     // should be emitted exactly once.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 class User {}
 class Admin {}
@@ -1154,7 +1154,7 @@ export const c = $serialize(Guest);
 fn auto_mode_prod_shares_by_default() {
     // Pending Phase 9c's megamorphism analyzer, Auto + Prod shares
     // unconditionally — exercising the end-to-end share pipeline.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $id = macroRules({
   mode: "auto",
@@ -1183,7 +1183,7 @@ const b = $id(99);
 fn tag_form_still_works_after_object_form_support() {
     // Regression check: the pre-existing tag form should keep behaving
     // identically now that discovery supports two shapes.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $vec = macroRules`
   () => []
   ($($x:Expr),+) => [$($x),+]
@@ -1254,7 +1254,7 @@ fn rewrite_tsx_source(source: &str, build_mode: BuildMode) -> super::rewriter::R
 
 #[test]
 fn rewrites_macro_call_inside_jsx_expression_container() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $id = macroRules`($x:Expr) => $x`;
 const el = <div prop={$id(42)} />;
 "#;
@@ -1286,7 +1286,7 @@ const el = <div prop={$id(42)} />;
 
 #[test]
 fn rewrites_macro_call_inside_class_field_initializer() {
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $double = macroRules`($x:Expr) => ($x * 2)`;
 class Box {
     value = $double(7);
@@ -1314,7 +1314,7 @@ fn rewrites_macro_call_inside_decorator_argument() {
     // it via the default walker. We use a leaf macro whose arg is
     // just a literal so we don't need to worry about the outer
     // decorator being type-checked.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $lit = macroRules`($x:Expr) => $x`;
 function deco(_x: unknown) {
     return (target: unknown) => target;
@@ -1344,7 +1344,7 @@ fn hygiene_preserves_string_and_comment_mentions_of_declared_ident() {
     // line comment. The old byte-level hygiene scanner would corrupt
     // both; the new lexical cursor leaves them alone while still
     // renaming the real declaration and its real uses.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $tricky = macroRules`
   () => {
     const __v = 1;
@@ -1394,7 +1394,7 @@ fn rewrites_type_macro_inside_tuple_element() {
     // used the `inherit_variants!` TSType inline representation. The
     // default OXC walker descends into them automatically, so a type
     // macro inside a tuple type now gets rewritten.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $wrap = macroRules({
     kind: "type",
     expand: macroRules`($t:Type) => { wrapped: $t }`,
@@ -1506,7 +1506,7 @@ fn dev_mode_default_still_inlines_auto_macros() {
     // Regression guard for PR 17's default behaviour — plain
     // `BuildMode::dev()` (no force_share) must continue to
     // inline-expand Auto macros, producing zero runtime helpers.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $h = macroRules({
   mode: "auto",
@@ -1536,7 +1536,7 @@ fn dev_mode_force_share_produces_share_mode_emission() {
     // `BuildMode::Dev { force_share: true }` should make Auto
     // macros go through the share-mode pipeline in dev, producing
     // a runtime helper + call_arms expansion just like prod.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $h = macroRules({
   mode: "auto",
@@ -1594,7 +1594,7 @@ fn cluster_id_appears_in_attribution_for_clustered_emissions() {
     // the form `$name@cluster_id` so downstream source-map
     // consumers can tell which helper variant produced a given
     // span.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $serialize = macroRules({
   mode: "auto",
@@ -1645,7 +1645,7 @@ const b2 = $serialize(Bert);
 #[test]
 fn attribution_has_no_cluster_suffix_for_non_clustered_emissions() {
     // ShareOnly (non-Auto) emissions use plain `$name` attribution.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $h = macroRules({
   mode: "share-only",
@@ -1677,7 +1677,7 @@ const a = $h(User);
 fn analyzer_telemetry_emits_info_diagnostic_per_macro() {
     // With `analyzer_telemetry: true` we get an Info diagnostic
     // for every Auto macro describing the analyzer's decision.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $h = macroRules({
   mode: "auto",
@@ -1714,7 +1714,7 @@ fn silent_fallback_notice_emitted_when_no_type_registry() {
     // Running the analyzer without a type registry should produce
     // exactly ONE Info diagnostic explaining that structural
     // clustering is downgraded.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $h = macroRules({
   mode: "auto",
@@ -1751,7 +1751,7 @@ fn nested_macro_definition_inside_function_body_is_discovered() {
     // A macro declared inside a function body should be visible
     // at call sites within the same function. Pre-PR-11 this was
     // silently invisible (discovery only walked the program body).
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 function factory() {
     const $local = macroRules`($x:Expr) => ($x + 100)`;
     const result = $local(7);
@@ -1793,7 +1793,7 @@ fn nested_macro_shadows_outer_with_same_name() {
     // function body. Call sites inside the function body should
     // resolve to the INNER definition; call sites outside it
     // should resolve to the OUTER definition.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $foo = macroRules`($x:Expr) => ($x + 1)`;
 const outer = $foo(10);
 function inner() {
@@ -1839,7 +1839,7 @@ function inner() {
 fn duplicate_nested_declarations_in_same_block_error() {
     // Two `$x` declarations in the SAME block should collide,
     // same as two top-level `$x` declarations do.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 function f() {
     const $x = macroRules`() => 1`;
     const $x = macroRules`() => 2`;
@@ -1868,7 +1868,7 @@ fn disjoint_nested_scopes_allow_same_name() {
     // disjoint (neither contains the other), so BOTH registrations
     // must succeed. PR 11's scope-aware registration rule allows
     // this where the pre-PR-11 flat registry rejected it.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 function alpha() {
     const $helper = macroRules`($x:Expr) => ($x + 1)`;
     return $helper(10);
@@ -1927,7 +1927,7 @@ fn repetition_with_tail_matches_via_backtracking() {
     // `$($x:Expr),* $last:Expr` with `(1, 2, 3)` should match by
     // the matcher trying count=3 (fails, no arg left for $last),
     // count=2 (succeeds: $x=[1,2], $last=3), and committing.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $splitLast = macroRules`
     ($($x:Expr),* $last:Expr) => { last: $last, rest: [$($x),*] }
 `;
@@ -1964,7 +1964,7 @@ fn repetition_plus_tail_at_minimum_count_still_matches() {
     // `$($x:Expr),+ $last:Expr` with `(1, 2)` — the plus requires
     // at least one `$x`, and we need one arg for `$last`. Matcher
     // tries count=2 (fails), count=1 ($x=[1], $last=2). Success.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $oneThenLast = macroRules`
     ($($x:Expr),+ $last:Expr) => { first: $($x),+, final: $last }
 `;
@@ -1979,7 +1979,7 @@ fn repetition_plus_tail_rejects_insufficient_args() {
     // `$($x:Expr),+ $last:Expr` with `(1)` — plus requires ≥1 `$x`,
     // tail requires one more. Only one arg → no candidate count
     // works → genuine mismatch. Should produce an error.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $oneThenLast = macroRules`
     ($($x:Expr),+ $last:Expr) => { first: $($x),+, final: $last }
 `;
@@ -2015,7 +2015,7 @@ fn deep_composition_chain_expands_quickly() {
     // OXC re-parse path in `expand_macro_call` 16 times per
     // invocation, which is the hot loop the G phase benchmark was
     // meant to watch.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $double = macroRules`($x:Expr) => ($x * 2)`;
 const $q = macroRules`($x:Expr) => $double($double($double($double($double($double($double($double($double($double($double($double($double($double($double($double($x))))))))))))))))`;
 const result = $q(1);
@@ -2051,7 +2051,7 @@ fn cluster_aware_auto_macro_emits_one_helper_per_cluster_in_prod() {
     // Threshold is 2, so 3 distinct shapes triggers clustering;
     // each resulting cluster fits under the per-cluster check so
     // the analyzer picks `Cluster(..)` rather than `ForceExpand`.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $serialize = macroRules({
   mode: "auto",
@@ -2124,7 +2124,7 @@ fn cluster_aware_call_sites_reference_their_own_cluster_helper() {
     // With `runtimeName: "__h_$__cluster__"` and a call_arms body
     // that embeds `$__cluster__`, each call site's expansion should
     // call the helper whose name matches its cluster id.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $h = macroRules({
   mode: "auto",
@@ -2175,7 +2175,7 @@ fn share_single_path_still_emits_exactly_one_helper() {
     // Regression guard: a ShareOnly macro (no clustering) should
     // continue to emit one and only one runtime helper, no matter
     // how many call sites exist.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $h = macroRules({
   mode: "share-only",
@@ -2202,7 +2202,7 @@ fn runtime_name_template_missing_cluster_placeholder_is_rejected_at_discovery() 
     // Discovery should hard-error when `runtimeName` is set but
     // doesn't contain `$__cluster__` — the user almost certainly
     // meant to include a discriminator.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $broken = macroRules({
   mode: "auto",
   expand: macroRules`($x:Expr) => $x`,
@@ -2275,7 +2275,7 @@ fn pr19_multi_arg_auto_macro_with_clustering_end_to_end() {
     // share the same `Cfg` second arg; the first arg falls into
     // first-letter buckets `a` (1 shape) and `b` (2 shapes).
     // megamorphismThreshold=2 → 3 distinct tuples > 2 → Cluster.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $serialize = macroRules({
   mode: "auto",
@@ -2334,7 +2334,7 @@ fn pr19_type_macro_composition() {
     // Both macros expand; the inner reference is resolved during
     // the outer expansion via the body parser's type-call
     // recognition.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $Box = macroRules({
     kind: "type",
     expand: macroRules`($t:Type) => { value: $t }`,
@@ -2382,7 +2382,7 @@ fn pr19_repetition_inside_template_literal_expansion() {
     // The matcher binds `$x` to a sequence; the body emits
     // a backtick-delimited string with `${val}` interpolations,
     // one per iteration.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $list = macroRules`
   ($($x:Expr),+) => [$( $x ),+]
 `;
@@ -2412,7 +2412,7 @@ fn pr19_nested_macro_call_inside_repetition_body() {
     // macro call (PR 12 inter-macro composition combined with
     // repetitions). Each iteration must invoke `$double` on its
     // bound `$x`.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $double = macroRules`($x:Expr) => ($x * 2)`;
 const $apply_each = macroRules`
   ($($x:Expr),+) => { results: [$( $double($x) ),+] }
@@ -2448,7 +2448,7 @@ fn pr19_call_arms_referencing_unbound_metavariable_errors() {
     // The `call` body references `$y` but the matched arm only
     // binds `$x`. Expansion should fail with `UnboundName`,
     // surfaced as an error diagnostic.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $broken = macroRules({
   mode: "share-only",
@@ -2479,7 +2479,7 @@ fn pr19_value_macro_invoked_in_type_position_emits_error() {
     // Calling a value-position macro from type position is a
     // hard error — the type walker emits a diagnostic explaining
     // the kind mismatch.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $foo = macroRules`($x:Expr) => $x`;
 type T = $foo<string>;
 "#;
@@ -2506,7 +2506,7 @@ fn pr19_type_macro_invoked_in_value_position_falls_through() {
     // call-expression rewriting). It also shouldn't crash. The
     // call falls through and is left as-is — downstream parser
     // will catch the unresolved identifier as a normal error.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $T = macroRules({
     kind: "type",
     expand: macroRules`($t:Type) => { wrapped: $t }`,
@@ -2543,7 +2543,7 @@ fn pr19_user_can_declare_macro_called_dollar_cluster() {
     // is reserved now. Verify that a user can declare a macro
     // called `$cluster`, invoke it, and have it expand as a
     // regular declarative macro.
-    let source = r#"import { macroRules } from "macroforge/rules";
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $cluster = macroRules`($x:Expr) => ($x + 1)`;
 const r = $cluster(5);
 "#;

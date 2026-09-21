@@ -1,12 +1,12 @@
 [package]
 name = "macroforge_ts_syn"
 description = "TypeScript syntax types for compile-time macro code generation"
-version = "0.1.85"
+version = "0.2.0"
 edition = "2024"
 authors = ["macroforge contributors"]
 license = "MIT"
-repository = "https://github.com/macroforge-ts/macroforge-ts"
-homepage = "https://github.com/macroforge-ts/macroforge-ts"
+repository = "https://gitlab.com/macroforge-ts/macroforge-ts"
+homepage = "https://macroforge.dev"
 keywords = ["typescript", "macros", "codegen", "derive"]
 categories = ["development-tools::procedural-macro-helpers"]
 readme = "README.md"

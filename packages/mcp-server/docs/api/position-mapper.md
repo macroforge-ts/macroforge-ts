@@ -108,7 +108,7 @@ mapSpanToExpanded(start: number, length: number): SpanResult
 TypeScript
 
 ```
-import { NativePlugin } from "macroforge";
+import { NativePlugin } from "@macroforge/core";
 
 const plugin = new NativePlugin();
 

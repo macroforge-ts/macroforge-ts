@@ -253,7 +253,7 @@
 <ul>
     <li>
         Feature requests and feedback on <a
-            href="https://github.com/macroforge-ts/macroforge-ts/issues">GitHub Issues</a>
+            href="https://gitlab.com/macroforge-ts/macroforge-ts/-/issues">GitLab Issues</a>
     </li>
     <li>Pull requests for new macros or improvements</li>
     <li>Documentation improvements</li>

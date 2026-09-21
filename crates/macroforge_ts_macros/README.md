@@ -7,14 +7,14 @@ Derive macros for TypeScript compile-time code generation
 
 ## Overview
 
-This crate provides procedural macros for generating TypeScript macro infrastructure
-in the Macroforge ecosystem. It simplifies the creation of derive macros that can
-transform TypeScript classes at compile time.
+This crate provides procedural macros for generating TypeScript macro infrastructure in the
+Macroforge ecosystem. It simplifies the creation of derive macros that can transform TypeScript
+classes at compile time.
 
 ## Overview
 
-The primary macro provided is [`ts_macro_derive`], which transforms a Rust function
-into a fully-fledged TypeScript macro that integrates with the Macroforge runtime.
+The primary macro provided is [`ts_macro_derive`], which transforms a Rust function into a
+fully-fledged TypeScript macro that integrates with the Macroforge runtime.
 
 ## Example
 
@@ -29,6 +29,7 @@ fn debug_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
 ```
 
 This generates:
+
 - A struct implementing the [`Macroforge`] trait
 - A NAPI function for JavaScript interop
 - Registration with the macro registry via `inventory`
@@ -57,12 +58,14 @@ macroforge_ts_macros = "0.1.82"
 
 - **`ts_macro`** - A procedural macro attribute for function-like call macros.
 - **`ts_macro_attribute`** - A procedural macro attribute for attribute macros.
-- **`ts_macro_derive`** - A procedural macro attribute that transforms a function into a TypeScript derive macro.
+- **`ts_macro_derive`** - A procedural macro attribute that transforms a function into a TypeScript
+  derive macro.
 
 ## API Reference
 
-See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_macros) on
-the Macroforge website.
+See the
+[full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_macros) on the
+Macroforge website.
 
 ## License
 

@@ -1,39 +1,38 @@
 # Default
 
-The `Default` macro generates a static `defaultValue()` factory method that creates
-instances with default values. This is analogous to Rust's `Default` trait, providing
-a standard way to create "zero" or "empty" instances of types.
+The `Default` macro generates a static `defaultValue()` factory method that creates instances with
+default values. This is analogous to Rust's `Default` trait, providing a standard way to create
+"zero" or "empty" instances of types.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `static defaultValue()` + `classNameDefaultValue()` | Static factory method + standalone function |
-| Enum | `enumNameDefaultValue(): EnumName` | Standalone function returning `@default` variant |
-| Interface | `ifaceNameDefaultValue(): InterfaceName` | Standalone function returning object literal |
-| Type Alias | `typeNameDefaultValue(): TypeName` | Standalone function with type-appropriate default |
+| Type       | Generated Code                                      | Description                                       |
+| ---------- | --------------------------------------------------- | ------------------------------------------------- |
+| Class      | `static defaultValue()` + `classNameDefaultValue()` | Static factory method + standalone function       |
+| Enum       | `enumNameDefaultValue(): EnumName`                  | Standalone function returning `@default` variant  |
+| Interface  | `ifaceNameDefaultValue(): InterfaceName`            | Standalone function returning object literal      |
+| Type Alias | `typeNameDefaultValue(): TypeName`                  | Standalone function with type-appropriate default |
 
 Names use **camelCase** conversion (e.g., `UserSettings` -> `userSettingsDefaultValue`).
-
 
 ## Default Values by Type
 
 The macro uses Rust-like default semantics:
 
-| Type | Default Value |
-|------|---------------|
-| `string` | `""` (empty string) |
-| `number` | `0` |
-| `boolean` | `false` |
-| `bigint` | `0n` |
-| `T[]` | `[]` (empty array) |
-| `Array<T>` | `[]` (empty array) |
-| `Map<K,V>` | `new Map()` |
-| `Set<T>` | `new Set()` |
-| `Date` | `new Date()` (current time) |
-| `T \| null` | `null` |
+| Type              | Default Value                                                                     |
+| ----------------- | --------------------------------------------------------------------------------- |
+| `string`          | `""` (empty string)                                                               |
+| `number`          | `0`                                                                               |
+| `boolean`         | `false`                                                                           |
+| `bigint`          | `0n`                                                                              |
+| `T[]`             | `[]` (empty array)                                                                |
+| `Array<T>`        | `[]` (empty array)                                                                |
+| `Map<K,V>`        | `new Map()`                                                                       |
+| `Set<T>`          | `new Set()`                                                                       |
+| `Date`            | `new Date()` (current time)                                                       |
+| `T \| null`       | `null`                                                                            |
 | Unions (`A \| B`) | Default of the first primitive or literal member, else the first member's default |
-| `CustomType` | `customTypeDefaultValue()` (recursive standalone-function call) |
+| `CustomType`      | `customTypeDefaultValue()` (recursive standalone-function call)                   |
 
 ## Field-Level Options
 
@@ -55,7 +54,7 @@ class UserSettings {
     /** @default(10) */
     pageSize: number;
 
-    notifications: boolean;  // Uses type default: false
+    notifications: boolean; // Uses type default: false
 }
 ```
 
@@ -115,9 +114,8 @@ The macro returns a compile error only if:
 - An enum has no variant marked with `@default`
 - A field's `@default` expression fails to parse
 
-Missing defaults on non-primitive fields are **not** compile errors: every type is
-assumed to implement Default (Rust-like philosophy), so the macro emits a
-`typeNameDefaultValue()` call for any custom type. If a field's type is in the
-type registry but does not derive `Default`, a warning is printed to stderr at
-expansion time and the call is generated anyway — it may then fail at runtime if
-the function does not exist.
+Missing defaults on non-primitive fields are **not** compile errors: every type is assumed to
+implement Default (Rust-like philosophy), so the macro emits a `typeNameDefaultValue()` call for any
+custom type. If a field's type is in the type registry but does not derive `Default`, a warning is
+printed to stderr at expansion time and the call is generated anyway — it may then fail at runtime
+if the function does not exist.

@@ -8,7 +8,7 @@
 // - Nested block scopes with hygiene-local temporaries
 // - Type-position macros via the `macroRules({...})` object form
 
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 // ──────────────────────────────────────────────────────────────────
 // 1. Multi-arm dispatch by arity.

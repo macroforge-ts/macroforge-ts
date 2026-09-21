@@ -144,7 +144,7 @@ function testMacros() {
 
     // Pull spliced-at-build-time values out of buildtime-demo.ts. If the
     // Vite plugin's macroforge pre-pass didn't run, this will throw
-    // because the `macroforge/buildtime` runtime stubs fire.
+    // because the `@macroforge/core/buildtime` runtime stubs fire.
     const buildtimeResult = collectBuildtimeDemo();
     pg.buildtimeResults = buildtimeResult;
 
@@ -197,7 +197,7 @@ function testMacros() {
       <p>
         Every value below was computed at compile time by macroforge and
         spliced into the module as a TS literal. The runtime stub
-        imported from <code>macroforge/buildtime</code> still throws if
+        imported from <code>@macroforge/core/buildtime</code> still throws if
         called — proving the plugin did the work, not the browser.
       </p>
       <div id="buildtime-results" data-testid="buildtime-results">

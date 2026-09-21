@@ -19,7 +19,7 @@ project-wide declarative registry has been installed, which means passing `decla
 in `ExpandOptions`:
 
 ```typescript
-import { expandSync, scanProjectSync } from 'macroforge';
+import { expandSync, scanProjectSync } from '@macroforge/core';
 
 const scan = scanProjectSync({ root: './src' });
 

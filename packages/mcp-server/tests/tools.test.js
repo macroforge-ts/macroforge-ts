@@ -12,7 +12,7 @@ async function importTools() {
     // The tools are not directly exported, so we'll test through the module
     // by simulating the tool calls
     try {
-        const macroforge = await import('macroforge');
+        const macroforge = await import('@macroforge/core');
         return macroforge;
     } catch {
         return null;
@@ -211,7 +211,7 @@ test('macroforge-autofixer - builtin import warning', async (t) => {
         return;
     }
 
-    const codeWithImport = `import { Debug } from "macroforge";
+    const codeWithImport = `import { Debug } from "@macroforge/core";
 
 /** @derive(Debug) */
 class User {
@@ -364,7 +364,7 @@ test('diagnostics have proper offset information', async (t) => {
         return;
     }
 
-    const code = `import { Debug } from "macroforge";
+    const code = `import { Debug } from "@macroforge/core";
 
 /** @derive(Debug) */
 class User {

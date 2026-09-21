@@ -77,7 +77,7 @@
 //! Generated output:
 //!
 //! ```typescript
-//! import { SerializeContext } from 'macroforge/serde';
+//! import { SerializeContext } from '@macroforge/core/serde';
 //!
 //! class User {
 //!     id: number;
@@ -139,7 +139,7 @@
 //!
 //! ## Required Import
 //!
-//! The generated code automatically imports `SerializeContext` from `macroforge/serde`.
+//! The generated code automatically imports `SerializeContext` from `@macroforge/core/serde`.
 
 mod foreign_types;
 mod types;
@@ -864,7 +864,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     return result;
                 }
             };
-            standalone.add_aliased_import("SerializeContext", "macroforge/serde");
+            standalone.add_aliased_import("SerializeContext", crate::package::SERDE);
 
             // Generate static wrapper methods that delegate to standalone functions
             let fn_serialize_internal_expr_class: Expr = fn_serialize_internal_ident.into();
@@ -1589,7 +1589,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     return result;
                 }
             };
-            result.add_aliased_import("SerializeContext", "macroforge/serde");
+            result.add_aliased_import("SerializeContext", crate::package::SERDE);
             Ok(result)
         }
         Data::TypeAlias(type_alias) => {
@@ -1893,7 +1893,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         }
                     }
                 };
-                result.add_aliased_import("SerializeContext", "macroforge/serde");
+                result.add_aliased_import("SerializeContext", crate::package::SERDE);
                 Ok(result)
             } else if type_alias.as_union().is_some() {
                 // Union type: tagging-mode-aware serialization
@@ -2223,7 +2223,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         }
                     }
                 };
-                result.add_aliased_import("SerializeContext", "macroforge/serde");
+                result.add_aliased_import("SerializeContext", crate::package::SERDE);
                 Ok(result)
             } else {
                 // Tuple or simple alias: delegate to inner type's serializeWithContext if available
@@ -2265,7 +2265,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         }
                     }
                 };
-                result.add_aliased_import("SerializeContext", "macroforge/serde");
+                result.add_aliased_import("SerializeContext", crate::package::SERDE);
                 Ok(result)
             }
         }

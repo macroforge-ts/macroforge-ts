@@ -103,7 +103,7 @@
 
 <h2 id="example">Example</h2>
 
-<CodeBlock code={`import { transformSync } from "macroforge";
+<CodeBlock code={`import { transformSync } from "@macroforge/core";
 
 const sourceCode = \`
 /** @derive(Debug) */

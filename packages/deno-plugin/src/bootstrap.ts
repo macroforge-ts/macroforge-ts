@@ -63,7 +63,7 @@ export function loadRustTransformer(
     if (cached) return cached;
 
     const projectRequire = createRequire(projectRoot + '/');
-    const transformer = projectRequire('macroforge') as RustTransformer;
+    const transformer = projectRequire('@macroforge/core') as RustTransformer;
 
     // WASM build: provide a filesystem bridge for `@buildtime` evaluation.
     // NAPI build: setupBuildtimeFs is undefined and this is a no-op.

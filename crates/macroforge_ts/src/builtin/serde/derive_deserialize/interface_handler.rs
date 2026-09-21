@@ -1052,9 +1052,9 @@ pub(super) fn handle_interface(input: &DeriveInput) -> Result<TsStream, Macrofor
         }
     };
 
-    result.add_aliased_import("DeserializeContext", "macroforge/serde");
-    result.add_aliased_import("DeserializeError", "macroforge/serde");
-    result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
-    result.add_aliased_import("PendingRef", "macroforge/serde");
+    result.add_aliased_import("DeserializeContext", crate::package::SERDE);
+    result.add_aliased_import("DeserializeError", crate::package::SERDE);
+    result.add_aliased_type_import("DeserializeOptions", crate::package::SERDE);
+    result.add_aliased_import("PendingRef", crate::package::SERDE);
     Ok(result)
 }

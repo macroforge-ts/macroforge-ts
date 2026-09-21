@@ -117,7 +117,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
         total_exports += export_count;
 
         let out_path = output_path.join(format!("{}.json", pkg_name));
-        let json = serde_json::to_string_pretty(&docs)?;
+        let json = crate::utils::json::to_string_pretty(&docs)?;
         write_docs_json(&out_path, &json)?;
 
         println!("{} exports", export_count);
@@ -135,7 +135,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
     });
 
     let index_path = output_path.join("index.json");
-    write_docs_json(&index_path, &serde_json::to_string_pretty(&index)?)?;
+    write_docs_json(&index_path, &crate::utils::json::to_string_pretty(&index)?)?;
 
     println!();
     format::success(&format!(

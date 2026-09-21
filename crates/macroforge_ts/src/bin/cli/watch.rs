@@ -143,7 +143,7 @@ fn discover_macro_sources(root: &Path) -> Vec<MacroSourceInfo> {
                 .any(|key| {
                     child_pkg[key]
                         .as_object()
-                        .is_some_and(|deps| deps.contains_key("macroforge"))
+                        .is_some_and(|deps| deps.contains_key(macroforge_ts::package::PACKAGE))
                 });
 
             if has_macroforge_dep {

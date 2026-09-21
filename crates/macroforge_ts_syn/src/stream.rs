@@ -116,8 +116,8 @@ use crate::TsSynError;
 /// use macroforge_ts_syn::ImportConfig;
 ///
 /// const MY_IMPORTS: &[ImportConfig] = &[
-///     ImportConfig::value("ok", "__mf_ok", "macroforge/reexports"),
-///     ImportConfig::type_only("Result", "__mf_Result", "macroforge/reexports"),
+///     ImportConfig::value("ok", "__mf_ok", "@macroforge/core/serde"),
+///     ImportConfig::type_only("Result", "__mf_Result", "@macroforge/core/serde"),
 /// ];
 ///
 /// stream.add_imports(MY_IMPORTS);
@@ -562,8 +562,8 @@ impl TsStream {
     ///
     /// # Example
     /// ```ignore
-    /// stream.add_aliased_import("DeserializeContext", "macroforge/serde");
-    /// // Generates: import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+    /// stream.add_aliased_import("DeserializeContext", "@macroforge/core/serde");
+    /// // Generates: import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
     /// ```
     pub fn add_aliased_import(&mut self, name: &str, module: &str) {
         let alias = format!("__mf_{name}");
@@ -576,8 +576,8 @@ impl TsStream {
     ///
     /// # Example
     /// ```ignore
-    /// stream.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
-    /// // Generates: import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
+    /// stream.add_aliased_type_import("DeserializeOptions", "@macroforge/core/serde");
+    /// // Generates: import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
     /// ```
     pub fn add_aliased_type_import(&mut self, name: &str, module: &str) {
         let alias = format!("__mf_{name}");
@@ -590,8 +590,8 @@ impl TsStream {
     ///
     /// # Example
     /// ```ignore
-    /// stream.add_import_as("resultOk", "__mf_resultOk", "macroforge/reexports");
-    /// // Generates: import { resultOk as __mf_resultOk } from "macroforge/reexports";
+    /// stream.add_import_as("resultOk", "__mf_resultOk", "@macroforge/core/serde");
+    /// // Generates: import { resultOk as __mf_resultOk } from "@macroforge/core/serde";
     /// ```
     pub fn add_import_as(&mut self, name: &str, alias: &str, module: &str) {
         crate::import_registry::with_registry_mut(|r| {
@@ -603,8 +603,8 @@ impl TsStream {
     ///
     /// # Example
     /// ```ignore
-    /// stream.add_type_import_as("Result", "__mf_Result", "macroforge/reexports");
-    /// // Generates: import type { Result as __mf_Result } from "macroforge/reexports";
+    /// stream.add_type_import_as("Result", "__mf_Result", "@macroforge/core/serde");
+    /// // Generates: import type { Result as __mf_Result } from "@macroforge/core/serde";
     /// ```
     pub fn add_type_import_as(&mut self, name: &str, alias: &str, module: &str) {
         crate::import_registry::with_registry_mut(|r| {
@@ -623,8 +623,8 @@ impl TsStream {
     /// use macroforge_ts_syn::ImportConfig;
     ///
     /// const SERDE_IMPORTS: &[ImportConfig] = &[
-    ///     ImportConfig::value("DeserializeContext", "__mf_DeserializeContext", "macroforge/serde"),
-    ///     ImportConfig::type_only("DeserializeOptions", "__mf_DeserializeOptions", "macroforge/serde"),
+    ///     ImportConfig::value("DeserializeContext", "__mf_DeserializeContext", "@macroforge/core/serde"),
+    ///     ImportConfig::type_only("DeserializeOptions", "__mf_DeserializeOptions", "@macroforge/core/serde"),
     /// ];
     ///
     /// stream.add_imports(SERDE_IMPORTS);

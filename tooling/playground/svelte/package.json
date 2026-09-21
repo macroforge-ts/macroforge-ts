@@ -17,9 +17,9 @@
     },
     "dependencies": {
         "@emotion/weak-memoize": "^0.4.0",
+        "@macroforge/core": "file:../vendor/macroforge_ts",
         "@playground/macro": "file:../macro",
         "effect": "^3.19.4",
-        "macroforge": "file:../vendor/macroforge_ts",
         "runed": "^0.36.0",
         "svelte-toolbelt": "^0.10.6",
         "ts-deepmerge": "^7.0.3"

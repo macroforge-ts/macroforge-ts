@@ -19,12 +19,12 @@
 
             <div class="flex items-center gap-6">
                 <a
-                    href={siteConfig.links.github}
+                    href={siteConfig.links.gitlab}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                    GitHub
+                    GitLab
                 </a>
                 <a
                     href={siteConfig.links.npm}
@@ -35,7 +35,7 @@
                     npm
                 </a>
                 <a
-                    href="{siteConfig.links.github}/blob/main/LICENSE"
+                    href="{siteConfig.links.gitlab}/-/blob/main/LICENSE"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-sm text-muted-foreground hover:text-foreground transition-colors"

@@ -17,7 +17,7 @@ class User {
 ```
 
 ```typescript after
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from '@macroforge/core/serde';
 
 class User {
     id: number;
@@ -81,7 +81,7 @@ export function userSerializeWithContext(
 Generated output:
 
 ```typescript
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from '@macroforge/core/serde';
 
 class User {
     id: number;
@@ -144,4 +144,4 @@ export function userSerializeWithContext(
 
 ## Required Import
 
-The generated code automatically imports `SerializeContext` from `macroforge/serde`.
+The generated code automatically imports `SerializeContext` from `@macroforge/core/serde`.

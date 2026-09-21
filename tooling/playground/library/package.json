@@ -34,7 +34,7 @@
         "cleanbuild": "deno task clean && deno install --node-modules-dir && deno task build"
     },
     "dependencies": {
-        "macroforge": "file:../vendor/macroforge_ts"
+        "@macroforge/core": "file:../vendor/macroforge_ts"
     },
     "peerDependencies": {
         "svelte": "^5.0.0"

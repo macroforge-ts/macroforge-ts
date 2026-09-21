@@ -5,7 +5,7 @@
 The simplest way to define a macro is a tagged template literal:
 
 ```typescript
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 const $double = macroRules`
   ($x:Expr) => ($x) * 2
@@ -14,8 +14,8 @@ const $double = macroRules`
 
 Three requirements:
 
-- **The import activates the pipeline.** `import { macroRules } from "macroforge/rules"` is the
-  signal that turns on declarative macro discovery for the file. Without it, `macroRules` is an
+- **The import activates the pipeline.** `import { macroRules } from "@macroforge/core/rules"` is
+  the signal that turns on declarative macro discovery for the file. Without it, `macroRules` is an
   ordinary identifier. A default import bound to the name `macroRules` also works, but aliasing
   (`import { macroRules as mr }`) is rejected.
 - **The name must start with `$`.** Discovery skips any other binding.

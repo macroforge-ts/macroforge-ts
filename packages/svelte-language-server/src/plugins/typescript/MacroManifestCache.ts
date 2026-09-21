@@ -43,7 +43,7 @@ export class MacroManifestCache {
 
         try {
             // eslint-disable-next-line @typescript-eslint/no-var-requires
-            const macroforge = require('macroforge');
+            const macroforge = require('@macroforge/core');
             if (typeof macroforge.__macroforgeGetManifest !== 'function') {
                 Logger.debug(
                     'MacroManifestCache: __macroforgeGetManifest not available'

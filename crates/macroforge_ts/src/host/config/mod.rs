@@ -20,9 +20,8 @@
 //!
 //! ```javascript
 //! import { DateTime } from "effect";
-//! import { defineConfig } from "macroforge/config";
 //!
-//! export default defineConfig({
+//! export default {
 //!   keepDecorators: false,
 //!   generateConvenienceConst: true,
 //!   foreignTypes: {
@@ -37,7 +36,7 @@
 //!       hasShape: (v) => v instanceof Date || typeof v === "string"
 //!     }
 //!   }
-//! })
+//! };
 //! ```
 //!
 //! ## Configuration Caching

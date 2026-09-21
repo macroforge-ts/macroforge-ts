@@ -1,4 +1,4 @@
-import pkg from 'macroforge';
+import pkg from '@macroforge/core';
 const { transformSync: transform_node_oxc } = pkg;
 import * as wasm_oxc from '../../../crates/macroforge_ts/pkg/macroforge_ts.js';
 import fs from 'node:fs';

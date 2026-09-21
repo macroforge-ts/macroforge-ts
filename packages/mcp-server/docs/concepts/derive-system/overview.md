@@ -103,7 +103,7 @@ class User {
 After (Generated)
 
 ```
-import { SerializeContext as __mf_SerializeContext } from 'macroforge/serde';
+import { SerializeContext as __mf_SerializeContext } from '@macroforge/core/serde';
 
 class User {
     id: number;

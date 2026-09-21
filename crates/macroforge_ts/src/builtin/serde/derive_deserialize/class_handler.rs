@@ -1169,10 +1169,10 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
             return @{parse_ts_expr(&is_ok_check("result")).expect("deserialize is_ok expression should parse")};
         }
     });
-    result.add_aliased_import("DeserializeContext", "macroforge/serde");
-    result.add_aliased_import("DeserializeError", "macroforge/serde");
-    result.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
-    result.add_aliased_import("PendingRef", "macroforge/serde");
+    result.add_aliased_import("DeserializeContext", crate::package::SERDE);
+    result.add_aliased_import("DeserializeError", crate::package::SERDE);
+    result.add_aliased_type_import("DeserializeOptions", crate::package::SERDE);
+    result.add_aliased_import("PendingRef", crate::package::SERDE);
 
     // Generate standalone functions that delegate to static methods
     let mut standalone = ts_template! {
@@ -1191,9 +1191,9 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
             return @{&class_expr}.is(value);
         }
     };
-    standalone.add_aliased_import("DeserializeContext", "macroforge/serde");
-    standalone.add_aliased_type_import("DeserializeOptions", "macroforge/serde");
-    standalone.add_aliased_import("PendingRef", "macroforge/serde");
+    standalone.add_aliased_import("DeserializeContext", crate::package::SERDE);
+    standalone.add_aliased_type_import("DeserializeOptions", crate::package::SERDE);
+    standalone.add_aliased_import("PendingRef", crate::package::SERDE);
 
     // Combine standalone functions with class body using {$typescript} composition
     // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)

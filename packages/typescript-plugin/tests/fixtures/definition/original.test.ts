@@ -1,6 +1,6 @@
 /** @derive(Debug) */
 class User {
-  id: string;
+    id: string;
 }
 
 const u = new User();

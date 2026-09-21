@@ -41,6 +41,6 @@ pub(super) fn handle_enum(input: &DeriveInput) -> Result<TsStream, MacroforgeErr
         }
     };
 
-    result.add_aliased_import("DeserializeContext", "macroforge/serde");
+    result.add_aliased_import("DeserializeContext", crate::package::SERDE);
     Ok(result)
 }

@@ -2,7 +2,7 @@
 //
 // Both declarations should be fully erased — including their `export`
 // keywords — so no orphan `export` remains in the output.
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 export const $vec = macroRules`
   () => []

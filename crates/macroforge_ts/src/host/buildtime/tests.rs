@@ -777,7 +777,7 @@ fn prepass_full_playground_demo() {
     // Full reproduction of the vanilla playground's buildtime-demo.ts.
     // Catches integration regressions between discovery, TS-strip,
     // prelude builder, sandbox, and patch application.
-    let src = r#"import { buildtime } from 'macroforge/buildtime';
+    let src = r#"import { buildtime } from '@macroforge/core/buildtime';
 
 /** @buildtime */
 const ANSWER = 6 * 7;

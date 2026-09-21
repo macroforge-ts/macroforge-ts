@@ -258,7 +258,7 @@ class User {
 });
 
 test('builtin import warning appears in diagnostics', async (t) => {
-    const source = `import { Debug } from "macroforge";
+    const source = `import { Debug } from "@macroforge/core";
 
 /** @derive(Debug) */
 class User {

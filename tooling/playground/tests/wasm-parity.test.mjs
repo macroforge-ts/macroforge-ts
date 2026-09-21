@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expandSync as expand_node } from 'macroforge';
+import { expandSync as expand_node } from '@macroforge/core';
 import * as expand_wasm from '../../../crates/macroforge_ts/pkg/macroforge_ts.js';
 import fs from 'node:fs';
 import path from 'node:path';

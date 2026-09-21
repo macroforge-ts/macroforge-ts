@@ -4,7 +4,7 @@ version = "0.1.0"
 schema_version = 1
 authors = ["macroforge contributors"]
 description = "VTSLS (VS Code TypeScript Language Server) with @macroforge/typescript-plugin for compile-time macros."
-repository = "https://github.com/macroforge-ts/macroforge-ts"
+repository = "https://gitlab.com/macroforge-ts/macroforge-ts"
 
 # Language server definition - wraps vtsls with macroforge plugin
 [language_servers.vtsls-macroforge]
@@ -22,24 +22,9 @@ package = "@vtsls/language-server"
 
 [[permissions]]
 kind = "npm:install"
-package = "macroforge"
+package = "@macroforge/core"
 
-[[permissions]]
-kind = "npm:install"
-package = "@macroforge/bin-darwin-x64"
 
-[[permissions]]
-kind = "npm:install"
-package = "@macroforge/bin-darwin-arm64"
 
-[[permissions]]
-kind = "npm:install"
-package = "@macroforge/bin-linux-x64-gnu"
 
-[[permissions]]
-kind = "npm:install"
-package = "@macroforge/bin-linux-arm64-gnu"
 
-[[permissions]]
-kind = "npm:install"
-package = "@macroforge/bin-win32-x64-msvc"

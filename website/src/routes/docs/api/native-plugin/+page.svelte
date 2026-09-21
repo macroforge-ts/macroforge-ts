@@ -100,7 +100,7 @@ const result3 = plugin.processFile("user.ts", newCode, { version: "2" });`} lang
 
 <h2 id="example">Example: Language Server Integration</h2>
 
-<CodeBlock code={`import { NativePlugin } from "macroforge";
+<CodeBlock code={`import { NativePlugin } from "@macroforge/core";
 
 class MacroforgeLanguageService {
   private plugin = new NativePlugin();
