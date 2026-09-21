@@ -3,6 +3,7 @@ name = "mf"
 version = "0.1.0"
 edition = "2024"
 description = "Macroforge Tooling - unified CLI/TUI for build, release, and diagnostics"
+publish = false
 
 [[bin]]
 name = "mf"
