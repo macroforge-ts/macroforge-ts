@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 // content was produced by a `@buildtime` declaration that macroforge
 // spliced into `buildtime-demo.ts` before the browser saw the module.
 // If the Vite plugin didn't run the pre-pass, the runtime stubs from
-// `macroforge/buildtime` would throw and the page would never render.
+// `@macroforge/core/buildtime` would throw and the page would never render.
 
 test.describe('Vanilla Playground @buildtime Tests', () => {
     test.beforeEach(async ({ page }) => {
@@ -60,7 +60,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
         expect(text).toMatch(/^answer=42, hash=[0-9a-f]{8}$/);
     });
 
-    test('runtime `macroforge/buildtime` stub still throws', async ({ page }) => {
+    test('runtime `@macroforge/core/buildtime` stub still throws', async ({ page }) => {
         // If the Vite plugin runs, every real @buildtime use was already
         // evaluated at compile time. But importing `buildtime` at runtime
         // and calling a method on it should still throw — that's the

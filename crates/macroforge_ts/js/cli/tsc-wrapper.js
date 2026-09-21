@@ -152,14 +152,14 @@ const origGetSourceFile = host.getSourceFile.bind(host);
 // Text-level fast path: skip files that don't contain any macro markers.
 // Matches:
 //   - `@derive` (derive macros)
-//   - `macroforge/rules` (declarative-macro-defining files that
-//     `import { macroRules } from "macroforge/rules"`)
+//   - `@macroforge/core/rules` (declarative-macro-defining files that
+//     `import { macroRules } from "@macroforge/core/rules"`)
 //   - `import macro` inside a JSDoc comment (declarative-macro-consuming
 //     files that use `/** import macro { $name } from "./file" */`)
 function hasMacroMarkers(sourceText) {
   if (!sourceText) return false;
   if (sourceText.includes("@derive")) return true;
-  if (sourceText.includes("macroforge/rules")) return true;
+  if (sourceText.includes("@macroforge/core/rules")) return true;
   if (sourceText.includes("import macro")) return true;
   return false;
 }

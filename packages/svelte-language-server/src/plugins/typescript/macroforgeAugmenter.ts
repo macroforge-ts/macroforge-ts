@@ -2,11 +2,11 @@ import ts from 'typescript';
 import type { ExpandOptions } from '@macroforge/shared';
 import { Logger } from '../../logger';
 
-let expandSync: typeof import('macroforge').expandSync | undefined;
+let expandSync: typeof import('@macroforge/core').expandSync | undefined;
 let macroforgeLoadError: Error | undefined;
 
 try {
-    expandSync = require('macroforge').expandSync;
+    expandSync = require('@macroforge/core').expandSync;
     Logger.log('macroforge native module loaded successfully');
 } catch (e) {
     macroforgeLoadError = e as Error;

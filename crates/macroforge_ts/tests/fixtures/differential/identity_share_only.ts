@@ -5,7 +5,7 @@
 // runtime is a plain identity; both expansions should log the same
 // value.
 
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 const $identity = macroRules({
     mode: 'share-only',

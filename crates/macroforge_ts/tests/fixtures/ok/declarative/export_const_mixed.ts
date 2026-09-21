@@ -2,7 +2,7 @@
 //
 // The expander must handle both forms in the same file. Both the
 // exported and non-exported declarations should be erased cleanly.
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 export const $vec = macroRules`
   () => []

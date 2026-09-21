@@ -21,7 +21,7 @@
 //   withSemi            — explicit trailing `;` means "discard", not "return"
 //   nestedBlockInBody   — trailing statement is a block: don't touch it
 
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 const $basicBlock = macroRules`
   ($x:Expr) => {

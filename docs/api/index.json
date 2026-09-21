@@ -1,45 +1,45 @@
 {
-  "generated": "2026-09-20T22:16:02.041755+00:00",
-  "packages": [
-    {
-      "exportCount": 0,
-      "name": "macroforge",
-      "version": "0.1.85"
-    },
-    {
-      "exportCount": 23,
-      "name": "@macroforge/shared",
-      "version": "0.1.85"
-    },
-    {
-      "exportCount": 2,
-      "name": "@macroforge/vite-plugin",
-      "version": "0.1.85"
-    },
-    {
-      "exportCount": 1,
-      "name": "@macroforge/typescript-plugin",
-      "version": "0.1.85"
-    },
-    {
-      "exportCount": 5,
-      "name": "@macroforge/svelte-language-server",
-      "version": "0.1.85"
-    },
-    {
-      "exportCount": 3,
-      "name": "@macroforge/svelte-preprocessor",
-      "version": "0.1.85"
-    },
-    {
-      "exportCount": 1,
-      "name": "@macroforge/mcp-server",
-      "version": "0.1.85"
-    },
-    {
-      "exportCount": 5,
-      "name": "@macroforge/deno-plugin",
-      "version": "0.1.85"
-    }
-  ]
+    "generated": "2026-09-21T18:55:54.827850+00:00",
+    "packages": [
+        {
+            "name": "@macroforge/core",
+            "version": "0.2.0",
+            "exportCount": 0
+        },
+        {
+            "name": "@macroforge/shared",
+            "version": "0.2.0",
+            "exportCount": 23
+        },
+        {
+            "name": "@macroforge/vite-plugin",
+            "version": "0.2.0",
+            "exportCount": 2
+        },
+        {
+            "name": "@macroforge/typescript-plugin",
+            "version": "0.2.0",
+            "exportCount": 1
+        },
+        {
+            "name": "@macroforge/svelte-language-server",
+            "version": "0.2.0",
+            "exportCount": 5
+        },
+        {
+            "name": "@macroforge/svelte-preprocessor",
+            "version": "0.2.0",
+            "exportCount": 3
+        },
+        {
+            "name": "@macroforge/mcp-server",
+            "version": "0.2.0",
+            "exportCount": 1
+        },
+        {
+            "name": "@macroforge/deno-plugin",
+            "version": "0.2.0",
+            "exportCount": 5
+        }
+    ]
 }

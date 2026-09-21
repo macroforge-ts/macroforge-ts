@@ -79,7 +79,7 @@ interface MacroDiagnostic {
 TypeScript
 
 ```
-import { expandSync } from "macroforge";
+import { expandSync } from "@macroforge/core";
 
 const sourceCode = `
 /** @derive(Debug) */

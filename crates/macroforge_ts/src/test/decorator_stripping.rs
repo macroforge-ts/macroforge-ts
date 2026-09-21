@@ -24,7 +24,7 @@ use crate::host::{MacroConfig, MacroExpander};
 #[test]
 fn strips_class_and_field_decorators_by_default() {
     let code = r#"
-import { Derive } from "macroforge";
+import { Derive } from "@macroforge/core";
 
 /** @derive(Debug) */
 export class Example {

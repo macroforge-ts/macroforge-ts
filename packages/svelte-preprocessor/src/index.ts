@@ -252,7 +252,7 @@ async function ensureExpandSync(): Promise<typeof expandSync> {
     if (expandSync === null) {
         try {
             // Dynamic import defers loading until first use
-            const macroforge = await import('macroforge');
+            const macroforge = await import('@macroforge/core');
             expandSync = macroforge.expandSync;
         } catch (error) {
             // Log warning but don't throw - allows graceful degradation

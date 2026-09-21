@@ -182,7 +182,7 @@ function runAllMacroTests() {
         <p>
             Every value below was computed at compile time by macroforge
             and spliced into the module as a TS literal. The runtime
-            stub imported from <code>macroforge/buildtime</code> still
+            stub imported from <code>@macroforge/core/buildtime</code> still
             throws when called — proving the plugin did the work, not
             the browser.
         </p>

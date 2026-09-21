@@ -86,7 +86,7 @@ pub fn find_root() -> Result<PathBuf> {
 /// npm package name mappings (repo name -> npm package name)
 pub fn npm_package_names() -> HashMap<&'static str, &'static str> {
     [
-        ("core", "macroforge"),
+        ("core", "@macroforge/core"),
         ("shared", "@macroforge/shared"),
         ("vite-plugin", "@macroforge/vite-plugin"),
         ("typescript-plugin", "@macroforge/typescript-plugin"),

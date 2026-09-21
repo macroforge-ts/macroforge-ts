@@ -1,0 +1,82 @@
+{
+    "fmt": {
+        "exclude": [
+            "**/dist",
+            "**/build",
+            "**/node_modules",
+            "**/target",
+            "**/pkg",
+            "**/.svelte-kit",
+            "**/.macroforge",
+            "**/*.expanded.ts",
+            "**/*.expanded.svelte.ts",
+            "**/*.node",
+            "**/fixtures/**"
+        ],
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "semiColons": true,
+        "singleQuote": true,
+        "trailingCommas": "never",
+        "useTabs": false
+    },
+    "lint": {
+        "include": [
+            "**/*.ts",
+            "**/*.js",
+            "**/*.mjs",
+            "**/*.tsx",
+            "**/*.jsx"
+        ],
+        "exclude": [
+            "**/dist",
+            "**/build",
+            "**/node_modules",
+            "**/*.expanded.svelte.ts",
+            "**/*.expanded.ts",
+            "**/target",
+            "**/*.d.ts",
+            "**/fixtures/**",
+            "**/svelte-language-server/**",
+            "**/.temp/**",
+            "**/.macroforge/**"
+        ],
+        "rules": {
+            "tags": [
+                "recommended"
+            ],
+            "include": [
+                "eqeqeq",
+                "no-eval",
+                "no-throw-literal"
+            ],
+            "exclude": [
+                "no-explicit-any",
+                "no-unused-vars",
+                "require-await",
+                "no-process-global",
+                "no-node-globals",
+                "no-window",
+                "ban-ts-comment",
+                "no-namespace",
+                "ban-types",
+                "no-sloppy-imports"
+            ]
+        }
+    },
+    "nodeModulesDir": "auto",
+    "unstable": [
+        "sloppy-imports"
+    ],
+    "workspace": [
+        "./crates/macroforge_ts",
+        "./packages/shared",
+        "./packages/mcp-server",
+        "./packages/svelte-language-server",
+        "./packages/typescript-plugin",
+        "./packages/vite-plugin",
+        "./packages/svelte-preprocessor",
+        "./packages/deno-plugin",
+        "./website"
+    ]
+}

@@ -36,7 +36,7 @@
   Derive,
   NativePlugin,
   PositionMapper
-} from "macroforge";`} lang="typescript" />
+} from "@macroforge/core";`} lang="typescript" />
 
 <h2 id="functions">Core Functions</h2>
 
@@ -106,7 +106,7 @@
 
 <h2 id="quick-example">Quick Example</h2>
 
-<CodeBlock code={`import { expandSync } from "macroforge";
+<CodeBlock code={`import { expandSync } from "@macroforge/core";
 
 const sourceCode = \`
 /** @derive(Debug) */

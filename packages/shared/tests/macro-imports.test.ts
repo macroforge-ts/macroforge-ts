@@ -22,13 +22,13 @@ Deno.test('parseMacroImportComments - parses multiple macros from same package',
 Deno.test('parseMacroImportComments - parses imports from multiple packages', () => {
     const text = `
         /** import macro {JSON} from "@playground/macro"; */
-        /** import macro {Debug} from "macroforge"; */
+        /** import macro {Debug} from "@macroforge/core"; */
     `;
     const result = parseMacroImportComments(text);
 
     assertEquals(result.size, 2);
     assertEquals(result.get('JSON'), '@playground/macro');
-    assertEquals(result.get('Debug'), 'macroforge');
+    assertEquals(result.get('Debug'), '@macroforge/core');
 });
 
 Deno.test('parseMacroImportComments - handles single quotes', () => {

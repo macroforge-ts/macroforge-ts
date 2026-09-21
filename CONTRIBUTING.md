@@ -82,17 +82,34 @@ cargo insta review
 
 #### Adding a snapshot test
 
-1. Create a `.ts` file in `crates/macroforge_ts/tests/fixtures/ok/` (expected to expand successfully) or `tests/fixtures/error/` (edge cases, bailouts, unknown macros)
-2. Run `cargo test -p macroforge_ts --test spec_tests` -- the test will fail and create a `.snap.new` file
-3. Review the snapshot, then accept: `INSTA_UPDATE=always cargo test -p macroforge_ts --test spec_tests`
+1. Create a `.ts` file in `crates/macroforge_ts/tests/fixtures/ok/` (expected to expand
+   successfully) or `tests/fixtures/error/` (edge cases, bailouts, unknown macros)
+2. Run `cargo test -p macroforge_ts --test spec_tests` -- the test will fail and create a
+   `.snap.new` file
+3. Review the snapshot, then accept:
+   `INSTA_UPDATE=always cargo test -p macroforge_ts --test spec_tests`
 4. Commit both the fixture and the `.snap` file
 
-Fixtures in `ok/` must contain `@derive` annotations and are expected to produce `changed == true`. Fixtures in `error/` accept any outcome and snapshot whatever happens.
+Fixtures in `ok/` must contain `@derive` annotations and are expected to produce `changed == true`.
+Fixtures in `error/` accept any outcome and snapshot whatever happens.
 
 ### Package tests
 
 ```bash
 pixi run test:packages
+```
+
+### Playground tests
+
+```bash
+pixi run test:playground
+```
+
+The end-to-end step serves the vanilla playground on port 3000. Point it somewhere else when that
+port is already taken, or Playwright attaches to whatever is listening and every test fails:
+
+```bash
+PLAYGROUND_VANILLA_PORT=3177 pixi run test:playground
 ```
 
 ### All tests
@@ -113,13 +130,16 @@ The core expansion pipeline:
 6. **Emit** -- Patches are applied to produce expanded `.ts` and `.d.ts` output
 
 Key types:
+
 - `MacroExpander` (`host/expand/mod.rs`) -- entry point, call `expand_source(code, filename)`
 - `MacroExpansion` -- result struct with `code`, `type_output`, `diagnostics`, `changed`
-- `ClassIR` / `InterfaceIR` / `EnumIR` / `TypeAliasIR` (`macroforge_ts_syn`) -- intermediate representations
+- `ClassIR` / `InterfaceIR` / `EnumIR` / `TypeAliasIR` (`macroforge_ts_syn`) -- intermediate
+  representations
 
 ## Writing a built-in macro
 
-Built-in macros live in `crates/macroforge_ts/src/builtin/`. Each macro implements the expansion trait and is registered via `inventory`. See the existing `Debug` or `Clone` macros for the pattern.
+Built-in macros live in `crates/macroforge_ts/src/builtin/`. Each macro implements the expansion
+trait and is registered via `inventory`. See the existing `Debug` or `Clone` macros for the pattern.
 
 ## Code style
 

@@ -16,7 +16,7 @@ class User {
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
 import { Derive } from '@macro/derive';
 
 

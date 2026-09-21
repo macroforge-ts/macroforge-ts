@@ -833,7 +833,7 @@ interface AutofixerResult {
 async function importMacroforge(): Promise<MacroforgeModule | null> {
     try {
         // Dynamic import so a missing optional dependency fails at runtime, not startup
-        const mod = await import('macroforge');
+        const mod = await import('@macroforge/core');
         return mod as MacroforgeModule;
     } catch {
         // Package not installed - return null to indicate unavailability

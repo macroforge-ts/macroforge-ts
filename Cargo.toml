@@ -1,0 +1,20 @@
+[workspace]
+members = [
+    "crates/macroforge_ts",
+    "crates/macroforge_ts_macros",
+    "crates/macroforge_ts_quote",
+    "crates/macroforge_ts_syn",
+    "crates/extensions/svelte-macroforge",
+    "crates/extensions/vtsls-macroforge",
+    "tooling/scripts",
+]
+# Built against vendored symlinks with its own napi/wasm toolchain, and never
+# published, so it resolves on its own rather than against this lockfile.
+exclude = ["tooling/playground/macro"]
+resolver = "3"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = true

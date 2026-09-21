@@ -16,7 +16,7 @@ directory:
 Create a `macroforge.config.ts` file:
 
 ```typescript
-import { defineConfig } from 'macroforge/config';
+import { defineConfig } from '@macroforge/core/config';
 
 export default defineConfig({
     keepDecorators: false,
@@ -54,7 +54,7 @@ When a matching type is found during expansion, the configured handlers are used
 ```typescript
 // macroforge.config.ts
 import { DateTime } from 'effect';
-import { defineConfig } from 'macroforge/config';
+import { defineConfig } from '@macroforge/core/config';
 
 export default defineConfig({
     foreignTypes: {
@@ -76,7 +76,7 @@ These options configure the `@macroforge/vite-plugin` behavior.
 
 ```typescript
 // macroforge.config.ts
-import { defineConfig } from 'macroforge/config';
+import { defineConfig } from '@macroforge/core/config';
 
 export default defineConfig({
     vite: {

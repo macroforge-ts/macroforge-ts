@@ -6,12 +6,12 @@ import { test } from 'node:test';
 import { initExternalMacros } from './test-utils.mjs';
 
 const require = createRequire(import.meta.url);
-const { expandSync } = require('macroforge');
+const { expandSync } = require('@macroforge/core');
 
 // Register external macro callbacks for WASM builds.
 // Required because the WASM build cannot spawn Node subprocesses
 // to resolve external macro packages (like @playground/macro).
-initExternalMacros(require('macroforge'));
+initExternalMacros(require('@macroforge/core'));
 
 const repoRoot = path.resolve(
     path.dirname(new URL(import.meta.url).pathname),
@@ -103,7 +103,7 @@ function expandPlaygroundAttributeFile(relPath) {
     // by configPath.
     const configPath = findMacroforgeConfigPath(filePath);
     if (configPath) {
-        const { loadConfig } = require('macroforge');
+        const { loadConfig } = require('@macroforge/core');
         loadConfig(fs.readFileSync(configPath, 'utf8'), configPath);
     }
     return expandSync(code, filePath, {
@@ -225,7 +225,7 @@ test('svelte: decorators stripped and methods generated', () => {
 });
 
 test('declarative macros: $vec expands inline at call sites', () => {
-    const source = `import { macroRules } from "macroforge/rules";
+    const source = `import { macroRules } from "@macroforge/core/rules";
 
 const $vec = macroRules\`
   () => []
@@ -253,7 +253,7 @@ const xs = $vec(1, 2, 3);
 });
 
 test('declarative macros: hygiene renames __ identifiers', () => {
-    const source = `import { macroRules } from "macroforge/rules";
+    const source = `import { macroRules } from "@macroforge/core/rules";
 
 const $withTemp = macroRules\`
   ($x:Expr) => {

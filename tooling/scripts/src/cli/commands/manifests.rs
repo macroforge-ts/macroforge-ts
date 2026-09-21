@@ -8,8 +8,7 @@ use crate::core::config::Config;
 use crate::core::manifests;
 use crate::core::shell;
 use crate::diagnostics::deno_lint;
-use crate::utils::format;
-use anyhow::Result;
+use anyhow::{Context, Result};
 
 /// Entry point for `mf manifest`: dispatches manifest subcommands (versions, swaps, linking).
 pub fn run(args: ManifestArgs) -> Result<()> {
@@ -46,11 +45,12 @@ pub fn run(args: ManifestArgs) -> Result<()> {
             versions.save(&config.root)?;
             // Format versions.json with deno fmt
             let config_path = deno_lint::governing_config(&config.root);
-            let _ = shell::deno::deno_fmt(
+            shell::deno::deno_fmt(
                 &config.root,
                 &["tooling/versions.json"],
                 config_path.as_deref(),
-            );
+            )
+            .context("Failed to format tooling/versions.json")?;
         }
 
         crate::cli::ManifestCommands::ApplyVersions { local } => {
@@ -69,19 +69,6 @@ pub fn run(args: ManifestArgs) -> Result<()> {
             manifests::update_zed_extensions(&config.root, &versions)?;
         }
 
-        crate::cli::ManifestCommands::SwapLocal => {
-            manifests::swap_local(&config)?;
-            let all_repos: Vec<&str> = config.repos.keys().map(|s| s.as_str()).collect();
-            manifests::swap_npm_local(&config, &all_repos)?;
-            format::success("Swapped to local dependencies");
-        }
-
-        crate::cli::ManifestCommands::SwapRegistry => {
-            manifests::swap_registry(&config, &versions)?;
-            manifests::swap_npm_registry(&config, &versions)?;
-            format::success("Swapped to registry dependencies");
-        }
-
         crate::cli::ManifestCommands::DumpVersions => {
             let json = serde_json::to_string_pretty(&versions)?;
             println!("{}", json);
@@ -89,14 +76,6 @@ pub fn run(args: ManifestArgs) -> Result<()> {
 
         crate::cli::ManifestCommands::UpdateZed => {
             manifests::update_zed_extensions(&config.root, &versions)?;
-        }
-
-        crate::cli::ManifestCommands::LinkLocal { repo, deps } => {
-            manifests::link_local_deps(&config, &repo, &deps)?;
-        }
-
-        crate::cli::ManifestCommands::RestoreRepo { repo } => {
-            manifests::restore_repo(&config, &versions, &repo)?;
         }
     }
 

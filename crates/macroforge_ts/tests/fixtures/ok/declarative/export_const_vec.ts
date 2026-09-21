@@ -4,7 +4,7 @@
 // inner `const $X = macroRules\`...\`;` binding and left the `export`
 // keyword orphaned, producing code that failed to parse:
 //     "'export' modifier already seen.; Unexpected token"
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 export const $vec = macroRules`
   () => []

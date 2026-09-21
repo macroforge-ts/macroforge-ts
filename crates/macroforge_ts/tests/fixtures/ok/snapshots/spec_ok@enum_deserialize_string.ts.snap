@@ -15,7 +15,7 @@ enum Role {
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
 
 enum Role {
     Admin = 'admin',

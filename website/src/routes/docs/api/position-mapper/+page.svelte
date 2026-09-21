@@ -22,7 +22,7 @@
 
 <h2 id="getting-mapper">Getting a Mapper</h2>
 
-<CodeBlock code={`import { NativePlugin, PositionMapper } from "macroforge";
+<CodeBlock code={`import { NativePlugin, PositionMapper } from "@macroforge/core";
 
 const plugin = new NativePlugin();
 const result = plugin.processFile("user.ts", code, { version: "1" });
@@ -86,7 +86,7 @@ interface SpanResult {
 
 <h2 id="example">Example: Error Position Mapping</h2>
 
-<CodeBlock code={`import { NativePlugin } from "macroforge";
+<CodeBlock code={`import { NativePlugin } from "@macroforge/core";
 
 const plugin = new NativePlugin();
 

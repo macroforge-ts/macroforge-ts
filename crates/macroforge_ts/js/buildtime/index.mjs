@@ -1,6 +1,6 @@
 // js/buildtime/index.ts
 var runtimeError = (method) => new Error(
-  `macroforge/buildtime.${method}: @buildtime APIs are only available inside @buildtime declarations evaluated by macroforge. If you're seeing this at runtime, the macroforge plugin is not installed or not running on this file.`
+  `@macroforge/core/buildtime.${method}: @buildtime APIs are only available inside @buildtime declarations evaluated by macroforge. If you're seeing this at runtime, the macroforge plugin is not installed or not running on this file.`
 );
 var buildtime = {
   fs: {

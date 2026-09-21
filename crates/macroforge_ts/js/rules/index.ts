@@ -8,7 +8,7 @@
  * Example:
  *
  * ```typescript
- * import { macroRules } from "macroforge/rules";
+ * import { macroRules } from "@macroforge/core/rules";
  *
  * const $vec = macroRules`
  *   () => []
@@ -30,7 +30,7 @@
  * macroforge build pass is not installed — if you see the runtime error,
  * your build toolchain is not running macroforge on this file.
  *
- * @module macroforge/rules
+ * @module @macroforge/core/rules
  */
 
 /**
@@ -60,7 +60,7 @@ export function macroRules(
   ..._values: unknown[]
 ): MacroInvocation {
   throw new Error(
-    "macroforge/rules: macros are compile-time only — they should have been erased by the macroforge build pass. " +
+    "@macroforge/core/rules: macros are compile-time only — they should have been erased by the macroforge build pass. " +
       "If you're seeing this at runtime, the macroforge plugin is not installed or not running on this file.",
   );
 }

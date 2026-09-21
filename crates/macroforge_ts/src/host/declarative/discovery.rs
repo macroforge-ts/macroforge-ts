@@ -3,7 +3,7 @@
 //! Discovery has two jobs:
 //!
 //! 1. Confirm the file actually imports `macroRules` from
-//!    `"macroforge/rules"`. This is the signal that the file opted in to
+//!    `"@macroforge/core/rules"`. This is the signal that the file opted in to
 //!    the declarative macro system, and it avoids false positives from
 //!    user code that happens to use a local `macroRules` identifier.
 //!
@@ -54,7 +54,7 @@ pub struct DiscoveredMacro {
 }
 
 /// Module specifier that must be imported for declarative macros to activate.
-pub const RULES_MODULE: &str = "macroforge/rules";
+pub use crate::package::RULES as RULES_MODULE;
 
 /// The local identifier name that the `macroRules` tag function must be
 /// imported under. Users may not alias it.
@@ -63,7 +63,7 @@ pub const MACRO_RULES_IDENT: &str = "macroRules";
 /// Walk the OXC `Program` and return every declarative macro definition
 /// found, or the first parse error encountered.
 ///
-/// If the file does not import `macroRules` from `"macroforge/rules"`,
+/// If the file does not import `macroRules` from `"@macroforge/core/rules"`,
 /// returns an empty vector immediately — this is the fast-path for files
 /// that don't use declarative macros, which is the common case.
 pub fn discover(
@@ -607,7 +607,7 @@ pub fn collect_dollar_imports(program: &Program<'_>) -> std::collections::HashMa
 ///
 /// This is the broad "does this file opt into declarative macros?" check.
 /// It fires regardless of what else the import statement contains — a file
-/// with `import { macroRules, type MacroInvocation } from "macroforge/rules"`
+/// with `import { macroRules, type MacroInvocation } from "@macroforge/core/rules"`
 /// still counts. Use [`find_macro_rules_import_span`] instead when you
 /// need to know whether the whole statement is safe to delete.
 fn has_macro_import(program: &Program<'_>) -> bool {
@@ -642,7 +642,7 @@ fn has_macro_import(program: &Program<'_>) -> bool {
     false
 }
 
-/// Find a `import { macroRules } from "macroforge/rules";` statement with
+/// Find a `import { macroRules } from "@macroforge/core/rules";` statement with
 /// *exactly* `macroRules` as its single specifier, and return the span of
 /// the whole statement (in the 1-based SpanIR convention).
 ///

@@ -1,35 +1,41 @@
 {
-  "dependencies": {
-    "@jridgewell/sourcemap-codec": "^1.5.0",
-    "@macroforge/shared": "^0.1.85",
-    "macroforge": "^0.1.85"
-  },
-  "devDependencies": {
-    "@types/node": "^22.0.0"
-  },
-  "exports": {
-    ".": {
-      "import": "./src/index.js",
-      "types": "./src/index.d.ts"
-    }
-  },
-  "files": [
-    "src"
-  ],
-  "main": "src/index.js",
-  "name": "@macroforge/vite-plugin",
-  "peerDependencies": {
-    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/macroforge-ts/macroforge-ts.git"
-  },
-  "scripts": {
-    "build": "echo 'No build needed'",
-    "test": "node --test tests/**/*.test.js"
-  },
-  "type": "module",
-  "types": "src/index.d.ts",
-  "version": "0.1.85"
+    "bugs": {
+        "url": "https://gitlab.com/macroforge-ts/macroforge-ts/-/issues"
+    },
+    "dependencies": {
+        "@jridgewell/sourcemap-codec": "^1.6.0",
+        "@macroforge/core": "^0.2.0",
+        "@macroforge/shared": "^0.2.0"
+    },
+    "devDependencies": {
+        "@types/node": "^26.6.2"
+    },
+    "exports": {
+        ".": {
+            "import": "./src/index.js",
+            "types": "./src/index.d.ts"
+        }
+    },
+    "files": [
+        "src"
+    ],
+    "homepage": "https://macroforge.dev",
+    "license": "MIT",
+    "main": "src/index.js",
+    "name": "@macroforge/vite-plugin",
+    "peerDependencies": {
+        "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+    },
+    "repository": {
+        "directory": "packages/vite-plugin",
+        "type": "git",
+        "url": "git+https://gitlab.com/macroforge-ts/macroforge-ts.git"
+    },
+    "scripts": {
+        "build": "echo 'No build needed'",
+        "test": "node --test tests/**/*.test.js"
+    },
+    "type": "module",
+    "types": "src/index.d.ts",
+    "version": "0.2.0"
 }

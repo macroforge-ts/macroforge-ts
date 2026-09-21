@@ -36,7 +36,7 @@
 
 <CodeBlock code={`{
     "mcpServers": {
-        "macroforge": {
+        "@macroforge/core": {
             "command": "npx",
             "args": ["-y", "@macroforge/mcp-server"]
         }
@@ -101,5 +101,5 @@ args = ["-y", "@macroforge/mcp-server"]`} lang="toml" filename="config.toml" />
 </table>
 
 <Alert type="note">
-	For code validation and expansion features (<code>macroforge-autofixer</code>, <code>expand-code</code>, <code>get-macro-info</code>), the MCP server requires <code>macroforge</code> as a peer dependency. Install it in your project with <code>npm install macroforge</code>.
+	For code validation and expansion features (<code>macroforge-autofixer</code>, <code>expand-code</code>, <code>get-macro-info</code>), the MCP server requires <code>@macroforge/core</code> as a peer dependency. Install it in your project with <code>npm install @macroforge/core</code>.
 </Alert>

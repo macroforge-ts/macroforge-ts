@@ -1,4 +1,4 @@
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 // Type-position macro: wrap a type in a readonly mapped type.
 const $ReadOnly = macroRules({

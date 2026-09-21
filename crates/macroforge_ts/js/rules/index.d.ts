@@ -8,7 +8,7 @@
  * Example:
  *
  * ```typescript
- * import { macroRules } from "macroforge/rules";
+ * import { macroRules } from "@macroforge/core/rules";
  *
  * const $vec = macroRules`
  *   () => []
@@ -30,7 +30,7 @@
  * macroforge build pass is not installed — if you see the runtime error,
  * your build toolchain is not running macroforge on this file.
  *
- * @module macroforge/rules
+ * @module @macroforge/core/rules
  */
 /**
  * A macro invocation — a function that takes any arguments and may produce

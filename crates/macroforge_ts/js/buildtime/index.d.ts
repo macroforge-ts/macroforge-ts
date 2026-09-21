@@ -32,7 +32,7 @@
  * build pass and no longer exist in the output. If you see the runtime
  * error, the build pass is not running on this file.
  *
- * @module macroforge/buildtime
+ * @module @macroforge/core/buildtime
  */
 export interface BuildtimeFs {
     /** Read a file as UTF-8 text. Path is resolved relative to the file the

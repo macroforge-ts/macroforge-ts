@@ -263,8 +263,8 @@ pub(super) fn check_builtin_import_warnings(module: &Module, _source: &str) -> V
             let module_source = src.value.to_string_lossy().to_string();
 
             // Only warn for imports that look like they're trying to import macros
-            // e.g., from "macroforge", "@macroforge/core", or similar macro-related modules
-            let is_macro_module = module_source.contains("macroforge")
+            // e.g., from "@macroforge/core", "@macroforge/core", or similar macro-related modules
+            let is_macro_module = module_source.contains(crate::package::PACKAGE)
                 || module_source.contains("macro")
                 || module_source == "@macro/derive";
 

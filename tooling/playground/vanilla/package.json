@@ -4,9 +4,9 @@
     "private": true,
     "type": "module",
     "dependencies": {
+        "@macroforge/core": "file:../vendor/macroforge_ts",
         "@playground/macro": "file:../macro",
-        "effect": "^3.19.4",
-        "macroforge": "file:../vendor/macroforge_ts"
+        "effect": "^3.19.4"
     },
     "devDependencies": {
         "@types/node": "^22.10.2",

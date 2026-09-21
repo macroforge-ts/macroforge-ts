@@ -94,10 +94,9 @@ impl CoreEngine {
         {
             use oxc::allocator::Allocator;
             use oxc::parser::Parser;
-            use oxc::span::SourceType;
 
             let allocator = Allocator::default();
-            let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
+            let source_type = crate::source_type::for_path(filepath);
             let parsed = Parser::new(&allocator, code, source_type).parse();
 
             if parsed.diagnostics.is_empty() {
@@ -149,10 +148,9 @@ impl CoreEngine {
         {
             use oxc::allocator::Allocator;
             use oxc::parser::Parser;
-            use oxc::span::SourceType;
 
             let allocator = Allocator::default();
-            let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
+            let source_type = crate::source_type::for_path(filepath);
             let parsed = Parser::new(&allocator, code, source_type).parse();
             if !parsed.diagnostics.is_empty() {
                 return Err(parsed

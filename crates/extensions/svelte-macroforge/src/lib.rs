@@ -9,19 +9,22 @@
 //! directory:
 //!
 //! - `@macroforge/svelte-language-server` at `SVELTE_LS_VERSION`
-//! - `macroforge` at the same version (installed at the root so npm resolves
-//!   its platform binary correctly)
-//! - the platform-specific `@macroforge/bin-*` binary package, also at the
-//!   same version
+//! - `@macroforge/core` at the same version, installed at the root so the
+//!   language server resolves it
 //!
 //! Outdated installs are detected by version mismatch and reinstalled.
+//!
+//! The extension used to install a platform-specific `@macroforge/bin-*`
+//! package alongside these. The engine runs on WebAssembly since 0.1.79, which
+//! is faster and needs no native artifact, so those packages stopped being
+//! built and have been removed from the registry.
 
 use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree};
 
 const SVELTE_LS_PACKAGE: &str = "@macroforge/svelte-language-server";
 const SVELTE_LS_VERSION: &str = "0.1.85";
-const MACROFORGE_PACKAGE: &str = "macroforge";
+const MACROFORGE_PACKAGE: &str = "@macroforge/core";
 
 struct SvelteMacroforgeExtension {
     cached_server_path: Option<String>,
@@ -44,38 +47,14 @@ impl SvelteMacroforgeExtension {
         }
     }
 
-    /// Get the platform-specific binary package name based on Zed's platform info
-    fn get_binary_package() -> &'static str {
-        let (os, arch) = zed::current_platform();
-
-        match (os, arch) {
-            (zed::Os::Mac, zed::Architecture::X8664 | zed::Architecture::X86) => {
-                "@macroforge/bin-darwin-x64"
-            }
-            (zed::Os::Mac, zed::Architecture::Aarch64) => "@macroforge/bin-darwin-arm64",
-            (zed::Os::Linux, zed::Architecture::X8664 | zed::Architecture::X86) => {
-                "@macroforge/bin-linux-x64-gnu"
-            }
-            (zed::Os::Linux, zed::Architecture::Aarch64) => "@macroforge/bin-linux-arm64-gnu",
-            (zed::Os::Windows, zed::Architecture::X8664 | zed::Architecture::X86) => {
-                "@macroforge/bin-win32-x64-msvc"
-            }
-            (zed::Os::Windows, zed::Architecture::Aarch64) => "@macroforge/bin-win32-arm64-msvc",
-        }
-    }
-
     /// Ensure the svelte language server is installed and return the path to the binary
     fn ensure_server_installed(&mut self) -> Result<String> {
         if let Some(path) = &self.cached_server_path {
             return Ok(path.clone());
         }
 
-        // Install the binary package first (needed by macroforge)
-        let binary_package = Self::get_binary_package();
-        Self::ensure_package_version(binary_package, SVELTE_LS_VERSION)?;
-
-        // Install macroforge explicitly at the root level so it can find the binary
-        // (npm may not properly install optionalDependencies when macroforge is a transitive dep)
+        // Installed at the root so the language server resolves it rather than
+        // picking up a transitive copy.
         Self::ensure_package_version(MACROFORGE_PACKAGE, SVELTE_LS_VERSION)?;
 
         // Install the svelte language server (which depends on macroforge + typescript-plugin)

@@ -800,7 +800,7 @@ let mut helper = ts_template!(Within {
         return Result.ok(true);
     }
 });
-helper.add_import("Result", "macroforge/utils");
+helper.add_import("Result", "@macroforge/core/utils");
 
 // Inject the helper into the main template
 let result = ts_template!(Within {

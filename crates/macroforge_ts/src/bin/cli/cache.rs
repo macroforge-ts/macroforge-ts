@@ -330,18 +330,18 @@ pub(crate) fn collect_watch_files(root: &Path) -> Vec<PathBuf> {
 /// Returns `Ok(Some(expanded_code))` if macros were found and expanded,
 /// `Ok(None)` if no macros present, or `Err` on failure.
 /// Check if source code contains `@derive(` as a standalone JSDoc directive,
-/// or imports the declarative macro module (`"macroforge/rules"`).
+/// or imports the declarative macro module (`"@macroforge/core/rules"`).
 ///
 /// Only matches `@derive(` when it appears at the start of a JSDoc line (after
 /// stripping `/**`, `*/`, `*`, and whitespace). Skips `@derive` embedded in prose
 /// (e.g., `"result from @derive(Deserialize)"`) and inside fenced code blocks.
 pub(crate) fn has_macro_annotations(source: &str) -> bool {
     // Declarative macros:
-    //   - defining files import `macroRules` from `"macroforge/rules"`
+    //   - defining files import `macroRules` from `"@macroforge/core/rules"`
     //   - consuming files use a `/** import macro { $name } from "..." */`
     //     JSDoc comment
     // Either signal means the pre-pass must run.
-    if source.contains("macroforge/rules") {
+    if source.contains(macroforge_ts::package::RULES) {
         return true;
     }
     if source.contains("import macro") {

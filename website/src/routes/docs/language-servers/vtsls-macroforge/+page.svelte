@@ -44,7 +44,7 @@
 
 <h3>1. Clone the Repository</h3>
 
-<CodeBlock code={`git clone https://github.com/macroforge-ts/macroforge-ts.git
+<CodeBlock code={`git clone https://gitlab.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts/crates/extensions/vtsls-macroforge`} lang="bash" />
 
 <h3>2. Install as Dev Extension in Zed</h3>

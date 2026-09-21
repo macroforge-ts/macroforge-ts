@@ -39,30 +39,22 @@ export default defineConfig({
         alias: [
             // macroforge subpaths (explicit mappings to match package.json exports)
             {
-                find: 'macroforge/serde',
+                find: '@macroforge/core/serde',
                 replacement: `${MACROFORGE_TS_CRATE}/js/serde/index.mjs`
             },
             {
-                find: 'macroforge/traits',
+                find: '@macroforge/core/traits',
                 replacement: `${MACROFORGE_TS_CRATE}/js/traits/index.mjs`
             },
             {
-                find: 'macroforge/reexports/effect',
-                replacement: `${MACROFORGE_TS_CRATE}/js/reexports/effect.mjs`
-            },
-            {
-                find: 'macroforge/reexports',
-                replacement: `${MACROFORGE_TS_CRATE}/js/reexports/index.mjs`
-            },
-            {
-                find: 'macroforge/rules',
+                find: '@macroforge/core/rules',
                 replacement: `${MACROFORGE_TS_CRATE}/js/rules/index.mjs`
             },
             {
-                find: 'macroforge/buildtime',
+                find: '@macroforge/core/buildtime',
                 replacement: `${MACROFORGE_TS_CRATE}/js/buildtime/index.mjs`
             },
-            { find: 'macroforge', replacement: MACROFORGE_TS_CRATE },
+            { find: '@macroforge/core', replacement: MACROFORGE_TS_CRATE },
             { find: '@playground/macro', replacement: PLAYGROUND_MACRO },
             { find: '@macroforge/vite-plugin', replacement: VITE_PLUGIN_PKG },
             { find: '@macroforge/shared', replacement: SHARED_PKG }

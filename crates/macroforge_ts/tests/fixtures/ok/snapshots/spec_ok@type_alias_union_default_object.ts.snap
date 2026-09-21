@@ -19,11 +19,11 @@ export type PropValue =
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "macroforge/serde";
-import { DeserializeError as __mf_DeserializeError } from "macroforge/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "macroforge/serde";
-import { PendingRef as __mf_PendingRef } from "macroforge/serde";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
 
 export type PropValue =
     | /** @default */ { type: 'String'; value: string }

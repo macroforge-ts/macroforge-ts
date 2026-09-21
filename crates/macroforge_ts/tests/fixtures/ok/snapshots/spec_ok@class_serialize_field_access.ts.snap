@@ -13,7 +13,7 @@ class Point {
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "macroforge/serde";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
 
 class Point {
     x: number;

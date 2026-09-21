@@ -5,7 +5,7 @@ Reading a schema file, hashing a manifest, or stamping a build time all become c
 constants rather than runtime work.
 
 ```typescript
-import { buildtime } from 'macroforge/buildtime';
+import { buildtime } from '@macroforge/core/buildtime';
 
 /** @buildtime */
 const BUILT_AT = buildtime.time.iso();

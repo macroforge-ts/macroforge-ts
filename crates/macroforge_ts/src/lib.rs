@@ -31,7 +31,7 @@
 //! ### From Node.js
 //!
 //! ```javascript
-//! const { expandSync } = require('macroforge');
+//! const { expandSync } = require('@macroforge/core');
 //! const result = expandSync(code, filepath, { keepDecorators: false });
 //! ```
 //!
@@ -261,6 +261,9 @@ pub mod api;
 pub mod api_types;
 mod expand_core;
 mod manifest;
+pub mod package;
+#[cfg(feature = "oxc")]
+mod source_type;
 
 #[cfg(feature = "node")]
 pub mod bindings_napi;

@@ -370,14 +370,8 @@ pub fn run(args: ExpandArgs) -> Result<()> {
         let result = shell::deno::deno_fmt(playground_root, &["src"], config.as_deref());
 
         match result {
-            Ok(output) if output.success => {
+            Ok(_) => {
                 println!("formatted playground/{}/src", playground_name);
-            }
-            Ok(output) => {
-                format::warning(&format!(
-                    "Formatting failed in playground/{}: {}",
-                    playground_name, output.stderr
-                ));
             }
             Err(e) => {
                 format::warning(&format!("Could not format {}: {}", playground_name, e));
@@ -391,12 +385,12 @@ pub fn run(args: ExpandArgs) -> Result<()> {
 
 /// Find the CLI binary (release or debug)
 fn find_cli_binary(root: &Path) -> PathBuf {
-    let release = root.join("crates/target/release/macroforge");
+    let release = root.join("target/release/macroforge");
     if release.exists() {
         return release;
     }
 
-    let debug = root.join("crates/target/debug/macroforge");
+    let debug = root.join("target/debug/macroforge");
     if debug.exists() {
         return debug;
     }

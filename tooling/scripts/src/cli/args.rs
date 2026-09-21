@@ -154,23 +154,11 @@ pub enum ManifestCommands {
         local: bool,
     },
 
-    /// Swap dependencies to local paths
-    SwapLocal,
-
-    /// Swap dependencies to registry versions
-    SwapRegistry,
-
     /// Dump all versions as JSON
     DumpVersions,
 
     /// Update Zed extension files
     UpdateZed,
-
-    /// Link local dependencies
-    LinkLocal { repo: String, deps: Vec<String> },
-
-    /// Restore repo dependencies
-    RestoreRepo { repo: String },
 }
 
 #[derive(clap::Args)]
@@ -231,7 +219,7 @@ pub enum DocsCommands {
     /// Build markdown documentation book
     BuildBook {
         /// Output file path
-        #[arg(long, default_value = "docs/BOOK.md")]
+        #[arg(long, default_value = crate::cli::commands::docs::build_book::BOOK_PATH)]
         output_path: PathBuf,
     },
 

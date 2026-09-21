@@ -137,16 +137,30 @@ fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
     }
     if dry_run {
         format::info(&format!(
-            "[dry-run] npm publish {} from {}",
+            "[dry-run] deno pack + npm publish {} from {}",
             package,
             dir.display()
         ));
         return Ok(false);
     }
 
+    // Packed by deno rather than published straight from the directory. The
+    // tarball's `package.json` is generated from `deno.json`, so references to
+    // other workspace members come out as the versions a consumer can resolve.
+    // `npm publish` on its own uploads the manifest as written, which is how
+    // local `file:` paths reached the registry.
+    let tarball = std::env::temp_dir().join(format!(
+        "{}-{}.tgz",
+        package.replace('@', "").replace('/', "-"),
+        version
+    ));
+    shell::deno::pack(dir, &tarball)
+        .with_context(|| format!("deno pack failed for {}", package))?;
+    let tarball_arg = tarball.to_string_lossy().into_owned();
+
     let result = Shell::new("npm")
         .args(&["publish", "--access", "public"])
-        .dir(dir)
+        .arg(&tarball_arg)
         .inherit()
         .run();
 
@@ -162,7 +176,7 @@ fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
             format::info(&format!("Retrying publish for {}...", package));
             Shell::new("npm")
                 .args(&["publish", "--access", "public"])
-                .dir(dir)
+                .arg(&tarball_arg)
                 .inherit()
                 .run_checked()
                 .with_context(|| format!("npm publish failed for {} (after re-auth)", package))?;

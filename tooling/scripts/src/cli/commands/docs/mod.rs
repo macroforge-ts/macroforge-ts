@@ -23,12 +23,29 @@ pub(crate) fn strip_generated_field(content: &str) -> String {
 /// the whole docs tree on every run whether or not a single doc comment
 /// changed. That buries real documentation changes and leaves a failed release
 /// run with a tree full of edits it did not actually make.
+///
+/// Compared as parsed values rather than as text: these files are written here
+/// with two-space indentation and then reformatted by `deno fmt` to the repo's
+/// four, so a textual comparison never matches and the two keep overwriting
+/// each other.
 pub(crate) fn write_docs_json(path: &Path, json: &str) -> Result<()> {
     if let Ok(existing) = fs::read_to_string(path)
-        && strip_generated_field(&existing) == strip_generated_field(json)
+        && documentation_of(&existing) == documentation_of(json)
     {
         return Ok(());
     }
-    fs::write(path, json)?;
+    // The formatter adds the trailing newline, so emitting it here keeps the
+    // generator and `deno fmt` from rewriting each other's output.
+    fs::write(path, format!("{json}\n"))?;
     Ok(())
+}
+
+/// A docs file's content with the generation stamp dropped, or `None` when it
+/// does not parse.
+fn documentation_of(text: &str) -> Option<serde_json::Value> {
+    let mut value: serde_json::Value = serde_json::from_str(text).ok()?;
+    if let Some(object) = value.as_object_mut() {
+        object.remove("generated");
+    }
+    Some(value)
 }

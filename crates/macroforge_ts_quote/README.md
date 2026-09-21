@@ -9,26 +9,24 @@ Quote macro for generating TypeScript code at compile time
 
 TypeScript code generation macros for macroforge.
 
-This crate provides procedural macros for generating TypeScript code from Rust.
-It offers two primary approaches:
+This crate provides procedural macros for generating TypeScript code from Rust. It offers two
+primary approaches:
 
-- [`ts_quote!`] - Compile-time validated TypeScript generation with `$var`
-  interpolation, e.g. `ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs)`.
+- [`ts_quote!`] - Compile-time validated TypeScript generation with `$var` interpolation, e.g.
+  `ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs)`.
 
-- [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,
-  `{#for}`, `{#match}`, ...) and expression interpolation (`@{expr}`).
+- [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`, `{#for}`, `{#match}`,
+  ...) and expression interpolation (`@{expr}`).
 
 # Architecture
 
-The template source string is parsed as TypeScript at macro-expansion time,
-enabling native support for type annotations and TypeScript syntax. Parsing
-is backed by OXC with the default `oxc` feature; the SWC backend is
-available behind the opt-in `swc` feature.
+The template source string is parsed as TypeScript at macro-expansion time, enabling native support
+for type annotations and TypeScript syntax. Parsing is backed by OXC with the default `oxc` feature;
+the SWC backend is available behind the opt-in `swc` feature.
 
 # Insert Positions
 
-`ts_template!` supports an optional position keyword to control where generated
-code is inserted:
+`ts_template!` supports an optional position keyword to control where generated code is inserted:
 
 ```ignore
 // Insert inside the class body
@@ -61,8 +59,8 @@ macroforge_ts_quote = "0.1.82"
 
 ## API Reference
 
-See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_quote) on
-the Macroforge website.
+See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_quote)
+on the Macroforge website.
 
 ## License
 

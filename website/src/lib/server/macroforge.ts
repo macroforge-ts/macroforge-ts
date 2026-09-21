@@ -1,10 +1,10 @@
 import { highlightCode } from '../shiki-highlighter.js';
 
-let expandSync: typeof import('macroforge').expandSync | null = null;
+let expandSync: typeof import('@macroforge/core').expandSync | null = null;
 
 async function getExpandSync() {
     if (!expandSync) {
-        const macroforge = await import('macroforge');
+        const macroforge = await import('@macroforge/core');
         expandSync = macroforge.expandSync;
     }
     return expandSync;

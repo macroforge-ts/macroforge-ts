@@ -1,48 +1,48 @@
 {
-  "exports": {
-    ".": "./pkg/macroforge_ts.js",
-    "./buildtime": "./js/buildtime/index.ts",
-    "./serde": "./js/serde/index.ts",
-    "./traits": "./js/traits/index.ts"
-  },
-  "fmt": {
-    "exclude": [
-      "**/js/**",
-      "**/dist",
-      "**/build",
-      "**/node_modules"
-    ],
-    "indentWidth": 4,
-    "lineWidth": 100,
-    "semiColons": true,
-    "singleQuote": true,
-    "trailingCommas": "never",
-    "useTabs": false
-  },
-  "lint": {
-    "exclude": [
-      "**/js/**",
-      "**/dist",
-      "**/build",
-      "**/node_modules",
-      "index.js",
-      "index.d.ts",
-      "tests/fixtures/**"
-    ]
-  },
-  "name": "@macroforge/core",
-  "nodeModulesDir": "auto",
-  "publish": {
-    "include": [
-      "pkg/",
-      "pkg/macroforge_ts_bg.wasm",
-      "js/buildtime/",
-      "js/serde/",
-      "js/traits/",
-      "deno.json",
-      "LICENSE",
-      "README.md"
-    ]
-  },
-  "version": "0.1.85"
+    "exports": {
+        ".": "./pkg/macroforge_ts.js",
+        "./buildtime": "./js/buildtime/index.ts",
+        "./rules": "./js/rules/index.ts",
+        "./serde": "./js/serde/index.ts",
+        "./traits": "./js/traits/index.ts"
+    },
+    "fmt": {
+        "exclude": [
+            "**/js/**",
+            "**/dist",
+            "**/build",
+            "**/node_modules"
+        ],
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "semiColons": true,
+        "singleQuote": true,
+        "trailingCommas": "never",
+        "useTabs": false
+    },
+    "lint": {
+        "exclude": [
+            "**/js/**",
+            "**/dist",
+            "**/build",
+            "**/node_modules",
+            "index.js",
+            "index.d.ts",
+            "tests/fixtures/**"
+        ]
+    },
+    "name": "@macroforge/core",
+    "publish": {
+        "include": [
+            "pkg/",
+            "pkg/macroforge_ts_bg.wasm",
+            "js/buildtime/",
+            "js/serde/",
+            "js/traits/",
+            "deno.json",
+            "LICENSE",
+            "README.md"
+        ]
+    },
+    "version": "0.2.0"
 }

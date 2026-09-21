@@ -17,10 +17,10 @@ class User {
 ```
 
 ```typescript after
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from '@macroforge/core/serde';
+import { DeserializeError } from '@macroforge/core/serde';
+import type { DeserializeOptions } from '@macroforge/core/serde';
+import { PendingRef } from '@macroforge/core/serde';
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -215,4 +215,4 @@ if (Result.isOk(result)) {
 
 The generated code automatically imports:
 
-- `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
+- `DeserializeContext`, `DeserializeError`, `PendingRef` from `@macroforge/core/serde`

@@ -1,17 +1,17 @@
 # Serialize
 
-The `Serialize` macro generates JSON serialization methods with **cycle detection**
-and object identity tracking. This enables serialization of complex object graphs
-including circular references.
+The `Serialize` macro generates JSON serialization methods with **cycle detection** and object
+identity tracking. This enables serialization of complex object graphs including circular
+references.
 
 ## Generated Methods
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `classNameSerialize(value, keepMetadata?)` + `static serialize(value, keepMetadata?)` | Standalone function + static wrapper method |
-| Enum | `enumNameSerialize(value)`, `enumNameSerializeWithContext` | Standalone functions |
-| Interface | `interfaceNameSerialize(value)`, etc. | Standalone functions |
-| Type Alias | `typeNameSerialize(value)`, etc. | Standalone functions |
+| Type       | Generated Code                                                                        | Description                                 |
+| ---------- | ------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Class      | `classNameSerialize(value, keepMetadata?)` + `static serialize(value, keepMetadata?)` | Standalone function + static wrapper method |
+| Enum       | `enumNameSerialize(value)`, `enumNameSerializeWithContext`                            | Standalone functions                        |
+| Interface  | `interfaceNameSerialize(value)`, etc.                                                 | Standalone functions                        |
+| Type Alias | `typeNameSerialize(value)`, etc.                                                      | Standalone functions                        |
 
 ## Cycle Detection Protocol
 
@@ -22,31 +22,32 @@ The generated code handles circular references using `__id` and `__ref` markers:
     "__type": "User",
     "__id": 1,
     "name": "Alice",
-    "friend": { "__ref": 2 }  // Reference to object with __id: 2
+    "friend": { "__ref": 2 } // Reference to object with __id: 2
 }
 ```
 
 When an object is serialized:
+
 1. Check if it's already been serialized (has an `__id`)
 2. If so, return `{ "__ref": existingId }` instead
 3. Otherwise, register the object and serialize its fields
 
 ## Type-Specific Serialization
 
-| Type | Serialization Strategy |
-|------|------------------------|
-| Primitives | Direct value |
-| `Date` | `toISOString()` |
-| Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; for serializable element types, map through the element's `nameSerializeWithContext` function |
-| `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; for serializable values, call `nameSerializeWithContext` per value |
-| `Set<T>` | Convert to array; element handling matches `Array<T>` |
-| `Record<K,V>` | For primitive-like values, pass through; for `Date`/`Date | null`, convert values to ISO strings; for serializable values, rebuild via `Object.fromEntries` calling `nameSerializeWithContext` per value |
-| Wrappers (`Partial<T>`, `Pick<T,K>`, ...) | Serialize based on the inner type `T` |
-| Nullable | Include `null` explicitly; non-null values follow the inner type's strategy |
-| Objects | Call the type's `nameSerializeWithContext` function |
+| Type                                      | Serialization Strategy                                                           |
+| ----------------------------------------- | -------------------------------------------------------------------------------- |
+| Primitives                                | Direct value                                                                     |
+| `Date`                                    | `toISOString()`                                                                  |
+| Arrays                                    | For primitive-like element types, pass through; for `Date`/`Date                 |
+| `Map<K,V>`                                | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date |
+| `Set<T>`                                  | Convert to array; element handling matches `Array<T>`                            |
+| `Record<K,V>`                             | For primitive-like values, pass through; for `Date`/`Date                        |
+| Wrappers (`Partial<T>`, `Pick<T,K>`, ...) | Serialize based on the inner type `T`                                            |
+| Nullable                                  | Include `null` explicitly; non-null values follow the inner type's strategy      |
+| Objects                                   | Call the type's `nameSerializeWithContext` function                              |
 
-Note: which strategy applies is resolved **statically** from the field's declared
-TypeScript type at expansion time — there is no runtime feature detection.
+Note: which strategy applies is resolved **statically** from the field's declared TypeScript type at
+expansion time — there is no runtime feature detection.
 
 ## Field-Level Options
 
@@ -75,7 +76,7 @@ class User {
 ```
 
 ```typescript after
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from '@macroforge/core/serde';
 
 class User {
     id: number;
@@ -110,10 +111,14 @@ class User {
     const ctx = __mf_SerializeContext.create();
     const __raw = userSerializeWithContext(value, ctx);
     if (keepMetadata) return JSON.stringify(__raw);
-    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+    return JSON.stringify(
+        __raw,
+        (key, val) => key === '__type' || key === '__id' ? undefined : val
+    );
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
+
 export function userSerializeWithContext(
     value: User,
     ctx: SerializeContext
@@ -137,4 +142,4 @@ export function userSerializeWithContext(
 
 ## Required Import
 
-The generated code automatically imports `SerializeContext` from `macroforge/serde`.
+The generated code automatically imports `SerializeContext` from `@macroforge/core/serde`.

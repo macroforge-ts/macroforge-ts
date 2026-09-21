@@ -143,7 +143,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
         total_items += item_count;
 
         let out_path = output_path.join(format!("{}.json", crate_name));
-        let json = serde_json::to_string_pretty(&docs)?;
+        let json = crate::utils::json::to_string_pretty(&docs)?;
         write_docs_json(&out_path, &json)?;
 
         println!("{} items", item_count);
@@ -172,7 +172,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
                 items: rust_docs::extract_item_docs(&source),
             };
             let out_path = output_path.join("cli.json");
-            write_docs_json(&out_path, &serde_json::to_string_pretty(&cli_doc)?)?;
+            write_docs_json(&out_path, &crate::utils::json::to_string_pretty(&cli_doc)?)?;
             println!("{} items", cli_doc.items.len());
         } else {
             format::warning(&format!("CLI entry not found: {}", cli_path.display()));
@@ -216,7 +216,10 @@ pub fn run(output_dir: &Path) -> Result<()> {
     }
 
     let builtin_path = output_path.join("builtin-macros.json");
-    write_docs_json(&builtin_path, &serde_json::to_string_pretty(&builtin_docs)?)?;
+    write_docs_json(
+        &builtin_path,
+        &crate::utils::json::to_string_pretty(&builtin_docs)?,
+    )?;
     println!("  {} macros documented", builtin_docs.len());
 
     // Write index
@@ -231,7 +234,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
     });
 
     let index_path = output_path.join("index.json");
-    write_docs_json(&index_path, &serde_json::to_string_pretty(&index)?)?;
+    write_docs_json(&index_path, &crate::utils::json::to_string_pretty(&index)?)?;
 
     // Generate .svx pages and MCP markdown docs
     println!("\nGenerating .svx pages and MCP docs...");

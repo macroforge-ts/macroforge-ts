@@ -5,7 +5,7 @@ pattern-matching syntax inspired by Rust's `macro_rules!`. No Rust toolchain is 
 lives in the same `.ts` file that uses it.
 
 ```typescript
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 const $double = macroRules`
   ($x:Expr) => ($x) * 2

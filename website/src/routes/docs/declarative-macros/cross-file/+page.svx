@@ -22,7 +22,7 @@ Specifiers resolve in this order: the bare path, then `.ts`, `.tsx`, `index.ts`,
 Cross-file resolution is **not automatic**. The expander only resolves imported macros when a project-wide declarative registry has been installed, which means passing `declarativeRegistryJson` in `ExpandOptions`:
 
 ```typescript
-import { scanProjectSync, expandSync } from "macroforge";
+import { scanProjectSync, expandSync } from "@macroforge/core";
 
 const scan = scanProjectSync({ root: "./src" });
 

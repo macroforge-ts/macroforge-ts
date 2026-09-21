@@ -45,7 +45,7 @@ test.describe('Svelte Playground @buildtime Tests', () => {
         expect(text).toMatch(/^app=3\.0\.0, short=[0-9a-f]{8}$/);
     });
 
-    test('runtime `macroforge/buildtime` stub still throws', async ({ page }) => {
+    test('runtime `@macroforge/core/buildtime` stub still throws', async ({ page }) => {
         const stubThrows = page.locator('[data-testid="svelte-bt-stub-throws"]');
         await expect(stubThrows).toHaveText('true');
     });

@@ -114,7 +114,7 @@
 //!
 //! Any of these forces a full rebuild on its own: a changed macroforge version,
 //! `macroforge.config.*`, or external macro binary; a changed `svelte.config.*`,
-//! `package.json`, or tsconfig; a changed `@sveltejs/package`, `macroforge`, or
+//! `package.json`, or tsconfig; a changed `@sveltejs/package`, `@macroforge/core`, or
 //! `@macroforge/svelte-preprocessor` version; different command-line options; a
 //! changed project source outside the input directory; or an output directory
 //! that was deleted or modified behind the CLI's back.

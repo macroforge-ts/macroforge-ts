@@ -112,7 +112,7 @@ pub fn build_repos_map(root: &Path, env: &EnvConfig) -> HashMap<String, Repo> {
                 },
                 cargo_toml: Some(abs_path.join("Cargo.toml")),
                 npm_name: if name == "core" {
-                    Some("macroforge".to_string())
+                    Some("@macroforge/core".to_string())
                 } else {
                     None
                 },

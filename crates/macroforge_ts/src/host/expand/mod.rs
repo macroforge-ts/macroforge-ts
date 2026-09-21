@@ -573,7 +573,7 @@ impl MacroExpander {
         // TypeScript.
         //
         // Files without declarative macros take the fast path: discovery
-        // checks for the `macroforge/rules` import and returns empty after
+        // checks for the `@macroforge/core/rules` import and returns empty after
         // a brief AST scan.
         let (rewritten, decl_diagnostics) = self.declarative_prepass_oxc(source, file_name)?;
         let owned_source = rewritten;

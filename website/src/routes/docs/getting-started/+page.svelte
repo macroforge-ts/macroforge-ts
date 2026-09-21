@@ -26,11 +26,11 @@
 
 <p>Install Macroforge using your preferred package manager:</p>
 
-<CodeBlock code="npm install macroforge" lang="bash" filename="npm" />
+<CodeBlock code="npm install @macroforge/core" lang="bash" filename="npm" />
 
-<CodeBlock code="bun add macroforge" lang="bash" filename="bun" />
+<CodeBlock code="bun add @macroforge/core" lang="bash" filename="bun" />
 
-<CodeBlock code="pnpm add macroforge" lang="bash" filename="pnpm" />
+<CodeBlock code="pnpm add @macroforge/core" lang="bash" filename="pnpm" />
 
 <Alert type="info">
 	The <code>macroforge</code> package ships a single WebAssembly build, so the same

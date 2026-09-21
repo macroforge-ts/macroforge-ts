@@ -1,4 +1,4 @@
-import pkg from 'macroforge';
+import pkg from '@macroforge/core';
 const { expandSync: expand_node } = pkg;
 import * as expand_wasm from '../../../crates/macroforge_ts/pkg/macroforge_ts.d.ts';
 import assert from 'node:assert';
@@ -16,7 +16,7 @@ function normalize(code) {
 
 // We use comment-style macros for parity tests as they don't depend on import resolution for decorators
 const BASE_CODE = `
-import { Derive } from "macroforge";
+import { Derive } from "@macroforge/core";
 /** @derive(Debug, Clone) */
 export class User {
   id: number;
@@ -58,7 +58,7 @@ function runTests() {
     {
         console.log(' - Complex built-ins check...');
         const complexCode = `
-import { Derive } from "macroforge";
+import { Derive } from "@macroforge/core";
 /** @derive(Serialize, Deserialize, Default) */
 class Settings {
     /** @serde({ rename: "api_key" }) */

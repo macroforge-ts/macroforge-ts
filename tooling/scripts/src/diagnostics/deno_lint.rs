@@ -83,7 +83,7 @@ pub fn run(_root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic
 /// The config a `deno` invocation in `project_dir` should be given explicitly.
 ///
 /// `None` when the project carries its own, which deno finds by itself.
-/// Otherwise the repo-wide `tooling/deno.json`, because deno's own discovery
+/// Otherwise the nearest ancestor `deno.json`, because deno's own discovery
 /// stops at the nearest `package.json` and would silently fall back to its
 /// built-in defaults: a different indent width, different quotes, and trailing
 /// commas the repo does not use.
@@ -93,21 +93,19 @@ pub fn governing_config(project_dir: &Path) -> Option<std::path::PathBuf> {
     if has_config {
         return None;
     }
-    find_tooling_config(project_dir)
+    find_ancestor_config(project_dir)
 }
 
-/// Find tooling/deno.json by walking up from project dir
-fn find_tooling_config(start: &Path) -> Option<std::path::PathBuf> {
+/// Walk up from `start` to the first directory carrying a `deno.json`.
+fn find_ancestor_config(start: &Path) -> Option<std::path::PathBuf> {
     let mut current = start.to_path_buf();
-    loop {
-        let tooling_config = current.join("tooling/deno.json");
-        if tooling_config.exists() {
-            return Some(tooling_config);
-        }
-        if !current.pop() {
-            return None;
+    while current.pop() {
+        let candidate = current.join("deno.json");
+        if candidate.exists() {
+            return Some(candidate);
         }
     }
+    None
 }
 
 /// Find all directories with JS/TS projects (deno.json or package.json, respects .gitignore)

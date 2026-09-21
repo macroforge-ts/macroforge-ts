@@ -5,7 +5,8 @@
     "jsr:@std/internal@^1.0.12": "1.0.13",
     "npm:@playwright/test@^1.59.0": "1.59.1",
     "npm:@vtsls/language-server@~0.2.9": "0.2.9",
-    "npm:typescript@5": "5.8.3",
+    "npm:typescript@5": "5.9.3",
+    "npm:typescript@^5.9.3": "5.9.3",
     "npm:vite@~7.2.6": "7.2.7"
   },
   "jsr": {
@@ -304,7 +305,7 @@
         "@vtsls/vscode-fuzzy",
         "jsonc-parser",
         "semver",
-        "typescript",
+        "typescript@5.8.3",
         "vscode-languageserver-protocol",
         "vscode-languageserver-textdocument",
         "vscode-uri"
@@ -462,6 +463,10 @@
       "integrity": "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==",
       "bin": true
     },
+    "typescript@5.9.3": {
+      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+      "bin": true
+    },
     "vite@7.2.7": {
       "integrity": "sha512-ITcnkFeR3+fI8P1wMgItjGrR10170d8auB4EpMLPqmx6uxElH3a/hHGQabSHKdqd4FXWO1nFIp9rRn7JQ34ACQ==",
       "dependencies": [
@@ -510,7 +515,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
-      "npm:typescript@5"
+      "npm:typescript@^5.9.3"
     ],
     "packageJson": {
       "dependencies": [

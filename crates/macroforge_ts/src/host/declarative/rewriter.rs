@@ -89,7 +89,7 @@ pub fn rewrite(
         out.patches.push(Patch::Delete { span: dm.def_span });
     }
 
-    // Strip the `import { macroRules } from "macroforge/rules"` statement
+    // Strip the `import { macroRules } from "@macroforge/core/rules"` statement
     // too — after all declarations are deleted the import is dead code and
     // `noUnusedLocals` would flag it. This only runs when the import is
     // present; files that only consume macros via `/** import macro */`

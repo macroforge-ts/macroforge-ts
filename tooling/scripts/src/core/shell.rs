@@ -367,7 +367,7 @@ pub mod deno {
         } else {
             shell = shell.args(paths);
         }
-        shell.dir(cwd).run()
+        shell.dir(cwd).run_checked()
     }
 
     /// Run deno fmt --check (fails if unformatted)
@@ -379,8 +379,15 @@ pub mod deno {
     }
 
     /// Run deno lint
-    pub fn lint(cwd: &Path) -> Result<CommandResult> {
-        Shell::new("deno").args(&["lint"]).dir(cwd).run_checked()
+    /// Run deno lint over `cwd` only. Without the `.` target, a directory that
+    /// is not a workspace member lints the entire workspace.
+    pub fn lint(cwd: &Path, config: Option<&Path>) -> Result<CommandResult> {
+        let config_arg = config.map(|path| path.to_string_lossy().into_owned());
+        let mut shell = Shell::new("deno").args(&["lint"]);
+        if let Some(ref config_path) = config_arg {
+            shell = shell.arg("--config").arg(config_path);
+        }
+        shell.arg(".").dir(cwd).run_checked()
     }
 
     /// Run deno lint with JSON output
@@ -429,6 +436,22 @@ pub mod deno {
     }
 
     /// Run deno publish to JSR with live output (auto-discovers deno.json)
+    /// Build an npm tarball from a workspace member's `deno.json`.
+    ///
+    /// `deno pack` synthesizes the `package.json` and resolves references to
+    /// other workspace members into published versions, which is the step a
+    /// bare `npm publish` has no equivalent for: it uploads whatever the
+    /// hand-written manifest says, local paths included.
+    pub fn pack(cwd: &Path, output: &Path) -> Result<CommandResult> {
+        let out = output.to_string_lossy().into_owned();
+        Shell::new("deno")
+            .args(&["pack", "--allow-dirty", "-o"])
+            .arg(&out)
+            .dir(cwd)
+            .inherit()
+            .run_checked()
+    }
+
     pub fn publish(cwd: &Path) -> Result<CommandResult> {
         Shell::new("deno")
             .args(&["publish", "--allow-dirty"])

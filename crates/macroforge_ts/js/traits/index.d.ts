@@ -15,13 +15,13 @@
  * These traits are primarily used for type checking generated code:
  *
  * ```typescript
- * import type { Clone, Debug } from "macroforge/traits";
+ * import type { Clone, Debug } from "@macroforge/core/traits";
  *
  * // Type-check that a namespace implements Clone
  * const UserNs: Clone<User> = User;
  * ```
  *
- * @module macroforge/traits
+ * @module @macroforge/core/traits
  */
 /**
  * Trait for types that can be deep-copied.
@@ -224,7 +224,7 @@ export interface Serialize<T> {
      * Called by nested serializers so that cycle detection state is shared
      * across the whole object graph.
      * @param value - The value to serialize
-     * @param ctx - A `SerializeContext` from `macroforge/serde`
+     * @param ctx - A `SerializeContext` from `@macroforge/core/serde`
      * @returns Plain object representation with `__type`/`__id` markers
      */
     readonly serializeWithContext: (value: T, ctx: any) => Record<string, unknown>;
@@ -277,7 +277,7 @@ export interface Deserialize<T> {
      * placeholder for a forward `__ref` that is resolved later by
      * `ctx.applyPatches()`.
      * @param value - Raw object to deserialize
-     * @param ctx - A `DeserializeContext` from `macroforge/serde`
+     * @param ctx - A `DeserializeContext` from `@macroforge/core/serde`
      * @returns The deserialized value, or a `PendingRef` marker
      */
     readonly deserializeWithContext: (value: any, ctx: any) => T | {

@@ -3,9 +3,9 @@
 // The macroforge Vite plugin runs on this module during dev + build,
 // so every `@buildtime` declaration here is replaced with a TS literal
 // before the browser sees it. The `buildtime` import from
-// `macroforge/buildtime` is a runtime stub that throws if actually
+// `@macroforge/core/buildtime` is a runtime stub that throws if actually
 // called — a useful sanity check for the Playwright harness.
-import { buildtime } from 'macroforge/buildtime';
+import { buildtime } from '@macroforge/core/buildtime';
 
 /** @buildtime */
 const ANSWER = 6 * 7;

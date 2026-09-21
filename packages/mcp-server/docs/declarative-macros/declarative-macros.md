@@ -8,7 +8,7 @@ you use it.
 ## Quick Example
 
 ```typescript
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 const $vec = macroRules`
   () => []

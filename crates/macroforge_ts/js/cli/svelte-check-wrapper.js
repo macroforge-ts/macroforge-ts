@@ -138,7 +138,7 @@ const origReadFile = tsSys.readFile.bind(tsSys);
 function hasMacroMarkers(sourceText) {
   if (!sourceText) return false;
   if (sourceText.includes("@derive")) return true;
-  if (sourceText.includes("macroforge/rules")) return true;
+  if (sourceText.includes("@macroforge/core/rules")) return true;
   if (sourceText.includes("import macro")) return true;
   return false;
 }

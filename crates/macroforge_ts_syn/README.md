@@ -9,9 +9,9 @@ TypeScript syntax types for compile-time macro code generation
 
 TypeScript syntax types for compile-time macro code generation.
 
-This crate provides a [`syn`](https://docs.rs/syn)-like API for parsing and manipulating
-TypeScript code, enabling macro authors to work with TypeScript AST in a familiar way.
-It is the core infrastructure crate for the Macroforge TypeScript macro system.
+This crate provides a [`syn`](https://docs.rs/syn)-like API for parsing and manipulating TypeScript
+code, enabling macro authors to work with TypeScript AST in a familiar way. It is the core
+infrastructure crate for the Macroforge TypeScript macro system.
 
 ## Overview
 
@@ -111,8 +111,8 @@ This crate provides several helper macros for working with SWC AST nodes:
 
 ## Re-exports
 
-For convenience, the crate re-exports commonly used SWC types when the `swc` feature
-is enabled (it is not part of the default feature set):
+For convenience, the crate re-exports commonly used SWC types when the `swc` feature is enabled (it
+is not part of the default feature set):
 
 - [`swc_core`] - The full SWC core crate
 - [`swc_common`] - Common SWC types (Span, SourceMap, etc.)
@@ -133,7 +133,8 @@ macroforge_ts_syn = "0.1.82"
 ### Structs
 
 - **`StmtVec`** - A wrapper type for passing a `Vec<Stmt>` to be used inline in function bodies.
-- **`TsExpr`** - Wrapper for [`swc_core::ecma::ast::Expr`] that implements [`Display`] and [`ToTsString`].
+- **`TsExpr`** - Wrapper for [`swc_core::ecma::ast::Expr`] that implements [`Display`] and
+  [`ToTsString`].
 - **`TsIdent`** - Wrapper for [`swc_core::ecma::ast::Ident`] that implements [`Display`].
 - **`TsTypeWrapper`** - Wrapper for [`swc_core::ecma::ast::TsType`] that implements [`Display`].
 - **`TsStmt`** - Wrapper for [`swc_core::ecma::ast::Stmt`] that implements [`Display`].
@@ -155,16 +156,18 @@ macroforge_ts_syn = "0.1.82"
 ### Traits
 
 - **`ToTsExpr`** - Converts common Rust values into SWC [`Expr`](swc_core::ecma::ast::Expr) nodes.
-- **`ToTsType`** - Converts common Rust values into SWC [`TsType`](swc_core::ecma::ast::TsType) nodes.
-- **`ToTsIdent`** - Converts common Rust values into SWC [`Ident`](swc_core::ecma::ast::Ident) nodes.
+- **`ToTsType`** - Converts common Rust values into SWC [`TsType`](swc_core::ecma::ast::TsType)
+  nodes.
+- **`ToTsIdent`** - Converts common Rust values into SWC [`Ident`](swc_core::ecma::ast::Ident)
+  nodes.
 - **`ToTsStmt`** - Converts common Rust values into SWC [`Stmt`](swc_core::ecma::ast::Stmt) nodes.
 - **`ToTsTypeName`** - Trait for converting values to type name strings.
 - **`ToTsString`** - Trait for converting values to TypeScript string representations.
 
 ## API Reference
 
-See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_syn) on
-the Macroforge website.
+See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_syn)
+on the Macroforge website.
 
 ## License
 

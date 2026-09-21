@@ -1,9 +1,9 @@
 /** @derive(Debug) */
 class User {
-  id: string;
-  toString(): string {
-    return this.id;
-  }
+    id: string;
+    toString(): string {
+        return this.id;
+    }
 }
 
 const u = new User();

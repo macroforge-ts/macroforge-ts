@@ -572,7 +572,7 @@ pub(crate) fn tool_hashes(
 
     for name in [
         "@sveltejs/package",
-        "macroforge",
+        macroforge_ts::package::PACKAGE,
         "@macroforge/svelte-preprocessor",
     ] {
         hashes.insert(name.to_string(), dep_version(root, name));

@@ -224,11 +224,6 @@ pub fn run(args: VerifyArgs) -> Result<()> {
     let config = Config::load()?;
     let verbose = std::env::var("VERBOSE").is_ok() || std::env::var("DEBUG").is_ok();
 
-    // Capture initial manifest state (local vs registry) for rollback. The
-    // Cargo and npm sides are swapped independently, so both are recorded.
-    let was_using_local_paths = manifests::is_using_local_paths(&config);
-    let was_using_local_npm_deps = manifests::is_using_local_npm_deps(&config);
-
     // Set up Ctrl+C handler with full rollback capability
     let interrupted = Arc::new(AtomicBool::new(false));
     let interrupted_clone = interrupted.clone();
@@ -247,17 +242,6 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         // Re-apply original versions to all files
         if let Err(e) = manifests::apply_versions(&config_clone, &original_versions_for_handler) {
             eprintln!("  {} Failed to restore manifest files: {}", "✗".red(), e);
-        }
-        // Restore to original dependency state (local or registry)
-        if was_using_local_paths {
-            let _ = manifests::swap_local(&config_clone);
-        } else {
-            let _ = manifests::swap_registry(&config_clone, &original_versions_for_handler);
-        }
-        if was_using_local_npm_deps {
-            let _ = manifests::swap_npm_local_all(&config_clone);
-        } else {
-            let _ = manifests::swap_npm_registry(&config_clone, &original_versions_for_handler);
         }
         eprintln!("{} Rollback complete. Exiting.", "✓".green());
         std::process::exit(130);
@@ -379,21 +363,10 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         }
         // Cargo.lock records workspace members by version, and the docs are
         // stamped with it, so both belong to the bump being undone.
-        if let Err(e) = shell::cargo::sync_lock(&config.root.join("crates")) {
+        if let Err(e) = shell::cargo::sync_lock(&config.root) {
             eprintln!("  {} Failed to restore Cargo.lock: {}", "✗".red(), e);
         }
         docs_snapshot.restore();
-        // Restore to original dependency state (local or registry)
-        if was_using_local_paths {
-            let _ = manifests::swap_local(config);
-        } else {
-            let _ = manifests::swap_registry(config, original);
-        }
-        if was_using_local_npm_deps {
-            let _ = manifests::swap_npm_local_all(config);
-        } else {
-            let _ = manifests::swap_npm_registry(config, original);
-        }
         eprintln!("{} Rollback complete", "✓".green());
     };
 
@@ -406,22 +379,12 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         };
         step.print();
 
-        // Swap to local paths before diagnostics so rust-tests uses local crates
-        manifests::swap_local(&config)?;
-
         let diag_result = {
             let mut diag_options = DiagnosticOptions::all();
             diag_options.format = true;
             let runner = DiagnosticsRunner::new(&config.root, diag_options);
             runner.run()
         };
-
-        // Restore to original dependency state
-        if was_using_local_paths {
-            // Already in local state, nothing to do
-        } else if let Err(e) = manifests::swap_registry(&config, &config.versions) {
-            eprintln!("{} Failed to restore registry versions: {}", "✗".red(), e);
-        }
 
         let aggregator = diag_result?;
 
@@ -548,13 +511,6 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             },
         };
         step.print();
-
-        // Swap to local path dependencies first
-        println!("  {} Swapping to local path dependencies...", "→".blue());
-        manifests::swap_local(&config)?;
-
-        let repo_names_slice: Vec<&str> = repos.iter().map(|r| r.name.as_str()).collect();
-        manifests::swap_npm_local(&config, &repo_names_slice)?;
 
         for repo in &repos {
             if interrupted.load(Ordering::SeqCst) {
@@ -712,7 +668,10 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         // Lint with deno lint
         print!("  {} deno lint... ", "→".blue());
         io::stdout().flush()?;
-        match shell::deno::lint(&tooling_path) {
+        match shell::deno::lint(
+            &tooling_path,
+            deno_lint::governing_config(&tooling_path).as_deref(),
+        ) {
             Ok(_) => println!("{}", "ok".green()),
             Err(e) => {
                 println!("{}", "failed".red());
@@ -916,14 +875,6 @@ pub fn run(args: VerifyArgs) -> Result<()> {
                 return Err(e);
             }
         }
-
-        // Swap to registry dependencies for publishing
-        println!(
-            "  {} Swapping to registry dependencies for publish...",
-            "→".blue()
-        );
-        manifests::swap_registry(&config, &versions_cache)?;
-        manifests::swap_npm_registry(&config, &versions_cache)?;
     }
 
     // [8/11] Rebuild docs book
@@ -935,8 +886,10 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         };
         step.print();
 
-        let book_output = config.root.join("docs/book.md");
-        let _ = build_book::run(&book_output);
+        if let Err(e) = build_book::run(Path::new(build_book::BOOK_PATH)) {
+            rollback(&config, &original_versions_cache);
+            return Err(e.context("Failed to rebuild the docs book"));
+        }
     } else {
         println!("\n{} Skipping docs book", "[8/11]".dimmed());
     }
@@ -951,7 +904,22 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         step.print();
 
         let mcp_path = config.root.join("packages/mcp-server");
-        let _ = shell::deno::task(&mcp_path, "build:docs");
+        if let Err(e) = shell::deno::task(&mcp_path, "build:docs") {
+            rollback(&config, &original_versions_cache);
+            return Err(e.context("Failed to sync the MCP server docs"));
+        }
+
+        // The sync writes raw markdown after the formatting step has run, so
+        // format its output here or every release leaves the docs dirty.
+        let root_config = config.root.join("deno.json");
+        if let Err(e) = shell::deno::deno_fmt(
+            &config.root,
+            &["packages/mcp-server/docs"],
+            Some(&root_config),
+        ) {
+            rollback(&config, &original_versions_cache);
+            return Err(e.context("Failed to format the MCP server docs"));
+        }
     } else {
         println!("\n{} Skipping MCP docs", "[9/11]".dimmed());
     }
@@ -974,7 +942,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
 
     // Published names mapping
     let pub_names: HashMap<&str, &str> = [
-        ("core", "macroforge"),
+        ("core", "@macroforge/core"),
         ("shared", "@macroforge/shared"),
         ("vite-plugin", "@macroforge/vite-plugin"),
         ("typescript-plugin", "@macroforge/typescript-plugin"),

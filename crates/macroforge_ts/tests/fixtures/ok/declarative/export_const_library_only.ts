@@ -5,7 +5,7 @@
 // library file itself also goes through expansion in the Vite
 // pipeline. With no call sites there's nothing to expand, so the
 // expander just erases the declarations + `macroRules` import.
-import { macroRules } from 'macroforge/rules';
+import { macroRules } from '@macroforge/core/rules';
 
 export const $vec = macroRules`
   () => []

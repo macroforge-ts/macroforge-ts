@@ -20,7 +20,7 @@ fn cross_file_import_expands_from_library() {
     let macros_path = root.join("macros.ts");
     std::fs::write(
         &macros_path,
-        r#"import { macroRules } from "macroforge/rules";
+        r#"import { macroRules } from "@macroforge/core/rules";
 
 export const $vec = macroRules`
   () => []

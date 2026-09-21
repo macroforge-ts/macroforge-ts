@@ -12,10 +12,13 @@
 //!
 //! - `@vtsls/language-server` at `VTSLS_VERSION`
 //! - `@macroforge/typescript-plugin` at `TS_PLUGIN_VERSION`
-//! - the platform-specific `@macroforge/bin-*` binary package at
-//!   `MACROFORGE_VERSION`
 //!
 //! Outdated installs are detected by version mismatch and reinstalled.
+//!
+//! The extension used to install a platform-specific `@macroforge/bin-*`
+//! package alongside these. The engine runs on WebAssembly since 0.1.79, which
+//! is faster and needs no native artifact, so those packages stopped being
+//! built and have been removed from the registry.
 
 use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree, serde_json};
@@ -24,7 +27,6 @@ const TS_PLUGIN: &str = "@macroforge/typescript-plugin";
 const TS_PLUGIN_VERSION: &str = "0.1.85";
 const VTSLS_PACKAGE: &str = "@vtsls/language-server";
 const VTSLS_VERSION: &str = "0.2.6";
-const MACROFORGE_VERSION: &str = "0.1.85";
 
 struct VtslsMacroforgeExtension {
     cached_vtsls_path: Option<String>,
@@ -75,38 +77,12 @@ impl VtslsMacroforgeExtension {
         Ok(path)
     }
 
-    /// Get the platform-specific binary package name based on Zed's platform info
-    fn get_binary_package() -> &'static str {
-        // Get platform from Zed's API
-        let (os, arch) = zed::current_platform();
-
-        match (os, arch) {
-            (zed::Os::Mac, zed::Architecture::X8664 | zed::Architecture::X86) => {
-                "@macroforge/bin-darwin-x64"
-            }
-            (zed::Os::Mac, zed::Architecture::Aarch64) => "@macroforge/bin-darwin-arm64",
-            (zed::Os::Linux, zed::Architecture::X8664 | zed::Architecture::X86) => {
-                "@macroforge/bin-linux-x64-gnu"
-            }
-            (zed::Os::Linux, zed::Architecture::Aarch64) => "@macroforge/bin-linux-arm64-gnu",
-            (zed::Os::Windows, zed::Architecture::X8664 | zed::Architecture::X86) => {
-                "@macroforge/bin-win32-x64-msvc"
-            }
-            (zed::Os::Windows, zed::Architecture::Aarch64) => "@macroforge/bin-win32-arm64-msvc",
-        }
-    }
-
-    /// Ensure the TypeScript plugin is installed and return the path
     fn ensure_plugin_installed(&mut self) -> Result<String> {
         if let Some(path) = &self.cached_plugin_path {
             return Ok(path.clone());
         }
 
-        // Install the binary package first (needed by macroforge)
-        let binary_package = Self::get_binary_package();
-        Self::ensure_package_version(binary_package, MACROFORGE_VERSION)?;
-
-        // Install the typescript plugin (which depends on macroforge)
+        // Install the typescript plugin (which depends on the engine)
         Self::ensure_package_version(TS_PLUGIN, TS_PLUGIN_VERSION)?;
 
         let ext_dir =

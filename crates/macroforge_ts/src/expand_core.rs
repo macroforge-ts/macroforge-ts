@@ -16,8 +16,6 @@ use oxc::codegen::Codegen as OxcCodegen;
 #[cfg(feature = "oxc")]
 use oxc::parser::Parser as OxcParser;
 #[cfg(feature = "oxc")]
-use oxc::span::SourceType;
-
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::sync::LazyLock;
@@ -302,7 +300,7 @@ impl CompilerBackend for OxcBackend {
         filepath: &str,
         options: &Option<ExpandOptions>,
     ) -> Result<ExpandResult> {
-        let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
+        let source_type = crate::source_type::for_path(filepath);
 
         // --- Attribute pre-pass (OXC-only path) ---
         //
@@ -651,7 +649,7 @@ impl CompilerBackend for OxcBackend {
 
     fn transform(&self, code: &str, filepath: &str) -> Result<TransformResult> {
         let allocator = Allocator::default();
-        let source_type = SourceType::ts().with_jsx(filepath.ends_with(".tsx"));
+        let source_type = crate::source_type::for_path(filepath);
 
         let ret = OxcParser::new(&allocator, code, source_type).parse();
 
@@ -942,7 +940,7 @@ fn inject_log_comments(result: &mut ExpandResult) {
 // ============================================================================
 
 /// Check if source code contains `@derive(` as a standalone JSDoc directive,
-/// or imports the declarative macro module (`"macroforge/rules"`), or uses
+/// or imports the declarative macro module (`"@macroforge/core/rules"`), or uses
 /// a `/** import macro { $name } from "..." */` JSDoc comment for
 /// cross-file declarative macro imports.
 pub(crate) fn has_macro_annotations(source: &str) -> bool {
@@ -955,7 +953,7 @@ pub(crate) fn has_macro_annotations(source: &str) -> bool {
     // Declarative macros: the defining file imports `macroRules` from the
     // rules module; consuming files use a JSDoc `/** import macro */`
     // comment. Either signal means the pre-pass must run.
-    if source.contains("macroforge/rules") {
+    if source.contains(crate::package::RULES) {
         return true;
     }
     if source.contains("import macro") {

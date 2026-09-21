@@ -473,7 +473,7 @@ export async function macroforge() {
     // Load the Rust binary first
     try {
         const projectRequire = createRequire(process.cwd() + '/');
-        rustTransformer = projectRequire('macroforge');
+        rustTransformer = projectRequire('@macroforge/core');
 
         // Register external macro callbacks for WASM builds.
         // The WASM build cannot spawn Node subprocesses to resolve external macros,
@@ -701,12 +701,14 @@ export async function macroforge() {
     function getMacroforgeVersion() {
         const req = createRequire(process.cwd() + '/');
         try {
-            let current = path.dirname(req.resolve('macroforge'));
+            let current = path.dirname(req.resolve('@macroforge/core'));
             while (current !== path.dirname(current)) {
                 const packageJson = path.join(current, 'package.json');
                 if (fs.existsSync(packageJson)) {
                     const manifest = JSON.parse(fs.readFileSync(packageJson, 'utf-8'));
-                    if (manifest.name === 'macroforge' && typeof manifest.version === 'string') {
+                    if (
+                        manifest.name === '@macroforge/core' && typeof manifest.version === 'string'
+                    ) {
                         return manifest.version;
                     }
                 }
@@ -719,7 +721,8 @@ export async function macroforge() {
                     path.join(
                         process.cwd(),
                         'node_modules',
-                        'macroforge',
+                        '@macroforge',
+                        'core',
                         'package.json'
                     ),
                     'utf-8'
