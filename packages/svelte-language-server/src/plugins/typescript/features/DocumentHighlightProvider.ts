@@ -1,16 +1,15 @@
 import ts from 'typescript';
 import { DocumentHighlight, Position } from 'vscode-languageserver-protocol';
 import { DocumentHighlightKind, Range } from 'vscode-languageserver-types';
-import { Document, inStyleOrScript } from '../../../lib/documents';
-import { flatten, isSamePosition } from '../../../utils';
-import { DocumentHighlightProvider } from '../../interfaces';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { convertToLocationRange } from '../utils';
-import { isInGeneratedCode } from './utils';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
-// @ts-ignore
-import { TemplateNode } from 'svelte/types/compiler/interfaces';
-import { walkSvelteAst } from '../svelte-ast-utils';
+import { Document, inStyleOrScript } from '../../../lib/documents/index.ts';
+import { flatten, isSamePosition } from '../../../utils.ts';
+import type { DocumentHighlightProvider } from '../../interfaces.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { convertToLocationRange } from '../utils.ts';
+import { isInGeneratedCode } from './utils.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import type { TemplateNode } from 'svelte/types/compiler/interfaces';
+import { walkSvelteAst } from '../svelte-ast-utils.ts';
 
 type RangeTupleArray = Array<[start: number, end: number]>;
 
@@ -134,7 +133,7 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
                 const canSkip = !isWithin ||
                     key === 'expression' ||
                     key === 'context' ||
-                    ((parent.type === 'InlineComponent' || parent.type === 'Element') &&
+                    ((parent?.type === 'InlineComponent' || parent?.type === 'Element') &&
                         key !== 'children');
 
                 if (canSkip) {
@@ -152,7 +151,7 @@ export class DocumentHighlightProviderImpl implements DocumentHighlightProvider 
                     if (
                         // else if
                         node.type === 'IfBlock' &&
-                        parent.type === 'ElseBlock' &&
+                        parent?.type === 'ElseBlock' &&
                         parent.start === node.start
                     ) {
                         return;

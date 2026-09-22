@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readVanillaSlice } from './vanilla-playground.ts';
 
 // End-to-end sanity check for the `@buildtime` evaluation pipeline in
 // the vanilla playground. Each assertion inspects a DOM element whose
@@ -70,24 +71,12 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
     });
 
     test('buildtime results are attached to globalThis for inspection', async ({ page }) => {
-        const results = await page.evaluate(
-            () =>
-                (globalThis as unknown as {
-                    buildtimeResults?: {
-                        answer: number;
-                        schemaHash: string;
-                        appName: string;
-                        greetingAlice: string;
-                        runtimeStubThrows: boolean;
-                    };
-                }).buildtimeResults
-        );
+        const results = await readVanillaSlice(page, 'buildtime');
 
-        expect(results).toBeDefined();
-        expect(results?.answer).toBe(42);
-        expect(results?.schemaHash).toMatch(/^[0-9a-f]{64}$/);
-        expect(results?.appName).toBe('macroforge-playground');
-        expect(results?.greetingAlice).toBe('hello, alice');
-        expect(results?.runtimeStubThrows).toBe(true);
+        expect(results.answer).toBe(42);
+        expect(results.schemaHash).toMatch(/^[0-9a-f]{64}$/);
+        expect(results.appName).toBe('macroforge-playground');
+        expect(results.greetingAlice).toBe('hello, alice');
+        expect(results.runtimeStubThrows).toBe(true);
     });
 });

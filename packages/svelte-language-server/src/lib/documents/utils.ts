@@ -1,9 +1,9 @@
-import { clamp, isInRange, regexLastIndexOf } from '../../utils';
+import { clamp, isInRange, regexLastIndexOf } from '../../utils.ts';
 import { Position, Range } from 'vscode-languageserver';
-import { HTMLDocument, Node } from 'vscode-html-languageservice';
+import type { HTMLDocument, Node } from 'vscode-html-languageservice';
 import * as path from 'path';
-import { parseHtml } from './parseHtml';
-import { Document } from './Document';
+import { parseHtml } from './parseHtml.ts';
+import { Document } from './Document.ts';
 
 export interface TagInformation {
     content: string;

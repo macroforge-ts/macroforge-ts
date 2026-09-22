@@ -57,7 +57,7 @@ fn make_test_registry() -> TypeRegistry {
 #[test]
 fn test_resolve_primitive() {
     let registry = make_test_registry();
-    let resolver = TypeResolver::new(&registry);
+    let resolver = TypeResolver::new(&registry, "", &[]);
 
     let resolved = resolver.resolve("string");
     assert_eq!(resolved.base_type_name, "string");
@@ -69,7 +69,7 @@ fn test_resolve_primitive() {
 #[test]
 fn test_resolve_known_type() {
     let registry = make_test_registry();
-    let resolver = TypeResolver::new(&registry);
+    let resolver = TypeResolver::new(&registry, "", &[]);
 
     let resolved = resolver.resolve("User");
     assert_eq!(resolved.base_type_name, "User");
@@ -80,7 +80,7 @@ fn test_resolve_known_type() {
 #[test]
 fn test_resolve_array() {
     let registry = make_test_registry();
-    let resolver = TypeResolver::new(&registry);
+    let resolver = TypeResolver::new(&registry, "", &[]);
 
     let resolved = resolver.resolve("User[]");
     assert_eq!(resolved.base_type_name, "User");
@@ -92,7 +92,7 @@ fn test_resolve_array() {
 #[test]
 fn test_resolve_optional() {
     let registry = make_test_registry();
-    let resolver = TypeResolver::new(&registry);
+    let resolver = TypeResolver::new(&registry, "", &[]);
 
     let resolved = resolver.resolve("User | undefined");
     assert_eq!(resolved.base_type_name, "User");
@@ -103,7 +103,7 @@ fn test_resolve_optional() {
 #[test]
 fn test_resolve_generic() {
     let registry = make_test_registry();
-    let resolver = TypeResolver::new(&registry);
+    let resolver = TypeResolver::new(&registry, "", &[]);
 
     let resolved = resolver.resolve("Map<string, User>");
     assert_eq!(resolved.base_type_name, "Map");
@@ -117,7 +117,7 @@ fn test_resolve_generic() {
 #[test]
 fn test_resolve_unknown_type() {
     let registry = make_test_registry();
-    let resolver = TypeResolver::new(&registry);
+    let resolver = TypeResolver::new(&registry, "", &[]);
 
     let resolved = resolver.resolve("UnknownType");
     assert_eq!(resolved.base_type_name, "UnknownType");

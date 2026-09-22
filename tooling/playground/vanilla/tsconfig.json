@@ -1,10 +1,9 @@
 {
     "compilerOptions": {
-        "target": "ES2023",
-        "useDefineForClassFields": true,
+        "target": "ESNext",
         "module": "ESNext",
         "baseUrl": ".",
-        "lib": ["ES2023", "DOM", "DOM.Iterable"],
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
 
@@ -34,5 +33,5 @@
             }
         ]
     },
-    "include": ["src", ".macroforge/types/**/*.d.ts"]
+    "include": ["src", ".macroforge/types/**/*.d.ts", "../tests/e2e/vanilla-*.ts"]
 }

@@ -1,5 +1,8 @@
 <script lang="ts">
-import { Exit, Option } from 'effect';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
+import { Option } from 'effect';
 import {
     phoneNumberCreateForm,
     gradientCreateForm,
@@ -15,62 +18,36 @@ const gradientForm = gradientCreateForm();
 const coordinatesForm = coordinatesCreateForm();
 
 // Track validation results
-let phoneResult: {
-    success: boolean;
-    data?: PhoneNumber;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
-let gradientResult: {
-    success: boolean;
-    data?: Gradient;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
-let coordinatesResult: {
-    success: boolean;
-    data?: Coordinates;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let phoneResult: OutcomeOf<typeof phoneForm> | null = $state(null);
+let gradientResult: OutcomeOf<typeof gradientForm> | null = $state(null);
+let coordinatesResult: OutcomeOf<typeof coordinatesForm> | null = $state(null);
 
-// Expose forms to Playwright for programmatic testing
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        phoneNumber: phoneForm,
-        gradient: gradientForm,
-        coordinates: coordinatesForm
-    };
-    // Field errors and tainted flags are Options, so tests build and read them
-    // with the same module the forms use.
-    (window as any).effectOption = Option;
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    phoneNumber: phoneForm,
+    gradient: gradientForm,
+    coordinates: coordinatesForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
+    // Field errors and tainted flags are Options, so the specs build and
+    // read them with the same module the forms use.
+    playgroundResults().effectOption = Option;
 }
 
 function submitPhone() {
-    phoneResult = Exit.match(phoneForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.phoneValidation = phoneResult;
-    }
+    phoneResult = validationOutcome(phoneForm.validate());
+    gigaform.phoneValidation = phoneResult;
 }
 
 function submitGradient() {
-    gradientResult = Exit.match(gradientForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.gradientValidation = gradientResult;
-    }
+    gradientResult = validationOutcome(gradientForm.validate());
+    gigaform.gradientValidation = gradientResult;
 }
 
 function submitCoordinates() {
-    coordinatesResult = Exit.match(coordinatesForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.coordinatesValidation = coordinatesResult;
-    }
+    coordinatesResult = validationOutcome(coordinatesForm.validate());
+    gigaform.coordinatesValidation = coordinatesResult;
 }
 
 function resetPhone() {
@@ -123,7 +100,7 @@ function resetCoordinates() {
         />
         {#if Option.isSome(phoneForm.fields.phoneType.getError())}
           <span class="error" data-testid="phone-type-error">
-            {Option.getOrElse(phoneForm.fields.phoneType.getError(), () => [] as Array<string>).join(", ")}
+            {Option.getOrElse(phoneForm.fields.phoneType.getError(), () => []).join(", ")}
           </span>
         {/if}
         <span class="tainted-indicator" data-testid="phone-type-tainted">
@@ -146,7 +123,7 @@ function resetCoordinates() {
         />
         {#if Option.isSome(phoneForm.fields.number.getError())}
           <span class="error" data-testid="phone-number-error">
-            {Option.getOrElse(phoneForm.fields.number.getError(), () => [] as Array<string>).join(", ")}
+            {Option.getOrElse(phoneForm.fields.number.getError(), () => []).join(", ")}
           </span>
         {/if}
       </div>
@@ -258,7 +235,7 @@ function resetCoordinates() {
       />
       {#if Option.isSome(gradientForm.fields.startHue.getError())}
         <span class="error" data-testid="gradient-startHue-error">
-          {Option.getOrElse(gradientForm.fields.startHue.getError(), () => [] as Array<string>).join(", ")}
+          {Option.getOrElse(gradientForm.fields.startHue.getError(), () => []).join(", ")}
         </span>
       {/if}
     </div>
@@ -318,7 +295,7 @@ function resetCoordinates() {
         />
         {#if Option.isSome(coordinatesForm.fields.lat.getError())}
           <span class="error" data-testid="coordinates-lat-error">
-            {Option.getOrElse(coordinatesForm.fields.lat.getError(), () => [] as Array<string>).join(", ")}
+            {Option.getOrElse(coordinatesForm.fields.lat.getError(), () => []).join(", ")}
           </span>
         {/if}
       </div>
@@ -338,7 +315,7 @@ function resetCoordinates() {
         />
         {#if Option.isSome(coordinatesForm.fields.lng.getError())}
           <span class="error" data-testid="coordinates-lng-error">
-            {Option.getOrElse(coordinatesForm.fields.lng.getError(), () => [] as Array<string>).join(", ")}
+            {Option.getOrElse(coordinatesForm.fields.lng.getError(), () => []).join(", ")}
           </span>
         {/if}
       </div>

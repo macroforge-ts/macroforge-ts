@@ -10,9 +10,6 @@
  * @packageDocumentation
  */
 
-// Re-export all utilities
-export { hasMacroAnnotations, parseMacroImportComments } from './macro-imports.js';
-
 export {
     clearExternalManifestCache,
     type DecoratorManifestEntry,
@@ -23,7 +20,7 @@ export {
     type MacroManifest,
     type MacroManifestEntry,
     type RequireFunction
-} from './external-manifest.js';
+} from './external-manifest.ts';
 
 export {
     type CfgFlags,
@@ -37,41 +34,4 @@ export {
     type MustUseConfig,
     type NonExhaustiveConfig,
     type VitePluginConfig
-} from './config.js';
-
-// Import for composite functions
-import { parseMacroImportComments } from './macro-imports.js';
-import { getExternalManifest, type RequireFunction } from './external-manifest.js';
-
-/**
- * Collects decorator modules from external macro packages referenced in the code.
- *
- * This function parses macro import comments in the code to find external packages,
- * then loads their manifests and collects all decorator module names.
- *
- * @param code - The TypeScript source code to scan
- * @param requireFn - Optional custom require function for loading external packages
- * @returns Array of decorator module names from external packages
- *
- * @example
- * ```typescript
- * const code = `/** import macro {Gigaform} from "@playground/macro"; *​/
- * /** @derive(Gigaform) *​/
- * class MyForm {}`;
- *
- * const modules = collectExternalDecoratorModules(code);
- * // => ["hiddenController", "fieldController", ...]
- * ```
- */
-export function collectExternalDecoratorModules(
-    code: string,
-    requireFn?: RequireFunction
-): string[] {
-    const imports = parseMacroImportComments(code);
-    const modulePaths = [...new Set(imports.values())];
-
-    return modulePaths.flatMap((modulePath) => {
-        const manifest = getExternalManifest(modulePath, requireFn);
-        return manifest?.decorators.map((d) => d.export) ?? [];
-    });
-}
+} from './config.ts';

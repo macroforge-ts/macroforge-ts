@@ -496,17 +496,52 @@ pub(crate) fn registry_hash(root: &Path) -> String {
 ///
 /// Both registries are `HashMap`-backed, so `serde_json` renders their keys in
 /// whatever order the map iterates and the raw text differs between two runs
-/// that scanned identical sources. Round-tripping through `Value` sorts the
-/// keys — `serde_json` is built without `preserve_order` here, so its object
-/// type is a `BTreeMap` — which makes the hash a function of the content alone.
+/// that scanned identical sources. Object keys are sorted explicitly: whether
+/// `serde_json::Value` keeps insertion order depends on a feature any crate in
+/// the build can switch on.
 fn canonical_json(path: &Path) -> String {
     let Ok(text) = fs::read_to_string(path) else {
         return "none".to_string();
     };
     match serde_json::from_str::<serde_json::Value>(&text) {
-        Ok(value) => value.to_string(),
+        Ok(value) => sorted_keys(value).to_string(),
         // Unparseable is still deterministic, and the next run will rewrite it.
         Err(_) => text,
+    }
+}
+
+/// `value` with every object's keys in sorted order.
+fn sorted_keys(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Object(map) => {
+            let mut entries: Vec<(String, serde_json::Value)> = map
+                .into_iter()
+                .map(|(key, entry)| (key, sorted_keys(entry)))
+                .collect();
+            entries.sort_by(|left, right| left.0.cmp(&right.0));
+            serde_json::Value::Object(entries.into_iter().collect())
+        }
+        serde_json::Value::Array(items) => {
+            serde_json::Value::Array(items.into_iter().map(sorted_keys).collect())
+        }
+        other => other,
+    }
+}
+
+#[cfg(test)]
+mod canonical_json_tests {
+    use super::sorted_keys;
+
+    #[test]
+    fn key_order_does_not_change_the_canonical_text() {
+        let first: serde_json::Value =
+            serde_json::from_str(r#"{"b":{"y":1,"x":2},"a":[{"d":1,"c":2}]}"#).unwrap_or_default();
+        let second: serde_json::Value =
+            serde_json::from_str(r#"{"a":[{"c":2,"d":1}],"b":{"x":2,"y":1}}"#).unwrap_or_default();
+        assert_eq!(
+            sorted_keys(first).to_string(),
+            sorted_keys(second).to_string()
+        );
     }
 }
 

@@ -3,6 +3,8 @@
  * Tests string, number, array, and date validators with real form validation.
  */
 
+import type { ValidationOutcome } from '../validation-outcome';
+
 /** @derive(Deserialize) */
 export class UserRegistrationForm {
     /** @serde({ validate: ["email"] }) */
@@ -54,15 +56,10 @@ export class EventForm {
     maxAttendees: number;
 }
 
-// Type for validation result
-export type ValidationResult<T> = {
-    success: boolean;
-    data?: T;
-    errors?: Array<string>;
-};
+/** A validator's result, with each field error rendered as `field: message`. */
+export type ValidationResult<T> = ValidationOutcome<T, Array<string>>;
 
-// Helper to convert deserialize result to ValidationResult
-// The deserialize() returns { success: true; value: T } | { success: false; errors: Array<{field, message}> }
+/** Converts what a derived `deserialize()` returns into a `ValidationResult`. */
 export function toValidationResult<T>(
     result: { success: true; value: T } | {
         success: false;
@@ -71,12 +68,11 @@ export function toValidationResult<T>(
 ): ValidationResult<T> {
     if (result.success) {
         return { success: true, data: result.value };
-    } else {
-        return {
-            success: false,
-            errors: result.errors.map((e) => `${e.field}: ${e.message}`)
-        };
     }
+    return {
+        success: false,
+        errors: result.errors.map((error) => `${error.field}: ${error.message}`)
+    };
 }
 
 // Form validation functions

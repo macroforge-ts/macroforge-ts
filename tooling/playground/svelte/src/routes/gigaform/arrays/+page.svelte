@@ -1,5 +1,7 @@
 <script lang="ts">
-import { Exit } from 'effect';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
 import { accountCreateForm, type Account, type PhoneNumber, type Sector } from '$lib/demo/types';
 
 // Create Account form with arrays
@@ -15,11 +17,7 @@ const accountForm = accountCreateForm({
 });
 
 // Track validation results
-let accountResult: {
-    success: boolean;
-    data?: Account;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let accountResult: OutcomeOf<typeof accountForm> | null = $state(null);
 
 // New phone form fields
 let newPhoneType = $state('');
@@ -35,21 +33,17 @@ let newTag = $state('');
 let newCustomKey = $state('');
 let newCustomValue = $state('');
 
-// Expose to Playwright
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        account: accountForm
-    };
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    account: accountForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
 }
 
 function submitAccount() {
-    accountResult = Exit.match(accountForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.accountValidation = accountResult;
-    }
+    accountResult = validationOutcome(accountForm.validate());
+    gigaform.accountValidation = accountResult;
 }
 
 function resetAccount() {

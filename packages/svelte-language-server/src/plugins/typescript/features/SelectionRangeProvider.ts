@@ -1,11 +1,11 @@
 import ts from 'typescript';
 import { Position, Range, SelectionRange } from 'vscode-languageserver';
-import { Document, mapRangeToOriginal } from '../../../lib/documents';
-import { SelectionRangeProvider } from '../../interfaces';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { convertRange } from '../utils';
-import { checkRangeMappingWithGeneratedSemi } from './utils';
+import { Document, mapRangeToOriginal } from '../../../lib/documents/index.ts';
+import type { SelectionRangeProvider } from '../../interfaces.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { convertRange } from '../utils.ts';
+import { checkRangeMappingWithGeneratedSemi } from './utils.ts';
 
 export class SelectionRangeProviderImpl implements SelectionRangeProvider {
     constructor(private readonly lsAndTsDocResolver: LSAndTSDocResolver) {}

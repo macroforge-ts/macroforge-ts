@@ -6,9 +6,10 @@
 
 use crate::cli::commands::docs::write_docs_json;
 use crate::core::config::Config;
+use crate::core::shell;
 use crate::parsers::rust_docs::{self, ItemDoc};
 use crate::utils::format;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -109,19 +110,13 @@ pub fn run(output_dir: &Path) -> Result<()> {
         let entry_path = crate_path.join(entry_file);
 
         if !entry_path.exists() {
-            format::warning(&format!("Entry file not found: {}", entry_path.display()));
-            continue;
+            anyhow::bail!("Entry file not found: {}", entry_path.display());
         }
 
         print!("Processing {}... ", crate_name);
 
-        let mut docs = match extract_crate_docs(&crate_path, entry_file) {
-            Ok(d) => d,
-            Err(e) => {
-                println!("failed: {}", e);
-                continue;
-            }
-        };
+        let mut docs = extract_crate_docs(&crate_path, entry_file)
+            .with_context(|| format!("failed to extract docs for {crate_name}"))?;
 
         for (extra_crate, files) in EXTRA_ITEM_FILES {
             if extra_crate != crate_name {
@@ -129,13 +124,9 @@ pub fn run(output_dir: &Path) -> Result<()> {
             }
             for file in *files {
                 let path = crate_path.join(file);
-                if !path.exists() {
-                    format::warning(&format!("Extra source not found: {}", path.display()));
-                    continue;
-                }
-                if let Ok(source) = fs::read_to_string(&path) {
-                    docs.items.extend(rust_docs::extract_item_docs(&source));
-                }
+                let source = fs::read_to_string(&path)
+                    .with_context(|| format!("failed to read {}", path.display()))?;
+                docs.items.extend(rust_docs::extract_item_docs(&source));
             }
         }
 
@@ -155,28 +146,27 @@ pub fn run(output_dir: &Path) -> Result<()> {
     {
         let (cli_crate, cli_file) = CLI_ENTRY;
         let cli_path = crates_root.join(cli_crate).join(cli_file);
-        if cli_path.exists() {
-            print!("\nProcessing CLI... ");
-            let source = fs::read_to_string(&cli_path)?;
-            let version = all_docs
-                .iter()
-                .find(|d| d.name == "macroforge_ts")
-                .map(|d| d.version.clone())
-                .unwrap_or_else(|| "0.0.0".to_string());
-            let cli_doc = CrateDoc {
-                name: "macroforge".to_string(),
-                kind: "cli".to_string(),
-                version,
-                description: "Command-line interface for expanding Macroforge macros".to_string(),
-                overview: rust_docs::extract_module_docs(&source),
-                items: rust_docs::extract_item_docs(&source),
-            };
-            let out_path = output_path.join("cli.json");
-            write_docs_json(&out_path, &crate::utils::json::to_string_pretty(&cli_doc)?)?;
-            println!("{} items", cli_doc.items.len());
-        } else {
-            format::warning(&format!("CLI entry not found: {}", cli_path.display()));
+        if !cli_path.exists() {
+            anyhow::bail!("CLI entry not found: {}", cli_path.display());
         }
+        print!("\nProcessing CLI... ");
+        let source = fs::read_to_string(&cli_path)?;
+        let version = all_docs
+            .iter()
+            .find(|d| d.name == "macroforge_ts")
+            .map(|d| d.version.clone())
+            .unwrap_or_else(|| "0.0.0".to_string());
+        let cli_doc = CrateDoc {
+            name: "macroforge".to_string(),
+            kind: "cli".to_string(),
+            version,
+            description: "Command-line interface for expanding Macroforge macros".to_string(),
+            overview: rust_docs::extract_module_docs(&source),
+            items: rust_docs::extract_item_docs(&source),
+        };
+        let out_path = output_path.join("cli.json");
+        write_docs_json(&out_path, &crate::utils::json::to_string_pretty(&cli_doc)?)?;
+        println!("{} items", cli_doc.items.len());
     }
 
     // Process builtin macros
@@ -190,8 +180,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
     for (name, file, display_name) in BUILTIN_MACROS {
         let file_path = crates_root.join("macroforge_ts").join(file);
         if !file_path.exists() {
-            format::warning(&format!("Macro file not found: {}", file_path.display()));
-            continue;
+            anyhow::bail!("Macro file not found: {}", file_path.display());
         }
 
         if let Ok(source) = fs::read_to_string(&file_path) {
@@ -595,7 +584,10 @@ fn write_builtin_macro_pages(macros: &[BuiltinMacroData], root_path: &Path) -> R
         // Write MCP markdown doc
         fs::create_dir_all(&mcp_base)?;
         let mcp_path = mcp_base.join(format!("{}.md", macro_data.slug));
-        fs::write(&mcp_path, &final_md)?;
+        fs::write(
+            &mcp_path,
+            shell::deno::format_markdown(root_path, &final_md)?,
+        )?;
         mcp_count += 1;
     }
 

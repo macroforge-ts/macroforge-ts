@@ -149,7 +149,7 @@ pub use lower_oxc::{
 };
 #[cfg(feature = "oxc")]
 pub use oxc_quote_helpers::{
-    ToOxcAssignTargetSource, ToOxcExprSource, ToOxcIdentSource, ToOxcPatSource,
+    QuoteArena, ToOxcAssignTargetSource, ToOxcExprSource, ToOxcIdentSource, ToOxcPatSource,
     ToOxcStringLiteralSource, ToOxcTypeSource, oxc_assignment_target_to_string,
     oxc_binding_pattern_to_string, oxc_expr_to_string, oxc_stmt_to_string,
     oxc_string_literal_to_string, oxc_type_to_string, parse_oxc_assignment_target,

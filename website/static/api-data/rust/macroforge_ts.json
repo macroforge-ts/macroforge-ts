@@ -1,9 +1,9 @@
 {
     "name": "macroforge_ts",
     "kind": "rust_crate",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "TypeScript macro expansion engine - write compile-time macros in Rust",
-    "overview": "# Macroforge TypeScript Macro Engine\n\nThis crate provides a TypeScript macro expansion engine that brings Rust-like derive macros\nto TypeScript. It supports multiple output targets via feature flags:\n- `wasm`: (Default) Universal WebAssembly module via wasm-bindgen for browser and edge environments.\n- `node`: Optional native Node.js bindings via NAPI-RS.\n\n## Overview\n\nMacroforge processes TypeScript source files containing `@derive` decorators and expands them\ninto concrete implementations. For example, a class decorated with `@derive(Debug, Clone)`\nwill have `toString()` and `clone()` methods automatically generated.\n\n## Architecture\n\nThe crate is organized into several key components:\n\n- **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade that both\n  bindings delegate to. (The `MacroforgeApi` trait sketches the same surface but is\n  currently not implemented by anything.)\n- **Target Bindings**:\n  - `bindings_napi`: Node.js specific entry points using NAPI-RS.\n  - `bindings_wasm`: Universal entry points using `wasm-bindgen`.\n- **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping\n  for IDE integration.\n- **Macro Host** (`host` module): Core expansion engine with registry and dispatcher.\n- **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Serialize, etc.).\n\n## Usage\n\n### From Node.js\n\n```javascript\nconst { expandSync } = require('@macroforge/core');\nconst result = expandSync(code, filepath, { keepDecorators: false });\n```\n\n### From WASM\n\n```javascript\nimport init, { expandSync } from './pkg/macroforge_ts.js';\nawait init();\nconst result = expandSync(code, filepath, { keepDecorators: false });\n```\n\n## Re-exports for Macro Authors\n\nThis crate re-exports several dependencies for convenience when writing custom macros:\n- `ts_syn`: TypeScript syntax types for AST manipulation\n- `macros`: Macro attributes and quote templates\n- `swc_core`, `swc_common`, `swc_ecma_ast`: SWC compatibility infrastructure",
+    "overview": "# Macroforge TypeScript Macro Engine\n\nThis crate provides a TypeScript macro expansion engine that brings Rust-like derive macros\nto TypeScript. It supports multiple output targets via feature flags:\n- `wasm`: (Default) Universal WebAssembly module via wasm-bindgen for browser and edge environments.\n- `node`: Optional native Node.js bindings via NAPI-RS.\n\n## Overview\n\nMacroforge processes TypeScript source files containing `@derive` decorators and expands them\ninto concrete implementations. For example, a class decorated with `@derive(Debug, Clone)`\nwill have `toString()` and `clone()` methods automatically generated.\n\n## Architecture\n\nThe crate is organized into several key components:\n\n- **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade that both\n  bindings delegate to. (The `MacroforgeApi` trait sketches the same surface but is\n  currently not implemented by anything.)\n- **Target Bindings**:\n  - `bindings_napi`: Node.js specific entry points using NAPI-RS.\n  - `bindings_wasm`: Universal entry points using `wasm-bindgen`.\n- **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping\n  for IDE integration.\n- **Macro Host** (`host` module): Core expansion engine with registry and dispatcher.\n- **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Serialize, etc.).\n\n## Usage\n\nThe package is an ES module that instantiates its WebAssembly on import.\n\n```javascript\nimport { expandSync } from '@macroforge/core';\nconst result = expandSync(code, filepath, { keepDecorators: false });\n```\n\n## Re-exports for Macro Authors\n\nThis crate re-exports several dependencies for convenience when writing custom macros:\n- `ts_syn`: TypeScript syntax types for AST manipulation\n- `macros`: Macro attributes and quote templates\n- `swc_core`, `swc_common`, `swc_ecma_ast`: SWC compatibility infrastructure",
     "items": [
         {
             "name": "__macroforge_ffi_free",
@@ -126,6 +126,18 @@
             "description": "Result of loading a macroforge configuration file.\n\nReturned by [`load_config`] after parsing a `macroforge.config.js/ts` file."
         },
         {
+            "name": "has_macro_annotations",
+            "kind": "function",
+            "signature": "pub fn has_macro_annotations(code : String) -> bool",
+            "description": "Whether `code` may contain anything the engine expands. Integrations use\nthis to skip files without paying for a full expansion."
+        },
+        {
+            "name": "macro_imports",
+            "kind": "function",
+            "signature": "pub fn macro_imports(code : String, filepath : String) -> std :: collections :: HashMap < String , String >",
+            "description": "The macros `code` imports through `import macro` JSDoc comments, as macro\nname to module."
+        },
+        {
             "name": "check_syntax",
             "kind": "function",
             "signature": "pub fn check_syntax(code : String, filepath : String) -> SyntaxCheckResult",
@@ -192,118 +204,124 @@
             "description": "Phase 17 — drop the entire scan cache. Called when config files\n(`macroforge.config.ts`, `tsconfig.json`) change, since lowered IR\ncan depend on config-driven options."
         },
         {
+            "name": "has_macro_annotations",
+            "kind": "function",
+            "signature": "pub fn has_macro_annotations(code : & str) -> bool",
+            "description": "Whether `code` may contain anything the engine expands. Integrations use\nthis to skip files without paying for a full expansion."
+        },
+        {
+            "name": "macro_imports",
+            "kind": "function",
+            "signature": "pub fn macro_imports(code : & str, filepath : & str) -> Result < JsValue , JsValue >",
+            "description": "The macros `code` imports through `import macro` JSDoc comments, as macro\nname to module."
+        },
+        {
             "name": "check_syntax",
             "kind": "function",
             "signature": "pub fn check_syntax(code : String, filepath : String) -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "Whether `code` parses as TypeScript, with the parse error when it does not."
         },
         {
             "name": "parse_import_sources",
             "kind": "function",
             "signature": "pub fn parse_import_sources(code : String, filepath : String) -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "The import declarations of `code`: each imported name with the module it comes from."
         },
         {
             "name": "derive_decorator",
             "kind": "function",
             "signature": "pub fn derive_decorator()",
-            "description": ""
+            "description": "Names `@derive` so it can be imported. It does nothing at runtime."
         },
         {
             "name": "load_config",
             "kind": "function",
             "signature": "pub fn load_config(content : String, filepath : String) -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "Parses a `macroforge.config.*` file's `content` and caches it under `filepath`."
         },
         {
             "name": "clear_config_cache",
             "kind": "function",
             "signature": "pub fn clear_config_cache()",
-            "description": ""
+            "description": "Forgets every config `loadConfig` cached."
         },
         {
             "name": "transform_sync",
             "kind": "function",
             "signature": "pub fn transform_sync(code : String, filepath : String) -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "Expands the macros in `code` and returns the result with its metadata."
         },
         {
             "name": "expand_sync",
             "kind": "function",
             "signature": "pub fn expand_sync(code : String, filepath : String, options : JsValue) -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "Expands the macros in `code`, the source of `filepath`, and returns the\nexpanded code, its type declarations, diagnostics and source mapping."
         },
         {
             "name": "NativePlugin",
             "kind": "struct",
             "signature": "pub struct NativePlugin",
-            "description": ""
+            "description": "A stateful expander for editor integrations: it caches each file's\nexpansion by version and maps positions and diagnostics back to the source."
         },
         {
-            "name": "WasmNativeMapper",
+            "name": "PositionMapper",
             "kind": "struct",
-            "signature": "pub struct WasmNativeMapper",
-            "description": ""
-        },
-        {
-            "name": "NativePositionMapper",
-            "kind": "struct",
-            "signature": "pub struct NativePositionMapper",
-            "description": "Stub kept for API parity with the NAPI build: the constructor ignores\nits argument and both mapping methods always return `null`. WASM\ncallers should use `NativeMapper` (from `processFile`'s plugin flow)\nfor real position mapping."
+            "signature": "pub struct PositionMapper",
+            "description": "Maps positions between a file's original source and its macro-expanded\ncode, and tells which macro generated a span."
         },
         {
             "name": "scan_project_sync",
             "kind": "function",
             "signature": "pub fn scan_project_sync(root_dir : String, options : JsValue) -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "Scans the project under `root_dir` and returns its type registry and\ndeclarative macro registry as JSON."
         },
         {
             "name": "invalidate_scan_cache_entry_wasm",
             "kind": "function",
             "signature": "pub fn invalidate_scan_cache_entry_wasm(path : String) -> bool",
-            "description": "Phase 17 — scan cache invalidation. WASM cannot access the\nfilesystem, so there is no scan cache to invalidate on that\ntarget. These shims are here so the JS side of the plugin can\ncall them uniformly across NAPI and WASM backends."
+            "description": "Drops `path` from the project scan cache and returns whether it was\ncached. A wasm32 build rescans on every call, so it has nothing to drop."
         },
         {
             "name": "clear_scan_cache_wasm",
             "kind": "function",
             "signature": "pub fn clear_scan_cache_wasm()",
-            "description": ""
+            "description": "Empties the project scan cache; a wasm32 build keeps none."
         },
         {
             "name": "get_macro_manifest_wasm",
             "kind": "function",
             "signature": "pub fn get_macro_manifest_wasm() -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "The built-in macros and decorators this engine provides."
         },
         {
             "name": "is_macro_package_wasm",
             "kind": "function",
             "signature": "pub fn is_macro_package_wasm() -> bool",
-            "description": ""
+            "description": "Marks this module as a macroforge macro package."
         },
         {
             "name": "get_macro_names_wasm",
             "kind": "function",
             "signature": "pub fn get_macro_names_wasm() -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "The names of the built-in macros."
         },
         {
             "name": "debug_get_modules_wasm",
             "kind": "function",
             "signature": "pub fn debug_get_modules_wasm() -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "Debugging aid: the modules that registered macros."
         },
         {
             "name": "debug_lookup_wasm",
             "kind": "function",
             "signature": "pub fn debug_lookup_wasm(module : String, name : String) -> String",
-            "description": ""
+            "description": "Debugging aid: describes how the macro `name` in `module` resolves."
         },
         {
             "name": "debug_descriptors_wasm",
             "kind": "function",
             "signature": "pub fn debug_descriptors_wasm() -> Result < JsValue , JsValue >",
-            "description": ""
+            "description": "Debugging aid: every registered macro descriptor."
         },
         {
             "name": "NativePlugin",

@@ -1,6 +1,6 @@
 import assert from 'assert';
-import { HTMLDocument } from 'vscode-html-languageservice';
-import { parseHtml } from '../../../src/lib/documents/parseHtml';
+import type { HTMLDocument } from 'vscode-html-languageservice';
+import { parseHtml } from '../../../src/lib/documents/parseHtml.ts';
 
 describe('parseHtml', () => {
     const testRootElements = (document: HTMLDocument) => {

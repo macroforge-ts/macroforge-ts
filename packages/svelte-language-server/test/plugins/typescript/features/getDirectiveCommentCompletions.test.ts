@@ -1,13 +1,13 @@
 import path from 'path';
 import ts from 'typescript';
 import assert from 'assert';
-import { Document } from '../../../../src/lib/documents';
-import { pathToUrl } from '../../../../src/utils';
-import { CompletionContext, CompletionTriggerKind, Position } from 'vscode-languageserver';
-import { getDirectiveCommentCompletions } from '../../../../src/plugins/typescript/features/getDirectiveCommentCompletions';
-import { serviceWarmup } from '../test-utils';
+import { Document } from '../../../../src/lib/documents/index.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { type CompletionContext, CompletionTriggerKind, Position } from 'vscode-languageserver';
+import { getDirectiveCommentCompletions } from '../../../../src/plugins/typescript/features/getDirectiveCommentCompletions.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 const completionTestDir = path.join(testDir, 'testfiles', 'completions');
 
 describe('can get typescript directive comment completions', function () {

@@ -1,4 +1,4 @@
-import { getTsCheckComment } from '../../../src/plugins/typescript/utils';
+import { getTsCheckComment } from '../../../src/plugins/typescript/utils.ts';
 import ts from 'typescript';
 import * as assert from 'assert';
 

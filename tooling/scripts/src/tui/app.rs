@@ -139,14 +139,8 @@ impl App {
 
     /// Initialize with default tasks
     pub fn init_default_tasks(&mut self) {
-        self.add_task(
-            "Prepare release".into(),
-            "prep --repos all --dry-run".into(),
-        );
-        self.add_task(
-            "Commit release".into(),
-            "commit --repos all --dry-run".into(),
-        );
+        self.add_task("Verify release".into(), "verify".into());
+        self.add_task("Bump versions".into(), "bump".into());
         self.add_task("Run diagnostics".into(), "diagnostics".into());
         self.add_task("Generate docs".into(), "docs all".into());
         self.add_task("Build all".into(), "build --repos all".into());
@@ -640,11 +634,11 @@ mod tests {
         }
 
         // Verify specific tasks
-        assert_eq!(app.tasks[0].name, "Prepare release");
-        assert_eq!(app.tasks[0].command, "prep --repos all --dry-run");
+        assert_eq!(app.tasks[0].name, "Verify release");
+        assert_eq!(app.tasks[0].command, "verify");
 
-        assert_eq!(app.tasks[1].name, "Commit release");
-        assert_eq!(app.tasks[1].command, "commit --repos all --dry-run");
+        assert_eq!(app.tasks[1].name, "Bump versions");
+        assert_eq!(app.tasks[1].command, "bump");
 
         assert_eq!(app.tasks[2].name, "Run diagnostics");
         assert_eq!(app.tasks[2].command, "diagnostics");
@@ -680,7 +674,7 @@ mod tests {
 
         assert_eq!(app.tasks.len(), 6);
         assert_eq!(app.tasks[0].name, "Custom Task");
-        assert_eq!(app.tasks[1].name, "Prepare release");
+        assert_eq!(app.tasks[1].name, "Verify release");
     }
 
     #[test]

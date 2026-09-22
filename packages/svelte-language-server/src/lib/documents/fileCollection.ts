@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { createGetCanonicalFileName, GetCanonicalFileName } from '../../utils';
+import { createGetCanonicalFileName, type GetCanonicalFileName } from '../../utils.ts';
 
 /**
  * wrapper around Map<string, T> for case insensitive file systems

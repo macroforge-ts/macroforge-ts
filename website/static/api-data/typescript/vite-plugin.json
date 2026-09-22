@@ -1,7 +1,7 @@
 {
     "name": "@macroforge/vite-plugin",
-    "version": "0.2.0",
-    "description": "",
+    "version": "0.3.0",
+    "description": "Vite plugin that expands Macroforge macros in TypeScript and Svelte modules",
     "exports": [
         {
             "name": "macroforge",

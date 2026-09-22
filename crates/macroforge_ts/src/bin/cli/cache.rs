@@ -325,55 +325,61 @@ pub(crate) fn collect_watch_files(root: &Path) -> Vec<PathBuf> {
     files
 }
 
-/// Expands a single file for caching purposes.
+/// An expander for `path`: its project's macroforge config, plus the
+/// project-wide type and declarative registries from the `.macroforge/` cache
+/// when they have been built. Without the registries, generic aliases and
+/// cross-file `/** import macro */` comments cannot resolve.
 ///
-/// Returns `Ok(Some(expanded_code))` if macros were found and expanded,
-/// `Ok(None)` if no macros present, or `Err` on failure.
-/// Check if source code contains `@derive(` as a standalone JSDoc directive,
-/// or imports the declarative macro module (`"@macroforge/core/rules"`).
-///
-/// Only matches `@derive(` when it appears at the start of a JSDoc line (after
-/// stripping `/**`, `*/`, `*`, and whitespace). Skips `@derive` embedded in prose
-/// (e.g., `"result from @derive(Deserialize)"`) and inside fenced code blocks.
-pub(crate) fn has_macro_annotations(source: &str) -> bool {
-    // Declarative macros:
-    //   - defining files import `macroRules` from `"@macroforge/core/rules"`
-    //   - consuming files use a `/** import macro { $name } from "..." */`
-    //     JSDoc comment
-    // Either signal means the pre-pass must run.
-    if source.contains(macroforge_ts::package::RULES) {
-        return true;
+/// `root` is the project the command runs on. The file's own macroforge config
+/// takes precedence, since external macros resolve from its `node_modules`
+/// whatever the working directory is.
+pub(crate) fn configured_expander(root: &Path, path: &Path) -> Result<MacroExpander> {
+    use macroforge_ts::host::{MacroConfig, MacroforgeConfig, MacroforgeConfigLoader};
+
+    let discovered = MacroforgeConfigLoader::find_with_root_from_path(path).with_context(|| {
+        format!(
+            "failed to load the macroforge config for {}",
+            path.display()
+        )
+    })?;
+    let (config, project_root) = match discovered {
+        Some((config, config_root)) => (config, config_root),
+        None => (MacroforgeConfig::default(), root.to_path_buf()),
+    };
+    macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
+
+    let mut expander = MacroExpander::with_config(MacroConfig::from(config.clone()), project_root)
+        .context("failed to initialize macro expander")?;
+    expander.set_project_config(config);
+
+    let registry_path = TYPE_REGISTRY_CACHE_PATH
+        .lock()
+        .map_err(|err| anyhow!("type registry path lock poisoned: {err}"))?
+        .clone();
+    if let Some(registry_path) = registry_path {
+        let json = fs::read_to_string(&registry_path)
+            .with_context(|| format!("failed to read the type registry {registry_path}"))?;
+        let registry = serde_json::from_str(&json)
+            .with_context(|| format!("failed to parse the type registry {registry_path}"))?;
+        expander.set_type_registry(registry);
     }
-    if source.contains("import macro") {
-        return true;
+
+    let declarative_registry_path = DECLARATIVE_REGISTRY_CACHE_PATH
+        .lock()
+        .map_err(|err| anyhow!("declarative registry path lock poisoned: {err}"))?
+        .clone();
+    if let Some(registry_path) = declarative_registry_path {
+        let json = fs::read_to_string(&registry_path)
+            .with_context(|| format!("failed to read the declarative registry {registry_path}"))?;
+        let registry =
+            macroforge_ts::host::declarative::ProjectDeclarativeRegistry::from_json(&json)
+                .with_context(|| {
+                    format!("failed to parse the declarative registry {registry_path}")
+                })?;
+        expander.set_declarative_registry(Some(registry));
     }
-    if !source.contains("@derive") {
-        return false;
-    }
-    let mut in_code_block = false;
-    for line in source.lines() {
-        // Strip JSDoc comment syntax: /**, */, leading *, and whitespace
-        let trimmed = line
-            .trim()
-            .trim_start_matches('/')
-            .trim_start_matches('*')
-            .trim_end_matches('/')
-            .trim_end_matches('*')
-            .trim();
-        if trimmed.starts_with("```") {
-            in_code_block = !in_code_block;
-            continue;
-        }
-        if in_code_block {
-            continue;
-        }
-        // A line must START with @derive( to be a real directive.
-        // This rejects prose like "result from @derive(Deserialize)".
-        if trimmed.starts_with("@derive(") {
-            return true;
-        }
-    }
-    false
+
+    Ok(expander)
 }
 
 /// One file's expansion, together with anything the macros reported as an error.
@@ -388,60 +394,28 @@ pub(crate) struct CacheExpansion {
     pub(crate) errors: Vec<String>,
 }
 
-/// `root` is the project the command runs on. The file's own macroforge config
-/// takes precedence, since external macros resolve from its `node_modules`
-/// whatever the working directory is.
+/// A thread pool for expanding files in parallel. Expansion recurses as deep
+/// as the types it walks, and a deeply nested type overflows rayon's default
+/// 2 MB worker stack as a crash rather than a diagnostic, so the workers get
+/// the 32 MB the single-file paths use.
+pub(crate) fn expansion_pool() -> Result<rayon::ThreadPool> {
+    rayon::ThreadPoolBuilder::new()
+        .stack_size(32 * 1024 * 1024)
+        .build()
+        .context("failed to start the expansion thread pool")
+}
+
+/// Expands one file for the build cache, or `None` when it has no macros.
 pub(crate) fn expand_for_cache(
     root: &Path,
     path: &Path,
     source: &str,
 ) -> Result<Option<CacheExpansion>> {
-    // Quick check: skip files without @derive (ignoring fenced code blocks in docs)
-    if !has_macro_annotations(source) {
+    if !macroforge_ts::has_macro_annotations(source) {
         return Ok(None);
     }
 
-    use macroforge_ts::host::{MacroConfig, MacroforgeConfigLoader};
-
-    let discovered = MacroforgeConfigLoader::find_with_root_from_path(path).with_context(|| {
-        format!(
-            "failed to load the macroforge config for {}",
-            path.display()
-        )
-    })?;
-    let (config, project_root) = match discovered {
-        Some((config, config_root)) => {
-            macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
-            (MacroConfig::from(config), config_root)
-        }
-        None => (MacroConfig::default(), root.to_path_buf()),
-    };
-
-    let mut expander = MacroExpander::with_config(config, project_root)
-        .context("failed to initialize macro expander")?;
-
-    // Load the pre-built type registry so generic types (e.g. RecordLink<T>)
-    // can be resolved inline at each call site.
-    let registry_path = TYPE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
-    if let Some(ref rp) = registry_path
-        && let Ok(json) = fs::read_to_string(rp)
-        && let Ok(registry) = serde_json::from_str::<
-            macroforge_ts::ts_syn::abi::ir::type_registry::TypeRegistry,
-        >(&json)
-    {
-        expander.set_type_registry(registry);
-    }
-
-    // Also load the declarative macro registry so cross-file
-    // `/** import macro { $foo } from "./bar" */` comments resolve.
-    let declarative_registry_path = DECLARATIVE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
-    if let Some(ref dp) = declarative_registry_path
-        && let Ok(json) = fs::read_to_string(dp)
-        && let Ok(registry) =
-            macroforge_ts::host::declarative::ProjectDeclarativeRegistry::from_json(&json)
-    {
-        expander.set_declarative_registry(Some(registry));
-    }
+    let expander = configured_expander(root, path)?;
 
     let expansion = expander
         .expand_source(source, &path.display().to_string())
@@ -484,7 +458,7 @@ pub(crate) fn warm_cache(
     eprintln!("[macroforge {label}] Warming cache for {}", root.display());
 
     // Build the type registry before expanding so macros have cross-module type awareness
-    ensure_type_registry_cache(root);
+    ensure_type_registry_cache(root)?;
 
     let start = std::time::Instant::now();
     let files = collect_watch_files(root);
@@ -529,7 +503,7 @@ pub(crate) fn warm_cache(
     }
 
     // Phase 2: Expand in parallel
-    let pool = rayon::ThreadPoolBuilder::new().build()?;
+    let pool = expansion_pool()?;
 
     let results: Vec<_> = pool.install(|| {
         files_to_expand

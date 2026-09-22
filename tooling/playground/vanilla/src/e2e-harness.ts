@@ -1,8 +1,20 @@
 // Comprehensive e2e test harness.
 //
-// Imports all macro types and exposes their results on `window` so
-// Playwright specs can assert correctness without touching the DOM.
+// Imports all macro types and collects their results, which main.ts
+// publishes as `vanillaPlayground.e2e` so Playwright specs can assert
+// correctness without touching the DOM.
 
+import type {
+    AttrMacroResults,
+    DeclarativeComplexResults,
+    DeclarativeMacroResults,
+    E2eResults,
+    EnumDeriveResults,
+    InspectMacroResults,
+    NestedDeserResults,
+    ProcMacroDeriveResults,
+    TypeAliasDeriveResults
+} from './e2e-results.ts';
 import {
     declarativeMacrosErased,
     emptyVec,
@@ -32,15 +44,33 @@ import {
     sumTriple
 } from './declarative-complex.ts';
 
-import { Color, Priority, Status, user } from './enum-type-examples.ts';
-import type { Point } from './enum-type-examples.ts';
-
-// The derive macros emit `export function statusToString(...)` etc. into the
-// expanded source at runtime. TypeScript can't see them in the .ts file, so
-// we pull the whole module as `unknown`-typed and pluck the generated helpers
-// off with a tightly-scoped cast.
-import * as enumMod from './enum-type-examples.ts';
-const m = enumMod as unknown as Record<string, (...args: unknown[]) => unknown>;
+// The `status*`, `priority*`, `color*`, `point*` and `userProfile*` helpers
+// are emitted by the derives, so they exist only in the expanded module.
+import {
+    Color,
+    colorEquals,
+    colorToString,
+    type Point,
+    pointClone,
+    pointDeserialize,
+    pointEquals,
+    pointHashCode,
+    pointSerialize,
+    pointToString,
+    Priority,
+    priorityEquals,
+    priorityToString,
+    Status,
+    statusClone,
+    statusDeserialize,
+    statusEquals,
+    statusHashCode,
+    statusSerialize,
+    statusToString,
+    user,
+    userProfileEquals,
+    userProfileToString
+} from './enum-type-examples.ts';
 
 import { FormModel } from './form-model.ts';
 
@@ -63,20 +93,20 @@ import {
     tracedGreet
 } from './attr-macro-test.ts';
 
-// ── Declarative macros ──────────────────────────────────────────
-
-export interface DeclarativeMacroResults {
-    erased: boolean;
-    emptyVec: unknown;
-    threeVec: unknown;
-    exprVec: unknown;
-    identityCall: unknown;
-    withTempResult: unknown;
-    crossFileEmpty: unknown;
-    crossFileThree: unknown;
-    crossFileExpr: unknown;
-    crossFileId: unknown;
+/**
+ * Runs one derive helper in isolation, so a helper that throws is reported
+ * and leaves `null` instead of losing the rest of the results.
+ */
+function probe<Value>(label: string, run: () => Value): Value | null {
+    try {
+        return run();
+    } catch (error) {
+        console.error(`${label} failed:`, error);
+        return null;
+    }
 }
+
+// ── Declarative macros ──────────────────────────────────────────
 
 function collectDeclarativeMacros(): DeclarativeMacroResults {
     return {
@@ -94,24 +124,6 @@ function collectDeclarativeMacros(): DeclarativeMacroResults {
 }
 
 // ── Complex declarative macros ─────────────────────────────────
-
-export interface DeclarativeComplexResults {
-    erased: boolean;
-    minOne: unknown;
-    minTwo: unknown;
-    minOfTwo: unknown;
-    minNegative: unknown;
-    orElseNoDefault: unknown;
-    orElseWithDefault: unknown;
-    squaredFive: unknown;
-    pow4Two: unknown;
-    sumTriple: unknown;
-    sumFive: unknown;
-    hygieneCheck: unknown;
-    sqPlus1: unknown;
-    samplePatch: unknown;
-    definitelyHello: unknown;
-}
 
 function collectDeclarativeComplex(): DeclarativeComplexResults {
     return {
@@ -135,163 +147,61 @@ function collectDeclarativeComplex(): DeclarativeComplexResults {
 
 // ── Enum & type alias derives ──────────────────────────────────
 
-export interface EnumDeriveResults {
-    statusDebug: string | null;
-    statusClone: unknown;
-    statusEquals: boolean | null;
-    statusHash: number | null;
-    statusSerialize: unknown;
-    statusDeserialize: unknown;
-    priorityDebug: string | null;
-    priorityEquals: boolean | null;
-    colorDebug: string | null;
-    colorEquals: boolean | null;
-}
-
 function collectEnumDerives(): EnumDeriveResults {
-    const result: EnumDeriveResults = {
-        statusDebug: null,
-        statusClone: null,
-        statusEquals: null,
-        statusHash: null,
-        statusSerialize: null,
-        statusDeserialize: null,
-        priorityDebug: null,
-        priorityEquals: null,
-        colorDebug: null,
-        colorEquals: null
+    return {
+        statusDebug: probe('statusToString', () => statusToString(Status.Active)),
+        statusClone: probe('statusClone', () => statusClone(Status.Pending)),
+        statusEquals: probe('statusEquals', () => statusEquals(Status.Active, Status.Active)),
+        statusHash: probe('statusHashCode', () => statusHashCode(Status.Active)),
+        statusSerialize: probe('statusSerialize', () => statusSerialize(Status.Inactive)),
+        statusDeserialize: probe('statusDeserialize', () => statusDeserialize('pending')),
+        priorityDebug: probe('priorityToString', () => priorityToString(Priority.High)),
+        priorityEquals: probe('priorityEquals', () => priorityEquals(Priority.Low, Priority.Low)),
+        colorDebug: probe('colorToString', () => colorToString(Color.Red)),
+        colorEquals: probe('colorEquals', () => colorEquals(Color.Blue, Color.Blue))
     };
-
-    // Each derive call is isolated so one missing helper doesn't zero
-    // out the rest of the result object.
-    const safe = <T>(fn: () => T): T | null => {
-        try {
-            return fn();
-        } catch {
-            return null;
-        }
-    };
-
-    result.statusDebug = safe(() => m.statusToString(Status.Active) as string);
-    result.statusClone = safe(() => m.statusClone(Status.Pending));
-    result.statusEquals = safe(() => m.statusEquals(Status.Active, Status.Active) as boolean);
-    result.statusHash = safe(() => m.statusHashCode(Status.Active) as number);
-    result.statusSerialize = safe(() => m.statusSerialize(Status.Inactive));
-    result.statusDeserialize = safe(() => m.statusDeserialize('pending'));
-    result.priorityDebug = safe(() => m.priorityToString(Priority.High) as string);
-    result.priorityEquals = safe(() => m.priorityEquals(Priority.Low, Priority.Low) as boolean);
-    result.colorDebug = safe(() => m.colorToString(Color.Red) as string);
-    result.colorEquals = safe(() => m.colorEquals(Color.Blue, Color.Blue) as boolean);
-
-    return result;
 }
 
 // ── Type alias derives ──────────────────────────────────────────
 
-export interface TypeAliasDeriveResults {
-    pointDebug: string | null;
-    pointClone: unknown;
-    pointEquals: boolean | null;
-    pointEqualsNe: boolean | null;
-    pointHash: number | null;
-    pointSerialize: unknown;
-    pointDeserialize: unknown;
-    userProfileDebug: string | null;
-    userProfileEquals: boolean | null;
-}
-
 function collectTypeAliasDerives(): TypeAliasDeriveResults {
-    const result: TypeAliasDeriveResults = {
-        pointDebug: null,
-        pointClone: null,
-        pointEquals: null,
-        pointEqualsNe: null,
-        pointHash: null,
-        pointSerialize: null,
-        pointDeserialize: null,
-        userProfileDebug: null,
-        userProfileEquals: null
+    const origin: Point = { x: 10, y: 20 };
+    const sameAsOrigin: Point = { x: 10, y: 20 };
+    const elsewhere: Point = { x: 99, y: 1 };
+
+    return {
+        pointDebug: probe('pointToString', () => pointToString(origin)),
+        pointClone: probe('pointClone', () => pointClone(origin)),
+        pointEquals: probe('pointEquals', () => pointEquals(origin, sameAsOrigin)),
+        pointEqualsNe: probe('pointEquals', () => pointEquals(origin, elsewhere)),
+        pointHash: probe('pointHashCode', () => pointHashCode(origin)),
+        pointSerialize: probe('pointSerialize', () => pointSerialize(origin)),
+        pointDeserialize: probe('pointDeserialize', () => pointDeserialize({ x: 5, y: 10 })),
+        userProfileDebug: probe('userProfileToString', () => userProfileToString(user)),
+        userProfileEquals: probe('userProfileEquals', () => userProfileEquals(user, user))
     };
-
-    const safe = <T>(fn: () => T): T | null => {
-        try {
-            return fn();
-        } catch {
-            return null;
-        }
-    };
-
-    const p1: Point = { x: 10, y: 20 };
-    const p2: Point = { x: 10, y: 20 };
-    const p3: Point = { x: 99, y: 1 };
-
-    result.pointDebug = safe(() => m.pointToString(p1) as string);
-    result.pointClone = safe(() => m.pointClone(p1));
-    result.pointEquals = safe(() => m.pointEquals(p1, p2) as boolean);
-    result.pointEqualsNe = safe(() => m.pointEquals(p1, p3) as boolean);
-    result.pointHash = safe(() => m.pointHashCode(p1) as number);
-    result.pointSerialize = safe(() => m.pointSerialize(p1));
-    result.pointDeserialize = safe(() => m.pointDeserialize({ x: 5, y: 10 }));
-    result.userProfileDebug = safe(() => m.userProfileToString(user) as string);
-    result.userProfileEquals = safe(() => m.userProfileEquals(user, user) as boolean);
-
-    return result;
 }
 
 // ── Inspect macro ──────────────────────────────────────────────
 
-export interface InspectMacroResults {
-    fieldMetadata: unknown;
-    inspectableFields: unknown;
-    clonedArrays: unknown;
-    populatedCount: number | null;
-}
-
 function collectInspectMacro(): InspectMacroResults {
-    const result: InspectMacroResults = {
-        fieldMetadata: null,
-        inspectableFields: null,
-        clonedArrays: null,
-        populatedCount: null
+    const model = new FormModel(
+        'Test memo',
+        'johndoe',
+        'A test description',
+        ['tag1', 'tag2'],
+        null
+    );
+
+    return {
+        fieldMetadata: probe('fieldMetadata', () => FormModel.fieldMetadata()),
+        inspectableFields: probe('getInspectableFields', () => model.getInspectableFields()),
+        clonedArrays: probe('cloneArrayFields', () => model.cloneArrayFields()),
+        populatedCount: probe('countPopulatedFields', () => model.countPopulatedFields())
     };
-
-    try {
-        const model = new FormModel(
-            'Test memo',
-            'johndoe',
-            'A test description',
-            ['tag1', 'tag2'],
-            null
-        );
-
-        if (typeof FormModel.fieldMetadata === 'function') {
-            result.fieldMetadata = FormModel.fieldMetadata();
-        }
-        if (typeof model.getInspectableFields === 'function') {
-            result.inspectableFields = model.getInspectableFields();
-        }
-        if (typeof model.cloneArrayFields === 'function') {
-            result.clonedArrays = model.cloneArrayFields();
-        }
-        if (typeof model.countPopulatedFields === 'function') {
-            result.populatedCount = model.countPopulatedFields();
-        }
-    } catch (e) {
-        console.error('Inspect macro collection failed:', e);
-    }
-
-    return result;
 }
 
 // ── Nested deserialize ──────────────────────────────────────────
-
-export interface NestedDeserResults {
-    normal: unknown;
-    missingFields: unknown;
-    nullElement: unknown;
-    mixedElements: unknown;
-    recursiveActual: unknown;
-}
 
 function collectNestedDeser(): NestedDeserResults {
     return {
@@ -305,112 +215,57 @@ function collectNestedDeser(): NestedDeserResults {
 
 // ── Proc macro derives (class) ──────────────────────────────────
 
-export interface ProcMacroDeriveResults {
-    debug: string | null;
-    clone: unknown;
-    equals: boolean | null;
-    equalsSelf: boolean | null;
-    hashCode: number | null;
-    serialize: string | null;
-    deserializeSuccess: unknown;
-    deserializeBad: unknown;
-    defaultValue: unknown;
-}
-
 function collectProcMacroDerives(): ProcMacroDeriveResults {
-    const result: ProcMacroDeriveResults = {
-        debug: null,
-        clone: null,
-        equals: null,
-        equalsSelf: null,
-        hashCode: null,
-        serialize: null,
-        deserializeSuccess: null,
-        deserializeBad: null,
-        defaultValue: null
-    };
+    const other = new AllMacrosTestClass({
+        id: 999,
+        name: 'Other',
+        email: 'x@y.com',
+        secretToken: 'x',
+        isActive: false,
+        score: 0
+    });
 
-    try {
-        if (typeof AllMacrosTestClass.toString === 'function') {
-            result.debug = AllMacrosTestClass.toString(testInstance);
-        }
-        if (typeof AllMacrosTestClass.clone === 'function') {
-            result.clone = AllMacrosTestClass.clone(testInstance);
-        }
-        if (typeof AllMacrosTestClass.equals === 'function') {
-            result.equalsSelf = AllMacrosTestClass.equals(testInstance, testInstance);
-            const other = new AllMacrosTestClass({
-                id: 999,
-                name: 'Other',
-                email: 'x@y.com',
-                secretToken: 'x',
-                isActive: false,
-                score: 0
-            });
-            result.equals = AllMacrosTestClass.equals(testInstance, other);
-        }
-        if (typeof AllMacrosTestClass.hashCode === 'function') {
-            result.hashCode = AllMacrosTestClass.hashCode(testInstance);
-        }
-        if (typeof AllMacrosTestClass.serialize === 'function') {
-            result.serialize = AllMacrosTestClass.serialize(testInstance);
-        }
-        if (typeof AllMacrosTestClass.deserialize === 'function') {
-            result.deserializeSuccess = AllMacrosTestClass.deserialize({
+    return {
+        debug: probe('toString', () => AllMacrosTestClass.toString(testInstance)),
+        clone: probe('clone', () => AllMacrosTestClass.clone(testInstance)),
+        equals: probe('equals', () => AllMacrosTestClass.equals(testInstance, other)),
+        equalsSelf: probe('equals', () => AllMacrosTestClass.equals(testInstance, testInstance)),
+        hashCode: probe('hashCode', () => AllMacrosTestClass.hashCode(testInstance)),
+        serialize: probe('serialize', () => AllMacrosTestClass.serialize(testInstance)),
+        deserializeSuccess: probe('deserialize', () =>
+            AllMacrosTestClass.deserialize({
                 id: 1,
                 name: 'OK',
                 email: 'ok@ok.com',
                 secretToken: 'tok',
                 isActive: true,
                 score: 50
-            });
-            result.deserializeBad = AllMacrosTestClass.deserialize(null);
-        }
-    } catch (e) {
-        console.error('Proc macro derive collection failed:', e);
-    }
-
-    return result;
+            })),
+        deserializeBad: probe('deserialize', () => AllMacrosTestClass.deserialize(null))
+    };
 }
 
 // ── Attribute macros (@traced) + call macros ($stringify, $concat_names)
 
-export interface AttrMacroResults {
-    /** Result of `tracedAdd(2, 3)` — the wrapper must preserve semantics. */
-    addResult: number;
-    /** Result of `tracedGreet("world")`. */
-    greetResult: string;
-    /** Call counts captured from `globalThis.__traced` after N invocations. */
-    tracedAddCount: number;
-    tracedGreetCount: number;
-    /** Output of `$stringify(1 + 2 * 3)` — literal text from the source. */
-    stringifiedExpr: unknown;
-    /** Output of `$stringify(myVariable)`. */
-    stringifiedIdent: unknown;
-    /** Output of `$concat_names(user, name)`. */
-    concatUserName: unknown;
-    /** Output of `$concat_names(db, host)`. */
-    concatDbHost: unknown;
+declare global {
+    /** Per-function call counts the `@traced` wrapper records. */
+    var __traced: Record<string, number> | undefined;
 }
 
 function collectAttrMacros(): AttrMacroResults {
-    type TracedWindow = { __traced: Record<string, number> };
-    const g = globalThis as unknown as TracedWindow;
     // Reset any prior counters so we're measuring this run's invocations.
-    g.__traced = {};
+    globalThis.__traced = {};
 
     const addResult = tracedAdd(2, 3);
     tracedAdd(10, 20);
     tracedAdd(100, 200);
     const greetResult = tracedGreet('world');
 
-    const traced = g.__traced ?? {};
-
     return {
         addResult,
         greetResult,
-        tracedAddCount: traced.tracedAdd ?? 0,
-        tracedGreetCount: traced.tracedGreet ?? 0,
+        tracedAddCount: globalThis.__traced?.tracedAdd ?? 0,
+        tracedGreetCount: globalThis.__traced?.tracedGreet ?? 0,
         stringifiedExpr,
         stringifiedIdent,
         concatUserName,
@@ -419,17 +274,6 @@ function collectAttrMacros(): AttrMacroResults {
 }
 
 // ── Public interface ────────────────────────────────────────────
-
-export interface E2eResults {
-    declarative: DeclarativeMacroResults;
-    declarativeComplex: DeclarativeComplexResults;
-    enums: EnumDeriveResults;
-    typeAliases: TypeAliasDeriveResults;
-    inspect: InspectMacroResults;
-    nestedDeser: NestedDeserResults;
-    procDerives: ProcMacroDeriveResults;
-    attrMacros: AttrMacroResults;
-}
 
 export function runE2eHarness(): E2eResults {
     return {

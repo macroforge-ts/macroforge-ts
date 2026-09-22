@@ -20,7 +20,7 @@ use crate::host::patch_applicator::PatchApplicator;
 use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch};
 
 /// Output of the buildtime pre-pass.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct PrepassOutput {
     /// Rewritten source, or `None` if no `@buildtime` declarations were
     /// found (or all of them produced errors that meant no patch was

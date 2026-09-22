@@ -1,6 +1,7 @@
 {
     "fmt": {
         "exclude": [
+            "npm",
             "**/dist",
             "**/build",
             "**/node_modules",
@@ -29,6 +30,7 @@
             "**/*.jsx"
         ],
         "exclude": [
+            "npm",
             "**/dist",
             "**/build",
             "**/node_modules",
@@ -59,15 +61,11 @@
                 "no-window",
                 "ban-ts-comment",
                 "no-namespace",
-                "ban-types",
-                "no-sloppy-imports"
+                "ban-types"
             ]
         }
     },
     "nodeModulesDir": "auto",
-    "unstable": [
-        "sloppy-imports"
-    ],
     "workspace": [
         "./crates/macroforge_ts",
         "./packages/shared",
@@ -78,5 +76,9 @@
         "./packages/svelte-preprocessor",
         "./packages/deno-plugin",
         "./website"
-    ]
+    ],
+    "allowScripts": {
+        "allow": ["npm:esbuild@0.28.1", "npm:fsevents@2.3.3", "npm:workerd@1.20260918.1"],
+        "deny": []
+    }
 }

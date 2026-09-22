@@ -9,8 +9,8 @@
  *
  * Two read paths are covered, both routed through `globalThis.__macroforgeExpand`:
  *   - JS emit: svelte-package reads source via `import * as fs from 'node:fs'`.
- *     A module resolve hook (svelte-package-fs-hook.mjs) redirects `node:fs`
- *     to a shim whose `readFileSync` calls us.
+ *     A resolve hook registered with `registerHooks` redirects `node:fs` to a
+ *     shim whose `readFileSync` calls us.
  *   - .d.ts emit: svelte2tsx reads `.ts` sources through `ts.sys.readFile`,
  *     which we monkeypatch directly (a writable property on the ts.sys object).
  *
@@ -30,7 +30,7 @@
  * `svelte.config.js`, so only Node can answer them, and the CLI needs both
  * before it can decide whether a build is necessary at all.
  */
-import { register, createRequire } from 'node:module';
+import { createRequire, registerHooks } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
@@ -174,8 +174,18 @@ ts.sys.readFile = (filePath, encoding) => {
     return globalThis.__macroforgeExpand(filePath, content);
 };
 
-// JS side: redirect node:fs to the shim before svelte-package loads.
-register('./svelte-package-fs-hook.mjs', import.meta.url);
+// JS side: redirect node:fs to the shim before svelte-package loads. Its
+// `import * as fs from 'node:fs'` namespace cannot be patched in place; the
+// shim's own `node:fs` import passes through to the real module.
+const fsShim = new URL('./svelte-package-fs-shim.mjs', import.meta.url).href;
+registerHooks({
+    resolve(specifier, context, nextResolve) {
+        if ((specifier === 'node:fs' || specifier === 'fs') && context.parentURL !== fsShim) {
+            return { url: fsShim, shortCircuit: true };
+        }
+        return nextResolve(specifier, context);
+    }
+});
 
 // Hand off to svelte-package's own CLI (reuses its arg parsing / build pipeline).
 process.argv = [process.argv[0], 'svelte-package', ...argv];

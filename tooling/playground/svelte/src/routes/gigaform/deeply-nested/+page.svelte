@@ -1,5 +1,9 @@
 <script lang="ts">
-import { DateTime, Exit, Option } from 'effect';
+import { pickOption } from '$lib/select-option.util';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
+import { DateTime, Option } from 'effect';
 import {
     orderCreateForm,
     siteDefaultValue,
@@ -45,27 +49,19 @@ const orderForm = orderCreateForm({
 });
 
 // Track validation results
-let orderResult: {
-    success: boolean;
-    data?: Order;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let orderResult: OutcomeOf<typeof orderForm> | null = $state(null);
 
-// Expose to Playwright
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        order: orderForm
-    };
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    order: orderForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
 }
 
 function submitOrder() {
-    orderResult = Exit.match(orderForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.orderValidation = orderResult;
-    }
+    orderResult = validationOutcome(orderForm.validate());
+    gigaform.orderValidation = orderResult;
 }
 
 function resetOrder() {
@@ -91,47 +87,32 @@ function resetOrder() {
     orderResult = null;
 }
 
-// Helper to get site as object (handling string | Site union)
-function getSiteAsObject(): Site | null {
+// The site while it is an embedded object, `null` while it is a reference.
+const embeddedSite = $derived.by(() => {
     const site = orderForm.fields.site.get();
-    if (typeof site === 'string') return null;
-    return site;
+    return typeof site === 'string' ? null : site;
+});
+
+/**
+ * Applies a change to the order's site. The site's fields only render while
+ * it is an object rather than a reference string, so a reference is a bug.
+ */
+function updateSite(change: (site: Site) => Site) {
+    const site = orderForm.fields.site.get();
+    if (typeof site === 'string') {
+        throw new Error(`the site is the reference "${site}", not an object`);
+    }
+    orderForm.fields.site.set(change(site));
 }
 
 // Deep update: Order -> site -> coordinates -> lat
 function updateCoordinatesLat(lat: number) {
-    const currentSite = getSiteAsObject();
-    if (!currentSite) return;
-    orderForm.fields.site.set({
-        ...currentSite,
-        coordinates: {
-            ...currentSite.coordinates,
-            lat
-        }
-    });
+    updateSite((site) => ({ ...site, coordinates: { ...site.coordinates, lat } }));
 }
 
 // Deep update: Order -> site -> coordinates -> lng
 function updateCoordinatesLng(lng: number) {
-    const currentSite = getSiteAsObject();
-    if (!currentSite) return;
-    orderForm.fields.site.set({
-        ...currentSite,
-        coordinates: {
-            ...currentSite.coordinates,
-            lng
-        }
-    });
-}
-
-// Deep update: Order -> site -> addressLine1
-function updateSiteAddress(addressLine1: string) {
-    const currentSite = getSiteAsObject();
-    if (!currentSite) return;
-    orderForm.fields.site.set({
-        ...currentSite,
-        addressLine1
-    });
+    updateSite((site) => ({ ...site, coordinates: { ...site.coordinates, lng } }));
 }
 
 const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
@@ -187,7 +168,7 @@ const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
           id="order-stage"
           data-testid="order-stage"
           value={orderForm.fields.stage.get()}
-          onchange={(e) => orderForm.fields.stage.set(e.currentTarget.value as OrderStage)}
+          onchange={(e) => orderForm.fields.stage.set(pickOption(stageOptions, e.currentTarget.value))}
         >
           {#each stageOptions as stage}
             <option value={stage}>{stage}</option>
@@ -205,8 +186,7 @@ const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
         Site type: {typeof orderForm.fields.site.get() === "string" ? "String Reference" : "Embedded Object"}
       </div>
 
-      {#if getSiteAsObject()}
-        {@const site = getSiteAsObject()!}
+      {#if embeddedSite}
         <div class="nested-form">
           <div class="form-row">
             <div class="form-group">
@@ -215,8 +195,8 @@ const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
                 type="text"
                 id="site-addressLine1"
                 data-testid="site-addressLine1"
-                value={site.addressLine1}
-                oninput={(e) => updateSiteAddress(e.currentTarget.value)}
+                value={embeddedSite.addressLine1}
+                oninput={(e) => updateSite((site) => ({ ...site, addressLine1: e.currentTarget.value }))}
               />
             </div>
             <div class="form-group">
@@ -225,11 +205,8 @@ const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
                 type="text"
                 id="site-locality"
                 data-testid="site-locality"
-                value={site.locality}
-                oninput={(e) => {
-                  const currentSite = getSiteAsObject()!;
-                  orderForm.fields.site.set({ ...currentSite, locality: e.currentTarget.value });
-                }}
+                value={embeddedSite.locality}
+                oninput={(e) => updateSite((site) => ({ ...site, locality: e.currentTarget.value }))}
               />
             </div>
           </div>
@@ -241,11 +218,8 @@ const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
                 type="text"
                 id="site-state"
                 data-testid="site-administrativeAreaLevel1"
-                value={site.administrativeAreaLevel1}
-                oninput={(e) => {
-                  const currentSite = getSiteAsObject()!;
-                  orderForm.fields.site.set({ ...currentSite, administrativeAreaLevel1: e.currentTarget.value });
-                }}
+                value={embeddedSite.administrativeAreaLevel1}
+                oninput={(e) => updateSite((site) => ({ ...site, administrativeAreaLevel1: e.currentTarget.value }))}
               />
             </div>
             <div class="form-group">
@@ -254,11 +228,8 @@ const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
                 type="text"
                 id="site-postalCode"
                 data-testid="site-postalCode"
-                value={site.postalCode}
-                oninput={(e) => {
-                  const currentSite = getSiteAsObject()!;
-                  orderForm.fields.site.set({ ...currentSite, postalCode: e.currentTarget.value });
-                }}
+                value={embeddedSite.postalCode}
+                oninput={(e) => updateSite((site) => ({ ...site, postalCode: e.currentTarget.value }))}
               />
             </div>
           </div>
@@ -279,7 +250,7 @@ const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
                   id="coordinates-lat"
                   data-testid="coordinates-lat"
                   step="0.0001"
-                  value={site.coordinates.lat}
+                  value={embeddedSite.coordinates.lat}
                   oninput={(e) => updateCoordinatesLat(Number(e.currentTarget.value))}
                 />
               </div>
@@ -290,14 +261,14 @@ const stageOptions: Array<OrderStage> = ['Estimate', 'Active', 'Invoice'];
                   id="coordinates-lng"
                   data-testid="coordinates-lng"
                   step="0.0001"
-                  value={site.coordinates.lng}
+                  value={embeddedSite.coordinates.lng}
                   oninput={(e) => updateCoordinatesLng(Number(e.currentTarget.value))}
                 />
               </div>
             </div>
 
             <div class="coordinates-display" data-testid="coordinates-display">
-              Current: ({site.coordinates.lat.toFixed(4)}, {site.coordinates.lng.toFixed(4)})
+              Current: ({embeddedSite.coordinates.lat.toFixed(4)}, {embeddedSite.coordinates.lng.toFixed(4)})
             </div>
           </fieldset>
         </div>

@@ -1,7 +1,7 @@
-import { Stylesheet } from 'vscode-css-languageservice';
+import type { Stylesheet } from 'vscode-css-languageservice';
 import { Position } from 'vscode-languageserver';
-import { CSSLanguageServices, getLanguageService } from './service';
-import { Document, DocumentMapper, ReadableDocument } from '../../lib/documents';
+import { type CSSLanguageServices, getLanguageService } from './service.ts';
+import { Document, type DocumentMapper, ReadableDocument } from '../../lib/documents/index.ts';
 
 const PREFIX = '__ {';
 const SUFFIX = '}';

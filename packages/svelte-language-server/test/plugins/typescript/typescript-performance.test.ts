@@ -2,15 +2,15 @@ import * as path from 'path';
 import { performance } from 'perf_hooks';
 import ts from 'typescript';
 import { Position, Range } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../src/lib/documents';
-import { LSConfigManager } from '../../../src/ls-config';
-import { LSAndTSDocResolver, TypeScriptPlugin } from '../../../src/plugins';
-import { pathToUrl } from '../../../src/utils';
+import { Document, DocumentManager } from '../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../src/ls-config.ts';
+import { LSAndTSDocResolver, TypeScriptPlugin } from '../../../src/plugins/index.ts';
+import { pathToUrl } from '../../../src/utils.ts';
 
 describe('TypeScript Plugin Performance Tests', () => {
     function setup(filename: string) {
         const docManager = new DocumentManager(() => document);
-        const testDir = path.join(__dirname, 'testfiles');
+        const testDir = path.join(import.meta.dirname, 'testfiles');
         const filePath = path.join(testDir, filename);
         const uri = pathToUrl(filePath);
         const document = new Document(uri, ts.sys.readFile(filePath) || '');

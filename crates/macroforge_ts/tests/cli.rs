@@ -631,10 +631,12 @@ fn cache_with_explicit_root_keeps_state_in_that_project() {
     )
     .unwrap();
 
+    // The debug log is only written while tracing is on.
     let output = macroforge_bin()
         .arg("cache")
         .arg(&root)
         .current_dir(&elsewhere)
+        .env("MF_LOG", "trace")
         .output()
         .expect("failed to run macroforge");
 

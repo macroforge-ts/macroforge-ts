@@ -1,5 +1,9 @@
 <script lang="ts">
-import { DateTime, Exit, Option } from 'effect';
+import { pickOption } from '$lib/select-option.util';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
+import { DateTime, Option } from 'effect';
 import {
     employeeCreateForm,
     orderCreateForm,
@@ -74,45 +78,29 @@ const orderForm = orderCreateForm({
         coordinates: { lat: 41.8781, lng: -87.6298 }
     }
 });
+const orderSite = $derived(orderForm.fields.site.get());
 
 // Validation results
-let employeeResult: {
-    success: boolean;
-    data?: Employee;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
-let orderResult: {
-    success: boolean;
-    data?: Order;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let employeeResult: OutcomeOf<typeof employeeForm> | null = $state(null);
+let orderResult: OutcomeOf<typeof orderForm> | null = $state(null);
 
-// Expose to Playwright
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        employee: employeeForm,
-        order: orderForm
-    };
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    employee: employeeForm,
+    order: orderForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
 }
 
 function submitEmployee() {
-    employeeResult = Exit.match(employeeForm.validate(), {
-        onSuccess: (data: Employee) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.employeeValidation = employeeResult;
-    }
+    employeeResult = validationOutcome(employeeForm.validate());
+    gigaform.employeeValidation = employeeResult;
 }
 
 function submitOrder() {
-    orderResult = Exit.match(orderForm.validate(), {
-        onSuccess: (data: Order) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.orderValidation = orderResult;
-    }
+    orderResult = validationOutcome(orderForm.validate());
+    gigaform.orderValidation = orderResult;
 }
 
 function resetEmployee() {
@@ -204,7 +192,7 @@ const jobTitleOptions: Array<JobTitle> = [
             id="emp-title"
             data-testid="emp-title"
             value={employeeForm.fields.title.get()}
-            onchange={(e) => employeeForm.fields.title.set(e.currentTarget.value as JobTitle)}
+            onchange={(e) => employeeForm.fields.title.set(pickOption(jobTitleOptions, e.currentTarget.value))}
           >
             {#each jobTitleOptions as title}
               <option value={title}>{title}</option>
@@ -461,13 +449,12 @@ const jobTitleOptions: Array<JobTitle> = [
     <fieldset>
       <legend>Site (Deeply Nested)</legend>
       <div class="nested-summary" data-testid="order-site-summary">
-        {#if typeof orderForm.fields.site.get() === "string"}
-          Reference: {orderForm.fields.site.get()}
+        {#if typeof orderSite === "string"}
+          Reference: {orderSite}
         {:else}
-          {@const site = orderForm.fields.site.get() as any}
-          {site.addressLine1}, {site.locality}, {site.administrativeAreaLevel1}
+          {orderSite.addressLine1}, {orderSite.locality}, {orderSite.administrativeAreaLevel1}
           <br />
-          Coordinates: ({site.coordinates.lat.toFixed(4)}, {site.coordinates.lng.toFixed(4)})
+          Coordinates: ({orderSite.coordinates.lat.toFixed(4)}, {orderSite.coordinates.lng.toFixed(4)})
         {/if}
       </div>
     </fieldset>

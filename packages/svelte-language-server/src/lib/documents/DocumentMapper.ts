@@ -14,8 +14,8 @@ import {
     TextDocumentEdit,
     TextEdit
 } from 'vscode-languageserver';
-import { getLineOffsets, offsetAt, positionAt, TagInformation } from './utils';
-import { Logger } from '../../logger';
+import { getLineOffsets, offsetAt, positionAt, type TagInformation } from './utils.ts';
+import { Logger } from '../../logger.ts';
 import { generatedPositionFor, originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
 
 export interface FilePosition extends Position {

@@ -14,18 +14,18 @@ import {
     TextEdit,
     WorkspaceEdit
 } from 'vscode-languageserver';
-import { Document } from '../../../../src/lib/documents';
-import { getCodeActions } from '../../../../src/plugins/svelte/features/getCodeActions';
+import { Document } from '../../../../src/lib/documents/index.ts';
+import { getCodeActions } from '../../../../src/plugins/svelte/features/getCodeActions/index.ts';
 import {
     executeRefactoringCommand,
-    ExtractComponentArgs,
+    type ExtractComponentArgs,
     extractComponentCommand
-} from '../../../../src/plugins/svelte/features/getCodeActions/getRefactorings';
-import { SvelteDocument } from '../../../../src/plugins/svelte/SvelteDocument';
-import { pathToUrl } from '../../../../src/utils';
+} from '../../../../src/plugins/svelte/features/getCodeActions/getRefactorings.ts';
+import { SvelteDocument } from '../../../../src/plugins/svelte/SvelteDocument.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
 
 describe('SveltePlugin#getCodeAction', () => {
-    const testDir = path.join(__dirname, '..', 'testfiles');
+    const testDir = path.join(import.meta.dirname, '..', 'testfiles');
 
     function getFullPath(filename: string) {
         return path.join(testDir, filename);

@@ -1,10 +1,11 @@
 // Reactivity tests for the runes proc macros.
 //
 // Verifies that the reactive runtime works correctly with the
-// macro-expanded code. Results are exposed on window.runesTestResults
+// macro-expanded code. Results are published as `vanillaPlayground.runes`
 // for Playwright assertions.
 
 /** import macro { $state, $derived, $effect } from "@playground/macro" */
+import type { RunesTestResults } from './playground-globals.ts';
 import { batch, createDerived, createEffect, createSignal } from './runes-runtime.ts';
 
 // The macros expand `$state/$derived/$effect` into `createSignal/
@@ -12,12 +13,6 @@ import { batch, createDerived, createEffect, createSignal } from './runes-runtim
 // that indirection, so re-export the runtime helpers to keep the
 // imports live.
 export { createDerived, createEffect, createSignal };
-
-export interface RunesTestResults {
-    passed: number;
-    failed: number;
-    details: string[];
-}
 
 export function runRunesTests(): RunesTestResults {
     const details: string[] = [];

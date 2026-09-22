@@ -1,32 +1,32 @@
 import { dirname, join } from 'path';
 import ts from 'typescript';
 import {
-    PublishDiagnosticsParams,
+    type PublishDiagnosticsParams,
     RelativePattern,
     TextDocumentContentChangeEvent
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../lib/documents';
-import { LSConfigManager } from '../../ls-config';
+import { Document, DocumentManager } from '../../lib/documents/index.ts';
+import { LSConfigManager } from '../../ls-config.ts';
 import {
     createGetCanonicalFileName,
     debounceSameArg,
-    GetCanonicalFileName,
+    type GetCanonicalFileName,
     normalizePath,
     pathToUrl,
     urlToPath
-} from '../../utils';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from './DocumentSnapshot';
+} from '../../utils.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from './DocumentSnapshot.ts';
 import {
     forAllServices,
     getService,
     getServiceForTsconfig,
-    LanguageServiceContainer,
-    LanguageServiceDocumentContext
-} from './service';
-import { createProjectService } from './serviceCache';
-import { GlobalSnapshotsManager, SnapshotManager } from './SnapshotManager';
-import { isSubPath } from './utils';
-import { FileMap, FileSet } from '../../lib/documents/fileCollection';
+    type LanguageServiceContainer,
+    type LanguageServiceDocumentContext
+} from './service.ts';
+import { createProjectService } from './serviceCache.ts';
+import { GlobalSnapshotsManager, SnapshotManager } from './SnapshotManager.ts';
+import { isSubPath } from './utils.ts';
+import { FileMap, FileSet } from '../../lib/documents/fileCollection.ts';
 
 interface LSAndTSDocResolverOptions {
     notifyExceedSizeLimit?: () => void;

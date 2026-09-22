@@ -2,20 +2,20 @@ import { internalHelpers } from 'svelte2tsx';
 import ts from 'typescript';
 import { CancellationToken } from 'vscode-languageserver-protocol';
 import { SymbolKind, SymbolTag, WorkspaceSymbol } from 'vscode-languageserver-types';
-import { mapLocationToOriginal } from '../../../lib/documents';
-import { LSConfigManager } from '../../../ls-config';
-import { isNotNullOrUndefined } from '../../../utils';
-import { WorkspaceSymbolsProvider } from '../../interfaces';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { forAllServices, LanguageServiceContainer } from '../service';
+import { mapLocationToOriginal } from '../../../lib/documents/index.ts';
+import { LSConfigManager } from '../../../ls-config.ts';
+import { isNotNullOrUndefined } from '../../../utils.ts';
+import type { WorkspaceSymbolsProvider } from '../../interfaces.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { forAllServices, type LanguageServiceContainer } from '../service.ts';
 import {
     convertRange,
     isGeneratedSvelteComponentName,
     isInScript,
     isSvelteFilePath
-} from '../utils';
-import { isInGeneratedCode, SnapshotMap } from './utils';
+} from '../utils.ts';
+import { isInGeneratedCode, SnapshotMap } from './utils.ts';
 
 export class WorkspaceSymbolsProviderImpl implements WorkspaceSymbolsProvider {
     constructor(

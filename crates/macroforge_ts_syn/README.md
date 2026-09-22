@@ -17,20 +17,35 @@ infrastructure crate for the Macroforge TypeScript macro system.
 
 The crate is organized into several modules:
 
-- [`abi`] - Application Binary Interface types for stable macro communication
-- [`config`] - Serializable configuration types shared between host and macro processes
-- [`context_registry`] - Thread-local storage for the active [`MacroContextIR`]
-- [`declarative`] - Grammar and parser for declarative (pattern-matching) macros
-- [`derive`] - Derive input types that mirror Rust's `syn::DeriveInput`
-- [`errors`] - Error types and diagnostics for macro expansion
-- [`import_registry`] - Unified import registry built during IR lowering
-- [`jsdoc`] - JSDoc directive parsing shared by both lowering backends
-- [`lower`] - AST lowering from SWC types to IR representations (`swc` feature)
-- [`lower_oxc`] - AST lowering from OXC types to IR representations (`oxc` feature)
-- [`parse`] - TypeScript parsing utilities wrapping SWC (`swc` feature)
-- [`quote_helpers`] - Macros for ergonomic code generation
-- [`stream`] - Parsing stream abstraction similar to `syn::parse::ParseBuffer`
-- [`type_normalize`] - Helpers for splitting TS type-string snippets into structural pieces
+- [`abi`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=abi) - Application
+  Binary Interface types for stable macro communication
+- [`config`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=config) -
+  Serializable configuration types shared between host and macro processes
+- [`context_registry`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=context_registry) -
+  Thread-local storage for the active
+  [`MacroContextIR`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=MacroContextIR)
+- [`declarative`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=declarative) -
+  Grammar and parser for declarative (pattern-matching) macros
+- [`derive`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=derive) - Derive
+  input types that mirror Rust's `syn::DeriveInput`
+- [`errors`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=errors) - Error
+  types and diagnostics for macro expansion
+- [`import_registry`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=import_registry) -
+  Unified import registry built during IR lowering
+- [`jsdoc`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=jsdoc) - JSDoc
+  directive parsing shared by both lowering backends
+- [`lower`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=lower) - AST lowering
+  from SWC types to IR representations (`swc` feature)
+- [`lower_oxc`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=lower_oxc) - AST
+  lowering from OXC types to IR representations (`oxc` feature)
+- [`parse`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=parse) - TypeScript
+  parsing utilities wrapping SWC (`swc` feature)
+- [`quote_helpers`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=quote_helpers) -
+  Macros for ergonomic code generation
+- [`stream`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=stream) - Parsing
+  stream abstraction similar to `syn::parse::ParseBuffer`
+- [`type_normalize`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=type_normalize) -
+  Helpers for splitting TS type-string snippets into structural pieces
 
 ## Architecture
 
@@ -95,14 +110,22 @@ pub fn my_derive_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 
 This crate provides several helper macros for working with SWC AST nodes:
 
-- [`ts_ident!`] - Create an identifier with optional formatting
-- [`ts_private_ident!`] - Create a private (marked) identifier
-- [`stmt_block!`] - Create a block statement from statements
-- [`fn_expr!`] - Create an anonymous function expression
-- [`member_expr!`] - Create a member access expression (obj.prop)
-- [`assign_stmt!`] - Create an assignment statement
-- [`fn_assign!`] - Create a function assignment (obj.prop = function() {...})
-- [`proto_method!`] - Create a prototype method assignment
+- [`ts_ident!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=ts_ident) -
+  Create an identifier with optional formatting
+- [`ts_private_ident!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=ts_private_ident) -
+  Create a private (marked) identifier
+- [`stmt_block!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=stmt_block) -
+  Create a block statement from statements
+- [`fn_expr!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=fn_expr) - Create
+  an anonymous function expression
+- [`member_expr!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=member_expr) -
+  Create a member access expression (obj.prop)
+- [`assign_stmt!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=assign_stmt) -
+  Create an assignment statement
+- [`fn_assign!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=fn_assign) -
+  Create a function assignment (obj.prop = function() {...})
+- [`proto_method!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=proto_method) -
+  Create a prototype method assignment
 
 ## Feature Flags
 
@@ -114,18 +137,18 @@ This crate provides several helper macros for working with SWC AST nodes:
 For convenience, the crate re-exports commonly used SWC types when the `swc` feature is enabled (it
 is not part of the default feature set):
 
-- [`swc_core`] - The full SWC core crate
-- [`swc_common`] - Common SWC types (Span, SourceMap, etc.)
-- [`swc_ecma_ast`] - ECMAScript/TypeScript AST types
+- [`swc_core`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=swc_core) - The
+  full SWC core crate
+- [`swc_common`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=swc_common) -
+  Common SWC types (Span, SourceMap, etc.)
+- [`swc_ecma_ast`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=swc_ecma_ast) -
+  ECMAScript/TypeScript AST types
 - `quote!` - SWC's quote macro for AST generation
 
 ## Installation
 
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-macroforge_ts_syn = "0.1.82"
+```bash
+cargo add macroforge_ts_syn
 ```
 
 ## Key Exports
@@ -133,18 +156,33 @@ macroforge_ts_syn = "0.1.82"
 ### Structs
 
 - **`StmtVec`** - A wrapper type for passing a `Vec<Stmt>` to be used inline in function bodies.
-- **`TsExpr`** - Wrapper for [`swc_core::ecma::ast::Expr`] that implements [`Display`] and
-  [`ToTsString`].
-- **`TsIdent`** - Wrapper for [`swc_core::ecma::ast::Ident`] that implements [`Display`].
-- **`TsTypeWrapper`** - Wrapper for [`swc_core::ecma::ast::TsType`] that implements [`Display`].
-- **`TsStmt`** - Wrapper for [`swc_core::ecma::ast::Stmt`] that implements [`Display`].
+- **`TsExpr`** - Wrapper for
+  [`swc_core::ecma::ast::Expr`](https://docs.rs/swc_core/latest/swc_core/?search=Expr) that
+  implements [`Display`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=Display)
+  and [`ToTsString`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=ToTsString).
+- **`TsIdent`** - Wrapper for
+  [`swc_core::ecma::ast::Ident`](https://docs.rs/swc_core/latest/swc_core/?search=Ident) that
+  implements
+  [`Display`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=Display).
+- **`TsTypeWrapper`** - Wrapper for
+  [`swc_core::ecma::ast::TsType`](https://docs.rs/swc_core/latest/swc_core/?search=TsType) that
+  implements
+  [`Display`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=Display).
+- **`TsStmt`** - Wrapper for
+  [`swc_core::ecma::ast::Stmt`](https://docs.rs/swc_core/latest/swc_core/?search=Stmt) that
+  implements
+  [`Display`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=Display).
 
 ### Functions
 
-- **`to_ts_expr`** - Convert a value into a TypeScript [`Expr`](swc_core::ecma::ast::Expr).
-- **`to_ts_type`** - Convert a value into a TypeScript [`TsType`](swc_core::ecma::ast::TsType).
-- **`to_ts_ident`** - Convert a value into a TypeScript [`Ident`](swc_core::ecma::ast::Ident).
-- **`to_ts_stmt`** - Convert a value into a TypeScript [`Stmt`](swc_core::ecma::ast::Stmt).
+- **`to_ts_expr`** - Convert a value into a TypeScript
+  [`Expr`](https://docs.rs/swc_core/latest/swc_core/?search=Expr).
+- **`to_ts_type`** - Convert a value into a TypeScript
+  [`TsType`](https://docs.rs/swc_core/latest/swc_core/?search=TsType).
+- **`to_ts_ident`** - Convert a value into a TypeScript
+  [`Ident`](https://docs.rs/swc_core/latest/swc_core/?search=Ident).
+- **`to_ts_stmt`** - Convert a value into a TypeScript
+  [`Stmt`](https://docs.rs/swc_core/latest/swc_core/?search=Stmt).
 - **`expr_to_string`** - Converts an expression to its TypeScript string representation.
 - **`type_to_string`** - Converts a type to its TypeScript string representation.
 - **`ident_to_string`** - Converts an identifier to its TypeScript string representation.
@@ -155,19 +193,20 @@ macroforge_ts_syn = "0.1.82"
 
 ### Traits
 
-- **`ToTsExpr`** - Converts common Rust values into SWC [`Expr`](swc_core::ecma::ast::Expr) nodes.
-- **`ToTsType`** - Converts common Rust values into SWC [`TsType`](swc_core::ecma::ast::TsType)
-  nodes.
-- **`ToTsIdent`** - Converts common Rust values into SWC [`Ident`](swc_core::ecma::ast::Ident)
-  nodes.
-- **`ToTsStmt`** - Converts common Rust values into SWC [`Stmt`](swc_core::ecma::ast::Stmt) nodes.
+- **`ToTsExpr`** - Converts common Rust values into SWC
+  [`Expr`](https://docs.rs/swc_core/latest/swc_core/?search=Expr) nodes.
+- **`ToTsType`** - Converts common Rust values into SWC
+  [`TsType`](https://docs.rs/swc_core/latest/swc_core/?search=TsType) nodes.
+- **`ToTsIdent`** - Converts common Rust values into SWC
+  [`Ident`](https://docs.rs/swc_core/latest/swc_core/?search=Ident) nodes.
+- **`ToTsStmt`** - Converts common Rust values into SWC
+  [`Stmt`](https://docs.rs/swc_core/latest/swc_core/?search=Stmt) nodes.
 - **`ToTsTypeName`** - Trait for converting values to type name strings.
 - **`ToTsString`** - Trait for converting values to TypeScript string representations.
 
 ## API Reference
 
-See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_syn)
-on the Macroforge website.
+See the [full API documentation](https://docs.rs/macroforge_ts_syn) on docs.rs.
 
 ## License
 

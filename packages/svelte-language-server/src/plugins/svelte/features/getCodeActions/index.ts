@@ -5,9 +5,9 @@ import {
     Range,
     WorkspaceEdit
 } from 'vscode-languageserver';
-import { SvelteDocument } from '../../SvelteDocument';
-import { getQuickfixActions, isIgnorableSvelteDiagnostic } from './getQuickfixes';
-import { executeRefactoringCommand } from './getRefactorings';
+import { SvelteDocument } from '../../SvelteDocument.ts';
+import { getQuickfixActions, isIgnorableSvelteDiagnostic } from './getQuickfixes.ts';
+import { executeRefactoringCommand } from './getRefactorings.ts';
 
 export async function getCodeActions(
     svelteDoc: SvelteDocument,

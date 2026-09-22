@@ -30,8 +30,7 @@
                 "require-await",
                 "no-process-global",
                 "no-node-globals",
-                "no-irregular-whitespace",
-                "no-sloppy-imports"
+                "no-irregular-whitespace"
             ],
             "include": [
                 "eqeqeq"
@@ -42,5 +41,5 @@
         }
     },
     "name": "@macroforge/shared",
-    "version": "0.2.0"
+    "version": "0.3.0"
 }

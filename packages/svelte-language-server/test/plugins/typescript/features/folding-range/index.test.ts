@@ -2,16 +2,16 @@ import * as assert from 'assert';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import ts from 'typescript';
-import { Document, DocumentManager } from '../../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../../src/ls-config';
-import { LSAndTSDocResolver } from '../../../../../src/plugins';
-import { FoldingRangeProviderImpl } from '../../../../../src/plugins/typescript/features/FoldingRangeProvider';
-import { pathToUrl } from '../../../../../src/utils';
+import { Document, DocumentManager } from '../../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../../src/ls-config.ts';
+import { LSAndTSDocResolver } from '../../../../../src/plugins/index.ts';
+import { FoldingRangeProviderImpl } from '../../../../../src/plugins/typescript/features/FoldingRangeProvider.ts';
+import { pathToUrl } from '../../../../../src/utils.ts';
 import {
     createJsonSnapshotFormatter,
     createSnapshotTester,
     updateSnapshotIfFailedOrEmpty
-} from '../../test-utils';
+} from '../../test-utils.ts';
 
 function setup(workspaceDir: string, filePath: string) {
     const docManager = new DocumentManager(
@@ -71,7 +71,7 @@ async function executeTest(
         getFileContent() {
             return snapshotFormatter(folding);
         },
-        rootDir: __dirname
+        rootDir: import.meta.dirname
     });
 
     function appendFoldingAsComment() {
@@ -128,8 +128,8 @@ const executeTests = createSnapshotTester(executeTest);
 
 describe('FoldingRangeProvider', function () {
     executeTests({
-        dir: join(__dirname, 'fixtures'),
-        workspaceDir: join(__dirname, 'fixtures'),
+        dir: join(import.meta.dirname, 'fixtures'),
+        workspaceDir: join(import.meta.dirname, 'fixtures'),
         context: this
     });
 });

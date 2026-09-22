@@ -8,13 +8,18 @@
         "binaryName": "playground-macro",
         "triples": {}
     },
-    "files": ["pkg", "index.d.ts", "index.js", "*.node"],
+    "files": [
+        "pkg",
+        "index.d.ts",
+        "index.js",
+        "*.node"
+    ],
     "scripts": {
-        "setup-vendor": "bash ../setup-vendor.sh && bash -c 'source ../../.env && mkdir -p vendor && ln -sfn \"$MACROFORGE_TS_CRATE\" vendor/macroforge_ts && ln -sfn \"$MACROFORGE_TS_MACROS_CRATE\" vendor/macroforge_ts_macros && ln -sfn \"$MACROFORGE_TS_QUOTE_CRATE\" vendor/macroforge_ts_quote && ln -sfn \"$MACROFORGE_TS_SYN_CRATE\" vendor/macroforge_ts_syn'",
+        "setup-vendor": "bash -c 'source ../../.env && mkdir -p vendor && ln -sfn \"$MACROFORGE_TS_CRATE\" vendor/macroforge_ts && ln -sfn \"$MACROFORGE_TS_MACROS_CRATE\" vendor/macroforge_ts_macros && ln -sfn \"$MACROFORGE_TS_QUOTE_CRATE\" vendor/macroforge_ts_quote && ln -sfn \"$MACROFORGE_TS_SYN_CRATE\" vendor/macroforge_ts_syn'",
         "build": "deno task build:wasm",
         "build:native": "deno install --node-modules-dir && deno run -A npm:@napi-rs/cli/napi build --platform --release --package playground-macros",
-        "_comment_build_wasm": "`macroforge build` rather than cargo + wasm-bindgen directly: it adds the `$` re-exports for Call macros ($state, $derived, $effect) that the vanilla playground imports. A raw wasm-bindgen run emits only the bare `state`/`derived`/`effect` exports, and the resulting package fails to type-check. Needs the CLI on PATH (`pixi run install:cli`).",
-        "build:wasm": "deno install --node-modules-dir && macroforge build . --out pkg",
+        "_comment_build_wasm": "`macroforge build` rather than cargo + wasm-bindgen directly: it adds the `$` re-exports for Call macros ($state, $derived, $effect) that the vanilla playground imports. A raw wasm-bindgen run emits only the bare `state`/`derived`/`effect` exports, and the resulting package fails to type-check. Runs this checkout's debug CLI (`pixi run build:cli`), never the `macroforge` on PATH.",
+        "build:wasm": "deno install --node-modules-dir && ../../../target/debug/macroforge build . --out pkg",
         "prepare": "deno task setup-vendor && deno task build",
         "clean": "rm -f *.node || true; rm -rf target pkg node_modules",
         "cleanbuild": "deno task clean && deno install --node-modules-dir && deno task build"

@@ -4,10 +4,10 @@ import {
     TextDocumentItem,
     VersionedTextDocumentIdentifier
 } from 'vscode-languageserver';
-import { Document } from './Document';
-import { normalizeUri } from '../../utils';
+import { Document } from './Document.ts';
+import { normalizeUri } from '../../utils.ts';
 import ts from 'typescript';
-import { FileMap, FileSet } from './fileCollection';
+import { FileMap, FileSet } from './fileCollection.ts';
 
 export type DocumentEvent = 'documentOpen' | 'documentChange' | 'documentClose';
 

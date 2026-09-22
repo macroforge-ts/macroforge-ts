@@ -35,5 +35,12 @@
         "test:e2e:vanilla": "node --env-file=../../.env ./node_modules/.bin/playwright test --config=playwright.config.ts",
         "test:e2e:svelte": "node --env-file=../../.env ./node_modules/.bin/playwright test --config=playwright.svelte.config.ts",
         "playwright:install": "node ./node_modules/.bin/playwright install chromium"
-    }
+    },
+    "links": [
+        "../../../npm/core",
+        "../../../npm/shared",
+        "../../../npm/typescript-plugin",
+        "../../../npm/vite-plugin"
+    ],
+    "workspace": []
 }

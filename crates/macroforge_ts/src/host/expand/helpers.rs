@@ -284,22 +284,9 @@ pub(super) fn derive_insert_pos(class_ir: &ClassIR, source: &str) -> u32 {
 }
 
 pub(super) fn find_macro_comment_span(source: &str, target_start: u32) -> Option<SpanIR> {
-    let start = target_start.saturating_sub(1) as usize;
-    if start == 0 || start > source.len() {
-        return None;
-    }
-    let search_area = &source[..start];
-    let start_idx = search_area.rfind("/**")?;
-    let rest = &search_area[start_idx..];
-    let end_rel = rest.find("*/")?;
-    let end_idx = start_idx + end_rel + 2;
-
-    let between = &search_area[end_idx..];
-    if !between.trim().is_empty() {
-        return None;
-    }
-
-    Some(SpanIR::new(start_idx as u32 + 1, end_idx as u32 + 1))
+    let block =
+        crate::ts_syn::jsdoc::adjacent_jsdoc(source, target_start.saturating_sub(1) as usize)?;
+    Some(SpanIR::new(block.start as u32 + 1, block.end as u32 + 1))
 }
 
 /// Convert InsertPos enum to the string location used internally.

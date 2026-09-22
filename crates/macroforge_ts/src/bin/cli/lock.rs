@@ -170,13 +170,21 @@ impl Drop for ProjectLock {
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
         state.holders -= 1;
-        if state.holders == 0 {
+        if state.holders == 0
+            && let Some(file) = state.file.take()
+        {
+            // Clear the holder record first: the file outlives the lock, and a
+            // record left behind names a process that no longer holds it.
+            if let Err(e) = file.set_len(0) {
+                eprintln!(
+                    "[macroforge] warning: failed to clear the holder record in {}: {e}",
+                    self.lock.path.display()
+                );
+            }
             // Closing the descriptor releases the OS lock; unlocking first
             // makes the release explicit and reports a failure that would
             // otherwise be silent.
-            if let Some(file) = state.file.take()
-                && let Err(e) = file.unlock()
-            {
+            if let Err(e) = file.unlock() {
                 eprintln!(
                     "[macroforge] warning: failed to release {}: {e}",
                     self.lock.path.display()

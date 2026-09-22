@@ -2,7 +2,7 @@
  * fs shim for the macroforge svelte-package wrapper.
  *
  * Re-exports the real `node:fs` (the `export *` / `import *` here resolve to the
- * real builtin because the resolve hook passes through imports whose parentURL
+ * real builtin because the wrapper's resolve hook passes through imports whose parentURL
  * is this shim), overriding only `readFileSync` so that svelte-package's JS-emit
  * reads of macro-annotated `.ts`/`.svelte.ts` modules return expanded source.
  *

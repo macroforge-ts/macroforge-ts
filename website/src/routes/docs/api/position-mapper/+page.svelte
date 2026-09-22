@@ -51,9 +51,9 @@ if (mapper) {
 
 <p>Map a position from expanded to original code:</p>
 
-<CodeBlock code={`expandedToOriginal(pos: number): number | null`} lang="typescript" />
+<CodeBlock code={`expandedToOriginal(pos: number): number | undefined`} lang="typescript" />
 
-<p>Returns <code>null</code> if the position is in generated code.</p>
+<p>Returns <code>undefined</code> if the position is in generated code.</p>
 
 <h3>isInGenerated()</h3>
 
@@ -65,7 +65,7 @@ if (mapper) {
 
 <p>Get the name of the macro that generated code at a position:</p>
 
-<CodeBlock code={`generatedBy(pos: number): string | null`} lang="typescript" />
+<CodeBlock code={`generatedBy(pos: number): string | undefined`} lang="typescript" />
 
 <h3>mapSpanToOriginal()</h3>
 

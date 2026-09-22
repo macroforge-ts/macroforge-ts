@@ -6,18 +6,18 @@ import {
     getNodeIfIsInStartTag,
     isInHTMLTagRange,
     mapRangeToOriginal
-} from '../../../lib/documents';
+} from '../../../lib/documents/index.ts';
 import {
     createGetCanonicalFileName,
     filterAsync,
     isNotNullOrUndefined,
     pathToUrl,
     unique
-} from '../../../utils';
-import { RenameProvider } from '../../interfaces';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { convertRange } from '../utils';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
+} from '../../../utils.ts';
+import type { RenameProvider } from '../../interfaces.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { convertRange } from '../utils.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
 import ts from 'typescript';
 import {
     get$storeOffsetOf$storeDeclaration,
@@ -28,10 +28,10 @@ import {
     isStoreVariableIn$storeDeclaration,
     isTextSpanInGeneratedCode,
     SnapshotMap
-} from './utils';
-import { LSConfigManager } from '../../../ls-config';
-import { isAttributeName, isEventHandler } from '../svelte-ast-utils';
-import { Identifier } from 'estree';
+} from './utils.ts';
+import { LSConfigManager } from '../../../ls-config.ts';
+import { isAttributeName, isEventHandler } from '../svelte-ast-utils.ts';
+import type { Identifier } from 'estree';
 
 interface TsRenameLocation extends ts.RenameLocation {
     range: Range;

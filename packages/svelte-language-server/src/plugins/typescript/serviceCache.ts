@@ -2,16 +2,16 @@
 
 import {
     createProjectService as createProjectService50,
-    ProjectService
-} from 'typescript-auto-import-cache/out/5_0/projectService';
-import { createProject as createProject50 } from 'typescript-auto-import-cache/out/5_0/project';
-import { createProject as createProject53 } from 'typescript-auto-import-cache/out/5_3/project';
-import { createProject as createProject55 } from 'typescript-auto-import-cache/out/5_5/project';
+    type ProjectService
+} from 'typescript-auto-import-cache/out/5_0/projectService.js';
+import { createProject as createProject50 } from 'typescript-auto-import-cache/out/5_0/project.js';
+import { createProject as createProject53 } from 'typescript-auto-import-cache/out/5_3/project.js';
+import { createProject as createProject55 } from 'typescript-auto-import-cache/out/5_5/project.js';
 import ts from 'typescript';
-import { ExportInfoMap } from 'typescript-auto-import-cache/out/5_0/exportInfoMap';
-import { ModuleSpecifierCache } from 'typescript-auto-import-cache/out/5_0/moduleSpecifierCache';
-import { SymlinkCache } from 'typescript-auto-import-cache/out/5_0/symlinkCache';
-import { ProjectPackageJsonInfo } from 'typescript-auto-import-cache/out/5_0/packageJsonCache';
+import type { ExportInfoMap } from 'typescript-auto-import-cache/out/5_0/exportInfoMap.js';
+import type { ModuleSpecifierCache } from 'typescript-auto-import-cache/out/5_0/moduleSpecifierCache.js';
+import type { SymlinkCache } from 'typescript-auto-import-cache/out/5_0/symlinkCache.js';
+import type { ProjectPackageJsonInfo } from 'typescript-auto-import-cache/out/5_0/packageJsonCache.js';
 
 export type { ProjectService };
 

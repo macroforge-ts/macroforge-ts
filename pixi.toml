@@ -16,8 +16,9 @@ version = "0.1.0"
 # appends RUSTUP_HOME to ~/.zshenv. Safe to re-run.
 "setup-rust" = "bash scripts/setup-rust.sh"
 
-# Build mf tooling binary
-"build:mf" = { cmd = "cargo build --release -p mf" }
+# Build mf tooling binary. Debug, since it only orchestrates other tools and
+# rebuilds far faster than an optimized build.
+"build:mf" = { cmd = "cargo build -p mf" }
 
 # Core builds
 build = { cmd = "pixi run build:rust && pixi run build:plugin" }
@@ -31,70 +32,58 @@ build = { cmd = "pixi run build:rust && pixi run build:plugin" }
 "build:playground" = "pixi run build:@playground/macro && pixi run build:@playground/svelte && pixi run build:@playground/vanilla && pixi run build:@playground/library"
 
 # Tests
-"test:rust" = { cmd = "target/release/mf test rust" }
-"test:packages" = { cmd = "target/release/mf test packages" }
-"test:playground" = { cmd = "target/release/mf test playground" }
-"test:all" = { cmd = "target/release/mf test all" }
+"test:rust" = { cmd = "target/debug/mf test rust" }
+"test:packages" = { cmd = "target/debug/mf test packages" }
+"test:playground" = { cmd = "target/debug/mf test playground" }
+"test:all" = { cmd = "target/debug/mf test all" }
 "test:e2e:zed" = { cmd = "./tooling/tests/e2e/run-zed-test.sh" }
 "test:e2e:zed:verbose" = { cmd = "./tooling/tests/e2e/run-zed-test.sh --verbose" }
 "test:e2e:zed:node" = { cmd = "node --test tooling/tests/e2e/zed-extension-startup.test.js" }
 
 # Diagnostics (using mf)
-diagnostics = { cmd = "target/release/mf diagnostics" }
-"diagnostics:log" = { cmd = "target/release/mf diagnostics --log" }
-"diagnostics:json" = { cmd = "target/release/mf diagnostics --json" }
-
-# Macros
-"macro:expand" = { cmd = "cargo run -p ts_macro_cli -- expand --use-node" }
-"macro:tsc" = { cmd = "cargo run -p ts_macro_cli -- tsc" }
-"expand:playground" = { cmd = "target/release/mf expand" }
+diagnostics = { cmd = "target/debug/mf diagnostics" }
+"diagnostics:log" = { cmd = "target/debug/mf diagnostics --log" }
+"diagnostics:json" = { cmd = "target/debug/mf diagnostics --json" }
 
 # Clean builds (using mf)
-"cleanbuild:all" = { cmd = "target/release/mf build --repos all" }
-"cleanbuild:ts" = { cmd = "target/release/mf build --repos ts" }
-"cleanbuild:rust" = { cmd = "target/release/mf build --repos rust" }
+"cleanbuild:all" = { cmd = "target/debug/mf build --repos all" }
+"cleanbuild:ts" = { cmd = "target/debug/mf build --repos ts" }
+"cleanbuild:rust" = { cmd = "target/debug/mf build --repos rust" }
 
 # Version management (using mf)
-bump = { cmd = "target/release/mf verify --bump-only" }
-sync = { cmd = "target/release/mf verify --sync-versions --bump-only" }
-rebase = { cmd = "target/release/mf versions" }
+bump = { cmd = "target/debug/mf bump" }
+sync = { cmd = "target/debug/mf bump --sync-versions" }
+rebase = { cmd = "target/debug/mf versions" }
 
 # Documentation (using mf)
-"docs:book" = { cmd = "target/release/mf docs build-book" }
 "docs:mcp" = { cmd = "rust-script packages/mcp-server/scripts/extract-docs.rs" }
-"docs:api" = { cmd = "target/release/mf docs extract-rust && target/release/mf docs extract-ts" }
-"docs:readmes" = { cmd = "target/release/mf docs generate-readmes" }
-"docs:all" = { cmd = "target/release/mf docs all" }
-"docs:check" = { cmd = "target/release/mf docs check-freshness" }
+"docs:api" = { cmd = "target/debug/mf docs extract-rust && target/debug/mf docs extract-ts" }
+"docs:readmes" = { cmd = "target/debug/mf docs generate-readmes" }
+"docs:all" = { cmd = "target/debug/mf docs all" }
+"docs:check" = { cmd = "target/debug/mf docs check-freshness" }
 
 # Release workflow (using mf)
-verify = { cmd = "target/release/mf verify" }
-"verify:dry" = { cmd = "target/release/mf verify --dry-run" }
-commit = { cmd = "target/release/mf commit" }
-"commit:dry" = { cmd = "target/release/mf commit --dry-run" }
-push = { cmd = "target/release/mf push" }
-"push:dry" = { cmd = "target/release/mf push --dry-run" }
-"publish:skip-build" = { cmd = "target/release/mf publish-local --skip-build" }
-publish = { cmd = "target/release/mf publish-local" }
-"publish:dry" = { cmd = "target/release/mf publish-local --dry-run" }
+verify = { cmd = "target/debug/mf verify" }
+push = { cmd = "target/debug/mf push" }
+"push:dry" = { cmd = "target/debug/mf push --dry-run" }
+"publish:skip-build" = { cmd = "target/debug/mf publish-local --skip-build" }
+publish = { cmd = "target/debug/mf publish-local" }
+"publish:dry" = { cmd = "target/debug/mf publish-local --dry-run" }
 
 # Manifest manipulation (using mf)
-"manifest:list" = { cmd = "target/release/mf manifest list" }
-"manifest:swap-local" = { cmd = "target/release/mf manifest swap-local" }
-"manifest:swap-registry" = { cmd = "target/release/mf manifest swap-registry" }
+"manifest:list" = { cmd = "target/debug/mf manifest list" }
 
-# `--force` because cargo skips the install when the installed version matches
-# the one being built — a same-version rebuild is a no-op, so editing the CLI
-# and re-running this would silently leave the old binary in place. `--locked`
-# builds against the committed Cargo.lock rather than re-resolving.
-"install:cli" = { cmd = "cargo install --path crates/macroforge_ts --locked --force" }
+# Builds the CLI into target/debug, which `MACROFORGE_CLI` points every task
+# and test at. Nothing is installed: a `macroforge` on PATH belongs to other
+# projects and stays at the version they pin.
+"build:cli" = { cmd = "cargo build -p macroforge_ts --bin macroforge" }
 bench = { cmd = "deno run -A tooling/scripts/bench.mjs" }
 "bench:all" = { cmd = "deno run -A tooling/scripts/bench.mjs --all" }
 "bench:build" = { cmd = "deno run -A tooling/scripts/bench.mjs --build" }
-"build:all-concurrent" = { cmd = "deno run -A npm:concurrently -n cli,wasm,macro 'pixi run install:cli' 'pixi run build:rust' 'pixi run build:@playground/macro'" }
+"build:all-concurrent" = { cmd = "deno run -A npm:concurrently -n cli,wasm,macro 'pixi run build:cli' 'pixi run build:rust' 'pixi run build:@playground/macro'" }
 
 # TUI dashboard
-scripts = { cmd = "target/release/mf --tui" }
+scripts = { cmd = "target/debug/mf --tui" }
 
 # wasm-bindgen-cli is not on conda-forge, so we cargo-install it at the
 # exact version pinned by the Rust workspace lockfile. Without this, the
@@ -126,13 +115,13 @@ cargo-nextest = ">=0.9.140,<0.10"
 [activation.env]
 RUSTUP_HOME = "$HOME/.pixi/envs/rustup/.rustup"
 # Pixi's rust integration defaults CARGO_HOME to the env (`$CONDA_PREFIX/.cargo`),
-# which the rustup activate.d script puts on PATH ahead of ~/.cargo/bin — so
-# `cargo install` drops a per-env copy of `macroforge` that shadows the global
-# one inside `pixi run`, while a plain shell keeps resolving the older
-# ~/.cargo/bin copy. The two then diverge silently: `install:cli` reports
-# success and `macroforge` outside pixi is still the previous build. Pin
-# CARGO_HOME to the user default so there is one cargo bin shared across envs.
+# which the rustup activate.d script puts on PATH ahead of ~/.cargo/bin, so a
+# tool cargo-installed inside `pixi run` would shadow the global copy there and
+# the two would diverge. Pin CARGO_HOME to the user default so there is one.
 CARGO_HOME = "$HOME/.cargo"
+# The CLI every task and test drives: this checkout's debug build, never the
+# `macroforge` on PATH.
+MACROFORGE_CLI = "$PIXI_PROJECT_ROOT/target/debug/macroforge"
 
 # mold linker — Linux only. `.cargo/config.toml` sets `-fuse-ld=mold` for the
 # linux target; this puts `mold` on the env PATH so cargo finds it. macOS uses

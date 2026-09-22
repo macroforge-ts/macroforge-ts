@@ -1,4 +1,4 @@
-import { expandExample } from '$lib/server/macroforge';
+import { expandExample } from '$lib/server/macroforge.ts';
 
 export async function load() {
     const heroExample = await expandExample(

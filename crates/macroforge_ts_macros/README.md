@@ -13,8 +13,10 @@ classes at compile time.
 
 ## Overview
 
-The primary macro provided is [`ts_macro_derive`], which transforms a Rust function into a
-fully-fledged TypeScript macro that integrates with the Macroforge runtime.
+The primary macro provided is
+[`ts_macro_derive`](https://docs.rs/macroforge_ts_macros/latest/macroforge_ts_macros/?search=ts_macro_derive),
+which transforms a Rust function into a fully-fledged TypeScript macro that integrates with the
+Macroforge runtime.
 
 ## Example
 
@@ -30,7 +32,9 @@ fn debug_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
 
 This generates:
 
-- A struct implementing the [`Macroforge`] trait
+- A struct implementing the
+  [`Macroforge`](https://docs.rs/macroforge_ts_macros/latest/macroforge_ts_macros/?search=Macroforge)
+  trait
 - A NAPI function for JavaScript interop
 - Registration with the macro registry via `inventory`
 
@@ -45,11 +49,8 @@ The generated code follows this pattern:
 
 ## Installation
 
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-macroforge_ts_macros = "0.1.82"
+```bash
+cargo add macroforge_ts_macros
 ```
 
 ## Key Exports
@@ -63,9 +64,7 @@ macroforge_ts_macros = "0.1.82"
 
 ## API Reference
 
-See the
-[full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_macros) on the
-Macroforge website.
+See the [full API documentation](https://docs.rs/macroforge_ts_macros) on docs.rs.
 
 ## License
 

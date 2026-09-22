@@ -1,11 +1,14 @@
 import { Hover, Position } from 'vscode-languageserver';
-import { SvelteDocument } from '../SvelteDocument';
-import { documentation, getLatestOpeningTag, SvelteTag } from './SvelteTags';
-import { flatten } from '../../../utils';
-import { Document } from '../../../lib/documents';
-import { AttributeContext, getAttributeContextAtPosition } from '../../../lib/documents/parseHtml';
-import { attributeCanHaveEventModifier, inStyleOrScript } from './utils';
-import { getModifierData } from './getModifierData';
+import { SvelteDocument } from '../SvelteDocument.ts';
+import { documentation, getLatestOpeningTag, type SvelteTag } from './SvelteTags.ts';
+import { flatten } from '../../../utils.ts';
+import { Document } from '../../../lib/documents/index.ts';
+import {
+    type AttributeContext,
+    getAttributeContextAtPosition
+} from '../../../lib/documents/parseHtml.ts';
+import { attributeCanHaveEventModifier, inStyleOrScript } from './utils.ts';
+import { getModifierData } from './getModifierData.ts';
 
 /**
  * Get hover information for special svelte tags within moustache tags.

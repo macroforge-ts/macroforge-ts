@@ -8,6 +8,7 @@
 use crate::cli::PublishLocalArgs;
 use crate::core::config::Config;
 use crate::core::deps;
+use crate::core::manifests;
 use crate::core::registry;
 use crate::core::repos::RepoType;
 use crate::core::shell::{self, Shell};
@@ -42,35 +43,6 @@ fn jsr_already_published(package: &str, version: &str) -> bool {
         return false;
     }
     registry::jsr_version(package).ok().flatten().as_deref() == Some(version)
-}
-
-/// Read the JSR package name from deno.json in a directory
-fn jsr_name(dir: &Path) -> String {
-    let path = dir.join("deno.json");
-    if let Ok(content) = std::fs::read_to_string(&path)
-        && let Ok(jsr) = serde_json::from_str::<serde_json::Value>(&content)
-    {
-        jsr.get("name")
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .to_string()
-    } else {
-        String::new()
-    }
-}
-
-/// True if package.json marks the package private, i.e. npm refuses to publish
-/// it (EPRIVATE). Deno-only packages such as `@macroforge/deno-plugin` set this
-/// deliberately and ship through JSR instead.
-fn npm_private(dir: &Path) -> bool {
-    let path = dir.join("package.json");
-    if let Ok(content) = std::fs::read_to_string(&path)
-        && let Ok(pkg) = serde_json::from_str::<serde_json::Value>(&content)
-    {
-        pkg.get("private").and_then(|v| v.as_bool()) == Some(true)
-    } else {
-        false
-    }
 }
 
 fn wait_for_npm(package: &str, version: &str) -> Result<()> {
@@ -125,42 +97,40 @@ fn wait_for_crate(crate_name: &str, version: &str) -> Result<()> {
 // Publish helpers
 // ---------------------------------------------------------------------------
 
+/// Publishes the package `tooling/npm/build.ts` built into `npm/<repo_name>`.
 /// Returns true if actually published, false if skipped.
-fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Result<bool> {
-    if npm_private(dir) {
-        format::warning(&format!("{} is private, skipping npm", package));
-        return Ok(false);
-    }
+fn publish_npm(
+    root: &Path,
+    repo_name: &str,
+    package: &str,
+    version: &str,
+    dry_run: bool,
+) -> Result<bool> {
+    let built = root.join("npm").join(repo_name);
     if npm_already_published(package, version) {
         format::warning(&format!("{}@{} already on npm, skipping", package, version));
         return Ok(false);
     }
     if dry_run {
         format::info(&format!(
-            "[dry-run] deno pack + npm publish {} from {}",
+            "[dry-run] npm publish {} from {}",
             package,
-            dir.display()
+            built.display()
         ));
         return Ok(false);
     }
-
-    // Packed by deno rather than published straight from the directory. The
-    // tarball's `package.json` is generated from `deno.json`, so references to
-    // other workspace members come out as the versions a consumer can resolve.
-    // `npm publish` on its own uploads the manifest as written, which is how
-    // local `file:` paths reached the registry.
-    let tarball = std::env::temp_dir().join(format!(
-        "{}-{}.tgz",
-        package.replace('@', "").replace('/', "-"),
-        version
-    ));
-    shell::deno::pack(dir, &tarball)
-        .with_context(|| format!("deno pack failed for {}", package))?;
-    let tarball_arg = tarball.to_string_lossy().into_owned();
+    if !built.join("package.json").exists() {
+        anyhow::bail!(
+            "{} has not been built into {}; run the npm build first",
+            package,
+            built.display()
+        );
+    }
+    let built_arg = built.to_string_lossy().into_owned();
 
     let result = Shell::new("npm")
         .args(&["publish", "--access", "public"])
-        .arg(&tarball_arg)
+        .arg(&built_arg)
         .inherit()
         .run();
 
@@ -176,7 +146,7 @@ fn publish_npm(dir: &Path, package: &str, version: &str, dry_run: bool) -> Resul
             format::info(&format!("Retrying publish for {}...", package));
             Shell::new("npm")
                 .args(&["publish", "--access", "public"])
-                .arg(&tarball_arg)
+                .arg(&built_arg)
                 .inherit()
                 .run_checked()
                 .with_context(|| format!("npm publish failed for {} (after re-auth)", package))?;
@@ -316,22 +286,6 @@ fn ensure_cargo_auth() -> Result<()> {
     }
 }
 
-/// Verify JSR auth by running a quiet dry-run publish.
-fn ensure_jsr_auth(jsr_dir: &Path) -> Result<()> {
-    let result = shell::deno::publish_dry_run(jsr_dir);
-
-    match result {
-        Ok(r) if r.success => {
-            format::success("jsr: authenticated");
-            Ok(())
-        }
-        _ => {
-            format::warning("JSR auth check failed — you may be prompted to log in during publish");
-            Ok(())
-        }
-    }
-}
-
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -367,7 +321,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
             continue;
         };
         let pkg_version = versions.get_local(name).unwrap_or(&version).to_string();
-        let has_jsr = repo.abs_path.join("deno.json").exists();
+        let jsr_package = manifests::jsr_package_name(&repo.abs_path)?;
+        let needs_jsr = jsr_package
+            .as_deref()
+            .is_some_and(|package| !jsr_already_published(package, &pkg_version));
+        let npm_private = manifests::npm_private(&repo.abs_path)?;
 
         match repo.repo_type {
             RepoType::Rust => {
@@ -375,13 +333,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
                     .crate_name
                     .as_deref()
                     .is_some_and(|c| !crate_already_published(c, &pkg_version));
-                let needs_npm = !npm_private(&repo.abs_path)
+                let needs_npm = !npm_private
                     && repo
                         .npm_name
                         .as_deref()
                         .is_some_and(|n| !npm_already_published(n, &pkg_version));
-                let needs_jsr =
-                    has_jsr && !jsr_already_published(&jsr_name(&repo.abs_path), &pkg_version);
 
                 if !needs_crate && !needs_npm && !needs_jsr {
                     let label = repo
@@ -395,16 +351,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
                 }
             }
             RepoType::Ts => {
-                let needs_npm = !npm_private(&repo.abs_path)
+                let needs_npm = !npm_private
                     && repo
                         .npm_name
                         .as_deref()
                         .is_some_and(|n| !npm_already_published(n, &pkg_version));
-                let needs_jsr = has_jsr
-                    && repo
-                        .npm_name
-                        .as_deref()
-                        .is_some_and(|n| !jsr_already_published(n, &pkg_version));
 
                 if !needs_npm && !needs_jsr {
                     let label = repo.npm_name.as_deref().unwrap_or(name);
@@ -464,18 +415,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         format::step(0, 0, "Checking registry authentication");
         let has_npm = to_publish.iter().any(|(_, _, _, npm, _)| *npm);
         let has_crate = to_publish.iter().any(|(_, _, crate_, _, _)| *crate_);
-        let has_jsr = to_publish.iter().any(|(_, _, _, _, jsr)| *jsr);
         if has_npm {
             ensure_npm_auth()?;
         }
         if has_crate {
             ensure_cargo_auth()?;
-        }
-        if has_jsr
-            && let Some((jsr_name, _, _, _, _)) = to_publish.iter().find(|(_, _, _, _, jsr)| *jsr)
-        {
-            let jsr_dir = &config.repos[*jsr_name].abs_path;
-            ensure_jsr_auth(jsr_dir)?;
         }
         println!();
     }
@@ -494,7 +438,9 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         .any(|(name, _, _, needs_npm, needs_jsr)| *name == "core" && (*needs_npm || *needs_jsr));
     let needs_wasm_build = core_needs_publish && !args.skip_build;
 
-    let total = if needs_wasm_build { 1 } else { 0 } + to_publish.len();
+    let needs_npm_build = !args.skip_build && to_publish.iter().any(|(_, _, _, npm, _)| *npm);
+
+    let total = usize::from(needs_wasm_build) + usize::from(needs_npm_build) + to_publish.len();
     let mut step = 0;
 
     if needs_wasm_build {
@@ -509,6 +455,22 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         }
     } else if core_needs_publish && args.skip_build {
         format::warning("Skipping WASM build (--skip-build)");
+    }
+
+    if needs_npm_build {
+        step += 1;
+        format::step(step, total, "Building npm packages");
+        if args.dry_run {
+            format::info("[dry-run] deno run -A tooling/npm/build.ts");
+        } else {
+            Shell::new("deno")
+                .args(&["run", "-A", "tooling/npm/build.ts"])
+                .dir(root)
+                .inherit()
+                .run_checked()
+                .context("npm package build failed")?;
+            format::success("Built npm packages");
+        }
     }
 
     // ── Steps 2+: Publish in dependency order ────────────────────────────
@@ -538,7 +500,7 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         // npm
         if *needs_npm {
             let npm_name = repo.npm_name.as_deref().unwrap_or(repo_name);
-            match publish_npm(&repo.abs_path, npm_name, pkg_version, args.dry_run)? {
+            match publish_npm(root, repo_name, npm_name, pkg_version, args.dry_run)? {
                 true => {
                     if !args.dry_run {
                         wait_for_npm(npm_name, pkg_version)?;
@@ -551,7 +513,9 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
 
         // JSR
         if *needs_jsr {
-            let name = jsr_name(&repo.abs_path);
+            let name = manifests::jsr_package_name(&repo.abs_path)?.with_context(|| {
+                format!("{} has no JSR name in deno.json", repo.abs_path.display())
+            })?;
             if publish_jsr(&repo.abs_path, &name, pkg_version, args.dry_run)? {
                 published.push(format!("{}@{} (jsr)", name, pkg_version))
             }

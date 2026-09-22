@@ -1,4 +1,27 @@
 {
+    "generated": "2026-09-22T13:43:37.838770+00:00",
+    "crates": [
+        {
+            "name": "macroforge_ts",
+            "version": "0.3.0",
+            "itemCount": 55
+        },
+        {
+            "name": "macroforge_ts_syn",
+            "version": "0.3.0",
+            "itemCount": 25
+        },
+        {
+            "name": "macroforge_ts_quote",
+            "version": "0.3.0",
+            "itemCount": 2
+        },
+        {
+            "name": "macroforge_ts_macros",
+            "version": "0.3.0",
+            "itemCount": 3
+        }
+    ],
     "builtinMacros": [
         "clone",
         "debug",
@@ -9,28 +32,5 @@
         "partial_eq",
         "partial_ord",
         "serialize"
-    ],
-    "crates": [
-        {
-            "itemCount": 52,
-            "name": "macroforge_ts",
-            "version": "0.2.0"
-        },
-        {
-            "itemCount": 25,
-            "name": "macroforge_ts_syn",
-            "version": "0.2.0"
-        },
-        {
-            "itemCount": 2,
-            "name": "macroforge_ts_quote",
-            "version": "0.2.0"
-        },
-        {
-            "itemCount": 3,
-            "name": "macroforge_ts_macros",
-            "version": "0.2.0"
-        }
-    ],
-    "generated": "2026-09-21T05:55:19.387300+00:00"
+    ]
 }

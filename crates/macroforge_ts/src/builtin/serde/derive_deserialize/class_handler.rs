@@ -109,7 +109,13 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
             // record-link alias's `string` arm) so the primitive form of the
             // union is validated.
             let union_string_validators = match &primitive_union_guard {
-                Some(prim) => alias_primitive_arm_validators(&field.ts_type, prim, type_registry),
+                Some(prim) => alias_primitive_arm_validators(
+                    &field.ts_type,
+                    prim,
+                    type_registry,
+                    caller_file_path,
+                    file_imports,
+                ),
                 None => Vec::new(),
             };
 

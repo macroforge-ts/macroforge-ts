@@ -29,7 +29,8 @@
 //! # #[cfg(feature = "oxc")] {
 //! use macroforge_ts_syn::{lower_classes_oxc, parse_oxc_program};
 //!
-//! let program = parse_oxc_program(source)?;
+//! let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+//! let program = parse_oxc_program(&allocator, source)?;
 //! let _classes = lower_classes_oxc(&program, source, None)?;
 //! # }
 //! # Ok::<(), macroforge_ts_syn::TsSynError>(())
@@ -88,8 +89,9 @@ use crate::TsSynError;
 /// # #[cfg(feature = "oxc")] {
 /// use macroforge_ts_syn::parse_oxc_program;
 ///
-/// let _program = parse_oxc_program("const x: number = 5;")?;
-/// let _program = parse_oxc_program("const el = <div>Hello</div>;")?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let _program = parse_oxc_program(&allocator, "const x: number = 5;")?;
+/// let _program = parse_oxc_program(&allocator, "const el = <div>Hello</div>;")?;
 /// # }
 /// # Ok::<(), macroforge_ts_syn::TsSynError>(())
 /// ```
@@ -117,7 +119,8 @@ use crate::TsSynError;
 ///     parse_oxc_program,
 /// };
 ///
-/// let program = parse_oxc_program(source)?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let program = parse_oxc_program(&allocator, source)?;
 /// let _classes = lower_classes_oxc(&program, source, None)?;
 /// let _interfaces = lower_interfaces_oxc(&program, source, None)?;
 /// let _enums = lower_enums_oxc(&program, source, None)?;

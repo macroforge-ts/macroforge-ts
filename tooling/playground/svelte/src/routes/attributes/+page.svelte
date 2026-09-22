@@ -1,10 +1,12 @@
 <script lang="ts">
+import { browser } from '$app/environment';
 import { collectAttributesDemo } from '$lib/demo/attributes-demo-consumer';
+import { playgroundResults } from '$lib/playground-globals';
 
 const results = collectAttributesDemo();
 
-// Expose results on globalThis so Playwright can inspect them after navigation.
-(globalThis as Record<string, unknown>).attributesResults = results;
+// Published for the Playwright specs, in the browser only.
+if (browser) playgroundResults().attributes = results;
 </script>
 
 <svelte:head>

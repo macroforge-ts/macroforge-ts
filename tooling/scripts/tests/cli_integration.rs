@@ -106,32 +106,31 @@ fn test_docs_help() {
         .stdout(predicate::str::contains("Commands:"))
         .stdout(predicate::str::contains("extract-rust"))
         .stdout(predicate::str::contains("extract-ts"))
-        .stdout(predicate::str::contains("build-book"))
         .stdout(predicate::str::contains("generate-readmes"));
 }
 
 #[test]
-fn test_prep_help() {
+fn test_verify_help() {
     mf_cmd()
-        .arg("prep")
+        .arg("verify")
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("prep"))
-        .stdout(predicate::str::contains("--dry-run"))
-        .stdout(predicate::str::contains("--skip-build"));
+        .stdout(predicate::str::contains("verify"))
+        .stdout(predicate::str::contains("--skip-build"))
+        .stdout(predicate::str::contains("--skip-docs"));
 }
 
 #[test]
-fn test_commit_help() {
+fn test_bump_help() {
     mf_cmd()
-        .arg("commit")
+        .arg("bump")
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("commit"))
-        .stdout(predicate::str::contains("--yes"))
-        .stdout(predicate::str::contains("--message"));
+        .stdout(predicate::str::contains("bump"))
+        .stdout(predicate::str::contains("--version"))
+        .stdout(predicate::str::contains("--sync-versions"));
 }
 
 #[test]
@@ -154,28 +153,6 @@ fn test_versions_help() {
         .success()
         .stdout(predicate::str::contains("versions"))
         .stdout(predicate::str::contains("--check-only"));
-}
-
-#[test]
-fn test_expand_help() {
-    mf_cmd()
-        .arg("expand")
-        .arg("--help")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("expand"))
-        .stdout(predicate::str::contains("--use-cli"));
-}
-
-#[test]
-fn test_check_help() {
-    mf_cmd()
-        .arg("check")
-        .arg("--help")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("check"))
-        .stdout(predicate::str::contains("<FILE>"));
 }
 
 #[test]
@@ -229,8 +206,7 @@ fn test_manifest_subcommands() {
     assert!(stdout.contains("get-version"));
     assert!(stdout.contains("set-version"));
     assert!(stdout.contains("apply-versions"));
-    assert!(stdout.contains("swap-local"));
-    assert!(stdout.contains("swap-registry"));
+    assert!(stdout.contains("update-zed"));
     assert!(stdout.contains("dump-versions"));
 }
 
@@ -247,7 +223,6 @@ fn test_docs_subcommands() {
 
     assert!(stdout.contains("extract-rust"));
     assert!(stdout.contains("extract-ts"));
-    assert!(stdout.contains("build-book"));
     assert!(stdout.contains("generate-readmes"));
     assert!(stdout.contains("check-freshness"));
     assert!(stdout.contains("all"));
@@ -260,16 +235,6 @@ fn test_invalid_flag() {
         .assert()
         .failure()
         .stderr(predicate::str::contains("unexpected argument"));
-}
-
-#[test]
-fn test_check_missing_file_argument() {
-    // check command requires a file argument
-    mf_cmd()
-        .arg("check")
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains("required").or(predicate::str::contains("<FILE>")));
 }
 
 #[test]

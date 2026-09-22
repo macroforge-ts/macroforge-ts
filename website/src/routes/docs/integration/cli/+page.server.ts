@@ -1,4 +1,4 @@
-import { getCliDocs, getVersion } from '$lib/server/api-docs';
+import { getCliDocs, getVersion } from '$lib/server/api-docs.ts';
 
 export async function load() {
     return {

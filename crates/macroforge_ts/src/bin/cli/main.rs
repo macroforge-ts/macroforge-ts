@@ -232,13 +232,13 @@ enum Command {
     Expand {
         /// Path to the TypeScript/TSX file or directory to expand
         input: Option<PathBuf>,
-        /// Optional path to write the transformed JS/TS output
+        /// Write the transformed JS/TS output here instead of printing it
         #[arg(long)]
         out: Option<PathBuf>,
         /// Optional path to write the generated .d.ts surface
         #[arg(long = "types-out")]
         types_out: Option<PathBuf>,
-        /// Print expansion result to stdout even if --out is specified
+        /// Also print the expansion to stdout when --out writes it to a file
         #[arg(long)]
         print: bool,
         /// Suppress output when no macros are found (exit silently with code 2)
@@ -362,14 +362,34 @@ impl Command {
     /// rather than the current directory makes two builds of the same crate
     /// serialize no matter where they were invoked from. Everything else works
     /// from the current directory.
-    fn explicit_root(&self) -> Option<&PathBuf> {
+    fn explicit_root(&self) -> Option<PathBuf> {
         match self {
             Command::Watch { root, .. } | Command::Cache { root } | Command::Refresh { root } => {
-                root.as_ref()
+                root.clone()
             }
-            Command::Build { crate_dir, .. } => crate_dir.as_ref(),
+            Command::Build { crate_dir, .. } => crate_dir.clone(),
+            // A checker's project is the one its tsconfig or workspace names,
+            // wherever it was run from.
+            Command::Tsc { project } => project.as_deref().map(config_dir),
+            Command::SvelteCheck {
+                workspace,
+                tsconfig,
+                ..
+            } => workspace
+                .clone()
+                .or_else(|| tsconfig.as_deref().map(config_dir)),
             _ => None,
         }
+    }
+
+    /// Whether the command takes the project lock only around its own writes.
+    /// The checkers write nothing for a project without macros, so holding
+    /// the lock for their whole run would create `.macroforge/` regardless.
+    fn locks_its_own_writes(&self) -> bool {
+        matches!(
+            self,
+            Command::Watch { .. } | Command::Tsc { .. } | Command::SvelteCheck { .. }
+        )
     }
 
     /// Whether this invocation promises a clean stderr.
@@ -378,6 +398,18 @@ impl Command {
     /// waiting on a lock this process happened to contend on would break that.
     fn is_quiet(&self) -> bool {
         matches!(self, Command::Expand { quiet: true, .. })
+    }
+}
+
+/// The directory a config path lives in: the path itself when it names a
+/// directory, otherwise its parent (`.` for a bare file name).
+fn config_dir(config: &std::path::Path) -> PathBuf {
+    if config.is_dir() {
+        return config.to_path_buf();
+    }
+    match config.parent() {
+        Some(parent) if !parent.as_os_str().is_empty() => parent.to_path_buf(),
+        _ => PathBuf::from("."),
     }
 }
 
@@ -390,23 +422,23 @@ fn main() -> Result<()> {
     // running two macroforge processes against one project is routine
     // (`watch` beside `vite dev`, `svelte-package` from another terminal, an
     // editor invoking `svelte-check`).
-    let root = resolve_project_root(cli.command.explicit_root().map(PathBuf::as_path));
+    let root = resolve_project_root(cli.command.explicit_root().as_deref());
 
-    // `watch` is the exception: it is a daemon, so holding the lock for its
-    // lifetime would block every other command until the watcher is killed. It
-    // locks around each cache-mutation burst instead and runs unlocked while
-    // idle — the granularity cargo-watch gets for free by re-invoking a fresh
-    // `cargo` per change.
-    let _lock = match cli.command {
-        Command::Watch { .. } => None,
-        _ => Some(ProjectLock::acquire(
+    // `watch` is a daemon, so holding the lock for its lifetime would block
+    // every other command until the watcher is killed; it locks around each
+    // cache-mutation burst instead. The checkers lock only around writing the
+    // registries, which a project without macros never needs.
+    let lock = if cli.command.locks_its_own_writes() {
+        None
+    } else {
+        Some(ProjectLock::acquire(
             &root,
             cli.command.label(),
             cli.command.is_quiet(),
-        )?),
+        )?)
     };
 
-    match cli.command {
+    let outcome = match cli.command {
         Command::Expand {
             input,
             out,
@@ -463,5 +495,7 @@ fn main() -> Result<()> {
         Command::Cache { .. } => run_cache(&root),
         Command::Refresh { .. } => run_refresh(&root),
         Command::Build { crate_dir, out } => run_build(crate_dir, out),
-    }
+    };
+    drop(lock);
+    outcome
 }

@@ -1,7 +1,5 @@
-import { Node } from 'estree';
-import { walk } from 'estree-walker';
-// @ts-ignore
-import { TemplateNode } from 'svelte/types/compiler/interfaces';
+import type { Node } from 'estree';
+import type { TemplateNode } from 'svelte/types/compiler/interfaces';
 
 export interface SvelteNode {
     start: number;
@@ -151,59 +149,71 @@ export function findIfBlockEndTagStart(
     );
 }
 
-type ESTreeWaker = Parameters<typeof walk>[1];
-type ESTreeEnterFunc = NonNullable<ESTreeWaker['enter']>;
-type ESTreeLeaveFunc = NonNullable<ESTreeWaker['leave']>;
-
-export interface SvelteNodeWalker {
-    enter?: (
-        this: {
-            skip: () => void;
-            remove: () => void;
-            replace: (node: SvelteNode) => void;
-        },
-        node: SvelteNode,
-        parent: SvelteNode,
-        key: Parameters<ESTreeEnterFunc>[2],
-        index: Parameters<ESTreeEnterFunc>[3]
-    ) => void;
-    leave?: (
-        this: {
-            skip: () => void;
-            remove: () => void;
-            replace: (node: SvelteNode) => void;
-        },
-        node: SvelteNode,
-        parent: SvelteNode,
-        key: Parameters<ESTreeLeaveFunc>[2],
-        index: Parameters<ESTreeLeaveFunc>[3]
-    ) => void;
+/** What a walker's handlers can do to the traversal. */
+export interface SvelteWalkContext {
+    /** Skip the current node's children (and, from `enter`, its `leave`). */
+    skip: () => void;
 }
 
-// wrap the estree-walker to make it svelte specific
-// the type casting is necessary because estree-walker is not designed for this
-// especially in v3 which svelte 4 uses
-export function walkSvelteAst(htmlAst: TemplateNode, walker: SvelteNodeWalker) {
-    walk(htmlAst as any, {
-        enter(node, parent, key, index) {
-            walker.enter?.call(
-                this as any,
-                node as SvelteNode,
-                parent as SvelteNode,
-                key,
-                index
-            );
-        },
-        leave(node, parent, key, index) {
-            walker.leave?.call(
-                this as any,
-                node as SvelteNode,
-                parent as SvelteNode,
-                key,
-                index
-            );
+/** A handler called for each node of a Svelte template AST. */
+export type SvelteNodeHandler = (
+    this: SvelteWalkContext,
+    node: SvelteNode,
+    parent: SvelteNode | null,
+    key: string | null,
+    index: number | null
+) => void;
+
+export interface SvelteNodeWalker {
+    enter?: SvelteNodeHandler;
+    leave?: SvelteNodeHandler;
+}
+
+/**
+ * Walk a Svelte template AST depth first. Every property holding a node, or an
+ * array of nodes, is a child; `parent` links added by callers are not.
+ */
+export function walkSvelteAst(root: SvelteNode, walker: SvelteNodeWalker) {
+    visitSvelteNode(root, null, null, null, walker);
+}
+
+function visitSvelteNode(
+    node: SvelteNode,
+    parent: SvelteNode | null,
+    key: string | null,
+    index: number | null,
+    walker: SvelteNodeWalker
+) {
+    let skipped = false;
+    const context: SvelteWalkContext = {
+        skip: () => {
+            skipped = true;
         }
-    });
+    };
+    walker.enter?.call(context, node, parent, key, index);
+    if (skipped) {
+        return;
+    }
+    for (const [childKey, value] of Object.entries(node)) {
+        if (childKey === 'parent') {
+            continue;
+        }
+        if (Array.isArray(value)) {
+            value.forEach((item, itemIndex) => {
+                if (isSvelteNode(item)) {
+                    visitSvelteNode(item, node, childKey, itemIndex, walker);
+                }
+            });
+        } else if (isSvelteNode(value)) {
+            visitSvelteNode(value, node, childKey, null, walker);
+        }
+    }
+    walker.leave?.call(context, node, parent, key, index);
+}
+
+function isSvelteNode(value: unknown): value is SvelteNode {
+    return typeof value === 'object' && value !== null && 'type' in value &&
+        typeof value.type === 'string';
 }
 
 export function isAwaitBlock(node: SvelteNode): node is AwaitBlock {

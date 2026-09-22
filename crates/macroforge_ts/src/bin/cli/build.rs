@@ -10,7 +10,7 @@ use std::{
 /// Steps:
 /// 1. `cargo build --release --target wasm32-unknown-unknown`
 /// 2. `wasm-bindgen --target nodejs --out-dir <pkg>`
-/// 3. Query the manifest via a Deno/Node subprocess to discover Call macros
+/// 3. Parse the generated `.d.ts` to discover Call macros
 /// 4. Append `$`-prefixed re-exports for Call macros to the JS and .d.ts
 pub fn run_build(crate_dir: Option<PathBuf>, out_dir: Option<PathBuf>) -> Result<()> {
     let crate_dir = crate_dir

@@ -1,5 +1,9 @@
 <script lang="ts">
-import { DateTime, Exit, Option } from 'effect';
+import { pickOption } from '$lib/select-option.util';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
+import { DateTime, Option } from 'effect';
 import {
     appointmentCreateForm,
     type Appointment,
@@ -32,27 +36,19 @@ const appointmentForm = appointmentCreateForm({
 });
 
 // Track validation results
-let appointmentResult: {
-    success: boolean;
-    data?: Appointment;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let appointmentResult: OutcomeOf<typeof appointmentForm> | null = $state(null);
 
-// Expose to Playwright
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        appointment: appointmentForm
-    };
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    appointment: appointmentForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
 }
 
 function submitAppointment() {
-    appointmentResult = Exit.match(appointmentForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.appointmentValidation = appointmentResult;
-    }
+    appointmentResult = validationOutcome(appointmentForm.validate());
+    gigaform.appointmentValidation = appointmentResult;
 }
 
 function resetAppointment() {
@@ -154,7 +150,7 @@ let selectedWeekdays: Array<Weekday> = $state(['Monday', 'Wednesday', 'Friday'])
           data-testid="status-select"
           value={appointmentForm.fields.status.get()}
           onchange={(e) => {
-            appointmentForm.fields.status.set(e.currentTarget.value as Status);
+            appointmentForm.fields.status.set(pickOption(statusOptions, e.currentTarget.value));
             appointmentForm.fields.status.setTainted(Option.some(true));
           }}
         >
@@ -228,7 +224,8 @@ let selectedWeekdays: Array<Weekday> = $state(['Monday', 'Wednesday', 'Friday'])
         type="button"
         data-testid="set-invalid-status"
         onclick={() => {
-          appointmentForm.fields.status.set("InvalidStatus" as any);
+          // A status the field's type forbids, to exercise runtime validation.
+          Reflect.apply(appointmentForm.fields.status.set, appointmentForm.fields.status, ["InvalidStatus"]);
         }}
       >
         Set Invalid Status

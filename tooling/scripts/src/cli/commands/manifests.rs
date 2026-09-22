@@ -7,7 +7,6 @@ use crate::cli::ManifestArgs;
 use crate::core::config::Config;
 use crate::core::manifests;
 use crate::core::shell;
-use crate::diagnostics::deno_lint;
 use anyhow::{Context, Result};
 
 /// Entry point for `mf manifest`: dispatches manifest subcommands (versions, swaps, linking).
@@ -43,14 +42,8 @@ pub fn run(args: ManifestArgs) -> Result<()> {
                 manifests::set_version(&config, &mut versions, &repo, &version)?;
             }
             versions.save(&config.root)?;
-            // Format versions.json with deno fmt
-            let config_path = deno_lint::governing_config(&config.root);
-            shell::deno::deno_fmt(
-                &config.root,
-                &["tooling/versions.json"],
-                config_path.as_deref(),
-            )
-            .context("Failed to format tooling/versions.json")?;
+            shell::deno::deno_fmt(&config.root, &["tooling/versions.json"])
+                .context("Failed to format tooling/versions.json")?;
         }
 
         crate::cli::ManifestCommands::ApplyVersions { local } => {

@@ -1,6 +1,6 @@
 import ts from 'typescript';
-import { isNotNullOrUndefined } from '../../utils';
-import { findContainingNode } from './features/utils';
+import { isNotNullOrUndefined } from '../../utils.ts';
+import { findContainingNode } from './features/utils.ts';
 
 export type ComponentPartInfo = Array<
     { name: string; type: string; doc?: string }

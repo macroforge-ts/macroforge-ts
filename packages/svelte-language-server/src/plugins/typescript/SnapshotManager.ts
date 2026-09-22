@@ -1,10 +1,14 @@
 import ts from 'typescript';
-import { DocumentSnapshot, JSOrTSDocumentSnapshot } from './DocumentSnapshot';
-import { Logger } from '../../logger';
+import { DocumentSnapshot, JSOrTSDocumentSnapshot } from './DocumentSnapshot.ts';
+import { Logger } from '../../logger.ts';
 import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
-import { createGetCanonicalFileName, GetCanonicalFileName, normalizePath } from '../../utils';
+import {
+    createGetCanonicalFileName,
+    type GetCanonicalFileName,
+    normalizePath
+} from '../../utils.ts';
 import { EventEmitter } from 'events';
-import { FileMap } from '../../lib/documents/fileCollection';
+import { FileMap } from '../../lib/documents/fileCollection.ts';
 
 type SnapshotChangeHandler = (
     fileName: string,

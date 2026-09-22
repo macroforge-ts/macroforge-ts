@@ -1,40 +1,39 @@
-import { EncodedSourceMap, originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
-// @ts-ignore
-import { TemplateNode } from 'svelte/types/compiler/interfaces';
-import { IExportedNames, internalHelpers, svelte2tsx } from 'svelte2tsx';
+import { type EncodedSourceMap, originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
+import type { TemplateNode } from 'svelte/types/compiler/interfaces';
+import { type IExportedNames, internalHelpers, svelte2tsx } from 'svelte2tsx';
 import ts from 'typescript';
 import { Position, Range, TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import {
     Document,
-    DocumentMapper,
-    FilePosition,
+    type DocumentMapper,
+    type FilePosition,
     FragmentMapper,
     getLineOffsets,
     IdentityMapper,
     isInTag,
     offsetAt,
     positionAt,
-    TagInformation
-} from '../../lib/documents';
-import { pathToUrl, urlToPath } from '../../utils';
-import { ConsumerDocumentMapper } from './DocumentMapper';
-import { SvelteNode, SvelteNodeWalker, walkSvelteAst } from './svelte-ast-utils';
+    type TagInformation
+} from '../../lib/documents/index.ts';
+import { pathToUrl, urlToPath } from '../../utils.ts';
+import { ConsumerDocumentMapper } from './DocumentMapper.ts';
+import { type SvelteNode, type SvelteNodeWalker, walkSvelteAst } from './svelte-ast-utils.ts';
 import {
     getScriptKindFromAttributes,
     getScriptKindFromFileName,
     getTsCheckComment,
     isSvelteFilePath
-} from './utils';
-import { Logger } from '../../logger';
+} from './utils.ts';
+import { Logger } from '../../logger.ts';
 import { dirname, resolve } from 'path';
 import { URI } from 'vscode-uri';
-import { surroundWithIgnoreComments } from './features/utils';
-import { configLoader } from '../../lib/documents/configLoader';
+import { surroundWithIgnoreComments } from './features/utils.ts';
+import { configLoader } from '../../lib/documents/configLoader.ts';
 import {
     augmentWithMacroforge,
-    MacroDiagnostic,
-    MacroforgeAugmentationConfig
-} from './macroforgeAugmenter';
+    type MacroDiagnostic,
+    type MacroforgeAugmentationConfig
+} from './macroforgeAugmenter.ts';
 
 /**
  * An error which occurred while trying to parse/preprocess the svelte file contents.

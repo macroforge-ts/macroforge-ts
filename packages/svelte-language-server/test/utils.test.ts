@@ -1,4 +1,4 @@
-import { isBeforeOrEqualToPosition, modifyLines, regexLastIndexOf } from '../src/utils';
+import { isBeforeOrEqualToPosition, modifyLines, regexLastIndexOf } from '../src/utils.ts';
 import { Position } from 'vscode-languageserver';
 import * as assert from 'assert';
 

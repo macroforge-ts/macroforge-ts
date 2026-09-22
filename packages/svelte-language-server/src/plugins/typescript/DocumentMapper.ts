@@ -1,6 +1,6 @@
 import { TraceMap } from '@jridgewell/trace-mapping';
 import { Position } from 'vscode-languageserver';
-import { SourceMapDocumentMapper } from '../../lib/documents';
+import { SourceMapDocumentMapper } from '../../lib/documents/index.ts';
 
 export class ConsumerDocumentMapper extends SourceMapDocumentMapper {
     constructor(

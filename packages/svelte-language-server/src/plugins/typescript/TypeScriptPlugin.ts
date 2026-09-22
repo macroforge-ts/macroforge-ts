@@ -1,15 +1,15 @@
-import ts, { NavigationTree } from 'typescript';
+import ts, { type NavigationTree } from 'typescript';
 import {
-    CallHierarchyIncomingCall,
-    CallHierarchyItem,
-    CallHierarchyOutgoingCall,
+    type CallHierarchyIncomingCall,
+    type CallHierarchyItem,
+    type CallHierarchyOutgoingCall,
     CancellationToken,
     CodeAction,
     CodeActionContext,
     CodeLens,
-    CompletionContext,
+    type CompletionContext,
     CompletionList,
-    DefinitionLink,
+    type DefinitionLink,
     Diagnostic,
     DocumentHighlight,
     FileChangeType,
@@ -20,11 +20,11 @@ import {
     LocationLink,
     Position,
     Range,
-    ReferenceContext,
+    type ReferenceContext,
     SelectionRange,
     SemanticTokens,
-    SignatureHelp,
-    SignatureHelpContext,
+    type SignatureHelp,
+    type SignatureHelpContext,
     SymbolInformation,
     SymbolKind,
     TextDocumentContentChangeEvent,
@@ -36,10 +36,10 @@ import {
     DocumentManager,
     getTextInRange,
     mapSymbolInformationToOriginal
-} from '../../lib/documents';
-import { LSConfigManager, LSTypescriptConfig } from '../../ls-config';
-import { isNotNullOrUndefined, isZeroLengthRange, pathToUrl } from '../../utils';
-import {
+} from '../../lib/documents/index.ts';
+import { LSConfigManager, type LSTypescriptConfig } from '../../ls-config.ts';
+import { isNotNullOrUndefined, isZeroLengthRange, pathToUrl } from '../../utils.ts';
+import type {
     AppCompletionItem,
     AppCompletionList,
     CallHierarchyProvider,
@@ -68,33 +68,36 @@ import {
     UpdateImportsProvider,
     UpdateTsOrJsFile,
     WorkspaceSymbolsProvider
-} from '../interfaces';
-import { LSAndTSDocResolver } from './LSAndTSDocResolver';
-import { ignoredBuildDirectories } from './SnapshotManager';
-import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
-import { CompletionResolveInfo, CompletionsProviderImpl } from './features/CompletionProvider';
-import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
-import { FindComponentReferencesProviderImpl } from './features/FindComponentReferencesProvider';
-import { FindFileReferencesProviderImpl } from './features/FindFileReferencesProvider';
-import { FindReferencesProviderImpl } from './features/FindReferencesProvider';
-import { FoldingRangeProviderImpl } from './features/FoldingRangeProvider';
-import { HoverProviderImpl } from './features/HoverProvider';
-import { ImplementationProviderImpl } from './features/ImplementationProvider';
-import { InlayHintProviderImpl } from './features/InlayHintProvider';
-import { RenameProviderImpl } from './features/RenameProvider';
-import { SelectionRangeProviderImpl } from './features/SelectionRangeProvider';
-import { SemanticTokensProviderImpl } from './features/SemanticTokensProvider';
-import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
-import { TypeDefinitionProviderImpl } from './features/TypeDefinitionProvider';
-import { UpdateImportsProviderImpl } from './features/UpdateImportsProvider';
-import { getDirectiveCommentCompletions } from './features/getDirectiveCommentCompletions';
+} from '../interfaces.ts';
+import { LSAndTSDocResolver } from './LSAndTSDocResolver.ts';
+import { ignoredBuildDirectories } from './SnapshotManager.ts';
+import { CodeActionsProviderImpl } from './features/CodeActionsProvider.ts';
+import {
+    type CompletionResolveInfo,
+    CompletionsProviderImpl
+} from './features/CompletionProvider.ts';
+import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider.ts';
+import { FindComponentReferencesProviderImpl } from './features/FindComponentReferencesProvider.ts';
+import { FindFileReferencesProviderImpl } from './features/FindFileReferencesProvider.ts';
+import { FindReferencesProviderImpl } from './features/FindReferencesProvider.ts';
+import { FoldingRangeProviderImpl } from './features/FoldingRangeProvider.ts';
+import { HoverProviderImpl } from './features/HoverProvider.ts';
+import { ImplementationProviderImpl } from './features/ImplementationProvider.ts';
+import { InlayHintProviderImpl } from './features/InlayHintProvider.ts';
+import { RenameProviderImpl } from './features/RenameProvider.ts';
+import { SelectionRangeProviderImpl } from './features/SelectionRangeProvider.ts';
+import { SemanticTokensProviderImpl } from './features/SemanticTokensProvider.ts';
+import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider.ts';
+import { TypeDefinitionProviderImpl } from './features/TypeDefinitionProvider.ts';
+import { UpdateImportsProviderImpl } from './features/UpdateImportsProvider.ts';
+import { getDirectiveCommentCompletions } from './features/getDirectiveCommentCompletions.ts';
 import {
     is$storeVariableIn$storeDeclaration,
     isTextSpanInGeneratedCode,
     SnapshotMap
-} from './features/utils';
-import { DocumentHighlightProviderImpl } from './features/DocumentHighlightProvider';
-import { isAttributeName, isAttributeShorthand, isEventHandler } from './svelte-ast-utils';
+} from './features/utils.ts';
+import { DocumentHighlightProviderImpl } from './features/DocumentHighlightProvider.ts';
+import { isAttributeName, isAttributeShorthand, isEventHandler } from './svelte-ast-utils.ts';
 import {
     convertToLocationForReferenceOrDefinition,
     convertToLocationRange,
@@ -102,10 +105,10 @@ import {
     isSvelte2tsxShimFile,
     isSvelteFilePath,
     symbolKindFromString
-} from './utils';
-import { CallHierarchyProviderImpl } from './features/CallHierarchyProvider';
-import { CodeLensProviderImpl } from './features/CodeLensProvider';
-import { WorkspaceSymbolsProviderImpl } from './features/WorkspaceSymbolProvider';
+} from './utils.ts';
+import { CallHierarchyProviderImpl } from './features/CallHierarchyProvider.ts';
+import { CodeLensProviderImpl } from './features/CodeLensProvider.ts';
+import { WorkspaceSymbolsProviderImpl } from './features/WorkspaceSymbolProvider.ts';
 
 export class TypeScriptPlugin
     implements

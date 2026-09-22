@@ -1,13 +1,13 @@
 import { FSWatcher, watch } from 'chokidar';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { join } from 'path';
 import {
-    DidChangeWatchedFilesParams,
+    type DidChangeWatchedFilesParams,
     FileChangeType,
-    FileEvent,
+    type FileEvent,
     RelativePattern
 } from 'vscode-languageserver';
-import { pathToUrl } from '../utils';
+import { pathToUrl } from '../utils.ts';
 import { fileURLToPath } from 'url';
 import { Stats } from 'fs';
 

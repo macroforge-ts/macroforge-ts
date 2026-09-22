@@ -1,8 +1,8 @@
-import { ConfigLoader } from '../../../src/lib/documents/configLoader';
+import { ConfigLoader } from '../../../src/lib/documents/configLoader.ts';
 import path from 'path';
 import { pathToFileURL, URL } from 'url';
 import assert from 'assert';
-import { spy } from 'sinon';
+import sinon from 'sinon';
 
 describe('ConfigLoader', () => {
     function configFrom(path: string) {
@@ -203,7 +203,7 @@ describe('ConfigLoader', () => {
     });
 
     it('should not load config when disabled', async () => {
-        const moduleLoader = spy();
+        const moduleLoader = sinon.spy();
         const configLoader = new ConfigLoader(
             mockFdir([]),
             { existsSync: () => true },

@@ -14,15 +14,34 @@ fn source_type() -> SourceType {
     SourceType::tsx()
 }
 
-fn leak_parse_inputs(source: &str) -> (&'static Allocator, &'static str) {
-    let allocator = Box::leak(Box::new(Allocator::new()));
-    let leaked_source = Box::leak(source.to_owned().into_boxed_str());
-    (allocator, leaked_source)
+// Every parser here takes the caller's arena. The returned node lives as long
+// as that arena, which the caller frees by dropping it; the source is copied
+// into the same arena because the node borrows from it.
+
+/// The arena `ts_quote!` parses into, from either an owned `Allocator` or an
+/// `&'a Allocator` the caller holds. `ts_quote!` always borrows its arena
+/// argument, so a reference parameter keeps its own lifetime and the quoted
+/// node can be returned to the caller.
+pub trait QuoteArena<'a> {
+    fn quote_arena(self) -> &'a Allocator;
 }
 
-fn parse_program_internal(source: &str) -> Result<Program<'static>, TsSynError> {
-    let (allocator, leaked_source) = leak_parse_inputs(source);
-    let parsed = Parser::new(allocator, leaked_source, source_type()).parse();
+impl<'a> QuoteArena<'a> for &'a Allocator {
+    fn quote_arena(self) -> &'a Allocator {
+        self
+    }
+}
+
+impl<'a> QuoteArena<'a> for &&'a Allocator {
+    fn quote_arena(self) -> &'a Allocator {
+        let &arena = self;
+        arena
+    }
+}
+
+fn parse_program_in<'a>(allocator: &'a Allocator, source: &str) -> Result<Program<'a>, TsSynError> {
+    let source = allocator.alloc_str(source);
+    let parsed = Parser::new(allocator, source, source_type()).parse();
     if !parsed.diagnostics.is_empty() {
         return Err(TsSynError::Parse(format!(
             "Oxc parse errors: {}",
@@ -66,27 +85,38 @@ fn escape_string_literal(value: &str) -> String {
     escaped
 }
 
-pub fn parse_oxc_program(source: &str) -> Result<Program<'static>, TsSynError> {
-    parse_program_internal(source)
+pub fn parse_oxc_program<'a>(
+    allocator: &'a Allocator,
+    source: &str,
+) -> Result<Program<'a>, TsSynError> {
+    parse_program_in(allocator, source)
 }
 
-pub fn parse_oxc_expr(source: &str) -> Result<Expression<'static>, TsSynError> {
-    let (allocator, leaked_source) = leak_parse_inputs(source);
-    Parser::new(allocator, leaked_source, source_type())
+pub fn parse_oxc_expr<'a>(
+    allocator: &'a Allocator,
+    source: &str,
+) -> Result<Expression<'a>, TsSynError> {
+    let source = allocator.alloc_str(source);
+    Parser::new(allocator, source, source_type())
         .parse_expression()
-        .map_err(|errors| {
-            TsSynError::Parse(
-                errors
-                    .into_iter()
-                    .map(|diagnostic| diagnostic.to_string())
-                    .collect::<Vec<_>>()
-                    .join("; "),
-            )
-        })
+        .map_err(expression_parse_error)
 }
 
-pub fn parse_oxc_statement(source: &str) -> Result<Statement<'static>, TsSynError> {
-    let program = parse_program_internal(source)?;
+fn expression_parse_error(errors: oxc::diagnostics::Diagnostics) -> TsSynError {
+    TsSynError::Parse(
+        errors
+            .into_iter()
+            .map(|diagnostic| diagnostic.to_string())
+            .collect::<Vec<_>>()
+            .join("; "),
+    )
+}
+
+pub fn parse_oxc_statement<'a>(
+    allocator: &'a Allocator,
+    source: &str,
+) -> Result<Statement<'a>, TsSynError> {
+    let program = parse_program_in(allocator, source)?;
     program
         .body
         .into_iter()
@@ -94,12 +124,18 @@ pub fn parse_oxc_statement(source: &str) -> Result<Statement<'static>, TsSynErro
         .ok_or_else(|| TsSynError::Parse("no statement found".to_string()))
 }
 
-pub fn parse_oxc_module_item(source: &str) -> Result<Statement<'static>, TsSynError> {
-    parse_oxc_statement(source)
+pub fn parse_oxc_module_item<'a>(
+    allocator: &'a Allocator,
+    source: &str,
+) -> Result<Statement<'a>, TsSynError> {
+    parse_oxc_statement(allocator, source)
 }
 
-pub fn parse_oxc_assignment_target(source: &str) -> Result<AssignmentTarget<'static>, TsSynError> {
-    let statement = parse_oxc_statement(&format!("({source}) = __macroforge_target;"))?;
+pub fn parse_oxc_assignment_target<'a>(
+    allocator: &'a Allocator,
+    source: &str,
+) -> Result<AssignmentTarget<'a>, TsSynError> {
+    let statement = parse_oxc_statement(allocator, &format!("({source}) = __macroforge_target;"))?;
     let Statement::ExpressionStatement(expr_stmt) = statement else {
         return Err(TsSynError::Parse(
             "assignment target wrapper did not parse as an expression statement".to_string(),
@@ -116,8 +152,14 @@ pub fn parse_oxc_assignment_target(source: &str) -> Result<AssignmentTarget<'sta
     Ok(left)
 }
 
-pub fn parse_oxc_binding_pattern(source: &str) -> Result<BindingPattern<'static>, TsSynError> {
-    let statement = parse_oxc_statement(&format!("function __macroforge__({source}) {{}}"))?;
+pub fn parse_oxc_binding_pattern<'a>(
+    allocator: &'a Allocator,
+    source: &str,
+) -> Result<BindingPattern<'a>, TsSynError> {
+    let statement = parse_oxc_statement(
+        allocator,
+        &format!("function __macroforge__({source}) {{}}"),
+    )?;
     let Statement::FunctionDeclaration(function_decl) = statement else {
         return Err(TsSynError::Parse(
             "binding pattern wrapper did not parse as a function declaration".to_string(),
@@ -135,8 +177,11 @@ pub fn parse_oxc_binding_pattern(source: &str) -> Result<BindingPattern<'static>
     Ok(pattern)
 }
 
-pub fn parse_oxc_type(source: &str) -> Result<TSType<'static>, TsSynError> {
-    let statement = parse_oxc_statement(&format!("type __MacroforgeType = {source};"))?;
+pub fn parse_oxc_type<'a>(
+    allocator: &'a Allocator,
+    source: &str,
+) -> Result<TSType<'a>, TsSynError> {
+    let statement = parse_oxc_statement(allocator, &format!("type __MacroforgeType = {source};"))?;
     let Statement::TSTypeAliasDeclaration(type_alias) = statement else {
         return Err(TsSynError::Parse(
             "type wrapper did not parse as a type alias declaration".to_string(),
@@ -147,8 +192,11 @@ pub fn parse_oxc_type(source: &str) -> Result<TSType<'static>, TsSynError> {
     Ok(type_alias.type_annotation)
 }
 
-pub fn parse_oxc_prop_or_spread(source: &str) -> Result<ObjectPropertyKind<'static>, TsSynError> {
-    let expression = parse_oxc_expr(&format!("({{ {source} }})"))?;
+pub fn parse_oxc_prop_or_spread<'a>(
+    allocator: &'a Allocator,
+    source: &str,
+) -> Result<ObjectPropertyKind<'a>, TsSynError> {
+    let expression = parse_oxc_expr(allocator, &format!("({{ {source} }})"))?;
     let object = match expression {
         Expression::ObjectExpression(object) => object,
         Expression::ParenthesizedExpression(paren) => {
@@ -428,7 +476,8 @@ mod tests {
 
     #[test]
     fn parses_expression() {
-        let expr = parse_oxc_expr("foo?.bar ?? baz").unwrap();
+        let allocator = Allocator::new();
+        let expr = parse_oxc_expr(&allocator, "foo?.bar ?? baz").unwrap();
         let source = oxc_expr_to_string(&expr);
         assert!(source.contains("foo"));
         assert!(source.contains("baz"));
@@ -436,14 +485,16 @@ mod tests {
 
     #[test]
     fn parses_statement() {
-        let stmt = parse_oxc_statement("export class Foo {}").unwrap();
+        let allocator = Allocator::new();
+        let stmt = parse_oxc_statement(&allocator, "export class Foo {}").unwrap();
         let source = oxc_stmt_to_string(&stmt);
         assert!(source.contains("class Foo"));
     }
 
     #[test]
     fn parses_binding_pattern() {
-        let pattern = parse_oxc_binding_pattern("{ foo, bar }: Props").unwrap();
+        let allocator = Allocator::new();
+        let pattern = parse_oxc_binding_pattern(&allocator, "{ foo, bar }: Props").unwrap();
         let source = oxc_binding_pattern_to_string(&pattern);
         assert!(source.contains("foo"));
         assert!(source.contains("bar"));
@@ -451,14 +502,16 @@ mod tests {
 
     #[test]
     fn parses_assignment_target() {
-        let target = parse_oxc_assignment_target("foo.bar").unwrap();
+        let allocator = Allocator::new();
+        let target = parse_oxc_assignment_target(&allocator, "foo.bar").unwrap();
         let source = oxc_assignment_target_to_string(&target);
         assert!(source.contains("foo.bar"));
     }
 
     #[test]
     fn parses_type() {
-        let ty = parse_oxc_type("Record<string, number>").unwrap();
+        let allocator = Allocator::new();
+        let ty = parse_oxc_type(&allocator, "Record<string, number>").unwrap();
         let source = oxc_type_to_string(&ty);
         assert!(source.contains("Record"));
         assert!(source.contains("number"));
@@ -466,7 +519,8 @@ mod tests {
 
     #[test]
     fn parses_prop_or_spread() {
-        let prop = parse_oxc_prop_or_spread("foo: bar").unwrap();
+        let allocator = Allocator::new();
+        let prop = parse_oxc_prop_or_spread(&allocator, "foo: bar").unwrap();
         let source = codegen_node(&prop);
         assert!(source.contains("foo"));
         assert!(source.contains("bar"));

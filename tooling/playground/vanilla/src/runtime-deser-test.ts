@@ -41,7 +41,25 @@ export function testMixedElements() {
     });
 }
 
-export function testRecursiveActual() {
+type ContainerFailure = Extract<ReturnType<typeof Container.deserialize>, { success: false }>;
+
+export type RecursiveDeserResult =
+    | { success: false; errors: ContainerFailure['errors'] }
+    | {
+        success: true;
+        itemCount: number;
+        firstIsDate: boolean;
+        firstDateISO: string | undefined;
+        secondIsDate: boolean;
+        secondDateISO: string | undefined;
+    };
+
+/** The item's ISO date when deserialization produced a real `Date`. */
+function isoDate(item: Inner | undefined): string | undefined {
+    return item?.createdAt instanceof Date ? item.createdAt.toISOString() : undefined;
+}
+
+export function testRecursiveActual(): RecursiveDeserResult {
     const result = Container.deserialize({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
@@ -49,13 +67,13 @@ export function testRecursiveActual() {
         ]
     });
     if (!result.success) return { success: false, errors: result.errors };
-    const c = result.value;
+    const [first, second] = result.value.items;
     return {
         success: true,
-        itemCount: c.items.length,
-        firstIsDate: c.items[0].createdAt instanceof Date,
-        firstDateISO: c.items[0].createdAt?.toISOString?.(),
-        secondIsDate: c.items[1].createdAt instanceof Date,
-        secondDateISO: c.items[1].createdAt?.toISOString?.()
+        itemCount: result.value.items.length,
+        firstIsDate: first?.createdAt instanceof Date,
+        firstDateISO: isoDate(first),
+        secondIsDate: second?.createdAt instanceof Date,
+        secondDateISO: isoDate(second)
     };
 }

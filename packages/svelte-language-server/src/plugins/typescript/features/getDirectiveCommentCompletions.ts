@@ -1,6 +1,6 @@
-import { Document, isInTag } from '../../../lib/documents';
+import { Document, isInTag } from '../../../lib/documents/index.ts';
 import {
-    CompletionContext,
+    type CompletionContext,
     CompletionItem,
     CompletionItemKind,
     CompletionList,

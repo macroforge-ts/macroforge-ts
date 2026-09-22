@@ -1,14 +1,5 @@
+import { expandForDisplay } from '../macroforge-expand.js';
 import { highlightCode } from '../shiki-highlighter.js';
-
-let expandSync: typeof import('@macroforge/core').expandSync | null = null;
-
-async function getExpandSync() {
-    if (!expandSync) {
-        const macroforge = await import('@macroforge/core');
-        expandSync = macroforge.expandSync;
-    }
-    return expandSync;
-}
 
 export interface ExpandedExample {
     before: string;
@@ -25,17 +16,7 @@ export async function expandExample(
     code: string,
     filename = 'example.ts'
 ): Promise<ExpandedExample> {
-    const expand = await getExpandSync();
-    const result = expand(code, filename);
-
-    // Clean up the expanded code for display
-    let after = result.code;
-
-    // Remove the macroforge import line if present
-    after = after.replace(
-        /^import\s+\{[^}]+\}\s+from\s+['"]macroforge['"];\s*\n?/m,
-        ''
-    );
+    const after = await expandForDisplay(code, filename);
 
     // Pre-highlight with Shiki
     const [beforeHtml, afterHtml] = await Promise.all([
@@ -57,13 +38,13 @@ export async function expandExample(
 export async function expandExamples(
     examples: Record<string, string>
 ): Promise<Record<string, ExpandedExample>> {
-    const result: Record<string, ExpandedExample> = {};
-    const entries = Object.entries(examples);
     const expanded = await Promise.all(
-        entries.map(([key, code]) => expandExample(code, `${key}.ts`))
+        Object.entries(examples).map(
+            async ([key, code]): Promise<[string, ExpandedExample]> => [
+                key,
+                await expandExample(code, `${key}.ts`)
+            ]
+        )
     );
-    for (let i = 0; i < entries.length; i++) {
-        result[entries[i][0]] = expanded[i];
-    }
-    return result;
+    return Object.fromEntries(expanded);
 }

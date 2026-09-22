@@ -2,14 +2,14 @@ import assert from 'assert';
 import path from 'path';
 import ts from 'typescript';
 import { WorkspaceSymbol } from 'vscode-languageserver-protocol';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { LSAndTSDocResolver } from '../../../../src/plugins';
-import { WorkspaceSymbolsProviderImpl } from '../../../../src/plugins/typescript/features/WorkspaceSymbolProvider';
-import { pathToUrl } from '../../../../src/utils';
-import { rangeOf, serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/index.ts';
+import { WorkspaceSymbolsProviderImpl } from '../../../../src/plugins/typescript/features/WorkspaceSymbolProvider.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { rangeOf, serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 
 describe('WorkspaceSymbolsProvider', function () {
     serviceWarmup(this, testDir, pathToUrl(testDir));

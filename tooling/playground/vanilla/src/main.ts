@@ -1,107 +1,88 @@
 import { AllMacrosTestClass, testInstance } from './all-macros-test.ts';
 import { User } from './user.ts';
-import { type RunesTestResults, runRunesTests } from './runes-test.ts';
-import { type E2eResults, runE2eHarness } from './e2e-harness.ts';
-import { type BuildtimeDemoResult, collectBuildtimeDemo } from './buildtime-demo.ts';
+import { runRunesTests } from './runes-test.ts';
+import { runE2eHarness } from './e2e-harness.ts';
+import { collectBuildtimeDemo } from './buildtime-demo.ts';
 import * as attrs from './attributes-test.ts';
+import { requireElement } from './dom.util.ts';
+import {
+    type AttributesResults,
+    type MacroTestResults,
+    playgroundResults
+} from './playground-globals.ts';
 
-// Probe runtime exports of the attributes fixture. `@cfg`-stripped
-// declarations vanish entirely, so the namespace import returns `undefined`
-// for them. We use that as the runtime evidence that the pre-pass ran.
-//
-// `@deprecated` keeps the function (only the JSDoc gets rewritten — the
-// `.expanded.ts` snapshot covers that).
-//
-// `@nonExhaustive` is type-only; the runtime value is just a string.
-type AttributesResults = {
-    keptByFeature: string | null;
-    strippedByFeature: string | null;
-    keptByTarget: string | null;
-    strippedByTarget: string | null;
-    deprecatedCall: string;
-    nonExhaustiveValue: string;
-};
+/**
+ * Calls an attributes-fixture export by name, or `null` when `@cfg` stripped
+ * it. The stripped exports vanish at runtime, which is the evidence that the
+ * pre-pass ran, so they are looked up dynamically rather than imported.
+ */
+function probeExport(name: string): string | null {
+    const value: unknown = Reflect.get(attrs, name);
+    return typeof value === 'function' ? String(value()) : null;
+}
 
+// `@deprecated` keeps the function and rewrites only its JSDoc, which
+// `tests/expansion.test.mjs` covers. `@nonExhaustive` is type-only; the
+// runtime value is just a string.
 function collectAttributesResults(): AttributesResults {
-    const dyn = attrs as Partial<typeof attrs>;
     return {
-        keptByFeature: dyn.keptByPlayground?.() ?? null,
-        strippedByFeature: dyn.strippedByMissingFeature?.() ?? null,
-        keptByTarget: dyn.keptByWebTarget?.() ?? null,
-        strippedByTarget: dyn.strippedByNodeTarget?.() ?? null,
+        keptByFeature: probeExport('keptByPlayground'),
+        strippedByFeature: probeExport('strippedByMissingFeature'),
+        keptByTarget: probeExport('keptByWebTarget'),
+        strippedByTarget: probeExport('strippedByNodeTarget'),
         deprecatedCall: attrs.renderV1(),
         nonExhaustiveValue: attrs.exampleStatus
     };
 }
 
-// The playground attaches test results to `globalThis` so Playwright
-// can read them after page load.
-type PlaygroundGlobals = {
-    macroTestResults: {
-        debug?: string;
-        clone?: object;
-        equals?: boolean;
-        hashCode?: number;
-        serialize?: string;
-        deserialize?: object;
-    };
-    runesTestResults?: RunesTestResults;
-    e2eResults?: E2eResults;
-    buildtimeResults?: BuildtimeDemoResult;
-    attributesResults?: AttributesResults;
-};
-const pg = globalThis as unknown as PlaygroundGlobals;
+const playground = playgroundResults();
+const macroTestResults: MacroTestResults = {};
+playground.macroTests = macroTestResults;
 
-pg.macroTestResults = {};
+function renderResult(id: string, html: string) {
+    requireElement(id).innerHTML = html;
+}
 
 function runAllMacroTests() {
-    const results = pg.macroTestResults;
-
     // Test Debug macro -> static toString()
     const debugResult = AllMacrosTestClass.toString(testInstance);
-    results.debug = debugResult;
-    document.getElementById('result-debug')!.innerHTML =
-        `<strong>Debug (toString):</strong> <code>${debugResult}</code>`;
+    macroTestResults.debug = debugResult;
+    renderResult('result-debug', `<strong>Debug (toString):</strong> <code>${debugResult}</code>`);
 
     // Test Clone macro -> static clone()
     if (typeof AllMacrosTestClass.clone === 'function') {
         const cloned = AllMacrosTestClass.clone(testInstance);
-        results.clone = cloned;
-        document.getElementById('result-clone')!.innerHTML = `<strong>Clone:</strong> <pre>${
-            JSON.stringify(cloned, null, 2)
-        }</pre>`;
+        macroTestResults.clone = cloned;
+        renderResult(
+            'result-clone',
+            `<strong>Clone:</strong> <pre>${JSON.stringify(cloned, null, 2)}</pre>`
+        );
     } else {
-        document.getElementById('result-clone')!.innerHTML =
-            `<strong>Clone:</strong> <em>Not available</em>`;
+        renderResult('result-clone', `<strong>Clone:</strong> <em>Not available</em>`);
     }
 
     // Test PartialEq macro -> static equals()
     if (typeof AllMacrosTestClass.equals === 'function') {
         const equalsSelf = AllMacrosTestClass.equals(testInstance, testInstance);
-        results.equals = equalsSelf;
-        document.getElementById('result-equals')!.innerHTML =
-            `<strong>Equals (self):</strong> <code>${equalsSelf}</code>`;
+        macroTestResults.equals = equalsSelf;
+        renderResult('result-equals', `<strong>Equals (self):</strong> <code>${equalsSelf}</code>`);
     } else {
-        document.getElementById('result-equals')!.innerHTML =
-            `<strong>Equals:</strong> <em>Not available</em>`;
+        renderResult('result-equals', `<strong>Equals:</strong> <em>Not available</em>`);
     }
 
     // Test Hash macro -> static hashCode()
     if (typeof AllMacrosTestClass.hashCode === 'function') {
         const hashCode = AllMacrosTestClass.hashCode(testInstance);
-        results.hashCode = hashCode;
-        document.getElementById('result-hashcode')!.innerHTML =
-            `<strong>HashCode:</strong> <code>${hashCode}</code>`;
+        macroTestResults.hashCode = hashCode;
+        renderResult('result-hashcode', `<strong>HashCode:</strong> <code>${hashCode}</code>`);
     } else {
-        document.getElementById('result-hashcode')!.innerHTML =
-            `<strong>HashCode:</strong> <em>Not available</em>`;
+        renderResult('result-hashcode', `<strong>HashCode:</strong> <em>Not available</em>`);
     }
 
     // Test Serialize macro -> static serialize()
     const serialized = AllMacrosTestClass.serialize(testInstance);
-    results.serialize = serialized;
-    document.getElementById('result-serialize')!.innerHTML =
-        `<strong>Serialize:</strong> <pre>${serialized}</pre>`;
+    macroTestResults.serialize = serialized;
+    renderResult('result-serialize', `<strong>Serialize:</strong> <pre>${serialized}</pre>`);
 
     // Test Deserialize macro -> deserialize()
     if (typeof AllMacrosTestClass.deserialize === 'function') {
@@ -116,18 +97,21 @@ function runAllMacroTests() {
         // deserialize returns a vanilla result { success: boolean, value/errors }
         const result = AllMacrosTestClass.deserialize(testData);
         if (result.success) {
-            const deserialized = result.value;
-            results.deserialize = deserialized;
-            document.getElementById('result-deserialize')!.innerHTML =
-                `<strong>Deserialize:</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
+            macroTestResults.deserialize = result.value;
+            renderResult(
+                'result-deserialize',
+                `<strong>Deserialize:</strong> <pre>${JSON.stringify(result.value, null, 2)}</pre>`
+            );
         } else {
-            const errors = result.errors;
-            document.getElementById('result-deserialize')!.innerHTML =
-                `<strong>Deserialize Error:</strong> <pre>${JSON.stringify(errors, null, 2)}</pre>`;
+            renderResult(
+                'result-deserialize',
+                `<strong>Deserialize Error:</strong> <pre>${
+                    JSON.stringify(result.errors, null, 2)
+                }</pre>`
+            );
         }
     } else {
-        document.getElementById('result-deserialize')!.innerHTML =
-            `<strong>Deserialize:</strong> <em>Not available</em>`;
+        renderResult('result-deserialize', `<strong>Deserialize:</strong> <em>Not available</em>`);
     }
 
     // Mark tests as complete
@@ -146,12 +130,12 @@ function testMacros() {
     // Vite plugin's macroforge pre-pass didn't run, this will throw
     // because the `@macroforge/core/buildtime` runtime stubs fire.
     const buildtimeResult = collectBuildtimeDemo();
-    pg.buildtimeResults = buildtimeResult;
+    playground.buildtime = buildtimeResult;
 
     // Probe the attribute-pre-pass fixture. Stripped exports show up as
     // `null`; kept ones return their value.
     const attributeResults = collectAttributesResults();
-    pg.attributesResults = attributeResults;
+    playground.attributes = attributeResults;
 
     const app = document.getElementById('app');
     if (app) {
@@ -254,25 +238,24 @@ function testMacros() {
 
     // Run e2e harness for all macro types and expose on globalThis
     try {
-        pg.e2eResults = runE2eHarness();
+        playground.e2e = runE2eHarness();
         console.log('E2e harness collected successfully');
-    } catch (e) {
-        console.error('E2e harness failed:', e);
+    } catch (error) {
+        console.error('E2e harness failed:', error);
     }
 
     // Run runes reactivity tests automatically and expose on globalThis
     try {
-        pg.runesTestResults = runRunesTests();
-        console.log(
-            `Runes tests: ${pg.runesTestResults.passed} passed, ${pg.runesTestResults.failed} failed`
-        );
-        for (const d of pg.runesTestResults.details) console.log(d);
-    } catch (e) {
-        console.error('Runes tests failed:', e);
-        pg.runesTestResults = {
+        const runes = runRunesTests();
+        playground.runes = runes;
+        console.log(`Runes tests: ${runes.passed} passed, ${runes.failed} failed`);
+        for (const detail of runes.details) console.log(detail);
+    } catch (error) {
+        console.error('Runes tests failed:', error);
+        playground.runes = {
             passed: 0,
             failed: 1,
-            details: [`ERROR: ${e}`]
+            details: [`ERROR: ${error}`]
         };
     }
 

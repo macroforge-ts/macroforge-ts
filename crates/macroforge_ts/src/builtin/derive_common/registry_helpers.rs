@@ -98,26 +98,35 @@ pub fn fields_from_definition(
     definition: &TypeDefinitionIR,
     type_registry: &TypeRegistry,
 ) -> Option<Vec<InterfaceFieldIR>> {
+    fields_from_definition_visiting(definition, type_registry, &mut Vec::new())
+}
+
+fn fields_from_definition_visiting(
+    definition: &TypeDefinitionIR,
+    type_registry: &TypeRegistry,
+    visiting: &mut Vec<String>,
+) -> Option<Vec<InterfaceFieldIR>> {
     match definition {
-        TypeDefinitionIR::Interface(i) => Some(i.fields.clone()),
-        TypeDefinitionIR::Class(c) => Some(
-            c.fields
+        TypeDefinitionIR::Interface(interface) => Some(interface.fields.clone()),
+        TypeDefinitionIR::Class(class) => Some(
+            class
+                .fields
                 .iter()
-                .map(|f| InterfaceFieldIR {
-                    name: f.name.clone(),
-                    span: f.span,
-                    ts_type: f.ts_type.clone(),
-                    optional: f.optional,
-                    readonly: f.readonly,
-                    decorators: f.decorators.clone(),
+                .map(|field| InterfaceFieldIR {
+                    name: field.name.clone(),
+                    span: field.span,
+                    ts_type: field.ts_type.clone(),
+                    optional: field.optional,
+                    readonly: field.readonly,
+                    decorators: field.decorators.clone(),
                 })
                 .collect(),
         ),
-        TypeDefinitionIR::TypeAlias(t) => {
-            if let Some(obj_fields) = t.body.as_object() {
+        TypeDefinitionIR::TypeAlias(alias) => {
+            if let Some(obj_fields) = alias.body.as_object() {
                 Some(obj_fields.to_vec())
-            } else if let Some(members) = t.body.as_intersection() {
-                flatten_intersection_fields(members, type_registry)
+            } else if let Some(members) = alias.body.as_intersection() {
+                flatten_intersection_fields_visiting(members, type_registry, visiting)
             } else {
                 None
             }
@@ -129,12 +138,21 @@ pub fn fields_from_definition(
 /// Flatten an intersection type's members into a single field list.
 ///
 /// Returns `None` if any `TypeRef` member cannot be resolved (incomplete
-/// knowledge — the named type is missing from the registry). Returns
-/// `Some(fields)` with deduplicated fields (first-seen-wins) on success.
-/// Literal members are skipped (they contribute no fields).
+/// knowledge — the named type is missing from the registry), or if the
+/// references form a cycle, which the expander reports at the derive.
+/// Returns `Some(fields)` with deduplicated fields (first-seen-wins) on
+/// success. Literal members are skipped (they contribute no fields).
 pub fn flatten_intersection_fields(
     members: &[TypeMember],
     type_registry: &TypeRegistry,
+) -> Option<Vec<InterfaceFieldIR>> {
+    flatten_intersection_fields_visiting(members, type_registry, &mut Vec::new())
+}
+
+fn flatten_intersection_fields_visiting(
+    members: &[TypeMember],
+    type_registry: &TypeRegistry,
+    visiting: &mut Vec<String>,
 ) -> Option<Vec<InterfaceFieldIR>> {
     let mut fields = Vec::new();
     let mut seen = HashSet::new();
@@ -149,9 +167,15 @@ pub fn flatten_intersection_fields(
                 }
             }
             TypeMemberKind::TypeRef(type_name) => {
+                if visiting.contains(type_name) {
+                    return None;
+                }
                 let entry = type_registry.get(type_name)?;
-                let member_fields = fields_from_definition(&entry.definition, type_registry)?;
-                for field in member_fields {
+                visiting.push(type_name.clone());
+                let member_fields =
+                    fields_from_definition_visiting(&entry.definition, type_registry, visiting);
+                visiting.pop();
+                for field in member_fields? {
                     if seen.insert(field.name.clone()) {
                         fields.push(field);
                     }
@@ -162,7 +186,8 @@ pub fn flatten_intersection_fields(
             }
             TypeMemberKind::Intersection(sub_members) => {
                 // Recursively flatten nested intersections
-                let sub_fields = flatten_intersection_fields(sub_members, type_registry)?;
+                let sub_fields =
+                    flatten_intersection_fields_visiting(sub_members, type_registry, visiting)?;
                 for field in sub_fields {
                     if seen.insert(field.name.clone()) {
                         fields.push(field);

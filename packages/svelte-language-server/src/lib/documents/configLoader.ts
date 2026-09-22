@@ -1,14 +1,12 @@
-import { Logger } from '../../logger';
-// @ts-ignore
-import { CompileOptions } from 'svelte/types/compiler/interfaces';
-// @ts-ignore
-import { PreprocessorGroup } from 'svelte/types/compiler/preprocess';
-import { importSveltePreprocess } from '../../importPackage';
+import { Logger } from '../../logger.ts';
+import type { CompileOptions } from 'svelte/types/compiler/interfaces';
+import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess';
+import { packageLoader } from '../../importPackage.ts';
 import { fdir } from 'fdir';
 import _path from 'path';
 import _fs from 'fs';
 import { pathToFileURL, URL } from 'url';
-import { FileMap } from './fileCollection';
+import { FileMap } from './fileCollection.ts';
 import ts from 'typescript';
 
 export type InternalPreprocessorGroup = PreprocessorGroup & {
@@ -273,7 +271,7 @@ export class ConfigLoader {
         foundConfig: boolean
     ): SvelteConfig {
         try {
-            const sveltePreprocess = importSveltePreprocess(path);
+            const sveltePreprocess = packageLoader.importSveltePreprocess(path);
             Logger.log(
                 (foundConfig
                     ? 'Found svelte.config.js but there was an error loading it. '

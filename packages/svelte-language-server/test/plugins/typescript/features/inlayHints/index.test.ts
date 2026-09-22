@@ -2,16 +2,16 @@ import * as assert from 'assert';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import ts from 'typescript';
-import { Document, DocumentManager } from '../../../../../src/lib/documents';
-import { LSConfigManager, TsInlayHintsConfig } from '../../../../../src/ls-config';
-import { LSAndTSDocResolver } from '../../../../../src/plugins';
-import { InlayHintProviderImpl } from '../../../../../src/plugins/typescript/features/InlayHintProvider';
-import { pathToUrl } from '../../../../../src/utils';
+import { Document, DocumentManager } from '../../../../../src/lib/documents/index.ts';
+import { LSConfigManager, type TsInlayHintsConfig } from '../../../../../src/ls-config.ts';
+import { LSAndTSDocResolver } from '../../../../../src/plugins/index.ts';
+import { InlayHintProviderImpl } from '../../../../../src/plugins/typescript/features/InlayHintProvider.ts';
+import { pathToUrl } from '../../../../../src/utils.ts';
 import {
     createJsonSnapshotFormatter,
     createSnapshotTester,
     updateSnapshotIfFailedOrEmpty
-} from '../../test-utils';
+} from '../../test-utils.ts';
 import { InlayHint } from 'vscode-languageserver-types';
 
 function setup(workspaceDir: string, filePath: string) {
@@ -88,7 +88,7 @@ async function executeTest(
         getFileContent() {
             return snapshotFormatter(inlayHints);
         },
-        rootDir: __dirname
+        rootDir: import.meta.dirname
     });
 
     function sanitizeUri(inlayHints: InlayHint[] | null) {
@@ -163,8 +163,8 @@ const executeTests = createSnapshotTester(executeTest);
 
 describe('InlayHintProvider', function () {
     executeTests({
-        dir: join(__dirname, 'fixtures'),
-        workspaceDir: join(__dirname, 'fixtures'),
+        dir: join(import.meta.dirname, 'fixtures'),
+        workspaceDir: join(import.meta.dirname, 'fixtures'),
         context: this
     });
 });

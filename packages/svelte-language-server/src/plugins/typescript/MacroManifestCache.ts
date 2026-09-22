@@ -1,4 +1,5 @@
-import { Logger } from '../../logger';
+import { __macroforgeGetManifest } from '@macroforge/core';
+import { Logger } from '../../logger.ts';
 
 /**
  * Macro info from the manifest
@@ -32,9 +33,8 @@ export class MacroManifestCache {
     /**
      * Initialize the cache from macroforge native module
      *
-     * `initialized` is only set on success, so if loading the manifest fails
-     * (module missing, no `__macroforgeGetManifest`, or a thrown error) the
-     * load is retried on every subsequent lookup.
+     * `initialized` is only set on success, so a manifest that fails to load
+     * is retried on the next lookup.
      */
     initialize(): void {
         if (this.initialized) {
@@ -42,16 +42,7 @@ export class MacroManifestCache {
         }
 
         try {
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            const macroforge = require('@macroforge/core');
-            if (typeof macroforge.__macroforgeGetManifest !== 'function') {
-                Logger.debug(
-                    'MacroManifestCache: __macroforgeGetManifest not available'
-                );
-                return;
-            }
-
-            const manifest = macroforge.__macroforgeGetManifest();
+            const manifest = __macroforgeGetManifest();
 
             // Cache macros
             for (const m of manifest.macros) {
@@ -78,7 +69,7 @@ export class MacroManifestCache {
                 `MacroManifestCache: Loaded ${this.macros.size} macros and ${this.decorators.size} decorators`
             );
         } catch (e) {
-            Logger.debug('MacroManifestCache: Failed to load manifest:', e);
+            Logger.error('MacroManifestCache: Failed to load manifest:', e);
         }
     }
 

@@ -1,15 +1,15 @@
 import path from 'path';
 import assert from 'assert';
 import ts from 'typescript';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { LSAndTSDocResolver } from '../../../../src/plugins';
-import { ImplementationProviderImpl } from '../../../../src/plugins/typescript/features/ImplementationProvider';
-import { pathToUrl } from '../../../../src/utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/index.ts';
+import { ImplementationProviderImpl } from '../../../../src/plugins/typescript/features/ImplementationProvider.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
 import { Location } from 'vscode-languageserver-protocol';
-import { rangeBetween, serviceWarmup } from '../test-utils';
+import { rangeBetween, serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 const implementationTestDir = path.join(testDir, 'testfiles', 'implementation');
 
 describe('ImplementationProvider', function () {

@@ -2,19 +2,19 @@ import { doComplete as doEmmetComplete } from '@vscode/emmet-helper';
 import {
     CompletionItem as HtmlCompletionItem,
     getLanguageService,
-    HTMLDocument,
+    type HTMLDocument,
     newHTMLDataProvider,
-    Node
+    type Node
 } from 'vscode-html-languageservice';
 import {
-    CompletionContext,
+    type CompletionContext,
     CompletionItem,
     CompletionItemKind,
     CompletionList,
     DocumentHighlight,
     FoldingRange,
     Hover,
-    LinkedEditingRanges,
+    type LinkedEditingRanges,
     Position,
     Range,
     SymbolInformation,
@@ -26,24 +26,24 @@ import {
     DocumentManager,
     getNodeIfIsInComponentStartTag,
     isInTag
-} from '../../lib/documents';
-import { LSConfigManager, LSHTMLConfig } from '../../ls-config';
-import { svelteHtmlDataProvider } from './dataProvider';
-import {
+} from '../../lib/documents/index.ts';
+import { LSConfigManager, type LSHTMLConfig } from '../../ls-config.ts';
+import { svelteHtmlDataProvider } from './dataProvider.ts';
+import type {
     CompletionsProvider,
     DocumentHighlightProvider,
     FoldingRangeProvider,
     HoverProvider,
     LinkedEditingRangesProvider,
     RenameProvider
-} from '../interfaces';
-import { isInsideMoustacheTag, toRange } from '../../lib/documents/utils';
-import { isNotNullOrUndefined, possiblyComponent } from '../../utils';
-import { importPrettier } from '../../importPackage';
+} from '../interfaces.ts';
+import { isInsideMoustacheTag, toRange } from '../../lib/documents/utils.ts';
+import { isNotNullOrUndefined, possiblyComponent } from '../../utils.ts';
+import { packageLoader, packageRequire } from '../../importPackage.ts';
 import path from 'path';
-import { Logger } from '../../logger';
-import { indentBasedFoldingRangeForTag } from '../../lib/foldingRange/indentFolding';
-import { wordHighlightForTag } from '../../lib/documentHighlight/wordHighlight';
+import { Logger } from '../../logger.ts';
+import { indentBasedFoldingRangeForTag } from '../../lib/foldingRange/indentFolding.ts';
+import { wordHighlightForTag } from '../../lib/documentHighlight/wordHighlight.ts';
 
 // https://github.com/microsoft/vscode/blob/c6f507deeb99925e713271b1048f21dbaab4bd54/extensions/html/language-configuration.json#L34
 const wordPattern = /(-?\d*\.\d\w*)|([^`~!@$^&*()=+[{\]}\|;:'",.<>\/\s]+)/g;
@@ -176,7 +176,7 @@ export class HTMLPlugin
         const prettierConfig = filePath &&
                 items.some((item) => item.label.startsWith('on:') || item.label.startsWith('bind:'))
             ? this.configManager.getMergedPrettierConfig(
-                await importPrettier(filePath).resolveConfig(filePath, {
+                await packageLoader.importPrettier(filePath).resolveConfig(filePath, {
                     editorconfig: true
                 })
             )
@@ -529,7 +529,7 @@ export class HTMLPlugin
             ?.customData?.map((customDataPath) => {
                 try {
                     const jsonPath = path.resolve(customDataPath);
-                    return newHTMLDataProvider(customDataPath, require(jsonPath));
+                    return newHTMLDataProvider(customDataPath, packageRequire(jsonPath));
                 } catch (error) {
                     Logger.error(error);
                 }

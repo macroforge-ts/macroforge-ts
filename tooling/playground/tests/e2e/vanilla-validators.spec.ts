@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readVanillaSlice } from './vanilla-playground.ts';
 
 test.describe('Vanilla Validator Form E2E Tests', () => {
     test.beforeEach(async ({ page }) => {
@@ -313,23 +314,13 @@ test.describe('Vanilla Validator Form E2E Tests', () => {
             await page.fill('[data-testid="user-website"]', 'https://example.com');
             await page.click('[data-testid="submit-user-registration"]');
 
-            // Check window object
-            const results = await page.evaluate(() =>
-                (globalThis as unknown as {
-                    validatorFormResults: Record<
-                        string,
-                        {
-                            success: boolean;
-                            value?: Record<string, unknown>;
-                            errors?: unknown[];
-                        }
-                    >;
-                }).validatorFormResults
-            );
-            expect(results.userRegistration).toBeDefined();
-            expect(results.userRegistration.success).toBe(true);
-            expect(results.userRegistration.value).toBeDefined();
-            expect(results.userRegistration.value.email).toBe('test@example.com');
+            const { userRegistration } = await readVanillaSlice(page, 'validatorForm');
+            if (!userRegistration?.success) {
+                throw new Error(
+                    `registration did not validate: ${JSON.stringify(userRegistration)}`
+                );
+            }
+            expect(userRegistration.value.email).toBe('test@example.com');
         });
 
         test('validation errors are stored in window object', async ({ page }) => {
@@ -341,23 +332,13 @@ test.describe('Vanilla Validator Form E2E Tests', () => {
             await page.fill('[data-testid="product-tags"]', '');
             await page.click('[data-testid="submit-product"]');
 
-            // Check window object
-            const results = await page.evaluate(() =>
-                (globalThis as unknown as {
-                    validatorFormResults: Record<
-                        string,
-                        {
-                            success: boolean;
-                            value?: Record<string, unknown>;
-                            errors?: unknown[];
-                        }
-                    >;
-                }).validatorFormResults
-            );
-            expect(results.product).toBeDefined();
-            expect(results.product.success).toBe(false);
-            expect(results.product.errors).toBeDefined();
-            expect(results.product.errors.length).toBeGreaterThan(0);
+            const { product } = await readVanillaSlice(page, 'validatorForm');
+            if (product === undefined || product.success) {
+                throw new Error(
+                    `product should have failed validation: ${JSON.stringify(product)}`
+                );
+            }
+            expect(product.errors.length).toBeGreaterThan(0);
         });
     });
 });

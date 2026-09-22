@@ -29,13 +29,12 @@
         // Macroforge plugin for playground e2e
         "plugins": [
             {
-                "name": "@macroforge/typescript-plugin",
-                "path": "../../packages/typescript-plugin",
-                "macroNames": ["Derive"],
-                "mixinModule": "@macroforge/macros",
-                "mixinTypes": ["MacroDebug", "MacroJSON"]
+                "name": "@macroforge/typescript-plugin"
             }
         ]
     },
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+    // Each e2e spec is type-checked by the playground it drives, whose
+    // macroforge config and type registry its imports expand under.
+    "exclude": ["e2e/**"]
 }

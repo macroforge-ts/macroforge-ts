@@ -9,24 +9,24 @@ import {
     Position,
     Range
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../src/lib/documents';
-import { LSConfigManager } from '../../../src/ls-config';
-import { LSAndTSDocResolver, TypeScriptPlugin } from '../../../src/plugins';
-import { INITIAL_VERSION } from '../../../src/plugins/typescript/DocumentSnapshot';
-import { __resetCache } from '../../../src/plugins/typescript/service';
-import { ignoredBuildDirectories } from '../../../src/plugins/typescript/SnapshotManager';
-import { pathToUrl } from '../../../src/utils';
-import { serviceWarmup } from './test-utils';
+import { Document, DocumentManager } from '../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../src/ls-config.ts';
+import { LSAndTSDocResolver, TypeScriptPlugin } from '../../../src/plugins/index.ts';
+import { INITIAL_VERSION } from '../../../src/plugins/typescript/DocumentSnapshot.ts';
+import { __resetCache } from '../../../src/plugins/typescript/service.ts';
+import { ignoredBuildDirectories } from '../../../src/plugins/typescript/SnapshotManager.ts';
+import { pathToUrl } from '../../../src/utils.ts';
+import { serviceWarmup } from './test-utils.ts';
 import { internalHelpers } from 'svelte2tsx';
 import { VERSION } from 'svelte/compiler';
 
-const testDir = path.join(__dirname, 'testfiles');
+const testDir = path.join(import.meta.dirname, 'testfiles');
 
 describe('TypescriptPlugin', function () {
     serviceWarmup(this, testDir);
 
     function getUri(filename: string) {
-        const filePath = path.join(__dirname, 'testfiles', filename);
+        const filePath = path.join(import.meta.dirname, 'testfiles', filename);
         return pathToUrl(filePath);
     }
 

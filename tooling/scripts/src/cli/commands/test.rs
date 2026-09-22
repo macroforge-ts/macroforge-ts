@@ -2,7 +2,7 @@
 //!
 //! Runs tests for Rust crates, TypeScript packages, and playground.
 
-use crate::cli::{ExpandArgs, TestArgs};
+use crate::cli::TestArgs;
 use crate::core::config::Config;
 use crate::core::repos::RepoType;
 use crate::core::shell;
@@ -15,11 +15,11 @@ pub fn run(args: TestArgs) -> Result<()> {
     let config = Config::load()?;
 
     match args.suite.as_str() {
-        "rust" => run_rust_tests(&config, args.repos.as_deref())?,
+        "rust" => run_rust_tests(&config)?,
         "packages" => run_package_tests(&config)?,
         "playground" => run_playground_tests(&config)?,
         "all" => {
-            run_rust_tests(&config, args.repos.as_deref())?;
+            run_rust_tests(&config)?;
             run_package_tests(&config)?;
             run_playground_tests(&config)?;
         }
@@ -33,80 +33,51 @@ pub fn run(args: TestArgs) -> Result<()> {
     Ok(())
 }
 
-/// Run Rust tests using cargo test with workspace support
-fn run_rust_tests(config: &Config, repos_filter: Option<&str>) -> Result<()> {
+/// Runs every Rust test in the workspace once, then each excluded crate's.
+pub fn run_rust_tests(config: &Config) -> Result<()> {
     println!("\n{}", "Running Rust tests".bold());
     println!("{}", "─".repeat(40));
 
-    // Get Rust repos
-    let rust_repos: Vec<_> = config
-        .repos
-        .values()
-        .filter(|r| r.repo_type == RepoType::Rust)
-        .collect();
-
-    // Filter repos if specified
-    let repos_to_test: Vec<_> = if let Some(filter) = repos_filter {
-        let filter_names: Vec<&str> = filter.split(',').map(|s| s.trim()).collect();
-        rust_repos
-            .into_iter()
-            .filter(|r| filter_names.contains(&r.name.as_str()))
-            .collect()
-    } else {
-        rust_repos
-    };
-
-    if repos_to_test.is_empty() {
-        println!("  {} No Rust repos to test", "⚠".yellow());
-        return Ok(());
-    }
-
-    for repo in &repos_to_test {
-        print!("  {} {}... ", "Testing:".bold(), repo.name.cyan());
+    let mut rust_roots = vec![config.root.clone()];
+    rust_roots.extend(crate::diagnostics::clippy::excluded_crates(&config.root)?);
+    for rust_root in &rust_roots {
+        let label = rust_root
+            .strip_prefix(&config.root)
+            .ok()
+            .filter(|relative| !relative.as_os_str().is_empty())
+            .map_or_else(
+                || "workspace".to_string(),
+                |relative| relative.display().to_string(),
+            );
+        print!("  {} {}... ", "Testing:".bold(), label.cyan());
         io::stdout().flush()?;
-
-        match shell::cargo::test(&repo.abs_path) {
+        match shell::cargo::test(rust_root) {
             Ok(_) => println!("{}", "passed".green()),
             Err(e) => {
                 println!("{}", "failed".red());
-                return Err(e).context(format!("Tests failed for {}", repo.name));
+                return Err(e).context(format!("Tests failed for {label}"));
             }
         }
     }
-
     Ok(())
 }
 
-/// Run TypeScript package tests using deno
-fn run_package_tests(config: &Config) -> Result<()> {
+/// Runs the `test` task of every TypeScript package that defines one.
+pub fn run_package_tests(config: &Config) -> Result<()> {
     println!("\n{}", "Running package tests".bold());
     println!("{}", "─".repeat(40));
 
-    // Get TS packages that have test scripts
-    let ts_repos_with_tests: Vec<_> = config
+    let mut tested = 0;
+    for repo in config
         .repos
         .values()
-        .filter(|r| r.repo_type == RepoType::Ts)
-        .filter(|r| {
-            r.package_json
-                .as_ref()
-                .filter(|p| p.exists())
-                .and_then(|p| std::fs::read_to_string(p).ok())
-                .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
-                .and_then(|pkg| pkg.get("scripts")?.get("test").cloned())
-                .is_some()
-        })
-        .collect();
-
-    if ts_repos_with_tests.is_empty() {
-        println!("  {} No TypeScript packages with tests", "⚠".yellow());
-        return Ok(());
-    }
-
-    for repo in &ts_repos_with_tests {
+        .filter(|repo| repo.repo_type == RepoType::Ts)
+    {
+        if !repo.has_script("test")? {
+            continue;
+        }
         print!("  {} {}... ", "Testing:".bold(), repo.name.cyan());
         io::stdout().flush()?;
-
         match shell::deno::task(&repo.abs_path, "test") {
             Ok(_) => println!("{}", "passed".green()),
             Err(e) => {
@@ -114,69 +85,51 @@ fn run_package_tests(config: &Config) -> Result<()> {
                 return Err(e).context(format!("Tests failed for {}", repo.name));
             }
         }
+        tested += 1;
     }
-
+    if tested == 0 {
+        println!("  {} No TypeScript packages with tests", "⚠".yellow());
+    }
     Ok(())
 }
 
-/// Run playground tests (expand + deno tests + e2e)
 fn run_playground_tests(config: &Config) -> Result<()> {
     println!("\n{}", "Running playground tests".bold());
     println!("{}", "─".repeat(40));
+    run_playground_suites(config)
+}
+
+/// The playground projects that consume the published packages.
+const PLAYGROUND_APPS: [&str; 4] = ["vanilla", "svelte", "library", "tests"];
+
+/// Reinstalls every playground app. Each is its own project linking the built
+/// `npm/` packages, and Deno copies a linked package at install time, so only
+/// a fresh install makes the playground see the current build.
+pub fn install_playground_apps(config: &Config) -> Result<()> {
+    for app in PLAYGROUND_APPS {
+        let app_dir = config.root.join("tooling/playground").join(app);
+        println!("  {} installing {app}...", "→".blue());
+        shell::deno::install(&app_dir).with_context(|| format!("deno install failed in {app}"))?;
+    }
+    Ok(())
+}
+
+/// Runs the playground's deno, validator and e2e suites with their output
+/// shown. The suites drive this checkout's debug CLI (`MACROFORGE_CLI`).
+pub fn run_playground_suites(config: &Config) -> Result<()> {
+    install_playground_apps(config)?;
 
     let playground_tests = config.root.join("tooling/playground/tests");
-
-    // First expand macros (call directly via our expand module)
-    print!("  {} Expanding macros... ", "→".blue());
-    io::stdout().flush()?;
-    match super::expand::run(ExpandArgs {
-        use_cli: false,
-        use_node: false,
-        path: None,
-    }) {
-        Ok(_) => println!("{}", "done".green()),
-        Err(e) => {
-            println!("{}", "failed".red());
-            return Err(e).context("Failed to expand macros");
-        }
+    let suites = [
+        ("Deno tests", "test"),
+        ("Validator tests", "test:validators"),
+        ("E2E tests", "test:e2e"),
+    ];
+    for (label, task) in suites {
+        println!("  {} {label}...", "→".blue());
+        shell::deno::task_inherit(&playground_tests, task)
+            .with_context(|| format!("{label} failed"))?;
+        println!("  {} {label} passed", "✓".green());
     }
-
-    // Run deno tests (replaces node --test)
-    println!("  {} Deno tests...", "→".blue());
-    match shell::Shell::new("deno")
-        .args(&["task", "test"])
-        .dir(&playground_tests)
-        .inherit()
-        .run_checked()
-    {
-        Ok(_) => println!("{}", "passed".green()),
-        Err(e) => {
-            println!("{}", "failed".red());
-            return Err(e).context("Deno tests failed");
-        }
-    }
-
-    // Run validator tests
-    print!("  {} Validator tests... ", "→".blue());
-    io::stdout().flush()?;
-    match shell::deno::task(&playground_tests, "test:validators") {
-        Ok(_) => println!("{}", "passed".green()),
-        Err(e) => {
-            println!("{}", "failed".red());
-            return Err(e).context("Validator tests failed");
-        }
-    }
-
-    // Run e2e tests
-    print!("  {} E2E tests... ", "→".blue());
-    io::stdout().flush()?;
-    match shell::deno::task(&playground_tests, "test:e2e") {
-        Ok(_) => println!("{}", "passed".green()),
-        Err(e) => {
-            println!("{}", "failed".red());
-            return Err(e).context("E2E tests failed");
-        }
-    }
-
     Ok(())
 }

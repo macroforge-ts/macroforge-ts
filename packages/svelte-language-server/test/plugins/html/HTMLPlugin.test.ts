@@ -11,9 +11,9 @@ import {
     Range,
     TextEdit
 } from 'vscode-languageserver';
-import { HTMLPlugin } from '../../../src/plugins';
-import { Document, DocumentManager } from '../../../src/lib/documents';
-import { LSConfigManager } from '../../../src/ls-config';
+import { HTMLPlugin } from '../../../src/plugins/index.ts';
+import { Document, DocumentManager } from '../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../src/ls-config.ts';
 import { DocumentHighlight } from 'vscode-languageserver-types';
 import { VERSION } from 'svelte/compiler';
 

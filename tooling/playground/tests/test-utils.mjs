@@ -4,7 +4,6 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
@@ -21,27 +20,19 @@ export const vanillaRoot = path.join(playgroundRoot, 'vanilla');
 export const svelteRoot = path.join(playgroundRoot, 'svelte');
 export const rootConfigPath = path.join(repoRoot, 'macroforge.config.ts');
 
-// Path to the macroforge CLI binary
+/**
+ * `MACROFORGE_CLI` when set, otherwise this checkout's debug build. Never the
+ * `macroforge` on PATH, which other projects pin to their own version.
+ */
 export const cliBinary = (() => {
-    const release = path.join(
-        repoRoot,
-        'target',
-        'release',
-        'macroforge'
-    );
-    const debug = path.join(repoRoot, 'target', 'debug', 'macroforge');
-    const cargoInstall = path.join(
-        globalThis.process.env.HOME || globalThis.process.env.USERPROFILE || '',
-        '.cargo',
-        'bin',
-        'macroforge'
-    );
-    if (existsSync(release)) return release;
-    if (existsSync(debug)) return debug;
-    if (existsSync(cargoInstall)) return cargoInstall;
-    throw new Error(
-        'macroforge CLI binary not found. Run `cargo build` or `cargo install --path .` first.'
-    );
+    const binary = globalThis.process.env.MACROFORGE_CLI ||
+        path.join(repoRoot, 'target', 'debug', 'macroforge');
+    if (!existsSync(binary)) {
+        throw new Error(
+            `macroforge CLI not found at ${binary}; build it with \`pixi run build:cli\``
+        );
+    }
+    return binary;
 })();
 
 /**
@@ -62,59 +53,6 @@ export function runCli(args, options = {}) {
         status: result.code,
         success: result.success
     };
-}
-
-/**
- * Initialize external macro callbacks for the WASM build.
- *
- * The WASM build cannot spawn Node subprocesses to resolve external macro
- * packages, so JS-side callbacks must be registered via `setupExternalMacros()`.
- * This is a no-op if the function doesn't exist (NAPI build).
- *
- * Call this once before any `expandSync()` that uses `/** import macro ... * /`.
- */
-export function initExternalMacros(macroforgeModule) {
-    if (!macroforgeModule.setupExternalMacros) return;
-
-    const req = createRequire(import.meta.url);
-
-    function resolveMacroPath(modulePath) {
-        if (path.isAbsolute(modulePath)) return modulePath;
-        const resolved = path.resolve(repoRoot, modulePath);
-        if (existsSync(resolved)) return resolved;
-        return modulePath;
-    }
-
-    function resolveDecoratorNames(packagePath) {
-        const pkg = req(resolveMacroPath(packagePath));
-        const names = [];
-        if (pkg.__macroforgeGetManifest) {
-            names.push(
-                ...(pkg.__macroforgeGetManifest().decorators || []).map((d) => d.export)
-            );
-        }
-        for (const key of Object.keys(pkg)) {
-            if (
-                key.startsWith('__macroforgeGetManifest_') &&
-                typeof pkg[key] === 'function'
-            ) {
-                names.push(...(pkg[key]().decorators || []).map((d) => d.export));
-            }
-        }
-        if (names.length > 0) return [...new Set(names)];
-        return [];
-    }
-
-    function runMacro(ctxJson) {
-        const ctx = JSON.parse(ctxJson);
-        const fnName = `__macroforgeRun${ctx.macro_name}`;
-        const pkg = req(resolveMacroPath(ctx.module_path));
-        const fn = pkg?.[fnName] || pkg?.default?.[fnName];
-        if (typeof fn === 'function') return fn(ctxJson);
-        throw new Error(`Macro ${fnName} not found in ${ctx.module_path}`);
-    }
-
-    macroforgeModule.setupExternalMacros(resolveDecoratorNames, runMacro);
 }
 
 // Port counter for unique WebSocket ports per server instance
@@ -143,18 +81,7 @@ function buildMacroforgeViteConfig() {
             noExternal: ['effect', '@playground/macro']
         },
         resolve: {
-            dedupe: ['effect'],
-            alias: {
-                '@macroforge/core/serde': path.resolve(
-                    repoRoot,
-                    'crates/macroforge_ts/js/serde/index.mjs'
-                ),
-                '@macroforge/core/traits': path.resolve(
-                    repoRoot,
-                    'crates/macroforge_ts/js/traits/index.mjs'
-                ),
-                '@macroforge/core': path.resolve(repoRoot, 'crates/macroforge_ts')
-            }
+            dedupe: ['effect']
         }
     };
 }

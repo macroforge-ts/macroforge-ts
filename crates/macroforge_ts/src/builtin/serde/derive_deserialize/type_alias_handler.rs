@@ -22,25 +22,37 @@ use crate::builtin::return_types::{
     DESERIALIZE_CONTEXT, DESERIALIZE_ERROR, DESERIALIZE_OPTIONS, PENDING_REF,
     deserialize_return_type, wrap_error, wrap_success,
 };
+use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeRegistry};
+
+/// What every type alias `Deserialize` generator shares.
+struct AliasDeserialize<'a> {
+    type_alias: &'a crate::ts_syn::DataTypeAlias,
+    type_name: &'a str,
+    type_ident: Ident,
+    deserialize_context_ident: Ident,
+    deserialize_context_expr: Expr,
+    deserialize_error_expr: Expr,
+    pending_ref_ident: Ident,
+    pending_ref_expr: Expr,
+    deserialize_options_ident: Ident,
+    generic_decl: String,
+    generic_args: String,
+    full_type_name: String,
+    validate_field_generic_decl: String,
+    type_registry: &'a TypeRegistry,
+    caller_file_path: &'a str,
+    file_imports: &'a [FileImportEntry],
+}
 
 pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, MacroforgeError> {
     let type_alias = match &input.data {
         crate::ts_syn::Data::TypeAlias(ta) => ta,
         _ => unreachable!(),
     };
-    let type_registry = &input.context.type_registry;
-    let caller_file_path = input.context.file_name.as_str();
     let file_imports = input.context.import_registry.file_import_entries();
-    let file_imports = file_imports.as_slice();
-
     let type_name = input.name();
-    let type_ident = ts_ident!(type_name);
     let deserialize_context_ident = ts_ident!(DESERIALIZE_CONTEXT);
-    let deserialize_context_expr: Expr = deserialize_context_ident.clone().into();
-    let deserialize_error_expr: Expr = ts_ident!(DESERIALIZE_ERROR).into();
     let pending_ref_ident = ts_ident!(PENDING_REF);
-    let pending_ref_expr: Expr = pending_ref_ident.clone().into();
-    let deserialize_options_ident = ts_ident!(DESERIALIZE_OPTIONS);
 
     // Build generic type signature if type has type params
     let type_params = type_alias.type_params();
@@ -51,7 +63,6 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
         (format!("<{}>", params), format!("<{}>", params))
     };
     let full_type_name = format!("{}{}", type_name, generic_args);
-    let _full_type_ident = ts_ident!(full_type_name.as_str());
 
     // Create combined generic declarations for validateField that include K
     let validate_field_generic_decl = if type_params.is_empty() {
@@ -61,135 +72,64 @@ pub(super) fn handle_type_alias(input: &DeriveInput) -> Result<TsStream, Macrofo
         format!("<{}, K extends keyof {}>", params, full_type_name)
     };
 
-    if type_alias.is_object() {
-        handle_object_type_alias(
-            input,
-            type_alias,
-            type_alias.as_object().unwrap(),
-            type_name,
-            &type_ident,
-            &deserialize_context_ident,
-            &deserialize_context_expr,
-            &deserialize_error_expr,
-            &pending_ref_ident,
-            &pending_ref_expr,
-            &deserialize_options_ident,
-            &generic_decl,
-            &generic_args,
-            &full_type_name,
-            &validate_field_generic_decl,
-            type_registry,
-            caller_file_path,
-            file_imports,
-        )
+    let alias = AliasDeserialize {
+        type_alias,
+        type_name,
+        type_ident: ts_ident!(type_name),
+        deserialize_context_expr: deserialize_context_ident.clone().into(),
+        deserialize_context_ident,
+        deserialize_error_expr: ts_ident!(DESERIALIZE_ERROR).into(),
+        pending_ref_expr: pending_ref_ident.clone().into(),
+        pending_ref_ident,
+        deserialize_options_ident: ts_ident!(DESERIALIZE_OPTIONS),
+        generic_decl,
+        generic_args,
+        full_type_name,
+        validate_field_generic_decl,
+        type_registry: &input.context.type_registry,
+        caller_file_path: input.context.file_name.as_str(),
+        file_imports: &file_imports,
+    };
+
+    if let Some(fields) = type_alias.as_object() {
+        handle_object_type_alias(&alias, fields)
     } else if let Some(members) = type_alias.as_intersection() {
-        let fields =
-            crate::builtin::derive_common::flatten_intersection_fields(members, type_registry);
-        if let Some(fields) = fields {
-            handle_object_type_alias(
-                input,
-                type_alias,
-                &fields,
-                type_name,
-                &type_ident,
-                &deserialize_context_ident,
-                &deserialize_context_expr,
-                &deserialize_error_expr,
-                &pending_ref_ident,
-                &pending_ref_expr,
-                &deserialize_options_ident,
-                &generic_decl,
-                &generic_args,
-                &full_type_name,
-                &validate_field_generic_decl,
-                type_registry,
-                caller_file_path,
-                file_imports,
-            )
-        } else {
-            handle_fallback_type_alias(
-                input,
-                type_alias,
-                type_name,
-                &type_ident,
-                &deserialize_context_ident,
-                &deserialize_context_expr,
-                &deserialize_error_expr,
-                &pending_ref_ident,
-                &pending_ref_expr,
-                &deserialize_options_ident,
-                &generic_decl,
-                &generic_args,
-                &full_type_name,
-                &validate_field_generic_decl,
-                type_registry,
-                caller_file_path,
-                file_imports,
-            )
+        match crate::builtin::derive_common::flatten_intersection_fields(
+            members,
+            alias.type_registry,
+        ) {
+            Some(fields) => handle_object_type_alias(&alias, &fields),
+            None => handle_fallback_type_alias(&alias),
         }
     } else if let Some(members) = type_alias.as_union() {
-        handle_union_type_alias(
-            input,
-            type_alias,
-            type_name,
-            &type_ident,
-            &deserialize_context_ident,
-            &deserialize_context_expr,
-            &deserialize_error_expr,
-            &pending_ref_ident,
-            &pending_ref_expr,
-            &deserialize_options_ident,
-            &generic_decl,
-            &generic_args,
-            &full_type_name,
-            type_registry,
-            caller_file_path,
-            members,
-        )
+        handle_union_type_alias(&alias, members)
     } else {
-        handle_fallback_type_alias(
-            input,
-            type_alias,
-            type_name,
-            &type_ident,
-            &deserialize_context_ident,
-            &deserialize_context_expr,
-            &deserialize_error_expr,
-            &pending_ref_ident,
-            &pending_ref_expr,
-            &deserialize_options_ident,
-            &generic_decl,
-            &generic_args,
-            &full_type_name,
-            &validate_field_generic_decl,
-            type_registry,
-            caller_file_path,
-            file_imports,
-        )
+        handle_fallback_type_alias(&alias)
     }
 }
 
-#[allow(clippy::too_many_arguments)]
 fn handle_object_type_alias(
-    _input: &DeriveInput,
-    type_alias: &crate::ts_syn::DataTypeAlias,
+    alias: &AliasDeserialize,
     ir_fields: &[crate::ts_syn::abi::InterfaceFieldIR],
-    type_name: &str,
-    type_ident: &crate::swc_ecma_ast::Ident,
-    deserialize_context_ident: &crate::swc_ecma_ast::Ident,
-    deserialize_context_expr: &Expr,
-    deserialize_error_expr: &Expr,
-    pending_ref_ident: &crate::swc_ecma_ast::Ident,
-    pending_ref_expr: &Expr,
-    deserialize_options_ident: &crate::swc_ecma_ast::Ident,
-    generic_decl: &str,
-    _generic_args: &str,
-    full_type_name: &str,
-    validate_field_generic_decl: &str,
-    type_registry: &crate::ts_syn::abi::ir::type_registry::TypeRegistry,
-    caller_file_path: &str,
-    file_imports: &[crate::ts_syn::abi::ir::type_registry::FileImportEntry],
 ) -> Result<TsStream, MacroforgeError> {
+    let AliasDeserialize {
+        type_alias,
+        type_name,
+        type_ident,
+        deserialize_context_ident,
+        deserialize_context_expr,
+        deserialize_error_expr,
+        pending_ref_ident,
+        pending_ref_expr,
+        deserialize_options_ident,
+        generic_decl,
+        full_type_name,
+        validate_field_generic_decl,
+        type_registry,
+        caller_file_path,
+        file_imports,
+        ..
+    } = alias;
     let container_opts = SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
     let tag_field = container_opts.tag_field_or_default();
 
@@ -878,25 +818,26 @@ fn handle_object_type_alias(
 // The union and fallback type alias handlers are included from the original
 // derive_deserialize implementation. Due to the extreme size of the union handler
 // (1000+ lines of template code), it is kept in its own function.
-#[allow(clippy::too_many_arguments)]
 fn handle_union_type_alias(
-    _input: &DeriveInput,
-    type_alias: &crate::ts_syn::DataTypeAlias,
-    type_name: &str,
-    _type_ident: &crate::swc_ecma_ast::Ident,
-    deserialize_context_ident: &crate::swc_ecma_ast::Ident,
-    deserialize_context_expr: &Expr,
-    deserialize_error_expr: &Expr,
-    pending_ref_ident: &crate::swc_ecma_ast::Ident,
-    pending_ref_expr: &Expr,
-    deserialize_options_ident: &crate::swc_ecma_ast::Ident,
-    generic_decl: &str,
-    _generic_args: &str,
-    full_type_name: &str,
-    type_registry: &crate::ts_syn::abi::ir::type_registry::TypeRegistry,
-    _caller_file_path: &str,
+    alias: &AliasDeserialize,
     members: &[crate::ts_syn::abi::ir::type_alias::TypeMember],
 ) -> Result<TsStream, MacroforgeError> {
+    let AliasDeserialize {
+        type_alias,
+        type_name,
+        deserialize_context_ident,
+        deserialize_context_expr,
+        deserialize_error_expr,
+        pending_ref_ident,
+        pending_ref_expr,
+        deserialize_options_ident,
+        generic_decl,
+        full_type_name,
+        type_registry,
+        caller_file_path,
+        file_imports,
+        ..
+    } = alias;
     // Union type - could be literal union, type ref union, or mixed
     let container_opts = SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
     let tag_field = container_opts.tag_field_or_default();
@@ -1427,7 +1368,13 @@ fn handle_union_type_alias(
                     .as_ref()
                     .is_some_and(|hs| hs.contains("typeof") && hs.contains("\"string\""))
         })
-        || type_accepts_string(type_name, type_registry, &foreign_types_config);
+        || type_accepts_string(
+            type_name,
+            type_registry,
+            caller_file_path,
+            file_imports,
+            &foreign_types_config,
+        );
     let data_init_expr = if has_string_variant {
         parse_ts_expr("input").expect("data init expr should parse")
     } else {
@@ -2201,26 +2148,23 @@ fn handle_union_type_alias(
     Ok(result)
 }
 
-#[allow(clippy::too_many_arguments)]
-fn handle_fallback_type_alias(
-    _input: &DeriveInput,
-    _type_alias: &crate::ts_syn::DataTypeAlias,
-    type_name: &str,
-    type_ident: &crate::swc_ecma_ast::Ident,
-    deserialize_context_ident: &crate::swc_ecma_ast::Ident,
-    deserialize_context_expr: &Expr,
-    deserialize_error_expr: &Expr,
-    _pending_ref_ident: &crate::swc_ecma_ast::Ident,
-    _pending_ref_expr: &Expr,
-    deserialize_options_ident: &crate::swc_ecma_ast::Ident,
-    generic_decl: &str,
-    generic_args: &str,
-    full_type_name: &str,
-    validate_field_generic_decl: &str,
-    type_registry: &crate::ts_syn::abi::ir::type_registry::TypeRegistry,
-    _caller_file_path: &str,
-    _file_imports: &[crate::ts_syn::abi::ir::type_registry::FileImportEntry],
-) -> Result<TsStream, MacroforgeError> {
+fn handle_fallback_type_alias(alias: &AliasDeserialize) -> Result<TsStream, MacroforgeError> {
+    let AliasDeserialize {
+        type_name,
+        type_ident,
+        deserialize_context_ident,
+        deserialize_context_expr,
+        deserialize_error_expr,
+        deserialize_options_ident,
+        generic_decl,
+        generic_args,
+        full_type_name,
+        validate_field_generic_decl,
+        type_registry,
+        caller_file_path,
+        file_imports,
+        ..
+    } = alias;
     // Fallback for other type alias forms (simple alias, tuple, etc.)
     let fn_deserialize_ident = ts_ident!(
         "{}Deserialize{}",
@@ -2263,7 +2207,13 @@ fn handle_fallback_type_alias(
 
     // Use the type registry and foreign types to determine if this type accepts strings.
     let foreign_types_config = get_foreign_types();
-    let accepts_string = type_accepts_string(type_name, type_registry, &foreign_types_config);
+    let accepts_string = type_accepts_string(
+        type_name,
+        type_registry,
+        caller_file_path,
+        file_imports,
+        &foreign_types_config,
+    );
     let data_init_expr = if accepts_string {
         parse_ts_expr("input").expect("data init expr should parse")
     } else {

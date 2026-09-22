@@ -3,18 +3,18 @@ import path from 'path';
 import sinon from 'sinon';
 import ts from 'typescript';
 import { RelativePattern } from 'vscode-languageserver-protocol';
-import { Document } from '../../../src/lib/documents';
-import { GlobalSnapshotsManager } from '../../../src/plugins/typescript/SnapshotManager';
+import { Document } from '../../../src/lib/documents/index.ts';
+import { GlobalSnapshotsManager } from '../../../src/plugins/typescript/SnapshotManager.ts';
 import {
     getService,
     type LanguageServiceContainer,
     type LanguageServiceDocumentContext
-} from '../../../src/plugins/typescript/service';
-import { normalizePath, pathToUrl } from '../../../src/utils';
-import { createVirtualTsSystem, getRandomVirtualDirPath } from './test-utils';
+} from '../../../src/plugins/typescript/service.ts';
+import { normalizePath, pathToUrl } from '../../../src/utils.ts';
+import { createVirtualTsSystem, getRandomVirtualDirPath } from './test-utils.ts';
 
 describe('service', () => {
-    const testDir = path.join(__dirname, 'testfiles');
+    const testDir = path.join(import.meta.dirname, 'testfiles');
 
     function setup() {
         const virtualSystem = createVirtualTsSystem(testDir);

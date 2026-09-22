@@ -12,11 +12,14 @@ TypeScript code generation macros for macroforge.
 This crate provides procedural macros for generating TypeScript code from Rust. It offers two
 primary approaches:
 
-- [`ts_quote!`] - Compile-time validated TypeScript generation with `$var` interpolation, e.g.
-  `ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs)`.
+- [`ts_quote!`](https://docs.rs/macroforge_ts_quote/latest/macroforge_ts_quote/?search=ts_quote) -
+  Compile-time validated TypeScript generation with `$var` interpolation, e.g.
+  `ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs)`, parsed into the caller's
+  `arena`.
 
-- [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`, `{#for}`, `{#match}`,
-  ...) and expression interpolation (`@{expr}`).
+- [`ts_template!`](https://docs.rs/macroforge_ts_quote/latest/macroforge_ts_quote/?search=ts_template) -
+  A Rust-style template syntax with control flow (`{#if}`, `{#for}`, `{#match}`, ...) and expression
+  interpolation (`@{expr}`).
 
 # Architecture
 
@@ -43,11 +46,8 @@ Available positions: `Top`, `Above`, `Within`, `Below`, `Bottom`
 
 ## Installation
 
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-macroforge_ts_quote = "0.1.82"
+```bash
+cargo add macroforge_ts_quote
 ```
 
 ## Key Exports
@@ -59,8 +59,7 @@ macroforge_ts_quote = "0.1.82"
 
 ## API Reference
 
-See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts_quote)
-on the Macroforge website.
+See the [full API documentation](https://docs.rs/macroforge_ts_quote) on docs.rs.
 
 ## License
 

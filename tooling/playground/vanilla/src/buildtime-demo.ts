@@ -5,6 +5,7 @@
 // literal by the time the browser downloads it. None of the runtime
 // stubs in `@macroforge/core/buildtime` should ever fire.
 import { buildtime } from '@macroforge/core/buildtime';
+import type { BuildtimeDemoResult } from './playground-globals.ts';
 
 // ---------------------------------------------------------------------
 // Tier 1 — compile-time constants
@@ -17,11 +18,7 @@ const ANSWER = 6 * 7;
 const SCHEMA_HASH = buildtime.crypto.sha256('user-schema-v1');
 
 /** @buildtime */
-const APP_CONFIG = buildtime.fs.readJson('./buildtime-data.json') as {
-    app: string;
-    version: string;
-    routes: string[];
-};
+const APP_CONFIG = buildtime.fs.readJson('./buildtime-data.json');
 
 /** @buildtime */
 const CONSTANT_OBJECT = {
@@ -53,30 +50,7 @@ const GREETINGS = ((): Record<string, string> => {
 // ---------------------------------------------------------------------
 
 /** @buildtime */
-type UserId = 'string';
-
-// ---------------------------------------------------------------------
-// Result payload for main.ts + Playwright.
-// ---------------------------------------------------------------------
-
-export interface BuildtimeDemoResult {
-    answer: number;
-    schemaHash: string;
-    appName: string;
-    appVersion: string;
-    routes: string[];
-    constantObject: typeof CONSTANT_OBJECT;
-    derivedSummary: string;
-    greetingAlice: string;
-    greetingBob: string;
-    greetingKeys: string[];
-    // Probe against the `@macroforge/core/buildtime` runtime stub. If the
-    // Vite plugin is running, every real `@buildtime` use is spliced
-    // into a TS literal — but importing the module and calling any
-    // function on it at runtime still throws. That's the contract.
-    runtimeStubThrows: boolean;
-    userIdTag: UserId;
-}
+export type UserId = 'string';
 
 export function collectBuildtimeDemo(): BuildtimeDemoResult {
     let runtimeStubThrows = false;
@@ -97,7 +71,6 @@ export function collectBuildtimeDemo(): BuildtimeDemoResult {
         greetingAlice: GREETINGS.alice,
         greetingBob: GREETINGS.bob,
         greetingKeys: Object.keys(GREETINGS).sort(),
-        runtimeStubThrows,
-        userIdTag: 'user-id-placeholder' as UserId
+        runtimeStubThrows
     };
 }

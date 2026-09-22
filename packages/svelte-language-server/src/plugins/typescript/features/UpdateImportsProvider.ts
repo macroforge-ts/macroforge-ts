@@ -5,18 +5,18 @@ import {
     TextEdit,
     WorkspaceEdit
 } from 'vscode-languageserver';
-import { mapRangeToOriginal } from '../../../lib/documents';
+import { mapRangeToOriginal } from '../../../lib/documents/index.ts';
 import {
     createGetCanonicalFileName,
-    GetCanonicalFileName,
+    type GetCanonicalFileName,
     normalizePath,
     urlToPath
-} from '../../../utils';
-import { FileRename, UpdateImportsProvider } from '../../interfaces';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { forAllServices, LanguageServiceContainer } from '../service';
-import { convertRange } from '../utils';
-import { isKitTypePath, SnapshotMap } from './utils';
+} from '../../../utils.ts';
+import type { FileRename, UpdateImportsProvider } from '../../interfaces.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { forAllServices, type LanguageServiceContainer } from '../service.ts';
+import { convertRange } from '../utils.ts';
+import { isKitTypePath, SnapshotMap } from './utils.ts';
 
 export class UpdateImportsProviderImpl implements UpdateImportsProvider {
     constructor(

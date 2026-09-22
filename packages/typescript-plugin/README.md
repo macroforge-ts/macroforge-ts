@@ -1,6 +1,7 @@
 # @macroforge/typescript-plugin
 
 [![npm version](https://badge.fury.io/js/%40macroforge%2Ftypescript-plugin.svg)](https://www.npmjs.com/package/@macroforge/typescript-plugin)
+[![JSR](https://jsr.io/badges/@macroforge/typescript-plugin)](https://jsr.io/@macroforge/typescript-plugin)
 
 ## Overview
 
@@ -8,6 +9,10 @@ TypeScript language service plugin that augments classes decorated with @derive 
 macro-generated methods.
 
 ## Installation
+
+```bash
+deno add jsr:@macroforge/typescript-plugin
+```
 
 ```bash
 npm install @macroforge/typescript-plugin
@@ -21,8 +26,7 @@ npm install @macroforge/typescript-plugin
 
 ## Documentation
 
-See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/typescript-plugin)
-on the Macroforge website.
+See the [full API documentation](https://jsr.io/@macroforge/typescript-plugin/doc) on JSR.
 
 ## License
 

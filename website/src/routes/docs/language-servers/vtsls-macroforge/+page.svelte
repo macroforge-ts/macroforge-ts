@@ -45,7 +45,7 @@
 <h3>1. Clone the Repository</h3>
 
 <CodeBlock code={`git clone https://gitlab.com/macroforge-ts/macroforge-ts.git
-cd macroforge-ts/crates/extensions/vtsls-macroforge`} lang="bash" />
+cd macroforge-ts/crates/extensions/vtsls_macroforge`} lang="bash" />
 
 <h3>2. Install as Dev Extension in Zed</h3>
 
@@ -56,10 +56,10 @@ cd macroforge-ts/crates/extensions/vtsls-macroforge`} lang="bash" />
 <p>Alternatively, symlink to your Zed extensions directory:</p>
 
 <CodeBlock code={`# macOS
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
+ln -s /path/to/macroforge-ts/crates/extensions/vtsls_macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
 
 # Linux
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/extensions/installed/vtsls-macroforge`} lang="bash" />
+ln -s /path/to/macroforge-ts/crates/extensions/vtsls_macroforge ~/.config/zed/extensions/installed/vtsls-macroforge`} lang="bash" />
 
 <h3>3. Configure Zed Settings</h3>
 

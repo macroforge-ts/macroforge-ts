@@ -4,7 +4,8 @@
 //! It offers two primary approaches:
 //!
 //! - [`ts_quote!`] - Compile-time validated TypeScript generation with `$var`
-//!   interpolation, e.g. `ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs)`.
+//!   interpolation, e.g. `ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs)`,
+//!   parsed into the caller's `arena`.
 //!
 //! - [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,
 //!   `{#for}`, `{#match}`, ...) and expression interpolation (`@{expr}`).
@@ -58,22 +59,24 @@ mod swc_ret_type;
 #[cfg(feature = "oxc")]
 mod oxc_ret_type;
 
-#[cfg(feature = "compiler")]
-mod compiler;
 mod ctxt;
 mod input;
 mod template;
-#[cfg(test)]
-mod test;
 
 /// Parse and generate code for a TypeScript quote.
+///
+/// The node is parsed into an oxc arena and lives as long as it does. The arena
+/// is the `arena` binding in scope at the call, an owned `Allocator` or an
+/// `&Allocator` parameter; pass another one as the first argument instead.
 ///
 /// # Example
 ///
 /// ```ignore
 /// use macroforge_ts_quote::ts_quote;
 ///
+/// let arena = Allocator::default();
 /// let ast = ts_quote!("function foo(x: number): string { return x.toString(); }" as ModuleItem);
+/// let other = ts_quote!(&other_arena, "x + 1" as Expr);
 /// ```
 #[proc_macro]
 pub fn ts_quote(input: TokenStream) -> TokenStream {
@@ -111,8 +114,9 @@ fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::To
     use std::iter::once;
 
     let QuoteInput {
+        #[cfg(feature = "oxc")]
+        allocator,
         src,
-        as_token: _,
         output_type,
         vars,
     } = syn::parse2::<QuoteInput>(input)?;
@@ -123,11 +127,19 @@ fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::To
 
     let vars = vars.map(|v| v.1);
 
-    let (stmts, vars) = if let Some(vars) = vars {
+    let (var_stmts, vars) = if let Some(vars) = vars {
         prepare_vars(&ret_type, vars)?
     } else {
         Default::default()
     };
+    // The generated parse calls read the caller's arena through this binding.
+    #[cfg(feature = "oxc")]
+    let allocator_binding: Vec<syn::Stmt> = vec![syn::parse_quote! {
+        let __mf_quote_allocator = macroforge_ts::ts_syn::QuoteArena::quote_arena(&#allocator);
+    }];
+    #[cfg(not(feature = "oxc"))]
+    let allocator_binding: Vec<syn::Stmt> = Vec::new();
+    let stmts: Vec<syn::Stmt> = allocator_binding.into_iter().chain(var_stmts).collect();
 
     let cx = Ctx { vars };
 
@@ -197,19 +209,8 @@ fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::To
 /// - `{> comment <}` / `{>> comment <<}` - Line / block comments in the output
 #[proc_macro]
 pub fn ts_template(input: TokenStream) -> TokenStream {
-    #[cfg(feature = "compiler")]
-    {
-        match compiler::compile_template_tokens(input.into()) {
-            Ok(tokens) => tokens.into(),
-            Err(err) => err.to_compile_error().into(),
-        }
-    }
-
-    #[cfg(not(feature = "compiler"))]
-    {
-        match template::compile_template(input.into()) {
-            Ok(tokens) => tokens.into(),
-            Err(err) => err.to_compile_error().into(),
-        }
+    match template::compile_template(input.into()) {
+        Ok(tokens) => tokens.into(),
+        Err(err) => err.to_compile_error().into(),
     }
 }

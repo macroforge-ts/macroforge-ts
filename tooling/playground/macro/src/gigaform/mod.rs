@@ -98,7 +98,13 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     // Enrich fields with type-awareness from the project TypeRegistry.
     // Empty registry is a no-op inside the helper.
     let mut fields = fields;
-    parser::enrich_fields_with_registry(&mut fields, type_registry);
+    let file_imports = input.context.import_registry.file_import_entries();
+    parser::enrich_fields_with_registry(
+        &mut fields,
+        type_registry,
+        &input.context.file_name,
+        &file_imports,
+    );
 
     if fields.is_empty() {
         let msg = match &input.data {

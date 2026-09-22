@@ -1,7 +1,6 @@
-import type { PageServerLoad } from './$types';
-import { expandExample } from '$lib/server/macroforge';
+import { expandExample } from '$lib/server/macroforge.ts';
 
-export const load: PageServerLoad = async () => {
+export const load = async () => {
     const [fieldAttributes, deriveBasic, deriveMultiple] = await Promise.all([
         expandExample(
             `/** @derive(Debug, Serialize) */

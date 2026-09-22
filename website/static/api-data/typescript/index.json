@@ -1,45 +1,45 @@
 {
-    "generated": "2026-09-21T05:55:19.420864+00:00",
+    "generated": "2026-09-22T13:43:40.039681+00:00",
     "packages": [
         {
-            "exportCount": 0,
             "name": "@macroforge/core",
-            "version": "0.2.0"
+            "version": "0.3.0",
+            "exportCount": 0
         },
         {
-            "exportCount": 23,
             "name": "@macroforge/shared",
-            "version": "0.2.0"
+            "version": "0.3.0",
+            "exportCount": 20
         },
         {
-            "exportCount": 2,
             "name": "@macroforge/vite-plugin",
-            "version": "0.2.0"
+            "version": "0.3.0",
+            "exportCount": 2
         },
         {
-            "exportCount": 1,
             "name": "@macroforge/typescript-plugin",
-            "version": "0.2.0"
+            "version": "0.3.0",
+            "exportCount": 1
         },
         {
-            "exportCount": 5,
             "name": "@macroforge/svelte-language-server",
-            "version": "0.2.0"
+            "version": "0.3.0",
+            "exportCount": 5
         },
         {
-            "exportCount": 3,
             "name": "@macroforge/svelte-preprocessor",
-            "version": "0.2.0"
+            "version": "0.3.0",
+            "exportCount": 3
         },
         {
-            "exportCount": 1,
             "name": "@macroforge/mcp-server",
-            "version": "0.2.0"
+            "version": "0.3.0",
+            "exportCount": 1
         },
         {
-            "exportCount": 5,
             "name": "@macroforge/deno-plugin",
-            "version": "0.2.0"
+            "version": "0.3.0",
+            "exportCount": 4
         }
     ]
 }

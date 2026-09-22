@@ -9,15 +9,19 @@ import {
     Range,
     TextDocumentEdit
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager, TSUserConfig, TsUserPreferencesConfig } from '../../../../src/ls-config';
-import { CodeActionsProviderImpl } from '../../../../src/plugins/typescript/features/CodeActionsProvider';
-import { CompletionsProviderImpl } from '../../../../src/plugins/typescript/features/CompletionProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import {
+    LSConfigManager,
+    type TSUserConfig,
+    type TsUserPreferencesConfig
+} from '../../../../src/ls-config.ts';
+import { CodeActionsProviderImpl } from '../../../../src/plugins/typescript/features/CodeActionsProvider.ts';
+import { CompletionsProviderImpl } from '../../../../src/plugins/typescript/features/CompletionProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testFilesDir = join(__dirname, '..', 'testfiles', 'preferences');
+const testFilesDir = join(import.meta.dirname, '..', 'testfiles', 'preferences');
 
 describe('ts user preferences', function () {
     serviceWarmup(this, testFilesDir);

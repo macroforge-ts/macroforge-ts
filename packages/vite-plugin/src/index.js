@@ -1,3 +1,4 @@
+/* @ts-self-types="./index.d.ts" */
 /**
  * @module @macroforge/vite-plugin
  *
@@ -44,8 +45,10 @@ import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { encode as encodeVlq } from '@jridgewell/sourcemap-codec';
-import { collectExternalDecoratorModules, loadMacroConfig } from '@macroforge/shared';
+import * as engine from '@macroforge/core';
+import { loadMacroConfig } from '@macroforge/shared';
 
 /**
  * Precompute a line-offset table for `source`: `lineStarts[i]` is the
@@ -201,29 +204,6 @@ function ensureTypeScript() {
 
 /** @type {Map<string, import('typescript').CompilerOptions>} */
 const compilerOptionsCache = new Map();
-
-/** @type {NodeJS.Require | undefined} */
-let cachedRequire;
-
-/**
- * Ensures that `require()` is available in the current execution context.
- * @returns {Promise<NodeRequire>}
- * @internal
- */
-async function ensureRequire() {
-    if (typeof require !== 'undefined') {
-        return require;
-    }
-
-    if (!cachedRequire) {
-        const { createRequire } = await import('node:module');
-        cachedRequire = /** @type {NodeJS.Require} */ (createRequire(process.cwd() + '/'));
-        // @ts-ignore - Expose on globalThis so Deno's CJS compat layer can use it
-        globalThis.require = cachedRequire;
-    }
-
-    return cachedRequire;
-}
 
 /**
  * Retrieves and normalizes TypeScript compiler options for declaration emission.
@@ -449,12 +429,6 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
  */
 export async function macroforge() {
     /**
-     * Reference to the loaded Macroforge Rust binary module.
-     * @type {{ expandSync: Function, loadConfig?: (content: string, filepath: string) => any, scanProjectSync?: Function, invalidateScanCacheEntry?: (path: string) => boolean, clearScanCache?: () => void } | undefined}
-     */
-    let rustTransformer;
-
-    /**
      * Cached type registry JSON from project scanning.
      * Built during `buildStart` and passed to every `expandSync` call.
      * @type {string | undefined}
@@ -470,103 +444,8 @@ export async function macroforge() {
      */
     let declarativeRegistryJson;
 
-    // Load the Rust binary first
-    try {
-        const projectRequire = createRequire(process.cwd() + '/');
-        rustTransformer = projectRequire('@macroforge/core');
-
-        // Register external macro callbacks for WASM builds.
-        // The WASM build cannot spawn Node subprocesses to resolve external macros,
-        // so we provide JS-side resolve/run callbacks. No-op for NAPI builds.
-        if (rustTransformer.setupExternalMacros) {
-            const req = createRequire(process.cwd() + '/package.json');
-
-            /**
-             * Every JSDoc annotation name a manifest contributes.
-             *
-             * `decorators` are helper attributes a derive macro declares via
-             * `attributes((serde, "…"))`, keyed by `export`. `macros` are the
-             * macros themselves, keyed by `name`; only `kind === 'attribute'`
-             * ones are annotations, because an attribute macro is invoked as
-             * `@traced` — its name *is* the annotation. Derive macros are
-             * invoked as `@derive(Name)` and `derive` is already seeded, so
-             * including them here would be wrong.
-             *
-             * Mirrors `annotation_names_from_manifest` in
-             * `host/expand/external_loader.rs`; keep the two in step.
-             * @param {any} manifest
-             * @returns {string[]}
-             */
-            const annotationNamesFrom = function (manifest) {
-                const decorators = (manifest?.decorators || []).map(
-                    (d) => d.export
-                );
-                const attributes = (manifest?.macros || [])
-                    .filter((m) => m?.kind === 'attribute')
-                    .map((m) => m.name);
-                return [...decorators, ...attributes].filter(Boolean);
-            };
-
-            const resolveDecoratorNames = function (packagePath) {
-                const pkg = req(packagePath);
-                const names = [];
-                if (pkg.__macroforgeGetManifest) {
-                    names.push(
-                        ...annotationNamesFrom(pkg.__macroforgeGetManifest())
-                    );
-                }
-                for (const key of Object.keys(pkg)) {
-                    if (
-                        key.startsWith('__macroforgeGetManifest_') &&
-                        typeof pkg[key] === 'function'
-                    ) {
-                        names.push(...annotationNamesFrom(pkg[key]()));
-                    }
-                }
-                if (names.length > 0) return [...new Set(names)];
-                return [];
-            };
-
-            const runMacro = function (ctxJson) {
-                const ctx = JSON.parse(ctxJson);
-                const fnName = `__macroforgeRun${ctx.macro_name}`;
-                const pkg = req(ctx.module_path);
-                const fn_ = pkg?.[fnName] || pkg?.default?.[fnName];
-                if (typeof fn_ === 'function') return fn_(ctxJson);
-                throw new Error(`Macro ${fnName} not found in ${ctx.module_path}`);
-            };
-
-            rustTransformer.setupExternalMacros(resolveDecoratorNames, runMacro);
-        }
-
-        // Register fs callbacks for the @buildtime evaluator. The WASM
-        // build of macroforge has no filesystem (no WASI), so the host
-        // (us, in Node) must service `buildtime.fs.readText/exists/listDir`
-        // calls. No-op for NAPI builds where std::fs works directly.
-        if (rustTransformer.setupBuildtimeFs) {
-            const readText = (path) => fs.readFileSync(path, 'utf-8');
-            const exists = (path) => fs.existsSync(path);
-            const listDir = (path) => {
-                try {
-                    return fs.readdirSync(path);
-                } catch {
-                    return [];
-                }
-            };
-            rustTransformer.setupBuildtimeFs(readText, exists, listDir);
-        }
-    } catch (error) {
-        console.warn(
-            '[@macroforge/vite-plugin] Rust binary not found. Please run `npm run build:rust` first.'
-        );
-        console.warn(error);
-    }
-
-    // Load config upfront (passing Rust transformer for foreign type parsing)
-    const macroConfig = loadMacroConfig(
-        process.cwd(),
-        rustTransformer?.loadConfig
-    );
+    // Load config upfront (the engine parses foreign types)
+    const macroConfig = loadMacroConfig(process.cwd(), engine.loadConfig);
 
     if (macroConfig.hasForeignTypes) {
         console.log(
@@ -626,7 +505,7 @@ export async function macroforge() {
     let isDevMode = false;
     /** @type {string | undefined} */
     let cacheDir;
-    /** @type {{ version: string, configHash: string, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null} */
+    /** @type {{ version: string, configHash: string, externalMacroHash: string, engineHash: string, builtinOnly?: boolean, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null} */
     let cacheManifest = null;
     /** @type {string} */
     let macroforgeVersion = 'unknown';
@@ -693,43 +572,40 @@ export async function macroforge() {
     }
 
     /**
-     * Reads the installed macroforge NAPI package version.
-     * Resolves the module's main entry point, then reads package.json
-     * from the same directory (avoids exports-map restrictions).
+     * The engine module this plugin depends on, as a file path.
+     * @returns {string}
+     */
+    function engineEntryPath() {
+        return fileURLToPath(import.meta.resolve('@macroforge/core'));
+    }
+
+    /**
+     * The engine's version, from the `package.json` enclosing its entry.
      * @returns {string}
      */
     function getMacroforgeVersion() {
-        const req = createRequire(process.cwd() + '/');
-        try {
-            let current = path.dirname(req.resolve('@macroforge/core'));
-            while (current !== path.dirname(current)) {
-                const packageJson = path.join(current, 'package.json');
-                if (fs.existsSync(packageJson)) {
-                    const manifest = JSON.parse(fs.readFileSync(packageJson, 'utf-8'));
-                    if (
-                        manifest.name === '@macroforge/core' && typeof manifest.version === 'string'
-                    ) {
-                        return manifest.version;
-                    }
-                }
-                current = path.dirname(current);
+        let current = path.dirname(engineEntryPath());
+        while (current !== path.dirname(current)) {
+            const packageJson = path.join(current, 'package.json');
+            if (fs.existsSync(packageJson)) {
+                const manifest = JSON.parse(fs.readFileSync(packageJson, 'utf-8'));
+                if (manifest.name === '@macroforge/core') return manifest.version;
             }
-        } catch { /* package may not be resolvable */ }
-        try {
-            return JSON.parse(
-                fs.readFileSync(
-                    path.join(
-                        process.cwd(),
-                        'node_modules',
-                        '@macroforge',
-                        'core',
-                        'package.json'
-                    ),
-                    'utf-8'
-                )
-            ).version;
-        } catch { /* not in local node_modules */ }
-        return 'unknown';
+            current = path.dirname(current);
+        }
+        throw new Error('[@macroforge/vite-plugin] @macroforge/core has no package.json');
+    }
+
+    /**
+     * Fingerprints the engine build (its wasm module's size and mtime). The
+     * version alone misses rebuilds that keep it, which would serve
+     * expansions an older engine produced.
+     * @returns {string}
+     */
+    function getEngineHash() {
+        const wasmPath = path.join(path.dirname(engineEntryPath()), 'macroforge_ts_bg.wasm');
+        const stat = fs.statSync(wasmPath);
+        return contentHash(`${stat.size}:${Math.floor(stat.mtimeMs)}`);
     }
 
     /**
@@ -859,7 +735,7 @@ export async function macroforge() {
     /**
      * Loads and validates the cache manifest from disk.
      * Returns null if the cache is stale (version or config mismatch).
-     * @returns {{ version: string, configHash: string, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null}
+     * @returns {{ version: string, configHash: string, externalMacroHash: string, engineHash: string, builtinOnly?: boolean, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null}
      */
     function loadCacheManifest() {
         const manifestPath = path.join(cacheDir, 'manifest.json');
@@ -902,6 +778,15 @@ export async function macroforge() {
             if (manifest.externalMacroHash !== currentExternalHash) {
                 console.log(
                     '[@macroforge/vite-plugin] Cache invalidated: external macro binary changed'
+                );
+                return null;
+            }
+
+            // A manifest without the field (the CLI writes this format too)
+            // is missing evidence, not a match.
+            if (manifest.engineHash !== getEngineHash()) {
+                console.log(
+                    '[@macroforge/vite-plugin] Cache invalidated: macroforge engine rebuilt'
                 );
                 return null;
             }
@@ -1039,7 +924,7 @@ export async function macroforge() {
      * Only caches files that actually had macros expanded.
      * @param {string} id - Absolute file path
      * @param {string} sourceCode - Original source code
-     * @param {string} expandedCode - Expanded code from rustTransformer
+     * @param {string} expandedCode - Expanded code from the engine
      * @param {boolean} hasMacros - Whether the file actually had macros expanded
      * @param {string[]} [buildtimeDeps] - Absolute paths the @buildtime
      *   pre-pass read during evaluation. Each is snapshotted with its
@@ -1070,6 +955,7 @@ export async function macroforge() {
                     version: macroforgeVersion,
                     configHash: getConfigHash(),
                     externalMacroHash: getExternalMacroHash(),
+                    engineHash: getEngineHash(),
                     entries: {}
                 };
             }
@@ -1331,11 +1217,6 @@ export async function macroforge() {
                 return null;
             }
 
-            // Check if Rust transformer is available
-            if (!rustTransformer || !rustTransformer.expandSync) {
-                return null;
-            }
-
             try {
                 // --- Dev cache read ---
                 if (isDevMode && devCacheEnabled && cacheManifest) {
@@ -1361,21 +1242,9 @@ export async function macroforge() {
                     }
                 }
 
-                // Ensure require() is available for native module loading
-                // Use the project's CWD-based require for resolving external macro packages
-                const projectRequire = await ensureRequire();
-
-                // Collect external decorator modules from macro imports
-                // Use projectRequire to resolve packages from the project's CWD, not the plugin's location
-                const externalDecoratorModules = collectExternalDecoratorModules(
-                    code,
-                    projectRequire
-                );
-
-                // Perform macro expansion via the Rust binary
-                const result = rustTransformer.expandSync(code, id, {
+                // Perform macro expansion
+                const result = engine.expandSync(code, id, {
                     keepDecorators: macroConfig.keepDecorators,
-                    externalDecoratorModules,
                     configPath: macroConfig.configPath,
                     typeRegistryJson,
                     declarativeRegistryJson,
@@ -1508,7 +1377,6 @@ export async function macroforge() {
          * @param {{ file: string, modules: any[] }} ctx
          */
         handleHotUpdate(ctx) {
-            if (!rustTransformer) return;
             const file = ctx.file;
             // Config files invalidate the entire cache (matches the
             // `clear_cache` path in the Rust singleton).
@@ -1518,17 +1386,13 @@ export async function macroforge() {
                 file.endsWith('macroforge.config.mjs') ||
                 file.endsWith('tsconfig.json')
             ) {
-                if (typeof rustTransformer.clearScanCache === 'function') {
-                    rustTransformer.clearScanCache();
-                }
+                engine.clearScanCache();
                 return;
             }
             // Source file change — drop the single entry. The next
             // `scanProjectSync` call (either from buildStart or a future
             // HMR refresh) will re-parse it.
-            if (typeof rustTransformer.invalidateScanCacheEntry === 'function') {
-                rustTransformer.invalidateScanCacheEntry(file);
-            }
+            engine.invalidateScanCacheEntry(file);
         },
 
         /**

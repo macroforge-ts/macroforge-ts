@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import {
-    CompletionContext,
+    type CompletionContext,
     CompletionItem,
     CompletionItemKind,
     CompletionTriggerKind,
@@ -13,12 +13,12 @@ import {
     SelectionRange,
     TextEdit
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../src/lib/documents';
-import { CSSPlugin } from '../../../src/plugins';
-import { LSConfigManager } from '../../../src/ls-config';
-import { createLanguageServices } from '../../../src/plugins/css/service';
-import { pathToUrl } from '../../../src/utils';
-import { FileType, LanguageServiceOptions } from 'vscode-css-languageservice';
+import { Document, DocumentManager } from '../../../src/lib/documents/index.ts';
+import { CSSPlugin } from '../../../src/plugins/index.ts';
+import { LSConfigManager } from '../../../src/ls-config.ts';
+import { createLanguageServices } from '../../../src/plugins/css/service.ts';
+import { pathToUrl } from '../../../src/utils.ts';
+import { FileType, type LanguageServiceOptions } from 'vscode-css-languageservice';
 
 describe('CSS Plugin', () => {
     function setup(content: string, lsOptions?: LanguageServiceOptions) {

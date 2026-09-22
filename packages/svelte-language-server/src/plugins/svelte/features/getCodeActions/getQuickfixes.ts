@@ -1,7 +1,5 @@
-import { BaseNode, walk } from 'estree-walker';
 import { EOL } from 'os';
-// @ts-ignore
-import { TemplateNode } from 'svelte/types/compiler/interfaces';
+import type { TemplateNode } from 'svelte/types/compiler/interfaces';
 import {
     CodeAction,
     CodeActionKind,
@@ -17,13 +15,11 @@ import {
     mapObjWithRangeToOriginal,
     offsetAt,
     positionAt
-} from '../../../../lib/documents';
-import { getIndent, pathToUrl } from '../../../../utils';
-import { ITranspiledSvelteDocument, SvelteDocument } from '../../SvelteDocument';
+} from '../../../../lib/documents/index.ts';
+import { getIndent, pathToUrl } from '../../../../utils.ts';
+import { type ITranspiledSvelteDocument, SvelteDocument } from '../../SvelteDocument.ts';
 import ts from 'typescript';
-// estree does not have start/end in their public Node interface,
-// but the AST returned by svelte/compiler does. Type as any as a workaround.
-type Node = any;
+import { type SvelteNode, walkSvelteAst } from '../../../typescript/svelte-ast-utils.ts';
 
 type Ast = Awaited<ReturnType<SvelteDocument['getCompiled']>>['ast'];
 
@@ -130,7 +126,7 @@ function createSvelteAnchorMissingAttributeQuickfixAction(
     transpiled: ITranspiledSvelteDocument,
     content: string,
     lineOffsets: number[],
-    node: Node
+    node: SvelteNode
 ): CodeAction {
     // Assert non-null because the node target attribute is required for 'security-anchor-rel-noreferrer'
     const targetAttribute = node.attributes.find((i: any) => i.name == 'target')!;
@@ -164,7 +160,7 @@ function createSvelteIgnoreQuickfixAction(
     transpiled: ITranspiledSvelteDocument,
     content: string,
     lineOffsets: number[],
-    node: Node,
+    node: SvelteNode,
     diagnostic: Diagnostic,
     isHtml: boolean
 ): CodeAction {
@@ -216,7 +212,7 @@ function getSvelteIgnoreEdit(
     transpiled: ITranspiledSvelteDocument,
     content: string,
     lineOffsets: number[],
-    node: Node,
+    node: SvelteNode,
     diagnostic: Diagnostic,
     isHtml: boolean
 ) {
@@ -248,10 +244,10 @@ function getSvelteIgnoreEdit(
 
 const elementOrComponent = ['Component', 'Element', 'InlineComponent'];
 
-function findTagForRange(ast: BaseNode, range: ts.TextRange, isHtml: boolean) {
-    let nearest: BaseNode = ast;
+function findTagForRange(ast: SvelteNode, range: ts.TextRange, isHtml: boolean) {
+    let nearest: SvelteNode = ast;
 
-    walk(ast, {
+    walkSvelteAst(ast, {
         enter(node, parent) {
             if (isHtml) {
                 const { type } = node;
@@ -275,6 +271,6 @@ function findTagForRange(ast: BaseNode, range: ts.TextRange, isHtml: boolean) {
     return nearest;
 }
 
-function within(node: Node, range: ts.TextRange) {
+function within(node: SvelteNode, range: ts.TextRange) {
     return node.end >= range.end && node.start <= range.pos;
 }

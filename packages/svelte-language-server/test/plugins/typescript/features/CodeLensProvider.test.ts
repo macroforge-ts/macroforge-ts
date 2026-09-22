@@ -1,17 +1,17 @@
 import * as assert from 'assert';
 import * as path from 'path';
 import ts from 'typescript';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { CodeLensProviderImpl } from '../../../../src/plugins/typescript/features/CodeLensProvider';
-import { FindComponentReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FindComponentReferencesProvider';
-import { FindReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FindReferencesProvider';
-import { ImplementationProviderImpl } from '../../../../src/plugins/typescript/features/ImplementationProvider';
-import { pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { CodeLensProviderImpl } from '../../../../src/plugins/typescript/features/CodeLensProvider.ts';
+import { FindComponentReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FindComponentReferencesProvider.ts';
+import { FindReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FindReferencesProvider.ts';
+import { ImplementationProviderImpl } from '../../../../src/plugins/typescript/features/ImplementationProvider.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 
 describe('CodeLensProvider', function () {
     serviceWarmup(

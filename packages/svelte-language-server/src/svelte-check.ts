@@ -2,34 +2,41 @@ import { isAbsolute } from 'path';
 import ts from 'typescript';
 import { Diagnostic, Position, Range } from 'vscode-languageserver';
 import { WorkspaceFolder } from 'vscode-languageserver-protocol';
-import { Document, DocumentManager } from './lib/documents';
-import { Logger } from './logger';
-import { LSConfigManager } from './ls-config';
+import { Document, DocumentManager } from './lib/documents/index.ts';
+import { Logger } from './logger.ts';
+import { LSConfigManager } from './ls-config.ts';
 import {
     CSSPlugin,
     LSAndTSDocResolver,
     PluginHost,
     SveltePlugin,
     TypeScriptPlugin
-} from './plugins';
-import { FileSystemProvider } from './plugins/css/FileSystemProvider';
-import { createLanguageServices } from './plugins/css/service';
-import { JSOrTSDocumentSnapshot } from './plugins/typescript/DocumentSnapshot';
-import { isInGeneratedCode } from './plugins/typescript/features/utils';
-import { convertRange, getDiagnosticTag, mapSeverity } from './plugins/typescript/utils';
-import { pathToUrl, urlToPath } from './utils';
-import { groupBy } from 'lodash';
+} from './plugins/index.ts';
+import { FileSystemProvider } from './plugins/css/FileSystemProvider.ts';
+import { createLanguageServices } from './plugins/css/service.ts';
+import type { LanguageServiceContainer } from './plugins/typescript/service.ts';
+import { JSOrTSDocumentSnapshot } from './plugins/typescript/DocumentSnapshot.ts';
+import { isInGeneratedCode } from './plugins/typescript/features/utils.ts';
+import { convertRange, getDiagnosticTag, mapSeverity } from './plugins/typescript/utils.ts';
+import { pathToUrl, urlToPath } from './utils.ts';
+import { groupBy } from 'lodash-es';
 
+/** A kind of diagnostic svelte-check can report. */
 export type SvelteCheckDiagnosticSource = 'js' | 'css' | 'svelte';
 
+/** Options for {@link SvelteCheck}. */
 export interface SvelteCheckOptions {
+    /** Svelte compiler warning codes to ignore or report as errors. */
     compilerWarnings?: Record<string, 'ignore' | 'error'>;
+    /** The kinds of diagnostics to report; all of them when omitted. */
     diagnosticSources?: SvelteCheckDiagnosticSource[];
     /**
      * Path has to be absolute
      */
     tsconfig?: string;
+    /** Called after a project reloads its configuration in watch mode. */
     onProjectReload?: () => void;
+    /** Keep watching the workspace and re-check changed files. */
     watch?: boolean;
     /**
      * Optional callback invoked when a new snapshot is created.
@@ -50,6 +57,7 @@ export class SvelteCheck {
     private pluginHost = new PluginHost(this.docManager);
     private lsAndTSDocResolver?: LSAndTSDocResolver;
 
+    /** Starts checking `workspacePath`, the absolute path of the workspace root. */
     constructor(
         workspacePath: string,
         private options: SvelteCheckOptions = {}
@@ -58,7 +66,8 @@ export class SvelteCheck {
         this.initialize(workspacePath, options);
     }
 
-    private async initialize(workspacePath: string, options: SvelteCheckOptions) {
+    /** Registers the plugins the enabled diagnostic sources need. */
+    private async initialize(workspacePath: string, options: SvelteCheckOptions): Promise<void> {
         if (options.tsconfig && !isAbsolute(options.tsconfig)) {
             throw new Error(
                 'tsconfigPath needs to be absolute, got ' + options.tsconfig
@@ -204,7 +213,10 @@ export class SvelteCheck {
         );
     }
 
-    private async getDiagnosticsForTsconfig(tsconfigPath: string) {
+    /** Diagnostics for every file the tsconfig at `tsconfigPath` includes. */
+    private async getDiagnosticsForTsconfig(
+        tsconfigPath: string
+    ): Promise<Array<{ filePath: string; text: string; diagnostics: Diagnostic[] }>> {
         const lsContainer = await this.getLSContainer(tsconfigPath);
         const map = (diagnostic: ts.Diagnostic, range?: Range): Diagnostic => {
             const file = diagnostic.file;
@@ -356,7 +368,10 @@ export class SvelteCheck {
         }
     }
 
-    private async getDiagnosticsForFile(uri: string) {
+    /** Diagnostics for the open document at `uri`. */
+    private async getDiagnosticsForFile(
+        uri: string
+    ): Promise<{ filePath: string; text: string; diagnostics: Diagnostic[] }> {
         const diagnostics = await this.pluginHost.getDiagnostics({ uri });
         return {
             filePath: urlToPath(uri) || '',
@@ -365,7 +380,8 @@ export class SvelteCheck {
         };
     }
 
-    private getLSContainer(tsconfigPath: string) {
+    /** The language service that owns the tsconfig at `tsconfigPath`. */
+    private getLSContainer(tsconfigPath: string): Promise<LanguageServiceContainer> {
         if (!this.lsAndTSDocResolver) {
             throw new Error(
                 'Cannot run with tsconfig path without LS/TSdoc resolver'

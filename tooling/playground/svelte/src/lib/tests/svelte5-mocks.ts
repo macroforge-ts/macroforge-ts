@@ -76,7 +76,7 @@ vi.mock('$app/stores', async () => {
 
 // Mock svelte lifecycle functions
 vi.mock('svelte', async (original) => {
-    const module = (await original()) as Record<string, unknown>;
+    const module = await original<typeof import('svelte')>();
     return {
         ...module,
         onDestroy: vi.fn(),

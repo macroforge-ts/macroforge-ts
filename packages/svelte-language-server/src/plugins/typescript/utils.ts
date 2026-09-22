@@ -9,9 +9,14 @@ import {
     Range,
     SymbolKind
 } from 'vscode-languageserver';
-import { Document, isInTag, mapLocationToOriginal, mapRangeToOriginal } from '../../lib/documents';
-import { GetCanonicalFileName, pathToUrl } from '../../utils';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from './DocumentSnapshot';
+import {
+    Document,
+    isInTag,
+    mapLocationToOriginal,
+    mapRangeToOriginal
+} from '../../lib/documents/index.ts';
+import { type GetCanonicalFileName, pathToUrl } from '../../utils.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from './DocumentSnapshot.ts';
 
 export function getScriptKindFromFileName(fileName: string): ts.ScriptKind {
     const ext = fileName.substr(fileName.lastIndexOf('.'));

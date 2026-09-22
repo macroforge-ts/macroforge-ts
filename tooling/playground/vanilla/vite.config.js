@@ -1,14 +1,9 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { macroforge } from '@macroforge/vite-plugin';
 import { defineConfig } from 'vite';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// Runtime imports from env variables (no fallbacks - must be set)
-const { VITE_PLUGIN_PKG, MACROFORGE_TS_CRATE, PLAYGROUND_MACRO, SHARED_PKG } =
-    globalThis.process.env;
-
-const { macroforge } = await import(`${VITE_PLUGIN_PKG}/src/index.js`);
 
 export default defineConfig({
     plugins: [macroforge()],
@@ -35,29 +30,6 @@ export default defineConfig({
         exclude: ['@playground/macro']
     },
     resolve: {
-        dedupe: ['effect'],
-        alias: [
-            // macroforge subpaths (explicit mappings to match package.json exports)
-            {
-                find: '@macroforge/core/serde',
-                replacement: `${MACROFORGE_TS_CRATE}/js/serde/index.mjs`
-            },
-            {
-                find: '@macroforge/core/traits',
-                replacement: `${MACROFORGE_TS_CRATE}/js/traits/index.mjs`
-            },
-            {
-                find: '@macroforge/core/rules',
-                replacement: `${MACROFORGE_TS_CRATE}/js/rules/index.mjs`
-            },
-            {
-                find: '@macroforge/core/buildtime',
-                replacement: `${MACROFORGE_TS_CRATE}/js/buildtime/index.mjs`
-            },
-            { find: '@macroforge/core', replacement: MACROFORGE_TS_CRATE },
-            { find: '@playground/macro', replacement: PLAYGROUND_MACRO },
-            { find: '@macroforge/vite-plugin', replacement: VITE_PLUGIN_PKG },
-            { find: '@macroforge/shared', replacement: SHARED_PKG }
-        ]
+        dedupe: ['effect']
     }
 });

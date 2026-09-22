@@ -1,26 +1,27 @@
 import { basename, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import ts from 'typescript';
 import {
     DiagnosticSeverity,
-    PublishDiagnosticsParams,
+    type PublishDiagnosticsParams,
     RelativePattern,
     TextDocumentContentChangeEvent
 } from 'vscode-languageserver-protocol';
-import { getPackageInfo, importSvelte } from '../../importPackage';
-import { Document } from '../../lib/documents';
-import { configLoader } from '../../lib/documents/configLoader';
-import { FileMap, FileSet } from '../../lib/documents/fileCollection';
-import { Logger } from '../../logger';
+import { packageLoader, packageRequire } from '../../importPackage.ts';
+import { Document } from '../../lib/documents/index.ts';
+import { configLoader } from '../../lib/documents/configLoader.ts';
+import { FileMap, FileSet } from '../../lib/documents/fileCollection.ts';
+import { Logger } from '../../logger.ts';
 import {
     createGetCanonicalFileName,
     isNotNullOrUndefined,
     normalizePath,
     pathToUrl,
     urlToPath
-} from '../../utils';
-import { DocumentSnapshot, SvelteSnapshotOptions } from './DocumentSnapshot';
-import { createSvelteModuleLoader } from './module-loader';
-import { GlobalSnapshotsManager, SnapshotManager } from './SnapshotManager';
+} from '../../utils.ts';
+import { DocumentSnapshot, type SvelteSnapshotOptions } from './DocumentSnapshot.ts';
+import { createSvelteModuleLoader } from './module-loader.ts';
+import { GlobalSnapshotsManager, SnapshotManager } from './SnapshotManager.ts';
 import {
     ensureRealSvelteFilePath,
     findTsConfigPath,
@@ -28,13 +29,13 @@ import {
     hasTsExtensions,
     isSvelteFilePath,
     toVirtualSvelteFilePath
-} from './utils';
-import { createProject, ProjectService } from './serviceCache';
+} from './utils.ts';
+import { createProject, type ProjectService } from './serviceCache.ts';
 import { internalHelpers } from 'svelte2tsx';
 import {
     createMacroforgeAugmentationConfig,
-    MacroforgeAugmentationConfig
-} from './macroforgeAugmenter';
+    type MacroforgeAugmentationConfig
+} from './macroforgeAugmenter.ts';
 
 export interface LanguageServiceContainer {
     readonly tsconfigPath: string;
@@ -409,12 +410,12 @@ async function createLanguageService(
     let compilerHost: ts.CompilerHost | undefined;
     try {
         // For when svelte2tsx/svelte-check is part of node_modules, for example VS Code extension
-        svelteTsPath = dirname(require.resolve(docContext.ambientTypesSource));
+        svelteTsPath = dirname(packageRequire.resolve(docContext.ambientTypesSource));
     } catch (e) {
         // Fall back to dirname
-        svelteTsPath = __dirname;
+        svelteTsPath = dirname(fileURLToPath(import.meta.url));
     }
-    const sveltePackageInfo = getPackageInfo(
+    const sveltePackageInfo = packageLoader.getPackageInfo(
         'svelte',
         tsconfigPath || workspacePath
     );
@@ -422,7 +423,7 @@ async function createLanguageService(
     // Svelte 5 has new features, but we don't want to add the new compiler into language-tools. In the future it's probably
     // best to shift more and more of this into user's node_modules for better handling of multiple Svelte versions.
     const svelteCompiler = sveltePackageInfo.version.major >= 4
-        ? importSvelte(tsconfigPath || workspacePath)
+        ? packageLoader.importSvelte(tsconfigPath || workspacePath)
         : undefined;
 
     const changedFilesForExportCache = new Set<string>();
@@ -862,11 +863,11 @@ async function createLanguageService(
             //override if we detect svelte-native
             if (workspacePath) {
                 try {
-                    const svelteNativePkgInfo = getPackageInfo(
+                    const svelteNativePkgInfo = packageLoader.getPackageInfo(
                         '@nativescript-community/svelte-native',
                         workspacePath
                     ) ||
-                        getPackageInfo('svelte-native', workspacePath);
+                        packageLoader.getPackageInfo('svelte-native', workspacePath);
                     if (svelteNativePkgInfo.path) {
                         // For backwards compatibility
                         parsedConfig.raw.svelteOptions = parsedConfig.raw.svelteOptions ||

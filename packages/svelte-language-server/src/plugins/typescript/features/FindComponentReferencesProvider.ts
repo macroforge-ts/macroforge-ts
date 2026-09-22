@@ -1,14 +1,14 @@
 import { Location, Position, Range } from 'vscode-languageserver';
-import { flatten, isNotNullOrUndefined, pathToUrl, urlToPath } from '../../../utils';
-import { FindComponentReferencesProvider } from '../../interfaces';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
+import { flatten, isNotNullOrUndefined, pathToUrl, urlToPath } from '../../../utils.ts';
+import type { FindComponentReferencesProvider } from '../../interfaces.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
 import {
     convertToLocationRange,
     hasNonZeroRange,
     offsetOfGeneratedComponentExport
-} from '../utils';
-import { isTextSpanInGeneratedCode, SnapshotMap } from './utils';
+} from '../utils.ts';
+import { isTextSpanInGeneratedCode, SnapshotMap } from './utils.ts';
 
 export class FindComponentReferencesProviderImpl implements FindComponentReferencesProvider {
     constructor(private readonly lsAndTsDocResolver: LSAndTSDocResolver) {}

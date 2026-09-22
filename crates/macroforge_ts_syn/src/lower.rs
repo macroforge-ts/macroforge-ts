@@ -52,7 +52,8 @@
 //! # }
 //! # #[cfg(feature = "oxc")] {
 //! use macroforge_ts_syn::{lower_classes_oxc, parse_oxc_program};
-//! let program = parse_oxc_program(source)?;
+//! let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+//! let program = parse_oxc_program(&allocator, source)?;
 //! let classes = lower_classes_oxc(&program, source, None)?;
 //! # }
 //!
@@ -105,7 +106,8 @@ use crate::TsSynError;
 /// # }
 /// # #[cfg(feature = "oxc")] {
 /// use macroforge_ts_syn::{lower_targets_oxc, parse_oxc_program};
-/// let program = parse_oxc_program(source)?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let program = parse_oxc_program(&allocator, source)?;
 /// let targets = lower_targets_oxc(&program, source, None)?;
 /// # }
 ///
@@ -159,7 +161,8 @@ use swc_core::ecma::visit::{Visit, VisitWith};
 /// # }
 /// # #[cfg(feature = "oxc")] {
 /// use macroforge_ts_syn::{lower_classes_oxc, parse_oxc_program};
-/// let program = parse_oxc_program(source)?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let program = parse_oxc_program(&allocator, source)?;
 /// let classes = lower_classes_oxc(&program, source, None)?;
 /// # }
 ///
@@ -210,7 +213,8 @@ pub fn lower_classes(
 /// # }
 /// # #[cfg(feature = "oxc")] {
 /// use macroforge_ts_syn::{lower_interfaces_oxc, parse_oxc_program};
-/// let program = parse_oxc_program(source)?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let program = parse_oxc_program(&allocator, source)?;
 /// let interfaces = lower_interfaces_oxc(&program, source, None)?;
 /// # }
 ///
@@ -266,7 +270,8 @@ pub fn lower_interfaces(
 /// # }
 /// # #[cfg(feature = "oxc")] {
 /// use macroforge_ts_syn::{lower_targets_oxc, parse_oxc_program};
-/// let program = parse_oxc_program(source)?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let program = parse_oxc_program(&allocator, source)?;
 /// let targets = lower_targets_oxc(&program, source, None)?;
 /// # }
 ///
@@ -323,7 +328,8 @@ pub fn lower_targets(
 /// # }
 /// # #[cfg(feature = "oxc")] {
 /// use macroforge_ts_syn::{lower_enums_oxc, parse_oxc_program};
-/// let program = parse_oxc_program(source)?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let program = parse_oxc_program(&allocator, source)?;
 /// let enums = lower_enums_oxc(&program, source, None)?;
 /// # }
 ///
@@ -391,7 +397,8 @@ pub fn lower_enums(
 /// # }
 /// # #[cfg(feature = "oxc")] {
 /// use macroforge_ts_syn::{lower_type_aliases_oxc, parse_oxc_program};
-/// let program = parse_oxc_program(source)?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let program = parse_oxc_program(&allocator, source)?;
 /// let type_aliases = lower_type_aliases_oxc(&program, source, None)?;
 /// # }
 ///
@@ -1238,58 +1245,14 @@ fn collect_leading_macro_directives(
     target_start: usize,
     valid_annotations: Option<&HashSet<String>>,
 ) -> Vec<DecoratorIR> {
-    // target_start is 1-based (from SWC BytePos), convert to 0-based for slicing
-    let target_start_0 = target_start.saturating_sub(1);
-    if target_start_0 == 0 || target_start_0 > source.len() {
-        return Vec::new();
-    }
-
-    let search_area = &source[..target_start_0];
-
-    // Find the last "*/" in the search_area
-    let Some(end_idx_in_search_area) = search_area.rfind("*/") else {
-        return Vec::new();
-    };
-
-    // Find the matching "/**" before that "*/"
-    let Some(start_idx) = search_area[..end_idx_in_search_area].rfind("/**") else {
-        return Vec::new();
-    };
-
-    let end_of_comment_block = end_idx_in_search_area + 2; // +2 for "*/"
-
-    // Only accept if the comment is directly adjacent to the target
-    // Allow common modifiers between comment and target (export, declare, abstract, etc.)
-    let between = &search_area[end_of_comment_block..];
-    let between_trimmed = between.trim();
-    if !between_trimmed.is_empty() {
-        // Check if only allowed modifiers are between comment and target
-        let allowed_modifiers = ["export", "declare", "abstract", "default", "async"];
-        let remaining: String = between_trimmed
-            .split_whitespace()
-            .filter(|word| !allowed_modifiers.contains(word))
-            .collect::<Vec<_>>()
-            .join(" ");
-        if !remaining.is_empty() {
-            // There's non-whitespace, non-modifier content between the comment and target
-            return Vec::new();
-        }
-    }
-
-    // Collect all adjacent JSDoc comments by walking backwards
+    // target_start is 1-based (from SWC BytePos).
     let mut all_directives = Vec::new();
-    let mut current_start = start_idx;
-    let mut current_end = end_idx_in_search_area;
+    let mut block = crate::jsdoc::adjacent_jsdoc(source, target_start.saturating_sub(1));
 
-    loop {
-        let comment_body = &search_area[current_start + 3..current_end];
-
-        // Skip macro import comments — they contain path-like strings (e.g.
-        // "@playground/macro") whose `@` prefix would be misread as a decorator.
-        let body_lower = comment_body.to_ascii_lowercase();
-        let is_macro_import = body_lower.contains("import") && body_lower.contains("macro");
-
-        let directives = if is_macro_import {
+    // Walk back over every JSDoc block stacked directly above the target.
+    while let Some(current) = block {
+        let comment_body = current.body(source);
+        let directives = if crate::jsdoc::is_macro_import_comment(comment_body) {
             Vec::new()
         } else {
             parse_all_macro_directives(comment_body, valid_annotations)
@@ -1298,8 +1261,8 @@ fn collect_leading_macro_directives(
         for (name, args_src) in directives {
             let final_span_ir = adjust_decorator_span(
                 swc_core::common::Span::new(
-                    swc_core::common::BytePos(current_start as u32 + 1),
-                    swc_core::common::BytePos((current_end + 2) as u32 + 1),
+                    swc_core::common::BytePos(current.start as u32 + 1),
+                    swc_core::common::BytePos(current.end as u32 + 1),
                 ),
                 source,
             );
@@ -1312,24 +1275,7 @@ fn collect_leading_macro_directives(
             });
         }
 
-        // Check if there's another adjacent JSDoc comment before this one
-        let before_comment = &search_area[..current_start];
-        let before_trimmed = before_comment.trim_end();
-
-        // Look for "*/" at the end of the trimmed content
-        if !before_trimmed.ends_with("*/") {
-            break;
-        }
-
-        // Find the matching "/**" for this previous comment
-        let prev_end = before_trimmed.len() - 2; // Position before "*/"
-        let Some(prev_start) = before_trimmed[..prev_end].rfind("/**") else {
-            break;
-        };
-
-        // Continue with the previous comment
-        current_start = prev_start;
-        current_end = prev_end;
+        block = crate::jsdoc::stacked_jsdoc_above(source, current);
     }
 
     all_directives

@@ -1,14 +1,14 @@
 import { CancellationToken, Location, Position } from 'vscode-languageserver-protocol';
-import { Document, mapLocationToOriginal } from '../../../lib/documents';
-import { isNotNullOrUndefined } from '../../../utils';
-import { ImplementationProvider } from '../../interfaces';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { convertRange } from '../utils';
+import { Document, mapLocationToOriginal } from '../../../lib/documents/index.ts';
+import { isNotNullOrUndefined } from '../../../utils.ts';
+import type { ImplementationProvider } from '../../interfaces.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { convertRange } from '../utils.ts';
 import {
     is$storeVariableIn$storeDeclaration,
     isTextSpanInGeneratedCode,
     SnapshotMap
-} from './utils';
+} from './utils.ts';
 
 export class ImplementationProviderImpl implements ImplementationProvider {
     constructor(private readonly lsAndTsDocResolver: LSAndTSDocResolver) {}

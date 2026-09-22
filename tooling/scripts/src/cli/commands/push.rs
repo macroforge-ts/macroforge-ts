@@ -33,7 +33,7 @@ pub fn run(args: &PushArgs) -> Result<()> {
         unpushed.to_string().yellow()
     );
     if has_uncommitted {
-        format::warning("There are uncommitted changes — run `mf commit` first");
+        format::warning("There are uncommitted changes — commit them first");
     }
     println!();
 

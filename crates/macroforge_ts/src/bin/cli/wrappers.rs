@@ -7,6 +7,7 @@ use std::{
 
 use crate::atomic_fs::{sibling_with_suffix, swap_dir, write_atomic};
 use crate::cache::{compute_config_hash, compute_external_macro_hash, content_hash};
+use crate::lock::ProjectLock;
 use crate::package_expand::run_expansion_pass;
 use crate::package_state::{
     self, PackageFlags, PackageInputs, PackageState, ResolvedPackageConfig, diff_files,
@@ -39,78 +40,108 @@ pub(crate) static DECLARATIVE_REGISTRY_CACHE_PATH: Mutex<Option<String>> = Mutex
 /// megabytes on a large project, and the Vite plugin reads it directly at
 /// `buildStart`, so a plain write would give concurrent readers a wide window
 /// in which to observe a truncated file.
-pub(crate) fn ensure_type_registry_cache(root: &Path) {
-    let mut cached = TYPE_REGISTRY_CACHE_PATH.lock().unwrap();
-    if cached.is_some() {
-        return;
+pub(crate) fn ensure_type_registry_cache(root: &Path) -> Result<()> {
+    let already_built = TYPE_REGISTRY_CACHE_PATH
+        .lock()
+        .map_err(|err| anyhow::anyhow!("type registry path lock poisoned: {err}"))?
+        .is_some();
+    if already_built {
+        return Ok(());
     }
+    refresh_type_registry(root)
+}
 
-    // Write registry to project-local .macroforge/ directory (not global /tmp)
-    let cache_dir = root.join(".macroforge");
-    let _ = fs::create_dir_all(&cache_dir);
-    let registry_path = cache_dir.join("type-registry.json");
-    let declarative_path = cache_dir.join("declarative-registry.json");
+/// Scans the project and rewrites both registries, whether or not they were
+/// built before. A long-running process (`macroforge watch`) calls this after
+/// sources change, so cross-file type information follows the edits.
+pub(crate) fn refresh_type_registry(root: &Path) -> Result<()> {
+    let output = scan_project(root)?;
+    let paths = write_registries(root, &output)?;
+    *TYPE_REGISTRY_CACHE_PATH
+        .lock()
+        .map_err(|err| anyhow::anyhow!("type registry path lock poisoned: {err}"))? =
+        Some(paths.types.to_string_lossy().to_string());
+    *DECLARATIVE_REGISTRY_CACHE_PATH
+        .lock()
+        .map_err(|err| anyhow::anyhow!("declarative registry path lock poisoned: {err}"))? =
+        Some(paths.declarative.to_string_lossy().to_string());
+    Ok(())
+}
 
+/// Where a project's registries were written.
+pub(crate) struct RegistryPaths {
+    pub(crate) types: PathBuf,
+    pub(crate) declarative: PathBuf,
+}
+
+/// Scans the project under `root` for its type and declarative registries.
+fn scan_project(root: &Path) -> Result<macroforge_ts::host::scanner::ScanOutput> {
     use macroforge_ts::host::scanner::{ProjectScanner, ScanConfig};
 
-    let config = ScanConfig {
+    let scanner = ProjectScanner::new(ScanConfig {
         root_dir: root.to_path_buf(),
         ..ScanConfig::default()
-    };
-    let scanner = ProjectScanner::new(config);
-
-    match scanner.scan() {
-        Ok(output) => {
-            let types_found = output.registry.len();
-            let macros_found = output.declarative_registry.macro_count();
-            match serde_json::to_string(&output.registry) {
-                Ok(json) => {
-                    if let Err(e) = write_atomic(&registry_path, json.as_bytes()) {
-                        eprintln!("[macroforge] Failed to write type registry: {e}");
-                        *cached = None;
-                        return;
-                    }
-                    eprintln!(
-                        "[macroforge] Type scan: {} types from {} files",
-                        types_found, output.files_scanned
-                    );
-                    *cached = Some(registry_path.to_string_lossy().to_string());
-                }
-                Err(e) => {
-                    eprintln!("[macroforge] Failed to serialize type registry: {e}");
-                    *cached = None;
-                }
-            }
-
-            // Emit the declarative macro registry alongside the type
-            // registry. Failures here are non-fatal: the type registry
-            // still ships, and declarative cross-file imports just won't
-            // resolve (they'll surface as diagnostics at use sites).
-            match output.declarative_registry.to_json() {
-                Ok(json) => {
-                    if let Err(e) = write_atomic(&declarative_path, json.as_bytes()) {
-                        eprintln!("[macroforge] Failed to write declarative macro registry: {e}");
-                    } else {
-                        eprintln!(
-                            "[macroforge] Declarative scan: {} macros across {} files",
-                            macros_found,
-                            output.declarative_registry.file_count()
-                        );
-                        *DECLARATIVE_REGISTRY_CACHE_PATH.lock().unwrap() =
-                            Some(declarative_path.to_string_lossy().to_string());
-                    }
-                }
-                Err(e) => {
-                    eprintln!("[macroforge] Failed to serialize declarative macro registry: {e}");
-                }
-            }
-        }
-        Err(e) => {
-            eprintln!("[macroforge] Type scan failed: {e}");
-            *cached = None;
-        }
-    }
+    });
+    let output = scanner
+        .scan()
+        .map_err(|err| anyhow::anyhow!("type scan of {} failed: {err}", root.display()))?;
+    eprintln!(
+        "[macroforge] Type scan: {} types from {} files",
+        output.registry.len(),
+        output.files_scanned
+    );
+    eprintln!(
+        "[macroforge] Declarative scan: {} macros across {} files",
+        output.declarative_registry.macro_count(),
+        output.declarative_registry.file_count()
+    );
+    Ok(output)
 }
+
+/// Writes both registries into `<root>/.macroforge/`, atomically.
+fn write_registries(
+    root: &Path,
+    output: &macroforge_ts::host::scanner::ScanOutput,
+) -> Result<RegistryPaths> {
+    let cache_dir = root.join(".macroforge");
+    fs::create_dir_all(&cache_dir)
+        .with_context(|| format!("failed to create {}", cache_dir.display()))?;
+    let types = cache_dir.join("type-registry.json");
+    let declarative = cache_dir.join("declarative-registry.json");
+
+    let registry_json =
+        serde_json::to_string(&output.registry).context("failed to serialize the type registry")?;
+    write_atomic(&types, registry_json.as_bytes())
+        .with_context(|| format!("failed to write {}", types.display()))?;
+
+    let declarative_json = output
+        .declarative_registry
+        .to_json()
+        .map_err(|err| anyhow::anyhow!("failed to serialize the declarative registry: {err}"))?;
+    write_atomic(&declarative, declarative_json.as_bytes())
+        .with_context(|| format!("failed to write {}", declarative.display()))?;
+
+    Ok(RegistryPaths { types, declarative })
+}
+
+/// The registries for a check-only command (`tsc`, `svelte-check`), or `None`
+/// when no file in the project uses a macro. Then nothing is written, so a
+/// project without macros never gets a `.macroforge/` directory. The project
+/// lock is held only while the registries are written.
+pub(crate) fn registries_for_check(root: &Path, command: &str) -> Result<Option<RegistryPaths>> {
+    let output = scan_project(root)?;
+    if output.macro_files == 0 && output.declarative_registry.file_count() == 0 {
+        return Ok(None);
+    }
+    let lock = ProjectLock::acquire(root, command, false)?;
+    let paths = write_registries(root, &output)?;
+    drop(lock);
+    Ok(Some(paths))
+}
+
+/// Setup shared by the tsc and svelte-check wrappers, imported by relative path.
+const WRAPPER_COMMON_NAME: &str = "wrapper-common.mjs";
+const WRAPPER_COMMON: &str = include_str!("../../../js/cli/wrapper-common.mjs");
 
 /// Writes a wrapper's Node scripts into a temp directory and returns its path.
 ///
@@ -175,19 +206,25 @@ fn materialize_scripts(name: &str, files: &[(&str, &str)]) -> Result<PathBuf> {
 ///
 /// Returns `Ok(())` if type checking passes, or an error with diagnostic details.
 pub fn run_tsc_wrapper(root: &Path, project: Option<PathBuf>) -> Result<()> {
-    // Build the type registry before launching tsc so that expandSync
-    // can resolve cross-module type references.
-    ensure_type_registry_cache(root);
-    let registry_path = TYPE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
-    let declarative_registry_path = DECLARATIVE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
+    // Build the registries before launching tsc so that expandSync can
+    // resolve cross-module type references.
+    let registries = registries_for_check(root, "tsc")?;
 
     // The tsc wrapper must be a JS script because it monkey-patches the TypeScript
     // CompilerHost.getSourceFile to expand macros on the fly — that hooking can only
     // happen in JS since it's patching the TS compiler API internals. We write it to
     // a temp file because `node` needs a file path to execute.
-    let script = include_str!("../../../js/cli/tsc-wrapper.js");
-    let temp_dir = materialize_scripts("tsc", &[("tsc-wrapper.js", script)])?;
-    let script_path = temp_dir.join("tsc-wrapper.js");
+    let temp_dir = materialize_scripts(
+        "tsc",
+        &[
+            (
+                "tsc-wrapper.mjs",
+                include_str!("../../../js/cli/tsc-wrapper.mjs"),
+            ),
+            (WRAPPER_COMMON_NAME, WRAPPER_COMMON),
+        ],
+    )?;
+    let script_path = temp_dir.join("tsc-wrapper.mjs");
 
     let project_arg = project
         .unwrap_or_else(|| PathBuf::from("tsconfig.json"))
@@ -196,11 +233,9 @@ pub fn run_tsc_wrapper(root: &Path, project: Option<PathBuf>) -> Result<()> {
 
     let mut cmd = std::process::Command::new("node");
     cmd.arg(script_path).arg(project_arg);
-    if let Some(ref rp) = registry_path {
-        cmd.env("MACROFORGE_TYPE_REGISTRY_PATH", rp);
-    }
-    if let Some(ref drp) = declarative_registry_path {
-        cmd.env("MACROFORGE_DECLARATIVE_REGISTRY_PATH", drp);
+    if let Some(paths) = &registries {
+        cmd.env("MACROFORGE_TYPE_REGISTRY_PATH", &paths.types);
+        cmd.env("MACROFORGE_DECLARATIVE_REGISTRY_PATH", &paths.declarative);
     }
     let status = cmd.status().context("failed to run node tsc wrapper")?;
 
@@ -238,29 +273,33 @@ pub fn run_svelte_check_wrapper(
     output: Option<String>,
     fail_on_warnings: bool,
 ) -> Result<()> {
-    // Build the type registry before launching svelte-check so that
-    // expandSync can resolve cross-module type references (e.g., enum
-    // fieldset variants defined in separate files).
-    ensure_type_registry_cache(root);
-    let registry_path = TYPE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
-    let declarative_registry_path = DECLARATIVE_REGISTRY_CACHE_PATH.lock().unwrap().clone();
+    // Build the registries before launching svelte-check so that expandSync
+    // can resolve cross-module type references (e.g., enum fieldset variants
+    // defined in separate files).
+    let registries = registries_for_check(root, "svelte-check")?;
 
     // Same pattern as tsc wrapper: must be JS because it patches svelte-check's
     // file reading to expand macros. Written to temp because `node` needs a file path.
-    let script = include_str!("../../../js/cli/svelte-check-wrapper.js");
-    let temp_dir = materialize_scripts("svelte-check", &[("svelte-check-wrapper.js", script)])?;
-    let script_path = temp_dir.join("svelte-check-wrapper.js");
+    let temp_dir = materialize_scripts(
+        "svelte-check",
+        &[
+            (
+                "svelte-check-wrapper.mjs",
+                include_str!("../../../js/cli/svelte-check-wrapper.mjs"),
+            ),
+            (WRAPPER_COMMON_NAME, WRAPPER_COMMON),
+        ],
+    )?;
+    let script_path = temp_dir.join("svelte-check-wrapper.mjs");
 
     let mut cmd = std::process::Command::new("node");
     cmd.arg(&script_path);
 
     // Pass the type registry path via environment variable so the JS
     // script can load it and feed it to expandSync.
-    if let Some(ref rp) = registry_path {
-        cmd.env("MACROFORGE_TYPE_REGISTRY_PATH", rp);
-    }
-    if let Some(ref drp) = declarative_registry_path {
-        cmd.env("MACROFORGE_DECLARATIVE_REGISTRY_PATH", drp);
+    if let Some(paths) = &registries {
+        cmd.env("MACROFORGE_TYPE_REGISTRY_PATH", &paths.types);
+        cmd.env("MACROFORGE_DECLARATIVE_REGISTRY_PATH", &paths.declarative);
     }
 
     // Pass through CLI args for svelte-check to pick up
@@ -369,19 +408,14 @@ pub fn run_svelte_package_wrapper(
     no_types: bool,
     full_rebuild: bool,
 ) -> Result<()> {
-    // The wrapper is three ES modules: the entrypoint, a module-resolve hook,
-    // and an fs shim. They must sit together so the hook resolves the shim by
-    // relative path, so write all three into one temp dir.
+    // The wrapper is two ES modules, the entrypoint and an fs shim. Its resolve
+    // hook finds the shim by relative path, so both go into one temp dir.
     let temp_dir = materialize_scripts(
         "svelte-package",
         &[
             (
                 "svelte-package-wrapper.mjs",
                 include_str!("../../../js/cli/svelte-package-wrapper.mjs"),
-            ),
-            (
-                "svelte-package-fs-hook.mjs",
-                include_str!("../../../js/cli/svelte-package-fs-hook.mjs"),
             ),
             (
                 "svelte-package-fs-shim.mjs",
@@ -469,7 +503,7 @@ pub fn run_svelte_package_wrapper(
     // Build the type registry so expansion can resolve cross-module type
     // references, exactly as the tsc / svelte-check wrappers do. This is the
     // first expensive step, and everything above exists to avoid reaching it.
-    ensure_type_registry_cache(root);
+    ensure_type_registry_cache(root)?;
     let registry_hash = package_state::registry_hash(root);
 
     let expanded = expanded_dir(root);

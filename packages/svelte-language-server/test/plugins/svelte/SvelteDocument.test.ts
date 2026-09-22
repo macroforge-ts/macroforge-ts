@@ -1,15 +1,14 @@
 import * as assert from 'assert';
 import sinon from 'sinon';
 import { Position } from 'vscode-languageserver';
-import { Document } from '../../../src/lib/documents';
-import * as importPackage from '../../../src/importPackage';
+import { Document } from '../../../src/lib/documents/index.ts';
+import * as importPackage from '../../../src/importPackage.ts';
 import {
-    ITranspiledSvelteDocument,
+    type ITranspiledSvelteDocument,
     SvelteDocument
-} from '../../../src/plugins/svelte/SvelteDocument';
-import { configLoader, SvelteConfig } from '../../../src/lib/documents/configLoader';
-// @ts-ignore
-import { Preprocessor } from 'svelte/types/compiler/preprocess';
+} from '../../../src/plugins/svelte/SvelteDocument.ts';
+import { configLoader, type SvelteConfig } from '../../../src/lib/documents/configLoader.ts';
+import type { Preprocessor } from 'svelte/types/compiler/preprocess';
 
 describe('Svelte Document', () => {
     function getSourceCode(transpiled: boolean): string {
@@ -96,13 +95,13 @@ describe('Svelte Document', () => {
             // stub svelte preprocess and getOriginalPosition
             // to fake a source mapping process with the fallback version
             sinon
-                .stub(importPackage, 'getPackageInfo')
+                .stub(importPackage.packageLoader, 'getPackageInfo')
                 .returns({
                     path: '',
                     version: { full: '', major: 3, minor: 31, patch: 0 }
                 });
             // @ts-ignore
-            sinon.stub(importPackage, 'importSvelte').returns({
+            sinon.stub(importPackage.packageLoader, 'importSvelte').returns({
                 preprocess: (text, preprocessor) => {
                     preprocessor = Array.isArray(preprocessor) ? preprocessor : [preprocessor];
                     preprocessor.forEach((p) => p.script?.(<any> {}));

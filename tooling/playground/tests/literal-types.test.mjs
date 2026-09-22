@@ -10,16 +10,10 @@
 
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import path from 'node:path';
 import { describe, test } from 'node:test';
-import { repoRoot } from './test-utils.mjs';
 
 const require = createRequire(import.meta.url);
-const swcMacrosPath = path.join(
-    repoRoot,
-    'crates/macroforge_ts/pkg/macroforge_ts.js'
-);
-const { expandSync } = require(swcMacrosPath);
+const { expandSync } = require('@macroforge/core');
 
 // ============================================================================
 // String Literal Type Tests

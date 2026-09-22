@@ -1,8 +1,13 @@
 <script lang="ts">
-import { Exit, Option } from 'effect';
+import { pickOption } from '$lib/select-option.util';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
+import { Option } from 'effect';
 import {
     userCreateForm,
     settingsDefaultValue,
+    type RowHeight,
     type User,
     type Settings,
     type UserRole
@@ -12,27 +17,19 @@ import {
 const userForm = userCreateForm();
 
 // Track validation results
-let userResult: {
-    success: boolean;
-    data?: User;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let userResult: OutcomeOf<typeof userForm> | null = $state(null);
 
-// Expose to Playwright
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        user: userForm
-    };
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    user: userForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
 }
 
 function submitUser() {
-    userResult = Exit.match(userForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.userValidation = userResult;
-    }
+    userResult = validationOutcome(userForm.validate());
+    gigaform.userValidation = userResult;
 }
 
 function resetUser() {
@@ -52,7 +49,7 @@ function updateScheduleDaysPerWeek(value: number) {
     });
 }
 
-function updateScheduleRowHeight(value: 'ExtraSmall' | 'Small' | 'Medium' | 'Large') {
+function updateScheduleRowHeight(value: RowHeight) {
     const currentSettings = userForm.fields.settings.get();
     userForm.fields.settings.set({
         ...currentSettings,
@@ -70,7 +67,7 @@ const roleOptions: Array<UserRole> = [
     'HumanResources',
     'InformationTechnology'
 ];
-const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
+const rowHeightOptions: Array<RowHeight> = ['ExtraSmall', 'Small', 'Medium', 'Large'];
 </script>
 
 <svelte:head>
@@ -128,7 +125,7 @@ const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
           />
           {#if Option.isSome(userForm.fields.firstName.getError())}
             <span class="error" data-testid="user-firstName-error">
-              {Option.getOrElse(userForm.fields.firstName.getError(), () => [] as Array<string>).join(", ")}
+              {Option.getOrElse(userForm.fields.firstName.getError(), () => []).join(", ")}
             </span>
           {/if}
         </div>
@@ -143,7 +140,7 @@ const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
           />
           {#if Option.isSome(userForm.fields.lastName.getError())}
             <span class="error" data-testid="user-lastName-error">
-              {Option.getOrElse(userForm.fields.lastName.getError(), () => [] as Array<string>).join(", ")}
+              {Option.getOrElse(userForm.fields.lastName.getError(), () => []).join(", ")}
             </span>
           {/if}
         </div>
@@ -156,7 +153,7 @@ const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
             id="user-role"
             data-testid="user-role"
             value={userForm.fields.role.get()}
-            onchange={(e) => userForm.fields.role.set(e.currentTarget.value as UserRole)}
+            onchange={(e) => userForm.fields.role.set(pickOption(roleOptions, e.currentTarget.value))}
           >
             {#each roleOptions as role}
               <option value={role}>{role}</option>
@@ -201,7 +198,7 @@ const rowHeightOptions = ['ExtraSmall', 'Small', 'Medium', 'Large'] as const;
             id="settings-rowHeight"
             data-testid="settings-rowHeight"
             value={userForm.fields.settings.get().scheduleSettings.rowHeight}
-            onchange={(e) => updateScheduleRowHeight(e.currentTarget.value as typeof rowHeightOptions[number])}
+            onchange={(e) => updateScheduleRowHeight(pickOption(rowHeightOptions, e.currentTarget.value))}
           >
             {#each rowHeightOptions as height}
               <option value={height}>{height}</option>

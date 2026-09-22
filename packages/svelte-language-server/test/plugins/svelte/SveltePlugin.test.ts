@@ -1,17 +1,17 @@
 import * as assert from 'assert';
-import { SveltePlugin } from '../../../src/plugins';
-import { Document, DocumentManager } from '../../../src/lib/documents';
+import { SveltePlugin } from '../../../src/plugins/index.ts';
+import { Document, DocumentManager } from '../../../src/lib/documents/index.ts';
 import {
     CancellationTokenSource,
     Diagnostic,
     DiagnosticSeverity,
     Range
 } from 'vscode-languageserver';
-import { LSConfigManager } from '../../../src/ls-config';
-import * as importPackage from '../../../src/importPackage';
+import { LSConfigManager } from '../../../src/ls-config.ts';
+import * as importPackage from '../../../src/importPackage.ts';
 import sinon from 'sinon';
 import { join } from 'path';
-import { pathToUrl, urlToPath } from '../../../src/utils';
+import { pathToUrl, urlToPath } from '../../../src/utils.ts';
 import { VERSION } from 'svelte/compiler';
 
 const isSvelte5Plus = Number(VERSION.split('.')[0]) >= 5;
@@ -82,7 +82,7 @@ describe('Svelte Plugin', () => {
         function stubPrettierV2(config: any) {
             const formatStub = sinon.stub().returns('formatted');
 
-            sinon.stub(importPackage, 'importPrettier').returns(
+            sinon.stub(importPackage.packageLoader, 'importPrettier').returns(
                 <any> {
                     version: '2.8.0',
                     resolveConfig: () => Promise.resolve(config),
@@ -148,7 +148,7 @@ describe('Svelte Plugin', () => {
 
         it('can resolve plugin for formatting', async () => {
             const documentUri = pathToUrl(
-                join(__dirname, 'testFiles', 'do-not-exist.svelte')
+                join(import.meta.dirname, 'testFiles', 'do-not-exist.svelte')
             );
             const formatStub = await testFormat(
                 { fromConfig: true, plugins: ['prettier-plugin-svelte'] },
@@ -158,7 +158,7 @@ describe('Svelte Plugin', () => {
             sinon.assert.calledOnceWithExactly(formatStub, 'unformatted', {
                 fromConfig: true,
                 plugins: [
-                    require.resolve('prettier-plugin-svelte', {
+                    importPackage.packageRequire.resolve('prettier-plugin-svelte', {
                         paths: [urlToPath(documentUri)!]
                     })
                 ],
@@ -213,7 +213,7 @@ describe('Svelte Plugin', () => {
                 const formatStub = sinon.stub().returns('formatted');
 
                 sinon
-                    .stub(importPackage, 'importPrettier')
+                    .stub(importPackage.packageLoader, 'importPrettier')
                     .onFirstCall()
                     .returns(
                         <any> {
@@ -238,7 +238,7 @@ describe('Svelte Plugin', () => {
                 const formatStub = sinon.stub().returns('formatted');
 
                 sinon
-                    .stub(importPackage, 'importPrettier')
+                    .stub(importPackage.packageLoader, 'importPrettier')
                     .onFirstCall()
                     .returns(
                         <any> {
@@ -258,7 +258,7 @@ describe('Svelte Plugin', () => {
             await testFormat(
                 {},
                 {
-                    plugins: [require('prettier-plugin-svelte')]
+                    plugins: [importPackage.packageRequire('prettier-plugin-svelte')]
                 },
                 undefined,
                 stubPrettier
@@ -270,7 +270,7 @@ describe('Svelte Plugin', () => {
                 const formatStub = sinon.stub().returns(Promise.resolve('formatted'));
 
                 sinon
-                    .stub(importPackage, 'importPrettier')
+                    .stub(importPackage.packageLoader, 'importPrettier')
                     .onFirstCall()
                     .returns(
                         <any> {
@@ -301,7 +301,7 @@ describe('Svelte Plugin', () => {
                 const formatStub = sinon.stub().returns('formatted');
 
                 sinon
-                    .stub(importPackage, 'importPrettier')
+                    .stub(importPackage.packageLoader, 'importPrettier')
                     .onFirstCall()
                     .returns(
                         <any> {
@@ -338,7 +338,7 @@ describe('Svelte Plugin', () => {
                 const formatStub = sinon.stub().returns('formatted');
 
                 sinon
-                    .stub(importPackage, 'importPrettier')
+                    .stub(importPackage.packageLoader, 'importPrettier')
                     .onFirstCall()
                     .returns(
                         <any> {

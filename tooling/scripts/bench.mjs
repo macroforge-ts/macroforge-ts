@@ -9,7 +9,7 @@
 //                                                     directly by the build:wasm task)
 //   MF_BENCH_ITERATIONS=50                          — control iteration count (default: 20)
 
-import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { execSync } from 'node:child_process';
@@ -46,7 +46,7 @@ async function wasmBindgen() {
     await Deno.mkdir(outDir, { recursive: true });
 
     const result = await new Deno.Command(bin, {
-        args: ['--target', 'nodejs', '--out-dir', outDir, wasmInput],
+        args: ['--target', 'experimental-nodejs-module', '--out-dir', outDir, wasmInput],
         stdout: 'inherit',
         stderr: 'inherit'
     }).output();
@@ -123,14 +123,12 @@ function getInputs() {
         }));
 }
 
-function bench(label, modPath) {
+async function bench(label, modPath) {
     const inputs = getInputs();
-    const require = createRequire(import.meta.url);
-    delete require.cache[require.resolve(modPath)];
 
     let m;
     try {
-        m = require(modPath);
+        m = await import(pathToFileURL(modPath).href);
     } catch (e) {
         console.log(`  ${label}: ${e.message.split('\n')[0]}`);
         return null;
@@ -275,7 +273,7 @@ if (mode === 'wasm-bindgen') {
             ? path.join(dir, 'macroforge_ts.js')
             : path.join(dir, 'index.js');
         console.log(`  ${c}...`);
-        const r = bench(c, entry);
+        const r = await bench(c, entry);
         if (r) all.push(r);
     }
     if (!all.length) {
@@ -293,7 +291,7 @@ if (mode === 'wasm-bindgen') {
     }
     console.log(`\nMacroforge Benchmark — ${iterations} iterations`);
     console.log('='.repeat(60));
-    const r = bench('current', entry);
+    const r = await bench('current', entry);
     if (!r) Deno.exit(1);
     for (const x of r.results) {
         console.log(

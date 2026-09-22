@@ -4,7 +4,7 @@ import {
     CodeAction,
     CodeActionContext,
     CodeLens,
-    CompletionContext,
+    type CompletionContext,
     CompletionList,
     Diagnostic,
     FormattingOptions,
@@ -15,26 +15,26 @@ import {
     TextEdit,
     WorkspaceEdit
 } from 'vscode-languageserver';
-import { Plugin } from 'prettier';
-import { getPackageInfo, importPrettier } from '../../importPackage';
-import { Document } from '../../lib/documents';
-import { Logger } from '../../logger';
-import { LSConfigManager, LSSvelteConfig } from '../../ls-config';
-import { isNotNullOrUndefined } from '../../utils';
-import {
+import type { Plugin } from 'prettier';
+import { packageDir, packageLoader, packageRequire } from '../../importPackage.ts';
+import { Document } from '../../lib/documents/index.ts';
+import { Logger } from '../../logger.ts';
+import { LSConfigManager, type LSSvelteConfig } from '../../ls-config.ts';
+import { isNotNullOrUndefined } from '../../utils.ts';
+import type {
     CodeActionsProvider,
     CompletionsProvider,
     DiagnosticsProvider,
     FormattingProvider,
     HoverProvider,
     SelectionRangeProvider
-} from '../interfaces';
-import { executeCommand, getCodeActions } from './features/getCodeActions';
-import { getCompletions } from './features/getCompletions';
-import { getDiagnostics } from './features/getDiagnostics';
-import { getHoverInfo } from './features/getHoverInfo';
-import { getSelectionRange } from './features/getSelectionRanges';
-import { SvelteCompileResult, SvelteDocument } from './SvelteDocument';
+} from '../interfaces.ts';
+import { executeCommand, getCodeActions } from './features/getCodeActions/index.ts';
+import { getCompletions } from './features/getCompletions.ts';
+import { getDiagnostics } from './features/getDiagnostics.ts';
+import { getHoverInfo } from './features/getHoverInfo.ts';
+import { getSelectionRange } from './features/getSelectionRanges.ts';
+import { type SvelteCompileResult, SvelteDocument } from './SvelteDocument.ts';
 
 export class SveltePlugin
     implements
@@ -155,7 +155,7 @@ export class SveltePlugin
                 );
             };
 
-            const prettier1 = importPrettier(filePath);
+            const prettier1 = packageLoader.importPrettier(filePath);
             const config1 = await getConfig(prettier1);
             const resolvedPlugins1 = resolvePlugins(config1.plugins);
             const pluginLoaded = await hasSveltePluginLoaded(
@@ -174,7 +174,7 @@ export class SveltePlugin
 
             // User either only has Plugin or incompatible Prettier major version installed or none
             // -> load our fallback version
-            const prettier2 = importPrettier(__dirname);
+            const prettier2 = packageLoader.importPrettier(packageDir);
             const config2 = await getConfig(prettier2);
             const resolvedPlugins2 = resolvePlugins(config2.plugins);
             return {
@@ -191,7 +191,7 @@ export class SveltePlugin
         // order or else it will throw a config error (`options` was not present back then).
         if (
             config?.svelteSortOrder &&
-            getPackageInfo('prettier-plugin-svelte', filePath)?.version.major < 2
+            packageLoader.getPackageInfo('prettier-plugin-svelte', filePath)?.version.major < 2
         ) {
             config.svelteSortOrder = config.svelteSortOrder
                 .replace('-options', '')
@@ -203,7 +203,7 @@ export class SveltePlugin
             config?.svelteSortOrder &&
             !config.svelteSortOrder.includes('options') &&
             config.svelteSortOrder !== 'none' &&
-            getPackageInfo('prettier-plugin-svelte', filePath)?.version.major >= 3
+            packageLoader.getPackageInfo('prettier-plugin-svelte', filePath)?.version.major >= 3
         ) {
             config.svelteSortOrder = 'options-' + config.svelteSortOrder;
         }
@@ -224,7 +224,7 @@ export class SveltePlugin
         ) {
             // If the user uses Svelte 5 but doesn't have prettier installed, we need to provide
             // the compiler path to the plugin so it can use its parser method; else it will crash.
-            const svelteCompilerInfo = getPackageInfo('svelte', filePath);
+            const svelteCompilerInfo = packageLoader.getPackageInfo('svelte', filePath);
             if (svelteCompilerInfo.version.major >= 5) {
                 config.svelte5CompilerPath = svelteCompilerInfo.path + '/compiler';
             }
@@ -259,7 +259,7 @@ export class SveltePlugin
             // which could crash if the contract of the parser output changed.
             return !isFallback && (await hasSveltePluginLoaded(prettier, plugins))
                 ? []
-                : [require.resolve('prettier-plugin-svelte')];
+                : [packageRequire.resolve('prettier-plugin-svelte')];
         }
 
         async function hasSveltePluginLoaded(
@@ -287,13 +287,11 @@ export class SveltePlugin
             }
 
             try {
-                if (typeof require !== 'undefined' && require.resolve) {
-                    return require.resolve(plugin, {
-                        paths: [filePath]
-                    });
-                }
+                return packageRequire.resolve(plugin, {
+                    paths: [filePath]
+                });
             } catch (error) {
-                // Ignore resolution errors for plugins that don't exist
+                Logger.log(`Prettier plugin ${plugin} is not installed, skipping it:`, error);
                 return undefined;
             }
         }

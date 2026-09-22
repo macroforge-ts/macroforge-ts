@@ -28,18 +28,10 @@
 //!
 //! ## Usage
 //!
-//! ### From Node.js
+//! The package is an ES module that instantiates its WebAssembly on import.
 //!
 //! ```javascript
-//! const { expandSync } = require('@macroforge/core');
-//! const result = expandSync(code, filepath, { keepDecorators: false });
-//! ```
-//!
-//! ### From WASM
-//!
-//! ```javascript
-//! import init, { expandSync } from './pkg/macroforge_ts.js';
-//! await init();
+//! import { expandSync } from '@macroforge/core';
 //! const result = expandSync(code, filepath, { keepDecorators: false });
 //! ```
 //!
@@ -260,6 +252,9 @@ pub mod test_macros;
 pub mod api;
 pub mod api_types;
 mod expand_core;
+pub use expand_core::has_macro_annotations;
+#[cfg(feature = "oxc")]
+pub use expand_core::macro_imports;
 mod manifest;
 pub mod package;
 #[cfg(feature = "oxc")]
@@ -272,7 +267,6 @@ pub mod bindings_wasm;
 
 #[cfg(feature = "node")]
 mod plugin;
-#[cfg(feature = "node")]
 mod position_mapper;
 
 // ============================================================================
@@ -285,7 +279,8 @@ pub use api_types::{
 };
 
 #[cfg(feature = "node")]
-pub use position_mapper::{NativeMapper, NativePositionMapper};
+pub use position_mapper::NativeMapper;
+pub use position_mapper::NativePositionMapper;
 
 #[cfg(feature = "node")]
 pub use plugin::NativePlugin;

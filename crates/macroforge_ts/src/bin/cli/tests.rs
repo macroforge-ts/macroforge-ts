@@ -1,5 +1,3 @@
-#![cfg(feature = "swc")]
-
 use std::path::{Path, PathBuf};
 
 use crate::atomic_fs::{sibling_with_suffix, swap_dir, write_atomic};
@@ -14,6 +12,7 @@ use crate::package_state::{
     FileStamp, PackageInputs, PackageState, ResolvedPackageConfig, diff_files, output_fingerprint,
     project_hash, registry_hash, scan_input, state_dir,
 };
+use crate::wrappers::registries_for_check;
 
 // =========================================================================
 // get_expanded_path tests
@@ -149,14 +148,14 @@ fn test_offset_to_line_col_empty_lines() {
 }
 
 // =========================================================================
-// ImportRegistry::from_module tests (replaces extract_import_sources_from_code)
+// ImportRegistry tests
 // =========================================================================
 
-/// Parse code into a Module and build an ImportRegistry.
+/// Parse code and build its ImportRegistry.
 fn registry_from_code(code: &str) -> macroforge_ts_syn::ImportRegistry {
-    use macroforge_ts_syn::parse_ts_module;
-    let module = parse_ts_module(code).expect("failed to parse");
-    macroforge_ts_syn::ImportRegistry::from_module(&module, code)
+    let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+    let program = macroforge_ts_syn::parse_oxc_program(&allocator, code).expect("failed to parse");
+    macroforge_ts_syn::ImportRegistry::from_oxc_program(&program, code)
 }
 
 #[test]
@@ -582,6 +581,69 @@ fn test_project_lock_records_its_holder() {
     assert_eq!(parsed["command"].as_str().unwrap(), "svelte-package");
 
     drop(lock);
+}
+
+#[test]
+fn test_a_released_lock_names_no_holder() {
+    // The lock file outlives the lock; a record left in it would name a
+    // process that no longer holds anything.
+    let tmp = tempfile::tempdir().unwrap();
+    let root = tmp.path();
+
+    drop(ProjectLock::acquire(root, "cache", false).unwrap());
+
+    let record = std::fs::read_to_string(root.join(".macroforge").join(".lock")).unwrap();
+    assert_eq!(record, "");
+}
+
+#[test]
+fn test_checking_a_project_without_macros_writes_nothing() {
+    let tmp = tempfile::tempdir().unwrap();
+    let root = tmp.path();
+    std::fs::write(
+        root.join("plain.ts"),
+        "export interface Plain { id: string }\n",
+    )
+    .unwrap();
+
+    assert!(registries_for_check(root, "tsc").unwrap().is_none());
+    assert!(!root.join(".macroforge").exists());
+}
+
+#[test]
+fn test_checking_a_project_with_macros_writes_its_registries() {
+    let tmp = tempfile::tempdir().unwrap();
+    let root = tmp.path();
+    std::fs::write(
+        root.join("user.ts"),
+        "/** @derive(Debug) */\nexport class User { id: string }\n",
+    )
+    .unwrap();
+
+    let paths = registries_for_check(root, "tsc").unwrap();
+    assert!(paths.is_some_and(|paths| paths.types.is_file() && paths.declarative.is_file()));
+    let record = std::fs::read_to_string(root.join(".macroforge").join(".lock")).unwrap();
+    assert_eq!(
+        record, "",
+        "the lock is released once the registries are written"
+    );
+}
+
+#[test]
+fn test_a_checker_project_root_is_its_config_directory() {
+    let tmp = tempfile::tempdir().unwrap();
+    let root = tmp.path();
+    std::fs::create_dir_all(root.join("app")).unwrap();
+
+    assert_eq!(
+        crate::config_dir(&root.join("app").join("tsconfig.json")),
+        root.join("app")
+    );
+    assert_eq!(crate::config_dir(&root.join("app")), root.join("app"));
+    assert_eq!(
+        crate::config_dir(Path::new("tsconfig.json")),
+        PathBuf::from(".")
+    );
 }
 
 #[test]

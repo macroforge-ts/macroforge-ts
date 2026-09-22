@@ -39,7 +39,8 @@ fn test_partial_eq_macro_output() {
     let wrapped = format!("class __Temp {{ {} }}", body_content);
 
     assert!(
-        macroforge_ts_syn::parse_ts_stmt(&wrapped).is_ok(),
+        macroforge_ts_syn::parse_oxc_statement(&oxc::allocator::Allocator::default(), &wrapped)
+            .is_ok(),
         "Generated PartialEq macro output should parse as class members"
     );
     assert!(source.contains("equals"), "Should contain equals method");

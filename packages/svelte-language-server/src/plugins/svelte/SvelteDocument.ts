@@ -1,13 +1,11 @@
 import { TraceMap } from '@jridgewell/trace-mapping';
 import type { compile } from 'svelte/compiler';
-// @ts-ignore
-import { CompileOptions } from 'svelte/types/compiler/interfaces';
-// @ts-ignore
-import { PreprocessorGroup, Processed } from 'svelte/types/compiler/preprocess';
+import type { CompileOptions } from 'svelte/types/compiler/interfaces';
+import type { PreprocessorGroup, Processed } from 'svelte/types/compiler/preprocess';
 import { Position } from 'vscode-languageserver';
 import {
     Document,
-    DocumentMapper,
+    type DocumentMapper,
     extractScriptTags,
     extractStyleTag,
     FragmentMapper,
@@ -16,10 +14,10 @@ import {
     offsetAt,
     positionAt,
     SourceMapDocumentMapper,
-    TagInformation
-} from '../../lib/documents';
-import { SvelteConfig } from '../../lib/documents/configLoader';
-import { getLastPartOfPath, isNotNullOrUndefined } from '../../utils';
+    type TagInformation
+} from '../../lib/documents/index.ts';
+import type { SvelteConfig } from '../../lib/documents/configLoader.ts';
+import { getLastPartOfPath, isNotNullOrUndefined } from '../../utils.ts';
 
 export type SvelteCompileResult = ReturnType<typeof compile>;
 

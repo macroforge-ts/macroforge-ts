@@ -1,11 +1,16 @@
-import { urlToPath } from '../../utils';
-import { WritableDocument } from './DocumentBase';
-import { extractScriptTags, extractStyleTag, extractTemplateTag, TagInformation } from './utils';
-import { parseHtml } from './parseHtml';
-import { configLoader, SvelteConfig } from './configLoader';
-import { HTMLDocument } from 'vscode-html-languageservice';
+import { urlToPath } from '../../utils.ts';
+import { WritableDocument } from './DocumentBase.ts';
+import {
+    extractScriptTags,
+    extractStyleTag,
+    extractTemplateTag,
+    type TagInformation
+} from './utils.ts';
+import { parseHtml } from './parseHtml.ts';
+import { configLoader, type SvelteConfig } from './configLoader.ts';
+import type { HTMLDocument } from 'vscode-html-languageservice';
 import { Range } from 'vscode-languageserver';
-import { importSvelte } from '../../importPackage';
+import { packageLoader } from '../../importPackage.ts';
 
 /**
  * Represents a text document contains a svelte component.
@@ -48,7 +53,7 @@ export class Document extends WritableDocument {
 
     private getCompiler() {
         if (!this._compiler) {
-            this._compiler = importSvelte(this.getFilePath() || '');
+            this._compiler = packageLoader.importSvelte(this.getFilePath() || '');
         }
         return this._compiler;
     }

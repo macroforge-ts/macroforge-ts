@@ -1,6 +1,6 @@
 // End-to-end cross-file declarative macro fixture.
 //
-// `$vec` and `$identity` are declared in `./_decl_macros_lib.ts`. This
+// `$vec` and `$identity` are declared in `./decl_macros_lib.ts`. This
 // file imports them via the JSDoc `/** import macro */` directive, and
 // the macroforge build pass should rewrite every call site below using
 // the definitions from the library file — the runtime values in this

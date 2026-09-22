@@ -338,7 +338,7 @@ pub struct ExpandOptions {
     /// `type_registry_json` — no extra I/O is needed to produce it.
     ///
     /// When provided, the declarative macro pre-pass resolves
-    /// `/** import macro { $vec, $sum } from "./macros" */` comments by
+    /// `import macro { $vec, $sum } from "./macros"` comments by
     /// looking up the target file in this registry. Without it,
     /// cross-file macro imports are unresolved and the pre-pass emits
     /// a diagnostic at each unresolved call site.

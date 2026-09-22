@@ -12,6 +12,61 @@ use serde_json::{Value, json};
 use std::fs;
 use std::path::Path;
 
+/// The fields of a deno.json the publishing tools read.
+#[derive(serde::Deserialize)]
+struct DenoManifest {
+    name: Option<String>,
+}
+
+/// The fields of a package.json the publishing tools read.
+#[derive(serde::Deserialize)]
+struct NpmManifest {
+    name: Option<String>,
+    #[serde(default)]
+    private: bool,
+}
+
+fn read_npm_manifest(dir: &Path) -> Result<Option<NpmManifest>> {
+    let path = dir.join("package.json");
+    if !path.exists() {
+        return Ok(None);
+    }
+    let content =
+        fs::read_to_string(&path).with_context(|| format!("failed to read {}", path.display()))?;
+    serde_json::from_str(&content)
+        .map(Some)
+        .with_context(|| format!("{} is not valid JSON", path.display()))
+}
+
+/// The npm package a directory publishes: its package.json `name`, unless the
+/// package is private.
+pub fn npm_package_name(dir: &Path) -> Result<Option<String>> {
+    Ok(read_npm_manifest(dir)?
+        .filter(|manifest| !manifest.private)
+        .and_then(|manifest| manifest.name)
+        .filter(|name| !name.is_empty()))
+}
+
+/// The JSR package a directory publishes: its deno.json `name`, if any.
+pub fn jsr_package_name(dir: &Path) -> Result<Option<String>> {
+    let path = dir.join("deno.json");
+    if !path.exists() {
+        return Ok(None);
+    }
+    let content =
+        fs::read_to_string(&path).with_context(|| format!("failed to read {}", path.display()))?;
+    let manifest: DenoManifest = serde_json::from_str(&content)
+        .with_context(|| format!("{} is not valid JSON", path.display()))?;
+    Ok(manifest.name.filter(|name| !name.is_empty()))
+}
+
+/// Whether package.json marks the package private, so npm refuses to publish
+/// it (EPRIVATE). Deno-only packages such as `@macroforge/deno-plugin` set this
+/// and ship through JSR alone.
+pub fn npm_private(dir: &Path) -> Result<bool> {
+    Ok(read_npm_manifest(dir)?.is_some_and(|manifest| manifest.private))
+}
+
 /// Write one repo's version into every manifest that carries it.
 ///
 /// The single place that knows which files a version lives in. Bumping and
@@ -63,7 +118,7 @@ fn update_jsr_json(dir: &Path, version: &str) -> Result<()> {
 /// Uses registry versions since extensions download from npm
 pub fn update_zed_extensions(root: &Path, versions: &VersionsCache) -> Result<()> {
     // Vtsls extension
-    let vtsls_lib = root.join("crates/extensions/vtsls-macroforge/src/lib.rs");
+    let vtsls_lib = root.join("crates/extensions/vtsls_macroforge/src/lib.rs");
     if vtsls_lib.exists() {
         let mut content = fs::read_to_string(&vtsls_lib)?;
         // Use registry version (what's published) since extensions download from npm
@@ -71,18 +126,18 @@ pub fn update_zed_extensions(root: &Path, versions: &VersionsCache) -> Result<()
             content = replace_const(&content, "TS_PLUGIN_VERSION", v);
         }
         fs::write(&vtsls_lib, content)?;
-        format::success("Updated crates/extensions/vtsls-macroforge/src/lib.rs");
+        format::success("Updated crates/extensions/vtsls_macroforge/src/lib.rs");
     }
 
     // Svelte extension
-    let svelte_lib = root.join("crates/extensions/svelte-macroforge/src/lib.rs");
+    let svelte_lib = root.join("crates/extensions/svelte_macroforge/src/lib.rs");
     if svelte_lib.exists() {
         let mut content = fs::read_to_string(&svelte_lib)?;
         if let Some(v) = versions.get_registry("svelte-language-server") {
             content = replace_const(&content, "SVELTE_LS_VERSION", v);
         }
         fs::write(&svelte_lib, content)?;
-        format::success("Updated crates/extensions/svelte-macroforge/src/lib.rs");
+        format::success("Updated crates/extensions/svelte_macroforge/src/lib.rs");
     }
 
     Ok(())
@@ -116,7 +171,7 @@ fn update_package_json(path: &Path, version: &str, versions: &VersionsCache) -> 
         if deps.contains_key(key)
             && let Some(v) = versions.get_local(target_repo)
         {
-            deps[key] = json!(format!("^{}", v));
+            deps[key] = json!(v);
         }
     };
 
@@ -187,7 +242,6 @@ fn update_cargo_toml(path: &Path, version: &str, versions: &VersionsCache) -> Re
 
     // Update internal crate dependencies
     let deps = [
-        ("macroforge_ts", "core"),
         ("macroforge_ts_macros", "macros"),
         ("macroforge_ts_syn", "syn"),
         ("macroforge_ts_quote", "template"),

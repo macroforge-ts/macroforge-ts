@@ -1,19 +1,14 @@
-#![allow(unused)]
-
 use std::cell::RefCell;
 
 use rustc_hash::FxHashMap;
-use syn::{ExprPath, ExprReference, Ident, Token, parse_quote, punctuated::Punctuated};
+use syn::{ExprPath, Token, parse_quote, punctuated::Punctuated};
 
 use super::{ToCode, input::QuoteVar};
 
 #[cfg(all(feature = "swc", not(feature = "oxc")))]
 use swc_macros_common::call_site;
-
-#[cfg(any(not(feature = "swc"), feature = "oxc"))]
-fn call_site() -> proc_macro2::Span {
-    proc_macro2::Span::call_site()
-}
+#[cfg(all(feature = "swc", not(feature = "oxc")))]
+use syn::Ident;
 
 #[derive(Debug)]
 pub(crate) struct Ctx {
@@ -38,7 +33,6 @@ pub enum VarPos {
 
 #[derive(Debug)]
 pub struct VarData {
-    pos: VarPos,
     is_counting: bool,
 
     /// How many times this variable should be cloned. 0 for variables used only
@@ -155,7 +149,6 @@ pub(super) fn prepare_vars(
         let old = init_map.entry(pos).or_default().insert(
             ident_str.clone(),
             VarData {
-                pos,
                 is_counting: true,
                 clone: Default::default(),
                 ident: var_ident.clone(),
@@ -169,22 +162,23 @@ pub(super) fn prepare_vars(
             ));
         }
 
-        let type_name = Ident::new(
-            match pos {
-                VarPos::Ident => "Ident",
-                VarPos::Expr => "Expr",
-                VarPos::Pat => "Pat",
-                VarPos::AssignTarget => "AssignTarget",
-                VarPos::Str => "Str",
-                VarPos::TsType => "TsType",
-            },
-            call_site(),
-        );
-
         #[cfg(all(feature = "swc", not(feature = "oxc")))]
-        stmts.push(parse_quote! {
-            let #var_ident: macroforge_ts::swc_core::ecma::ast::#type_name = #value;
-        });
+        {
+            let type_name = Ident::new(
+                match pos {
+                    VarPos::Ident => "Ident",
+                    VarPos::Expr => "Expr",
+                    VarPos::Pat => "Pat",
+                    VarPos::AssignTarget => "AssignTarget",
+                    VarPos::Str => "Str",
+                    VarPos::TsType => "TsType",
+                },
+                call_site(),
+            );
+            stmts.push(parse_quote! {
+                let #var_ident: macroforge_ts::swc_core::ecma::ast::#type_name = #value;
+            });
+        }
 
         #[cfg(any(not(feature = "swc"), feature = "oxc"))]
         stmts.push(parse_quote! {
@@ -280,7 +274,6 @@ mod tests {
         inner_map.insert(
             "foo".to_string(),
             VarData {
-                pos: VarPos::Ident,
                 is_counting: false,
                 clone: RefCell::new(0),
                 ident: syn::Ident::new("quote_var_foo", proc_macro2::Span::call_site()),
@@ -303,7 +296,6 @@ mod tests {
         ident_map.insert(
             "x".to_string(),
             VarData {
-                pos: VarPos::Ident,
                 is_counting: false,
                 clone: RefCell::new(0),
                 ident: syn::Ident::new("quote_var_x", proc_macro2::Span::call_site()),
@@ -316,7 +308,6 @@ mod tests {
         expr_map.insert(
             "y".to_string(),
             VarData {
-                pos: VarPos::Expr,
                 is_counting: false,
                 clone: RefCell::new(0),
                 ident: syn::Ident::new("quote_var_y", proc_macro2::Span::call_site()),
@@ -336,7 +327,6 @@ mod tests {
     #[test]
     fn test_var_data_get_expr_first_use_no_clone() {
         let var_data = VarData {
-            pos: VarPos::Ident,
             is_counting: false,
             clone: RefCell::new(0),
             ident: syn::Ident::new("quote_var_test", proc_macro2::Span::call_site()),
@@ -350,7 +340,6 @@ mod tests {
     #[test]
     fn test_var_data_get_expr_with_clone() {
         let var_data = VarData {
-            pos: VarPos::Ident,
             is_counting: false,
             clone: RefCell::new(2), // Will need cloning
             ident: syn::Ident::new("quote_var_test", proc_macro2::Span::call_site()),
@@ -378,7 +367,6 @@ mod tests {
     #[test]
     fn test_var_data_counting_mode() {
         let var_data = VarData {
-            pos: VarPos::Ident,
             is_counting: true,
             clone: RefCell::new(0),
             ident: syn::Ident::new("quote_var_test", proc_macro2::Span::call_site()),
@@ -398,7 +386,6 @@ mod tests {
     #[test]
     fn test_var_data_expr_for_var_ref() {
         let var_data = VarData {
-            pos: VarPos::Expr,
             is_counting: false,
             clone: RefCell::new(0),
             ident: syn::Ident::new("my_var", proc_macro2::Span::call_site()),
@@ -416,7 +403,6 @@ mod tests {
     #[test]
     fn test_var_data_debug() {
         let var_data = VarData {
-            pos: VarPos::Ident,
             is_counting: false,
             clone: RefCell::new(0),
             ident: syn::Ident::new("test", proc_macro2::Span::call_site()),
@@ -432,7 +418,6 @@ mod tests {
     fn test_var_data_clone_count_boundary() {
         // Test when clone count is exactly 1
         let var_data = VarData {
-            pos: VarPos::Ident,
             is_counting: false,
             clone: RefCell::new(1),
             ident: syn::Ident::new("test", proc_macro2::Span::call_site()),
@@ -460,7 +445,6 @@ mod tests {
         vars.insert(
             "a".to_string(),
             VarData {
-                pos: VarPos::Ident,
                 is_counting: false,
                 clone: RefCell::new(0),
                 ident: syn::Ident::new("a", proc_macro2::Span::call_site()),
@@ -469,7 +453,6 @@ mod tests {
         vars.insert(
             "b".to_string(),
             VarData {
-                pos: VarPos::Ident,
                 is_counting: false,
                 clone: RefCell::new(0),
                 ident: syn::Ident::new("b", proc_macro2::Span::call_site()),

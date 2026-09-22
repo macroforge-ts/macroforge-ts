@@ -1,8 +1,8 @@
 import { Position } from 'vscode-languageserver';
-import { isInTag } from '../../../lib/documents';
-import { AttributeContext } from '../../../lib/documents/parseHtml';
-import { possiblyComponent } from '../../../utils';
-import { SvelteDocument } from '../SvelteDocument';
+import { isInTag } from '../../../lib/documents/index.ts';
+import type { AttributeContext } from '../../../lib/documents/parseHtml.ts';
+import { possiblyComponent } from '../../../utils.ts';
+import { SvelteDocument } from '../SvelteDocument.ts';
 
 export function attributeCanHaveEventModifier(
     attributeContext: AttributeContext

@@ -9,14 +9,14 @@ import {
     TextDocumentEdit,
     TextEdit
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { UpdateImportsProviderImpl } from '../../../../src/plugins/typescript/features/UpdateImportsProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { UpdateImportsProviderImpl } from '../../../../src/plugins/typescript/features/UpdateImportsProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testDir = join(__dirname, '..');
+const testDir = join(import.meta.dirname, '..');
 const updateImportTestDir = join(testDir, 'testfiles', 'update-imports');
 
 describe('UpdateImportsProviderImpl', function () {
