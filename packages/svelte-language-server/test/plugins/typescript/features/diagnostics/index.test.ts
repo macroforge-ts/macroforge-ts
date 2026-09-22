@@ -2,18 +2,18 @@ import * as assert from 'assert';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import ts from 'typescript';
-import { Document, DocumentManager } from '../../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../../src/ls-config';
-import { LSAndTSDocResolver } from '../../../../../src/plugins';
-import { DiagnosticsProviderImpl } from '../../../../../src/plugins/typescript/features/DiagnosticsProvider';
-import { __resetCache } from '../../../../../src/plugins/typescript/service';
-import { pathToUrl } from '../../../../../src/utils';
+import { Document, DocumentManager } from '../../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../../src/ls-config.ts';
+import { LSAndTSDocResolver } from '../../../../../src/plugins/index.ts';
+import { DiagnosticsProviderImpl } from '../../../../../src/plugins/typescript/features/DiagnosticsProvider.ts';
+import { __resetCache } from '../../../../../src/plugins/typescript/service.ts';
+import { pathToUrl } from '../../../../../src/utils.ts';
 import {
     createJsonSnapshotFormatter,
     createSnapshotTester,
     updateSnapshotIfFailedOrEmpty
-} from '../../test-utils';
-import { getPackageInfo } from '../../../../../src/importPackage';
+} from '../../test-utils.ts';
+import { packageLoader } from '../../../../../src/importPackage.ts';
 
 function setup(workspaceDir: string, filePath: string) {
     const docManager = new DocumentManager(
@@ -37,7 +37,7 @@ function setup(workspaceDir: string, filePath: string) {
 
 const {
     version: { major }
-} = getPackageInfo('svelte', __dirname);
+} = packageLoader.getPackageInfo('svelte', import.meta.dirname);
 const expected = 'expectedv2.json';
 const newSvelteMajorExpected = `expected_svelte_${major}.json`;
 
@@ -72,7 +72,7 @@ async function executeTest(
         getFileContent() {
             return snapshotFormatter(diagnostics);
         },
-        rootDir: __dirname
+        rootDir: import.meta.dirname
     });
 }
 
@@ -80,8 +80,8 @@ const executeTests = createSnapshotTester(executeTest);
 
 describe('DiagnosticsProvider', function () {
     executeTests({
-        dir: join(__dirname, 'fixtures'),
-        workspaceDir: join(__dirname, 'fixtures'),
+        dir: join(import.meta.dirname, 'fixtures'),
+        workspaceDir: join(import.meta.dirname, 'fixtures'),
         context: this
     });
 

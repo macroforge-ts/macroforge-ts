@@ -1,6 +1,0 @@
-{
-    "name": "@macroforge/core",
-    "version": "0.2.0",
-    "description": "TypeScript macro expansion engine powered by Rust, Oxc, and WebAssembly",
-    "exports": []
-}

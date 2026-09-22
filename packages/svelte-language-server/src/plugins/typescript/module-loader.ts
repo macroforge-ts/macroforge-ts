@@ -1,15 +1,15 @@
 import ts from 'typescript';
-import { FileMap, FileSet } from '../../lib/documents/fileCollection';
-import { createGetCanonicalFileName, getLastPartOfPath, toFileNameLowerCase } from '../../utils';
-import { DocumentSnapshot } from './DocumentSnapshot';
-import { createSvelteSys } from './svelte-sys';
+import { FileMap, FileSet } from '../../lib/documents/fileCollection.ts';
+import { createGetCanonicalFileName, getLastPartOfPath, toFileNameLowerCase } from '../../utils.ts';
+import { DocumentSnapshot } from './DocumentSnapshot.ts';
+import { svelteSysFactory } from './svelte-sys.ts';
 import {
     ensureRealSvelteFilePath,
     getExtensionFromScriptKind,
     isSvelteFilePath,
     isVirtualSvelteFilePath,
     toVirtualSvelteFilePath
-} from './utils';
+} from './utils.ts';
 
 const CACHE_KEY_SEPARATOR = ':::';
 /**
@@ -162,7 +162,7 @@ export function createSvelteModuleLoader(
     const getCanonicalFileName = createGetCanonicalFileName(
         tsSystem.useCaseSensitiveFileNames
     );
-    const svelteSys = createSvelteSys(tsSystem);
+    const svelteSys = svelteSysFactory.createSvelteSys(tsSystem);
     // tsModuleCache caches package.json parsing and module resolution for directory
     const tsModuleCache = tsModule.createModuleResolutionCache(
         tsSystem.getCurrentDirectory(),

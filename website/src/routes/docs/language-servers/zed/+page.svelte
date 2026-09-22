@@ -39,12 +39,12 @@
         <tr>
             <td><code>vtsls-macroforge</code></td>
             <td>VTSLS with macroforge support for TypeScript</td>
-            <td><code>crates/extensions/vtsls-macroforge</code></td>
+            <td><code>crates/extensions/vtsls_macroforge</code></td>
         </tr>
         <tr>
             <td><code>svelte-macroforge</code></td>
             <td>Svelte language support with macroforge</td>
-            <td><code>crates/extensions/svelte-macroforge</code></td>
+            <td><code>crates/extensions/svelte_macroforge</code></td>
         </tr>
     </tbody>
 </table>
@@ -65,10 +65,10 @@ cd macroforge-ts`}
 
 <CodeBlock
     code={`# For VTSLS (TypeScript)
-cd crates/extensions/vtsls-macroforge
+cd crates/extensions/vtsls_macroforge
 
 # Or for Svelte
-cd crates/extensions/svelte-macroforge`}
+cd crates/extensions/svelte_macroforge`}
     lang="bash"
 />
 
@@ -84,10 +84,10 @@ cd crates/extensions/svelte-macroforge`}
 
 <CodeBlock
     code={`# macOS
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
+ln -s /path/to/macroforge-ts/crates/extensions/vtsls_macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
 
 # Linux
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/extensions/installed/vtsls-macroforge`}
+ln -s /path/to/macroforge-ts/crates/extensions/vtsls_macroforge ~/.config/zed/extensions/installed/vtsls-macroforge`}
     lang="bash"
 />
 

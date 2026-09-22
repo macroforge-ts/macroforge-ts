@@ -1,6 +1,6 @@
-import { sum } from 'lodash';
+import { sum } from 'lodash-es';
 import { FoldingRange } from 'vscode-languageserver-types';
-import { Document, TagInformation } from '../documents';
+import { Document, type TagInformation } from '../documents/index.ts';
 
 /**
  * 1. check tab and space counts for lines

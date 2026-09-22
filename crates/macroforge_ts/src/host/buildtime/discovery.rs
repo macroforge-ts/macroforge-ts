@@ -13,6 +13,7 @@ use std::borrow::Cow;
 use oxc::ast::ast::{Declaration, Expression, Program, Statement, VariableDeclarationKind};
 
 use crate::ts_syn::abi::SpanIR;
+use crate::ts_syn::jsdoc::adjacent_jsdoc;
 
 /// Which tier the declaration belongs to — decides how the sandbox
 /// result is spliced back.
@@ -249,29 +250,12 @@ fn expression_span(expr: &Expression<'_>) -> (usize, usize) {
 /// subtracts 1 internally), so we work in 0-based here and convert
 /// back at the end.
 fn with_jsdoc_lead(source: &str, span: SpanIR) -> SpanIR {
-    let start_0 = (span.start as usize).saturating_sub(1);
-    if start_0 == 0 || start_0 > source.len() {
-        return span;
-    }
-    let search_area = &source[..start_0];
-    let Some(comment_start) = search_area.rfind("/**") else {
+    let Some(block) = adjacent_jsdoc(source, (span.start as usize).saturating_sub(1)) else {
         return span;
     };
-    let rest = &search_area[comment_start..];
-    let Some(end_rel) = rest.find("*/") else {
-        return span;
-    };
-    let comment_close_abs = comment_start + end_rel + 2;
-    if !source[comment_close_abs..start_0]
-        .chars()
-        .all(char::is_whitespace)
-    {
-        // Comment isn't immediately before the decl — leave the span alone.
-        return span;
-    }
-    // Walk backward from `comment_start` over horizontal whitespace
+    // Walk backward from the comment's start over horizontal whitespace
     // (spaces, tabs) to capture the indent. Stop at the newline.
-    let mut new_start = comment_start;
+    let mut new_start = block.start;
     let bytes = source.as_bytes();
     while new_start > 0 {
         let b = bytes[new_start - 1];
@@ -302,39 +286,12 @@ fn unwrap_ts_expression<'a>(expr: &'a Expression<'a>) -> &'a Expression<'a> {
     }
 }
 
-/// True if a `/** @buildtime */` JSDoc comment is *immediately*
-/// before `decl_start` — that is, the comment's closing `*/` and the
-/// decl's start are separated only by whitespace.
-///
-/// This guards against false positives where an earlier `@buildtime`
-/// comment attached to a different decl bleeds onto a later, unrelated
-/// declaration. Mirrors how derive_targets.rs validates JSDoc
-/// adjacency.
+/// True if the JSDoc directly above `decl_start` (0-based) carries
+/// `@buildtime`. An earlier declaration's `@buildtime` comment never binds
+/// to a later, unrelated declaration.
 fn has_buildtime_annotation(source: &str, decl_start: u32) -> bool {
-    let start = decl_start.saturating_sub(1) as usize;
-    if start == 0 || start > source.len() {
-        return false;
-    }
-    let search_area = &source[..start];
-    let Some(comment_start) = search_area.rfind("/**") else {
-        return false;
-    };
-    let rest = &search_area[comment_start..];
-    let Some(end_rel) = rest.find("*/") else {
-        return false;
-    };
-    // Adjacency check: between the comment's closing `*/` and the
-    // declaration's start, only whitespace is allowed. Anything else
-    // (semicolons, other tokens, another decl) means the comment
-    // belongs to a *different* declaration and should not bind here.
-    let comment_close_abs = comment_start + end_rel + 2;
-    let between = &source[comment_close_abs..decl_start as usize];
-    if !between.chars().all(char::is_whitespace) {
-        return false;
-    }
-    let comment_body = &rest[3..end_rel];
-    let body_text = normalize_jsdoc(comment_body);
-    body_text.contains("@buildtime")
+    adjacent_jsdoc(source, decl_start as usize)
+        .is_some_and(|block| normalize_jsdoc(block.body(source)).contains("@buildtime"))
 }
 
 /// Strip JSDoc `*` line prefixes and collapse whitespace.

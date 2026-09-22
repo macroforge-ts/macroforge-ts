@@ -27,7 +27,6 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, SpanIR};
 use crate::ts_syn::declarative::{
     DeclarativeError, MacroArm, MacroDef, MacroKind, MacroMode, parse_macro_def,
 };
-use crate::ts_syn::import_registry::collect_macro_import_comments_pub;
 
 use super::project_registry::ProjectDeclarativeRegistry;
 
@@ -768,8 +767,8 @@ pub struct ResolvedImports {
     pub diagnostics: Vec<Diagnostic>,
 }
 
-/// Scan `source` for `/** import macro { $name1, $name2 } from "./spec" */`
-/// comments and resolve each `$`-prefixed name against the project-wide
+/// Resolve each `$`-prefixed name of the file's
+/// `/** import macro { $name1, $name2 } from "./spec" */` comments against the project-wide
 /// declarative registry. Non-prefixed names are derive-macro imports and
 /// are ignored here — the derive pipeline already handles them.
 ///
@@ -777,13 +776,12 @@ pub struct ResolvedImports {
 /// being scanned; it's used as the anchor for relative specifier
 /// resolution.
 pub fn resolve_cross_file_imports(
-    source: &str,
+    macro_imports: &std::collections::HashMap<String, String>,
     importer_path: &Path,
     project_registry: &ProjectDeclarativeRegistry,
 ) -> ResolvedImports {
     let mut out = ResolvedImports::default();
-    let imports = collect_macro_import_comments_pub(source);
-    for (name, module) in imports {
+    for (name, module) in macro_imports {
         // Only `$`-prefixed names are declarative macros. Derive imports
         // (bare names like `Serialize`) fall through to the derive path.
         if !name.starts_with('$') {
@@ -793,7 +791,7 @@ pub fn resolve_cross_file_imports(
         // Resolve the module specifier to an absolute file path by trying
         // the usual `.ts` / `.tsx` / `index.ts` variants relative to the
         // importing file's directory.
-        let Some(resolved_path) = project_registry.resolve_specifier(importer_path, &module) else {
+        let Some(resolved_path) = project_registry.resolve_specifier(importer_path, module) else {
             // A relative-path specifier (starts with `./` or `../`) can
             // only point to a declarative library file. If we can't
             // resolve it, that's an error the user needs to know about.

@@ -29,7 +29,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use super::{ClassIR, EnumIR, InterfaceIR, TypeAliasIR};
+use super::{ClassIR, EnumIR, InterfaceIR, TypeAliasIR, TypeBody, TypeMemberKind};
 
 /// The kind of IR stored in a registry entry.
 ///
@@ -122,6 +122,43 @@ impl TypeRegistry {
         }
     }
 
+    /// The chain of type aliases from `name` back to one already on it, such
+    /// as `["A", "B", "A"]`, if there is one. TypeScript rejects circular
+    /// aliases; code that follows alias references needs to know, or it
+    /// recurses without end.
+    pub fn alias_cycle(&self, name: &str) -> Option<Vec<String>> {
+        self.find_alias_cycle(name, &mut Vec::new())
+    }
+
+    fn find_alias_cycle(&self, name: &str, path: &mut Vec<String>) -> Option<Vec<String>> {
+        if let Some(start) = path.iter().position(|visited| visited == name) {
+            let mut cycle = path[start..].to_vec();
+            cycle.push(name.to_string());
+            return Some(cycle);
+        }
+        let entry = self.get(name)?;
+        let TypeDefinitionIR::TypeAlias(alias) = &entry.definition else {
+            return None;
+        };
+        let references: Vec<&str> = match &alias.body {
+            TypeBody::Alias(target) => vec![target.as_str()],
+            TypeBody::Union(members) | TypeBody::Intersection(members) => members
+                .iter()
+                .filter_map(|member| match &member.kind {
+                    TypeMemberKind::TypeRef(referenced) => Some(referenced.as_str()),
+                    _ => None,
+                })
+                .collect(),
+            TypeBody::Object { .. } | TypeBody::Tuple(_) | TypeBody::Other(_) => Vec::new(),
+        };
+        path.push(name.to_string());
+        let found = references
+            .into_iter()
+            .find_map(|referenced| self.find_alias_cycle(referenced, path));
+        path.pop();
+        found
+    }
+
     /// Get all qualified entries matching a simple type name.
     /// Returns an iterator over entries from different files that share this name.
     pub fn get_all(&self, name: &str) -> impl Iterator<Item = &TypeRegistryEntry> {
@@ -163,29 +200,55 @@ impl TypeRegistry {
         // Same-file resolution — the caller and the declaration share a file,
         // so the entry whose file_path matches the caller is canonical here
         // even when the simple name is ambiguous globally.
-        if !caller_file_path.is_empty() {
-            for entry in self.qualified_types.values() {
-                if entry.name == name && entry.file_path == caller_file_path {
-                    return Some(entry);
-                }
-            }
+        if !caller_file_path.is_empty()
+            && let Some(entry) = self
+                .candidates(name)
+                .into_iter()
+                .find(|entry| entry.file_path == caller_file_path)
+        {
+            return Some(entry);
         }
-        // Import-based resolution: the module specifier is the textual import
-        // path (e.g. `./record-link.svelte`, `@lib/types/user`); the entry's
-        // `file_path` is the absolute on-disk path
-        // (e.g. `/Users/.../record-link.svelte.ts`). We can't do a literal
-        // substring match — `./record-link.svelte` never appears in the
-        // absolute path. Compare on the trailing path segment instead,
-        // ignoring leading relative prefixes and trailing source extensions.
-        if let Some(import) = file_imports.iter().find(|i| i.local_name == name) {
-            let needle = module_specifier_basename(&import.module_specifier);
-            for entry in self.qualified_types.values() {
-                if entry.name == name && file_path_module_matches(&entry.file_path, needle) {
-                    return Some(entry);
-                }
-            }
+        // Import-based resolution. The module specifier is the textual import
+        // path (`./record-link.svelte`, `$lib/types/user`) and the entry's
+        // `file_path` is the on-disk path (`/…/record-link.svelte.ts`).
+        let import = file_imports
+            .iter()
+            .find(|import| import.local_name == name)?;
+        let exported = import.original_name.as_deref().unwrap_or(name);
+        // A relative specifier names exactly one module: resolve it against
+        // the caller's directory. Two modules can share a basename
+        // (`lib/index.ts`, `lib/idp/index.ts`), so the basename alone is not
+        // enough to pick between same-named types.
+        if let Some(module_path) =
+            resolve_relative_module(caller_file_path, &import.module_specifier)
+            && let Some(entry) = self
+                .candidates(exported)
+                .into_iter()
+                .find(|entry| file_path_is_module(&entry.file_path, &module_path))
+        {
+            return Some(entry);
         }
-        None
+        // Otherwise match the trailing path segment, and only when that picks
+        // out a single definition.
+        let needle = module_specifier_basename(&import.module_specifier);
+        let mut matches = self
+            .candidates(exported)
+            .into_iter()
+            .filter(|entry| file_path_module_matches(&entry.file_path, needle));
+        let first = matches.next()?;
+        matches.next().is_none().then_some(first)
+    }
+
+    /// Every definition named `name`, in qualified-key order, so a lookup
+    /// never depends on hash map iteration order.
+    fn candidates(&self, name: &str) -> Vec<&TypeRegistryEntry> {
+        let mut entries: Vec<(&String, &TypeRegistryEntry)> = self
+            .qualified_types
+            .iter()
+            .filter(|(_, entry)| entry.name == name)
+            .collect();
+        entries.sort_by(|left, right| left.0.cmp(right.0));
+        entries.into_iter().map(|(_, entry)| entry).collect()
     }
 
     /// Look up a type by qualified path (e.g., `"src/models/user.ts::User"`).
@@ -230,19 +293,53 @@ impl TypeRegistry {
 /// relative prefixes (`./`, `../`, repeated `../../`) and any trailing
 /// source extension. `./record-link.svelte` → `record-link.svelte`,
 /// `../models/user` → `user`, `@lib/foo/bar.ts` → `bar`.
+/// `path` without one trailing source extension.
+fn strip_source_extension(path: &str) -> &str {
+    [".ts", ".tsx", ".js", ".mjs", ".cjs"]
+        .iter()
+        .find_map(|extension| path.strip_suffix(extension))
+        .unwrap_or(path)
+}
+
 fn module_specifier_basename(module_specifier: &str) -> &str {
     let mut s = module_specifier.trim();
     while let Some(rest) = s.strip_prefix("./").or_else(|| s.strip_prefix("../")) {
         s = rest;
     }
-    let basename = s.rsplit('/').next().unwrap_or(s);
-    basename
-        .strip_suffix(".ts")
-        .or_else(|| basename.strip_suffix(".tsx"))
-        .or_else(|| basename.strip_suffix(".js"))
-        .or_else(|| basename.strip_suffix(".mjs"))
-        .or_else(|| basename.strip_suffix(".cjs"))
-        .unwrap_or(basename)
+    strip_source_extension(s.rsplit('/').next().unwrap_or(s))
+}
+
+/// The extension-less path a relative specifier resolves to from the file at
+/// `caller_file_path`, or `None` for a bare or aliased specifier.
+fn resolve_relative_module(caller_file_path: &str, module_specifier: &str) -> Option<String> {
+    let specifier = module_specifier.trim();
+    if caller_file_path.is_empty() || !(specifier.starts_with("./") || specifier.starts_with("../"))
+    {
+        return None;
+    }
+    let mut segments: Vec<&str> = caller_file_path.split('/').collect();
+    segments.pop();
+    for segment in specifier.split('/') {
+        match segment {
+            "" | "." => {}
+            ".." => {
+                segments.pop();
+            }
+            other => segments.push(other),
+        }
+    }
+    Some(strip_source_extension(&segments.join("/")).to_string())
+}
+
+/// Whether the file at `file_path` is the module at `module_path`, an
+/// extension-less path. A `.svelte` sub-extension still counts as the same
+/// module, and a directory import resolves to its `index`.
+fn file_path_is_module(file_path: &str, module_path: &str) -> bool {
+    let trimmed = strip_source_extension(file_path);
+    trimmed == module_path
+        || trimmed
+            .strip_prefix(module_path)
+            .is_some_and(|rest| rest.starts_with('.') || rest == "/index")
 }
 
 /// Whether `file_path` (an absolute on-disk path) corresponds to a module
@@ -252,14 +349,7 @@ fn module_specifier_basename(module_specifier: &str) -> &str {
 /// still matches `all-types.svelte.ts` (Svelte component output) — the
 /// `.svelte` suffix counts as a sub-extension on the same module.
 fn file_path_module_matches(file_path: &str, needle: &str) -> bool {
-    let basename = file_path.rsplit('/').next().unwrap_or(file_path);
-    let trimmed = basename
-        .strip_suffix(".ts")
-        .or_else(|| basename.strip_suffix(".tsx"))
-        .or_else(|| basename.strip_suffix(".js"))
-        .or_else(|| basename.strip_suffix(".mjs"))
-        .or_else(|| basename.strip_suffix(".cjs"))
-        .unwrap_or(basename);
+    let trimmed = strip_source_extension(file_path.rsplit('/').next().unwrap_or(file_path));
     if trimmed == needle {
         return true;
     }
@@ -308,6 +398,49 @@ mod tests {
             #[cfg(feature = "swc")]
             node: None,
         }
+    }
+
+    fn make_alias_entry(name: &str, body: TypeBody) -> TypeRegistryEntry {
+        TypeRegistryEntry {
+            name: name.to_string(),
+            file_path: "/project/src/aliases.ts".to_string(),
+            is_exported: true,
+            definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
+                name: name.to_string(),
+                span: SpanIR::new(0, 0),
+                decorators: vec![],
+                type_params: vec![],
+                body,
+            }),
+            file_imports: vec![],
+        }
+    }
+
+    fn type_ref(name: &str) -> super::super::TypeMember {
+        super::super::TypeMember::new(TypeMemberKind::TypeRef(name.to_string()))
+    }
+
+    #[test]
+    fn alias_cycle_names_the_loop_through_intersections_and_aliases() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_alias_entry("A", TypeBody::Intersection(vec![type_ref("B")])),
+            "/project",
+        );
+        registry.insert(
+            make_alias_entry("B", TypeBody::Alias("A".to_string())),
+            "/project",
+        );
+        registry.insert(
+            make_alias_entry("C", TypeBody::Alias("string".to_string())),
+            "/project",
+        );
+
+        assert_eq!(
+            registry.alias_cycle("A"),
+            Some(vec!["A".to_string(), "B".to_string(), "A".to_string()])
+        );
+        assert_eq!(registry.alias_cycle("C"), None);
     }
 
     #[test]
@@ -415,6 +548,59 @@ mod tests {
 
         // No imports provided — ambiguous name cannot be resolved
         assert!(registry.resolve("Foo", &[]).is_none());
+    }
+
+    fn import_from(local_name: &str, module_specifier: &str) -> FileImportEntry {
+        FileImportEntry {
+            local_name: local_name.to_string(),
+            module_specifier: module_specifier.to_string(),
+            original_name: None,
+            is_type_only: true,
+        }
+    }
+
+    fn registry_with_two_record_links() -> TypeRegistry {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_interface_entry("RecordLink", "/project/src/lib/index.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("RecordLink", "/project/src/lib/idp/index.ts", vec![]),
+            "/project",
+        );
+        registry
+    }
+
+    #[test]
+    fn resolve_in_file_follows_a_relative_import_to_the_exact_module() {
+        let registry = registry_with_two_record_links();
+        let caller = "/project/src/lib/attestation.svelte.ts";
+        let imports = [import_from("RecordLink", "./index.js")];
+        let resolved = registry.resolve_in_file("RecordLink", caller, &imports);
+        assert_eq!(
+            resolved.map(|entry| entry.file_path.as_str()),
+            Some("/project/src/lib/index.ts")
+        );
+
+        let nested_caller = "/project/src/lib/idp/provider.ts";
+        let nested_imports = [import_from("RecordLink", "./index")];
+        let nested = registry.resolve_in_file("RecordLink", nested_caller, &nested_imports);
+        assert_eq!(
+            nested.map(|entry| entry.file_path.as_str()),
+            Some("/project/src/lib/idp/index.ts")
+        );
+    }
+
+    #[test]
+    fn resolve_in_file_refuses_an_ambiguous_basename_match() {
+        let registry = registry_with_two_record_links();
+        let imports = [import_from("RecordLink", "$lib/index")];
+        assert!(
+            registry
+                .resolve_in_file("RecordLink", "/project/src/routes/page.ts", &imports)
+                .is_none()
+        );
     }
 }
 

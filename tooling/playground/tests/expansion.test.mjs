@@ -3,15 +3,9 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { test } from 'node:test';
-import { initExternalMacros } from './test-utils.mjs';
 
 const require = createRequire(import.meta.url);
 const { expandSync } = require('@macroforge/core');
-
-// Register external macro callbacks for WASM builds.
-// Required because the WASM build cannot spawn Node subprocesses
-// to resolve external macro packages (like @playground/macro).
-initExternalMacros(require('@macroforge/core'));
 
 const repoRoot = path.resolve(
     path.dirname(new URL(import.meta.url).pathname),

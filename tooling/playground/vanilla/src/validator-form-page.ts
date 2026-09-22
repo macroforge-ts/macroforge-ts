@@ -2,6 +2,8 @@
  * Validator form page for E2E testing.
  */
 
+import { formText, requireElement, requireForm } from './dom.util.ts';
+import { playgroundResults, type ValidatorFormResults } from './playground-globals.ts';
 import {
     validateEvent,
     validateProduct,
@@ -9,28 +11,56 @@ import {
     type ValidationResult
 } from './validator-form.ts';
 
-// Global results for Playwright
-type FormResults = {
-    userRegistration?: ValidationResult<unknown>;
-    product?: ValidationResult<unknown>;
-    event?: ValidationResult<unknown>;
-};
-const formResults: FormResults = {};
-(globalThis as unknown as { validatorFormResults: FormResults })
-    .validatorFormResults = formResults;
+const formResults: ValidatorFormResults = {};
+playgroundResults().validatorForm = formResults;
 
-function renderErrors(
-    errors: Array<{ field: string; message: string }> | undefined
-): string {
-    if (!errors || errors.length === 0) return '';
-    return `<ul class="error-list">${
-        errors.map((e) => `<li><strong>${e.field}:</strong> ${e.message}</li>`)
-            .join('')
-    }</ul>`;
+function renderErrors(errors: Array<{ field: string; message: string }>): HTMLElement {
+    const list = document.createElement('ul');
+    list.className = 'error-list';
+    for (const error of errors) {
+        const item = document.createElement('li');
+        const field = document.createElement('strong');
+        field.textContent = `${error.field}:`;
+        item.append(field, ` ${error.message}`);
+        list.append(item);
+    }
+    return list;
 }
 
-function renderSuccess(data: unknown): string {
-    return `<pre class="success-output">${JSON.stringify(data, null, 2)}</pre>`;
+function renderSuccess(data: unknown): HTMLElement {
+    const output = document.createElement('pre');
+    output.className = 'success-output';
+    output.textContent = JSON.stringify(data, null, 2);
+    return output;
+}
+
+/**
+ * Validates a form on submit, publishes the result for the specs and renders
+ * it into the form's result container.
+ */
+function wireForm<T>(
+    formId: string,
+    resultId: string,
+    validate: (form: FormData) => ValidationResult<T>,
+    publish: (result: ValidationResult<T>) => void
+) {
+    const form = requireForm(formId);
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const result = validate(new FormData(form));
+        publish(result);
+
+        const resultElement = requireElement(resultId);
+        if (result.success) {
+            resultElement.className = 'result-container success';
+            resultElement.replaceChildren(renderSuccess(result.value));
+            resultElement.setAttribute('data-validation-success', 'true');
+        } else {
+            resultElement.className = 'result-container error';
+            resultElement.replaceChildren(renderErrors(result.errors));
+            resultElement.setAttribute('data-validation-success', 'false');
+        }
+    });
 }
 
 export function initValidatorFormPage() {
@@ -233,102 +263,54 @@ export function initValidatorFormPage() {
     </div>
   `;
 
-    // User Registration Form Handler
-    document.getElementById('user-registration-form')?.addEventListener(
-        'submit',
-        (e) => {
-            e.preventDefault();
-            const form = e.target as HTMLFormElement;
-            const formData = new FormData(form);
-            const data = {
-                email: formData.get('email'),
-                password: formData.get('password'),
-                username: formData.get('username'),
-                age: parseInt(formData.get('age') as string, 10) || 0,
-                website: formData.get('website')
-            };
-
-            const result = validateUserRegistration(data);
+    wireForm(
+        'user-registration-form',
+        'user-registration-result',
+        (form) =>
+            validateUserRegistration({
+                email: formText(form, 'email'),
+                password: formText(form, 'password'),
+                username: formText(form, 'username'),
+                age: parseInt(formText(form, 'age'), 10) || 0,
+                website: formText(form, 'website')
+            }),
+        (result) => {
             formResults.userRegistration = result;
-
-            const resultEl = document.getElementById('user-registration-result')!;
-            if (result.success) {
-                resultEl.className = 'result-container success';
-                resultEl.innerHTML = renderSuccess(result.value);
-                resultEl.setAttribute('data-validation-success', 'true');
-            } else {
-                resultEl.className = 'result-container error';
-                resultEl.innerHTML = renderErrors(result.errors);
-                resultEl.setAttribute('data-validation-success', 'false');
-            }
         }
     );
 
-    // Product Form Handler
-    document.getElementById('product-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const tagsStr = formData.get('tags') as string;
-        const tags = tagsStr
-            ? tagsStr
-                .split(',')
-                .map((t) => t.trim())
-                .filter(Boolean)
-            : [];
-
-        const data = {
-            name: formData.get('name'),
-            sku: formData.get('sku'),
-            price: parseFloat(formData.get('price') as string) || 0,
-            quantity: parseInt(formData.get('quantity') as string, 10) || 0,
-            tags
-        };
-
-        const result = validateProduct(data);
-        formResults.product = result;
-
-        const resultEl = document.getElementById('product-result')!;
-        if (result.success) {
-            resultEl.className = 'result-container success';
-            resultEl.innerHTML = renderSuccess(result.value);
-            resultEl.setAttribute('data-validation-success', 'true');
-        } else {
-            resultEl.className = 'result-container error';
-            resultEl.innerHTML = renderErrors(result.errors);
-            resultEl.setAttribute('data-validation-success', 'false');
+    wireForm(
+        'product-form',
+        'product-result',
+        (form) =>
+            validateProduct({
+                name: formText(form, 'name'),
+                sku: formText(form, 'sku'),
+                price: parseFloat(formText(form, 'price')) || 0,
+                quantity: parseInt(formText(form, 'quantity'), 10) || 0,
+                tags: formText(form, 'tags')
+                    .split(',')
+                    .map((tag) => tag.trim())
+                    .filter(Boolean)
+            }),
+        (result) => {
+            formResults.product = result;
         }
-    });
+    );
 
-    // Event Form Handler
-    document.getElementById('event-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-
-        // Convert date strings to Date objects for validation
-        const startDateStr = formData.get('startDate') as string;
-        const endDateStr = formData.get('endDate') as string;
-
-        const data = {
-            title: formData.get('title'),
-            startDate: new Date(startDateStr),
-            endDate: new Date(endDateStr),
-            maxAttendees: parseInt(formData.get('maxAttendees') as string, 10) || 0
-        };
-
-        const result = validateEvent(data);
-        formResults.event = result;
-
-        const resultEl = document.getElementById('event-result')!;
-        if (result.success) {
-            resultEl.className = 'result-container success';
-            resultEl.innerHTML = renderSuccess(result.value);
-            resultEl.setAttribute('data-validation-success', 'true');
-        } else {
-            resultEl.className = 'result-container error';
-            resultEl.innerHTML = renderErrors(result.errors);
-            resultEl.setAttribute('data-validation-success', 'false');
+    wireForm(
+        'event-form',
+        'event-result',
+        // The validator checks real dates, so the text fields become `Date`s.
+        (form) =>
+            validateEvent({
+                title: formText(form, 'title'),
+                startDate: new Date(formText(form, 'startDate')),
+                endDate: new Date(formText(form, 'endDate')),
+                maxAttendees: parseInt(formText(form, 'maxAttendees'), 10) || 0
+            }),
+        (result) => {
+            formResults.event = result;
         }
-    });
+    );
 }

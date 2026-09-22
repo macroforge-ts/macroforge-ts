@@ -111,33 +111,19 @@ impl OutputKind {
         }
     }
 
+    /// The call that parses the quote's source into the caller's arena.
     fn parser_expr(self) -> syn::Expr {
-        match self {
-            Self::Expr => parse_quote!(macroforge_ts::ts_syn::parse_oxc_expr(&__mf_quote_source)),
-            Self::Pat => {
-                parse_quote!(macroforge_ts::ts_syn::parse_oxc_binding_pattern(
-                    &__mf_quote_source
-                ))
-            }
-            Self::Stmt => {
-                parse_quote!(macroforge_ts::ts_syn::parse_oxc_statement(
-                    &__mf_quote_source
-                ))
-            }
-            Self::AssignTarget => parse_quote!(macroforge_ts::ts_syn::parse_oxc_assignment_target(
-                &__mf_quote_source
-            )),
-            Self::ModuleItem => parse_quote!(macroforge_ts::ts_syn::parse_oxc_module_item(
-                &__mf_quote_source
-            )),
-            Self::Program => {
-                parse_quote!(macroforge_ts::ts_syn::parse_oxc_program(&__mf_quote_source))
-            }
-            Self::TsType => parse_quote!(macroforge_ts::ts_syn::parse_oxc_type(&__mf_quote_source)),
-            Self::PropOrSpread => parse_quote!(macroforge_ts::ts_syn::parse_oxc_prop_or_spread(
-                &__mf_quote_source
-            )),
-        }
+        let parser: syn::Path = match self {
+            Self::Expr => parse_quote!(macroforge_ts::ts_syn::parse_oxc_expr),
+            Self::Pat => parse_quote!(macroforge_ts::ts_syn::parse_oxc_binding_pattern),
+            Self::Stmt => parse_quote!(macroforge_ts::ts_syn::parse_oxc_statement),
+            Self::AssignTarget => parse_quote!(macroforge_ts::ts_syn::parse_oxc_assignment_target),
+            Self::ModuleItem => parse_quote!(macroforge_ts::ts_syn::parse_oxc_module_item),
+            Self::Program => parse_quote!(macroforge_ts::ts_syn::parse_oxc_program),
+            Self::TsType => parse_quote!(macroforge_ts::ts_syn::parse_oxc_type),
+            Self::PropOrSpread => parse_quote!(macroforge_ts::ts_syn::parse_oxc_prop_or_spread),
+        };
+        parse_quote!(#parser(__mf_quote_allocator, &__mf_quote_source))
     }
 }
 

@@ -5,8 +5,10 @@
 //! exports grouped by kind, first code example, and API reference links.
 
 use crate::core::config::Config;
+use crate::core::manifests;
+use crate::core::shell;
 use crate::utils::format;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
 
@@ -74,7 +76,10 @@ pub fn run() -> Result<()> {
         }
 
         print!("Generating README for {}... ", crate_name);
-        let readme = generate_rust_readme(&config.root, crate_name)?;
+        let readme = shell::deno::format_markdown(
+            &config.root,
+            &generate_rust_readme(&config.root, crate_name, crate_path)?,
+        )?;
         fs::write(crate_dir.join("README.md"), readme)?;
         println!("done");
         generated += 1;
@@ -89,7 +94,10 @@ pub fn run() -> Result<()> {
         }
 
         print!("Generating README for {}... ", json_name);
-        let readme = generate_ts_readme(&config.root, json_name, npm_name, pkg_path)?;
+        let readme = shell::deno::format_markdown(
+            &config.root,
+            &generate_ts_readme(&config.root, json_name, npm_name, pkg_path)?,
+        )?;
         fs::write(pkg_dir.join("README.md"), readme)?;
         println!("done");
         generated += 1;
@@ -112,7 +120,10 @@ pub fn generate_all_to(root: &Path, out_root: &Path) -> Result<()> {
         }
         let dest = out_root.join(crate_path);
         fs::create_dir_all(&dest)?;
-        let readme = generate_rust_readme(root, crate_name)?;
+        let readme = shell::deno::format_markdown(
+            root,
+            &generate_rust_readme(root, crate_name, crate_path)?,
+        )?;
         fs::write(dest.join("README.md"), readme)?;
     }
 
@@ -123,7 +134,10 @@ pub fn generate_all_to(root: &Path, out_root: &Path) -> Result<()> {
         }
         let dest = out_root.join(pkg_path);
         fs::create_dir_all(&dest)?;
-        let readme = generate_ts_readme(root, json_name, npm_name, pkg_path)?;
+        let readme = shell::deno::format_markdown(
+            root,
+            &generate_ts_readme(root, json_name, npm_name, pkg_path)?,
+        )?;
         fs::write(dest.join("README.md"), readme)?;
     }
 
@@ -132,7 +146,7 @@ pub fn generate_all_to(root: &Path, out_root: &Path) -> Result<()> {
 
 // ── Rust README generation ──────────────────────────────────────────────────
 
-fn generate_rust_readme(root: &Path, crate_name: &str) -> Result<String> {
+fn generate_rust_readme(root: &Path, crate_name: &str, crate_path: &str) -> Result<String> {
     let json_path = root.join(format!("website/static/api-data/rust/{}.json", crate_name));
 
     let mut out = String::new();
@@ -142,8 +156,12 @@ fn generate_rust_readme(root: &Path, crate_name: &str) -> Result<String> {
 
     // Try to load extracted JSON docs
     let doc: Option<serde_json::Value> = if json_path.exists() {
-        let raw = fs::read_to_string(&json_path)?;
-        serde_json::from_str(&raw).ok()
+        let raw = fs::read_to_string(&json_path)
+            .with_context(|| format!("failed to read {}", json_path.display()))?;
+        Some(
+            serde_json::from_str(&raw)
+                .with_context(|| format!("{} is not valid JSON", json_path.display()))?,
+        )
     } else {
         None
     };
@@ -153,12 +171,6 @@ fn generate_rust_readme(root: &Path, crate_name: &str) -> Result<String> {
         .and_then(|d| d.get("description"))
         .and_then(|v| v.as_str())
         .unwrap_or("");
-
-    let version = doc
-        .as_ref()
-        .and_then(|d| d.get("version"))
-        .and_then(|v| v.as_str())
-        .unwrap_or("0.0.0");
 
     if !description.is_empty() {
         out.push_str(&format!("{}\n\n", description));
@@ -192,12 +204,11 @@ fn generate_rust_readme(root: &Path, crate_name: &str) -> Result<String> {
         }
     }
 
-    // Installation
+    // Installation. A crate directory that also ships a JS package (the
+    // engine's @macroforge/core) lists that first.
     out.push_str("## Installation\n\n");
-    out.push_str(&format!(
-        "Add this to your `Cargo.toml`:\n\n```toml\n[dependencies]\n{} = \"{}\"\n```\n\n",
-        crate_name, version
-    ));
+    push_js_install(&mut out, &root.join(crate_path))?;
+    out.push_str(&format!("```bash\ncargo add {crate_name}\n```\n\n"));
 
     // Key Exports grouped by kind
     if let Some(items) = doc
@@ -237,14 +248,13 @@ fn generate_rust_readme(root: &Path, crate_name: &str) -> Result<String> {
     // API Reference link
     out.push_str("## API Reference\n\n");
     out.push_str(&format!(
-        "See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/{}) on\nthe Macroforge website.\n\n",
-        crate_name
+        "See the [full API documentation](https://docs.rs/{crate_name}) on docs.rs.\n\n"
     ));
 
     // License
     out.push_str("## License\n\nMIT\n");
 
-    Ok(out)
+    Ok(link_intra_doc_references(&out, crate_name))
 }
 
 // ── TypeScript README generation ────────────────────────────────────────────
@@ -267,8 +277,12 @@ fn generate_ts_readme(
 
     // Try to load extracted JSON docs
     let doc: Option<serde_json::Value> = if json_path.exists() {
-        let raw = fs::read_to_string(&json_path)?;
-        serde_json::from_str(&raw).ok()
+        let raw = fs::read_to_string(&json_path)
+            .with_context(|| format!("failed to read {}", json_path.display()))?;
+        Some(
+            serde_json::from_str(&raw)
+                .with_context(|| format!("{} is not valid JSON", json_path.display()))?,
+        )
     } else {
         None
     };
@@ -276,8 +290,12 @@ fn generate_ts_readme(
     // Fall back to package.json for description if JSON doc is empty
     let pkg_json_path = root.join(pkg_path).join("package.json");
     let pkg_json: Option<serde_json::Value> = if pkg_json_path.exists() {
-        let raw = fs::read_to_string(&pkg_json_path)?;
-        serde_json::from_str(&raw).ok()
+        let raw = fs::read_to_string(&pkg_json_path)
+            .with_context(|| format!("failed to read {}", pkg_json_path.display()))?;
+        Some(
+            serde_json::from_str(&raw)
+                .with_context(|| format!("{} is not valid JSON", pkg_json_path.display()))?,
+        )
     } else {
         None
     };
@@ -295,22 +313,32 @@ fn generate_ts_readme(
         })
         .unwrap_or("");
 
-    // Badge
-    let encoded = npm_name.replace('/', "%2F").replace('@', "%40");
-    out.push_str(&format!(
-        "[![npm version](https://badge.fury.io/js/{encoded}.svg)](https://www.npmjs.com/package/{npm_name})\n\n"
-    ));
+    // Badges for the registries the package is published to.
+    let package_dir = root.join(pkg_path);
+    let jsr_package = manifests::jsr_package_name(&package_dir)?;
+    if let Some(npm) = manifests::npm_package_name(&package_dir)? {
+        let encoded = npm.replace('/', "%2F").replace('@', "%40");
+        out.push_str(&format!(
+            "[![npm version](https://badge.fury.io/js/{encoded}.svg)](https://www.npmjs.com/package/{npm})\n"
+        ));
+    }
+    if let Some(jsr) = &jsr_package {
+        out.push_str(&format!(
+            "[![JSR](https://jsr.io/badges/{jsr})](https://jsr.io/{jsr})\n"
+        ));
+    }
+    out.push('\n');
 
     // Overview
     if !description.is_empty() {
         out.push_str("## Overview\n\n");
-        out.push_str(description);
+        out.push_str(&render_jsdoc_links(description));
         out.push_str("\n\n");
     }
 
     // Installation
     out.push_str("## Installation\n\n");
-    out.push_str(&format!("```bash\nnpm install {}\n```\n\n", npm_name));
+    push_js_install(&mut out, &package_dir)?;
 
     // API section — exports grouped by kind
     if let Some(exports) = doc
@@ -345,12 +373,16 @@ fn generate_ts_readme(
     }
 
     // Documentation link
-    let slug = json_name;
     out.push_str("## Documentation\n\n");
-    out.push_str(&format!(
-        "See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/{}) on\nthe Macroforge website.\n\n",
-        slug
-    ));
+    match (&jsr_package, manifests::npm_package_name(&package_dir)?) {
+        (Some(jsr), _) => out.push_str(&format!(
+            "See the [full API documentation](https://jsr.io/{jsr}/doc) on JSR.\n\n"
+        )),
+        (None, Some(npm)) => out.push_str(&format!(
+            "See the [package on npm](https://www.npmjs.com/package/{npm}).\n\n"
+        )),
+        (None, None) => {}
+    }
 
     // License
     out.push_str("## License\n\nMIT\n");
@@ -468,9 +500,26 @@ fn group_exports_by_kind(exports: &[serde_json::Value]) -> Vec<(String, Vec<(Str
     result
 }
 
+/// Render JSDoc `{@link X}`, `{@link X|label}` and `{@linkcode X}` tags as
+/// inline code: a README has no symbol to link them to.
+fn render_jsdoc_links(text: &str) -> String {
+    static LINK: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| {
+        regex::Regex::new(r"\{@link(?:code|plain)?\s+([^}|\s]+)(?:\s*\|\s*([^}]+))?\}")
+            .expect("the JSDoc link pattern is valid")
+    });
+    LINK.replace_all(text, |captures: &regex::Captures| {
+        let shown = captures
+            .get(2)
+            .map_or(&captures[1], |label| label.as_str().trim());
+        format!("`{shown}`")
+    })
+    .into_owned()
+}
+
 /// Extract the first sentence from a doc string (up to the first period
 /// followed by whitespace or end-of-string, or up to the first newline).
 fn first_sentence(text: &str) -> String {
+    let text = render_jsdoc_links(text);
     let text = text.trim();
     if text.is_empty() {
         return String::new();
@@ -552,6 +601,146 @@ fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
     match chars.next() {
         None => String::new(),
-        Some(c) => format!("{}{}", c.to_uppercase(), chars.as_str()),
+        Some(first) => format!("{}{}", first.to_uppercase(), chars.as_str()),
+    }
+}
+
+/// Copyable install commands, one block each, for the JS package a directory
+/// publishes: `deno add` from JSR first, then `npm install` when it is on npm.
+fn push_js_install(out: &mut String, package_dir: &Path) -> Result<()> {
+    if let Some(jsr) = manifests::jsr_package_name(package_dir)? {
+        out.push_str(&format!("```bash\ndeno add jsr:{jsr}\n```\n\n"));
+    }
+    if let Some(npm) = manifests::npm_package_name(package_dir)? {
+        out.push_str(&format!("```bash\nnpm install {npm}\n```\n\n"));
+    }
+    Ok(())
+}
+
+/// Rewrites rustdoc intra-doc links (`` [`Expr`](swc_core::ecma::ast::Expr) ``
+/// and the shortcut `` [`ts_quote!`] ``) into docs.rs links, since a README is
+/// plain markdown and would read their targets as relative file paths. Code
+/// fences are left untouched.
+fn link_intra_doc_references(markdown: &str, crate_name: &str) -> String {
+    let mut out = String::with_capacity(markdown.len());
+    let mut in_fence = false;
+    for line in markdown.split_inclusive('\n') {
+        if line.trim_start().starts_with("```") {
+            in_fence = !in_fence;
+        }
+        if in_fence {
+            out.push_str(line);
+        } else {
+            out.push_str(&link_intra_doc_line(line, crate_name));
+        }
+    }
+    out
+}
+
+fn link_intra_doc_line(line: &str, crate_name: &str) -> String {
+    let mut out = String::with_capacity(line.len());
+    let mut rest = line;
+    while let Some(open) = rest.find("[`") {
+        let Some(close_rel) = rest[open + 2..].find("`]") else {
+            break;
+        };
+        let label_end = open + 2 + close_rel;
+        let label = &rest[open + 2..label_end];
+        let after = &rest[label_end + 2..];
+        let (target, consumed) = match after.strip_prefix('(').and_then(|inner| inner.find(')')) {
+            Some(target_end) => (Some(&after[1..=target_end]), target_end + 2),
+            None => (None, 0),
+        };
+        out.push_str(&rest[..open]);
+        let path = target.unwrap_or(label);
+        if is_rust_path(path) {
+            out.push_str(&format!(
+                "[`{label}`]({})",
+                docs_rs_search_url(path, crate_name)
+            ));
+        } else {
+            out.push_str(&rest[open..label_end + 2 + consumed]);
+        }
+        rest = &after[consumed..];
+    }
+    out.push_str(rest);
+    out
+}
+
+/// Whether a link target is a Rust item path rather than a URL, anchor or file.
+fn is_rust_path(target: &str) -> bool {
+    !target.is_empty()
+        && target
+            .trim_end_matches("()")
+            .trim_end_matches('!')
+            .split("::")
+            .all(|segment| {
+                !segment.is_empty()
+                    && segment
+                        .chars()
+                        .all(|character| character.is_alphanumeric() || character == '_')
+            })
+}
+
+/// A docs.rs search for the item a path names. Paths with a crate prefix
+/// search that crate; bare names and `crate::`/`self::`/`super::` paths search
+/// the README's own crate. The item's kind, which an exact docs.rs URL
+/// encodes, is not known here.
+fn docs_rs_search_url(path: &str, crate_name: &str) -> String {
+    let segments: Vec<&str> = path.split("::").collect();
+    let krate = match segments.as_slice() {
+        [first, _, ..] if !matches!(*first, "crate" | "self" | "super") => *first,
+        _ => crate_name,
+    };
+    let name = segments
+        .last()
+        .map(|segment| segment.trim_end_matches("()").trim_end_matches('!'))
+        .unwrap_or(path);
+    format!(
+        "https://docs.rs/{krate}/latest/{}/?search={name}",
+        krate.replace('-', "_")
+    )
+}
+
+#[cfg(test)]
+mod intra_doc_tests {
+    use super::*;
+
+    #[test]
+    fn links_a_labelled_path_into_its_crate() {
+        assert_eq!(
+            link_intra_doc_references(
+                "a [`Expr`](swc_core::ecma::ast::Expr) node\n",
+                "macroforge_ts_syn"
+            ),
+            "a [`Expr`](https://docs.rs/swc_core/latest/swc_core/?search=Expr) node\n"
+        );
+    }
+
+    #[test]
+    fn links_a_bare_name_into_the_readme_crate() {
+        assert_eq!(
+            link_intra_doc_references("see [`ts_quote!`]\n", "macroforge_ts_syn"),
+            "see [`ts_quote!`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=ts_quote)\n"
+        );
+    }
+
+    #[test]
+    fn leaves_urls_and_code_fences_alone() {
+        let markdown = "[`site`](https://macroforge.dev)\n```rust\n/// [`Expr`]\n```\n";
+        assert_eq!(
+            link_intra_doc_references(markdown, "macroforge_ts"),
+            markdown
+        );
+    }
+
+    #[test]
+    fn renders_jsdoc_links_as_code() {
+        assert_eq!(
+            render_jsdoc_links(
+                "Options for {@link expand} and {@link expandFile | reading files}."
+            ),
+            "Options for `expand` and `reading files`."
+        );
     }
 }

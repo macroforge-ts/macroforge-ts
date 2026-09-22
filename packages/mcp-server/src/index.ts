@@ -32,7 +32,11 @@
  * ```
  */
 
+// The SDK's `./*` export maps each `*.js` subpath to a nonexistent `*.js.d.ts`. tsc
+// falls back to the sibling declaration and deno does not, so point deno at it.
+// @ts-types="@modelcontextprotocol/sdk/server/index"
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+// @ts-types="@modelcontextprotocol/sdk/server/stdio"
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

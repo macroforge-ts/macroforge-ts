@@ -30,6 +30,30 @@ pub struct Repo {
     pub crate_name: Option<String>,
 }
 
+/// The part of a `package.json` that says which scripts it defines.
+#[derive(Deserialize)]
+struct PackageScripts {
+    #[serde(default)]
+    scripts: HashMap<String, String>,
+}
+
+impl Repo {
+    /// Whether the repo's `package.json` defines the script `name`. A repo
+    /// without a `package.json` defines none.
+    pub fn has_script(&self, name: &str) -> anyhow::Result<bool> {
+        use anyhow::Context;
+
+        let Some(path) = self.package_json.as_ref().filter(|path| path.exists()) else {
+            return Ok(false);
+        };
+        let text = std::fs::read_to_string(path)
+            .with_context(|| format!("failed to read {}", path.display()))?;
+        let manifest: PackageScripts = serde_json::from_str(&text)
+            .with_context(|| format!("failed to parse {}", path.display()))?;
+        Ok(manifest.scripts.contains_key(name))
+    }
+}
+
 /// Environment configuration loaded from .env file
 #[derive(Debug, Clone, Default)]
 pub struct EnvConfig {

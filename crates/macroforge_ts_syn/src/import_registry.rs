@@ -153,18 +153,20 @@ impl ImportRegistry {
         use oxc::ast::ast::*;
         let mut source_imports = HashMap::new();
 
-        source_imports.extend(collect_macro_import_comments(source).into_iter().map(
-            |(name, module_src)| {
-                (
-                    name,
-                    SourceImport {
-                        source_module: module_src,
-                        original_name: None,
-                        is_type_only: false,
-                    },
-                )
-            },
-        ));
+        source_imports.extend(
+            macro_imports_in_comments(&program.comments, source)
+                .into_iter()
+                .map(|(name, module_src)| {
+                    (
+                        name,
+                        SourceImport {
+                            source_module: module_src,
+                            original_name: None,
+                            is_type_only: false,
+                        },
+                    )
+                }),
+        );
 
         for stmt in &program.body {
             if let Statement::ImportDeclaration(import) = stmt {
@@ -229,7 +231,7 @@ impl ImportRegistry {
         let mut source_imports = HashMap::new();
 
         // Also extract imports from JSDoc `@import macro` comments
-        source_imports.extend(collect_macro_import_comments(source).into_iter().map(
+        source_imports.extend(macro_imports_in_source(source).into_iter().map(
             |(name, module_src)| {
                 (
                     name,
@@ -586,49 +588,81 @@ pub fn clear_registry() {
 // JSDoc @import macro comment parsing
 // ============================================================================
 
-/// Public wrapper for `collect_macro_import_comments` — extracts macro name -> module path
-/// from JSDoc `/** import macro { ... } from "package" */` comments.
-pub fn collect_macro_import_comments_pub(source: &str) -> HashMap<String, String> {
-    collect_macro_import_comments(source)
+/// The macro imports declared by a program's `/** import macro { A } from "pkg" */`
+/// comments, as macro name to module. Only real comments count: the same text
+/// inside a string literal or a doc example is not a directive.
+#[cfg(feature = "oxc")]
+pub fn macro_imports_in_comments(
+    comments: &[oxc::ast::Comment],
+    source: &str,
+) -> HashMap<String, String> {
+    let mut out = HashMap::new();
+    for comment in comments.iter().filter(|comment| comment.is_block()) {
+        let Some(text) = source.get(comment.span.start as usize..comment.span.end as usize) else {
+            continue;
+        };
+        if let Some(body) = text
+            .strip_prefix("/**")
+            .and_then(|rest| rest.strip_suffix("*/"))
+        {
+            insert_macro_import_directive(&mut out, body);
+        }
+    }
+    out
 }
 
-/// Extracts import information from JSDoc `@import macro` comments.
-fn collect_macro_import_comments(source: &str) -> HashMap<String, String> {
+/// The macro imports declared by `/** import macro … */` comments in `source`,
+/// for the SWC backend, whose parsed module carries no comments. A directive
+/// must open its own line, which keeps the same text inside a string literal
+/// or a doc example from counting.
+#[cfg(feature = "swc")]
+pub fn macro_imports_in_source(source: &str) -> HashMap<String, String> {
     let mut out = HashMap::new();
     let mut search_start = 0usize;
-
-    while let Some(idx) = source[search_start..].find("/**") {
-        let abs_idx = search_start + idx;
-        let remaining = &source[abs_idx + 3..];
-        let Some(end_rel) = remaining.find("*/") else {
+    while let Some(offset) = source[search_start..].find("/**") {
+        let open = search_start + offset;
+        let Some(body_len) = source[open + 3..].find("*/") else {
             break;
         };
-        let body = &remaining[..end_rel];
-        let normalized = normalize_macro_import_body(body);
-        let normalized_lower = normalized.to_ascii_lowercase();
-
-        if normalized_lower.contains("import macro")
-            && let (Some(open_brace), Some(close_brace)) =
-                (normalized.find('{'), normalized.find('}'))
-            && close_brace > open_brace
-            && let Some(from_idx) = normalized_lower[close_brace..].find("from")
-        {
-            let names_src = normalized[open_brace + 1..close_brace].trim();
-            let from_section = &normalized[close_brace + from_idx + "from".len()..];
-            if let Some(module_src) = extract_quoted_string(from_section) {
-                for name in names_src.split(',') {
-                    let trimmed = name.trim();
-                    if !trimmed.is_empty() {
-                        out.insert(trimmed.to_string(), module_src.clone());
-                    }
-                }
-            }
+        let line_start = source[..open].rfind('\n').map_or(0, |newline| newline + 1);
+        if source[line_start..open].trim().is_empty() {
+            insert_macro_import_directive(&mut out, &source[open + 3..open + 3 + body_len]);
         }
-
-        search_start = abs_idx + 3 + end_rel + 2;
+        search_start = open + 3 + body_len + 2;
     }
-
     out
+}
+
+/// Record the names of the `import macro { A, B } from "pkg"` directive that
+/// makes up `body`, a JSDoc comment's text; any other comment adds nothing.
+fn insert_macro_import_directive(out: &mut HashMap<String, String>, body: &str) {
+    if !crate::jsdoc::is_macro_import_comment(body) {
+        return;
+    }
+    let normalized = normalize_macro_import_body(body);
+    let Some(open_brace) = normalized.find('{') else {
+        return;
+    };
+    let Some(close_brace) = normalized[open_brace..]
+        .find('}')
+        .map(|offset| open_brace + offset)
+    else {
+        return;
+    };
+    let Some(from_offset) = normalized[close_brace..].to_ascii_lowercase().find("from") else {
+        return;
+    };
+    let Some(module) =
+        extract_quoted_string(&normalized[close_brace + from_offset + "from".len()..])
+    else {
+        return;
+    };
+    for name in normalized[open_brace + 1..close_brace].split(',') {
+        let name = name.trim();
+        if !name.is_empty() {
+            out.insert(name.to_string(), module.clone());
+        }
+    }
 }
 
 fn normalize_macro_import_body(body: &str) -> String {
@@ -661,4 +695,46 @@ fn extract_quoted_string(input: &str) -> Option<String> {
         }
     }
     None
+}
+
+#[cfg(all(test, feature = "oxc"))]
+mod tests {
+    use super::macro_imports_in_comments;
+    use oxc::allocator::Allocator;
+    use oxc::parser::Parser;
+    use oxc::span::SourceType;
+    use std::collections::HashMap;
+
+    fn macro_imports(source: &str) -> HashMap<String, String> {
+        let allocator = Allocator::default();
+        let parsed = Parser::new(&allocator, source, SourceType::ts()).parse();
+        macro_imports_in_comments(&parsed.program.comments, source)
+    }
+
+    #[test]
+    fn reads_an_import_macro_comment() {
+        let imports = macro_imports(
+            "/** import macro { Gigaform, $vec } from \"@playground/macro\"; */\nexport {};",
+        );
+        assert_eq!(
+            imports.get("Gigaform").map(String::as_str),
+            Some("@playground/macro")
+        );
+        assert_eq!(
+            imports.get("$vec").map(String::as_str),
+            Some("@playground/macro")
+        );
+    }
+
+    #[test]
+    fn the_directive_text_inside_a_string_is_not_an_import() {
+        let source = "const hint = '`/** import macro {Name} from \"your-package\"; */`';";
+        assert!(macro_imports(source).is_empty());
+    }
+
+    #[test]
+    fn an_example_inside_a_doc_comment_is_not_an_import() {
+        let source = "/**\n * Imported via `import macro {Name} from \"package\"`.\n */\nexport function hover() {}";
+        assert!(macro_imports(source).is_empty());
+    }
 }

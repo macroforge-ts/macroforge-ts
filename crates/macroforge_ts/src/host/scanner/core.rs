@@ -31,6 +31,9 @@ pub struct ScanOutput {
     pub declarative_registry: ProjectDeclarativeRegistry,
     /// Number of files scanned.
     pub files_scanned: u32,
+    /// Number of scanned files containing anything the engine expands. A
+    /// project where this is zero needs no registries.
+    pub macro_files: u32,
     /// Warnings from files that failed to parse.
     pub warnings: Vec<String>,
 }
@@ -118,6 +121,7 @@ impl ProjectScanner {
         let mut declarative_registry = ProjectDeclarativeRegistry::new();
         let root_str = self.config.root_dir.to_string_lossy().to_string();
         let mut files_scanned: u32 = 0;
+        let mut macro_files: u32 = 0;
         let mut warnings = Vec::new();
 
         let walker = WalkBuilder::new(&self.config.root_dir)
@@ -171,19 +175,18 @@ impl ProjectScanner {
             #[cfg(feature = "swc")]
             {
                 GLOBALS.set(&globals, || {
-                    if let Err(e) =
-                        self.scan_file(path, &mut registry, &mut declarative_registry, &root_str)
+                    match self.scan_file(path, &mut registry, &mut declarative_registry, &root_str)
                     {
-                        warnings.push(format!("Failed to scan {:?}: {}", path, e));
+                        Ok(uses_macros) => macro_files += u32::from(uses_macros),
+                        Err(e) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
                     }
                 });
             }
             #[cfg(all(not(feature = "swc"), feature = "oxc"))]
             {
-                if let Err(e) =
-                    self.scan_file(path, &mut registry, &mut declarative_registry, &root_str)
-                {
-                    warnings.push(format!("Failed to scan {:?}: {}", path, e));
+                match self.scan_file(path, &mut registry, &mut declarative_registry, &root_str) {
+                    Ok(uses_macros) => macro_files += u32::from(uses_macros),
+                    Err(e) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
                 }
             }
         }
@@ -192,6 +195,7 @@ impl ProjectScanner {
             registry,
             declarative_registry,
             files_scanned,
+            macro_files,
             warnings,
         })
     }
@@ -214,7 +218,7 @@ impl ProjectScanner {
         registry: &mut TypeRegistry,
         declarative_registry: &mut ProjectDeclarativeRegistry,
         project_root: &str,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<bool> {
         let file_name = path.to_string_lossy().to_string();
 
         // Cache fast path. Before reading the file, stat it for
@@ -227,12 +231,13 @@ impl ProjectScanner {
         {
             // Replay.
             splice_declarative(declarative_registry, &file_name, &entry);
+            let uses_macros = entry.uses_macros;
             if entry.classes.is_empty()
                 && entry.interfaces.is_empty()
                 && entry.enums.is_empty()
                 && entry.type_aliases.is_empty()
             {
-                return Ok(());
+                return Ok(uses_macros);
             }
             self.register_items(
                 registry,
@@ -245,10 +250,11 @@ impl ProjectScanner {
                 entry.file_imports,
                 entry.exported_names,
             );
-            return Ok(());
+            return Ok(uses_macros);
         }
 
         let source = std::fs::read_to_string(path)?;
+        let uses_macros = crate::has_macro_annotations(&source);
 
         #[cfg(feature = "oxc")]
         {
@@ -306,6 +312,7 @@ impl ProjectScanner {
                         declarative_macros,
                         file_imports: file_imports.clone(),
                         exported_names: exported_names.clone(),
+                        uses_macros,
                     },
                 );
             }
@@ -315,7 +322,7 @@ impl ProjectScanner {
                 && enums.is_empty()
                 && type_aliases.is_empty()
             {
-                return Ok(());
+                return Ok(uses_macros);
             }
 
             self.register_items(
@@ -329,7 +336,7 @@ impl ProjectScanner {
                 file_imports,
                 exported_names,
             );
-            Ok(())
+            Ok(uses_macros)
         }
 
         #[cfg(all(feature = "swc", not(feature = "oxc")))]
@@ -352,7 +359,7 @@ impl ProjectScanner {
                 && enums.is_empty()
                 && type_aliases.is_empty()
             {
-                return Ok(());
+                return Ok(uses_macros);
             }
 
             let file_imports = collect_file_imports(&module);
@@ -369,7 +376,7 @@ impl ProjectScanner {
                 file_imports,
                 exported_names,
             );
-            Ok(())
+            Ok(uses_macros)
         }
         #[cfg(all(not(feature = "swc"), not(feature = "oxc")))]
         {

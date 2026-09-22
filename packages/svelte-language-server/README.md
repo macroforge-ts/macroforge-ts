@@ -1,12 +1,17 @@
 # @macroforge/svelte-language-server
 
 [![npm version](https://badge.fury.io/js/%40macroforge%2Fsvelte-language-server.svg)](https://www.npmjs.com/package/@macroforge/svelte-language-server)
+[![JSR](https://jsr.io/badges/@macroforge/svelte-language-server)](https://jsr.io/@macroforge/svelte-language-server)
 
 ## Overview
 
 A language server for Svelte with macroforge integration
 
 ## Installation
+
+```bash
+deno add jsr:@macroforge/svelte-language-server
+```
 
 ```bash
 npm install @macroforge/svelte-language-server
@@ -25,18 +30,16 @@ npm install @macroforge/svelte-language-server
 
 ### Interfaces
 
-- **`LSOptions`**
-- **`SvelteCheckOptions`**
+- **`LSOptions`** - Options for `startServer`.
+- **`SvelteCheckOptions`** - Options for `SvelteCheck`.
 
 ### Types
 
-- **`SvelteCheckDiagnosticSource`**
+- **`SvelteCheckDiagnosticSource`** - A kind of diagnostic svelte-check can report.
 
 ## Documentation
 
-See the
-[full documentation](https://macroforge.dev/docs/api/reference/typescript/svelte-language-server) on
-the Macroforge website.
+See the [full API documentation](https://jsr.io/@macroforge/svelte-language-server/doc) on JSR.
 
 ## License
 

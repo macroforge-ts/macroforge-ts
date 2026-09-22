@@ -1254,7 +1254,9 @@ fn convert_js_object_to_json(js_obj: &str) -> String {
 // Type-Awareness Enrichment (TypeRegistry)
 // =============================================================================
 
-use macroforge_ts::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry};
+use macroforge_ts::ts_syn::abi::ir::type_registry::{
+    FileImportEntry, TypeDefinitionIR, TypeRegistry,
+};
 
 /// Enriches parsed fields with type-awareness information from the project's TypeRegistry.
 ///
@@ -1266,14 +1268,19 @@ use macroforge_ts::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegist
 ///
 /// Also upgrades the controller inference: if a field's type is an enum and no explicit
 /// controller was specified, auto-assigns a `Select` controller with enum variants as options.
-pub fn enrich_fields_with_registry(fields: &mut [ParsedField], registry: &TypeRegistry) {
+pub fn enrich_fields_with_registry(
+    fields: &mut [ParsedField],
+    registry: &TypeRegistry,
+    file_path: &str,
+    file_imports: &[FileImportEntry],
+) {
     for field in fields.iter_mut() {
         // Determine the base type name to look up (strip arrays, optionals)
         let base_type = get_base_type_for_lookup(&field.ts_type);
 
-        let entry_opt = registry
-            .get(&base_type)
-            .or_else(|| registry.get_all(&base_type).next());
+        // Resolved as the deriving file imports it: a bare name can belong to
+        // several files, and only the import says which one the field means.
+        let entry_opt = registry.resolve_in_file(&base_type, file_path, file_imports);
         if let Some(entry) = entry_opt {
             // Set resolved_kind based on the definition type
             field.resolved_kind = Some(match &entry.definition {

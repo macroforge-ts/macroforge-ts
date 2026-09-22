@@ -1,12 +1,17 @@
 # @macroforge/shared
 
 [![npm version](https://badge.fury.io/js/%40macroforge%2Fshared.svg)](https://www.npmjs.com/package/@macroforge/shared)
+[![JSR](https://jsr.io/badges/@macroforge/shared)](https://jsr.io/@macroforge/shared)
 
 ## Overview
 
 Shared utilities for Macroforge plugins
 
 ## Installation
+
+```bash
+deno add jsr:@macroforge/shared
+```
 
 ```bash
 npm install @macroforge/shared
@@ -16,11 +21,6 @@ npm install @macroforge/shared
 
 ### Functions
 
-- **`collectExternalDecoratorModules`** - Collects decorator modules from external macro packages
-  referenced in the code.
-- **`hasMacroAnnotations`** - Checks whether source code contains a macroforge JSDoc annotation —
-  `@derive(...)`, `@cfg(...)`, `@deprecated`, `@mustUse`, or `@nonExhaustive`.
-- **`parseMacroImportComments`** - Parses macro import comments from TypeScript code.
 - **`clearExternalManifestCache`** - Clears the external manifest cache.
 - **`getExternalManifest`** - Attempts to load the manifest from an external macro package.
 - **`getExternalMacroInfo`** - Looks up macro info from an external package manifest.
@@ -57,8 +57,7 @@ npm install @macroforge/shared
 
 ## Documentation
 
-See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/shared) on the
-Macroforge website.
+See the [full API documentation](https://jsr.io/@macroforge/shared/doc) on JSR.
 
 ## License
 

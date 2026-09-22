@@ -1,4 +1,4 @@
-use crate::{ToOxcExprSource, ToOxcIdentSource, TsSynError, oxc_expr_to_string, parse_oxc_expr};
+use crate::{ToOxcExprSource, ToOxcIdentSource, TsSynError, oxc_expr_to_string};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct Ident {
@@ -81,9 +81,11 @@ impl ToOxcExprSource for Ident {
 }
 
 pub fn parse_ts_expr(code: &str) -> Result<Box<Expr>, TsSynError> {
-    let expr = parse_oxc_expr(code)?;
-    let expr = match expr {
-        oxc::ast::ast::Expression::Identifier(ident) => Expr::Ident(Ident::new(ident.name)),
+    let allocator = oxc::allocator::Allocator::default();
+    let expr = match crate::parse_oxc_expr(&allocator, code)? {
+        oxc::ast::ast::Expression::Identifier(ident) => {
+            Expr::Ident(Ident::new(ident.name.as_str()))
+        }
         other => Expr::Source(oxc_expr_to_string(&other)),
     };
     Ok(Box::new(expr))

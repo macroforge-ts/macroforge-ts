@@ -1,5 +1,7 @@
 <script lang="ts">
-import { Exit } from 'effect';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
 import { taxRateCreateForm, type TaxRate } from '$lib/demo/types';
 
 // Create TaxRate form to test Record/Map types
@@ -21,31 +23,23 @@ const taxRateForm = taxRateCreateForm({
 });
 
 // Track validation results
-let taxRateResult: {
-    success: boolean;
-    data?: TaxRate;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let taxRateResult: OutcomeOf<typeof taxRateForm> | null = $state(null);
 
 // New component form
 let newComponentKey = $state('');
 let newComponentValue = $state(0);
 
-// Expose to Playwright
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        taxRate: taxRateForm
-    };
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    taxRate: taxRateForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
 }
 
 function submitTaxRate() {
-    taxRateResult = Exit.match(taxRateForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.taxRateValidation = taxRateResult;
-    }
+    taxRateResult = validationOutcome(taxRateForm.validate());
+    gigaform.taxRateValidation = taxRateResult;
 }
 
 function resetTaxRate() {

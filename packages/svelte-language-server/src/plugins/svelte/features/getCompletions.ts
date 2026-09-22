@@ -1,5 +1,5 @@
 import { EOL } from 'os';
-import { SvelteDocument } from '../SvelteDocument';
+import { SvelteDocument } from '../SvelteDocument.ts';
 import {
     CompletionItem,
     CompletionItemKind,
@@ -8,11 +8,14 @@ import {
     MarkupKind,
     Position
 } from 'vscode-languageserver';
-import { documentation, getLatestOpeningTag, SvelteTag } from './SvelteTags';
-import { Document } from '../../../lib/documents';
-import { AttributeContext, getAttributeContextAtPosition } from '../../../lib/documents/parseHtml';
-import { getModifierData } from './getModifierData';
-import { attributeCanHaveEventModifier, inStyleOrScript } from './utils';
+import { documentation, getLatestOpeningTag, type SvelteTag } from './SvelteTags.ts';
+import { Document } from '../../../lib/documents/index.ts';
+import {
+    type AttributeContext,
+    getAttributeContextAtPosition
+} from '../../../lib/documents/parseHtml.ts';
+import { getModifierData } from './getModifierData.ts';
+import { attributeCanHaveEventModifier, inStyleOrScript } from './utils.ts';
 
 const HTML_COMMENT_START = '<!--';
 

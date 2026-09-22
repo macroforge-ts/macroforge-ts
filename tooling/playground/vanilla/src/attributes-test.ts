@@ -9,9 +9,9 @@
 // - `@cfg({ target: 'web' })`          ⇒  kept
 // - `@cfg({ target: 'node' })`         ⇒  stripped
 //
-// `@deprecated` rewrites the JSDoc to a tsc-readable form. The `.expanded.ts`
-// snapshot proves the rewrite; runtime can only confirm the function still
-// exists since JSDoc isn't reflected.
+// `@deprecated` rewrites the JSDoc to a tsc-readable form, which
+// `tests/expansion.test.mjs` covers; runtime can only confirm the function
+// still exists since JSDoc isn't reflected.
 //
 // `@mustUse` only flags discarded call sites. We consume the return below so
 // no diagnostic fires — the playground stays buildable.

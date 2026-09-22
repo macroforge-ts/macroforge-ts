@@ -56,8 +56,9 @@
 //! The external loader looks for `root_dir/node_modules/<module>` and loads
 //! the first `.node`/`.dylib`/`.so` file in that package via `libloading`
 //! (dlopen), calling the package's `__macroforge_ffi_*` symbols. On WASM,
-//! where dlopen isn't available, the host JS environment supplies resolve/run
-//! callbacks via `setupExternalMacros` instead.
+//! where dlopen isn't available, the package is loaded with `require` from the
+//! project root and its `__macroforgeGetManifest*` and `__macroforgeRun*`
+//! exports are called instead.
 //!
 //! ## Usage Example
 //!
@@ -188,6 +189,8 @@ pub struct MacroExpansion {
     pub type_aliases: Vec<TypeAliasIR>,
     /// Bidirectional source mapping between original and expanded code positions.
     pub source_mapping: Option<SourceMapping>,
+    /// Absolute paths of every file read by `@buildtime` declarations.
+    pub buildtime_dependencies: Vec<std::path::PathBuf>,
 }
 
 /// Core macro expansion engine
@@ -214,9 +217,22 @@ pub struct MacroExpander {
     /// Controls whether `ShareOnly` / `ShareAnyway` / `Auto` macros
     /// emit their shared runtime form or inline expand form.
     build_mode: crate::host::declarative::BuildMode,
+    /// The project's `macroforge.config.*`, read by the attribute and
+    /// `@buildtime` pre-passes.
+    project_config: crate::host::MacroforgeConfig,
 }
 
 type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
+
+/// Renders an Oxc parse failure as one line.
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+fn join_parse_diagnostics(diagnostics: &[oxc::diagnostics::OxcDiagnostic]) -> String {
+    diagnostics
+        .iter()
+        .map(|diagnostic| diagnostic.to_string())
+        .collect::<Vec<_>>()
+        .join("; ")
+}
 
 /// Lowered IR representations of TypeScript declarations
 #[derive(Clone)]
@@ -326,17 +342,8 @@ impl MacroExpander {
             type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
             declarative_registry: None,
             build_mode: crate::host::declarative::BuildMode::dev(),
+            project_config: crate::host::MacroforgeConfig::default(),
         })
-    }
-
-    /// Get a reference to the external macro loader, if available.
-    ///
-    /// Only used from the OXC-only call-fallback path in
-    /// `expand_core.rs`. The SWC backend dispatches through a different
-    /// code path so under `--features swc` this accessor has no callers.
-    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-    pub(crate) fn external_loader_ref(&self) -> Option<&ExternalMacroLoader> {
-        self.external_loader.as_ref()
     }
 
     /// Control whether decorators are preserved in the expanded output.
@@ -380,12 +387,21 @@ impl MacroExpander {
         self.build_mode = mode;
     }
 
+    /// Set the project configuration the attribute (`@cfg`, `@deprecated`,
+    /// `@mustUse`, `@nonExhaustive`) and `@buildtime` pre-passes read.
+    pub fn set_project_config(&mut self, config: crate::host::MacroforgeConfig) {
+        self.project_config = config;
+    }
+
     /// Build the complete set of valid annotation names for lowering.
     ///
     /// Includes `"derive"`, all builtin decorator annotation names, any explicitly
     /// configured external decorator modules, and — if the source imports external
     /// macros — decorator names resolved from those packages' manifests.
-    fn valid_annotation_names(&self, source: &str) -> std::collections::HashSet<String> {
+    fn valid_annotation_names(
+        &self,
+        macro_imports: &HashMap<String, String>,
+    ) -> Result<std::collections::HashSet<String>> {
         let mut set = std::collections::HashSet::new();
         set.insert("derive".to_string());
 
@@ -401,12 +417,15 @@ impl MacroExpander {
 
         // Resolve decorator names from external macro packages imported in the source
         if self.external_decorator_modules.is_empty() {
-            for name in resolve_external_decorator_names(source, self.external_loader.as_ref()) {
+            for name in
+                resolve_external_decorator_names(macro_imports, self.external_loader.as_ref())
+                    .map_err(|err| MacroError::InvalidConfig(format!("{err:#}")))?
+            {
                 set.insert(name.to_ascii_lowercase());
             }
         }
 
-        set
+        Ok(set)
     }
 
     /// Run the declarative macro pre-pass on an OXC-parsed program.
@@ -429,16 +448,12 @@ impl MacroExpander {
 
         use oxc::allocator::Allocator;
         use oxc::parser::Parser;
-        use oxc::span::SourceType;
 
         let allocator = Allocator::default();
-        // The pre-pass uses plain TS — JSX doesn't affect the constructs
-        // we care about (top-level `const` declarations and bare identifier
-        // calls), so we don't need to thread the JSX flag through here.
-        let source_type = SourceType::ts();
-        let parsed = Parser::new(&allocator, source, source_type).parse();
+        let parsed =
+            Parser::new(&allocator, source, crate::source_type::for_path(file_name)).parse();
         if !parsed.diagnostics.is_empty() {
-            // Parse errors are surfaced by the main path — don't duplicate.
+            // The main parse uses the same source type and reports the error.
             return Ok((None, Vec::new()));
         }
 
@@ -448,9 +463,13 @@ impl MacroExpander {
         // Resolve cross-file `/** import macro { $name } from "..." */`
         // comments against the project-wide registry if one was installed.
         let file_path = PathBuf::from(file_name);
+        let macro_imports = crate::ts_syn::import_registry::macro_imports_in_comments(
+            &parsed.program.comments,
+            source,
+        );
         let resolved_imports = if let Some(project_registry) = &self.declarative_registry {
             crate::host::declarative::resolve_cross_file_imports(
-                source,
+                &macro_imports,
                 &file_path,
                 project_registry,
             )
@@ -460,16 +479,10 @@ impl MacroExpander {
 
         // Fast path: nothing declarative in this file and no proc macro
         // call sites (`$name(...)` patterns in the source).
-        let has_dollar_calls = source.contains("$(")
-            || source.contains("$ (")
-            || (source.contains('$') && {
-                // Quick scan: is there a `$identifier(` pattern?
-                let bytes = source.as_bytes();
-                bytes
-                    .windows(2)
-                    .any(|w| w[0] == b'$' && w[1].is_ascii_alphabetic())
-            });
-        if discovered.is_empty() && resolved_imports.imported.is_empty() && !has_dollar_calls {
+        if discovered.is_empty()
+            && resolved_imports.imported.is_empty()
+            && !crate::expand_core::has_dollar_call(source)
+        {
             return Ok((None, resolved_imports.diagnostics));
         }
 
@@ -503,8 +516,7 @@ impl MacroExpander {
         // comments AND regular `import { $name } from "..."` statements so the
         // rewriter can resolve proc macro call sites. The `$` prefix is reserved
         // for call macros, so any imported `$name` is treated as a macro import.
-        let mut macro_import_sources =
-            crate::ts_syn::import_registry::collect_macro_import_comments_pub(source);
+        let mut macro_import_sources = macro_imports;
         macro_import_sources.extend(crate::host::declarative::collect_dollar_imports(
             &parsed.program,
         ));
@@ -554,55 +566,170 @@ impl MacroExpander {
         } else {
             applicator.apply()?
         };
+        // Output that doesn't parse is reported downstream with the
+        // attribution validation just produced; only valid output is cleaned.
+        let parses = !diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error);
+        let new_source = if parses {
+            crate::host::declarative::macro_imports::strip_consumed_macro_imports(
+                &new_source,
+                file_name,
+            )
+            .map_err(MacroError::InvalidConfig)?
+            .unwrap_or(new_source)
+        } else {
+            new_source
+        };
         Ok((Some(new_source), diagnostics))
     }
 
-    /// Expand all macros in the source code (simple API for CLI usage)
+    /// Run the attribute-macro pre-pass (`@cfg`, `@deprecated`, `@mustUse`,
+    /// `@nonExhaustive`). Returns `None` when no tag rewrote the source.
+    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+    fn attributes_prepass_oxc(
+        &self,
+        source: &str,
+        file_name: &str,
+    ) -> Result<(Option<String>, Vec<Diagnostic>)> {
+        let has_any_tag = ["@cfg", "@deprecated", "@mustUse", "@nonExhaustive"]
+            .iter()
+            .any(|tag| source.contains(tag));
+        if !has_any_tag {
+            return Ok((None, Vec::new()));
+        }
+        let allocator = oxc::allocator::Allocator::default();
+        let parsed =
+            oxc::parser::Parser::new(&allocator, source, crate::source_type::for_path(file_name))
+                .parse();
+        if !parsed.diagnostics.is_empty() {
+            return Err(MacroError::InvalidConfig(format!(
+                "Parse error (attributes pre-pass): {}",
+                join_parse_diagnostics(&parsed.diagnostics)
+            )));
+        }
+        let out = crate::host::attributes::run_prepass(
+            &parsed.program,
+            source,
+            std::path::Path::new(file_name),
+            &self.project_config,
+        );
+        Ok((out.rewritten, out.diagnostics))
+    }
+
+    /// Evaluate every `@buildtime` declaration in its sandbox and splice the
+    /// results in as literals. Returns the rewritten source (`None` when
+    /// nothing changed), the files the evaluation read, and its diagnostics.
+    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
+    fn buildtime_prepass_oxc(
+        &self,
+        source: &str,
+        file_name: &str,
+    ) -> Result<crate::host::buildtime::PrepassOutput> {
+        use crate::host::buildtime::{CapabilitySet, PathPattern, SandboxOptions};
+
+        if !source.contains("@buildtime") {
+            return Ok(crate::host::buildtime::PrepassOutput::default());
+        }
+        let Some(sandbox) = crate::host::buildtime::default_backend() else {
+            return Err(MacroError::InvalidConfig(format!(
+                "{file_name} uses @buildtime, but this macroforge build has no @buildtime sandbox (the `buildtime-boa` feature)"
+            )));
+        };
+        let allocator = oxc::allocator::Allocator::default();
+        let parsed =
+            oxc::parser::Parser::new(&allocator, source, crate::source_type::for_path(file_name))
+                .parse();
+        if !parsed.diagnostics.is_empty() {
+            return Err(MacroError::InvalidConfig(format!(
+                "Parse error (@buildtime pre-pass): {}",
+                join_parse_diagnostics(&parsed.diagnostics)
+            )));
+        }
+
+        let config = &self.project_config.buildtime;
+        let compile_globs = |patterns: &[String]| -> Result<Vec<PathPattern>> {
+            patterns
+                .iter()
+                .map(|pattern| {
+                    PathPattern::new(pattern).map_err(|err| {
+                        MacroError::InvalidConfig(format!(
+                            "invalid buildtime path pattern {pattern:?}: {err}"
+                        ))
+                    })
+                })
+                .collect()
+        };
+        let origin_path = std::path::PathBuf::from(file_name);
+        let mut options = SandboxOptions::new(origin_path.clone());
+        options.capabilities = CapabilitySet {
+            fs_read: compile_globs(&config.fs_read)?,
+            fs_write: compile_globs(&config.fs_write)?,
+            env_allow: config.env_allow.clone(),
+            network: config.network,
+        };
+        options.timeout = std::time::Duration::from_millis(config.timeout_ms);
+        options.max_heap = config.max_heap_mb.saturating_mul(1024 * 1024);
+        options.flags = config.flags.clone();
+
+        Ok(crate::host::buildtime::run_prepass(
+            &parsed.program,
+            source,
+            &origin_path,
+            sandbox.as_ref(),
+            &options,
+        ))
+    }
+
+    /// Expand all macros in `source`.
+    ///
+    /// The pre-passes run in a fixed order, each on the previous one's output:
+    /// attributes (so `@cfg`-stripped declarations are never evaluated), then
+    /// `@buildtime`, then declarative macros, then derives.
     #[cfg(all(not(feature = "swc"), feature = "oxc"))]
     pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
         use oxc::allocator::Allocator;
         use oxc::parser::Parser;
-        use oxc::span::SourceType;
 
-        // --- Declarative macro pre-pass ---
-        //
-        // Discover any `const $name = macro\`...\`` definitions in the file,
-        // rewrite matching call sites, and strip the original declarations.
-        // If the pre-pass produces any patches we use the rewritten source
-        // for the rest of the pipeline so downstream IR lowering sees clean
-        // TypeScript.
-        //
-        // Files without declarative macros take the fast path: discovery
-        // checks for the `@macroforge/core/rules` import and returns empty after
-        // a brief AST scan.
-        let (rewritten, decl_diagnostics) = self.declarative_prepass_oxc(source, file_name)?;
-        let owned_source = rewritten;
-        let source: &str = owned_source.as_deref().unwrap_or(source);
-        let changed_by_decl = owned_source.is_some();
+        let (attribute_rewritten, mut prepass_diagnostics) =
+            self.attributes_prepass_oxc(source, file_name)?;
+        let source: &str = attribute_rewritten.as_deref().unwrap_or(source);
+
+        let mut buildtime = self.buildtime_prepass_oxc(source, file_name)?;
+        prepass_diagnostics.append(&mut buildtime.diagnostics);
+        let source: &str = buildtime.rewritten.as_deref().unwrap_or(source);
+
+        let (declarative_rewritten, decl_diagnostics) =
+            self.declarative_prepass_oxc(source, file_name)?;
+        prepass_diagnostics.extend(decl_diagnostics);
+        let source: &str = declarative_rewritten.as_deref().unwrap_or(source);
+
+        let changed_by_prepass = attribute_rewritten.is_some()
+            || buildtime.rewritten.is_some()
+            || declarative_rewritten.is_some();
 
         let allocator = Allocator::default();
-        let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
-        let parsed = Parser::new(&allocator, source, source_type).parse();
+        let parsed =
+            Parser::new(&allocator, source, crate::source_type::for_path(file_name)).parse();
 
         if !parsed.diagnostics.is_empty() {
-            let context = if changed_by_decl {
-                "Parse error after declarative macro expansion: "
+            let context = if changed_by_prepass {
+                "Parse error after pre-pass expansion: "
             } else {
                 "Parse error: "
             };
             return Err(MacroError::InvalidConfig(format!(
-                "{}{}",
-                context,
-                parsed
-                    .diagnostics
-                    .into_iter()
-                    .map(|diagnostic| diagnostic.to_string())
-                    .collect::<Vec<_>>()
-                    .join("; ")
+                "{context}{}",
+                join_parse_diagnostics(&parsed.diagnostics)
             )));
         }
 
-        let valid_annotations = self.valid_annotation_names(source);
+        let valid_annotations = self.valid_annotation_names(
+            &crate::ts_syn::import_registry::macro_imports_in_comments(
+                &parsed.program.comments,
+                source,
+            ),
+        )?;
         let filter = Some(&valid_annotations);
 
         let items = LoweredItems {
@@ -623,18 +750,17 @@ impl MacroExpander {
         };
 
         if items.is_empty() {
-            // Even with no derive targets, we might have declarative-macro
-            // diagnostics to surface and/or a rewritten source to return.
             return Ok(MacroExpansion {
                 code: source.to_string(),
-                diagnostics: decl_diagnostics,
-                changed: changed_by_decl,
+                diagnostics: prepass_diagnostics,
+                changed: changed_by_prepass,
                 type_output: None,
                 classes: Vec::new(),
                 interfaces: Vec::new(),
                 enums: Vec::new(),
                 type_aliases: Vec::new(),
                 source_mapping: None,
+                buildtime_dependencies: buildtime.dependencies,
             });
         }
 
@@ -650,18 +776,16 @@ impl MacroExpander {
         let (mut collector, mut diagnostics) =
             self.collect_macro_patches_oxc(items, file_name, source);
 
-        // Merge declarative-pass diagnostics with derive-pass diagnostics.
-        diagnostics.extend(decl_diagnostics);
+        prepass_diagnostics.append(&mut diagnostics);
 
         let mut result = self.apply_and_finalize_expansion(
             source,
             &mut collector,
-            &mut diagnostics,
+            &mut prepass_diagnostics,
             items_clone,
         )?;
-        if changed_by_decl {
-            result.changed = true;
-        }
+        result.changed |= changed_by_prepass;
+        result.buildtime_dependencies = buildtime.dependencies;
         Ok(result)
     }
 
@@ -673,7 +797,9 @@ impl MacroExpander {
         let module = parse_ts_module(source)
             .map_err(|e| MacroError::InvalidConfig(format!("Parse error: {:?}", e)))?;
 
-        let valid_annotations = self.valid_annotation_names(source);
+        let valid_annotations = self.valid_annotation_names(
+            &crate::ts_syn::import_registry::macro_imports_in_source(source),
+        )?;
         let filter = Some(&valid_annotations);
 
         let classes = lower_classes(&module, source, filter)
@@ -709,6 +835,7 @@ impl MacroExpander {
                 enums: Vec::new(),
                 type_aliases: Vec::new(),
                 source_mapping: None,
+                buildtime_dependencies: Vec::new(),
             });
         }
 
@@ -748,6 +875,7 @@ impl MacroExpander {
                     enums: Vec::new(),
                     type_aliases: Vec::new(),
                     source_mapping: None,
+                    buildtime_dependencies: Vec::new(),
                 });
             }
         };
@@ -789,7 +917,9 @@ impl MacroExpander {
             }
         };
 
-        let valid_annotations = self.valid_annotation_names(source);
+        let valid_annotations = self.valid_annotation_names(
+            &crate::ts_syn::import_registry::macro_imports_in_source(source),
+        )?;
         let filter = Some(&valid_annotations);
 
         let classes = lower_classes(&module, source, filter)
@@ -970,6 +1100,27 @@ impl MacroExpander {
                 };
                 collector.add_runtime_patches(vec![decorator_removal.clone()]);
                 collector.add_type_patches(vec![decorator_removal]);
+            }
+
+            // A circular alias has no shape to derive from; macros that follow
+            // its references would recurse forever.
+            if let DeriveTargetIR::TypeAlias(alias) = &target.target_ir
+                && let Some(cycle) = self.type_registry.alias_cycle(&alias.name)
+            {
+                diagnostics.push(Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "type alias '{}' is circular ({}); nothing can be derived from it",
+                        alias.name,
+                        cycle.join(" -> ")
+                    ),
+                    span: Some(target.decorator_span),
+                    notes: vec![],
+                    help: Some(
+                        "Break the cycle so the alias resolves to a concrete type".to_string(),
+                    ),
+                });
+                continue;
             }
 
             // Process class-specific patches (field decorators and method body stripping)
@@ -1203,19 +1354,19 @@ impl MacroExpander {
                 // registry is always present (empty when no scan ran) so
                 // macros can call `resolve` unconditionally.
                 ctx.type_registry = self.type_registry.clone();
-                let resolver = crate::host::type_resolver::TypeResolver::new(&self.type_registry);
+                // The file's imports disambiguate type names that several
+                // files declare, for field resolution and for the macros.
+                ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
+                let file_imports = ctx.import_registry.file_import_entries();
+                let resolver = crate::host::type_resolver::TypeResolver::new(
+                    &self.type_registry,
+                    &ctx.file_name,
+                    &file_imports,
+                );
                 ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
                     &ctx.target,
                     &resolver,
                 ));
-
-                // Pass the file's import registry so built-in macros can
-                // disambiguate ambiguous type names against the file's
-                // import sources (e.g. `RecordLink` re-declared in an
-                // aggregator file). External macros got this at line ~1292
-                // already; we now do the same for the built-in dispatch
-                // path so derive macros see the same context.
-                ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
 
                 // Install the fully-enriched context as the active thread-local
                 // so TsStream import-resolution helpers can read it without
@@ -1579,12 +1730,17 @@ impl MacroExpander {
                 // Enrich with type registry (always present; empty when no
                 // pre-scan ran so resolve sites stay unconditional).
                 ctx.type_registry = self.type_registry.clone();
-                let resolver = crate::host::type_resolver::TypeResolver::new(&self.type_registry);
+                ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
+                let file_imports = ctx.import_registry.file_import_entries();
+                let resolver = crate::host::type_resolver::TypeResolver::new(
+                    &self.type_registry,
+                    &ctx.file_name,
+                    &file_imports,
+                );
                 ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
                     &ctx.target,
                     &resolver,
                 ));
-                ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
 
                 crate::ts_syn::context_registry::install_context(ctx.clone());
 
@@ -2027,6 +2183,7 @@ impl MacroExpander {
             enums,
             type_aliases,
             source_mapping,
+            buildtime_dependencies: Vec::new(),
         };
 
         self.enforce_diagnostic_limit(&mut expansion.diagnostics);
@@ -2066,22 +2223,28 @@ impl Default for MacroExpander {
     }
 }
 
-fn flush_trace(file_name: &str, logs: &[String], diagnostics: &mut Vec<Diagnostic>) {
-    let emit = std::env::var("MF_LOG")
+/// Whether `MF_LOG` asks for expansion traces, read once per process.
+static TRACE_ENABLED: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
+    std::env::var("MF_LOG")
         .ok()
-        .is_some_and(|v| matches!(v.as_str(), "trace" | "debug" | "1" | "true"));
-    crate::debug::log_for_file(file_name, "expand", logs);
-    for msg in logs {
-        if emit {
-            diagnostics.push(Diagnostic {
-                level: DiagnosticLevel::Info,
-                message: format!("[trace] {}", msg),
-                span: None,
-                notes: vec![],
-                help: None,
-            });
-        }
+        .is_some_and(|level| matches!(level.as_str(), "trace" | "debug" | "1" | "true"))
+});
+
+/// Records an expansion's trace in the project's debug log and as info
+/// diagnostics, only when `MF_LOG` asks for it: written on every file, the
+/// log would grow without bound.
+fn flush_trace(file_name: &str, logs: &[String], diagnostics: &mut Vec<Diagnostic>) {
+    if !*TRACE_ENABLED {
+        return;
     }
+    crate::debug::log_for_file(file_name, "expand", logs);
+    diagnostics.extend(logs.iter().map(|message| Diagnostic {
+        level: DiagnosticLevel::Info,
+        message: format!("[trace] {message}"),
+        span: None,
+        notes: vec![],
+        help: None,
+    }));
 }
 
 fn is_macro_not_found(result: &MacroResult) -> bool {

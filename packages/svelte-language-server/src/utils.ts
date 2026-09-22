@@ -1,8 +1,8 @@
-import { isEqual, sum, uniqWith } from 'lodash';
-import { FoldingRange, Node } from 'vscode-html-languageservice';
+import { isEqual, sum, uniqWith } from 'lodash-es';
+import { FoldingRange, type Node } from 'vscode-html-languageservice';
 import { Position, Range } from 'vscode-languageserver';
 import { URI } from 'vscode-uri';
-import { Document, TagInformation } from './lib/documents';
+import { Document, type TagInformation } from './lib/documents/index.ts';
 
 type Predicate<T> = (x: T) => boolean;
 

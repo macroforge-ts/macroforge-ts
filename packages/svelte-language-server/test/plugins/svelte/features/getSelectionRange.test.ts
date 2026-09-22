@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import { Position, SelectionRange } from 'vscode-languageserver';
-import { Document } from '../../../../src/lib/documents';
-import { getSelectionRange } from '../../../../src/plugins/svelte/features/getSelectionRanges';
-import { SvelteDocument } from '../../../../src/plugins/svelte/SvelteDocument';
+import { Document } from '../../../../src/lib/documents/index.ts';
+import { getSelectionRange } from '../../../../src/plugins/svelte/features/getSelectionRanges.ts';
+import { SvelteDocument } from '../../../../src/plugins/svelte/SvelteDocument.ts';
 
 describe('SveltePlugin#getSelectionRange', () => {
     const CURSOR = '|';

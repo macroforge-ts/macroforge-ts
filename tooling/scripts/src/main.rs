@@ -45,7 +45,7 @@ fn run_cli(cli: Cli) -> Result<()> {
             unreachable!()
         }
         Some(Commands::Verify(args)) => cli::commands::verify::run(args),
-        Some(Commands::Commit(args)) => cli::commands::commit::run(args),
+        Some(Commands::Bump(args)) => cli::commands::bump::run(args),
         Some(Commands::Manifest(args)) => cli::commands::manifests::run(args),
         Some(Commands::Versions(args)) => cli::commands::versions::run(args),
         Some(Commands::Diagnostics(args)) => cli::commands::diagnostics::run(args),
@@ -57,9 +57,6 @@ fn run_cli(cli: Cli) -> Result<()> {
                 }
                 DocsCommands::ExtractTs { output_dir } => {
                     cli::commands::docs::extract_ts::run(&output_dir)
-                }
-                DocsCommands::BuildBook { output_path } => {
-                    cli::commands::docs::build_book::run(&output_path)
                 }
                 DocsCommands::GenerateReadmes => cli::commands::docs::generate_readmes::run(),
                 DocsCommands::CheckFreshness => cli::commands::docs::check_freshness::run(),
@@ -79,8 +76,6 @@ fn run_cli(cli: Cli) -> Result<()> {
                 }
             }
         }
-        Some(Commands::Expand(args)) => cli::commands::expand::run(args),
-        Some(Commands::Check(args)) => cli::commands::check::run(args),
         Some(Commands::Test(args)) => cli::commands::test::run(args),
         Some(Commands::PublishLocal(args)) => cli::commands::publish_local::run(&args),
         Some(Commands::Push(args)) => cli::commands::push::run(&args),

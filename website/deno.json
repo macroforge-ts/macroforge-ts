@@ -24,8 +24,7 @@
                 "require-await",
                 "no-process-global",
                 "no-node-globals",
-                "no-window",
-                "no-sloppy-imports"
+                "no-window"
             ]
         }
     }

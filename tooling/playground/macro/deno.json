@@ -1,0 +1,16 @@
+{
+    "fmt": {
+        "exclude": [
+            "**/dist",
+            "**/build",
+            "**/node_modules"
+        ],
+        "indentWidth": 4,
+        "lineWidth": 100,
+        "semiColons": true,
+        "singleQuote": true,
+        "trailingCommas": "never",
+        "useTabs": false
+    },
+    "workspace": []
+}

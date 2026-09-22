@@ -1,11 +1,11 @@
 import { readdir, stat } from 'fs/promises';
 import type { Stats } from 'fs';
 import {
-    FileStat,
-    FileSystemProvider as CSSFileSystemProvider,
+    type FileStat,
+    type FileSystemProvider as CSSFileSystemProvider,
     FileType
 } from 'vscode-css-languageservice';
-import { urlToPath } from '../../utils';
+import { urlToPath } from '../../utils.ts';
 
 interface StatLike {
     isDirectory(): boolean;

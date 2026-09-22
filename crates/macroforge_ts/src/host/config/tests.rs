@@ -170,3 +170,25 @@ fn test_parse_buildtime_capabilities_nesting() {
     // Unspecified capability keeps its default.
     assert_eq!(bt.max_heap_mb, 256);
 }
+
+#[test]
+fn edited_config_is_reparsed_under_the_same_path() {
+    let path = "/tmp/edited/macroforge.config.js";
+    CONFIG_CACHE.remove(path);
+    let first =
+        MacroforgeConfigLoader::load_and_cache("export default { keepDecorators: true }", path)
+            .unwrap();
+    assert!(first.keep_decorators);
+    let edited =
+        MacroforgeConfigLoader::load_and_cache("export default { keepDecorators: false }", path)
+            .unwrap();
+    assert!(
+        !edited.keep_decorators,
+        "a changed file must not be served from the cache"
+    );
+    assert_eq!(
+        MacroforgeConfigLoader::get_cached(path).map(|config| config.keep_decorators),
+        Some(false)
+    );
+    CONFIG_CACHE.remove(path);
+}

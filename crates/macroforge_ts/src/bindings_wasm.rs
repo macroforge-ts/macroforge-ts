@@ -1,14 +1,39 @@
+use crate::NativePositionMapper;
 use crate::api::CoreEngine;
 use crate::api_types::{
-    ExpandOptions, ExpandResult, GeneratedRegionResult, MappingSegmentResult, ProcessFileOptions,
-    ScanOptions, SyntaxCheckResult,
+    ExpandOptions, ExpandResult, ProcessFileOptions, ScanOptions, SourceMappingResult,
+    SyntaxCheckResult,
 };
 use crate::manifest::{
     debug_descriptors, debug_get_modules, debug_lookup, get_macro_manifest, get_macro_names,
     is_macro_package,
 };
+#[cfg(feature = "oxc")]
+use serde::Serialize;
 use wasm_bindgen::prelude::*;
 
+/// Whether `code` may contain anything the engine expands. Integrations use
+/// this to skip files without paying for a full expansion.
+#[wasm_bindgen(js_name = "hasMacroAnnotations")]
+pub fn has_macro_annotations(code: &str) -> bool {
+    crate::has_macro_annotations(code)
+}
+
+/// The macros `code` imports through `import macro` JSDoc comments, as macro
+/// name to module.
+#[cfg(feature = "oxc")]
+#[wasm_bindgen(
+    js_name = "macroImports",
+    unchecked_return_type = "Record<string, string>"
+)]
+pub fn macro_imports(code: &str, filepath: &str) -> Result<JsValue, JsValue> {
+    let imports = crate::macro_imports(code, filepath);
+    imports
+        .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
+        .map_err(JsValue::from)
+}
+
+/// Whether `code` parses as TypeScript, with the parse error when it does not.
 #[wasm_bindgen(js_name = "checkSyntax")]
 pub fn check_syntax(code: String, filepath: String) -> Result<JsValue, JsValue> {
     let result = CoreEngine::check_syntax(&code, &filepath).unwrap_or_else(|e| SyntaxCheckResult {
@@ -18,6 +43,7 @@ pub fn check_syntax(code: String, filepath: String) -> Result<JsValue, JsValue> 
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
 }
 
+/// The import declarations of `code`: each imported name with the module it comes from.
 #[wasm_bindgen(js_name = "parseImportSources")]
 pub fn parse_import_sources(code: String, filepath: String) -> Result<JsValue, JsValue> {
     let result =
@@ -25,26 +51,32 @@ pub fn parse_import_sources(code: String, filepath: String) -> Result<JsValue, J
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
 }
 
+/// Names `@derive` so it can be imported. It does nothing at runtime.
 #[wasm_bindgen(js_name = "Derive")]
 pub fn derive_decorator() {}
 
+/// Parses a `macroforge.config.*` file's `content` and caches it under `filepath`.
 #[wasm_bindgen(js_name = "loadConfig")]
 pub fn load_config(content: String, filepath: String) -> Result<JsValue, JsValue> {
     let result = CoreEngine::load_config(&content, &filepath).map_err(|e| JsValue::from_str(&e))?;
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
 }
 
+/// Forgets every config `loadConfig` cached.
 #[wasm_bindgen(js_name = "clearConfigCache")]
 pub fn clear_config_cache() {
     CoreEngine::clear_config_cache();
 }
 
+/// Expands the macros in `code` and returns the result with its metadata.
 #[wasm_bindgen(js_name = "transformSync")]
 pub fn transform_sync(code: String, filepath: String) -> Result<JsValue, JsValue> {
     let result = CoreEngine::transform_sync(code, filepath).map_err(|e| JsValue::from_str(&e))?;
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
 }
 
+/// Expands the macros in `code`, the source of `filepath`, and returns the
+/// expanded code, its type declarations, diagnostics and source mapping.
 #[wasm_bindgen(js_name = "expandSync")]
 pub fn expand_sync(code: String, filepath: String, options: JsValue) -> Result<JsValue, JsValue> {
     let opts: Option<ExpandOptions> = if options.is_null() || options.is_undefined() {
@@ -58,6 +90,8 @@ pub fn expand_sync(code: String, filepath: String, options: JsValue) -> Result<J
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
 }
 
+/// A stateful expander for editor integrations: it caches each file's
+/// expansion by version and maps positions and diagnostics back to the source.
 #[derive(Default)]
 #[wasm_bindgen]
 pub struct NativePlugin {
@@ -72,6 +106,7 @@ struct CachedResult {
 
 #[wasm_bindgen]
 impl NativePlugin {
+    /// Creates a plugin with an empty cache.
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
@@ -79,11 +114,13 @@ impl NativePlugin {
         }
     }
 
+    /// Expands the macros in `code` and returns the result with its metadata.
     #[wasm_bindgen(js_name = "transformSync")]
     pub fn transform_sync(&self, code: String, filepath: String) -> Result<JsValue, JsValue> {
         transform_sync(code, filepath)
     }
 
+    /// Expands the macros in `code`, uncached; see the module-level `expandSync`.
     #[wasm_bindgen(js_name = "expandSync")]
     pub fn expand_sync(
         &self,
@@ -94,6 +131,8 @@ impl NativePlugin {
         expand_sync(code, filepath, options)
     }
 
+    /// Expands `filepath`, reusing the cached result when `options.version`
+    /// matches the version it was last expanded at.
     #[wasm_bindgen(js_name = "processFile")]
     pub fn process_file(
         &self,
@@ -141,40 +180,37 @@ impl NativePlugin {
         serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
     }
 
-    #[wasm_bindgen(js_name = "log")]
-    pub fn log(&self, _message: String) {}
-
+    /// The position mapper for `filepath`'s last expansion, when it produced one.
     #[wasm_bindgen(js_name = "getMapper")]
-    pub fn get_mapper(&self, filepath: String) -> Option<WasmNativeMapper> {
-        let mapping = match self.cache.lock() {
-            Ok(guard) => guard
-                .get(&filepath)
-                .cloned()
-                .and_then(|c| c.result.source_mapping),
-            Err(_) => None,
-        };
-
-        mapping.map(|m| WasmNativeMapper {
-            segments: m.segments,
-            generated_regions: m.generated_regions,
-        })
+    pub fn get_mapper(&self, filepath: String) -> Result<Option<PositionMapper>, JsValue> {
+        let cache = self
+            .cache
+            .lock()
+            .map_err(|err| JsValue::from_str(&format!("expansion cache lock poisoned: {err}")))?;
+        Ok(cache
+            .get(&filepath)
+            .and_then(|cached| cached.result.source_mapping.clone())
+            .map(|mapping| PositionMapper {
+                inner: NativePositionMapper::new(mapping),
+            }))
     }
 
+    /// Moves `diags`, positioned in `filepath`'s expanded code, back onto its source.
     #[wasm_bindgen(js_name = "mapDiagnostics")]
     pub fn map_diagnostics(&self, filepath: String, diags: JsValue) -> Result<JsValue, JsValue> {
         let diags: Vec<crate::api_types::JsDiagnostic> = serde_wasm_bindgen::from_value(diags)?;
 
-        let mapper = self.get_mapper(filepath);
+        let mapper = self.get_mapper(filepath)?;
 
         let mapped: Vec<crate::api_types::JsDiagnostic> = if let Some(m) = mapper {
             diags
                 .into_iter()
                 .map(|mut d| {
                     if let (Some(start), Some(length)) = (d.start, d.length)
-                        && let Some(mapped) = m.map_span_to_original_inner(start, length)
+                        && let Some(mapped) = m.inner.map_span_to_original(start, length)
                     {
-                        d.start = Some(mapped.0);
-                        d.length = Some(mapped.1);
+                        d.start = Some(mapped.start);
+                        d.length = Some(mapped.length);
                     }
                     d
                 })
@@ -187,129 +223,73 @@ impl NativePlugin {
     }
 }
 
-#[wasm_bindgen(js_name = "NativeMapper")]
-pub struct WasmNativeMapper {
-    segments: Vec<MappingSegmentResult>,
-    generated_regions: Vec<GeneratedRegionResult>,
+/// Maps positions between a file's original source and its macro-expanded
+/// code, and tells which macro generated a span.
+#[wasm_bindgen]
+pub struct PositionMapper {
+    inner: NativePositionMapper,
 }
 
-#[wasm_bindgen(js_class = "NativeMapper")]
-impl WasmNativeMapper {
+#[wasm_bindgen]
+impl PositionMapper {
+    /// Creates a mapper from the `sourceMapping` of an expansion result.
+    #[wasm_bindgen(constructor)]
+    pub fn new(mapping: JsValue) -> Result<PositionMapper, JsValue> {
+        let mapping: SourceMappingResult = serde_wasm_bindgen::from_value(mapping)?;
+        Ok(Self {
+            inner: NativePositionMapper::new(mapping),
+        })
+    }
+
+    /// Whether the mapping has no segments and no generated regions.
     #[wasm_bindgen(js_name = "isEmpty")]
     pub fn is_empty(&self) -> bool {
-        self.segments.is_empty() && self.generated_regions.is_empty()
+        self.inner.is_empty()
     }
 
-    #[wasm_bindgen(js_name = "mapSpanToOriginal")]
-    pub fn map_span_to_original(&self, start: u32, length: u32) -> JsValue {
-        match self.map_span_to_original_inner(start, length) {
-            Some((s, l)) => {
-                let obj = js_sys::Object::new();
-                js_sys::Reflect::set(&obj, &"start".into(), &JsValue::from(s)).ok();
-                js_sys::Reflect::set(&obj, &"length".into(), &JsValue::from(l)).ok();
-                obj.into()
-            }
-            None => JsValue::NULL,
-        }
-    }
-
-    #[wasm_bindgen(js_name = "isInGenerated")]
-    pub fn is_in_generated(&self, pos: u32) -> bool {
-        self.generated_regions
-            .iter()
-            .any(|r| pos >= r.start && pos < r.end)
-    }
-
-    #[wasm_bindgen(js_name = "generatedBy")]
-    pub fn generated_by(&self, pos: u32) -> Option<String> {
-        self.generated_regions
-            .iter()
-            .find(|r| pos >= r.start && pos < r.end)
-            .map(|r| r.source_macro.clone())
-    }
-
+    /// The expanded position of the original position `pos`.
     #[wasm_bindgen(js_name = "originalToExpanded")]
     pub fn original_to_expanded(&self, pos: u32) -> u32 {
-        for seg in &self.segments {
-            if pos >= seg.original_start && pos < seg.original_end {
-                let offset = pos - seg.original_start;
-                return seg.expanded_start + offset;
-            }
-        }
-        pos
+        self.inner.original_to_expanded(pos)
     }
 
+    /// The original position of the expanded position `pos`, or `undefined`
+    /// inside generated code.
     #[wasm_bindgen(js_name = "expandedToOriginal")]
     pub fn expanded_to_original(&self, pos: u32) -> Option<u32> {
-        for seg in &self.segments {
-            if pos >= seg.expanded_start && pos < seg.expanded_end {
-                let offset = pos - seg.expanded_start;
-                return Some(seg.original_start + offset);
-            }
-        }
-        None
+        self.inner.expanded_to_original(pos)
     }
 
+    /// The macro that generated the code at expanded position `pos`.
+    #[wasm_bindgen(js_name = "generatedBy")]
+    pub fn generated_by(&self, pos: u32) -> Option<String> {
+        self.inner.generated_by(pos)
+    }
+
+    /// The original span of an expanded span, or `null` when it lies in
+    /// generated code.
+    #[wasm_bindgen(js_name = "mapSpanToOriginal")]
+    pub fn map_span_to_original(&self, start: u32, length: u32) -> Result<JsValue, JsValue> {
+        serde_wasm_bindgen::to_value(&self.inner.map_span_to_original(start, length))
+            .map_err(JsValue::from)
+    }
+
+    /// The expanded span of an original span.
     #[wasm_bindgen(js_name = "mapSpanToExpanded")]
-    pub fn map_span_to_expanded(&self, start: u32, length: u32) -> JsValue {
-        let end = start + length;
-        for seg in &self.segments {
-            if start >= seg.original_start && end <= seg.original_end {
-                let offset = start - seg.original_start;
-                let mapped_start = seg.expanded_start + offset;
-                let obj = js_sys::Object::new();
-                js_sys::Reflect::set(&obj, &"start".into(), &JsValue::from(mapped_start)).ok();
-                js_sys::Reflect::set(&obj, &"length".into(), &JsValue::from(length)).ok();
-                return obj.into();
-            }
-        }
-        // Fallback: return original span
-        let obj = js_sys::Object::new();
-        js_sys::Reflect::set(&obj, &"start".into(), &JsValue::from(start)).ok();
-        js_sys::Reflect::set(&obj, &"length".into(), &JsValue::from(length)).ok();
-        obj.into()
+    pub fn map_span_to_expanded(&self, start: u32, length: u32) -> Result<JsValue, JsValue> {
+        serde_wasm_bindgen::to_value(&self.inner.map_span_to_expanded(start, length))
+            .map_err(JsValue::from)
+    }
+
+    /// Whether expanded position `pos` lies in macro-generated code.
+    #[wasm_bindgen(js_name = "isInGenerated")]
+    pub fn is_in_generated(&self, pos: u32) -> bool {
+        self.inner.is_in_generated(pos)
     }
 }
 
-impl WasmNativeMapper {
-    fn map_span_to_original_inner(&self, start: u32, length: u32) -> Option<(u32, u32)> {
-        let end = start + length;
-        for seg in &self.segments {
-            if start >= seg.expanded_start && end <= seg.expanded_end {
-                let offset = start - seg.expanded_start;
-                let mapped_start = seg.original_start + offset;
-                return Some((mapped_start, length));
-            }
-        }
-        None
-    }
-}
-
-/// Stub kept for API parity with the NAPI build: the constructor ignores
-/// its argument and both mapping methods always return `null`. WASM
-/// callers should use `NativeMapper` (from `processFile`'s plugin flow)
-/// for real position mapping.
-#[wasm_bindgen]
-pub struct NativePositionMapper {}
-
-#[wasm_bindgen]
-impl NativePositionMapper {
-    #[wasm_bindgen(constructor)]
-    pub fn new(_mapping: JsValue) -> Self {
-        Self {}
-    }
-
-    #[wasm_bindgen(js_name = "mapToOriginal")]
-    pub fn map_to_original(&self, _line: u32, _column: u32) -> JsValue {
-        JsValue::NULL
-    }
-
-    #[wasm_bindgen(js_name = "mapToExpanded")]
-    pub fn map_to_expanded(&self, _line: u32, _column: u32) -> JsValue {
-        JsValue::NULL
-    }
-}
-
+/// Scans the project under `root_dir` and returns its type registry and
+/// declarative macro registry as JSON.
 #[wasm_bindgen(js_name = "scanProjectSync")]
 pub fn scan_project_sync(root_dir: String, options: JsValue) -> Result<JsValue, JsValue> {
     let opts: Option<ScanOptions> = if options.is_null() || options.is_undefined() {
@@ -323,45 +303,50 @@ pub fn scan_project_sync(root_dir: String, options: JsValue) -> Result<JsValue, 
     serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
 }
 
-/// Phase 17 — scan cache invalidation. WASM cannot access the
-/// filesystem, so there is no scan cache to invalidate on that
-/// target. These shims are here so the JS side of the plugin can
-/// call them uniformly across NAPI and WASM backends.
+/// Drops `path` from the project scan cache and returns whether it was
+/// cached. A wasm32 build rescans on every call, so it has nothing to drop.
 #[wasm_bindgen(js_name = "invalidateScanCacheEntry")]
 pub fn invalidate_scan_cache_entry_wasm(path: String) -> bool {
     CoreEngine::invalidate_scan_cache_entry(&path)
 }
 
+/// Empties the project scan cache; a wasm32 build keeps none.
 #[wasm_bindgen(js_name = "clearScanCache")]
 pub fn clear_scan_cache_wasm() {
     CoreEngine::clear_scan_cache();
 }
 
+/// The built-in macros and decorators this engine provides.
 #[wasm_bindgen(js_name = "__macroforgeGetManifest")]
 pub fn get_macro_manifest_wasm() -> Result<JsValue, JsValue> {
     serde_wasm_bindgen::to_value(&get_macro_manifest()).map_err(|e| e.into())
 }
 
+/// Marks this module as a macroforge macro package.
 #[wasm_bindgen(js_name = "__macroforgeIsMacroPackage")]
 pub fn is_macro_package_wasm() -> bool {
     is_macro_package()
 }
 
+/// The names of the built-in macros.
 #[wasm_bindgen(js_name = "__macroforgeGetMacroNames")]
 pub fn get_macro_names_wasm() -> Result<JsValue, JsValue> {
     serde_wasm_bindgen::to_value(&get_macro_names()).map_err(|e| e.into())
 }
 
+/// Debugging aid: the modules that registered macros.
 #[wasm_bindgen(js_name = "__macroforgeDebugGetModules")]
 pub fn debug_get_modules_wasm() -> Result<JsValue, JsValue> {
     serde_wasm_bindgen::to_value(&debug_get_modules()).map_err(|e| e.into())
 }
 
+/// Debugging aid: describes how the macro `name` in `module` resolves.
 #[wasm_bindgen(js_name = "__macroforgeDebugLookup")]
 pub fn debug_lookup_wasm(module: String, name: String) -> String {
     debug_lookup(module, name)
 }
 
+/// Debugging aid: every registered macro descriptor.
 #[wasm_bindgen(js_name = "__macroforgeDebugDescriptors")]
 pub fn debug_descriptors_wasm() -> Result<JsValue, JsValue> {
     serde_wasm_bindgen::to_value(&debug_descriptors()).map_err(|e| e.into())

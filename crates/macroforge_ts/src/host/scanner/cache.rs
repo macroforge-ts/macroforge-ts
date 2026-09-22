@@ -67,6 +67,8 @@ pub struct CacheEntry {
     /// Names exported from the file — used by the scanner's
     /// `exported_only` filter.
     pub exported_names: HashSet<String>,
+    /// Whether the file contains anything the engine expands.
+    pub uses_macros: bool,
 }
 
 /// Project-wide scan cache keyed by absolute file path.
@@ -183,6 +185,7 @@ mod tests {
             declarative_macros: Vec::new(),
             file_imports: Vec::new(),
             exported_names: HashSet::new(),
+            uses_macros: false,
         }
     }
 

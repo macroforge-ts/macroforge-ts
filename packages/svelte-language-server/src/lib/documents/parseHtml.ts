@@ -1,14 +1,14 @@
 import {
     getLanguageService,
-    HTMLDocument,
-    Node,
+    type HTMLDocument,
+    type Node,
     Position,
-    Scanner,
+    type Scanner,
     ScannerState,
     TokenType
 } from 'vscode-html-languageservice';
-import { Document } from './Document';
-import { isInsideMoustacheTag } from './utils';
+import { Document } from './Document.ts';
+import { isInsideMoustacheTag } from './utils.ts';
 
 const parser = getLanguageService();
 

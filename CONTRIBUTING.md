@@ -9,8 +9,8 @@ crates/                          # Rust workspace
   macroforge_ts_quote/           # ts_quote! and ts_template! macros
   macroforge_ts_macros/          # #[ts_macro_derive] proc macro
   extensions/
-    svelte-macroforge/           # Zed editor extension
-    vtsls-macroforge/            # Language server extension
+    svelte_macroforge/           # Zed editor extension
+    vtsls_macroforge/            # Language server extension
 packages/                        # NPM packages (TypeScript/Deno)
   vite-plugin/                   # Vite integration
   typescript-plugin/             # TypeScript language service plugin
@@ -152,7 +152,14 @@ trait and is registered via `inventory`. See the existing `Debug` or `Clone` mac
 
 ```bash
 pixi run diagnostics         # Run project diagnostics
-pixi run verify              # Check release readiness
 pixi run docs:all            # Generate all documentation
 pixi run scripts             # Interactive TUI dashboard
+```
+
+A release runs three commands in order:
+
+```bash
+pixi run verify              # Build, check, test and regenerate the docs
+pixi run bump                # Raise the versions and everything stamped with them
+pixi run publish             # Publish to npm, JSR and crates.io
 ```

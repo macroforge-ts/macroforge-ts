@@ -8,9 +8,13 @@ import {
     TextEdit,
     WorkspaceEdit
 } from 'vscode-languageserver';
-import { isRangeInTag, TagInformation, updateRelativeImport } from '../../../../lib/documents';
-import { pathToUrl } from '../../../../utils';
-import { SvelteDocument } from '../../SvelteDocument';
+import {
+    isRangeInTag,
+    type TagInformation,
+    updateRelativeImport
+} from '../../../../lib/documents/index.ts';
+import { pathToUrl } from '../../../../utils.ts';
+import { SvelteDocument } from '../../SvelteDocument.ts';
 
 export interface ExtractComponentArgs {
     uri: string;

@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { guessTabSize } from '../../src/lib/foldingRange/indentFolding';
+import { guessTabSize } from '../../src/lib/foldingRange/indentFolding.ts';
 
 describe('indent based folding', () => {
     it('can guess tab size', () => {

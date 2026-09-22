@@ -1,11 +1,15 @@
 import ts from 'typescript';
-import { ensureRealSvelteFilePath, isVirtualSvelteFilePath, toRealSvelteFilePath } from './utils';
-import { FileMap } from '../../lib/documents/fileCollection';
+import {
+    ensureRealSvelteFilePath,
+    isVirtualSvelteFilePath,
+    toRealSvelteFilePath
+} from './utils.ts';
+import { FileMap } from '../../lib/documents/fileCollection.ts';
 
 /**
  * This should only be accessed by TS svelte module resolution.
  */
-export function createSvelteSys(tsSystem: ts.System) {
+function createSvelteSys(tsSystem: ts.System) {
     const fileExistsCache = new FileMap<boolean>();
 
     function svelteFileExists(path: string) {
@@ -94,3 +98,6 @@ export function createSvelteSys(tsSystem: ts.System) {
 
     return svelteSys;
 }
+
+/** Creates the file system TS module resolution sees; replaceable as a whole. */
+export const svelteSysFactory = { createSvelteSys };

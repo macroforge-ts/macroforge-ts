@@ -5,14 +5,17 @@ import {
     getLineAtPosition,
     getNodeIfIsInComponentStartTag,
     isInTag
-} from '../../../lib/documents';
-import { ComponentInfoProvider, JsOrTsComponentInfoProvider } from '../ComponentInfoProvider';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { or } from '../../../utils';
-import { FileMap } from '../../../lib/documents/fileCollection';
-import { LSConfig } from '../../../ls-config';
-import { LanguageServiceContainer } from '../service';
+} from '../../../lib/documents/index.ts';
+import {
+    type ComponentInfoProvider,
+    JsOrTsComponentInfoProvider
+} from '../ComponentInfoProvider.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { or } from '../../../utils.ts';
+import { FileMap } from '../../../lib/documents/fileCollection.ts';
+import type { LSConfig } from '../../../ls-config.ts';
+import type { LanguageServiceContainer } from '../service.ts';
 import { internalHelpers } from 'svelte2tsx';
 
 type NodePredicate = (node: ts.Node) => boolean;

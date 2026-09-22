@@ -3,6 +3,7 @@
 pub mod aggregator;
 pub mod clippy;
 pub mod deno_lint;
+pub mod discovery;
 pub mod runner;
 pub mod svelte;
 pub mod tsc;

@@ -63,7 +63,7 @@
 
 <p>Get the position mapper for a previously processed file:</p>
 
-<CodeBlock code={`getMapper(filepath: string): NativeMapper | null`} lang="typescript" />
+<CodeBlock code={`getMapper(filepath: string): PositionMapper | undefined`} lang="typescript" />
 
 <h3>mapDiagnostics()</h3>
 

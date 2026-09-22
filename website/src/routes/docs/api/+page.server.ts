@@ -1,4 +1,4 @@
-import { getVersion, loadRustCrate } from '$lib/server/api-docs';
+import { getVersion, loadRustCrate } from '$lib/server/api-docs.ts';
 
 export async function load() {
     const crate = loadRustCrate('macroforge_ts');

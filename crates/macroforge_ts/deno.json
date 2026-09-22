@@ -37,6 +37,7 @@
             "pkg/",
             "pkg/macroforge_ts_bg.wasm",
             "js/buildtime/",
+            "js/rules/",
             "js/serde/",
             "js/traits/",
             "deno.json",
@@ -44,5 +45,5 @@
             "README.md"
         ]
     },
-    "version": "0.2.0"
+    "version": "0.3.0"
 }

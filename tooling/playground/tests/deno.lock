@@ -3,7 +3,10 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.13",
-    "npm:@playwright/test@^1.59.0": "1.59.1",
+    "npm:@macroforge/core@*": "0.2.0",
+    "npm:@macroforge/typescript-plugin@*": "0.2.0_typescript@5.9.3",
+    "npm:@macroforge/vite-plugin@*": "0.2.0_typescript@5.9.3_vite@7.2.7",
+    "npm:@playwright/test@^1.63.0": "1.63.0",
     "npm:@vtsls/language-server@~0.2.9": "0.2.9",
     "npm:typescript@5": "5.9.3",
     "npm:typescript@^5.9.3": "5.9.3",
@@ -151,8 +154,35 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@playwright/test@1.59.1": {
-      "integrity": "sha512-PG6q63nQg5c9rIi4/Z5lR5IVF7yU5MqmKaPOe0HSc0O2cX1fPi96sUQu5j7eo4gKCkB2AnNGoWt7y4/Xx3Kcqg==",
+    "@jridgewell/sourcemap-codec@1.6.0": {
+      "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="
+    },
+    "@macroforge/core@0.2.0": {},
+    "@macroforge/shared@0.2.0": {},
+    "@macroforge/typescript-plugin@0.2.0_typescript@5.9.3": {
+      "dependencies": [
+        "@macroforge/core",
+        "@macroforge/shared",
+        "typescript@5.9.3"
+      ],
+      "optionalPeers": [
+        "typescript@5.9.3"
+      ]
+    },
+    "@macroforge/vite-plugin@0.2.0_typescript@5.9.3_vite@7.2.7": {
+      "dependencies": [
+        "@jridgewell/sourcemap-codec",
+        "@macroforge/core",
+        "@macroforge/shared",
+        "typescript@5.9.3",
+        "vite"
+      ],
+      "optionalPeers": [
+        "typescript@5.9.3"
+      ]
+    },
+    "@playwright/test@1.63.0": {
+      "integrity": "sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==",
       "dependencies": [
         "playwright"
       ],
@@ -356,11 +386,6 @@
         "picomatch"
       ]
     },
-    "fsevents@2.3.2": {
-      "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
-      "os": ["darwin"],
-      "scripts": true
-    },
     "fsevents@2.3.3": {
       "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==",
       "os": ["darwin"],
@@ -385,17 +410,14 @@
     "picomatch@4.0.4": {
       "integrity": "sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A=="
     },
-    "playwright-core@1.59.1": {
-      "integrity": "sha512-HBV/RJg81z5BiiZ9yPzIiClYV/QMsDCKUyogwH9p3MCP6IYjUFu/MActgYAvK0oWyV9NlwM3GLBjADyWgydVyg==",
+    "playwright-core@1.63.0": {
+      "integrity": "sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==",
       "bin": true
     },
-    "playwright@1.59.1": {
-      "integrity": "sha512-C8oWjPR3F81yljW9o5OxcWzfh6avkVwDD2VYdwIGqTkl+OGFISgypqzfu7dOe4QNLL2aqcWBmI3PMtLIK233lw==",
+    "playwright@1.63.0": {
+      "integrity": "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==",
       "dependencies": [
         "playwright-core"
-      ],
-      "optionalDependencies": [
-        "fsevents@2.3.2"
       ],
       "bin": true
     },
@@ -438,7 +460,7 @@
         "@rollup/rollup-win32-ia32-msvc",
         "@rollup/rollup-win32-x64-gnu",
         "@rollup/rollup-win32-x64-msvc",
-        "fsevents@2.3.3"
+        "fsevents"
       ],
       "bin": true
     },
@@ -478,7 +500,7 @@
         "tinyglobby"
       ],
       "optionalDependencies": [
-        "fsevents@2.3.3"
+        "fsevents"
       ],
       "bin": true
     },
@@ -519,11 +541,48 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@playwright/test@^1.59.0",
+        "npm:@macroforge/core@*",
+        "npm:@macroforge/typescript-plugin@*",
+        "npm:@macroforge/vite-plugin@*",
+        "npm:@playwright/test@^1.63.0",
         "npm:@vtsls/language-server@~0.2.9",
         "npm:typescript@5",
         "npm:vite@~7.2.6"
       ]
+    },
+    "links": {
+      "npm:@macroforge/core@0.2.0": {},
+      "npm:@macroforge/shared@0.2.0": {},
+      "npm:@macroforge/typescript-plugin@0.2.0": {
+        "dependencies": [
+          "npm:@macroforge/core@0.2.0",
+          "npm:@macroforge/shared@0.2.0"
+        ],
+        "peerDependencies": [
+          "npm:typescript@>=5.0.0"
+        ],
+        "peerDependenciesMeta": {
+          "typescript": {
+            "optional": true
+          }
+        }
+      },
+      "npm:@macroforge/vite-plugin@0.2.0": {
+        "dependencies": [
+          "npm:@jridgewell/sourcemap-codec@^1.6.0",
+          "npm:@macroforge/core@0.2.0",
+          "npm:@macroforge/shared@0.2.0"
+        ],
+        "peerDependencies": [
+          "npm:typescript@>=5.0.0",
+          "npm:vite@5 || 6 || 7 || 8"
+        ],
+        "peerDependenciesMeta": {
+          "typescript": {
+            "optional": true
+          }
+        }
+      }
     }
   }
 }

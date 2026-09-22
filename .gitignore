@@ -1,5 +1,7 @@
 # Build output
 **/target/
+# npm packages built by tooling/npm/build.ts; published from here.
+/npm/
 **/dist/
 **/build/
 **/coverage/
@@ -23,8 +25,7 @@ tooling/playground/macro/pkg-wasm/
 **/node_modules/
 **/.pnpm-store/
 **/.pixi/
-# Symlinks into this checkout, created by tooling/playground/setup-vendor.sh.
-tooling/playground/vendor/
+# Symlinks into this checkout, created by the macro crate's `setup-vendor` task.
 tooling/playground/macro/vendor/
 
 # Per-project macroforge state: registries, cache, lock and debug log. The

@@ -2,14 +2,14 @@ import * as assert from 'assert';
 import * as path from 'path';
 import ts from 'typescript';
 import { Location, Position, Range } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { FindFileReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FindFileReferencesProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { FindFileReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FindFileReferencesProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 
 describe('FindFileReferencesProvider', function () {
     serviceWarmup(this, testDir);

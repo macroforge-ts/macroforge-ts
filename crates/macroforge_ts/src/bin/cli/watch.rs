@@ -14,6 +14,7 @@ use crate::cache::{
     write_cache_file,
 };
 use crate::lock::ProjectLock;
+use crate::wrappers::refresh_type_registry;
 
 // =========================================================================
 // Macro source watching: discover, detect build system, rebuild
@@ -239,10 +240,9 @@ fn gitignore_watch_dirs(root: &Path, cache_dir: &Path) -> Vec<PathBuf> {
 /// burst gives the same protection with a delay of one burst instead.
 pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
     let (cache_dir, mut manifest) = init_cache(root, "watch")?;
-    {
-        let _lock = ProjectLock::acquire(root, "watch", false)?;
-        warm_cache("watch", root, &cache_dir, &mut manifest)?;
-    }
+    let lock = ProjectLock::acquire(root, "watch", false)?;
+    warm_cache("watch", root, &cache_dir, &mut manifest)?;
+    drop(lock);
 
     // Discover macro source packages and watch them
     let macro_sources = discover_macro_sources(root);
@@ -304,8 +304,9 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                         "[macroforge watch] Watch backend requested a rescan \
                          (event queue overflow) — resyncing against content hashes"
                     );
-                    let _lock = ProjectLock::acquire(root, "watch", false)?;
+                    let lock = ProjectLock::acquire(root, "watch", false)?;
                     warm_cache("watch", root, &cache_dir, &mut manifest)?;
+                    drop(lock);
                     continue;
                 }
 
@@ -415,10 +416,11 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                                 "[macroforge watch] Macro '{}' rebuilt, re-expanding all files...",
                                 macro_info.name
                             );
-                            let _lock = ProjectLock::acquire(root, "watch", false)?;
+                            let lock = ProjectLock::acquire(root, "watch", false)?;
                             manifest.entries.clear();
                             macroforge_ts::host::clear_config_cache();
                             warm_cache("watch", root, &cache_dir, &mut manifest)?;
+                            drop(lock);
                         }
                         Err(e) => {
                             eprintln!("[macroforge watch] Macro rebuild failed: {}", e);
@@ -427,7 +429,10 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                 } else if config_changed {
                     use rayon::prelude::*;
 
-                    let _lock = ProjectLock::acquire(root, "watch", false)?;
+                    let lock = ProjectLock::acquire(root, "watch", false)?;
+                    if let Err(err) = refresh_type_registry(root) {
+                        eprintln!("[macroforge watch] {err:#}");
+                    }
 
                     let new_config_hash = compute_config_hash(root);
                     manifest.config_hash = new_config_hash;
@@ -500,9 +505,14 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                         }
                     }
                     manifest.save(&cache_dir)?;
+                    drop(lock);
                     eprintln!("[macroforge watch] Re-expanded {} files", count);
                 } else if !changed_files.is_empty() {
-                    let _lock = ProjectLock::acquire(root, "watch", false)?;
+                    let lock = ProjectLock::acquire(root, "watch", false)?;
+                    // The edits can change types other files resolve against.
+                    if let Err(err) = refresh_type_registry(root) {
+                        eprintln!("[macroforge watch] {err:#}");
+                    }
 
                     for file_path in &changed_files {
                         let rel_path = file_path
@@ -518,7 +528,14 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                                 manifest.entries.remove(&rel_path);
                                 // Remove cached file too
                                 let cache_path = cache_dir.join(format!("{rel_path}.cache"));
-                                let _ = fs::remove_file(&cache_path);
+                                match fs::remove_file(&cache_path) {
+                                    Ok(()) => {}
+                                    Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+                                    Err(err) => eprintln!(
+                                        "[macroforge watch] failed to remove {}: {err}",
+                                        cache_path.display()
+                                    ),
+                                }
                                 eprintln!("  [-] {} (removed)", rel_path);
                                 continue;
                             }
@@ -591,6 +608,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                         }
                     }
                     manifest.save(&cache_dir)?;
+                    drop(lock);
                 }
             }
             Err(errors) => {

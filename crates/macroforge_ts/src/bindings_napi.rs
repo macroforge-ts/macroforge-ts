@@ -6,6 +6,21 @@ use crate::api_types::{
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 
+/// Whether `code` may contain anything the engine expands. Integrations use
+/// this to skip files without paying for a full expansion.
+#[napi]
+pub fn has_macro_annotations(code: String) -> bool {
+    crate::has_macro_annotations(&code)
+}
+
+/// The macros `code` imports through `import macro` JSDoc comments, as macro
+/// name to module.
+#[cfg(feature = "oxc")]
+#[napi]
+pub fn macro_imports(code: String, filepath: String) -> std::collections::HashMap<String, String> {
+    crate::macro_imports(&code, &filepath)
+}
+
 #[napi]
 pub fn check_syntax(code: String, filepath: String) -> SyntaxCheckResult {
     CoreEngine::check_syntax(&code, &filepath).unwrap_or_else(|e| SyntaxCheckResult {

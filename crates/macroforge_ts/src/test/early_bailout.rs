@@ -579,3 +579,81 @@ export interface NullableControllers<_T> {
         );
     }
 }
+
+#[test]
+fn has_macro_annotations_recognises_every_kind_of_macro() {
+    use crate::expand_core::has_macro_annotations;
+
+    let expanding = [
+        ("single-line derive", "/** @derive(Debug) */\nclass X {}"),
+        (
+            "multi-line derive",
+            "/**\n * @derive(Debug, Clone)\n */\nclass X {}",
+        ),
+        (
+            "derive after a description",
+            "/**\n * A user class.\n * @derive(Debug)\n */\nclass User {}",
+        ),
+        ("buildtime", "/** @buildtime */\nconst ANSWER = 6 * 7;"),
+        (
+            "attribute macro",
+            "/** @nonExhaustive */\nexport type Status = 'on' | 'off';",
+        ),
+        (
+            "cfg",
+            "/** @cfg({ feature: \"beta\" }) */\nexport function beta() {}",
+        ),
+        (
+            "imported call macro",
+            "import { $vec } from \"@macros/vec\";\nconst v = $vec(1, 2);",
+        ),
+        (
+            "import macro comment",
+            "/** import macro { $vec } from \"./vec\"; */\nconst v = $vec(1);",
+        ),
+    ];
+    for (kind, source) in expanding {
+        assert!(
+            has_macro_annotations(source),
+            "{kind} must reach the engine"
+        );
+    }
+
+    let skipped = [
+        ("no macros", "class X { name: string; }"),
+        (
+            "derive in prose",
+            "/** Deserialize result format from @derive(Deserialize) */\nexport type R = 1;",
+        ),
+        (
+            "derive in a fenced example",
+            "/**\n * @example\n * ```typescript\n * // @derive(Debug)\n * class Foo {}\n * ```\n */\nexport class Bar {}",
+        ),
+        ("template literal", "const label = `${count} items`;"),
+    ];
+    for (kind, source) in skipped {
+        assert!(!has_macro_annotations(source), "{kind} must be skipped");
+    }
+}
+
+#[test]
+fn declarative_macros_expand_in_tsx_files() {
+    let source = r#"import { macroRules } from "@macroforge/core/rules";
+const $pair = macroRules`
+  ($a:expr, $b:expr) => [$a, $b]
+`;
+export const view = <div>{$pair(1, 2)}</div>;
+"#;
+    let expansion = expand_test_file(source, "view.tsx");
+    assert!(expansion.changed, "the .tsx file should be rewritten");
+    assert!(
+        !expansion.code.contains("$pair("),
+        "the call site should be expanded:\n{}",
+        expansion.code
+    );
+    assert!(
+        expansion.code.contains("<div>"),
+        "JSX must survive:\n{}",
+        expansion.code
+    );
+}

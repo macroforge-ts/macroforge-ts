@@ -1,14 +1,22 @@
 //! Documentation commands
 
-pub mod build_book;
 pub mod check_freshness;
 pub mod extract_rust;
 pub mod extract_ts;
 pub mod generate_readmes;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
+
+/// Regenerate the website's API documentation data.
+pub fn extract_api_docs(root: &Path) -> Result<()> {
+    extract_rust::run(&root.join("website/static/api-data/rust"))
+        .context("Failed to extract the Rust API docs")?;
+    extract_ts::run(&root.join("website/static/api-data/typescript"))
+        .context("Failed to extract the TypeScript API docs")?;
+    Ok(())
+}
 
 /// Strip the `"generated"` timestamp field from JSON content, so a comparison
 /// sees the documentation rather than when it was extracted.

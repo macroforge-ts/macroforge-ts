@@ -1,10 +1,13 @@
 import * as assert from 'assert';
 import { Position } from 'vscode-languageserver';
-import { getHoverInfo } from '../../../../src/plugins/svelte/features/getHoverInfo';
-import { SvelteDocument } from '../../../../src/plugins/svelte/SvelteDocument';
-import { documentation, SvelteTag } from '../../../../src/plugins/svelte/features/SvelteTags';
-import { Document } from '../../../../src/lib/documents';
-import { getModifierData } from '../../../../src/plugins/svelte/features/getModifierData';
+import { getHoverInfo } from '../../../../src/plugins/svelte/features/getHoverInfo.ts';
+import { SvelteDocument } from '../../../../src/plugins/svelte/SvelteDocument.ts';
+import {
+    documentation,
+    type SvelteTag
+} from '../../../../src/plugins/svelte/features/SvelteTags.ts';
+import { Document } from '../../../../src/lib/documents/index.ts';
+import { getModifierData } from '../../../../src/plugins/svelte/features/getModifierData.ts';
 
 describe('SveltePlugin#getHoverInfo', () => {
     function expectHoverInfoFor(content: string, position: Position) {

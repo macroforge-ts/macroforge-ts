@@ -1,4 +1,4 @@
-import { SvelteDocument } from '../SvelteDocument';
+import { SvelteDocument } from '../SvelteDocument.ts';
 
 /**
  * Special svelte syntax tags that do template logic.

@@ -3,23 +3,18 @@
         "url": "https://gitlab.com/macroforge-ts/macroforge-ts/-/issues"
     },
     "dependencies": {
-        "@macroforge/core": "^0.2.0",
-        "@macroforge/shared": "^0.2.0"
+        "@macroforge/core": "0.3.0",
+        "@macroforge/shared": "0.3.0"
     },
     "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
     "devDependencies": {
+        "@types/node": "^26.6.2",
         "svelte": "^5.57.1",
         "typescript": "^5.9.3"
     },
     "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "types": "./dist/index.d.ts"
-        }
+        ".": "./src/index.ts"
     },
-    "files": [
-        "dist"
-    ],
     "homepage": "https://macroforge.dev",
     "keywords": [
         "svelte",
@@ -30,7 +25,6 @@
         "sveltekit"
     ],
     "license": "MIT",
-    "main": "dist/index.js",
     "name": "@macroforge/svelte-preprocessor",
     "peerDependencies": {
         "svelte": "^5.0.0"
@@ -41,12 +35,9 @@
         "url": "git+https://gitlab.com/macroforge-ts/macroforge-ts.git"
     },
     "scripts": {
-        "build": "deno install --node-modules-dir --quiet && deno run -A npm:typescript@5/tsc -p tsconfig.json",
-        "clean": "rm -rf dist",
-        "cleanbuild": "deno task clean && deno task build",
+        "build": "deno run -A ../../tooling/npm/build.ts svelte-preprocessor",
         "test": "deno test --allow-read --allow-env --allow-write --unstable-detect-cjs tests/"
     },
     "type": "module",
-    "types": "dist/index.d.ts",
-    "version": "0.2.0"
+    "version": "0.3.0"
 }

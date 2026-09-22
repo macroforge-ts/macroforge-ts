@@ -3,8 +3,19 @@
 use super::aggregator::DiagnosticAggregator;
 use super::{clippy, deno_lint, svelte, tsc};
 use crate::core::shell;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::path::Path;
+
+/// What a run does about formatting before the other tools.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum Formatting {
+    #[default]
+    Skip,
+    /// Rewrite unformatted files, for local use.
+    Fix,
+    /// Fail on unformatted files, for gates that must not edit the tree.
+    Check,
+}
 
 /// Tools to run
 #[derive(Debug, Clone, Default)]
@@ -13,18 +24,18 @@ pub struct DiagnosticOptions {
     pub clippy: bool,
     pub tsc: bool,
     pub svelte: bool,
-    pub format: bool,
+    pub formatting: Formatting,
 }
 
 impl DiagnosticOptions {
-    /// Enable all tools (format is controlled separately)
+    /// Enable all tools (formatting is controlled separately)
     pub fn all() -> Self {
         Self {
             deno_lint: true,
             clippy: true,
             tsc: true,
             svelte: true,
-            format: false,
+            formatting: Formatting::Skip,
         }
     }
 
@@ -60,106 +71,68 @@ impl DiagnosticsRunner {
         }
     }
 
-    /// Run all enabled diagnostics
+    /// Run all enabled diagnostics. A tool that cannot run is an error: a
+    /// gate that skips a broken tool passes on nothing.
     pub fn run(&self) -> Result<DiagnosticAggregator> {
         let mut aggregator = DiagnosticAggregator::new();
 
-        // Run formatting first if enabled
-        if self.options.format {
-            self.run_formatting();
+        match self.options.formatting {
+            Formatting::Skip => {}
+            Formatting::Fix => self.format(false)?,
+            Formatting::Check => self.format(true)?,
         }
 
         if self.options.deno_lint {
             eprintln!("Running deno lint...");
-            match deno_lint::find_js_projects(&self.root) {
-                Ok(projects) => {
-                    let project_refs: Vec<&Path> = projects.iter().map(|p| p.as_path()).collect();
-                    match deno_lint::run(&self.root, &project_refs) {
-                        Ok(diags) => aggregator.add_all(diags),
-                        Err(e) => eprintln!("deno lint failed: {}", e),
-                    }
-                }
-                Err(e) => eprintln!("Failed to find JS/TS projects: {}", e),
-            }
+            aggregator.add_all(deno_lint::run(&self.root).context("deno lint failed")?);
         }
 
         if self.options.clippy {
             eprintln!("Running clippy...");
-            match clippy::find_rust_projects(&self.root) {
-                Ok(projects) => {
-                    let project_refs: Vec<&Path> = projects.iter().map(|p| p.as_path()).collect();
-                    match clippy::run(&self.root, &project_refs) {
-                        Ok(diags) => aggregator.add_all(diags),
-                        Err(e) => eprintln!("Clippy failed: {}", e),
-                    }
-                }
-                Err(e) => eprintln!("Failed to find Rust projects: {}", e),
-            }
+            aggregator.add_all(clippy::run(&self.root).context("clippy failed")?);
         }
 
         if self.options.tsc {
             eprintln!("Running TypeScript checks...");
-            match tsc::find_tsconfigs(&self.root) {
-                Ok(tsconfigs) => {
-                    let tsconfig_refs: Vec<&Path> = tsconfigs.iter().map(|p| p.as_path()).collect();
-                    match tsc::run(&self.root, &tsconfig_refs) {
-                        Ok(diags) => aggregator.add_all(diags),
-                        Err(e) => eprintln!("TypeScript check failed: {}", e),
-                    }
-                }
-                Err(e) => eprintln!("Failed to find tsconfig.json files: {}", e),
-            }
+            let tsconfigs = tsc::find_tsconfigs(&self.root)?;
+            let tsconfig_refs: Vec<&Path> = tsconfigs.iter().map(|path| path.as_path()).collect();
+            aggregator.add_all(tsc::run(&self.root, &tsconfig_refs)?);
         }
 
         if self.options.svelte {
             eprintln!("Running svelte-check...");
-            match svelte::find_svelte_projects(&self.root) {
-                Ok(projects) => {
-                    let project_refs: Vec<&Path> = projects.iter().map(|p| p.as_path()).collect();
-                    match svelte::run(&self.root, &project_refs) {
-                        Ok(diags) => aggregator.add_all(diags),
-                        Err(e) => eprintln!("Svelte check failed: {}", e),
-                    }
-                }
-                Err(e) => eprintln!("Failed to find svelte projects: {}", e),
-            }
+            let projects = svelte::find_svelte_projects(&self.root)?;
+            let project_refs: Vec<&Path> = projects.iter().map(|path| path.as_path()).collect();
+            aggregator.add_all(svelte::run(&self.root, &project_refs)?);
         }
 
         Ok(aggregator)
     }
 
-    /// Run formatting on all projects
-    fn run_formatting(&self) {
-        eprintln!("Formatting projects...");
-
-        // Format JS/TS projects with deno fmt
-        match deno_lint::find_js_projects(&self.root) {
-            Ok(projects) => {
-                for project in &projects {
-                    let rel_path = project.strip_prefix(&self.root).unwrap_or(project);
-                    eprintln!("  deno fmt: {:?}", rel_path);
-                    let config = deno_lint::governing_config(project);
-                    if let Err(e) = shell::deno::deno_fmt(project, &[], config.as_deref()) {
-                        eprintln!("    Failed: {}", e);
-                    }
-                }
-            }
-            Err(e) => eprintln!("Failed to find JS/TS projects for formatting: {}", e),
+    /// Formats, or with `check` verifies the formatting of, the whole tree:
+    /// deno from the root, cargo over the workspace and each excluded crate.
+    fn format(&self, check: bool) -> Result<()> {
+        eprintln!(
+            "{} formatting...",
+            if check { "Checking" } else { "Applying" }
+        );
+        if check {
+            shell::deno::deno_fmt_check(&self.root).context("deno fmt --check failed")?;
+        } else {
+            shell::deno::deno_fmt(&self.root, &[]).context("deno fmt failed")?;
         }
 
-        // Format Rust projects with cargo fmt
-        match clippy::find_rust_projects(&self.root) {
-            Ok(projects) => {
-                for project in &projects {
-                    let rel_path = project.strip_prefix(&self.root).unwrap_or(project);
-                    eprintln!("  cargo fmt: {:?}", rel_path);
-                    if let Err(e) = shell::cargo::fmt(project) {
-                        eprintln!("    Failed: {}", e);
-                    }
-                }
-            }
-            Err(e) => eprintln!("Failed to find Rust projects for formatting: {}", e),
+        let mut rust_roots = vec![self.root.clone()];
+        rust_roots.extend(clippy::excluded_crates(&self.root)?);
+        for rust_root in &rust_roots {
+            let result = if check {
+                shell::cargo::fmt_check(rust_root)
+            } else {
+                shell::cargo::fmt(rust_root)
+            };
+            result.with_context(|| format!("cargo fmt failed in {}", rust_root.display()))?;
         }
+        Ok(())
     }
 }
 

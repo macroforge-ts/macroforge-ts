@@ -231,6 +231,30 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
     );
     let run_macro_js_name = format!("__macroforgeRun{}", options.name);
     let run_macro_js_name_lit = LitStr::new(&run_macro_js_name, Span::call_site());
+    let run_macro_doc = LitStr::new(
+        &format!(
+            " Runs the `{}` macro on a JSON macro context and returns its JSON result.",
+            options.name
+        ),
+        Span::call_site(),
+    );
+    let noop_doc = LitStr::new(
+        &match &options.kind {
+            MacroKindOption::Call => format!(
+                " The `{}` call macro. Calls expand at build time; at runtime it returns its argument.",
+                options.name
+            ),
+            MacroKindOption::Derive => format!(
+                " Names the `{}` derive macro so `@derive({})` can import it. It does nothing at runtime.",
+                options.name, options.name
+            ),
+            MacroKindOption::Attribute => format!(
+                " Names the `@{}` attribute macro so it can be imported. It does nothing at runtime.",
+                options.name
+            ),
+        },
+        Span::call_site(),
+    );
 
     let is_macroforge_ts = std::env::var("CARGO_PKG_NAME")
         .map(|v| v == "macroforge_ts")
@@ -266,16 +290,21 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
         quote! {}
     } else {
         quote! {
+            /// The macros and decorators this package provides.
             #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #get_manifest_js_name)]
-            pub fn get_manifest() -> macroforge_ts::wasm_bindgen::JsValue {
-                macroforge_ts::serde_wasm_bindgen::to_value(&macroforge_ts::get_macro_manifest()).unwrap()
+            pub fn get_manifest() -> Result<macroforge_ts::wasm_bindgen::JsValue, macroforge_ts::wasm_bindgen::JsValue> {
+                macroforge_ts::serde_wasm_bindgen::to_value(&macroforge_ts::get_macro_manifest())
+                    .map_err(macroforge_ts::wasm_bindgen::JsValue::from)
             }
 
+            /// The names of the macros this package provides.
             #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #get_macro_names_js_name)]
-            pub fn get_macro_names() -> macroforge_ts::wasm_bindgen::JsValue {
-                macroforge_ts::serde_wasm_bindgen::to_value(&macroforge_ts::get_macro_names()).unwrap()
+            pub fn get_macro_names() -> Result<macroforge_ts::wasm_bindgen::JsValue, macroforge_ts::wasm_bindgen::JsValue> {
+                macroforge_ts::serde_wasm_bindgen::to_value(&macroforge_ts::get_macro_names())
+                    .map_err(macroforge_ts::wasm_bindgen::JsValue::from)
             }
 
+            /// Marks this package as a macroforge macro package.
             #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #is_macro_package_js_name)]
             pub fn is_macro_package() -> bool {
                 true
@@ -287,16 +316,19 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
         quote! {}
     } else {
         quote! {
+            /// The macros and decorators this package provides.
             #[macroforge_ts::napi_derive::napi(js_name = #get_manifest_js_name)]
             pub fn get_manifest() -> macroforge_ts::host::derived::MacroManifest {
                 macroforge_ts::get_macro_manifest()
             }
 
+            /// The names of the macros this package provides.
             #[macroforge_ts::napi_derive::napi(js_name = #get_macro_names_js_name)]
             pub fn get_macro_names() -> Vec<String> {
                 macroforge_ts::get_macro_names()
             }
 
+            /// Marks this package as a macroforge macro package.
             #[macroforge_ts::napi_derive::napi(js_name = #is_macro_package_js_name)]
             pub fn is_macro_package() -> bool {
                 true
@@ -307,6 +339,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
     // No-op callable exports per target
     let wasm_noop_fn = match &options.kind {
         MacroKindOption::Call => quote! {
+            #[doc = #noop_doc]
             #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #noop_js_name_lit)]
             pub fn #noop_fn_ident(
                 value: macroforge_ts::wasm_bindgen::JsValue,
@@ -315,6 +348,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             }
         },
         MacroKindOption::Derive | MacroKindOption::Attribute => quote! {
+            #[doc = #noop_doc]
             #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #noop_js_name_lit)]
             pub fn #noop_fn_ident() {}
         },
@@ -322,6 +356,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
 
     let napi_noop_fn = match &options.kind {
         MacroKindOption::Call => quote! {
+            #[doc = #noop_doc]
             #[macroforge_ts::napi_derive::napi(
                 js_name = #noop_js_name_lit,
                 ts_args_type = "value?: any",
@@ -330,6 +365,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             pub fn #noop_fn_ident() {}
         },
         MacroKindOption::Derive => quote! {
+            #[doc = #noop_doc]
             #[macroforge_ts::napi_derive::napi(
                 js_name = #noop_js_name_lit,
                 ts_args_type = "...args: any[]",
@@ -338,6 +374,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             pub fn #noop_fn_ident() {}
         },
         MacroKindOption::Attribute => quote! {
+            #[doc = #noop_doc]
             #[macroforge_ts::napi_derive::napi(js_name = #noop_js_name_lit)]
             pub fn #noop_fn_ident() {}
         },
@@ -383,6 +420,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             mod #run_macro_napi_mod_ident {
                 use super::#run_macro_inner_ident;
 
+                #[doc = #run_macro_doc]
                 #[macroforge_ts::napi_derive::napi(js_name = #run_macro_js_name_lit)]
                 pub fn run_macro(context_json: String) -> macroforge_ts::napi::Result<String> {
                     #run_macro_inner_ident(context_json).map_err(|message| {
@@ -406,6 +444,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
                 use super::#run_macro_inner_ident;
                 use macroforge_ts::wasm_bindgen;
 
+                #[doc = #run_macro_doc]
                 #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #run_macro_js_name_lit)]
                 pub fn run_macro_wasm(
                     context_json: String,

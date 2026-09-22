@@ -11,22 +11,22 @@ import {
     Range,
     TextDocumentEdit
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
 import {
     ADD_MISSING_IMPORTS_CODE_ACTION_KIND,
     CodeActionsProviderImpl,
     REMOVE_UNUSED_IMPORTS_CODE_ACTION_KIND,
     SORT_IMPORT_CODE_ACTION_KIND
-} from '../../../../src/plugins/typescript/features/CodeActionsProvider';
-import { CompletionsProviderImpl } from '../../../../src/plugins/typescript/features/CompletionProvider';
-import { DiagnosticCode } from '../../../../src/plugins/typescript/features/DiagnosticsProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { __resetCache } from '../../../../src/plugins/typescript/service';
-import { pathToUrl } from '../../../../src/utils';
-import { recursiveServiceWarmup } from '../test-utils';
+} from '../../../../src/plugins/typescript/features/CodeActionsProvider.ts';
+import { CompletionsProviderImpl } from '../../../../src/plugins/typescript/features/CompletionProvider.ts';
+import { DiagnosticCode } from '../../../../src/plugins/typescript/features/DiagnosticsProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { __resetCache } from '../../../../src/plugins/typescript/service.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { recursiveServiceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 const indent = ' '.repeat(4);
 const isSvelte5Plus = +VERSION.split('.')[0] >= 5;
 

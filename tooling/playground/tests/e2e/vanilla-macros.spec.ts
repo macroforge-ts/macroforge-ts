@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readVanillaSlice } from './vanilla-playground.ts';
 
 test.describe('Vanilla Playground Macro Tests', () => {
     test.beforeEach(async ({ page }) => {
@@ -103,17 +104,11 @@ test.describe('Vanilla Playground Macro Tests', () => {
         await expect(hashCodeResult).toContainText('HashCode');
     });
 
-    test('window.macroTestResults is populated after tests', async ({ page }) => {
+    test('macro test results are published after the tests run', async ({ page }) => {
         await page.click('[data-testid="test-all-macros"]');
         await page.waitForSelector('[data-tests-complete="true"]');
 
-        // Check that the global results object is populated
-        const results = await page.evaluate(() =>
-            (globalThis as unknown as {
-                macroTestResults: { debug?: string; serialize?: string };
-            })
-                .macroTestResults
-        );
+        const results = await readVanillaSlice(page, 'macroTests');
 
         expect(results.debug).toBeDefined();
         expect(typeof results.debug).toBe('string');

@@ -1,17 +1,7 @@
 import ts from 'typescript';
+import { expandSync, hasMacroAnnotations } from '@macroforge/core';
 import type { ExpandOptions } from '@macroforge/shared';
-import { Logger } from '../../logger';
-
-let expandSync: typeof import('@macroforge/core').expandSync | undefined;
-let macroforgeLoadError: Error | undefined;
-
-try {
-    expandSync = require('@macroforge/core').expandSync;
-    Logger.log('macroforge native module loaded successfully');
-} catch (e) {
-    macroforgeLoadError = e as Error;
-    Logger.error('Failed to load macroforge native module:', e);
-}
+import { Logger } from '../../logger.ts';
 
 const DEFAULT_MACRO_NAMES = ['Derive'];
 const DEFAULT_MIXIN_TYPES = ['MacroDebug', 'MacroJSON'];
@@ -91,19 +81,7 @@ export function augmentWithMacroforge(
         return { types: null, code: null, diagnostics: [] };
     }
 
-    // Check if macroforge module loaded successfully
-    if (!expandSync) {
-        if (macroforgeLoadError) {
-            Logger.debug(
-                `Skipping macroforge expansion for ${fileName}: native module not loaded (${macroforgeLoadError.message})`
-            );
-        }
-        return { types: null, code: null, diagnostics: [] };
-    }
-
-    // Basic check if macro is used to avoid invoking rust for every file
-    // This is a heuristic, but expand_sync parses anyway so it's safe
-    if (!sourceText.includes('@')) {
+    if (!hasMacroAnnotations(sourceText)) {
         return { types: null, code: null, diagnostics: [] };
     }
 
@@ -122,18 +100,4 @@ export function augmentWithMacroforge(
 
 function shouldProcess(fileName: string) {
     return FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
-}
-
-/**
- * Check if macroforge native module is available
- */
-export function isMacroforgeAvailable(): boolean {
-    return expandSync !== undefined;
-}
-
-/**
- * Get the macroforge load error if any
- */
-export function getMacroforgeLoadError(): Error | undefined {
-    return macroforgeLoadError;
 }

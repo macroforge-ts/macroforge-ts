@@ -92,9 +92,17 @@ pub use macroforge_ts_syn::config::{
     ForeignTypeAlias, ForeignTypeConfig, ImportInfo, MacroforgeConfig,
 };
 
-/// Global cache for parsed configurations.
-/// Maps config file path to the parsed configuration.
-pub static CONFIG_CACHE: LazyLock<DashMap<String, MacroforgeConfig>> = LazyLock::new(DashMap::new);
+/// A parsed configuration and a fingerprint of the file content it came from.
+#[derive(Debug, Clone)]
+pub struct CachedConfig {
+    pub content_hash: u64,
+    pub config: MacroforgeConfig,
+}
+
+/// Global cache for parsed configurations, keyed by config file path. An entry
+/// is reused only while the file's content matches its fingerprint, so a
+/// long-lived process picks up edits to the config.
+pub static CONFIG_CACHE: LazyLock<DashMap<String, CachedConfig>> = LazyLock::new(DashMap::new);
 
 /// Clear the configuration cache.
 ///

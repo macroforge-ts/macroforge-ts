@@ -2,11 +2,11 @@ import {
     getCSSLanguageService,
     getLESSLanguageService,
     getSCSSLanguageService,
-    ICSSDataProvider,
-    LanguageService,
-    LanguageServiceOptions
+    type ICSSDataProvider,
+    type LanguageService,
+    type LanguageServiceOptions
 } from 'vscode-css-languageservice';
-import { pseudoClass } from './features/svelte-selectors';
+import { pseudoClass } from './features/svelte-selectors.ts';
 
 const customDataProvider: ICSSDataProvider = {
     providePseudoClasses() {

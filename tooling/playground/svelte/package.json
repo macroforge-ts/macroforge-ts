@@ -17,7 +17,7 @@
     },
     "dependencies": {
         "@emotion/weak-memoize": "^0.4.0",
-        "@macroforge/core": "file:../vendor/macroforge_ts",
+        "@macroforge/core": "*",
         "@playground/macro": "file:../macro",
         "effect": "^3.19.4",
         "runed": "^0.36.0",
@@ -26,9 +26,9 @@
     },
     "devDependencies": {
         "@inlang/paraglide-js": "^2.6.0",
-        "@macroforge/shared": "file:../vendor/shared",
-        "@macroforge/svelte-preprocessor": "file:../vendor/svelte-preprocessor",
-        "@macroforge/vite-plugin": "file:../vendor/vite-plugin",
+        "@macroforge/shared": "*",
+        "@macroforge/svelte-preprocessor": "*",
+        "@macroforge/vite-plugin": "*",
         "@sveltejs/adapter-auto": "^7.0.0",
         "@sveltejs/kit": "^2.49.0",
         "@sveltejs/vite-plugin-svelte": "^6.2.1",

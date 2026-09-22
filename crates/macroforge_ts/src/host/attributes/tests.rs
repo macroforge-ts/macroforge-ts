@@ -59,6 +59,28 @@ export function render() {}
 }
 
 #[test]
+fn tags_in_prose_or_examples_are_not_annotations() {
+    let src = r#"
+/**
+ * Returns `null` when `@cfg` stripped the export, and warns like
+ * `@deprecated` would.
+ *
+ * ```ts
+ * @nonExhaustive
+ * ```
+ */
+export function describe() {}
+"#;
+    let out = run(src, &base_config());
+    assert!(
+        out.diagnostics.is_empty(),
+        "unexpected diagnostics: {:?}",
+        out.diagnostics
+    );
+    assert!(out.rewritten.is_none(), "prose must not be rewritten");
+}
+
+#[test]
 fn cfg_keeps_when_feature_present() {
     let src = r#"
 /** @cfg({ feature: 'ssr' }) */

@@ -9,12 +9,12 @@ import {
     Document,
     isInTag,
     mapObjWithRangeToOriginal,
-    TagInformation
-} from '../../../lib/documents';
-import { Logger } from '../../../logger';
-import { CompilerWarningsSettings } from '../../../ls-config';
-import { getLastPartOfPath, moveRangeStartToEndIfNecessary } from '../../../utils';
-import { SvelteDocument, TranspileErrorSource } from '../SvelteDocument';
+    type TagInformation
+} from '../../../lib/documents/index.ts';
+import { Logger } from '../../../logger.ts';
+import type { CompilerWarningsSettings } from '../../../ls-config.ts';
+import { getLastPartOfPath, moveRangeStartToEndIfNecessary } from '../../../utils.ts';
+import { SvelteDocument, TranspileErrorSource } from '../SvelteDocument.ts';
 
 /**
  * Returns diagnostics from the svelte compiler.

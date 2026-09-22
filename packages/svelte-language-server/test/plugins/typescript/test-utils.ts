@@ -2,18 +2,18 @@ import path, { dirname, isAbsolute, join } from 'path';
 import { existsSync, readdirSync, statSync, writeFileSync } from 'fs';
 import ts from 'typescript';
 import { format, resolveConfig } from 'prettier';
-import { Document, DocumentManager } from '../../../src/lib/documents';
-import { FileMap } from '../../../src/lib/documents/fileCollection';
-import { LSConfigManager } from '../../../src/ls-config';
-import { LSAndTSDocResolver } from '../../../src/plugins';
+import { Document, DocumentManager } from '../../../src/lib/documents/index.ts';
+import { FileMap } from '../../../src/lib/documents/fileCollection.ts';
+import { LSConfigManager } from '../../../src/ls-config.ts';
+import { LSAndTSDocResolver } from '../../../src/plugins/index.ts';
 import {
     createGetCanonicalFileName,
     normalizePath,
     pathToUrl,
     urlToPath
-} from '../../../src/utils';
+} from '../../../src/utils.ts';
 import { VERSION } from 'svelte/compiler';
-import { findTsConfigPath } from '../../../src/plugins/typescript/utils';
+import { findTsConfigPath } from '../../../src/plugins/typescript/utils.ts';
 import { Position, Range } from 'vscode-languageserver';
 
 const isSvelte5Plus = Number(VERSION.split('.')[0]) >= 5;
@@ -375,12 +375,12 @@ export function createSnapshotTester<
                 ? it.only
                 : it;
             _it(
-                dir.substring(__dirname.length),
+                dir.substring(import.meta.dirname.length),
                 () => executeTest(inputFile, testOptions)
             );
         } else {
             const _describe = dir.endsWith('.only') ? describe.only : describe;
-            _describe(dir.substring(__dirname.length), function () {
+            _describe(dir.substring(import.meta.dirname.length), function () {
                 const subDirs = readdirSync(dir);
 
                 for (const subDir of subDirs) {

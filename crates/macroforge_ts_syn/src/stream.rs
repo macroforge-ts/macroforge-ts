@@ -33,9 +33,10 @@
 //!     parse_oxc_statement,
 //! };
 //!
-//! let expr = parse_oxc_expr("x + y")?;
-//! let stmt = parse_oxc_statement("const x = 5;")?;
-//! let module = parse_oxc_program("export class Foo {}")?;
+//! let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+//! let expr = parse_oxc_expr(&allocator, "x + y")?;
+//! let stmt = parse_oxc_statement(&allocator, "const x = 5;")?;
+//! let module = parse_oxc_program(&allocator, "export class Foo {}")?;
 //!
 //! assert_eq!(oxc_expr_to_string(&expr), "x + y");
 //! assert_eq!(oxc_stmt_to_string(&stmt).trim(), "const x = 5;");
@@ -850,7 +851,8 @@ impl TsStream {
 /// # #[cfg(feature = "oxc")] {
 /// use macroforge_ts_syn::{oxc_expr_to_string, parse_oxc_expr};
 ///
-/// let expr = parse_oxc_expr("identifier")?;
+/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
+/// let expr = parse_oxc_expr(&allocator, "identifier")?;
 /// assert_eq!(oxc_expr_to_string(&expr), "identifier");
 /// # }
 /// # Ok::<(), macroforge_ts_syn::TsSynError>(())
@@ -924,11 +926,6 @@ pub fn parse_ts_expr(code: &str) -> Result<Box<Expr>, TsSynError> {
 #[cfg(feature = "swc")]
 pub fn parse_ts_stmt(code: &str) -> Result<Stmt, TsSynError> {
     parse_ts_str(code)
-}
-
-#[cfg(all(feature = "oxc", not(feature = "swc")))]
-pub fn parse_ts_stmt(code: &str) -> Result<oxc::ast::ast::Statement<'static>, TsSynError> {
-    crate::parse_oxc_statement(code)
 }
 
 /// Parse a snippet of TypeScript code as a module.

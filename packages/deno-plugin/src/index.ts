@@ -27,12 +27,12 @@
  * @packageDocumentation
  */
 
-import { collectExternalDecoratorModules, loadMacroConfig } from '@macroforge/shared';
-import { createRequire } from 'node:module';
-import { loadRustTransformer } from './bootstrap.ts';
+import { expandSync, loadConfig } from '@macroforge/core';
+import { loadMacroConfig } from '@macroforge/shared';
 
+/** Options for {@link expand} and {@link expandFile}. */
 export interface ExpandOptions {
-    /** Project root used for config discovery and external macro resolution. Defaults to `Deno.cwd()`. */
+    /** Project root used for config discovery. Defaults to `Deno.cwd()`. */
     projectRoot?: string;
     /** Override `keepDecorators` from `macroforge.config.*`. */
     keepDecorators?: boolean;
@@ -48,6 +48,7 @@ export interface ExpandOptions {
     declarativeRegistryJson?: string;
 }
 
+/** What expanding one source produced. */
 export interface ExpandResult {
     /** The post-expansion source. Equal to the input when nothing matched. */
     code: string;
@@ -76,18 +77,10 @@ export function expand(
     options: ExpandOptions = {}
 ): ExpandResult {
     const projectRoot = options.projectRoot ?? Deno.cwd();
-    const transformer = loadRustTransformer(projectRoot);
-    const macroConfig = loadMacroConfig(projectRoot, transformer.loadConfig);
+    const macroConfig = loadMacroConfig(projectRoot, loadConfig);
 
-    const projectRequire = createRequire(projectRoot + '/');
-    const externalDecoratorModules = collectExternalDecoratorModules(
-        code,
-        projectRequire
-    );
-
-    const result = transformer.expandSync(code, filepath, {
+    const result = expandSync(code, filepath, {
         keepDecorators: options.keepDecorators ?? macroConfig.keepDecorators,
-        externalDecoratorModules,
         configPath: macroConfig.configPath,
         typeRegistryJson: options.typeRegistryJson,
         declarativeRegistryJson: options.declarativeRegistryJson,
@@ -129,5 +122,3 @@ export async function expandFile(
     const code = await Deno.readTextFile(filepath);
     return expand(code, filepath, options);
 }
-
-export { loadRustTransformer } from './bootstrap.ts';

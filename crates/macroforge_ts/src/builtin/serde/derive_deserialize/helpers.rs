@@ -10,17 +10,41 @@ use super::super::{
 use super::types::SerdeValueKind;
 use crate::host::ForeignTypeConfig;
 use crate::ts_syn::abi::ir::type_alias::{TypeBody, TypeMemberKind};
-use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry};
+use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, TypeDefinitionIR, TypeRegistry};
 
 /// Determines whether a TypeScript type can accept a raw `string` value,
 /// using the type registry and foreign type configs to resolve types.
+/// `type_name` is resolved as the file at `caller_file_path` sees it.
 ///
 /// When true, the generated `Deserialize` wrapper must NOT call `JSON.parse`
 /// on string inputs -- the string IS the value, not a JSON-encoded payload.
 pub(super) fn type_accepts_string(
     type_name: &str,
     registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
     foreign_types: &[ForeignTypeConfig],
+) -> bool {
+    accepts_string_visiting(
+        type_name,
+        registry,
+        caller_file_path,
+        file_imports,
+        foreign_types,
+        &mut Vec::new(),
+    )
+}
+
+/// `type_accepts_string` over the aliases already being followed, keyed by
+/// declaring file and name. An alias reached again is a cycle, which the
+/// expander reports at the derive; here it just stops the recursion.
+fn accepts_string_visiting(
+    type_name: &str,
+    registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
+    foreign_types: &[ForeignTypeConfig],
+    visiting: &mut Vec<String>,
 ) -> bool {
     // Primitive string keyword
     if type_name == "string" {
@@ -45,34 +69,54 @@ pub(super) fn type_accepts_string(
         }
     }
 
-    let entry = match registry.get(type_name) {
-        Some(e) => e,
-        None => {
-            // Try qualified lookup for ambiguous names
-            match registry.get_all(type_name).next() {
-                Some(e) => e,
-                None => return false,
-            }
-        }
+    let Some(entry) = registry.resolve_in_file(type_name, caller_file_path, file_imports) else {
+        return false;
     };
+    // Names inside the definition resolve from the file that declares it.
+    let declaring_file = entry.file_path.as_str();
+    let declaring_imports = entry.file_imports.as_slice();
+    let key = format!("{declaring_file}::{}", entry.name);
+    if visiting.contains(&key) {
+        return false;
+    }
+    visiting.push(key);
 
-    match &entry.definition {
+    let accepts = match &entry.definition {
         TypeDefinitionIR::TypeAlias(alias) => match &alias.body {
             // Union: check if any member is string, a string literal, or a foreign string type
-            TypeBody::Union(members) => members.iter().any(|m| match &m.kind {
-                TypeMemberKind::TypeRef(t) => type_accepts_string(t, registry, foreign_types),
+            TypeBody::Union(members) => members.iter().any(|member| match &member.kind {
+                TypeMemberKind::TypeRef(referenced) => accepts_string_visiting(
+                    referenced,
+                    registry,
+                    declaring_file,
+                    declaring_imports,
+                    foreign_types,
+                    visiting,
+                ),
                 TypeMemberKind::Literal(lit) => lit.starts_with('"') || lit.starts_with('\''),
                 TypeMemberKind::Object { .. } | TypeMemberKind::Intersection(_) => false,
             }),
             // Simple alias: recurse
-            TypeBody::Alias(target) => type_accepts_string(target, registry, foreign_types),
+            TypeBody::Alias(target) => accepts_string_visiting(
+                target,
+                registry,
+                declaring_file,
+                declaring_imports,
+                foreign_types,
+                visiting,
+            ),
             _ => false,
         },
         // Enums with string members accept strings
-        TypeDefinitionIR::Enum(e) => e.variants.iter().any(|v| v.value.is_string()),
+        TypeDefinitionIR::Enum(enum_ir) => enum_ir
+            .variants
+            .iter()
+            .any(|variant| variant.value.is_string()),
         // Classes and interfaces are always objects
         TypeDefinitionIR::Class(_) | TypeDefinitionIR::Interface(_) => false,
-    }
+    };
+    visiting.pop();
+    accepts
 }
 
 /// Reads the validators declared on the primitive arm of a generic record-link
@@ -80,22 +124,22 @@ pub(super) fn type_accepts_string(
 /// `@serde` validators (e.g. `nonEmpty`) that don't appear on a field
 /// referencing the alias, so resolve the alias by name and read them directly.
 ///
-/// `ts_type` is the field's original (pre-resolution) type reference and
-/// `primitive` is the primitive keyword detected for the union (e.g. `"string"`).
-/// Returns an empty list when the name doesn't resolve to a union alias or the
-/// primitive arm carries no validators.
+/// `ts_type` is the field's original (pre-resolution) type reference, resolved
+/// as the file at `caller_file_path` imports it, and `primitive` is the
+/// primitive keyword detected for the union (e.g. `"string"`). Two files can
+/// declare same-named aliases with different validators, so resolving by name
+/// alone would pick one arbitrarily. Returns an empty list when the name
+/// doesn't resolve to a union alias or the primitive arm carries no validators.
 pub(super) fn alias_primitive_arm_validators(
     ts_type: &str,
     primitive: &str,
     registry: &TypeRegistry,
+    caller_file_path: &str,
+    file_imports: &[FileImportEntry],
 ) -> Vec<ValidatorSpec> {
     let base = extract_base_type(ts_type);
-    let entry = match registry.get(&base) {
-        Some(e) => e,
-        None => match registry.get_all(&base).next() {
-            Some(e) => e,
-            None => return Vec::new(),
-        },
+    let Some(entry) = registry.resolve_in_file(&base, caller_file_path, file_imports) else {
+        return Vec::new();
     };
     let TypeDefinitionIR::TypeAlias(alias) = &entry.definition else {
         return Vec::new();

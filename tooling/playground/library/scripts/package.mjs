@@ -19,24 +19,21 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const libraryRoot = path.resolve(__dirname, '..');
-const repoRoot = globalThis.process.env.MACROFORGE_ROOT ||
-    path.resolve(libraryRoot, '..', '..', '..');
+const repoRoot = path.resolve(libraryRoot, '..', '..', '..');
 
+/**
+ * `MACROFORGE_CLI` when set, otherwise this checkout's debug build. Never the
+ * `macroforge` on PATH, which other projects pin to their own version.
+ */
 function findMacroforgeCli() {
-    const home = globalThis.process.env.HOME ||
-        globalThis.process.env.USERPROFILE || '';
-    const candidates = [
-        globalThis.process.env.MACROFORGE_CLI,
-        path.join(repoRoot, 'target', 'release', 'macroforge'),
-        path.join(repoRoot, 'target', 'debug', 'macroforge'),
-        path.join(home, '.cargo', 'bin', 'macroforge')
-    ].filter(Boolean);
-    for (const candidate of candidates) {
-        if (existsSync(candidate)) return candidate;
+    const binary = globalThis.process.env.MACROFORGE_CLI ||
+        path.join(repoRoot, 'target', 'debug', 'macroforge');
+    if (!existsSync(binary)) {
+        throw new Error(
+            `macroforge CLI not found at ${binary}; build it with \`pixi run build:cli\``
+        );
     }
-    throw new Error(
-        'macroforge CLI binary not found. Build it with `cargo build --release -p macroforge_ts` (from crates/) or `pixi run install:cli`.'
-    );
+    return binary;
 }
 
 function run(command, args, label) {

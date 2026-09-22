@@ -627,3 +627,38 @@ export type Status =
         );
     }
 }
+
+#[test]
+fn test_derive_comment_does_not_bind_to_following_type_alias() {
+    // Only `Box` carries the derive. The aliases after it must neither be
+    // derived nor make the expansion delete the same comment twice.
+    let source = r#"
+/** @derive(Deserialize) */
+export interface Box {
+    size: number;
+}
+
+export type Other = string;
+
+export type BoxResult = ReturnType<typeof Box.deserialize>;
+"#;
+
+    let result = expand_test(source);
+
+    let errors: Vec<_> = result
+        .diagnostics
+        .iter()
+        .filter(|d| d.level == DiagnosticLevel::Error)
+        .collect();
+    assert!(errors.is_empty(), "Should have no errors, got {errors:?}");
+    assert!(
+        result.code.contains("boxDeserialize"),
+        "Box should still get its deserializer. Got:\n{}",
+        result.code
+    );
+    assert!(
+        !result.code.contains("otherDeserialize") && !result.code.contains("boxResultDeserialize"),
+        "Aliases without their own @derive must not be derived. Got:\n{}",
+        result.code
+    );
+}

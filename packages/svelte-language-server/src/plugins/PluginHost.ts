@@ -1,9 +1,9 @@
-import { flatten } from 'lodash';
+import { flatten } from 'lodash-es';
 import { performance } from 'perf_hooks';
 import {
-    CallHierarchyIncomingCall,
-    CallHierarchyItem,
-    CallHierarchyOutgoingCall,
+    type CallHierarchyIncomingCall,
+    type CallHierarchyItem,
+    type CallHierarchyOutgoingCall,
     CancellationToken,
     CodeAction,
     CodeActionContext,
@@ -11,10 +11,10 @@ import {
     Color,
     ColorInformation,
     ColorPresentation,
-    CompletionContext,
+    type CompletionContext,
     CompletionItem,
     CompletionList,
-    DefinitionLink,
+    type DefinitionLink,
     Diagnostic,
     DocumentHighlight,
     DocumentSymbol,
@@ -22,15 +22,15 @@ import {
     FormattingOptions,
     Hover,
     InlayHint,
-    LinkedEditingRanges,
+    type LinkedEditingRanges,
     Location,
     Position,
     Range,
-    ReferenceContext,
+    type ReferenceContext,
     SelectionRange,
     SemanticTokens,
-    SignatureHelp,
-    SignatureHelpContext,
+    type SignatureHelp,
+    type SignatureHelpContext,
     SymbolInformation,
     TextDocumentContentChangeEvent,
     TextDocumentIdentifier,
@@ -38,10 +38,10 @@ import {
     WorkspaceEdit,
     WorkspaceSymbol
 } from 'vscode-languageserver';
-import { DocumentManager, getNodeIfIsInHTMLStartTag } from '../lib/documents';
-import { Logger } from '../logger';
-import { isNotNullOrUndefined, regexLastIndexOf } from '../utils';
-import {
+import { DocumentManager, getNodeIfIsInHTMLStartTag } from '../lib/documents/index.ts';
+import { Logger } from '../logger.ts';
+import { isNotNullOrUndefined, regexLastIndexOf } from '../utils.ts';
+import type {
     AppCompletionItem,
     FileRename,
     LSPProviderConfig,
@@ -49,7 +49,7 @@ import {
     OnWatchFileChanges,
     OnWatchFileChangesPara,
     Plugin
-} from './interfaces';
+} from './interfaces.ts';
 
 enum ExecuteMode {
     None,

@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { describe, test } from 'node:test';
-import { pathToFileURL } from 'node:url';
 import { repoRoot } from './test-utils.mjs';
 
 // Use dynamic import for TypeScript to work in both Node and Deno
@@ -69,11 +68,7 @@ function createHost(tsModule, fileName, fileText, cwd) {
 }
 
 async function initPluginForFile({ fileName, fileText }) {
-    const pluginPath = path.resolve(
-        repoRoot,
-        'packages/typescript-plugin/dist/index.js'
-    );
-    const pluginModule = await import(pathToFileURL(pluginPath).href);
+    const pluginModule = await import('@macroforge/typescript-plugin');
     const tsPluginInit = pluginModule.default;
     const pluginFactory = tsPluginInit({ typescript: ts });
 

@@ -1,16 +1,16 @@
 import * as assert from 'assert';
 import * as path from 'path';
 import ts from 'typescript';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { FindComponentReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FindComponentReferencesProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { FindComponentReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FindComponentReferencesProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 import { Location } from 'vscode-html-languageservice';
 import { VERSION } from 'svelte/compiler';
 
-const testDir = path.join(__dirname, '..', 'testfiles');
+const testDir = path.join(import.meta.dirname, '..', 'testfiles');
 const isSvelte5Plus = +VERSION.split('.')[0] >= 5;
 
 describe('FindComponentReferencesProvider', function () {

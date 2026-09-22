@@ -79,14 +79,7 @@ pub(crate) fn run_expansion_pass(
         work.push((rel.clone(), path, source));
     }
 
-    // A dedicated pool with a large stack, for the same reason the Node binding
-    // spawns 32 MB threads: the parsers recurse over the AST, and a deeply
-    // nested type overflows a default 2 MB worker stack as a hard crash rather
-    // than a diagnostic.
-    let pool = rayon::ThreadPoolBuilder::new()
-        .stack_size(32 * 1024 * 1024)
-        .build()
-        .context("failed to start the expansion thread pool")?;
+    let pool = crate::cache::expansion_pool()?;
 
     let results: Vec<(String, Result<Option<CacheExpansion>>)> = pool.install(|| {
         work.par_iter()

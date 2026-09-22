@@ -2,16 +2,16 @@ import * as assert from 'assert';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Diagnostic, DiagnosticSeverity, Position } from 'vscode-languageserver';
-import { Document } from '../../../../src/lib/documents';
-import { getDiagnostics } from '../../../../src/plugins/svelte/features/getDiagnostics';
+import { Document } from '../../../../src/lib/documents/index.ts';
+import { getDiagnostics } from '../../../../src/plugins/svelte/features/getDiagnostics.ts';
 import {
     SvelteDocument,
     TranspileErrorSource
-} from '../../../../src/plugins/svelte/SvelteDocument';
-import { SvelteConfig } from '../../../../src/lib/documents/configLoader';
-import { CompilerWarningsSettings, LSConfigManager } from '../../../../src/ls-config';
-import { pathToUrl } from '../../../../src/utils';
-import { SveltePlugin } from '../../../../src/plugins';
+} from '../../../../src/plugins/svelte/SvelteDocument.ts';
+import type { SvelteConfig } from '../../../../src/lib/documents/configLoader.ts';
+import { type CompilerWarningsSettings, LSConfigManager } from '../../../../src/ls-config.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { SveltePlugin } from '../../../../src/plugins/index.ts';
 import { VERSION } from 'svelte/compiler';
 
 const isSvelte5Plus = Number(VERSION.split('.')[0]) >= 5;
@@ -44,7 +44,7 @@ describe('SveltePlugin#getDiagnostics', () => {
     }
 
     function setupFromFile(filename: string) {
-        const testDir = path.join(__dirname, '..');
+        const testDir = path.join(import.meta.dirname, '..');
         const filePath = path.join(testDir, 'testfiles', filename);
         const document = new Document(
             pathToUrl(filePath),

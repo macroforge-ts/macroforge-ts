@@ -4,7 +4,7 @@ import {
     Position,
     Range
 } from 'vscode-languageserver-types';
-import { Document, TagInformation } from '../documents';
+import { Document, type TagInformation } from '../documents/index.ts';
 
 export function wordHighlightForTag(
     document: Document,

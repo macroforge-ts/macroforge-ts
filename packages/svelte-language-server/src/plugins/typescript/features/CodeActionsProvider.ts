@@ -6,7 +6,7 @@ import {
     CodeActionContext,
     CodeActionKind,
     Diagnostic,
-    LSPAny,
+    type LSPAny,
     OptionalVersionedTextDocumentIdentifier,
     Position,
     Range,
@@ -22,8 +22,8 @@ import {
     isInTag,
     isRangeInTag,
     mapRangeToOriginal
-} from '../../../lib/documents';
-import { LSConfigManager } from '../../../ls-config';
+} from '../../../lib/documents/index.ts';
+import { LSConfigManager } from '../../../ls-config.ts';
 import {
     createGetCanonicalFileName,
     flatten,
@@ -36,30 +36,30 @@ import {
     pathToUrl,
     possiblyComponent,
     removeLineWithString
-} from '../../../utils';
-import { CodeActionsProvider } from '../../interfaces';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { LanguageServiceContainer } from '../service';
+} from '../../../utils.ts';
+import type { CodeActionsProvider } from '../../interfaces.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import type { LanguageServiceContainer } from '../service.ts';
 import {
     changeSvelteComponentName,
     cloneRange,
     convertRange,
     isInScript,
     toGeneratedSvelteComponentName
-} from '../utils';
-import { CompletionsProviderImpl } from './CompletionProvider';
-import { DiagnosticCode } from './DiagnosticsProvider';
+} from '../utils.ts';
+import { CompletionsProviderImpl } from './CompletionProvider.ts';
+import { DiagnosticCode } from './DiagnosticsProvider.ts';
 import {
     findClosestContainingNode,
-    FormatCodeBasis,
+    type FormatCodeBasis,
     getFormatCodeBasis,
     getNewScriptStartTag,
     getQuotePreference,
     isTextSpanInGeneratedCode,
     SnapshotMap
-} from './utils';
-import { Node } from 'vscode-html-languageservice';
+} from './utils.ts';
+import type { Node } from 'vscode-html-languageservice';
 
 export const SORT_IMPORT_CODE_ACTION_KIND = 'source.sortImports';
 export const ADD_MISSING_IMPORTS_CODE_ACTION_KIND = 'source.addMissingImports';

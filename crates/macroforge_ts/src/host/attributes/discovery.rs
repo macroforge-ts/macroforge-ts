@@ -9,6 +9,7 @@ use oxc::ast::ast::{Declaration, Program, Statement};
 use oxc::span::GetSpan;
 
 use crate::ts_syn::abi::SpanIR;
+use crate::ts_syn::jsdoc::adjacent_jsdoc;
 
 /// Which attribute macro fired.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -223,24 +224,10 @@ type JsDocTag = (AttributeKind, Option<String>);
 /// every attribute tag it contains. The JSDoc span is extended backward to
 /// capture leading indentation so strip-patches don't leave orphan spaces.
 fn find_leading_jsdoc_with_tags(source: &str, decl_start: u32) -> Option<(SpanIR, Vec<JsDocTag>)> {
-    let start_0 = (decl_start as usize).saturating_sub(1);
-    if start_0 == 0 || start_0 > source.len() {
-        return None;
-    }
-    let search_area = &source[..start_0];
-    let comment_start = search_area.rfind("/**")?;
-    let rest = &search_area[comment_start..];
-    let end_rel = rest.find("*/")?;
-    let comment_close_abs = comment_start + end_rel + 2;
-    if !source[comment_close_abs..start_0]
-        .chars()
-        .all(char::is_whitespace)
-    {
-        return None;
-    }
+    let block = adjacent_jsdoc(source, (decl_start as usize).saturating_sub(1))?;
 
     // Walk back over horizontal whitespace to grab indentation.
-    let mut new_start = comment_start;
+    let mut new_start = block.start;
     let bytes = source.as_bytes();
     while new_start > 0 {
         let b = bytes[new_start - 1];
@@ -251,8 +238,7 @@ fn find_leading_jsdoc_with_tags(source: &str, decl_start: u32) -> Option<(SpanIR
         }
     }
 
-    let body = &rest[3..end_rel];
-    let tags = extract_attribute_tags(body);
+    let tags = extract_attribute_tags(block.body(source));
     if tags.is_empty() {
         return None;
     }
@@ -260,28 +246,40 @@ fn find_leading_jsdoc_with_tags(source: &str, decl_start: u32) -> Option<(SpanIR
     Some((
         SpanIR {
             start: (new_start + 1) as u32,
-            end: (comment_close_abs + 1) as u32,
+            end: (block.end + 1) as u32,
         },
         tags,
     ))
 }
 
 /// Parse the JSDoc body and return every `@cfg(...) / @deprecated(...) /
-/// @mustUse[(...)] / @nonExhaustive` tag it contains. JSDoc bodies can span
-/// multiple lines with leading `*`; we strip those first.
+/// @mustUse[(...)] / @nonExhaustive` tag it contains. A tag counts only at
+/// the start of a JSDoc line outside a fenced code block, so prose and
+/// examples that mention one are left alone. Its args may span lines.
 fn extract_attribute_tags(body: &str) -> Vec<JsDocTag> {
-    // Strip leading `*` / whitespace on each line, then join back together.
-    let normalized: String = body
-        .lines()
-        .map(|line| line.trim().trim_start_matches('*').trim_start().to_string())
-        .collect::<Vec<_>>()
-        .join(" ");
+    // Strip leading `*` / whitespace on each line, join them back together,
+    // and remember where each line that may open a tag starts.
+    let mut normalized = String::new();
+    let mut tag_starts = std::collections::HashSet::new();
+    let mut in_fence = false;
+    for line in body.lines() {
+        let line = line.trim().trim_start_matches('*').trim();
+        if !normalized.is_empty() {
+            normalized.push(' ');
+        }
+        if line.starts_with("```") {
+            in_fence = !in_fence;
+        } else if !in_fence {
+            tag_starts.insert(normalized.len());
+        }
+        normalized.push_str(line);
+    }
 
     let mut out = Vec::new();
     let mut i = 0;
     let bytes = normalized.as_bytes();
     while i < bytes.len() {
-        if bytes[i] != b'@' {
+        if bytes[i] != b'@' || !tag_starts.contains(&i) {
             i += 1;
             continue;
         }

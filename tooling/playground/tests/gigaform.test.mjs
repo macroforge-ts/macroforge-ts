@@ -12,12 +12,10 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { describe, test } from 'node:test';
-import { initExternalMacros } from './test-utils.mjs';
 
 const require = createRequire(import.meta.url);
 const macroforge = require('@macroforge/core');
 const { expandSync } = macroforge;
-initExternalMacros(macroforge);
 
 // Helper to normalize whitespace for robust string matching
 const normalize = (s) => s.replace(/\s+/g, '');

@@ -6,7 +6,7 @@
 use crate::cli::commands::docs::write_docs_json;
 use crate::core::config::Config;
 use crate::utils::format;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -99,19 +99,13 @@ pub fn run(output_dir: &Path) -> Result<()> {
     for (pkg_name, pkg_path) in TS_PACKAGES {
         let pkg_dir = config.root.join(pkg_path);
         if !pkg_dir.exists() {
-            format::warning(&format!("Package not found: {}", pkg_dir.display()));
-            continue;
+            anyhow::bail!("Package not found: {}", pkg_dir.display());
         }
 
         print!("Processing {}... ", pkg_name);
 
-        let docs = match extract_package_docs(&pkg_dir, pkg_name) {
-            Ok(d) => d,
-            Err(e) => {
-                println!("failed: {}", e);
-                continue;
-            }
-        };
+        let docs = extract_package_docs(&pkg_dir, pkg_name)
+            .with_context(|| format!("failed to extract docs for {pkg_name}"))?;
 
         let export_count = docs.exports.len();
         total_exports += export_count;

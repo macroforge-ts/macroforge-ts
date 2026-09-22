@@ -1,5 +1,8 @@
 <script lang="ts">
-import { Exit, Option } from 'effect';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
+import { Option } from 'effect';
 import { userCreateForm, metadataDefaultValue, type User, type Metadata } from '$lib/demo/types';
 
 // Create User form to test nullable fields
@@ -17,11 +20,7 @@ const userForm = userCreateForm({
 });
 
 // Track validation results
-let userResult: {
-    success: boolean;
-    data?: User;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let userResult: OutcomeOf<typeof userForm> | null = $state(null);
 
 // Track metadata toggle
 let hasMetadata = $state(false);
@@ -32,21 +31,17 @@ let metadataLastLogin = $state<string | null>(null);
 let metadataIsActive = $state(true);
 let metadataRoles = $state<Array<string>>(['user']);
 
-// Expose to Playwright
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        user: userForm
-    };
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    user: userForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
 }
 
 function submitUser() {
-    userResult = Exit.match(userForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.userValidation = userResult;
-    }
+    userResult = validationOutcome(userForm.validate());
+    gigaform.userValidation = userResult;
 }
 
 function resetUser() {

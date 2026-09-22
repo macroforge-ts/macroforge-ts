@@ -1,13 +1,13 @@
 import {
-    ApplyWorkspaceEditParams,
+    type ApplyWorkspaceEditParams,
     ApplyWorkspaceEditRequest,
     CallHierarchyIncomingCallsRequest,
     CallHierarchyOutgoingCallsRequest,
     CallHierarchyPrepareRequest,
     CodeActionKind,
-    Connection,
+    type Connection,
     DidChangeWatchedFilesNotification,
-    DidChangeWatchedFilesParams,
+    type DidChangeWatchedFilesParams,
     DocumentUri,
     InlayHintRefreshRequest,
     InlayHintRequest,
@@ -21,37 +21,41 @@ import {
     SemanticTokensRequest,
     ShowMessageNotification,
     TextDocumentIdentifier,
-    TextDocumentPositionParams,
+    type TextDocumentPositionParams,
     TextDocumentSyncKind,
     WorkspaceEdit
 } from 'vscode-languageserver';
-import { createConnection, IPCMessageReader, IPCMessageWriter } from 'vscode-languageserver/node';
-import { DiagnosticsManager } from './lib/DiagnosticsManager';
-import { Document, DocumentManager } from './lib/documents';
-import { getSemanticTokenLegends } from './lib/semanticToken/semanticTokenLegend';
-import { Logger } from './logger';
-import { LSConfigManager } from './ls-config';
 import {
-    AppCompletionItem,
+    createConnection,
+    IPCMessageReader,
+    IPCMessageWriter
+} from 'vscode-languageserver/node.js';
+import { DiagnosticsManager } from './lib/DiagnosticsManager.ts';
+import { Document, DocumentManager } from './lib/documents/index.ts';
+import { getSemanticTokenLegends } from './lib/semanticToken/semanticTokenLegend.ts';
+import { Logger } from './logger.ts';
+import { LSConfigManager } from './ls-config.ts';
+import {
+    type AppCompletionItem,
     CSSPlugin,
     HTMLPlugin,
     LSAndTSDocResolver,
-    OnWatchFileChangesPara,
+    type OnWatchFileChangesPara,
     PluginHost,
     SveltePlugin,
     TypeScriptPlugin
-} from './plugins';
-import { debounceThrottle, isNotNullOrUndefined, normalizeUri, urlToPath } from './utils';
-import { FallbackWatcher } from './lib/FallbackWatcher';
-import { configLoader } from './lib/documents/configLoader';
-import { setIsTrusted } from './importPackage';
+} from './plugins/index.ts';
+import { debounceThrottle, isNotNullOrUndefined, normalizeUri, urlToPath } from './utils.ts';
+import { FallbackWatcher } from './lib/FallbackWatcher.ts';
+import { configLoader } from './lib/documents/configLoader.ts';
+import { setIsTrusted } from './importPackage.ts';
 import {
     ADD_MISSING_IMPORTS_CODE_ACTION_KIND,
     REMOVE_UNUSED_IMPORTS_CODE_ACTION_KIND,
     SORT_IMPORT_CODE_ACTION_KIND
-} from './plugins/typescript/features/CodeActionsProvider';
-import { createLanguageServices } from './plugins/css/service';
-import { FileSystemProvider } from './plugins/css/FileSystemProvider';
+} from './plugins/typescript/features/CodeActionsProvider.ts';
+import { createLanguageServices } from './plugins/css/service.ts';
+import { FileSystemProvider } from './plugins/css/FileSystemProvider.ts';
 
 namespace TagCloseRequest {
     export const type: RequestType<
@@ -61,6 +65,7 @@ namespace TagCloseRequest {
     > = new RequestType('html/tag');
 }
 
+/** Options for {@link startServer}. */
 export interface LSOptions {
     /**
      * If you have a connection already that the ls should use, pass it in.

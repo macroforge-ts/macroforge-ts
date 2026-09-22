@@ -1,4 +1,4 @@
-import ts, { ArrowFunction } from 'typescript';
+import ts, { type ArrowFunction } from 'typescript';
 import { CancellationToken } from 'vscode-languageserver';
 import {
     InlayHint,
@@ -7,11 +7,11 @@ import {
     Position,
     Range
 } from 'vscode-languageserver-types';
-import { Document, isInTag, mapLocationToOriginal } from '../../../lib/documents';
-import { getAttributeContextAtPosition } from '../../../lib/documents/parseHtml';
-import { InlayHintProvider } from '../../interfaces';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
+import { Document, isInTag, mapLocationToOriginal } from '../../../lib/documents/index.ts';
+import { getAttributeContextAtPosition } from '../../../lib/documents/parseHtml.ts';
+import type { InlayHintProvider } from '../../interfaces.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
 import {
     findChildOfKind,
     findContainingNode,
@@ -19,8 +19,8 @@ import {
     isInGeneratedCode,
     SnapshotMap,
     startsWithIgnoredPosition
-} from './utils';
-import { convertRange, isSvelte2tsxShimFile } from '../utils';
+} from './utils.ts';
+import { convertRange, isSvelte2tsxShimFile } from '../utils.ts';
 
 export class InlayHintProviderImpl implements InlayHintProvider {
     constructor(private readonly lsAndTsDocResolver: LSAndTSDocResolver) {}

@@ -31,13 +31,12 @@
         "@vscode/emmet-helper": "npm:@vscode/emmet-helper@2.8.4",
         "chokidar": "npm:chokidar@^4.0.1",
         "estree": "npm:@types/estree@^0.0.42",
-        "estree-walker": "npm:estree-walker@^2.0.1",
         "events": "node:events",
         "fdir": "npm:fdir@^6.2.0",
         "fs": "node:fs",
         "fs/promises": "node:fs/promises",
         "globrex": "npm:globrex@^0.1.2",
-        "lodash": "npm:lodash@^4.17.21",
+        "lodash-es": "npm:lodash-es@^4.18.1",
         "os": "node:os",
         "path": "node:path",
         "perf_hooks": "node:perf_hooks",
@@ -83,7 +82,7 @@
     },
     "tasks": {
         "pretest": "node test/setup-fixtures.js",
-        "test": "deno task pretest && TS_NODE_TRANSPILE_ONLY=true deno run -A --node-modules-dir=manual npm:mocha --timeout 60000 --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types"
+        "test": "deno task pretest && deno run -A --node-modules-dir=manual npm:mocha --timeout 60000 \"test/**/*.test.ts\""
     },
-    "version": "0.2.0"
+    "version": "0.3.0"
 }

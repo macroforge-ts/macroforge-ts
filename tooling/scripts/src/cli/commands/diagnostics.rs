@@ -4,10 +4,10 @@
 
 use crate::cli::DiagnosticsArgs;
 use crate::core::config::Config;
-use crate::diagnostics::runner::DiagnosticOptions;
+use crate::diagnostics::runner::{DiagnosticOptions, Formatting};
 use crate::diagnostics::{DiagnosticLevel, DiagnosticTool, DiagnosticsRunner};
 use crate::utils::format;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use colored::Colorize;
 use std::fs;
 
@@ -18,7 +18,13 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
 
     // Create logs directory if --log is specified
     if args.log {
-        let _ = fs::remove_dir_all(&logs_dir);
+        match fs::remove_dir_all(&logs_dir) {
+            Ok(()) => {}
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+            Err(err) => {
+                return Err(err).with_context(|| format!("failed to clear {}", logs_dir.display()));
+            }
+        }
         fs::create_dir_all(&logs_dir)?;
         println!("Diagnostics logs will be saved in: {}", logs_dir.display());
     }
@@ -29,7 +35,11 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
     } else {
         DiagnosticOptions::all()
     };
-    options.format = !args.no_format;
+    options.formatting = if args.no_format {
+        Formatting::Skip
+    } else {
+        Formatting::Fix
+    };
 
     // Run diagnostics
     let runner = DiagnosticsRunner::new(&config.root, options);

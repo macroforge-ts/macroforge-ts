@@ -4,6 +4,7 @@ use crate::ts_syn::abi::{
     ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR, MethodSigIR, SpanIR,
     TypeAliasIR,
 };
+use crate::ts_syn::jsdoc::adjacent_jsdoc;
 #[cfg(feature = "swc")]
 use swc_core::common::Span;
 
@@ -69,6 +70,9 @@ pub(crate) fn collect_derive_targets(
         collect_from_type_alias(type_alias_ir, source, &import_sources, &mut targets);
     }
 
+    // The maps iterate in hash order; expanding in source order keeps the
+    // output, including the order of generated imports, the same every run.
+    targets.sort_by_key(|target| target.decorator_span.start);
     targets
 }
 
@@ -349,27 +353,22 @@ fn parse_derive_decorator(
     Some(macros)
 }
 
-fn find_leading_derive_comment(source: &str, class_start: u32) -> Option<(SpanIR, String)> {
-    let start = class_start.saturating_sub(1) as usize;
-    if start == 0 || start > source.len() {
-        return None;
-    }
+/// The `@derive(...)` in the JSDoc directly above a declaration starting at
+/// `target_start` (1-based). A derive comment on an earlier declaration is not
+/// this one's, and taking it would expand that derive twice.
+fn find_leading_derive_comment(source: &str, target_start: u32) -> Option<(SpanIR, String)> {
+    let block = adjacent_jsdoc(source, target_start.saturating_sub(1) as usize)?;
+    let comment = &source[block.start..block.end];
 
-    let search_area = &source[..start];
-    let comment_start_idx = search_area.rfind("/**")?;
-    let rest = &search_area[comment_start_idx..];
-    let end_rel = rest.find("*/")?;
-    let comment_end_idx = comment_start_idx + end_rel + 2;
+    let at_derive_rel = comment
+        .find("@derive")
+        .or_else(|| comment.find("@Derive"))?;
+    let derive_start_idx = block.start + at_derive_rel;
 
-    let at_derive_rel = rest.find("@derive").or_else(|| rest.find("@Derive"))?;
-    let derive_start_idx = comment_start_idx + at_derive_rel;
-
-    let derive_close_rel = rest[at_derive_rel..].find(')')?;
+    let derive_close_rel = comment[at_derive_rel..].find(')')?;
     let derive_end_idx = derive_start_idx + derive_close_rel + 1;
 
-    let comment_body = &search_area[comment_start_idx + 3..comment_end_idx - 2];
-
-    let content = comment_body.trim().trim_start_matches('*').trim();
+    let content = block.body(source).trim().trim_start_matches('*').trim();
     let content = content.strip_prefix('@')?;
 
     let open = content.find('(')?;
@@ -440,7 +439,7 @@ pub(crate) fn collect_attribute_targets(
     interface_map: &HashMap<SpanKey, InterfaceIR>,
     enum_map: &HashMap<SpanKey, EnumIR>,
     type_alias_map: &HashMap<SpanKey, TypeAliasIR>,
-    _source: &str,
+    source: &str,
     import_sources: &HashMap<String, String>,
 ) -> (Vec<AttributeTarget>, Vec<Diagnostic>) {
     let mut targets = Vec::new();
@@ -470,7 +469,7 @@ pub(crate) fn collect_attribute_targets(
                 targets.push(AttributeTarget {
                     macro_name: decorator.name.clone(),
                     module_path,
-                    decorator_span: span_ir_with_at(decorator.span, _source),
+                    decorator_span: span_ir_with_at(decorator.span, source),
                     target_ir: AttributeTargetIR::Function(func_ir.clone()),
                 });
             }
@@ -480,7 +479,7 @@ pub(crate) fn collect_attribute_targets(
     // --- Class methods ---
     for class_ir in class_map.values() {
         for method in &class_ir.methods {
-            collect_attribute_from_method(method, class_ir, _source, import_sources, &mut targets);
+            collect_attribute_from_method(method, class_ir, source, import_sources, &mut targets);
         }
     }
 
@@ -489,7 +488,7 @@ pub(crate) fn collect_attribute_targets(
         collect_attribute_from_decorators(
             &class_ir.decorators,
             AttributeTargetIR::Class(class_ir.clone()),
-            _source,
+            source,
             import_sources,
             &mut targets,
         );
@@ -500,7 +499,7 @@ pub(crate) fn collect_attribute_targets(
         collect_attribute_from_decorators(
             &iface_ir.decorators,
             AttributeTargetIR::Interface(iface_ir.clone()),
-            _source,
+            source,
             import_sources,
             &mut targets,
         );
@@ -511,7 +510,7 @@ pub(crate) fn collect_attribute_targets(
         collect_attribute_from_decorators(
             &enum_ir.decorators,
             AttributeTargetIR::Enum(enum_ir.clone()),
-            _source,
+            source,
             import_sources,
             &mut targets,
         );
@@ -522,12 +521,16 @@ pub(crate) fn collect_attribute_targets(
         collect_attribute_from_decorators(
             &ta_ir.decorators,
             AttributeTargetIR::TypeAlias(ta_ir.clone()),
-            _source,
+            source,
             import_sources,
             &mut targets,
         );
     }
 
+    // The maps iterate in hash order; source order keeps expansion and its
+    // diagnostics the same every run.
+    targets.sort_by_key(|target| target.decorator_span.start);
+    diagnostics.sort_by_key(|diagnostic| diagnostic.span.map(|span| span.start));
     (targets, diagnostics)
 }
 

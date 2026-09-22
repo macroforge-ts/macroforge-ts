@@ -4,8 +4,8 @@ members = [
     "crates/macroforge_ts_macros",
     "crates/macroforge_ts_quote",
     "crates/macroforge_ts_syn",
-    "crates/extensions/svelte-macroforge",
-    "crates/extensions/vtsls-macroforge",
+    "crates/extensions/svelte_macroforge",
+    "crates/extensions/vtsls_macroforge",
     "tooling/scripts",
 ]
 # Built against vendored symlinks with its own napi/wasm toolchain, and never

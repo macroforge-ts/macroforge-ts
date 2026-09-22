@@ -1,65 +1,8 @@
 {
     "name": "@macroforge/shared",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Shared utilities for Macroforge plugins",
     "exports": [
-        {
-            "name": "collectExternalDecoratorModules",
-            "kind": "function",
-            "type": "(code: tring,, requireFn?: equireFunction) => tring[]",
-            "description": "Collects decorator modules from external macro packages referenced in the code. This function parses macro import comments in the code to find external packages, then loads their manifests and collects all decorator module names. ```",
-            "params": [
-                {
-                    "name": "code",
-                    "type": "tring,",
-                    "description": "The TypeScript source code to scan"
-                },
-                {
-                    "name": "requireFn",
-                    "type": "equireFunction",
-                    "description": "Optional custom require function for loading external packages"
-                }
-            ],
-            "returns": "Array of decorator module names from external packages",
-            "examples": [
-                "```typescript\nconst code = `/** import macro {Gigaform} from \"@playground/macro\"; *​/\n/** @derive(Gigaform) *​/\nclass MyForm {}`;\n\nconst modules = collectExternalDecoratorModules(code);\n// => [\"hiddenController\", \"fieldController\", ...]\n```"
-            ]
-        },
-        {
-            "name": "hasMacroAnnotations",
-            "kind": "function",
-            "type": "(source: tring)) => oolean",
-            "description": "Checks whether source code contains a macroforge JSDoc annotation — `@derive(...)`, `@cfg(...)`, `@deprecated`, `@mustUse`, or `@nonExhaustive`. Only matches when the tag appears at the start of a JSDoc comment line (after stripping comment syntax like `/**`, `*​/`, `*`, and whitespace). This correctly rejects matches embedded in prose text such as `\"Deserialize result format from @derive(Deserialize)\"`. Use this instead of `code.includes(\"@derive\")` to avoid false positives. ```",
-            "params": [
-                {
-                    "name": "source",
-                    "type": "tring)",
-                    "description": "The TypeScript source code to scan"
-                }
-            ],
-            "returns": "`true` if the source contains any macroforge annotation",
-            "examples": [
-                "```typescript\nhasMacroAnnotations('/** @derive(Debug) *​/ class X {}');       // true\nhasMacroAnnotations('/** @cfg({ feature: \"ssr\" }) *​/ fn f() {}'); // true\nhasMacroAnnotations('/** @nonExhaustive *​/ type K = \"a\";');     // true\nhasMacroAnnotations('/** result from @derive(Debug) *​/');       // false — embedded in prose\nhasMacroAnnotations('class X {}');                              // false\n```"
-            ]
-        },
-        {
-            "name": "parseMacroImportComments",
-            "kind": "function",
-            "type": "(text: tring)) => ap<string, string>",
-            "description": "Parses macro import comments from TypeScript code. ```",
-            "params": [
-                {
-                    "name": "text",
-                    "type": "tring)",
-                    "description": "The TypeScript source code to parse"
-                }
-            ],
-            "returns": "Map of macro names to their module paths",
-            "examples": [
-                "```typescript\nconst text = `/** import macro {JSON, FieldController} from \"@playground/macro\"; *​/`;\nparseMacroImportComments(text);\n// => Map { \"JSON\" => \"@playground/macro\", \"FieldController\" => \"@playground/macro\" }\n```"
-            ],
-            "remarks": "Extracts macro names mapped to their source module paths from macro import comments like: `import macro { ... } from \"package\"`."
-        },
         {
             "name": "MacroManifestEntry",
             "kind": "interface",

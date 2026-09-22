@@ -41,6 +41,7 @@ const runtimeError = (method: string) =>
       `If you're seeing this at runtime, the macroforge plugin is not installed or not running on this file.`,
   );
 
+/** Filesystem reads available to a `@buildtime` declaration. */
 export interface BuildtimeFs {
   /** Read a file as UTF-8 text. Path is resolved relative to the file the
    *  @buildtime declaration lives in. Throws if the path is not in the
@@ -58,6 +59,7 @@ export interface BuildtimeFs {
   listDir(path: string): string[];
 }
 
+/** Hashing available to a `@buildtime` declaration. */
 export interface BuildtimeCrypto {
   /** SHA-256 of the input, lowercase hex. Pure — always allowed. */
   sha256(input: string): string;
@@ -65,6 +67,7 @@ export interface BuildtimeCrypto {
   sha512(input: string): string;
 }
 
+/** The build's wall clock. */
 export interface BuildtimeTime {
   /** Current wall-clock time as an ISO 8601 string. Makes builds
    *  non-deterministic — prefer recording a fixed timestamp if
@@ -94,6 +97,7 @@ export interface BuildtimeFlags {
   get(flag: string): string | undefined;
 }
 
+/** Where the `@buildtime` declaration being evaluated sits in its file. */
 export interface BuildtimeLocation {
   /** Absolute path of the source file the @buildtime declaration
    *  lives in. */
@@ -104,15 +108,21 @@ export interface BuildtimeLocation {
   readonly column: number;
 }
 
+/** Everything a `@buildtime` declaration can use while it is evaluated. */
 export interface Buildtime {
+  /** Reads from the filesystem, within the configured allowlist. */
   readonly fs: BuildtimeFs;
+  /** Hash functions. */
   readonly crypto: BuildtimeCrypto;
+  /** The build's wall clock. */
   readonly time: BuildtimeTime;
   /** Environment variables the build was allowed to read. Populated
    *  from `buildtime.capabilities.env` in macroforge.config.js. Reads
    *  of variables not in the allowlist return `undefined`. */
   readonly env: Record<string, string | undefined>;
+  /** Build flags from `buildtime.flags`. */
   readonly flags: BuildtimeFlags;
+  /** Where the declaration being evaluated sits. */
   readonly location: BuildtimeLocation;
 }
 
@@ -183,4 +193,4 @@ export const buildtime: Buildtime = {
  * convention of prefixing compile-time identifiers with `$`. Points at the
  * same object.
  */
-export const $buildtime = buildtime;
+export const $buildtime: Buildtime = buildtime;

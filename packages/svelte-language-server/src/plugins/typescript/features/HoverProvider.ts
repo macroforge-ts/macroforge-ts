@@ -1,13 +1,13 @@
 import ts from 'typescript';
 import { Hover, Position } from 'vscode-languageserver';
-import { Document, getWordAt, mapObjWithRangeToOriginal } from '../../../lib/documents';
-import { HoverProvider } from '../../interfaces';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { getMacroManifestCache } from '../MacroManifestCache';
-import { getMarkdownDocumentation } from '../previewer';
-import { convertRange } from '../utils';
-import { getComponentAtPosition } from './utils';
+import { Document, getWordAt, mapObjWithRangeToOriginal } from '../../../lib/documents/index.ts';
+import type { HoverProvider } from '../../interfaces.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { getMacroManifestCache } from '../MacroManifestCache.ts';
+import { getMarkdownDocumentation } from '../previewer.ts';
+import { convertRange } from '../utils.ts';
+import { getComponentAtPosition } from './utils.ts';
 
 export class HoverProviderImpl implements HoverProvider {
     constructor(private readonly lsAndTsDocResolver: LSAndTSDocResolver) {}

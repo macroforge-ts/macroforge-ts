@@ -1,5 +1,9 @@
 <script lang="ts">
-import { Exit, Option } from 'effect';
+import { pickOption } from '$lib/select-option.util';
+import { browser } from '$app/environment';
+import { type GigaformResults, playgroundResults } from '$lib/playground-globals';
+import { type OutcomeOf, validationOutcome } from '$lib/validation-outcome';
+import { Option } from 'effect';
 import {
     leadCreateForm,
     type Lead,
@@ -27,11 +31,7 @@ const leadForm = leadCreateForm({
 let currentVariant: 'company' | 'person' = $state('company');
 
 // Track validation results
-let leadResult: {
-    success: boolean;
-    data?: Lead;
-    errors?: Array<{ field: string; message: string }>;
-} | null = $state(null);
+let leadResult: OutcomeOf<typeof leadForm> | null = $state(null);
 
 // Form fields for company name variant
 let companyNameValue = $state('Acme Corp');
@@ -40,21 +40,17 @@ let companyNameValue = $state('Acme Corp');
 let firstNameValue = $state('');
 let lastNameValue = $state('');
 
-// Expose to Playwright
-if (typeof window !== 'undefined') {
-    (window as any).gigaformResults = {
-        lead: leadForm
-    };
+// Published for the Playwright specs, in the browser only.
+const gigaform: GigaformResults = {
+    lead: leadForm
+};
+if (browser) {
+    playgroundResults().gigaform = gigaform;
 }
 
 function submitLead() {
-    leadResult = Exit.match(leadForm.validate(), {
-        onSuccess: (data) => ({ success: true as const, data }),
-        onFailure: (cause) => ({ success: false as const, errors: (cause as any).error }),
-    });
-    if (typeof window !== 'undefined') {
-        (window as any).gigaformResults.leadValidation = leadResult;
-    }
+    leadResult = validationOutcome(leadForm.validate());
+    gigaform.leadValidation = leadResult;
 }
 
 function resetLead() {
@@ -189,7 +185,7 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
             />
             {#if Option.isSome(leadForm.fields.leadName.getError())}
               <span class="error" data-testid="lead-name-error">
-                {Option.getOrElse(leadForm.fields.leadName.getError(), () => [] as Array<string>).join(", ")}
+                {Option.getOrElse(leadForm.fields.leadName.getError(), () => []).join(", ")}
               </span>
             {/if}
           </div>
@@ -220,7 +216,7 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
           </div>
           {#if Option.isSome(leadForm.fields.leadName.getError())}
             <span class="error" data-testid="lead-name-error">
-              {Option.getOrElse(leadForm.fields.leadName.getError(), () => [] as Array<string>).join(", ")}
+              {Option.getOrElse(leadForm.fields.leadName.getError(), () => []).join(", ")}
             </span>
           {/if}
         </div>
@@ -243,7 +239,7 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
             id="lead-priority"
             data-testid="lead-priority"
             value={leadForm.fields.priority.get()}
-            onchange={(e) => leadForm.fields.priority.set(e.currentTarget.value as Priority)}
+            onchange={(e) => leadForm.fields.priority.set(pickOption(priorityOptions, e.currentTarget.value))}
           >
             {#each priorityOptions as priority}
               <option value={priority}>{priority}</option>
@@ -256,7 +252,7 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
             id="lead-stage"
             data-testid="lead-stage"
             value={leadForm.fields.stage.get()}
-            onchange={(e) => leadForm.fields.stage.set(e.currentTarget.value as LeadStage)}
+            onchange={(e) => leadForm.fields.stage.set(pickOption(stageOptions, e.currentTarget.value))}
           >
             {#each stageOptions as stage}
               <option value={stage}>{stage}</option>
@@ -272,7 +268,7 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
             id="lead-sector"
             data-testid="lead-sector"
             value={leadForm.fields.sector.get()}
-            onchange={(e) => leadForm.fields.sector.set(e.currentTarget.value as Sector)}
+            onchange={(e) => leadForm.fields.sector.set(pickOption(sectorOptions, e.currentTarget.value))}
           >
             {#each sectorOptions as sector}
               <option value={sector}>{sector}</option>
@@ -324,8 +320,8 @@ const sectorOptions: Array<Sector> = ['Residential', 'Commercial'];
         type="button"
         data-testid="set-invalid-variant"
         onclick={() => {
-          // Intentionally set an invalid union variant structure
-          leadForm.fields.leadName.set({ invalidField: "test" } as any);
+          // A variant the field's type forbids, to exercise runtime validation.
+          Reflect.apply(leadForm.fields.leadName.set, leadForm.fields.leadName, [{ invalidField: "test" }]);
         }}
       >
         Set Invalid Variant

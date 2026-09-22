@@ -10,8 +10,8 @@ import {
     SymbolKind,
     TextDocumentItem
 } from 'vscode-languageserver-types';
-import { Document, DocumentManager } from '../../src/lib/documents';
-import { LSPProviderConfig, PluginHost } from '../../src/plugins';
+import { Document, DocumentManager } from '../../src/lib/documents/index.ts';
+import { type LSPProviderConfig, PluginHost } from '../../src/plugins/index.ts';
 import { CancellationToken, CompletionTriggerKind } from 'vscode-languageserver';
 import assert from 'assert';
 

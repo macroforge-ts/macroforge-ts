@@ -1,13 +1,17 @@
 import ts from 'typescript';
 import { CancellationToken, CodeLens, Range } from 'vscode-languageserver';
-import { Document, mapRangeToOriginal } from '../../../lib/documents';
-import { LSConfigManager, TSUserConfig } from '../../../ls-config';
-import { isZeroLengthRange } from '../../../utils';
-import { CodeLensProvider, FindReferencesProvider, ImplementationProvider } from '../../interfaces';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { convertRange } from '../utils';
-import { isTextSpanInGeneratedCode } from './utils';
+import { Document, mapRangeToOriginal } from '../../../lib/documents/index.ts';
+import { LSConfigManager, type TSUserConfig } from '../../../ls-config.ts';
+import { isZeroLengthRange } from '../../../utils.ts';
+import type {
+    CodeLensProvider,
+    FindReferencesProvider,
+    ImplementationProvider
+} from '../../interfaces.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { convertRange } from '../utils.ts';
+import { isTextSpanInGeneratedCode } from './utils.ts';
 import { internalHelpers } from 'svelte2tsx';
 
 type CodeLensType = 'reference' | 'implementation';

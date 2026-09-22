@@ -1,19 +1,19 @@
 {
     "name": "@macroforge/deno-plugin",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Deno-native macro expansion for projects that don't use Vite",
     "exports": [
         {
             "name": "ExpandOptions",
             "kind": "interface",
             "type": null,
-            "description": ""
+            "description": "Options for {@link expand} and {@link expandFile}."
         },
         {
             "name": "ExpandResult",
             "kind": "interface",
             "type": null,
-            "description": ""
+            "description": "What expanding one source produced."
         },
         {
             "name": "expand",
@@ -57,20 +57,6 @@
                 }
             ],
             "returns": "romise<ExpandResult>"
-        },
-        {
-            "name": "loadRustTransformer",
-            "kind": "function",
-            "type": "(projectRoot?: tring) => ustTransformer",
-            "description": "Resolve and initialize the macroforge engine. The first call loads the binary from the project's `node_modules` (resolved via the project CWD) and registers the host-side callbacks the WASM build needs. Subsequent calls return the same instance.",
-            "params": [
-                {
-                    "name": "projectRoot",
-                    "type": "",
-                    "description": ""
-                }
-            ],
-            "returns": "ustTransformer"
         }
     ]
 }

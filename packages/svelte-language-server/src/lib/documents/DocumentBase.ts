@@ -1,5 +1,5 @@
 import { Position, Range, TextDocument } from 'vscode-languageserver';
-import { getLineOffsets, offsetAt, positionAt } from './utils';
+import { getLineOffsets, offsetAt, positionAt } from './utils.ts';
 
 function nextLineOffset(text: string, lineOffsets: number[], line: number): number {
     return line + 1 < lineOffsets.length ? lineOffsets[line + 1] : text.length;

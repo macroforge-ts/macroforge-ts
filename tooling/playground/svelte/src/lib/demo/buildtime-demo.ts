@@ -14,11 +14,7 @@ const ANSWER = 6 * 7;
 const SCHEMA_HASH = buildtime.crypto.sha256('svelte-schema-v1');
 
 /** @buildtime */
-const APP_CONFIG = buildtime.fs.readJson('./buildtime-data.json') as {
-    app: string;
-    version: string;
-    features: string[];
-};
+const APP_CONFIG = buildtime.fs.readJson('./buildtime-data.json');
 
 /** @buildtime */
 const CONSTANT_LIST = [1, 2, 3, 5, 8, 13].map((n) => n * 2);
@@ -28,13 +24,12 @@ const CONSTANT_LIST = [1, 2, 3, 5, 8, 13].map((n) => n * 2);
 // names bound by sibling @buildtime blocks, so we re-read the file
 // and re-hash here rather than reference ANSWER / APP_CONFIG.
 /** @buildtime */
-const DERIVED_SUMMARY = `app=${
-    (buildtime.fs.readJson('./buildtime-data.json') as { version: string })
-        .version
-}, short=${buildtime.crypto.sha256('svelte-schema-v1').slice(0, 8)}`;
+const DERIVED_SUMMARY = `app=${buildtime.fs.readJson('./buildtime-data.json').version}, short=${
+    buildtime.crypto.sha256('svelte-schema-v1').slice(0, 8)
+}`;
 
 /** @buildtime */
-type RouteId = 'string';
+export type RouteId = 'string';
 
 export interface SvelteBuildtimeResult {
     answer: number;
@@ -45,7 +40,6 @@ export interface SvelteBuildtimeResult {
     constantList: number[];
     derivedSummary: string;
     runtimeStubThrows: boolean;
-    routeIdTag: RouteId;
 }
 
 export function collectSvelteBuildtime(): SvelteBuildtimeResult {
@@ -64,7 +58,6 @@ export function collectSvelteBuildtime(): SvelteBuildtimeResult {
         features: APP_CONFIG.features,
         constantList: CONSTANT_LIST,
         derivedSummary: DERIVED_SUMMARY,
-        runtimeStubThrows,
-        routeIdTag: 'svelte-route-placeholder' as RouteId
+        runtimeStubThrows
     };
 }

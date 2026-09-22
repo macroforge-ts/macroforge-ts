@@ -6,11 +6,11 @@ import {
     getTextInRange,
     isRangeInTag,
     mapRangeToOriginal
-} from '../../../lib/documents';
-import { DiagnosticsProvider } from '../../interfaces';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { convertRange, getDiagnosticTag, hasNonZeroRange, mapSeverity } from '../utils';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
+} from '../../../lib/documents/index.ts';
+import type { DiagnosticsProvider } from '../../interfaces.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { convertRange, getDiagnosticTag, hasNonZeroRange, mapSeverity } from '../utils.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
 import {
     findNodeAtSpan,
     gatherIdentifiers,
@@ -20,10 +20,10 @@ import {
     isInReactiveStatement,
     isReactiveStatement,
     isStoreVariableIn$storeDeclaration
-} from './utils';
-import { flatten, memoize, not, passMap, swapRangeStartEndIfNecessary } from '../../../utils';
-import { LSConfigManager } from '../../../ls-config';
-import { isAttributeName, isEventHandler } from '../svelte-ast-utils';
+} from './utils.ts';
+import { flatten, memoize, not, passMap, swapRangeStartEndIfNecessary } from '../../../utils.ts';
+import { LSConfigManager } from '../../../ls-config.ts';
+import { isAttributeName, isEventHandler } from '../svelte-ast-utils.ts';
 import { internalHelpers } from 'svelte2tsx';
 
 export enum DiagnosticCode {

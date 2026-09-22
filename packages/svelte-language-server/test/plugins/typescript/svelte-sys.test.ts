@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import sinon from 'sinon';
 import ts from 'typescript';
-import { createSvelteSys } from '../../../src/plugins/typescript/svelte-sys';
+import { svelteSysFactory } from '../../../src/plugins/typescript/svelte-sys.ts';
 
 describe('Svelte Sys', () => {
     afterEach(() => {
@@ -15,7 +15,7 @@ describe('Svelte Sys', () => {
         const fileExistsStub = sinon.stub().returns(true);
 
         // sinon.replace(ts.sys, 'fileExists', fileExistsStub);
-        const loader = createSvelteSys({
+        const loader = svelteSysFactory.createSvelteSys({
             ...ts.sys,
             fileExists: fileExistsStub
         });

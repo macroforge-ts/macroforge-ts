@@ -1,6 +1,10 @@
-import { IAttributeData, ITagData, newHTMLDataProvider } from 'vscode-html-languageservice';
-import { htmlData } from 'vscode-html-languageservice/lib/umd/languageFacts/data/webCustomData';
-import { unique } from '../../utils';
+import {
+    type IAttributeData,
+    type ITagData,
+    newHTMLDataProvider
+} from 'vscode-html-languageservice';
+import { htmlData } from 'vscode-html-languageservice/lib/umd/languageFacts/data/webCustomData.js';
+import { unique } from '../../utils.ts';
 
 const svelteEvents = [
     ...(htmlData.globalAttributes?.filter(isEvent).map(mapToSvelteEvent) ?? []),

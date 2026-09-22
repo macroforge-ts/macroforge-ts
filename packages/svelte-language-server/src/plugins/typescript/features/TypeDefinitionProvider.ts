@@ -1,10 +1,10 @@
 import { Location, Position } from 'vscode-languageserver-protocol';
-import { Document, mapLocationToOriginal } from '../../../lib/documents';
-import { isNotNullOrUndefined } from '../../../utils';
-import { TypeDefinitionProvider } from '../../interfaces';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { convertRange } from '../utils';
-import { isTextSpanInGeneratedCode, SnapshotMap } from './utils';
+import { Document, mapLocationToOriginal } from '../../../lib/documents/index.ts';
+import { isNotNullOrUndefined } from '../../../utils.ts';
+import type { TypeDefinitionProvider } from '../../interfaces.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { convertRange } from '../utils.ts';
+import { isTextSpanInGeneratedCode, SnapshotMap } from './utils.ts';
 
 export class TypeDefinitionProviderImpl implements TypeDefinitionProvider {
     constructor(private readonly lsAndTsDocResolver: LSAndTSDocResolver) {}

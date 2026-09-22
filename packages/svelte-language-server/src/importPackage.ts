@@ -1,7 +1,15 @@
+import { createRequire } from 'module';
 import { dirname, resolve } from 'path';
 import * as prettier from 'prettier';
 import * as svelte from 'svelte/compiler';
-import { Logger } from './logger';
+import { fileURLToPath } from 'url';
+import { Logger } from './logger.ts';
+
+/** Loads and resolves modules the way `require` does from this package. */
+export const packageRequire = createRequire(import.meta.url);
+
+/** A directory inside this package: the fallback root for its bundled dependencies. */
+export const packageDir = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Whether or not the current workspace can be trusted.
@@ -21,10 +29,10 @@ export function setIsTrusted(_isTrusted: boolean) {
  */
 function dynamicRequire(dynamicFileToRequire: string): any {
     // prettier-ignore
-    return require(dynamicFileToRequire);
+    return packageRequire(dynamicFileToRequire);
 }
 
-export function getPackageInfo(
+function getPackageInfo(
     packageName: string,
     fromPath: string,
     use_fallback = true
@@ -34,10 +42,10 @@ export function getPackageInfo(
         paths.push(fromPath);
     }
     if (use_fallback) {
-        paths.push(__dirname);
+        paths.push(packageDir);
     }
 
-    const packageJSONPath = require.resolve(`${packageName}/package.json`, {
+    const packageJSONPath = packageRequire.resolve(`${packageName}/package.json`, {
         paths
     });
     const { version } = dynamicRequire(packageJSONPath);
@@ -54,15 +62,15 @@ export function getPackageInfo(
     };
 }
 
-export function importPrettier(fromPath: string): typeof prettier {
-    const pkg = getPackageInfo('prettier', fromPath);
+function importPrettier(fromPath: string): typeof prettier {
+    const pkg = packageLoader.getPackageInfo('prettier', fromPath);
     const main = resolve(pkg.path);
     Logger.debug('Using Prettier v' + pkg.version.full, 'from', main);
     return dynamicRequire(main);
 }
 
-export function importSvelte(fromPath: string): typeof svelte {
-    const pkg = getPackageInfo('svelte', fromPath);
+function importSvelte(fromPath: string): typeof svelte {
+    const pkg = packageLoader.getPackageInfo('svelte', fromPath);
     const main = resolve(pkg.path, 'compiler');
     Logger.debug('Using Svelte v' + pkg.version.full, 'from', main);
     if (pkg.version.major === 4) {
@@ -73,8 +81,8 @@ export function importSvelte(fromPath: string): typeof svelte {
 }
 
 /** Can throw because no fallback guaranteed */
-export function importSveltePreprocess(fromPath: string): any {
-    const pkg = getPackageInfo(
+function importSveltePreprocess(fromPath: string): any {
+    const pkg = packageLoader.getPackageInfo(
         'svelte-preprocess',
         fromPath,
         false // svelte-language-server doesn't have a dependency on svelte-preprocess so we can't provide a fallback
@@ -83,3 +91,15 @@ export function importSveltePreprocess(fromPath: string): any {
     Logger.debug('Using svelte-preprocess v' + pkg.version.full, 'from', main);
     return dynamicRequire(main);
 }
+
+/**
+ * Locates and loads the packages the language server takes from the user's
+ * workspace. Every caller goes through this object, so a lookup can be
+ * replaced as a whole.
+ */
+export const packageLoader = {
+    getPackageInfo,
+    importPrettier,
+    importSvelte,
+    importSveltePreprocess
+};

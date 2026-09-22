@@ -1,16 +1,16 @@
 import assert from 'assert';
 import { CompletionItem, CompletionItemKind, CompletionList } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { CSSPlugin } from '../../../../src/plugins';
-import { CSSDocument } from '../../../../src/plugins/css/CSSDocument';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { CSSPlugin } from '../../../../src/plugins/index.ts';
+import { CSSDocument } from '../../../../src/plugins/css/CSSDocument.ts';
 import {
     collectSelectors,
-    CSSNode,
+    type CSSNode,
     NodeType
-} from '../../../../src/plugins/css/features/getIdClassCompletion';
-import { createLanguageServices } from '../../../../src/plugins/css/service';
-import { pathToUrl } from '../../../../src/utils';
+} from '../../../../src/plugins/css/features/getIdClassCompletion.ts';
+import { createLanguageServices } from '../../../../src/plugins/css/service.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
 
 describe('getIdClassCompletion', () => {
     function createDocument(content: string) {

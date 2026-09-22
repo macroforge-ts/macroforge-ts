@@ -1,10 +1,15 @@
 <script lang="ts">
+import { browser } from '$app/environment';
 import {
-    validateUserRegistration,
-    validateProduct,
+    type EventForm,
+    type ProductForm,
+    type UserRegistrationForm,
     validateEvent,
+    validateProduct,
+    validateUserRegistration,
     type ValidationResult
 } from '$lib/demo/validator-form';
+import { playgroundResults, type ValidatorFormResults } from '$lib/playground-globals';
 
 // Form data
 let userForm = $state({
@@ -31,75 +36,51 @@ let eventForm = $state({
 });
 
 // Results
-let userResult: ValidationResult<any> | null = $state(null);
-let productResult: ValidationResult<any> | null = $state(null);
-let eventResult: ValidationResult<any> | null = $state(null);
+let userResult: ValidationResult<UserRegistrationForm> | null = $state(null);
+let productResult: ValidationResult<ProductForm> | null = $state(null);
+let eventResult: ValidationResult<EventForm> | null = $state(null);
 
-// Global results for Playwright
-if (typeof window !== 'undefined') {
-    (window as any).validatorFormResults = {};
-}
+// Published for the Playwright specs, in the browser only.
+const formResults: ValidatorFormResults = {};
+if (browser) playgroundResults().validatorForm = formResults;
 
 function submitUserRegistration() {
-    console.log('submitUserRegistration called');
-    try {
-        const data = {
-            email: userForm.email,
-            password: userForm.password,
-            username: userForm.username,
-            age: userForm.age,
-            website: userForm.website
-        };
-        console.log('Validating:', data);
-        const result = validateUserRegistration(data);
-        console.log('Validation result:', result);
-        userResult = result;
-        if (typeof window !== 'undefined') {
-            (window as any).validatorFormResults.userRegistration = result;
-        }
-    } catch (err) {
-        console.error('Validation error:', err);
-        userResult = { success: false, errors: [String(err)] };
-    }
+    const result = validateUserRegistration({
+        email: userForm.email,
+        password: userForm.password,
+        username: userForm.username,
+        age: userForm.age,
+        website: userForm.website
+    });
+    userResult = result;
+    formResults.userRegistration = result;
 }
 
 function submitProduct() {
-    const tags = productForm.tags
-        ? productForm.tags
-              .split(',')
-              .map((t) => t.trim())
-              .filter(Boolean)
-        : [];
     const result = validateProduct({
         name: productForm.name,
         sku: productForm.sku,
         price: productForm.price,
         quantity: productForm.quantity,
-        tags
+        tags: productForm.tags
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean)
     });
     productResult = result;
-    if (typeof window !== 'undefined') {
-        (window as any).validatorFormResults.product = result;
-    }
+    formResults.product = result;
 }
 
 function submitEvent() {
-    try {
-        // Convert date strings to Date objects for validation
-        const result = validateEvent({
-            title: eventForm.title,
-            startDate: new Date(eventForm.startDate),
-            endDate: new Date(eventForm.endDate),
-            maxAttendees: eventForm.maxAttendees
-        });
-        eventResult = result;
-        if (typeof window !== 'undefined') {
-            (window as any).validatorFormResults.event = result;
-        }
-    } catch (err) {
-        console.error('Event validation error:', err);
-        eventResult = { success: false, errors: [String(err)] };
-    }
+    // The validator checks real dates, so the text fields become `Date`s.
+    const result = validateEvent({
+        title: eventForm.title,
+        startDate: new Date(eventForm.startDate),
+        endDate: new Date(eventForm.endDate),
+        maxAttendees: eventForm.maxAttendees
+    });
+    eventResult = result;
+    formResults.event = result;
 }
 </script>
 

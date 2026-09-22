@@ -60,4 +60,4 @@ The Deno plugin supports the same [attribute macros](/docs/attributes) as the ot
 
 ## Availability
 
-The package is developed in-repo and its manifest is currently marked private, so the `jsr:` specifier above may not resolve until it is published. To use it today, vendor the `packages/deno-plugin` directory or import it by relative path from a checkout.
+The plugin is published on [JSR](https://jsr.io/@macroforge/deno-plugin) only. It is Deno-specific, so there is no npm package.

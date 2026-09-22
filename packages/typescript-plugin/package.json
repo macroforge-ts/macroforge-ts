@@ -4,17 +4,17 @@
         "url": "https://gitlab.com/macroforge-ts/macroforge-ts/-/issues"
     },
     "dependencies": {
-        "@macroforge/core": "^0.2.0",
-        "@macroforge/shared": "^0.2.0"
+        "@macroforge/core": "0.3.0",
+        "@macroforge/shared": "0.3.0"
     },
     "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
     "devDependencies": {
         "@types/node": "^26.6.2",
         "typescript": "^5.9.3"
     },
-    "files": [
-        "dist"
-    ],
+    "exports": {
+        ".": "./src/index.ts"
+    },
     "homepage": "https://macroforge.dev",
     "keywords": [
         "typescript",
@@ -25,10 +25,14 @@
         "language-service"
     ],
     "license": "MIT",
-    "main": "dist/index.js",
     "name": "@macroforge/typescript-plugin",
     "peerDependencies": {
-        "typescript": ">=5.0.0 <6"
+        "typescript": ">=5.0.0"
+    },
+    "peerDependenciesMeta": {
+        "typescript": {
+            "optional": true
+        }
     },
     "repository": {
         "directory": "packages/typescript-plugin",
@@ -36,12 +40,9 @@
         "url": "git+https://gitlab.com/macroforge-ts/macroforge-ts.git"
     },
     "scripts": {
-        "build": "deno install --node-modules-dir --quiet && node ./scripts/link-workspace-deps.mjs && deno run -A npm:typescript@5/tsc -p tsconfig.json",
-        "clean": "rm -rf dist",
-        "cleanbuild": "deno task clean && deno task build",
-        "test": "deno task build && node --test tests/**/*.test.cjs"
+        "build": "deno run -A ../../tooling/npm/build.ts typescript-plugin",
+        "test": "node --test tests/**/*.test.cjs"
     },
     "type": "module",
-    "types": "dist/index.d.ts",
-    "version": "0.2.0"
+    "version": "0.3.0"
 }

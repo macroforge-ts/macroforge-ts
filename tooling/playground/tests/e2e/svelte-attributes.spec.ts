@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readSvelteSlice } from './svelte-playground';
 
 // End-to-end checks for the four Rust-inspired attribute macros in the
 // SvelteKit playground. Mirrors `vanilla-attributes.spec.ts` against the
@@ -46,27 +47,14 @@ test.describe('Svelte Playground attribute macro tests', () => {
         await expect(status).toHaveText('green');
     });
 
-    test('attribute results attached to globalThis', async ({ page }) => {
-        const results = await page.evaluate(
-            () =>
-                (globalThis as unknown as {
-                    attributesResults?: {
-                        keptByFeature: string | null;
-                        strippedByFeature: string | null;
-                        keptByTarget: string | null;
-                        strippedByTarget: string | null;
-                        deprecatedCall: string;
-                        nonExhaustiveValue: string;
-                    };
-                }).attributesResults
-        );
+    test('attribute results are published for inspection', async ({ page }) => {
+        const results = await readSvelteSlice(page, 'attributes');
 
-        expect(results).toBeDefined();
-        expect(results?.keptByFeature).toBe('kept-by-feature');
-        expect(results?.strippedByFeature).toBeNull();
-        expect(results?.keptByTarget).toBe('kept-by-target');
-        expect(results?.strippedByTarget).toBeNull();
-        expect(results?.deprecatedCall).toBe('render-v1');
-        expect(results?.nonExhaustiveValue).toBe('green');
+        expect(results.keptByFeature).toBe('kept-by-feature');
+        expect(results.strippedByFeature).toBeNull();
+        expect(results.keptByTarget).toBe('kept-by-target');
+        expect(results.strippedByTarget).toBeNull();
+        expect(results.deprecatedCall).toBe('render-v1');
+        expect(results.nonExhaustiveValue).toBe('green');
     });
 });

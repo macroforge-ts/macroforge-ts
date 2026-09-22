@@ -5,16 +5,16 @@ import {
     CancellationTokenSource,
     MarkupKind,
     Position,
-    SignatureHelp
+    type SignatureHelp
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { SignatureHelpProviderImpl } from '../../../../src/plugins/typescript/features/SignatureHelpProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { pathToUrl } from '../../../../src/utils';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { SignatureHelpProviderImpl } from '../../../../src/plugins/typescript/features/SignatureHelpProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 const signatureHelpTestDir = path.join(testDir, 'testfiles', 'signature-help');
 
 describe('SignatureHelpProvider', function () {

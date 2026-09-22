@@ -415,6 +415,19 @@ fn library_registry() -> (ProjectDeclarativeRegistry, std::path::PathBuf) {
     (registry, lib_path)
 }
 
+/// Resolve the `import macro` comments of `source`, parsed as the host parses it.
+fn resolve_source_imports(
+    source: &str,
+    importer_path: &std::path::Path,
+    registry: &ProjectDeclarativeRegistry,
+) -> super::ResolvedImports {
+    let allocator = Allocator::default();
+    let parsed = parse_program(&allocator, source);
+    let macro_imports =
+        crate::ts_syn::import_registry::macro_imports_in_comments(&parsed.program.comments, source);
+    resolve_cross_file_imports(&macro_imports, importer_path, registry)
+}
+
 #[test]
 fn resolve_cross_file_happy_path() {
     let (registry, _lib_path) = library_registry();
@@ -423,7 +436,7 @@ fn resolve_cross_file_happy_path() {
 const xs = $vec(1, 2, 3);
 "#;
     let consumer_path = std::path::PathBuf::from("/project/src/consumer.ts");
-    let resolved = resolve_cross_file_imports(consumer_src, &consumer_path, &registry);
+    let resolved = resolve_source_imports(consumer_src, &consumer_path, &registry);
 
     assert_eq!(resolved.imported.len(), 1);
     assert_eq!(resolved.imported[0].def.name, "vec");
@@ -445,7 +458,7 @@ fn resolve_cross_file_unresolved_bare_package_skips_silently() {
 
     let consumer_src = r#"/** import macro { $vec } from "@external/macros" */"#;
     let consumer_path = std::path::PathBuf::from("/project/src/consumer.ts");
-    let resolved = resolve_cross_file_imports(consumer_src, &consumer_path, &registry);
+    let resolved = resolve_source_imports(consumer_src, &consumer_path, &registry);
 
     assert!(resolved.imported.is_empty());
     assert!(
@@ -465,7 +478,7 @@ fn resolve_cross_file_unresolved_relative_path_reports_diagnostic() {
 
     let consumer_src = r#"/** import macro { $vec } from "./nonexistent" */"#;
     let consumer_path = std::path::PathBuf::from("/project/src/consumer.ts");
-    let resolved = resolve_cross_file_imports(consumer_src, &consumer_path, &registry);
+    let resolved = resolve_source_imports(consumer_src, &consumer_path, &registry);
 
     assert!(resolved.imported.is_empty());
     assert_eq!(resolved.diagnostics.len(), 1);
@@ -483,7 +496,7 @@ fn resolve_cross_file_missing_macro_name_reports_diagnostic() {
     // Library file has `$vec` but not `$missing`.
     let consumer_src = r#"/** import macro { $missing } from "./macros" */"#;
     let consumer_path = std::path::PathBuf::from("/project/src/consumer.ts");
-    let resolved = resolve_cross_file_imports(consumer_src, &consumer_path, &registry);
+    let resolved = resolve_source_imports(consumer_src, &consumer_path, &registry);
 
     assert!(resolved.imported.is_empty());
     assert_eq!(resolved.diagnostics.len(), 1);
@@ -501,7 +514,7 @@ fn resolve_cross_file_ignores_bare_names() {
 
     let consumer_src = r#"/** import macro { Debug, $vec } from "./macros" */"#;
     let consumer_path = std::path::PathBuf::from("/project/src/consumer.ts");
-    let resolved = resolve_cross_file_imports(consumer_src, &consumer_path, &registry);
+    let resolved = resolve_source_imports(consumer_src, &consumer_path, &registry);
 
     // Only $vec should be resolved; `Debug` is a derive import and is ignored.
     assert_eq!(resolved.imported.len(), 1);

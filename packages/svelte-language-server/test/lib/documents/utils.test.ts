@@ -5,7 +5,7 @@ import {
     getLineAtPosition,
     getWordAt,
     updateRelativeImport
-} from '../../../src/lib/documents/utils';
+} from '../../../src/lib/documents/utils.ts';
 import { Position } from 'vscode-languageserver';
 
 describe('document/utils', () => {

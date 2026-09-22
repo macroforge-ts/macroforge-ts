@@ -1,12 +1,8 @@
-import { walk } from 'estree-walker';
 import { Position, SelectionRange } from 'vscode-languageserver';
-import { mapSelectionRangeToParent, offsetAt, toRange } from '../../../lib/documents';
-import { SvelteDocument } from '../SvelteDocument';
-import { inStyleOrScript } from './utils';
-
-// estree does not have start/end in their public Node interface,
-// but the AST returned by svelte/compiler does. Type as any as a workaround.
-type Node = any;
+import { mapSelectionRangeToParent, offsetAt, toRange } from '../../../lib/documents/index.ts';
+import { SvelteDocument } from '../SvelteDocument.ts';
+import { walkSvelteAst } from '../../typescript/svelte-ast-utils.ts';
+import { inStyleOrScript } from './utils.ts';
 
 type OffsetRange = {
     start: number;
@@ -31,8 +27,8 @@ export async function getSelectionRange(
     let nearest: OffsetRange = html;
     let result: SelectionRange | undefined;
 
-    walk(html, {
-        enter(node: Node, parent: Node) {
+    walkSvelteAst(html, {
+        enter(node, parent) {
             if (!parent) {
                 // keep looking
                 return;

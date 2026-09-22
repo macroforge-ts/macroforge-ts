@@ -3,7 +3,7 @@ import {
     Color,
     ColorInformation,
     ColorPresentation,
-    CompletionContext,
+    type CompletionContext,
     CompletionItem,
     CompletionItemKind,
     CompletionList,
@@ -29,10 +29,10 @@ import {
     mapRangeToOriginal,
     mapSelectionRangeToParent,
     mapSymbolInformationToOriginal,
-    TagInformation
-} from '../../lib/documents';
-import { LSConfigManager, LSCSSConfig } from '../../ls-config';
-import {
+    type TagInformation
+} from '../../lib/documents/index.ts';
+import { LSConfigManager, type LSCSSConfig } from '../../ls-config.ts';
+import type {
     ColorPresentationsProvider,
     CompletionsProvider,
     DiagnosticsProvider,
@@ -42,18 +42,21 @@ import {
     FoldingRangeProvider,
     HoverProvider,
     SelectionRangeProvider
-} from '../interfaces';
-import { CSSDocument, CSSDocumentBase } from './CSSDocument';
-import { CSSLanguageServices, getLanguage, getLanguageService } from './service';
-import { GlobalVars } from './global-vars';
-import { getIdClassCompletion } from './features/getIdClassCompletion';
-import { AttributeContext, getAttributeContextAtPosition } from '../../lib/documents/parseHtml';
-import { StyleAttributeDocument } from './StyleAttributeDocument';
-import { getDocumentContext } from '../documentContext';
+} from '../interfaces.ts';
+import { CSSDocument, type CSSDocumentBase } from './CSSDocument.ts';
+import { type CSSLanguageServices, getLanguage, getLanguageService } from './service.ts';
+import { GlobalVars } from './global-vars.ts';
+import { getIdClassCompletion } from './features/getIdClassCompletion.ts';
+import {
+    type AttributeContext,
+    getAttributeContextAtPosition
+} from '../../lib/documents/parseHtml.ts';
+import { StyleAttributeDocument } from './StyleAttributeDocument.ts';
+import { getDocumentContext } from '../documentContext.ts';
 import { FoldingRange, FoldingRangeKind } from 'vscode-languageserver-types';
-import { indentBasedFoldingRangeForTag } from '../../lib/foldingRange/indentFolding';
-import { wordHighlightForTag } from '../../lib/documentHighlight/wordHighlight';
-import { isNotNullOrUndefined, urlToPath } from '../../utils';
+import { indentBasedFoldingRangeForTag } from '../../lib/foldingRange/indentFolding.ts';
+import { wordHighlightForTag } from '../../lib/documentHighlight/wordHighlight.ts';
+import { isNotNullOrUndefined, urlToPath } from '../../utils.ts';
 
 // https://github.com/microsoft/vscode/blob/c6f507deeb99925e713271b1048f21dbaab4bd54/extensions/css/language-configuration.json#L34
 const wordPattern = /(#?-?\d*\.\d\w*%?)|(::?[\w-]*(?=[^,{;]*[,{]))|(([@#.!])?[\w-?]+%?|[@#!.])/g;

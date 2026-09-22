@@ -21,82 +21,29 @@ fn collect_leading_decorators_oxc(
     target_start_0: usize,
     valid_annotations: Option<&HashSet<String>>,
 ) -> Vec<DecoratorIR> {
-    use crate::jsdoc::parse_all_macro_directives;
-
-    if target_start_0 == 0 || target_start_0 > source.len() {
-        return Vec::new();
-    }
-
-    let search_area = &source[..target_start_0];
-
-    let Some(end_idx) = search_area.rfind("*/") else {
-        return Vec::new();
+    use crate::jsdoc::{
+        adjacent_jsdoc, is_macro_import_comment, parse_all_macro_directives, stacked_jsdoc_above,
     };
-
-    let Some(start_idx) = search_area[..end_idx].rfind("/**") else {
-        return Vec::new();
-    };
-
-    let end_of_comment_block = end_idx + 2;
-
-    // Only accept if the comment is directly adjacent (modulo allowed modifiers)
-    let between = &search_area[end_of_comment_block..];
-    let between_trimmed = between.trim();
-    if !between_trimmed.is_empty() {
-        let allowed_modifiers = ["export", "declare", "abstract", "default", "async"];
-        let remaining: String = between_trimmed
-            .split_whitespace()
-            .filter(|word| !allowed_modifiers.contains(word))
-            .collect::<Vec<_>>()
-            .join(" ");
-        if !remaining.is_empty() {
-            return Vec::new();
-        }
-    }
 
     let mut all_directives = Vec::new();
-    let mut current_start = start_idx;
-    let mut current_end = end_idx;
+    let mut block = adjacent_jsdoc(source, target_start_0);
 
-    loop {
-        let comment_body = &search_area[current_start + 3..current_end];
-
-        // Skip macro import comments
-        let body_lower = comment_body.to_ascii_lowercase();
-        let is_macro_import = body_lower.contains("import") && body_lower.contains("macro");
-
-        let directives = if is_macro_import {
-            Vec::new()
-        } else {
-            parse_all_macro_directives(comment_body, valid_annotations)
-        };
-
-        for (name, args_src) in directives {
-            // Use 1-based spans for SpanIR (matching the convention)
-            all_directives.push(DecoratorIR {
-                name,
-                args_src,
-                span: SpanIR::new(current_start as u32 + 1, (current_end + 2) as u32 + 1),
-                #[cfg(feature = "swc")]
-                node: None,
-            });
+    // Walk back over every JSDoc block stacked directly above the target.
+    while let Some(current) = block {
+        let comment_body = current.body(source);
+        if !is_macro_import_comment(comment_body) {
+            for (name, args_src) in parse_all_macro_directives(comment_body, valid_annotations) {
+                // Use 1-based spans for SpanIR (matching the convention)
+                all_directives.push(DecoratorIR {
+                    name,
+                    args_src,
+                    span: SpanIR::new(current.start as u32 + 1, current.end as u32 + 1),
+                    #[cfg(feature = "swc")]
+                    node: None,
+                });
+            }
         }
-
-        // Check for adjacent preceding comment
-        let before_comment = &search_area[..current_start];
-        let before_trimmed = before_comment.trim_end();
-
-        if !before_trimmed.ends_with("*/") {
-            break;
-        }
-
-        let prev_end = before_trimmed.len() - 2;
-        let Some(prev_start) = before_trimmed[..prev_end].rfind("/**") else {
-            break;
-        };
-
-        current_start = prev_start;
-        current_end = prev_end;
+        block = stacked_jsdoc_above(source, current);
     }
 
     all_directives

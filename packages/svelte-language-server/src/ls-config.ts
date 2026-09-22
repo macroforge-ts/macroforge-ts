@@ -1,12 +1,12 @@
-import { get, merge } from 'lodash';
+import { get, merge } from 'lodash-es';
 import ts from 'typescript';
-import { VSCodeEmmetConfig } from '@vscode/emmet-helper';
-import { importPrettier } from './importPackage';
-import { Document } from './lib/documents';
-import { returnObjectIfHasKeys } from './utils';
+import type { VSCodeEmmetConfig } from '@vscode/emmet-helper';
+import { packageLoader } from './importPackage.ts';
+import { Document } from './lib/documents/index.ts';
+import { returnObjectIfHasKeys } from './utils.ts';
 import path from 'path';
-import { FileMap } from './lib/documents/fileCollection';
-import { ClientCapabilities } from 'vscode-languageserver-protocol';
+import { FileMap } from './lib/documents/fileCollection.ts';
+import type { ClientCapabilities } from 'vscode-languageserver-protocol';
 
 /**
  * Default config for the language server.
@@ -714,7 +714,7 @@ export class LSConfigManager {
         }
 
         const prettierConfig = this.getMergedPrettierConfig(
-            await importPrettier(filePath).resolveConfig(filePath, {
+            await packageLoader.importPrettier(filePath).resolveConfig(filePath, {
                 editorconfig: true
             })
         );

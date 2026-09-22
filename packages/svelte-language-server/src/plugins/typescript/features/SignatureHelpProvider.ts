@@ -4,15 +4,15 @@ import {
     MarkupKind,
     ParameterInformation,
     Position,
-    SignatureHelp,
-    SignatureHelpContext,
+    type SignatureHelp,
+    type SignatureHelpContext,
     SignatureHelpTriggerKind,
     SignatureInformation
 } from 'vscode-languageserver';
-import { SignatureHelpProvider } from '../..';
-import { Document } from '../../../lib/documents';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { getMarkdownDocumentation } from '../previewer';
+import type { SignatureHelpProvider } from '../../index.ts';
+import { Document } from '../../../lib/documents/index.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { getMarkdownDocumentation } from '../previewer.ts';
 
 export class SignatureHelpProviderImpl implements SignatureHelpProvider {
     constructor(private readonly lsAndTsDocResolver: LSAndTSDocResolver) {}

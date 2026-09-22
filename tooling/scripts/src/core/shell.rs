@@ -170,7 +170,7 @@ impl<'a> Shell<'a> {
 pub mod cargo {
     use super::*;
 
-    /// Run cargo fmt --check (fails if unformatted)
+    /// Format every crate of the workspace (or crate) at `cwd`.
     pub fn fmt(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
             .args(&["fmt", "--all"])
@@ -178,10 +178,10 @@ pub mod cargo {
             .run_checked()
     }
 
-    /// Run cargo clippy with warnings as errors
-    pub fn clippy(cwd: &Path) -> Result<CommandResult> {
+    /// Fail when any crate of the workspace (or crate) at `cwd` is unformatted.
+    pub fn fmt_check(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
-            .args(&["clippy", "--", "-D", "warnings"])
+            .args(&["fmt", "--all", "--check"])
             .dir(cwd)
             .run_checked()
     }
@@ -200,21 +200,6 @@ pub mod cargo {
         } else {
             anyhow::bail!("cargo login failed")
         }
-    }
-
-    /// Run cargo clippy with --all-targets --all-features and warnings as errors
-    pub fn clippy_all(cwd: &Path) -> Result<CommandResult> {
-        Shell::new("cargo")
-            .args(&[
-                "clippy",
-                "--all-targets",
-                "--all-features",
-                "--",
-                "-D",
-                "warnings",
-            ])
-            .dir(cwd)
-            .run_checked()
     }
 
     /// PATH override that puts the toolchain pinned by `rust-toolchain.toml`
@@ -277,6 +262,20 @@ pub mod cargo {
         shell.run_checked()
     }
 
+    /// Clippy over every workspace member, target and feature, as JSON.
+    pub fn clippy_workspace_json(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&[
+                "clippy",
+                "--workspace",
+                "--all-targets",
+                "--all-features",
+                "--message-format=json",
+            ])
+            .dir(cwd)
+            .run()
+    }
+
     /// Run cargo clippy with JSON output for diagnostics parsing
     pub fn clippy_json(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
@@ -295,40 +294,64 @@ pub mod cargo {
         Shell::new("cargo")
             .args(&["metadata", "--format-version", "1", "--offline"])
             .dir(cwd)
-            .run()
+            .run_checked()
     }
 
-    /// Run tests via cargo-nextest, automatically detecting workspace.
+    /// Run every test of the workspace (or crate) at `cwd` via cargo-nextest.
     /// nextest executes each test in its own process, so process-global
     /// state (config caches, registries) cannot leak between tests.
-    /// nextest does not run doctests, so a `cargo test --doc` pass follows.
+    /// nextest does not run doctests, so a `cargo test --doc` pass follows,
+    /// over the members whose library cargo can doctest.
+    /// A crate without tests has nothing to fail, so it passes.
     pub fn test(cwd: &Path) -> Result<CommandResult> {
-        let workspace = has_workspace(cwd);
-
-        let mut nextest_args = vec!["nextest", "run"];
-        if workspace {
-            nextest_args.push("--workspace");
-        }
         Shell::new("cargo")
-            .args(&nextest_args)
+            .args(&["nextest", "run", "--workspace", "--no-tests=pass"])
             .dir(cwd)
             .run_checked()?;
-
-        let mut doc_args = vec!["test", "--doc"];
-        if workspace {
-            doc_args.push("--workspace");
+        let skipped = members_without_doctests(cwd)?;
+        let mut doc_args = vec!["test", "--doc", "--workspace"];
+        for member in &skipped {
+            doc_args.extend(["--exclude", member.as_str()]);
         }
         Shell::new("cargo").args(&doc_args).dir(cwd).run_checked()
     }
 
-    /// Check if a directory has a Cargo.toml with a [workspace] section
-    fn has_workspace(cwd: &Path) -> bool {
-        let cargo_toml = cwd.join("Cargo.toml");
-        if let Ok(content) = std::fs::read_to_string(&cargo_toml) {
-            content.contains("[workspace]")
-        } else {
-            false
+    /// Workspace members whose library cargo cannot doctest: a `cdylib`-only
+    /// library, such as a Zed extension, or none at all.
+    fn members_without_doctests(cwd: &Path) -> Result<Vec<String>> {
+        #[derive(serde::Deserialize)]
+        struct Metadata {
+            packages: Vec<Package>,
         }
+        #[derive(serde::Deserialize)]
+        struct Package {
+            name: String,
+            targets: Vec<Target>,
+        }
+        #[derive(serde::Deserialize)]
+        struct Target {
+            kind: Vec<String>,
+        }
+
+        let output = Shell::new("cargo")
+            .args(&["metadata", "--format-version", "1", "--no-deps"])
+            .dir(cwd)
+            .run_checked()?;
+        let metadata: Metadata =
+            serde_json::from_str(&output.stdout).context("cargo metadata printed invalid JSON")?;
+        Ok(metadata
+            .packages
+            .into_iter()
+            .filter(|package| {
+                !package.targets.iter().any(|target| {
+                    target
+                        .kind
+                        .iter()
+                        .any(|kind| matches!(kind.as_str(), "lib" | "rlib" | "proc-macro"))
+                })
+            })
+            .map(|package| package.name)
+            .collect())
     }
 }
 
@@ -355,13 +378,9 @@ pub mod deno {
             .run_checked()
     }
 
-    /// Run deno fmt to format code
-    pub fn deno_fmt(cwd: &Path, paths: &[&str], config: Option<&Path>) -> Result<CommandResult> {
-        let config_arg = config.map(|p| p.to_string_lossy().into_owned());
+    /// Format `paths` under `cwd`, or everything when `paths` is empty.
+    pub fn deno_fmt(cwd: &Path, paths: &[&str]) -> Result<CommandResult> {
         let mut shell = Shell::new("deno").arg("fmt");
-        if let Some(ref config_path) = config_arg {
-            shell = shell.arg("--config").arg(config_path);
-        }
         if paths.is_empty() {
             shell = shell.arg(".");
         } else {
@@ -370,60 +389,51 @@ pub mod deno {
         shell.dir(cwd).run_checked()
     }
 
-    /// Run deno fmt --check (fails if unformatted)
+    /// Format markdown `text` as `deno fmt` would format a file under `cwd`,
+    /// so generated files are written in their canonical form.
+    pub fn format_markdown(cwd: &Path, text: &str) -> Result<String> {
+        use std::io::Write;
+
+        let mut child = Command::new("deno")
+            .args(["fmt", "--ext", "md", "-"])
+            .current_dir(cwd)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .context("failed to start deno fmt")?;
+        child
+            .stdin
+            .take()
+            .context("deno fmt has no stdin")?
+            .write_all(text.as_bytes())
+            .context("failed to send markdown to deno fmt")?;
+        let output = child
+            .wait_with_output()
+            .context("deno fmt did not finish")?;
+        if !output.status.success() {
+            anyhow::bail!(
+                "deno fmt failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+        String::from_utf8(output.stdout).context("deno fmt wrote non-UTF-8 output")
+    }
+
+    /// Fail when anything under `cwd` is unformatted.
     pub fn deno_fmt_check(cwd: &Path) -> Result<CommandResult> {
         Shell::new("deno")
-            .args(&["fmt", "--check"])
+            .args(&["fmt", "--check", "."])
             .dir(cwd)
             .run_checked()
     }
 
-    /// Run deno lint
-    /// Run deno lint over `cwd` only. Without the `.` target, a directory that
-    /// is not a workspace member lints the entire workspace.
-    pub fn lint(cwd: &Path, config: Option<&Path>) -> Result<CommandResult> {
-        let config_arg = config.map(|path| path.to_string_lossy().into_owned());
-        let mut shell = Shell::new("deno").args(&["lint"]);
-        if let Some(ref config_path) = config_arg {
-            shell = shell.arg("--config").arg(config_path);
-        }
-        shell.arg(".").dir(cwd).run_checked()
-    }
-
-    /// Run deno lint with JSON output
-    pub fn lint_json(cwd: &Path, config: Option<&Path>) -> Result<CommandResult> {
-        let config_arg = config.map(|p| p.to_string_lossy().into_owned());
-        let mut shell = Shell::new("deno");
-        shell = shell.args(&["lint", "--json"]);
-
-        if let Some(ref config_path) = config_arg {
-            shell = shell.arg("--config").arg(config_path);
-        }
-
-        shell.arg(".").dir(cwd).run()
-    }
-
-    /// Run svelte-check via deno
-    pub fn svelte_check(cwd: &Path) -> Result<CommandResult> {
+    /// Lint everything under `cwd` as JSON.
+    pub fn lint_json(cwd: &Path) -> Result<CommandResult> {
         Shell::new("deno")
-            .args(&[
-                "run",
-                "-A",
-                "npm:svelte-check",
-                "--tsconfig",
-                "./tsconfig.json",
-            ])
+            .args(&["lint", "--json", "."])
             .dir(cwd)
             .run()
-    }
-
-    /// Run deno eval
-    pub fn eval(cwd: &Path, script: &str, flags: &[&str]) -> Result<CommandResult> {
-        let mut shell = Shell::new("deno").arg("eval");
-        if !flags.is_empty() {
-            shell = shell.args(flags);
-        }
-        shell.arg(script).dir(cwd).run()
     }
 
     /// Run deno task with live output
@@ -436,22 +446,6 @@ pub mod deno {
     }
 
     /// Run deno publish to JSR with live output (auto-discovers deno.json)
-    /// Build an npm tarball from a workspace member's `deno.json`.
-    ///
-    /// `deno pack` synthesizes the `package.json` and resolves references to
-    /// other workspace members into published versions, which is the step a
-    /// bare `npm publish` has no equivalent for: it uploads whatever the
-    /// hand-written manifest says, local paths included.
-    pub fn pack(cwd: &Path, output: &Path) -> Result<CommandResult> {
-        let out = output.to_string_lossy().into_owned();
-        Shell::new("deno")
-            .args(&["pack", "--allow-dirty", "-o"])
-            .arg(&out)
-            .dir(cwd)
-            .inherit()
-            .run_checked()
-    }
-
     pub fn publish(cwd: &Path) -> Result<CommandResult> {
         Shell::new("deno")
             .args(&["publish", "--allow-dirty"])
@@ -460,29 +454,15 @@ pub mod deno {
             .run_checked()
     }
 
-    /// Run deno publish --dry-run quietly (for auth checks)
-    pub fn publish_dry_run(cwd: &Path) -> Result<CommandResult> {
+    /// Dry-run a JSR publish of every workspace member. This is the only step
+    /// that type-checks with deno's own compiler and resolver, which differ
+    /// from the `tsc` the packages build with, and it rejects exports the
+    /// publish configuration would not ship.
+    pub fn publish_check(cwd: &Path) -> Result<CommandResult> {
         Shell::new("deno")
-            .args(&["publish", "--dry-run", "--allow-dirty", "--quiet"])
+            .args(&["publish", "--dry-run", "--allow-dirty"])
             .dir(cwd)
-            .run()
-    }
-}
-
-// ============================================================================
-// node commands
-// ============================================================================
-
-pub mod node {
-    use super::*;
-
-    /// Run node -e <script>
-    pub fn eval(cwd: &Path, script: &str, flags: &[&str]) -> Result<CommandResult> {
-        let mut shell = Shell::new("node");
-        if !flags.is_empty() {
-            shell = shell.args(flags);
-        }
-        shell.arg("-e").arg(script).dir(cwd).run()
+            .run_checked()
     }
 }
 
@@ -508,14 +488,6 @@ pub mod npm {
             anyhow::bail!("npm login failed")
         }
     }
-}
-
-/// Run an arbitrary binary
-pub fn run_binary(cwd: &Path, binary: &Path, args: &[&str]) -> Result<CommandResult> {
-    Shell::new(&binary.to_string_lossy())
-        .args(args)
-        .dir(cwd)
-        .run()
 }
 
 /// Run a command with arguments
@@ -553,24 +525,6 @@ pub mod git {
             .dir(cwd)
             .run()?;
         Ok(result.stdout)
-    }
-
-    /// Stage all changes
-    pub fn add_all(cwd: &Path) -> Result<()> {
-        Shell::new("git")
-            .args(&["add", "-A"])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
-    }
-
-    /// Create a commit
-    pub fn commit(cwd: &Path, message: &str) -> Result<()> {
-        Shell::new("git")
-            .args(&["commit", "-m", message])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
     }
 
     /// Create or overwrite a tag (force)
@@ -665,60 +619,40 @@ pub mod git {
 pub mod macroforge {
     use super::*;
 
-    /// Load environment variables from tooling/.env file
-    pub fn load_env(root: &Path) -> Vec<(String, String)> {
-        let env_path = root.join("tooling/.env");
-        let mut vars = Vec::new();
-
-        if let Ok(content) = std::fs::read_to_string(&env_path) {
-            for line in content.lines() {
-                let line = line.trim();
-                // Skip comments and empty lines
-                if line.is_empty() || line.starts_with('#') {
-                    continue;
-                }
-                // Parse KEY=value or export KEY=value
-                let line = line.strip_prefix("export ").unwrap_or(line);
-                if let Some((key, value)) = line.split_once('=') {
-                    // Remove quotes from value
-                    let value = value.trim_matches('"').trim_matches('\'');
-                    vars.push((key.to_string(), value.to_string()));
-                }
-            }
+    /// `MACROFORGE_CLI` when set, otherwise this checkout's debug build. Never
+    /// the `macroforge` on PATH, which other projects pin to their own version.
+    pub fn binary(root: &Path) -> Result<String> {
+        let binary = std::env::var_os("MACROFORGE_CLI")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| root.join("target/debug/macroforge"));
+        if !binary.is_file() {
+            anyhow::bail!(
+                "macroforge CLI not found at {}; build it with `pixi run build:cli`",
+                binary.display()
+            );
         }
-
-        vars
+        Ok(binary.to_string_lossy().into_owned())
     }
 
-    /// Get the local macroforge crate path from env vars
-    pub fn get_crate_path(root: &Path, env_vars: &[(String, String)]) -> String {
-        env_vars
-            .iter()
-            .find(|(k, _)| k == "MACROFORGE_TS_CRATE")
-            .map(|(_, v)| v.clone())
-            .unwrap_or_else(|| {
-                root.join("crates/macroforge_ts")
-                    .to_string_lossy()
-                    .to_string()
-            })
-    }
-
-    /// Run macroforge tsc on a tsconfig file
+    /// Runs `macroforge tsc` against a tsconfig, from the tsconfig's directory.
     pub fn tsc(root: &Path, tsconfig: &Path) -> Result<CommandResult> {
-        let env_vars = load_env(root);
-        let crate_path = get_crate_path(root, &env_vars);
+        let project_dir = tsconfig
+            .parent()
+            .with_context(|| format!("{} has no parent directory", tsconfig.display()))?;
+        let binary = binary(root)?;
+        let tsconfig = tsconfig.to_string_lossy();
+        Shell::new(&binary)
+            .args(&["tsc", "--project", &tsconfig])
+            .dir(project_dir)
+            .run()
+    }
 
-        Shell::new("deno")
-            .args(&[
-                "run",
-                "-A",
-                &crate_path,
-                "tsc",
-                "-p",
-                &tsconfig.to_string_lossy(),
-            ])
-            .envs(env_vars)
-            .dir(root)
+    /// Runs `macroforge svelte-check` in a Svelte project with machine-verbose output.
+    pub fn svelte_check(root: &Path, project_dir: &Path) -> Result<CommandResult> {
+        let binary = binary(root)?;
+        Shell::new(&binary)
+            .args(&["svelte-check", "--output", "machine-verbose"])
+            .dir(project_dir)
             .run()
     }
 }

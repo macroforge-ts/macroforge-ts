@@ -1,15 +1,18 @@
 import ts from 'typescript';
 import { FoldingRangeKind, Range } from 'vscode-languageserver';
 import { FoldingRange } from 'vscode-languageserver-types';
-import { Document, isInTag, mapRangeToOriginal, toRange } from '../../../lib/documents';
-import { isNotNullOrUndefined } from '../../../utils';
-import { FoldingRangeProvider } from '../../interfaces';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { convertRange } from '../utils';
-import { isTextSpanInGeneratedCode } from './utils';
-import { LSConfigManager } from '../../../ls-config';
-import { indentBasedFoldingRange, LineRange } from '../../../lib/foldingRange/indentFolding';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
+import { Document, isInTag, mapRangeToOriginal, toRange } from '../../../lib/documents/index.ts';
+import { isNotNullOrUndefined } from '../../../utils.ts';
+import type { FoldingRangeProvider } from '../../interfaces.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { convertRange } from '../utils.ts';
+import { isTextSpanInGeneratedCode } from './utils.ts';
+import { LSConfigManager } from '../../../ls-config.ts';
+import {
+    indentBasedFoldingRange,
+    type LineRange
+} from '../../../lib/foldingRange/indentFolding.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
 import {
     findElseBlockTagStart,
     findIfBlockEndTagStart,
@@ -17,9 +20,9 @@ import {
     isAwaitBlock,
     isEachBlock,
     isElseBlockWithElseIf,
-    SvelteNode,
-    SvelteNodeWalker
-} from '../svelte-ast-utils';
+    type SvelteNode,
+    type SvelteNodeWalker
+} from '../svelte-ast-utils.ts';
 
 export class FoldingRangeProviderImpl implements FoldingRangeProvider {
     constructor(
@@ -146,6 +149,7 @@ export class FoldingRangeProviderImpl implements FoldingRangeProvider {
 
             if (
                 (node.type === 'CatchBlock' || node.type === 'ThenBlock') &&
+                parent !== null &&
                 isAwaitBlock(parent)
             ) {
                 const expressionEnd =

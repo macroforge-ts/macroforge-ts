@@ -725,3 +725,31 @@ fn test_fields_from_definition_interface() {
     assert_eq!(fields.len(), 2);
     assert_eq!(fields[0].name, "id");
 }
+
+#[test]
+fn flatten_intersection_stops_at_a_circular_alias() {
+    let mut registry = TypeRegistry::new();
+    for (name, other) in [("Left", "Right"), ("Right", "Left")] {
+        registry.insert(
+            TypeRegistryEntry {
+                name: name.to_string(),
+                file_path: "/project/src/cycle.ts".to_string(),
+                is_exported: true,
+                definition: TypeDefinitionIR::TypeAlias(TypeAliasIR {
+                    name: name.to_string(),
+                    span: zero_span(),
+                    decorators: vec![],
+                    type_params: vec![],
+                    body: TypeBody::Intersection(vec![TypeMember::new(TypeMemberKind::TypeRef(
+                        other.to_string(),
+                    ))]),
+                }),
+                file_imports: vec![],
+            },
+            "/project",
+        );
+    }
+
+    let members = vec![TypeMember::new(TypeMemberKind::TypeRef("Left".to_string()))];
+    assert!(flatten_intersection_fields(&members, &registry).is_none());
+}

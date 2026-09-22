@@ -1,9 +1,9 @@
 import * as assert from 'assert';
 import sinon from 'sinon';
 import ts from 'typescript';
-import * as svS from '../../../src/plugins/typescript/svelte-sys';
-import { DocumentSnapshot } from '../../../src/plugins/typescript/DocumentSnapshot';
-import { createSvelteModuleLoader } from '../../../src/plugins/typescript/module-loader';
+import * as svS from '../../../src/plugins/typescript/svelte-sys.ts';
+import { DocumentSnapshot } from '../../../src/plugins/typescript/DocumentSnapshot.ts';
+import { createSvelteModuleLoader } from '../../../src/plugins/typescript/module-loader.ts';
 
 describe('createSvelteModuleLoader', () => {
     afterEach(() => {
@@ -26,9 +26,9 @@ describe('createSvelteModuleLoader', () => {
         const moduleResolutionHost = { ...ts.sys };
 
         const svelteSys = {
-            ...svS.createSvelteSys(ts.sys)
+            ...svS.svelteSysFactory.createSvelteSys(ts.sys)
         };
-        sinon.stub(svS, 'createSvelteSys').returns(svelteSys);
+        sinon.stub(svS.svelteSysFactory, 'createSvelteSys').returns(svelteSys);
 
         const compilerOptions: ts.CompilerOptions = {
             strict: true,

@@ -1,22 +1,18 @@
 {
     "author": "macroforge contributors",
-    "bin": {
-        "svelteserver": "bin/server.js"
-    },
     "bugs": {
         "url": "https://gitlab.com/macroforge-ts/macroforge-ts/-/issues"
     },
     "dependencies": {
         "@jridgewell/trace-mapping": "^0.3.25",
-        "@macroforge/core": "^0.2.0",
-        "@macroforge/shared": "^0.2.0",
-        "@macroforge/typescript-plugin": "^0.2.0",
+        "@macroforge/core": "0.3.0",
+        "@macroforge/shared": "0.3.0",
+        "@macroforge/typescript-plugin": "0.3.0",
         "@vscode/emmet-helper": "2.8.4",
         "chokidar": "^4.0.1",
-        "estree-walker": "^2.0.1",
         "fdir": "^6.2.0",
         "globrex": "^0.1.2",
-        "lodash": "^4.17.21",
+        "lodash-es": "^4.18.1",
         "prettier": "~3.3.3",
         "prettier-plugin-svelte": "^3.4.0",
         "svelte": "^4.2.19",
@@ -34,7 +30,7 @@
     "devDependencies": {
         "@types/estree": "^0.0.42",
         "@types/globrex": "^0.1.4",
-        "@types/lodash": "^4.14.116",
+        "@types/lodash-es": "^4.17.12",
         "@types/mocha": "^9.1.0",
         "@types/node": "^18.0.0",
         "@types/sinon": "^7.5.2",
@@ -44,17 +40,11 @@
         "ts-node": "^10.0.0"
     },
     "engines": {
-        "node": ">= 18.0.0"
+        "node": ">= 20.19.0"
     },
     "exports": {
-        ".": "./dist/src/index.js",
-        "./bin/server.js": "./bin/server.js",
-        "./package.json": "./package.json"
+        ".": "./src/index.ts"
     },
-    "files": [
-        "dist",
-        "bin"
-    ],
     "homepage": "https://macroforge.dev",
     "keywords": [
         "svelte",
@@ -63,7 +53,6 @@
         "macroforge"
     ],
     "license": "MIT",
-    "main": "dist/src/index.js",
     "name": "@macroforge/svelte-language-server",
     "repository": {
         "directory": "packages/svelte-language-server",
@@ -71,13 +60,9 @@
         "url": "git+https://gitlab.com/macroforge-ts/macroforge-ts.git"
     },
     "scripts": {
-        "build": "deno task clean && deno install --node-modules-dir --quiet && deno run -A npm:typescript@5/tsc",
-        "clean": "rm -rf dist",
-        "cleanbuild": "deno task clean && deno task build",
+        "build": "deno run -A ../../tooling/npm/build.ts svelte-language-server",
         "pretest": "node test/setup-fixtures.js",
-        "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --timeout 60000 --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types",
-        "watch": "deno run -A npm:typescript@5/tsc -w"
+        "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --timeout 60000 --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types"
     },
-    "typings": "dist/src/index",
-    "version": "0.2.0"
+    "version": "0.3.0"
 }

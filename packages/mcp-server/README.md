@@ -1,12 +1,17 @@
 # @macroforge/mcp-server
 
 [![npm version](https://badge.fury.io/js/%40macroforge%2Fmcp-server.svg)](https://www.npmjs.com/package/@macroforge/mcp-server)
+[![JSR](https://jsr.io/badges/@macroforge/mcp-server)](https://jsr.io/@macroforge/mcp-server)
 
 ## Overview
 
 MCP server for Macroforge documentation and code analysis
 
 ## Installation
+
+```bash
+deno add jsr:@macroforge/mcp-server
+```
 
 ```bash
 npm install @macroforge/mcp-server
@@ -20,8 +25,7 @@ npm install @macroforge/mcp-server
 
 ## Documentation
 
-See the [full documentation](https://macroforge.dev/docs/api/reference/typescript/mcp-server) on the
-Macroforge website.
+See the [full API documentation](https://jsr.io/@macroforge/mcp-server/doc) on JSR.
 
 ## License
 

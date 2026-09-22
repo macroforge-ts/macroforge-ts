@@ -51,7 +51,9 @@
 import type ts from 'typescript/lib/tsserverlibrary';
 import {
     __macroforgeGetManifest,
+    hasMacroAnnotations,
     loadConfig as nativeLoadConfig,
+    macroImports,
     NativePlugin
 } from '@macroforge/core';
 
@@ -93,8 +95,7 @@ import path from 'node:path';
 import {
     getExternalDecoratorInfo,
     getExternalMacroInfo,
-    loadMacroConfig,
-    parseMacroImportComments
+    loadMacroConfig
 } from '@macroforge/shared';
 
 // Create require for external package loading
@@ -395,6 +396,7 @@ function findEnclosingDeriveContext(
  * - Field decorators like `@serde`, `@debug`, and custom decorators from external macros
  *
  * @param text - The source text to analyze
+ * @param fileName - The file's path, which decides how its source is parsed
  * @param position - The cursor position as a 0-indexed character offset
  * @param tsModule - The TypeScript module reference (for creating QuickInfo structures)
  * @returns A TypeScript QuickInfo object suitable for hover display, or `null` if the
@@ -405,7 +407,7 @@ function findEnclosingDeriveContext(
  * 1. Check if cursor is on the `@derive` keyword via {@link findDeriveKeywordAtPosition}
  * 2. Check if cursor is on a macro name within `@derive(...)` via {@link findDeriveAtPosition}
  *    - First checks built-in manifest via {@link getMacroManifest}
- *    - Then checks external macro imports via {@link parseMacroImportComments}
+ *    - Then checks the file's external macro imports via `macroImports`
  *    - Falls back to generic hover for unknown macros
  * 3. Check if cursor is on a field decorator via {@link findDecoratorAtPosition}
  *    - First checks built-in manifest (macros and decorators)
@@ -425,27 +427,27 @@ function findEnclosingDeriveContext(
  * @example
  * ```typescript
  * // Hovering over "@derive" keyword
- * const info = getMacroHoverInfo(text, 4, ts);
+ * const info = getMacroHoverInfo(text, fileName, 4, ts);
  * // Returns QuickInfo with documentation about the derive directive
  *
  * // Hovering over "Debug" in "@derive(Debug, Clone)"
- * const info = getMacroHoverInfo(text, 14, ts);
+ * const info = getMacroHoverInfo(text, fileName, 14, ts);
  * // Returns QuickInfo with:
  * // - displayParts: "@derive(Debug)"
  * // - documentation: "Generates a fmt_debug() method for debugging output"
  *
  * // Hovering over external macro "Gigaform" in "@derive(Gigaform)"
- * const info = getMacroHoverInfo(text, 14, ts);
+ * const info = getMacroHoverInfo(text, fileName, 14, ts);
  * // Returns QuickInfo with description loaded from @playground/macro package
  *
  * // Hovering over "@serde" field decorator
- * const info = getMacroHoverInfo(text, 5, ts);
+ * const info = getMacroHoverInfo(text, fileName, 5, ts);
  * // Returns QuickInfo with:
  * // - displayParts: "@serde"
  * // - documentation: "Serialization/deserialization field options"
  *
  * // Hovering over "@hiddenController" from external Gigaform macro
- * const info = getMacroHoverInfo(text, 5, ts);
+ * const info = getMacroHoverInfo(text, fileName, 5, ts);
  * // Returns QuickInfo with docs loaded from external package manifest
  * ```
  *
@@ -459,6 +461,7 @@ function findEnclosingDeriveContext(
  */
 function getMacroHoverInfo(
     text: string,
+    fileName: string,
     position: number,
     tsModule: typeof ts
 ): ts.QuickInfo | null {
@@ -490,7 +493,7 @@ function getMacroHoverInfo(
     }
 
     // Parse external macro imports for later use
-    const externalMacros = parseMacroImportComments(text);
+    const externalMacros = new Map(Object.entries(macroImports(text, fileName)));
 
     // 2. Check for @derive(MacroName) in JSDoc comments
     const deriveMatch = findDeriveAtPosition(text, position);
@@ -737,45 +740,6 @@ function shouldProcess(fileName: string) {
 }
 
 /**
- * Performs a quick check to determine if a file contains any macro-related directives.
- *
- * This is a fast pre-filter to avoid expensive macro expansion on files that
- * don't contain any macros. It uses simple string/regex checks rather than
- * full parsing for performance.
- *
- * @param text - The source text to check
- * @returns `true` if the file likely contains macro directives, `false` otherwise
- *
- * @remarks
- * The function checks for the following three patterns:
- * - A JSDoc comment opening directly followed by `@derive` (i.e. `/** @derive...`)
- * - A JSDoc comment opening directly followed by `import macro` (inline macro
- *   import syntax)
- * - A `$` immediately followed by a letter anywhere in the text (declarative
- *   macro invocations like `$vec(...)`)
- *
- * Plain decorator syntax without a JSDoc comment (e.g. `@Debug class User {}`)
- * does NOT match. The `$` check is intentionally permissive - it's better to
- * have false positives (which just result in unnecessary expansion attempts)
- * than false negatives (which would break macro functionality).
- *
- * @example
- * ```typescript
- * hasMacroDirectives('/** @derive(Debug) * /'); // => true
- * hasMacroDirectives('const v = $vec(1, 2);');  // => true ($ + letter)
- * hasMacroDirectives('@Debug class User {}');   // => false (no JSDoc, no $)
- * hasMacroDirectives('class User {}');          // => false
- * ```
- */
-function hasMacroDirectives(text: string) {
-    return (
-        /\/\*\*\s*@derive\b/i.test(text) ||
-        /\/\*\*\s*import\s+macro\b/i.test(text) ||
-        /\$[a-zA-Z]/.test(text)
-    );
-}
-
-/**
  * Main plugin factory function conforming to the TypeScript Language Service Plugin API.
  *
  * This function is called by TypeScript when the plugin is loaded. It receives the
@@ -931,18 +895,12 @@ function init(
         const keepDecorators = macroConfig.keepDecorators;
 
         /**
-         * Logs a message to multiple destinations for debugging.
+         * Logs a message to TypeScript's project service logger (visible in
+         * tsserver logs) and to stderr.
          *
-         * Messages are sent to:
-         * 1. The native Rust plugin (for unified logging)
-         * 2. TypeScript's project service logger (visible in tsserver logs)
-         * 3. stderr (for development debugging)
-         *
-         * @param msg - The message to log (will be prefixed with timestamp and [macroforge])
+         * @param msg - The message to log, prefixed with `[macroforge]`
          */
         const log = (msg: string) => {
-            const line = `[${new Date().toISOString()}] ${msg}`;
-            nativePlugin.log(line);
             try {
                 info.project.projectService.logger.info(`[macroforge] ${msg}`);
             } catch {
@@ -1321,13 +1279,13 @@ function init(
                 const text = snapshot.getText(0, snapshot.getLength());
 
                 // Scenario 4: No macro directives - return original
-                if (!hasMacroDirectives(text)) {
+                if (!hasMacroAnnotations(text)) {
                     log(`  -> no macro directives, returning original`);
                     return snapshot;
                 }
 
                 // Scenario 5: Has macros - expand and return
-                log(`  -> has @derive, expanding...`);
+                log(`  -> has macros, expanding...`);
                 processingFiles.add(fileName);
                 try {
                     const version = info.languageServiceHost.getScriptVersion(fileName);
@@ -1869,7 +1827,7 @@ function init(
                 const snapshot = originalGetScriptSnapshot(fileName);
                 if (snapshot) {
                     const text = snapshot.getText(0, snapshot.getLength());
-                    const macroHover = getMacroHoverInfo(text, position, tsModule);
+                    const macroHover = getMacroHoverInfo(text, fileName, position, tsModule);
                     if (macroHover) {
                         return macroHover;
                     }

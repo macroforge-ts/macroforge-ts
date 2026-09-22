@@ -4,6 +4,10 @@
     "npm:@biomejs/biome@*": "2.3.10",
     "npm:@emotion/weak-memoize@0.4": "0.4.0",
     "npm:@inlang/paraglide-js@^2.6.0": "2.7.1",
+    "npm:@macroforge/core@*": "0.2.0",
+    "npm:@macroforge/shared@*": "0.2.0",
+    "npm:@macroforge/svelte-preprocessor@*": "0.2.0_svelte@5.46.1__acorn@8.15.0",
+    "npm:@macroforge/vite-plugin@*": "0.2.0_typescript@5.9.3_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3",
     "npm:@sveltejs/adapter-auto@7": "7.0.0_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____@types+node@25.0.3____picomatch@4.0.3___@types+node@25.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___@types+node@25.0.3___picomatch@4.0.3__acorn@8.15.0__@types+node@25.0.3_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___@types+node@25.0.3___picomatch@4.0.3__@types+node@25.0.3_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3_@types+node@25.0.3",
     "npm:@sveltejs/kit@^2.49.0": "2.49.2_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___@types+node@25.0.3___picomatch@4.0.3__@types+node@25.0.3_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3_acorn@8.15.0_@types+node@25.0.3",
     "npm:@sveltejs/vite-plugin-svelte@^6.2.1": "6.2.1_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3_@types+node@25.0.3",
@@ -333,8 +337,8 @@
     "@jridgewell/resolve-uri@3.1.2": {
       "integrity": "sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw=="
     },
-    "@jridgewell/sourcemap-codec@1.5.5": {
-      "integrity": "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="
+    "@jridgewell/sourcemap-codec@1.6.0": {
+      "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="
     },
     "@jridgewell/trace-mapping@0.3.31": {
       "integrity": "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==",
@@ -357,6 +361,27 @@
     },
     "@lix-js/server-protocol-schema@0.1.1": {
       "integrity": "sha512-jBeALB6prAbtr5q4vTuxnRZZv1M2rKe8iNqRQhFJ4Tv7150unEa0vKyz0hs8Gl3fUGsWaNJBh3J8++fpbrpRBQ=="
+    },
+    "@macroforge/core@0.2.0": {},
+    "@macroforge/shared@0.2.0": {},
+    "@macroforge/svelte-preprocessor@0.2.0_svelte@5.46.1__acorn@8.15.0": {
+      "dependencies": [
+        "@macroforge/core",
+        "@macroforge/shared",
+        "svelte"
+      ]
+    },
+    "@macroforge/vite-plugin@0.2.0_typescript@5.9.3_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3": {
+      "dependencies": [
+        "@jridgewell/sourcemap-codec",
+        "@macroforge/core",
+        "@macroforge/shared",
+        "typescript",
+        "vite"
+      ],
+      "optionalPeers": [
+        "typescript"
+      ]
     },
     "@napi-rs/wasm-runtime@1.1.0": {
       "integrity": "sha512-Fq6DJW+Bb5jaWE69/qOE0D1TUN9+6uWhCeZpdnSBk14pjLcCWR7Q8n49PTSPHazM37JqrsdpEthXy2xn6jWWiA==",
@@ -1519,6 +1544,7 @@
     },
     "uuid@10.0.0": {
       "integrity": "sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==",
+      "deprecated": true,
       "bin": true
     },
     "vite-node@3.2.4_@types+node@25.0.3": {
@@ -1650,6 +1676,10 @@
       "dependencies": [
         "npm:@emotion/weak-memoize@0.4",
         "npm:@inlang/paraglide-js@^2.6.0",
+        "npm:@macroforge/core@*",
+        "npm:@macroforge/shared@*",
+        "npm:@macroforge/svelte-preprocessor@*",
+        "npm:@macroforge/vite-plugin@*",
         "npm:@sveltejs/adapter-auto@7",
         "npm:@sveltejs/kit@^2.49.0",
         "npm:@sveltejs/vite-plugin-svelte@^6.2.1",
@@ -1671,6 +1701,35 @@
         "npm:vite@^7.2.2",
         "npm:vitest@^3.2.4"
       ]
+    },
+    "links": {
+      "npm:@macroforge/core@0.2.0": {},
+      "npm:@macroforge/shared@0.2.0": {},
+      "npm:@macroforge/svelte-preprocessor@0.2.0": {
+        "dependencies": [
+          "npm:@macroforge/core@0.2.0",
+          "npm:@macroforge/shared@0.2.0"
+        ],
+        "peerDependencies": [
+          "npm:svelte@5"
+        ]
+      },
+      "npm:@macroforge/vite-plugin@0.2.0": {
+        "dependencies": [
+          "npm:@jridgewell/sourcemap-codec@^1.6.0",
+          "npm:@macroforge/core@0.2.0",
+          "npm:@macroforge/shared@0.2.0"
+        ],
+        "peerDependencies": [
+          "npm:typescript@>=5.0.0",
+          "npm:vite@5 || 6 || 7 || 8"
+        ],
+        "peerDependenciesMeta": {
+          "typescript": {
+            "optional": true
+          }
+        }
+      }
     }
   }
 }

@@ -439,6 +439,29 @@ interface Item { id: string; }`
     }
 });
 
+Deno.test('CLI expand: without --out prints and leaves the source tree alone', () => {
+    setupTmpDir();
+    try {
+        const inputFile = path.join(tmpDir, 'stdout-test.ts');
+        fs.writeFileSync(
+            inputFile,
+            `/** @derive(Debug) */
+interface Item { id: string; }`
+        );
+
+        const result = runCli(['expand', inputFile]);
+
+        assertEquals(result.success, true, `CLI should succeed. stderr: ${result.stderr}`);
+        assert(result.stdout.includes('toString'), 'Should print expanded code to stdout');
+        assert(
+            !existsSync(path.join(tmpDir, 'stdout-test.expanded.ts')),
+            'Should not write an .expanded.ts sibling'
+        );
+    } finally {
+        cleanupTmpDir();
+    }
+});
+
 Deno.test('CLI expand: respects --out flag for custom output path', () => {
     setupTmpDir();
     try {

@@ -1,32 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-// Shape of the gigaform result objects exposed by the playground on
-// `window.gigaformResults`. Deliberately loose — each form shape is
-// macro-generated, so tests drill in with runtime-typed access rather
-// than enumerate every field controller method.
-type EffectOption<T> = { readonly _tag: 'Some' | 'None'; readonly value?: T };
-type EffectOptionModule = {
-    some: <T>(value: T) => EffectOption<T>;
-    isNone: <T>(option: EffectOption<T>) => boolean;
-    getOrElse: <T>(option: EffectOption<T>, onNone: () => T) => T;
-};
-type GigaformField = {
-    set: (v: unknown) => void;
-    setTainted: (v: EffectOption<boolean>) => void;
-    getTainted: () => EffectOption<boolean>;
-    setError: (errs: EffectOption<string[]>) => void;
-    getError: () => EffectOption<string[]>;
-    [method: string]: unknown;
-};
-type GigaformForm = {
-    fields: Record<string, GigaformField>;
-    [k: string]: unknown;
-};
-type GigaformWindow = {
-    gigaformResults: Record<string, GigaformForm>;
-    effectOption: EffectOptionModule;
-};
-
 test.describe('Gigaform E2E Tests', () => {
     test.describe('Basic Field Operations', () => {
         test.beforeEach(async ({ page }) => {
@@ -54,7 +27,10 @@ test.describe('Gigaform E2E Tests', () => {
         test('field.set() updates input value reactively', async ({ page }) => {
             // Programmatically set via window object
             await page.evaluate(() => {
-                (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                if (!phoneNumber) throw new Error('the gigaform page did not publish phoneNumber');
+                phoneNumber
                     .fields.phoneType.set(
                         'Mobile'
                     );
@@ -67,9 +43,14 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('getTainted() returns false initially', async ({ page }) => {
             const tainted = await page.evaluate(() => {
-                const w = globalThis as unknown as GigaformWindow;
-                return w.effectOption.getOrElse(
-                    w.gigaformResults.phoneNumber.fields.phoneType.getTainted(),
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                const option = playground?.effectOption;
+                if (!phoneNumber || !option) {
+                    throw new Error('the gigaform page did not publish phoneNumber, option');
+                }
+                return option.getOrElse(
+                    phoneNumber.fields.phoneType.getTainted(),
                     () => false
                 );
             });
@@ -78,16 +59,26 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('setTainted() marks field as touched', async ({ page }) => {
             await page.evaluate(() => {
-                const w = globalThis as unknown as GigaformWindow;
-                w.gigaformResults.phoneNumber.fields.phoneType.setTainted(
-                    w.effectOption.some(true)
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                const option = playground?.effectOption;
+                if (!phoneNumber || !option) {
+                    throw new Error('the gigaform page did not publish phoneNumber, option');
+                }
+                phoneNumber.fields.phoneType.setTainted(
+                    option.some(true)
                 );
             });
 
             const tainted = await page.evaluate(() => {
-                const w = globalThis as unknown as GigaformWindow;
-                return w.effectOption.getOrElse(
-                    w.gigaformResults.phoneNumber.fields.phoneType.getTainted(),
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                const option = playground?.effectOption;
+                if (!phoneNumber || !option) {
+                    throw new Error('the gigaform page did not publish phoneNumber, option');
+                }
+                return option.getOrElse(
+                    phoneNumber.fields.phoneType.getTainted(),
                     () => false
                 );
             });
@@ -102,9 +93,14 @@ test.describe('Gigaform E2E Tests', () => {
             await page.fill('[data-testid="phone-type"]', 'Work');
 
             const tainted = await page.evaluate(() => {
-                const w = globalThis as unknown as GigaformWindow;
-                return w.effectOption.getOrElse(
-                    w.gigaformResults.phoneNumber.fields.phoneType.getTainted(),
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                const option = playground?.effectOption;
+                if (!phoneNumber || !option) {
+                    throw new Error('the gigaform page did not publish phoneNumber, option');
+                }
+                return option.getOrElse(
+                    phoneNumber.fields.phoneType.getTainted(),
                     () => false
                 );
             });
@@ -113,9 +109,14 @@ test.describe('Gigaform E2E Tests', () => {
 
         test('setError() stores and displays error', async ({ page }) => {
             await page.evaluate(() => {
-                const w = globalThis as unknown as GigaformWindow;
-                w.gigaformResults.phoneNumber.fields.phoneType.setError(
-                    w.effectOption.some(['Phone type is required'])
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                const option = playground?.effectOption;
+                if (!phoneNumber || !option) {
+                    throw new Error('the gigaform page did not publish phoneNumber, option');
+                }
+                phoneNumber.fields.phoneType.setError(
+                    option.some(['Phone type is required'])
                 );
             });
             await page.waitForTimeout(50);
@@ -127,16 +128,10 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('validate() returns field-specific errors', async ({ page }) => {
-            // Leave phoneType empty (required field with nonEmpty validator)
+            // phoneType starts empty and carries a nonEmpty validator.
             await page.click('[data-testid="validate-phone-type"]');
-            await page.waitForTimeout(50);
 
-            // Check if error appears
-            const errorVisible = await page.locator(
-                '[data-testid="phone-type-error"]'
-            ).isVisible();
-            // Note: validation depends on @serde validators which may or may not be strict
-            expect(typeof errorVisible).toBe('boolean');
+            await expect(page.locator('[data-testid="phone-type-error"]')).toBeVisible();
         });
 
         test('submit valid PhoneNumber form', async ({ page }) => {
@@ -204,12 +199,14 @@ test.describe('Gigaform E2E Tests', () => {
             await page.fill('[data-testid="settings-daysPerWeek"]', '5');
             await page.waitForTimeout(50);
 
-            const data = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.user.data
-                        .settings.scheduleSettings
-                        .daysPerWeek
-            );
+            const data = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const user = playground?.gigaform?.user;
+                if (!user) throw new Error('the gigaform page did not publish user');
+                return user.data
+                    .settings.scheduleSettings
+                    .daysPerWeek;
+            });
             expect(data).toBe(5);
         });
 
@@ -217,30 +214,36 @@ test.describe('Gigaform E2E Tests', () => {
             await page.selectOption('[data-testid="settings-rowHeight"]', 'Large');
             await page.waitForTimeout(50);
 
-            const data = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.user.data
-                        .settings.scheduleSettings
-                        .rowHeight
-            );
+            const data = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const user = playground?.gigaform?.user;
+                if (!user) throw new Error('the gigaform page did not publish user');
+                return user.data
+                    .settings.scheduleSettings
+                    .rowHeight;
+            });
             expect(data).toBe('Large');
         });
 
         test('add permission page to nested array', async ({ page }) => {
-            const initialLength = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.user.data
-                        .permissions.pages.length
-            );
+            const initialLength = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const user = playground?.gigaform?.user;
+                if (!user) throw new Error('the gigaform page did not publish user');
+                return user.data
+                    .permissions.pages.length;
+            });
 
             await page.click('[data-testid="add-permission-page"]');
             await page.waitForTimeout(50);
 
-            const newLength = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.user.data
-                        .permissions.pages.length
-            );
+            const newLength = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const user = playground?.gigaform?.user;
+                if (!user) throw new Error('the gigaform page did not publish user');
+                return user.data
+                    .permissions.pages.length;
+            });
 
             expect(newLength).toBe(initialLength + 1);
         });
@@ -275,22 +278,26 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('push() adds new phone to array', async ({ page }) => {
-            const initialCount = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.account
-                        .fields.phones.get().length
-            );
+            const initialCount = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                return account
+                    .fields.phones.get().length;
+            });
 
             await page.fill('[data-testid="new-phone-type"]', 'Work');
             await page.fill('[data-testid="new-phone-number"]', '555-999-0000');
             await page.click('[data-testid="add-phone"]');
             await page.waitForTimeout(50);
 
-            const newCount = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.account
-                        .fields.phones.get().length
-            );
+            const newCount = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                return account
+                    .fields.phones.get().length;
+            });
 
             expect(newCount).toBe(initialCount + 1);
         });
@@ -302,21 +309,25 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="add-phone"]');
             await page.waitForTimeout(50);
 
-            const countBefore = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.account
-                        .fields.phones.get().length
-            );
+            const countBefore = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                return account
+                    .fields.phones.get().length;
+            });
 
             // Remove the first phone
             await page.click('[data-testid="phone-remove-0"]');
             await page.waitForTimeout(50);
 
-            const countAfter = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.account
-                        .fields.phones.get().length
-            );
+            const countAfter = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                return account
+                    .fields.phones.get().length;
+            });
 
             expect(countAfter).toBe(countBefore - 1);
         });
@@ -329,8 +340,10 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const phoneAt0 = await page.evaluate(() => {
-                const controller = (globalThis as unknown as GigaformWindow)
-                    .gigaformResults.account.fields.phones
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                const controller = account.fields.phones
                     .at(0);
                 return controller.get();
             });
@@ -349,11 +362,13 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="phone-edit-0"]');
             await page.waitForTimeout(50);
 
-            const phone = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.account
-                        .fields.phones.get()[0]
-            );
+            const phone = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                return account
+                    .fields.phones.get()[0];
+            });
 
             // Main should have toggled
             expect(typeof phone.main).toBe('boolean');
@@ -372,9 +387,10 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const beforeSwap = await page.evaluate(() => {
-                const phones = (globalThis as unknown as GigaformWindow).gigaformResults
-                    .account.fields.phones.get() as Array<{ phoneType: string }>;
-                return phones.map((p) => p.phoneType);
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                return account.fields.phones.get().map((phone) => phone.phoneType);
             });
 
             // Swap via Move Up button on second element
@@ -382,9 +398,10 @@ test.describe('Gigaform E2E Tests', () => {
             await page.waitForTimeout(50);
 
             const afterSwap = await page.evaluate(() => {
-                const phones = (globalThis as unknown as GigaformWindow).gigaformResults
-                    .account.fields.phones.get() as Array<{ phoneType: string }>;
-                return phones.map((p) => p.phoneType);
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                return account.fields.phones.get().map((phone) => phone.phoneType);
             });
 
             expect(afterSwap[0]).toBe(beforeSwap[1]);
@@ -418,11 +435,13 @@ test.describe('Gigaform E2E Tests', () => {
                 .toContainText('1');
 
             // Verify tuple structure
-            const customField = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.account
-                        .fields.customFields.get()[0]
-            );
+            const customField = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const account = playground?.gigaform?.account;
+                if (!account) throw new Error('the gigaform page did not publish account');
+                return account
+                    .fields.customFields.get()[0];
+            });
             expect(customField).toEqual(['Industry', 'Technology']);
         });
     });
@@ -452,12 +471,19 @@ test.describe('Gigaform E2E Tests', () => {
             await page.fill('[data-testid="lead-companyName"]', 'Acme Inc');
             await page.waitForTimeout(50);
 
-            const leadName = await page.evaluate(() =>
-                (globalThis as unknown as GigaformWindow).gigaformResults.lead.fields
-                    .leadName.get()
-            );
+            const leadName = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const lead = playground?.gigaform?.lead;
+                if (!lead) throw new Error('the gigaform page did not publish lead');
+                return lead.fields
+                    .leadName.get();
+            });
 
-            expect(leadName).toHaveProperty('companyName');
+            if (!('companyName' in leadName)) {
+                throw new Error(
+                    `expected the CompanyName variant, got ${JSON.stringify(leadName)}`
+                );
+            }
             expect(leadName.companyName).toBe('Acme Inc');
         });
 
@@ -469,13 +495,17 @@ test.describe('Gigaform E2E Tests', () => {
             await page.fill('[data-testid="lead-lastName"]', 'Doe');
             await page.waitForTimeout(50);
 
-            const leadName = await page.evaluate(() =>
-                (globalThis as unknown as GigaformWindow).gigaformResults.lead.fields
-                    .leadName.get()
-            );
+            const leadName = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const lead = playground?.gigaform?.lead;
+                if (!lead) throw new Error('the gigaform page did not publish lead');
+                return lead.fields
+                    .leadName.get();
+            });
 
-            expect(leadName).toHaveProperty('firstName');
-            expect(leadName).toHaveProperty('lastName');
+            if (!('firstName' in leadName)) {
+                throw new Error(`expected the PersonName variant, got ${JSON.stringify(leadName)}`);
+            }
             expect(leadName.firstName).toBe('Jane');
             expect(leadName.lastName).toBe('Doe');
         });
@@ -571,28 +601,32 @@ test.describe('Gigaform E2E Tests', () => {
         });
 
         test('can add new record entry', async ({ page }) => {
-            const initialCount = await page.evaluate(
-                () =>
-                    Object.keys(
-                        (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
-                            .fields.taxComponents.get()
-                    )
-                        .length
-            );
+            const initialCount = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const taxRate = playground?.gigaform?.taxRate;
+                if (!taxRate) throw new Error('the gigaform page did not publish taxRate');
+                return Object.keys(
+                    taxRate
+                        .fields.taxComponents.get()
+                )
+                    .length;
+            });
 
             await page.fill('[data-testid="new-component-key"]', 'district');
             await page.fill('[data-testid="new-component-value"]', '0.005');
             await page.click('[data-testid="add-component"]');
             await page.waitForTimeout(50);
 
-            const newCount = await page.evaluate(
-                () =>
-                    Object.keys(
-                        (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
-                            .fields.taxComponents.get()
-                    )
-                        .length
-            );
+            const newCount = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const taxRate = playground?.gigaform?.taxRate;
+                if (!taxRate) throw new Error('the gigaform page did not publish taxRate');
+                return Object.keys(
+                    taxRate
+                        .fields.taxComponents.get()
+                )
+                    .length;
+            });
 
             expect(newCount).toBe(initialCount + 1);
         });
@@ -606,12 +640,14 @@ test.describe('Gigaform E2E Tests', () => {
             await page.fill('[data-testid="taxComponent-state-value"]', '0.08');
             await page.waitForTimeout(50);
 
-            const stateValue = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
-                        .fields.taxComponents.get()
-                        .state
-            );
+            const stateValue = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const taxRate = playground?.gigaform?.taxRate;
+                if (!taxRate) throw new Error('the gigaform page did not publish taxRate');
+                return taxRate
+                    .fields.taxComponents.get()
+                    .state;
+            });
 
             expect(stateValue).toBeCloseTo(0.08);
         });
@@ -623,12 +659,14 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="taxComponent-remove-city"]');
             await page.waitForTimeout(50);
 
-            const hasCity = await page.evaluate(
-                () =>
-                    'city' in
-                        (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
-                            .fields.taxComponents.get()
-            );
+            const hasCity = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const taxRate = playground?.gigaform?.taxRate;
+                if (!taxRate) throw new Error('the gigaform page did not publish taxRate');
+                return 'city' in
+                    taxRate
+                        .fields.taxComponents.get();
+            });
 
             expect(hasCity).toBe(false);
         });
@@ -639,14 +677,16 @@ test.describe('Gigaform E2E Tests', () => {
             await page.click('[data-testid="clear-all-components"]');
             await page.waitForTimeout(50);
 
-            const count = await page.evaluate(
-                () =>
-                    Object.keys(
-                        (globalThis as unknown as GigaformWindow).gigaformResults.taxRate
-                            .fields.taxComponents.get()
-                    )
-                        .length
-            );
+            const count = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const taxRate = playground?.gigaform?.taxRate;
+                if (!taxRate) throw new Error('the gigaform page did not publish taxRate');
+                return Object.keys(
+                    taxRate
+                        .fields.taxComponents.get()
+                )
+                    .length;
+            });
 
             expect(count).toBe(0);
         });
@@ -678,11 +718,17 @@ test.describe('Gigaform E2E Tests', () => {
             await page.fill('[data-testid="coordinates-lng"]', '-74.0060');
             await page.waitForTimeout(50);
 
-            const site = await page.evaluate(() =>
-                (globalThis as unknown as GigaformWindow).gigaformResults.order.fields
-                    .site.get()
-            );
+            const site = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const order = playground?.gigaform?.order;
+                if (!order) throw new Error('the gigaform page did not publish order');
+                return order.fields
+                    .site.get();
+            });
 
+            if (typeof site === 'string') {
+                throw new Error(`expected a Site object, got the reference ${site}`);
+            }
             expect(site.coordinates.lat).toBeCloseTo(40.7128);
             expect(site.coordinates.lng).toBeCloseTo(-74.006);
         });
@@ -798,10 +844,13 @@ test.describe('Gigaform E2E Tests', () => {
             );
             await page.waitForTimeout(50);
 
-            const imageUrl = await page.evaluate(() =>
-                (globalThis as unknown as GigaformWindow).gigaformResults.employee
-                    .fields.imageUrl.get()
-            );
+            const imageUrl = await page.evaluate(() => {
+                const playground = globalThis.sveltePlayground;
+                const employee = playground?.gigaform?.employee;
+                if (!employee) throw new Error('the gigaform page did not publish employee');
+                return employee
+                    .fields.imageUrl.get();
+            });
 
             expect(imageUrl).toBe('https://example.com/image.jpg');
         });
@@ -861,7 +910,10 @@ test.describe('Gigaform E2E Tests', () => {
 
             // Multiple programmatic updates
             await page.evaluate(() => {
-                const form = (globalThis as unknown as GigaformWindow).gigaformResults.phoneNumber;
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                if (!phoneNumber) throw new Error('the gigaform page did not publish phoneNumber');
+                const form = phoneNumber;
                 form.fields.phoneType.set('Programmatic');
                 form.fields.number.set('999-888-7777');
                 form.fields.main.set(true);
@@ -884,7 +936,10 @@ test.describe('Gigaform E2E Tests', () => {
             // Rapid updates
             for (let i = 0; i < 10; i++) {
                 await page.evaluate((val) => {
-                    (globalThis as unknown as GigaformWindow).gigaformResults.gradient
+                    const playground = globalThis.sveltePlayground;
+                    const gradient = playground?.gigaform?.gradient;
+                    if (!gradient) throw new Error('the gigaform page did not publish gradient');
+                    gradient
                         .fields.startHue.set(val);
                 }, i * 36);
             }
@@ -907,10 +962,15 @@ test.describe('Gigaform E2E Tests', () => {
 
             // Set error and tainted
             await page.evaluate(() => {
-                const w = globalThis as unknown as GigaformWindow;
-                const form = w.gigaformResults.phoneNumber;
-                form.fields.phoneType.setError(w.effectOption.some(['Test error']));
-                form.fields.phoneType.setTainted(w.effectOption.some(true));
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                const option = playground?.effectOption;
+                if (!phoneNumber || !option) {
+                    throw new Error('the gigaform page did not publish phoneNumber, option');
+                }
+                const form = phoneNumber;
+                form.fields.phoneType.setError(option.some(['Test error']));
+                form.fields.phoneType.setTainted(option.some(true));
             });
             await page.waitForTimeout(50);
 
@@ -922,11 +982,16 @@ test.describe('Gigaform E2E Tests', () => {
             expect(await page.inputValue('[data-testid="phone-type"]')).toBe('');
 
             const state = await page.evaluate(() => {
-                const w = globalThis as unknown as GigaformWindow;
-                const form = w.gigaformResults.phoneNumber;
+                const playground = globalThis.sveltePlayground;
+                const phoneNumber = playground?.gigaform?.phoneNumber;
+                const option = playground?.effectOption;
+                if (!phoneNumber || !option) {
+                    throw new Error('the gigaform page did not publish phoneNumber, option');
+                }
+                const form = phoneNumber;
                 return {
-                    errorCleared: w.effectOption.isNone(form.fields.phoneType.getError()),
-                    tainted: w.effectOption.getOrElse(
+                    errorCleared: option.isNone(form.fields.phoneType.getError()),
+                    tainted: option.getOrElse(
                         form.fields.phoneType.getTainted(),
                         () => false
                     )
@@ -943,17 +1008,12 @@ test.describe('Gigaform E2E Tests', () => {
             await page.goto('/gigaform/complex');
             await page.waitForSelector('body.hydrated', { timeout: 10000 });
 
-            const hasEmployee = await page.evaluate(
-                () =>
-                    'employee' in
-                        (globalThis as unknown as GigaformWindow).gigaformResults
-            );
-            const hasOrder = await page.evaluate(() =>
-                'order' in (globalThis as unknown as GigaformWindow).gigaformResults
-            );
+            const published = await page.evaluate(() => ({
+                employee: globalThis.sveltePlayground?.gigaform?.employee !== undefined,
+                order: globalThis.sveltePlayground?.gigaform?.order !== undefined
+            }));
 
-            expect(hasEmployee).toBe(true);
-            expect(hasOrder).toBe(true);
+            expect(published).toEqual({ employee: true, order: true });
         });
 
         test('validation results stored in window object', async ({ page }) => {
@@ -971,13 +1031,14 @@ test.describe('Gigaform E2E Tests', () => {
             );
 
             const validation = await page.evaluate(
-                () =>
-                    (globalThis as unknown as GigaformWindow).gigaformResults
-                        .phoneValidation
+                () => globalThis.sveltePlayground?.gigaform?.phoneValidation
             );
-
-            expect(validation).toBeDefined();
-            expect(typeof validation.success).toBe('boolean');
+            if (!validation) throw new Error('phoneValidation was not published');
+            const shown = await page.getAttribute(
+                '[data-testid="phone-result"]',
+                'data-validation-success'
+            );
+            expect(String(validation.success)).toBe(shown);
         });
     });
 });

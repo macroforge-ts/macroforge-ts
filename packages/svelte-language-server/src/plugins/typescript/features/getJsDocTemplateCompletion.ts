@@ -7,8 +7,8 @@ import {
     Range,
     TextEdit
 } from 'vscode-languageserver';
-import { mapRangeToOriginal } from '../../../lib/documents';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
+import { mapRangeToOriginal } from '../../../lib/documents/index.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
 
 const DEFAULT_SNIPPET = `/**${ts.sys.newLine} * $0${ts.sys.newLine} */`;
 

@@ -2,15 +2,15 @@ import * as assert from 'assert';
 import { existsSync, unlinkSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import ts from 'typescript';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { DiagnosticsProviderImpl } from '../../../../src/plugins/typescript/features/DiagnosticsProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { __resetCache } from '../../../../src/plugins/typescript/service';
-import { normalizePath, pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { DiagnosticsProviderImpl } from '../../../../src/plugins/typescript/features/DiagnosticsProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { __resetCache } from '../../../../src/plugins/typescript/service.ts';
+import { normalizePath, pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..', 'testfiles', 'diagnostics');
+const testDir = path.join(import.meta.dirname, '..', 'testfiles', 'diagnostics');
 
 describe('DiagnosticsProvider', function () {
     serviceWarmup(this, testDir);

@@ -1,4 +1,4 @@
-import { getRustItems, getVersion } from '$lib/server/api-docs';
+import { getRustItems, getVersion } from '$lib/server/api-docs.ts';
 
 export async function load() {
     // Pull specific API items from generated docs

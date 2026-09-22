@@ -4,27 +4,27 @@
     },
     "dependencies": {
         "@jridgewell/sourcemap-codec": "^1.6.0",
-        "@macroforge/core": "^0.2.0",
-        "@macroforge/shared": "^0.2.0"
+        "@macroforge/core": "0.3.0",
+        "@macroforge/shared": "0.3.0"
     },
+    "description": "Vite plugin that expands Macroforge macros in TypeScript and Svelte modules",
     "devDependencies": {
         "@types/node": "^26.6.2"
     },
     "exports": {
-        ".": {
-            "import": "./src/index.js",
-            "types": "./src/index.d.ts"
-        }
+        ".": "./src/index.js"
     },
-    "files": [
-        "src"
-    ],
     "homepage": "https://macroforge.dev",
     "license": "MIT",
-    "main": "src/index.js",
     "name": "@macroforge/vite-plugin",
     "peerDependencies": {
-        "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+        "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0",
+        "typescript": ">=5.0.0"
+    },
+    "peerDependenciesMeta": {
+        "typescript": {
+            "optional": true
+        }
     },
     "repository": {
         "directory": "packages/vite-plugin",
@@ -32,10 +32,9 @@
         "url": "git+https://gitlab.com/macroforge-ts/macroforge-ts.git"
     },
     "scripts": {
-        "build": "echo 'No build needed'",
+        "build": "deno run -A ../../tooling/npm/build.ts vite-plugin",
         "test": "node --test tests/**/*.test.js"
     },
     "type": "module",
-    "types": "src/index.d.ts",
-    "version": "0.2.0"
+    "version": "0.3.0"
 }

@@ -76,8 +76,8 @@ deno task build`}
 </p>
 
 <CodeBlock
-    code={`# The binary is located at:
-./packages/svelte-language-server/bin/server.js`}
+    code={`# The build writes the package to npm/svelte-language-server; its binary is:
+./npm/svelte-language-server/script/server-bin.js`}
     lang="bash"
 />
 

@@ -2,7 +2,7 @@ import { FSWatcher, watch } from 'chokidar';
 import { readFile } from 'fs';
 import globrex from 'globrex';
 import { join } from 'path';
-import { flatten, isNotNullOrUndefined, normalizePath } from '../../utils';
+import { flatten, isNotNullOrUndefined, normalizePath } from '../../utils.ts';
 
 const varRegex = /^\s*(--\w+.*?):\s*?([^;]*)/;
 

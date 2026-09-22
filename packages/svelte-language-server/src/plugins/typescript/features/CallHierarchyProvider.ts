@@ -2,21 +2,21 @@ import path, { basename, dirname } from 'path';
 import ts from 'typescript';
 import { CancellationToken, Range, SymbolKind, SymbolTag } from 'vscode-languageserver';
 import {
-    CallHierarchyIncomingCall,
-    CallHierarchyItem,
-    CallHierarchyOutgoingCall,
+    type CallHierarchyIncomingCall,
+    type CallHierarchyItem,
+    type CallHierarchyOutgoingCall,
     Position
 } from 'vscode-languageserver-types';
-import { Document, mapRangeToOriginal } from '../../../lib/documents';
+import { Document, mapRangeToOriginal } from '../../../lib/documents/index.ts';
 import {
     createGetCanonicalFileName,
     isNotNullOrUndefined,
     pathToUrl,
     urlToPath
-} from '../../../utils';
-import { CallHierarchyProvider } from '../../interfaces';
-import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
+} from '../../../utils.ts';
+import type { CallHierarchyProvider } from '../../interfaces.ts';
+import { DocumentSnapshot, SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
 import {
     convertRange,
     getNearestWorkspaceUri,
@@ -25,8 +25,8 @@ import {
     offsetOfGeneratedComponentExport,
     symbolKindFromString,
     toGeneratedSvelteComponentName
-} from '../utils';
-import { findNodeAtSpan, gatherDescendants, SnapshotMap } from './utils';
+} from '../utils.ts';
+import { findNodeAtSpan, gatherDescendants, SnapshotMap } from './utils.ts';
 import { internalHelpers } from 'svelte2tsx';
 
 const ENSURE_COMPONENT_HELPER = '__sveltets_2_ensureComponent';

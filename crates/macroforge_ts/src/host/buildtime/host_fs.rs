@@ -1,9 +1,8 @@
 //! Host filesystem bridge for `buildtime.fs.*`.
 //!
-//! On native targets every call goes straight through `std::fs`. On
-//! wasm32-unknown-unknown there's no filesystem in the runtime, so the
-//! host JS environment must register synchronous read callbacks via
-//! [`setup_buildtime_fs`]. The Vite plugin wires this up at startup.
+//! On native targets every call goes straight through `std::fs`. The wasm
+//! build is a Node ES module, so it binds `node:fs` directly; Node, Deno and
+//! Bun all provide it.
 //!
 //! Both paths return the same `Result<T, HostFsError>`, so callers
 //! (the Boa backend's `fs_*_impl` helpers) don't need to know which
@@ -13,8 +12,6 @@ use std::path::Path;
 
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum HostFsError {
-    #[error("fs not available: {0}")]
-    NotAvailable(String),
     #[error("io error reading {}: {message}", .path.display())]
     Io {
         path: std::path::PathBuf,
@@ -57,10 +54,16 @@ pub fn list_dir(path: &Path) -> Result<Vec<String>, HostFsError> {
             path: path.to_path_buf(),
             message: e.to_string(),
         })?;
-        let mut names: Vec<String> = iter
-            .filter_map(|entry| entry.ok())
-            .map(|entry| entry.file_name().to_string_lossy().into_owned())
-            .collect();
+        let mut names = iter
+            .map(|entry| {
+                entry
+                    .map(|entry| entry.file_name().to_string_lossy().into_owned())
+                    .map_err(|e| HostFsError::Io {
+                        path: path.to_path_buf(),
+                        message: e.to_string(),
+                    })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
         names.sort();
         Ok(names)
     }
@@ -74,93 +77,53 @@ pub fn list_dir(path: &Path) -> Result<Vec<String>, HostFsError> {
 mod wasm_impl {
     use super::HostFsError;
     use std::path::Path;
-    use std::sync::OnceLock;
     use wasm_bindgen::prelude::*;
 
-    /// Three JS callbacks the host plugin registers at startup.
-    /// All three are *synchronous* — they're invoked from inside the
-    /// Boa sandbox, which doesn't allow async at native call sites.
-    pub(super) struct HostFsCallbacks {
-        pub read_text: js_sys::Function,
-        pub exists: js_sys::Function,
-        pub list_dir: js_sys::Function,
+    // A snippet module rather than `module = "node:fs"`: the glue already
+    // imports `readFileSync` to load the wasm, and wasm-bindgen emits a
+    // second, colliding import for an extern of the same name.
+    #[wasm_bindgen(inline_js = r#"
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+export function readText(path) { return readFileSync(path, 'utf8'); }
+export function exists(path) { return existsSync(path); }
+export function listDir(path) { return readdirSync(path); }
+"#)]
+    extern "C" {
+        #[wasm_bindgen(catch, js_name = readText)]
+        fn node_read_text(path: &str) -> Result<String, JsValue>;
+        #[wasm_bindgen(js_name = exists)]
+        fn node_exists(path: &str) -> bool;
+        #[wasm_bindgen(catch, js_name = listDir)]
+        fn node_list_dir(path: &str) -> Result<js_sys::Array, JsValue>;
     }
 
-    static CALLBACKS: OnceLock<HostFsCallbacks> = OnceLock::new();
-
-    /// Register JS callbacks that bridge `buildtime.fs.*` to the host
-    /// filesystem. Called once at startup by the Vite plugin (and any
-    /// other JS host). Subsequent calls are ignored.
-    #[wasm_bindgen(js_name = "setupBuildtimeFs")]
-    pub fn setup_buildtime_fs(
-        read_text: js_sys::Function,
-        exists: js_sys::Function,
-        list_dir: js_sys::Function,
-    ) {
-        let _ = CALLBACKS.set(HostFsCallbacks {
-            read_text,
-            exists,
-            list_dir,
-        });
-    }
-
-    fn callbacks() -> Result<&'static HostFsCallbacks, HostFsError> {
-        CALLBACKS.get().ok_or_else(|| {
-            HostFsError::NotAvailable(
-                "no JS host registered fs callbacks; call setupBuildtimeFs() first".to_string(),
-            )
-        })
+    fn io_error(path: &Path, error: JsValue) -> HostFsError {
+        HostFsError::Io {
+            path: path.to_path_buf(),
+            message: format!("{error:?}"),
+        }
     }
 
     pub(super) fn read_text(path: &Path) -> Result<String, HostFsError> {
-        let cb = callbacks()?;
-        let arg = JsValue::from_str(&path.to_string_lossy());
-        let result = cb
-            .read_text
-            .call1(&JsValue::NULL, &arg)
-            .map_err(|e| HostFsError::Io {
-                path: path.to_path_buf(),
-                message: format!("{e:?}"),
-            })?;
-        if result.is_null() || result.is_undefined() {
-            return Err(HostFsError::Io {
-                path: path.to_path_buf(),
-                message: "host returned null/undefined".to_string(),
-            });
-        }
-        result.as_string().ok_or_else(|| HostFsError::Io {
-            path: path.to_path_buf(),
-            message: "host returned non-string".to_string(),
-        })
+        node_read_text(&path.to_string_lossy()).map_err(|error| io_error(path, error))
     }
 
     pub(super) fn exists(path: &Path) -> Result<bool, HostFsError> {
-        let cb = callbacks()?;
-        let arg = JsValue::from_str(&path.to_string_lossy());
-        let result = cb
-            .exists
-            .call1(&JsValue::NULL, &arg)
-            .map_err(|e| HostFsError::Io {
-                path: path.to_path_buf(),
-                message: format!("{e:?}"),
-            })?;
-        Ok(result.as_bool().unwrap_or(false))
+        Ok(node_exists(&path.to_string_lossy()))
     }
 
     pub(super) fn list_dir(path: &Path) -> Result<Vec<String>, HostFsError> {
-        let cb = callbacks()?;
-        let arg = JsValue::from_str(&path.to_string_lossy());
-        let result = cb
-            .list_dir
-            .call1(&JsValue::NULL, &arg)
-            .map_err(|e| HostFsError::Io {
-                path: path.to_path_buf(),
-                message: format!("{e:?}"),
-            })?;
-        let array = js_sys::Array::from(&result);
-        let mut names: Vec<String> = (0..array.length())
-            .filter_map(|i| array.get(i).as_string())
-            .collect();
+        let entries =
+            node_list_dir(&path.to_string_lossy()).map_err(|error| io_error(path, error))?;
+        let mut names = entries
+            .iter()
+            .map(|entry| {
+                entry.as_string().ok_or_else(|| HostFsError::Io {
+                    path: path.to_path_buf(),
+                    message: "readdirSync returned a non-string entry".to_string(),
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
         names.sort();
         Ok(names)
     }

@@ -1,58 +1,9 @@
 import { sveltekit } from '@sveltejs/kit/vite';
+import { macroforge } from '@macroforge/vite-plugin';
 import { defineConfig } from 'vite';
 
-// Runtime imports from env variables (optional — not set during svelte-check)
-const {
-    VITE_PLUGIN_PKG,
-    MACROFORGE_TS_CRATE,
-    PLAYGROUND_MACRO,
-    SHARED_PKG,
-    SVELTE_PREPROCESSOR_PKG,
-    TYPESCRIPT_PLUGIN_PKG
-} = process.env;
-
-const plugins = [sveltekit()];
-
-if (VITE_PLUGIN_PKG) {
-    const { macroforge } = await import(`${VITE_PLUGIN_PKG}/src/index.js`);
-    plugins.unshift(macroforge());
-}
-
-// Only include aliases whose replacement is defined
-const aliases = [
-    {
-        find: '@macroforge/core/serde',
-        replacement: MACROFORGE_TS_CRATE &&
-            `${MACROFORGE_TS_CRATE}/js/serde/index.mjs`
-    },
-    {
-        find: '@macroforge/core/traits',
-        replacement: MACROFORGE_TS_CRATE &&
-            `${MACROFORGE_TS_CRATE}/js/traits/index.mjs`
-    },
-    {
-        find: '@macroforge/core/rules',
-        replacement: MACROFORGE_TS_CRATE &&
-            `${MACROFORGE_TS_CRATE}/js/rules/index.mjs`
-    },
-    {
-        find: '@macroforge/core/buildtime',
-        replacement: MACROFORGE_TS_CRATE &&
-            `${MACROFORGE_TS_CRATE}/js/buildtime/index.mjs`
-    },
-    { find: '@macroforge/core', replacement: MACROFORGE_TS_CRATE },
-    { find: '@playground/macro', replacement: PLAYGROUND_MACRO },
-    { find: '@macroforge/vite-plugin', replacement: VITE_PLUGIN_PKG },
-    { find: '@macroforge/shared', replacement: SHARED_PKG },
-    {
-        find: '@macroforge/svelte-preprocessor',
-        replacement: SVELTE_PREPROCESSOR_PKG
-    },
-    { find: '@macroforge/typescript-plugin', replacement: TYPESCRIPT_PLUGIN_PKG }
-].filter((a) => a.replacement);
-
 export default defineConfig({
-    plugins,
+    plugins: [macroforge(), sveltekit()],
     server: {
         // Must agree with playwright.svelte.config.ts, which polls this port.
         port: Number(globalThis.process.env.PLAYGROUND_SVELTE_PORT ?? 5173),
@@ -65,7 +16,6 @@ export default defineConfig({
         exclude: ['@playground/macro']
     },
     resolve: {
-        dedupe: ['effect'],
-        alias: aliases
+        dedupe: ['effect']
     }
 });

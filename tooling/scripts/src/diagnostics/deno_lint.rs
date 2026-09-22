@@ -2,146 +2,94 @@
 
 use super::{DiagnosticLevel, DiagnosticTool, UnifiedDiagnostic};
 use crate::core::shell;
-use anyhow::Result;
+use anyhow::{Context, Result, bail};
 use serde::Deserialize;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-#[derive(Debug, Deserialize)]
+/// `deno lint --json` output.
+#[derive(Deserialize)]
 struct DenoLintOutput {
     diagnostics: Vec<DenoLintDiagnostic>,
-    #[allow(dead_code)]
-    errors: Vec<serde_json::Value>,
+    /// Files deno could not lint at all, such as ones that fail to parse.
+    errors: Vec<DenoLintError>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 struct DenoLintDiagnostic {
     range: DenoLintRange,
+    /// A `file://` URL.
     filename: String,
     message: String,
     code: String,
-    #[allow(dead_code)]
-    hint: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 struct DenoLintRange {
     start: DenoLintPosition,
-    #[allow(dead_code)]
-    end: DenoLintPosition,
 }
 
-#[derive(Debug, Deserialize)]
+/// One-based line, zero-based column.
+#[derive(Deserialize)]
 struct DenoLintPosition {
     line: u32,
     col: u32,
 }
 
-/// Run deno lint on multiple project directories and collect diagnostics
-pub fn run(_root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic>> {
-    let mut all_diagnostics = Vec::new();
-
-    for project_dir in project_dirs {
-        let config = governing_config(project_dir);
-
-        let result = shell::deno::lint_json(project_dir, config.as_deref())?;
-        let stdout = &result.stdout;
-
-        // Try to parse as JSON
-        if stdout.trim().is_empty() {
-            continue;
-        }
-
-        let lint_output: DenoLintOutput = match serde_json::from_str(stdout) {
-            Ok(o) => o,
-            Err(_) => {
-                // deno lint might output non-JSON on success with no issues
-                continue;
-            }
-        };
-
-        for diag in lint_output.diagnostics {
-            // deno lint uses 1-based line numbers, 0-based columns
-            let line = diag.range.start.line;
-            let column = diag.range.start.col + 1; // Convert to 1-based
-
-            all_diagnostics.push(UnifiedDiagnostic {
-                file: diag.filename,
-                line,
-                column,
-                code: diag.code.clone(),
-                message: diag.message.clone(),
-                raw: format!("{}: {}", diag.code, diag.message),
-                tool: DiagnosticTool::DenoLint,
-                level: DiagnosticLevel::Warning, // deno lint issues are typically warnings
-            });
-        }
-    }
-
-    Ok(all_diagnostics)
+#[derive(Deserialize)]
+struct DenoLintError {
+    file_path: String,
+    message: String,
 }
 
-/// The config a `deno` invocation in `project_dir` should be given explicitly.
+/// Runs deno lint once over the repository and collects its diagnostics.
 ///
-/// `None` when the project carries its own, which deno finds by itself.
-/// Otherwise the nearest ancestor `deno.json`, because deno's own discovery
-/// stops at the nearest `package.json` and would silently fall back to its
-/// built-in defaults: a different indent width, different quotes, and trailing
-/// commas the repo does not use.
-pub fn governing_config(project_dir: &Path) -> Option<std::path::PathBuf> {
-    let has_config =
-        project_dir.join("deno.json").exists() || project_dir.join("deno.jsonc").exists();
-    if has_config {
-        return None;
+/// The root `deno.json` governs every file beneath it, including projects that
+/// are not workspace members, so one run covers the tree.
+pub fn run(root: &Path) -> Result<Vec<UnifiedDiagnostic>> {
+    let result = shell::deno::lint_json(root)?;
+    let output: DenoLintOutput = serde_json::from_str(&result.stdout)
+        .with_context(|| format!("deno lint did not produce JSON:\n{}", result.output()))?;
+
+    let mut diagnostics = Vec::new();
+    for diagnostic in output.diagnostics {
+        diagnostics.push(UnifiedDiagnostic {
+            file: relative_to_root(root, &file_url_path(&diagnostic.filename)?),
+            line: diagnostic.range.start.line,
+            column: diagnostic.range.start.col + 1,
+            raw: format!("{}: {}", diagnostic.code, diagnostic.message),
+            code: diagnostic.code,
+            message: diagnostic.message,
+            tool: DiagnosticTool::DenoLint,
+            level: DiagnosticLevel::Warning,
+        });
     }
-    find_ancestor_config(project_dir)
+    for error in output.errors {
+        diagnostics.push(UnifiedDiagnostic {
+            file: relative_to_root(root, Path::new(&error.file_path)),
+            line: 1,
+            column: 1,
+            raw: error.message.clone(),
+            code: "deno-lint".to_string(),
+            message: error.message,
+            tool: DiagnosticTool::DenoLint,
+            level: DiagnosticLevel::Error,
+        });
+    }
+    Ok(diagnostics)
 }
 
-/// Walk up from `start` to the first directory carrying a `deno.json`.
-fn find_ancestor_config(start: &Path) -> Option<std::path::PathBuf> {
-    let mut current = start.to_path_buf();
-    while current.pop() {
-        let candidate = current.join("deno.json");
-        if candidate.exists() {
-            return Some(candidate);
-        }
+fn file_url_path(file_url: &str) -> Result<PathBuf> {
+    let url = url::Url::parse(file_url)
+        .with_context(|| format!("deno lint reported an invalid file URL: {file_url}"))?;
+    match url.to_file_path() {
+        Ok(path) => Ok(path),
+        Err(()) => bail!("deno lint reported a non-file URL: {file_url}"),
     }
-    None
 }
 
-/// Find all directories with JS/TS projects (deno.json or package.json, respects .gitignore)
-pub fn find_js_projects(root: &Path) -> Result<Vec<std::path::PathBuf>> {
-    use ignore::WalkBuilder;
-
-    let mut projects = Vec::new();
-
-    for entry in WalkBuilder::new(root)
-        .hidden(true) // Skip hidden files/dirs
-        .git_ignore(true) // Respect .gitignore
-        .git_exclude(true) // Respect .git/info/exclude
-        .filter_entry(|e| {
-            let name = e.file_name().to_string_lossy();
-            // Also skip common non-source directories
-            name != "node_modules"
-                && name != "dist"
-                && name != "target"
-                && name != "build"
-                && name != "vendor"
-        })
-        .build()
-    {
-        let entry = entry?;
-        let name = entry.file_name().to_string_lossy();
-
-        // Look for deno.json or package.json
-        if (name == "deno.json" || name == "package.json")
-            && let Some(parent) = entry.path().parent()
-        {
-            // Avoid duplicates (a dir might have both deno.json and package.json)
-            if !projects.contains(&parent.to_path_buf()) {
-                projects.push(parent.to_path_buf());
-            }
-        }
-    }
-
-    Ok(projects)
+fn relative_to_root(root: &Path, file: &Path) -> String {
+    file.strip_prefix(root)
+        .unwrap_or(file)
+        .to_string_lossy()
+        .into_owned()
 }

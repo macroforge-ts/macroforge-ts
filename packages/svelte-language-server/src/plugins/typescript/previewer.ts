@@ -8,7 +8,7 @@
  */
 
 import ts from 'typescript';
-import { isNotNullOrUndefined } from '../../utils';
+import { isNotNullOrUndefined } from '../../utils.ts';
 
 function replaceLinks(text: string): string {
     return (

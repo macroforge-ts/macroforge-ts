@@ -5,14 +5,14 @@ import {
     SemanticTokens,
     SemanticTokensBuilder
 } from 'vscode-languageserver';
-import { Document, mapRangeToOriginal } from '../../../lib/documents';
-import { SemanticTokensProvider } from '../../interfaces';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { convertToTextSpan } from '../utils';
-import { isInGeneratedCode } from './utils';
+import { Document, mapRangeToOriginal } from '../../../lib/documents/index.ts';
+import type { SemanticTokensProvider } from '../../interfaces.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { convertToTextSpan } from '../utils.ts';
+import { isInGeneratedCode } from './utils.ts';
 import { internalHelpers } from 'svelte2tsx';
-import { TokenType } from '../../../lib/semanticToken/semanticTokenLegend';
+import { TokenType } from '../../../lib/semanticToken/semanticTokenLegend.ts';
 
 const CONTENT_LENGTH_LIMIT = 50000;
 

@@ -1,15 +1,20 @@
 import ts from 'typescript';
-import { CancellationToken, Location, Position, ReferenceContext } from 'vscode-languageserver';
-import { Document } from '../../../lib/documents';
-import { flatten, isNotNullOrUndefined, normalizePath, pathToUrl } from '../../../utils';
-import { FindComponentReferencesProvider, FindReferencesProvider } from '../../interfaces';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
+import {
+    CancellationToken,
+    Location,
+    Position,
+    type ReferenceContext
+} from 'vscode-languageserver';
+import { Document } from '../../../lib/documents/index.ts';
+import { flatten, isNotNullOrUndefined, normalizePath, pathToUrl } from '../../../utils.ts';
+import type { FindComponentReferencesProvider, FindReferencesProvider } from '../../interfaces.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
 import {
     convertToLocationForReferenceOrDefinition,
     hasNonZeroRange,
     isGeneratedSvelteComponentName
-} from '../utils';
+} from '../utils.ts';
 import {
     get$storeOffsetOf$storeDeclaration,
     getStoreOffsetOf$storeDeclaration,
@@ -17,7 +22,7 @@ import {
     isStoreVariableIn$storeDeclaration,
     isTextSpanInGeneratedCode,
     SnapshotMap
-} from './utils';
+} from './utils.ts';
 
 export class FindReferencesProviderImpl implements FindReferencesProvider {
     constructor(

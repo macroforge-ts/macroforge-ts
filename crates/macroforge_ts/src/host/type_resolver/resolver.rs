@@ -1,4 +1,4 @@
-use crate::ts_syn::abi::ir::type_registry::{ResolvedTypeRef, TypeRegistry};
+use crate::ts_syn::abi::ir::type_registry::{FileImportEntry, ResolvedTypeRef, TypeRegistry};
 
 use super::helpers::{is_collection_type, split_generic, strip_array_suffix, strip_optional};
 
@@ -63,15 +63,25 @@ const PRIMITIVES: &[&str] = &[
     "Awaited",
 ];
 
-/// Resolves opaque field type strings against a [`TypeRegistry`].
+/// Resolves opaque field type strings against a [`TypeRegistry`], as the file
+/// at `file_path` sees them through its imports.
 pub struct TypeResolver<'a> {
     registry: &'a TypeRegistry,
+    file_path: &'a str,
+    file_imports: &'a [FileImportEntry],
 }
 
 impl<'a> TypeResolver<'a> {
-    /// Create a new resolver for the given registry.
-    pub fn new(registry: &'a TypeRegistry) -> Self {
-        Self { registry }
+    pub fn new(
+        registry: &'a TypeRegistry,
+        file_path: &'a str,
+        file_imports: &'a [FileImportEntry],
+    ) -> Self {
+        Self {
+            registry,
+            file_path,
+            file_imports,
+        }
     }
 
     /// Resolve a type string to a [`ResolvedTypeRef`].
@@ -137,16 +147,8 @@ impl<'a> TypeResolver<'a> {
             return None;
         }
 
-        // Try direct lookup (returns None for ambiguous names)
-        if let Some(entry) = self.registry.get(name) {
-            return Some(format!("{}::{}", entry.file_path, entry.name));
-        }
-
-        // For ambiguous names, pick the first qualified entry
-        if let Some(entry) = self.registry.get_all(name).next() {
-            return Some(format!("{}::{}", entry.file_path, entry.name));
-        }
-
-        None
+        self.registry
+            .resolve_in_file(name, self.file_path, self.file_imports)
+            .map(|entry| format!("{}::{}", entry.file_path, entry.name))
     }
 }

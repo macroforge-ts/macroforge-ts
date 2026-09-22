@@ -3,8 +3,8 @@ import ts from 'typescript';
 import assert from 'assert';
 import { mkdirSync, readdirSync, rmdirSync } from 'fs';
 
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { pathToUrl } from '../../../../src/utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
 import {
     CancellationTokenSource,
     CompletionItem,
@@ -16,17 +16,17 @@ import {
     TextEdit
 } from 'vscode-languageserver';
 import {
-    CompletionResolveInfo,
+    type CompletionResolveInfo,
     CompletionsProviderImpl
-} from '../../../../src/plugins/typescript/features/CompletionProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { sortBy } from 'lodash';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { __resetCache } from '../../../../src/plugins/typescript/service';
-import { getRandomVirtualDirPath, serviceWarmup, setupVirtualEnvironment } from '../test-utils';
+} from '../../../../src/plugins/typescript/features/CompletionProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { sortBy } from 'lodash-es';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { __resetCache } from '../../../../src/plugins/typescript/service.ts';
+import { getRandomVirtualDirPath, serviceWarmup, setupVirtualEnvironment } from '../test-utils.ts';
 import { VERSION } from 'svelte/compiler';
 
-const testDir = join(__dirname, '..');
+const testDir = join(import.meta.dirname, '..');
 const testFilesDir = join(testDir, 'testfiles', 'completions');
 const newLine = ts.sys.newLine;
 const indent = ' '.repeat(4);

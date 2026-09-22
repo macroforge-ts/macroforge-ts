@@ -9,23 +9,10 @@
 
 import * as path from '@std/path';
 import { ensureDir, walk } from '@std/fs';
-import { hasMacroAnnotations } from '@macroforge/shared';
+import { hasMacroAnnotations } from '@macroforge/core';
 import { expand, type ExpandOptions } from './index.ts';
 
-/**
- * Cheap pre-filter to skip files the engine would no-op on. `hasMacroAnnotations`
- * covers JSDoc annotations (`@derive`, `@cfg`, `@deprecated`, `@mustUse`,
- * `@nonExhaustive`); `import macro` covers external macro packages; `$letter(`
- * is a loose match for call macros (`$state`, `$derived`, etc). The check has
- * false positives — anything matching gets handed to the engine, which is
- * the correct fallback.
- */
-function mayContainMacros(source: string): boolean {
-    if (hasMacroAnnotations(source)) return true;
-    if (source.includes('import macro')) return true;
-    return /\$[A-Za-z_][\w$]*\s*\(/.test(source);
-}
-
+/** Options for expanding a whole project tree into a mirror directory. */
 export interface ExpandProjectOptions extends ExpandOptions {
     /** Project root that's walked. Defaults to `Deno.cwd()`. */
     root?: string;
@@ -41,6 +28,7 @@ export interface ExpandProjectOptions extends ExpandOptions {
     onFile?: (event: ExpandFileEvent) => void;
 }
 
+/** One file the project expansion visited. */
 export interface ExpandFileEvent {
     /** Absolute source path. */
     source: string;
@@ -96,10 +84,7 @@ export async function expandProject(
 
         const code = await Deno.readTextFile(source);
 
-        // Cheap pre-filter: if the file has no macro annotations, skip the
-        // engine entirely. `hasMacroAnnotations` matches `@derive`, `@attr`
-        // attribute macros, and `import macro` comments.
-        if (!mayContainMacros(code)) {
+        if (!hasMacroAnnotations(code)) {
             if (copyPassthrough) {
                 await ensureDir(path.dirname(dest));
                 await Deno.writeTextFile(dest, code);
@@ -170,7 +155,7 @@ export async function watchProject(
                     const rel = path.relative(root, changed);
                     const dest = path.join(outDir, rel);
 
-                    if (!mayContainMacros(code)) {
+                    if (!hasMacroAnnotations(code)) {
                         if (options.copyPassthrough) {
                             await ensureDir(path.dirname(dest));
                             await Deno.writeTextFile(dest, code);

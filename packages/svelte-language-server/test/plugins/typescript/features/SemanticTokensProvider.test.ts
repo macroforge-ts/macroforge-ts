@@ -7,16 +7,16 @@ import {
     Range,
     SemanticTokensBuilder
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { TokenModifier, TokenType } from '../../../../src/lib/semanticToken/semanticTokenLegend';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { SemanticTokensProviderImpl } from '../../../../src/plugins/typescript/features/SemanticTokensProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { TokenModifier, TokenType } from '../../../../src/lib/semanticToken/semanticTokenLegend.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { SemanticTokensProviderImpl } from '../../../../src/plugins/typescript/features/SemanticTokensProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 import { VERSION } from 'svelte/compiler';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 const semanticTokenTestDir = path.join(testDir, 'testfiles', 'semantic-tokens');
 const isSvelte5Plus = +VERSION.split('.')[0] >= 5;
 

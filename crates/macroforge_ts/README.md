@@ -36,18 +36,10 @@ The crate is organized into several key components:
 
 ## Usage
 
-### From Node.js
+The package is an ES module that instantiates its WebAssembly on import.
 
 ```javascript
-const { expandSync } = require('macroforge');
-const result = expandSync(code, filepath, { keepDecorators: false });
-```
-
-### From WASM
-
-```javascript
-import init, { expandSync } from './pkg/macroforge_ts.js';
-await init();
+import { expandSync } from '@macroforge/core';
 const result = expandSync(code, filepath, { keepDecorators: false });
 ```
 
@@ -61,11 +53,16 @@ This crate re-exports several dependencies for convenience when writing custom m
 
 ## Installation
 
-Add this to your `Cargo.toml`:
+```bash
+deno add jsr:@macroforge/core
+```
 
-```toml
-[dependencies]
-macroforge_ts = "0.1.80"
+```bash
+npm install @macroforge/core
+```
+
+```bash
+cargo add macroforge_ts
 ```
 
 ## Key Exports
@@ -83,21 +80,21 @@ macroforge_ts = "0.1.80"
 - **`ImportSourceResult`** - Information about an imported identifier from a TypeScript module.
 - **`SyntaxCheckResult`** - Result of checking TypeScript syntax validity.
 - **`SpanResult`** - A span (range) in source code, represented as start position and length.
-- ... and 12 more
+- ... and 11 more
 
 ### Functions
 
 - **`__macroforge_ffi_free`** - Free a buffer allocated by an FFI function.
 - **`__macroforge_ffi_get_manifest`** - Returns the full MacroManifest as JSON via FFI.
+- **`has_macro_annotations`** - Whether `code` may contain anything the engine expands.
+- **`macro_imports`** - The macros `code` imports through `import macro` JSDoc comments, as macro
 - **`check_syntax`** -
 - **`parse_import_sources`** -
 - **`derive_decorator`** -
 - **`load_config`** -
 - **`clear_config_cache`** -
 - **`transform_sync`** -
-- **`expand_sync`** -
-- **`expand`** - Async macro expansion.
-- ... and 19 more
+- ... and 23 more
 
 ### Traits
 
@@ -105,8 +102,7 @@ macroforge_ts = "0.1.80"
 
 ## API Reference
 
-See the [full API documentation](https://macroforge.dev/docs/api/reference/rust/macroforge_ts) on
-the Macroforge website.
+See the [full API documentation](https://docs.rs/macroforge_ts) on docs.rs.
 
 ## License
 

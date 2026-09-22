@@ -1,10 +1,10 @@
 import * as assert from 'assert';
 import { EOL } from 'os';
 import { Position } from 'vscode-languageserver';
-import { getCompletions } from '../../../../src/plugins/svelte/features/getCompletions';
-import { SvelteDocument } from '../../../../src/plugins/svelte/SvelteDocument';
-import { Document } from '../../../../src/lib/documents';
-import { getModifierData } from '../../../../src/plugins/svelte/features/getModifierData';
+import { getCompletions } from '../../../../src/plugins/svelte/features/getCompletions.ts';
+import { SvelteDocument } from '../../../../src/plugins/svelte/SvelteDocument.ts';
+import { Document } from '../../../../src/lib/documents/index.ts';
+import { getModifierData } from '../../../../src/plugins/svelte/features/getModifierData.ts';
 
 describe('SveltePlugin#getCompletions', () => {
     function expectCompletionsFor(

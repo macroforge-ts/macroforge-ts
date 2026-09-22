@@ -1,12 +1,17 @@
 # @macroforge/svelte-preprocessor
 
 [![npm version](https://badge.fury.io/js/%40macroforge%2Fsvelte-preprocessor.svg)](https://www.npmjs.com/package/@macroforge/svelte-preprocessor)
+[![JSR](https://jsr.io/badges/@macroforge/svelte-preprocessor)](https://jsr.io/@macroforge/svelte-preprocessor)
 
 ## Overview
 
 Svelte preprocessor for expanding Macroforge macros in component script blocks
 
 ## Installation
+
+```bash
+deno add jsr:@macroforge/svelte-preprocessor
+```
 
 ```bash
 npm install @macroforge/svelte-preprocessor
@@ -30,9 +35,7 @@ npm install @macroforge/svelte-preprocessor
 
 ## Documentation
 
-See the
-[full documentation](https://macroforge.dev/docs/api/reference/typescript/svelte-preprocessor) on
-the Macroforge website.
+See the [full API documentation](https://jsr.io/@macroforge/svelte-preprocessor/doc) on JSR.
 
 ## License
 

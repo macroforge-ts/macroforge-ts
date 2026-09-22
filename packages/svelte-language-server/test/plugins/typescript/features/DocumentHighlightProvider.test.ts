@@ -2,14 +2,14 @@ import assert from 'assert';
 import path from 'path';
 import ts from 'typescript';
 import { DocumentHighlight, DocumentHighlightKind } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { LSAndTSDocResolver } from '../../../../src/plugins';
-import { DocumentHighlightProviderImpl } from '../../../../src/plugins/typescript/features/DocumentHighlightProvider';
-import { pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/index.ts';
+import { DocumentHighlightProviderImpl } from '../../../../src/plugins/typescript/features/DocumentHighlightProvider.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 
 describe('DocumentHighlightProvider', function () {
     const highlightTestDir = path.join(

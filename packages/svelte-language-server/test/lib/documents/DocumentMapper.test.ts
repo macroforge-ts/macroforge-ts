@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { FragmentMapper, positionAt } from '../../../src/lib/documents';
+import { FragmentMapper, positionAt } from '../../../src/lib/documents/index.ts';
 
 describe('DocumentMapper', () => {
     describe('FragmentMapper', () => {

@@ -2,21 +2,21 @@ import * as assert from 'assert';
 import * as path from 'path';
 import ts from 'typescript';
 import {
-    CallHierarchyIncomingCall,
-    CallHierarchyItem,
-    CallHierarchyOutgoingCall,
+    type CallHierarchyIncomingCall,
+    type CallHierarchyItem,
+    type CallHierarchyOutgoingCall,
     SymbolKind
 } from 'vscode-languageserver';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { CallHierarchyProviderImpl } from '../../../../src/plugins/typescript/features/CallHierarchyProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { __resetCache } from '../../../../src/plugins/typescript/service';
-import { pathToUrl } from '../../../../src/utils';
-import { rangeOf, serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { CallHierarchyProviderImpl } from '../../../../src/plugins/typescript/features/CallHierarchyProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { __resetCache } from '../../../../src/plugins/typescript/service.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { rangeOf, serviceWarmup } from '../test-utils.ts';
 import { VERSION } from 'svelte/compiler';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 const isSvelte5Plus = +VERSION.split('.')[0] >= 5;
 
 describe('CallHierarchyProvider', function () {

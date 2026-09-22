@@ -1,5 +1,5 @@
 use super::super::error::Result;
-use super::{CONFIG_CACHE, CONFIG_FILES, MacroforgeConfig};
+use super::{CONFIG_CACHE, CONFIG_FILES, CachedConfig, MacroforgeConfig};
 #[cfg(all(not(feature = "swc"), feature = "oxc"))]
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
@@ -158,18 +158,33 @@ impl MacroforgeConfigLoader {
 
     /// Load configuration from cache or parse from file content.
     pub fn load_and_cache(content: &str, filepath: &str) -> Result<MacroforgeConfig> {
-        if let Some(cached) = CONFIG_CACHE.get(filepath) {
-            return Ok(cached.clone());
+        use std::hash::{Hash, Hasher};
+
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        content.hash(&mut hasher);
+        let content_hash = hasher.finish();
+        if let Some(cached) = CONFIG_CACHE.get(filepath)
+            && cached.content_hash == content_hash
+        {
+            return Ok(cached.config.clone());
         }
 
         let config = Self::from_config_file(content, filepath)?;
-        CONFIG_CACHE.insert(filepath.to_string(), config.clone());
+        CONFIG_CACHE.insert(
+            filepath.to_string(),
+            CachedConfig {
+                content_hash,
+                config: config.clone(),
+            },
+        );
 
         Ok(config)
     }
 
     pub fn get_cached(filepath: &str) -> Option<MacroforgeConfig> {
-        CONFIG_CACHE.get(filepath).map(|c| c.clone())
+        CONFIG_CACHE
+            .get(filepath)
+            .map(|cached| cached.config.clone())
     }
 
     pub fn find_with_root() -> Result<Option<(MacroforgeConfig, std::path::PathBuf)>> {
@@ -676,7 +691,8 @@ fn extract_expression_namespaces_oxc(expr_str: &str) -> Vec<String> {
         }
     }
 
-    let Ok(expr) = parse_oxc_expr(expr_str) else {
+    let allocator = oxc::allocator::Allocator::default();
+    let Ok(expr) = parse_oxc_expr(&allocator, expr_str) else {
         return Vec::new();
     };
 

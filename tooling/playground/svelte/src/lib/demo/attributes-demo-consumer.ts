@@ -14,13 +14,18 @@ export type AttributesDemoResults = {
     nonExhaustiveValue: string;
 };
 
+/** Calls an export by name, or `null` when `@cfg` stripped it. */
+function probeExport(name: string): string | null {
+    const value: unknown = Reflect.get(attrs, name);
+    return typeof value === 'function' ? String(value()) : null;
+}
+
 export function collectAttributesDemo(): AttributesDemoResults {
-    const dyn = attrs as Partial<typeof attrs>;
     return {
-        keptByFeature: dyn.keptByPlayground?.() ?? null,
-        strippedByFeature: dyn.strippedByMissingFeature?.() ?? null,
-        keptByTarget: dyn.keptByWebTarget?.() ?? null,
-        strippedByTarget: dyn.strippedByNodeTarget?.() ?? null,
+        keptByFeature: probeExport('keptByPlayground'),
+        strippedByFeature: probeExport('strippedByMissingFeature'),
+        keptByTarget: probeExport('keptByWebTarget'),
+        strippedByTarget: probeExport('strippedByNodeTarget'),
         deprecatedCall: attrs.renderV1(),
         nonExhaustiveValue: attrs.exampleStatus
     };

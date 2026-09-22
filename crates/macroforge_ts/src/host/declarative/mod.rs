@@ -121,6 +121,8 @@ pub mod discovery;
 pub mod expander;
 #[cfg(feature = "oxc")]
 mod hygiene;
+#[cfg(all(not(feature = "swc"), feature = "oxc"))]
+pub(crate) mod macro_imports;
 #[cfg(feature = "oxc")]
 pub mod matcher;
 #[cfg(feature = "oxc")]

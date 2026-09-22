@@ -2,7 +2,7 @@ import { basename, dirname } from 'path';
 import ts from 'typescript';
 import {
     CancellationToken,
-    CompletionContext,
+    type CompletionContext,
     CompletionItem,
     CompletionItemKind,
     CompletionList,
@@ -24,15 +24,22 @@ import {
     mapCompletionItemToOriginal,
     mapRangeToOriginal,
     toRange
-} from '../../../lib/documents';
-import { AttributeContext, getAttributeContextAtPosition } from '../../../lib/documents/parseHtml';
-import { LSConfigManager } from '../../../ls-config';
-import { flatten, getRegExpMatches, modifyLines, pathToUrl } from '../../../utils';
-import { AppCompletionItem, AppCompletionList, CompletionsProvider } from '../../interfaces';
-import { ComponentInfoProvider, ComponentPartInfo } from '../ComponentInfoProvider';
-import { SvelteDocumentSnapshot } from '../DocumentSnapshot';
-import { LSAndTSDocResolver } from '../LSAndTSDocResolver';
-import { getMarkdownDocumentation } from '../previewer';
+} from '../../../lib/documents/index.ts';
+import {
+    type AttributeContext,
+    getAttributeContextAtPosition
+} from '../../../lib/documents/parseHtml.ts';
+import { LSConfigManager } from '../../../ls-config.ts';
+import { flatten, getRegExpMatches, modifyLines, pathToUrl } from '../../../utils.ts';
+import type {
+    AppCompletionItem,
+    AppCompletionList,
+    CompletionsProvider
+} from '../../interfaces.ts';
+import type { ComponentInfoProvider, ComponentPartInfo } from '../ComponentInfoProvider.ts';
+import { SvelteDocumentSnapshot } from '../DocumentSnapshot.ts';
+import { LSAndTSDocResolver } from '../LSAndTSDocResolver.ts';
+import { getMarkdownDocumentation } from '../previewer.ts';
 import {
     changeSvelteComponentName,
     cloneRange,
@@ -40,8 +47,8 @@ import {
     isGeneratedSvelteComponentName,
     isInScript,
     scriptElementKindToCompletionItemKind
-} from '../utils';
-import { getJsDocTemplateCompletion } from './getJsDocTemplateCompletion';
+} from '../utils.ts';
+import { getJsDocTemplateCompletion } from './getJsDocTemplateCompletion.ts';
 import {
     checkRangeMappingWithGeneratedSemi,
     getComponentAtPosition,
@@ -49,9 +56,9 @@ import {
     getNewScriptStartTag,
     isKitTypePath,
     isPartOfImportStatement
-} from './utils';
-import { isInTag as svelteIsInTag } from '../svelte-ast-utils';
-import { LanguageServiceContainer } from '../service';
+} from './utils.ts';
+import { isInTag as svelteIsInTag } from '../svelte-ast-utils.ts';
+import type { LanguageServiceContainer } from '../service.ts';
 
 export interface CompletionResolveInfo
     extends Pick<ts.CompletionEntry, 'data' | 'name' | 'source'>, TextDocumentIdentifier {

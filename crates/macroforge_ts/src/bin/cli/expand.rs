@@ -1,6 +1,6 @@
 use anyhow::{Context, Result, anyhow};
 use ignore::WalkBuilder;
-use macroforge_ts::host::{MacroExpander, MacroExpansion};
+use macroforge_ts::host::MacroExpansion;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -126,7 +126,7 @@ pub fn scan_and_expand(project_root: &Path, root: PathBuf, opts: ScanOptions) ->
     let files_found = ts_files.len();
 
     // Phase 2: Expand candidates in parallel (no filesystem writes in workers).
-    let pool = rayon::ThreadPoolBuilder::new().build()?;
+    let pool = super::cache::expansion_pool()?;
 
     let results: Vec<(PathBuf, Result<Option<FileExpansion>>)> = pool.install(|| {
         ts_files
@@ -278,10 +278,9 @@ pub(crate) struct FileExpansion {
 /// core used by both single-file expansion and directory scans; keeping it
 /// write-free lets scans expand in parallel and emit sequentially.
 ///
-/// ## Configuration Loading
-///
-/// Searches for and loads `macroforge.config.ts/js` to enable foreign type
-/// handlers, parsed natively without requiring Node.js.
+/// The expander comes from [`super::cache::configured_expander`], so the
+/// file's macroforge config and the project registries apply exactly as they
+/// do in a build.
 ///
 /// # Returns
 ///
@@ -292,57 +291,16 @@ pub(crate) fn expand_file_in_memory(
     project_root: &Path,
     input: &Path,
 ) -> Result<Option<FileExpansion>> {
-    use macroforge_ts::host::MacroforgeConfigLoader;
-
-    // Load config if available (for foreign types support).
-    // Foreign types are set on the registry before expansion; source imports
-    // are built from the AST during prepare_expansion_context / expand_source.
-    if let Ok(Some(config)) = MacroforgeConfigLoader::find_from_path(input) {
-        macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
-    }
-
     let source =
         fs::read_to_string(input).with_context(|| format!("failed to read {}", input.display()))?;
 
-    let mut expander = MacroExpander::new().context("failed to initialize macro expander")?;
-
-    // Load the project-wide type and declarative registries from the
-    // `.macroforge/` cache so generic aliases (`RecordLink<T>`) and
-    // cross-file `/** import macro */` comments resolve at expansion time.
-    // Macroforge is built around these registries — running without them
-    // silently degrades codegen (e.g. union @default variants emit
-    // `undefined` instead of the proper `xDefaultValue<T>()` call).
-    //
-    // Skip the scan when the source has no macro annotations: `expand_source`
-    // short-circuits in that case anyway, and `ensure_type_registry_cache`
-    // would otherwise emit "[macroforge] Type scan: …" stderr noise that
-    // breaks tools relying on a clean stderr in `--quiet` mode.
-    if super::cache::has_macro_annotations(&source) {
-        super::wrappers::ensure_type_registry_cache(project_root);
-        let registry_path = super::wrappers::TYPE_REGISTRY_CACHE_PATH
-            .lock()
-            .unwrap()
-            .clone();
-        if let Some(ref rp) = registry_path
-            && let Ok(json) = fs::read_to_string(rp)
-            && let Ok(registry) = serde_json::from_str::<
-                macroforge_ts::ts_syn::abi::ir::type_registry::TypeRegistry,
-            >(&json)
-        {
-            expander.set_type_registry(registry);
-        }
-        let declarative_registry_path = super::wrappers::DECLARATIVE_REGISTRY_CACHE_PATH
-            .lock()
-            .unwrap()
-            .clone();
-        if let Some(ref dp) = declarative_registry_path
-            && let Ok(json) = fs::read_to_string(dp)
-            && let Ok(registry) =
-                macroforge_ts::host::declarative::ProjectDeclarativeRegistry::from_json(&json)
-        {
-            expander.set_declarative_registry(Some(registry));
-        }
+    // The registry scan logs to stderr, so skip it for files without macros:
+    // `--quiet` callers rely on a clean stderr.
+    if !macroforge_ts::has_macro_annotations(&source) {
+        return Ok(None);
     }
+    super::wrappers::ensure_type_registry_cache(project_root)?;
+    let expander = super::cache::configured_expander(project_root, input)?;
 
     let expansion = expander
         .expand_source(&source, &input.display().to_string())
@@ -385,48 +343,8 @@ pub(crate) fn try_expand_file(
     Ok(true)
 }
 
-// extract_import_sources_from_code deleted — absorbed into ImportRegistry::from_module
-
-/// Attempts to expand macros by invoking Node.js with the macroforge npm package.
-///
-/// This function writes a temporary Node.js script that calls `macroforge.expandSync()`,
-/// then parses the JSON result. This approach supports external macros from npm packages
-/// but requires Node.js and the macroforge package to be installed.
-///
-/// ## Configuration Loading
-///
-/// The function automatically searches for a `macroforge.config.ts/js` file starting from
-/// the input file's directory, walking up to the nearest `package.json`. If found, the
-/// configuration is loaded and passed to `expandSync`, enabling foreign type handlers.
-///
-/// ## Module Resolution
-///
-/// The function tries to resolve macroforge from:
-/// 1. The current working directory
-/// 2. The input file's parent directory
-///
-/// # Arguments
-///
-/// * `input` - Path to the input TypeScript file
-/// * `out` - Optional output path for expanded code
-/// * `types_out` - Optional output path for type declarations
-/// * `print` - Whether to print output to stdout
-/// * `is_scanning` - Whether this is part of a directory scan (affects warning output)
-///
-/// # Returns
-///
-/// - `Ok(true)` - Macros were found and successfully expanded
-/// - `Ok(false)` - No macros were found (empty `generatedRegions`)
-/// - `Err(...)` - Node.js execution failed or macroforge not found
-///
-/// Writes the expanded runtime code to a file and optionally prints to stdout.
-///
-/// # Arguments
-///
-/// * `result` - The macro expansion result containing the generated code
-/// * `input` - The original input file path (for display purposes)
-/// * `explicit_out` - Optional explicit output path (defaults to `.expanded.ts`)
-/// * `should_print` - Whether to also print the code to stdout
+/// Routes one file's expanded runtime code: to `explicit_out` when given,
+/// otherwise to stdout. `should_print` also prints it when it went to a file.
 fn emit_runtime_output(
     result: &MacroExpansion,
     input: &Path,
@@ -434,19 +352,19 @@ fn emit_runtime_output(
     should_print: bool,
 ) -> Result<()> {
     let code = &result.code;
-    let out_path = explicit_out
-        .cloned()
-        .unwrap_or_else(|| get_expanded_path(input));
-    write_file(&out_path, code)?;
-    println!(
-        "[macroforge] wrote expanded output for {} to {}",
-        input.display(),
-        out_path.display()
-    );
-    if should_print {
-        println!("// --- {} (expanded) ---", input.display());
-        println!("{code}");
+    if let Some(out_path) = explicit_out {
+        write_file(out_path, code)?;
+        eprintln!(
+            "[macroforge] wrote expanded output for {} to {}",
+            input.display(),
+            out_path.display()
+        );
+        if !should_print {
+            return Ok(());
+        }
     }
+    println!("// --- {} (expanded) ---", input.display());
+    println!("{code}");
     Ok(())
 }
 

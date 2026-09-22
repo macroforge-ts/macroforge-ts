@@ -29,11 +29,11 @@ pub enum Commands {
     /// Interactive TUI dashboard
     Tui,
 
-    /// Verify a release (bump versions, build, test, docs)
+    /// Verify a release: build, check, test and regenerate the docs
     Verify(VerifyArgs),
 
-    /// Stage and commit all changes in the monorepo
-    Commit(CommitArgs),
+    /// Bump release versions and everything stamped with them
+    Bump(BumpArgs),
 
     /// Manifest manipulation (versions, dependencies)
     Manifest(ManifestArgs),
@@ -53,12 +53,6 @@ pub enum Commands {
     /// Documentation generation and management
     Docs(DocsArgs),
 
-    /// Expand macros in playground files
-    Expand(ExpandArgs),
-
-    /// Get diagnostics for a single file
-    Check(CheckArgs),
-
     /// Run tests for packages
     Test(TestArgs),
 
@@ -72,54 +66,32 @@ pub enum Commands {
 
 #[derive(clap::Args)]
 pub struct VerifyArgs {
-    /// Repos to update (comma-separated, or 'all', 'rust', 'ts')
-    #[arg(default_value = "all")]
-    pub repos: String,
-
-    /// Version string (e.g., 0.1.4). Auto-increments if not provided
-    #[arg(long)]
-    pub version: Option<String>,
-
-    /// Test the full pipeline without bumping versions
-    #[arg(long)]
-    pub dry_run: bool,
-
-    /// Skip build and test steps
+    /// Skip the install, build, test and extension steps
     #[arg(long)]
     pub skip_build: bool,
 
-    /// Skip documentation steps
+    /// Skip the documentation steps
     #[arg(long)]
     pub skip_docs: bool,
-
-    /// Only bump versions (skip build, test, docs)
-    #[arg(long)]
-    pub bump_only: bool,
-
-    /// Sync all packages to their latest versions
-    #[arg(long)]
-    pub sync_versions: bool,
-
-    /// Don't cascade version bumps to dependents
-    #[arg(long)]
-    pub no_cascade: bool,
-
-    /// Reuse incremental cargo/deno caches — skip the `rm -rf` / cleanbuild
-    /// step and build in place. Much faster on iterative verify runs when
-    /// you haven't touched lockfiles or dependency graphs.
-    #[arg(long)]
-    pub cache_build: bool,
 }
 
 #[derive(clap::Args)]
-pub struct CommitArgs {
-    /// Dry run - show what would be done
-    #[arg(long)]
-    pub dry_run: bool,
+pub struct BumpArgs {
+    /// Repos to bump (comma-separated, or 'all', 'rust', 'ts')
+    #[arg(default_value = "all")]
+    pub repos: String,
 
-    /// Custom commit message
-    #[arg(short, long)]
-    pub message: Option<String>,
+    /// Version to set (e.g. 0.2.1); increments the patch version if omitted
+    #[arg(long)]
+    pub version: Option<String>,
+
+    /// Move every selected package to one shared version
+    #[arg(long)]
+    pub sync_versions: bool,
+
+    /// Don't cascade the bump to dependents
+    #[arg(long)]
+    pub no_cascade: bool,
 }
 
 #[derive(clap::Args)]
@@ -216,13 +188,6 @@ pub enum DocsCommands {
         output_dir: PathBuf,
     },
 
-    /// Build markdown documentation book
-    BuildBook {
-        /// Output file path
-        #[arg(long, default_value = crate::cli::commands::docs::build_book::BOOK_PATH)]
-        output_path: PathBuf,
-    },
-
     /// Generate README.md files
     GenerateReadmes,
 
@@ -230,29 +195,7 @@ pub enum DocsCommands {
     CheckFreshness,
 
     /// Run API extraction (Rust + TypeScript) and README generation
-    ///
-    /// Does not build the docs book; use `docs build-book` for that.
     All,
-}
-
-#[derive(clap::Args)]
-pub struct ExpandArgs {
-    /// Use Node.js binary (NAPI-RS) instead of WASM (default)
-    #[arg(long)]
-    pub use_node: bool,
-
-    /// Use CLI binary instead of JS API
-    #[arg(long)]
-    pub use_cli: bool,
-
-    /// Specific directory to expand
-    pub path: Option<PathBuf>,
-}
-
-#[derive(clap::Args)]
-pub struct CheckArgs {
-    /// File to check for diagnostics
-    pub file: PathBuf,
 }
 
 #[derive(clap::Args)]
@@ -260,10 +203,6 @@ pub struct TestArgs {
     /// Test suite to run: 'rust', 'packages', 'playground', or 'all'
     #[arg(default_value = "all")]
     pub suite: String,
-
-    /// Run tests for specific repos (comma-separated). Only applies to 'rust' suite.
-    #[arg(long)]
-    pub repos: Option<String>,
 }
 
 #[derive(clap::Args)]

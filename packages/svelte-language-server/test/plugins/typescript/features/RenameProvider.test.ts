@@ -3,15 +3,15 @@ import * as path from 'path';
 import ts from 'typescript';
 import { Position } from 'vscode-languageserver';
 import { VERSION } from 'svelte/compiler';
-import { Document, DocumentManager } from '../../../../src/lib/documents';
-import { LSConfigManager } from '../../../../src/ls-config';
-import { RenameProviderImpl } from '../../../../src/plugins/typescript/features/RenameProvider';
-import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver';
-import { __resetCache } from '../../../../src/plugins/typescript/service';
-import { pathToUrl } from '../../../../src/utils';
-import { serviceWarmup } from '../test-utils';
+import { Document, DocumentManager } from '../../../../src/lib/documents/index.ts';
+import { LSConfigManager } from '../../../../src/ls-config.ts';
+import { RenameProviderImpl } from '../../../../src/plugins/typescript/features/RenameProvider.ts';
+import { LSAndTSDocResolver } from '../../../../src/plugins/typescript/LSAndTSDocResolver.ts';
+import { __resetCache } from '../../../../src/plugins/typescript/service.ts';
+import { pathToUrl } from '../../../../src/utils.ts';
+import { serviceWarmup } from '../test-utils.ts';
 
-const testDir = path.join(__dirname, '..');
+const testDir = path.join(import.meta.dirname, '..');
 const renameTestDir = path.join(testDir, 'testfiles', 'rename');
 const isSvelte5Plus = +VERSION.split('.')[0] >= 5;
 
