@@ -24,6 +24,9 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
         Data::Enum(_) => {
             // Handle enums (if supported)
         }
+        Data::TypeAlias(_) => {
+            // Handle type aliases (if supported)
+        }
     }
 }
 ```

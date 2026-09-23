@@ -17,7 +17,7 @@ Custom macros are written in Rust and compiled to native Node.js addons. The pro
 Rust
 
 ```
-use macroforge_ts::macros::{ts_macro_derive, body};
+use macroforge_ts::macros::{ts_macro_derive, ts_template};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(
@@ -29,7 +29,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
     match &input.data {
         Data::Class(class) => {
-            Ok(body! {
+            Ok(ts_template!(Within {
                 toJSON(): Record<string, unknown> {
                     return {
                         {#for field in class.field_names()}
@@ -37,7 +37,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         {/for}
                     };
                 }
-            })
+            }))
         }
         _ => Err(MacroforgeError::new(
             input.decorator_span(),
@@ -74,13 +74,6 @@ console.log(user.toJSON()); // { name: "Alice", age: 30 }
 Note
 
 The `import macro` comment tells Macroforge which package provides the macro.
-
-## Vite Dev Server
-
-When using a custom macro package as a local `file:` dependency, you may need to configure Vite's
-`server.fs.allow` and add `exports` to your package's `package.json` for dev mode to work. See the
-[Vite Plugin integration guide](../integration/vite-plugin.md#custom-macro-packages-with-file-dependencies)
-for details.
 
 ## Getting Started
 

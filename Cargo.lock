@@ -2435,7 +2435,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "boa_engine",
@@ -2478,7 +2478,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "convert_case 0.12.0",
  "proc-macro2",
@@ -2488,7 +2488,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "oxc",
@@ -2502,7 +2502,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "indexmap",
  "oxc",

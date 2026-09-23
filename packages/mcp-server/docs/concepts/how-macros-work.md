@@ -7,7 +7,7 @@ outputting transformed code. This happens before your code runs, resulting in ze
 
 Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at compile time:
 
-1. **Parse**: Your TypeScript code is parsed into an AST using SWC
+1. **Parse**: Your TypeScript code is parsed into an AST using oxc
 2. **Find**: Macroforge finds `@derive` decorators and their associated items
 3. **Expand**: Each macro generates new code based on the class structure
 4. **Output**: The transformed TypeScript is written out, ready for normal compilation
@@ -17,7 +17,7 @@ Before (Your Code)
 ```
 /** @derive(Debug) */
 class User {
-    name: string;
+  name: string;
 }
 ```
 
@@ -25,18 +25,18 @@ After (Generated)
 
 ```
 class User {
-    name: string;
+  name: string;
 
-    static toString(value: User): string {
-        return userToString(value);
-    }
-}
+static toString(value: User): string {
+                    return userToString(value);
+                }}
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push('name: ' + value.name);
-    return 'User { ' + parts.join(', ') + ' }';
-}
+                        const parts: string[] = [];
+                        parts.push("name: " + value.name);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
 ```
 
 ## Zero Runtime Overhead
@@ -69,7 +69,7 @@ Your Source Code
 
 with @derive decorators
 
-SWC Parser
+oxc Parser
 
 TypeScript → AST
 

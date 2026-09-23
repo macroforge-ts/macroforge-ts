@@ -24,8 +24,11 @@ export default defineConfig({
             use: { ...devices['Desktop Chrome'] }
         }
     ],
+    // The built app, not the dev server: a preview serves the production
+    // build, so no test pays for an on-demand macro expansion.
+    // `mf test playground` builds the app; preview fails loudly without one.
     webServer: {
-        command: 'deno task dev',
+        command: 'deno task preview',
         cwd: '../svelte',
         url: origin,
         reuseExistingServer: !globalThis.process.env.CI,

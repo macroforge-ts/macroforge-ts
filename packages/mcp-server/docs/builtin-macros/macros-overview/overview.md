@@ -5,17 +5,17 @@ macros work with classes, interfaces, enums, and type aliases.
 
 ## Overview
 
-| Macro                                               | Generates                                      | Description                             |
-| --------------------------------------------------- | ---------------------------------------------- | --------------------------------------- |
-| [`Debug`](../docs/builtin-macros/debug)             | `toString(): string`                           | Human-readable string representation    |
-| [`Clone`](../docs/builtin-macros/clone)             | `clone(): T`                                   | Creates a deep copy of the object       |
-| [`Default`](../docs/builtin-macros/default)         | `static default(): T`                          | Creates an instance with default values |
-| [`Hash`](../docs/builtin-macros/hash)               | `hashCode(): number`                           | Generates a hash code for the object    |
-| [`PartialEq`](../docs/builtin-macros/partial-eq)    | `equals(other: T): boolean`                    | Value equality comparison               |
-| [`Ord`](../docs/builtin-macros/ord)                 | `compare(other: T): number`                    | Total ordering comparison (-1, 0, 1)    |
-| [`PartialOrd`](../docs/builtin-macros/partial-ord)  | `partialCompare(other: T): number &#124; null` | Partial ordering comparison             |
-| [`Serialize`](../docs/builtin-macros/serialize)     | `toJSON(): Record<string, unknown>`            | JSON serialization with type handling   |
-| [`Deserialize`](../docs/builtin-macros/deserialize) | `static fromJSON(data: unknown): T`            | JSON deserialization with validation    |
+| Macro                                               | Generates                                                                                                                     | Description                             |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| [`Debug`](../docs/builtin-macros/debug)             | `static toString(value: T): string`                                                                                           | Human-readable string representation    |
+| [`Clone`](../docs/builtin-macros/clone)             | `static clone(value: T): T`                                                                                                   | Creates a deep copy of the object       |
+| [`Default`](../docs/builtin-macros/default)         | `static defaultValue(): T`                                                                                                    | Creates an instance with default values |
+| [`Hash`](../docs/builtin-macros/hash)               | `static hashCode(value: T): number`                                                                                           | Generates a hash code for the object    |
+| [`PartialEq`](../docs/builtin-macros/partial-eq)    | `static equals(a: T, b: T): boolean`                                                                                          | Value equality comparison               |
+| [`Ord`](../docs/builtin-macros/ord)                 | `static compareTo(a: T, b: T): number`                                                                                        | Total ordering comparison (-1, 0, 1)    |
+| [`PartialOrd`](../docs/builtin-macros/partial-ord)  | `static compareTo(a: T, b: T): number &#124; null`                                                                            | Partial ordering comparison             |
+| [`Serialize`](../docs/builtin-macros/serialize)     | `static serialize(value: T, keepMetadata?: boolean): string`                                                                  | JSON serialization with type handling   |
+| [`Deserialize`](../docs/builtin-macros/deserialize) | `static deserialize(input, opts?): &lbrace; success: true; value: T &rbrace; &#124; &lbrace; success: false; errors &rbrace;` | JSON deserialization with validation    |
 
 ## Using Built-in Macros
 

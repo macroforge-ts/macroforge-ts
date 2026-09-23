@@ -15,6 +15,11 @@ export default defineConfig({
         port: Number(globalThis.process.env.PLAYGROUND_VANILLA_PORT ?? 3000),
         strictPort: true
     },
+    // The e2e suite drives the built app, so `preview` reads the same port.
+    preview: {
+        port: Number(globalThis.process.env.PLAYGROUND_VANILLA_PORT ?? 3000),
+        strictPort: true
+    },
     build: {
         rollupOptions: {
             input: {

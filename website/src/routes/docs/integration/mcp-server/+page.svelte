@@ -18,7 +18,9 @@
 	The local (stdio) version of the MCP server is available via the <a href="https://www.npmjs.com/package/@macroforge/mcp-server"><code>@macroforge/mcp-server</code></a> npm package. You can either install it globally and then reference it in your configuration or run it with <code>npx</code>:
 </p>
 
-<CodeBlock code={`npx -y @macroforge/mcp-server`} lang="bash" />
+<CodeBlock code={`npx -y @macroforge/mcp-server@latest`} lang="bash" />
+
+<p>Keep the <code>@latest</code> tag: without it, <code>npx</code> reuses whichever version it cached first and never upgrades.</p>
 
 <p>Here's how to set it up in some common MCP clients:</p>
 
@@ -26,7 +28,7 @@
 
 <p>To include the local MCP version in Claude Code, simply run the following command:</p>
 
-<CodeBlock code={`claude mcp add -t stdio -s [scope] macroforge -- npx -y @macroforge/mcp-server`} lang="bash" />
+<CodeBlock code={`claude mcp add -t stdio -s [scope] macroforge -- npx -y @macroforge/mcp-server@latest`} lang="bash" />
 
 <p>The <code>[scope]</code> must be <code>user</code>, <code>project</code> or <code>local</code>.</p>
 
@@ -55,14 +57,14 @@ args = ["-y", "@macroforge/mcp-server"]`} lang="toml" filename="config.toml" />
 
 <p>To include the local MCP version in Gemini CLI, simply run the following command:</p>
 
-<CodeBlock code={`gemini mcp add -t stdio -s [scope] macroforge npx -y @macroforge/mcp-server`} lang="bash" />
+<CodeBlock code={`gemini mcp add -t stdio -s [scope] macroforge npx -y @macroforge/mcp-server@latest`} lang="bash" />
 
 <p>The <code>[scope]</code> must be <code>user</code>, <code>project</code> or <code>local</code>.</p>
 
 <h2 id="other-clients">Other Clients</h2>
 
 <p>
-	If we didn't include the MCP client you are using, refer to their documentation for <code>stdio</code> servers and use <code>npx</code> as the command and <code>-y @macroforge/mcp-server</code> as the arguments.
+	If we didn't include the MCP client you are using, refer to their documentation for <code>stdio</code> servers and use <code>npx</code> as the command and <code>-y @macroforge/mcp-server@latest</code> as the arguments.
 </p>
 
 <h2 id="available-tools">Available Tools</h2>

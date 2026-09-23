@@ -114,10 +114,27 @@ pub fn install_playground_apps(config: &Config) -> Result<()> {
     Ok(())
 }
 
+/// The apps the Playwright suites drive. They are served as production builds,
+/// so the run builds them here: a build inside Playwright's `webServer` would
+/// have to finish inside its start-up budget while the suite waits.
+const E2E_APPS: [&str; 2] = ["vanilla", "svelte"];
+
+fn build_e2e_apps(config: &Config) -> Result<()> {
+    for app in E2E_APPS {
+        let app_dir = config.root.join("tooling/playground").join(app);
+        println!("  {} building {app}...", "→".blue());
+        shell::deno::task(&app_dir, "build")
+            .with_context(|| format!("deno task build failed in {app}"))?;
+    }
+    Ok(())
+}
+
 /// Runs the playground's deno, validator and e2e suites with their output
+/// shown./// Runs the playground's deno, validator and e2e suites with their output
 /// shown. The suites drive this checkout's debug CLI (`MACROFORGE_CLI`).
 pub fn run_playground_suites(config: &Config) -> Result<()> {
     install_playground_apps(config)?;
+    build_e2e_apps(config)?;
 
     let playground_tests = config.root.join("tooling/playground/tests");
     let suites = [

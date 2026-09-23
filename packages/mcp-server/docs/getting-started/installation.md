@@ -5,7 +5,7 @@ start using TypeScript macros.
 
 ## Requirements
 
-- Node.js 24.0 or later
+- Node.js 18 or later (or any WebAssembly-capable runtime)
 - TypeScript 5.9 or later
 
 ## Install the Package
@@ -15,25 +15,25 @@ Install Macroforge using your preferred package manager:
 npm
 
 ```
-npm install macroforge
+npm install @macroforge/core
 ```
 
 bun
 
 ```
-bun add macroforge
+bun add @macroforge/core
 ```
 
 pnpm
 
 ```
-pnpm add macroforge
+pnpm add @macroforge/core
 ```
 
 Info
 
-Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and
-Windows (x64, arm64).
+The `macroforge` package ships a single WebAssembly build, so the same artifact runs under Node.js,
+Deno, Bun, and edge runtimes with no platform-specific binaries to install.
 
 ## Basic Usage
 
@@ -55,9 +55,9 @@ class User {
 }
 
 // After macro expansion, User has:
-// - toString(): string              (from Debug)
-// - clone(): User                   (from Clone)
-// - equals(other: unknown): boolean (from PartialEq)
+// - static toString(value: User): string          (from Debug)
+// - static clone(value: User): User               (from Clone)
+// - static equals(a: User, b: User): boolean      (from PartialEq)
 ```
 
 ## IDE Integration
@@ -91,15 +91,12 @@ If you're using Vite, add the plugin to your config for automatic macro expansio
 vite.config.ts
 
 ```
-import macroforge from "@macroforge/vite-plugin";
+import { macroforge } from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
-    macroforge({
-      generateTypes: true,
-      typesOutputDir: ".macroforge/types"
-    })
+    macroforge()
   ]
 });
 ```

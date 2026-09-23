@@ -84,5 +84,5 @@
         "pretest": "node test/setup-fixtures.js",
         "test": "deno task pretest && deno run -A --node-modules-dir=manual npm:mocha --timeout 60000 \"test/**/*.test.ts\""
     },
-    "version": "0.3.0"
+    "version": "0.3.1"
 }

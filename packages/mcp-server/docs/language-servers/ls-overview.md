@@ -15,17 +15,18 @@ While the [TypeScript Plugin](../docs/integration/typescript-plugin) provides ma
 TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks
 and editors.
 
-| Integration                                               | Purpose                             | Status                |
-| --------------------------------------------------------- | ----------------------------------- | --------------------- |
-| [Svelte Language Server](../docs/language-servers/svelte) | Full Svelte support with macroforge | Working (dev install) |
-| [Zed Extensions](../docs/language-servers/zed)            | VTSLS and Svelte for Zed editor     | Working (dev install) |
+| Integration                                                   | Purpose                                         | Status                |
+| ------------------------------------------------------------- | ----------------------------------------------- | --------------------- |
+| [Svelte Language Server](../docs/language-servers/svelte)     | Full Svelte support with macroforge             | Working (dev install) |
+| [vtsls-macroforge](../docs/language-servers/vtsls-macroforge) | TypeScript language server with macro expansion | Working (dev install) |
+| [Zed Extensions](../docs/language-servers/zed)                | VTSLS and Svelte for Zed editor                 | Working (dev install) |
 
 ## Current Status
 
 The language servers are functional and used during development of macroforge itself. However, they
 require manual installation:
 
-1. Fork or clone the [macroforge-ts repository](https://github.com/macroforge-ts/macroforge-ts)
+1. Fork or clone the [macroforge-ts repository](https://gitlab.com/macroforge-ts/macroforge-ts)
 2. Build the extension you need
 3. Install it as a developer extension in your editor
 

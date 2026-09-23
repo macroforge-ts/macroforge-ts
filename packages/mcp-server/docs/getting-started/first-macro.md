@@ -12,15 +12,15 @@ Before (Your Code)
 ```
 /** @derive(Debug, Clone, PartialEq) */
 export class User {
-    name: string;
-    age: number;
-    email: string;
+  name: string;
+  age: number;
+  email: string;
 
-    constructor(name: string, age: number, email: string) {
-        this.name = name;
-        this.age = age;
-        this.email = email;
-    }
+  constructor(name: string, age: number, email: string) {
+    this.name = name;
+    this.age = age;
+    this.email = email;
+  }
 }
 ```
 
@@ -28,49 +28,48 @@ After (Generated)
 
 ```
 export class User {
-    name: string;
-    age: number;
-    email: string;
+  name: string;
+  age: number;
+  email: string;
 
-    constructor(name: string, age: number, email: string) {
-        this.name = name;
-        this.age = age;
-        this.email = email;
-    }
+  constructor(name: string, age: number, email: string) {
+    this.name = name;
+    this.age = age;
+    this.email = email;
+  }
 
-    static toString(value: User): string {
-        return userToString(value);
-    }
-
-    static clone(value: User): User {
-        return userClone(value);
-    }
-
-    static equals(a: User, b: User): boolean {
-        return userEquals(a, b);
-    }
-}
+static toString(value: User): string {
+                    return userToString(value);
+                }
+static clone(value: User): User {
+                    return userClone(value);
+                }
+static equals(a: User, b: User): boolean {
+                    return userEquals(a, b);
+                }}
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push('name: ' + value.name);
-    parts.push('age: ' + value.age);
-    parts.push('email: ' + value.email);
-    return 'User { ' + parts.join(', ') + ' }';
-}
+                        const parts: string[] = [];
+                        parts.push("name: " + value.name);
+parts.push("age: " + value.age);
+parts.push("email: " + value.email);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
 
 export function userClone(value: User): User {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.name = value.name;
-    cloned.age = value.age;
-    cloned.email = value.email;
-    return cloned;
-}
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.name = value.name;
+cloned.age = value.age;
+cloned.email = value.email;
+
+                    return cloned;
+                }
 
 export function userEquals(a: User, b: User): boolean {
-    if (a === b) return true;
-    return a.name === b.name && a.age === b.age && a.email === b.email;
-}
+                    if (a === b) return true;
+                    return a.name === b.name && a.age === b.age && a.email === b.email;
+                }
 ```
 
 ## Using the Generated Methods
@@ -80,19 +79,23 @@ TypeScript
 ```
 const user = new User("Alice", 30, "alice@example.com");
 
-// Debug: toString()
-console.log(user.toString());
+// Debug: static toString(value)
+console.log(User.toString(user));
 // Output: User { name: Alice, age: 30, email: alice@example.com }
 
-// Clone: clone()
-const copy = user.clone();
+// Clone: static clone(value)
+const copy = User.clone(user);
 console.log(copy.name); // "Alice"
 
-// Eq: equals()
-console.log(user.equals(copy)); // true
+// PartialEq: static equals(a, b)
+console.log(User.equals(user, copy)); // true
 
 const different = new User("Bob", 25, "bob@example.com");
-console.log(user.equals(different)); // false
+console.log(User.equals(user, different)); // false
+
+// Each static wrapper delegates to a standalone function, which you can
+// also import and call directly:
+// userToString(user), userClone(user), userEquals(user, copy)
 ```
 
 ## Customizing Behavior
@@ -104,19 +107,19 @@ Before (Your Code)
 ```
 /** @derive(Debug) */
 export class User {
-    /** @debug({ rename: "userId" }) */
-    id: number;
+  /** @debug({ rename: "userId" }) */
+  id: number;
 
-    name: string;
+  name: string;
 
-    /** @debug({ skip: true }) */
-    password: string;
+  /** @debug({ skip: true }) */
+  password: string;
 
-    constructor(id: number, name: string, password: string) {
-        this.id = id;
-        this.name = name;
-        this.password = password;
-    }
+  constructor(id: number, name: string, password: string) {
+    this.id = id;
+    this.name = name;
+    this.password = password;
+  }
 }
 ```
 
@@ -124,36 +127,38 @@ After (Generated)
 
 ```
 export class User {
-    id: number;
+  
+  id: number;
 
-    name: string;
+  name: string;
 
-    password: string;
+  
+  password: string;
 
-    constructor(id: number, name: string, password: string) {
-        this.id = id;
-        this.name = name;
-        this.password = password;
-    }
+  constructor(id: number, name: string, password: string) {
+    this.id = id;
+    this.name = name;
+    this.password = password;
+  }
 
-    static toString(value: User): string {
-        return userToString(value);
-    }
-}
+static toString(value: User): string {
+                    return userToString(value);
+                }}
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push('userId: ' + value.id);
-    parts.push('name: ' + value.name);
-    return 'User { ' + parts.join(', ') + ' }';
-}
+                        const parts: string[] = [];
+                        parts.push("userId: " + value.id);
+parts.push("name: " + value.name);
+
+                        return "User { " + parts.join(", ") + " }";
+                    }
 ```
 
 TypeScript
 
 ```
 const user = new User(42, "Alice", "secret123");
-console.log(user.toString());
+console.log(User.toString(user));
 // Output: User { userId: 42, name: Alice }
 // Note: 'id' is renamed to 'userId', 'password' is skipped
 ```

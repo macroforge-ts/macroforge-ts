@@ -12,8 +12,8 @@ extensions.
 
 | Extension           | Description                                  | Location                              |
 | ------------------- | -------------------------------------------- | ------------------------------------- |
-| `vtsls-macroforge`  | VTSLS with macroforge support for TypeScript | `crates/extensions/vtsls-macroforge`  |
-| `svelte-macroforge` | Svelte language support with macroforge      | `crates/extensions/svelte-macroforge` |
+| `vtsls-macroforge`  | VTSLS with macroforge support for TypeScript | `crates/extensions/vtsls_macroforge`  |
+| `svelte-macroforge` | Svelte language support with macroforge      | `crates/extensions/svelte_macroforge` |
 
 ## Installation
 
@@ -22,7 +22,7 @@ extensions.
 Bash
 
 ```
-git clone https://github.com/macroforge-ts/macroforge-ts.git
+git clone https://gitlab.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts
 ```
 
@@ -34,10 +34,10 @@ Bash
 
 ```
 # For VTSLS (TypeScript)
-cd crates/extensions/vtsls-macroforge
+cd crates/extensions/vtsls_macroforge
 
 # Or for Svelte
-cd crates/extensions/svelte-macroforge
+cd crates/extensions/svelte_macroforge
 ```
 
 ### 3\. Install as Dev Extension in Zed
@@ -51,21 +51,18 @@ Bash
 
 ```
 # macOS
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
+ln -s /path/to/macroforge-ts/crates/extensions/vtsls_macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
 
 # Linux
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/extensions/installed/vtsls-macroforge
+ln -s /path/to/macroforge-ts/crates/extensions/vtsls_macroforge ~/.config/zed/extensions/installed/vtsls-macroforge
 ```
 
 ## vtsls-macroforge
 
 This extension wraps [VTSLS](https://github.com/yioneko/vtsls) (a TypeScript language server) with
-macroforge integration. It provides:
-
-- Full TypeScript language features
-- Macro expansion at edit time
-- Accurate error positions in original source
-- Completions for macro-generated methods
+macroforge integration. See the
+[dedicated vtsls-macroforge page](../../docs/language-servers/vtsls-macroforge) for full
+documentation.
 
 ## svelte-macroforge
 

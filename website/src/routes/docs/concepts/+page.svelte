@@ -25,7 +25,7 @@
 </p>
 
 <ol>
-	<li><strong>Parse</strong>: Your TypeScript code is parsed into an AST using SWC</li>
+	<li><strong>Parse</strong>: Your TypeScript code is parsed into an AST using oxc</li>
 	<li><strong>Find</strong>: Macroforge finds <code>@derive</code> decorators and their associated items</li>
 	<li><strong>Expand</strong>: Each macro generates new code based on the class structure</li>
 	<li><strong>Output</strong>: The transformed TypeScript is written out, ready for normal compilation</li>
@@ -70,7 +70,7 @@
 
 <Flowchart steps={[
 	{ title: "Your Source Code", description: "with @derive decorators" },
-	{ title: "SWC Parser", description: "TypeScript → AST" },
+	{ title: "oxc Parser", description: "TypeScript → AST" },
 	{ title: "Macro Expansion Engine", description: "Finds @derive decorators, runs macros, generates new AST nodes" },
 	{ title: "Code Generator", description: "AST → TypeScript" },
 	{ title: "Expanded TypeScript", description: "ready for normal compilation" }

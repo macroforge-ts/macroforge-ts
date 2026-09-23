@@ -19,7 +19,7 @@ TypeScript
 ```
 /** @derive(Debug) */
 class MyClass {
-    value: string;
+  value: string;
 }
 ```
 
@@ -37,8 +37,8 @@ TypeScript
 ```
 /** @derive(Debug, Clone) */
 class User {
-    name: string;
-    email: string;
+  name: string;
+  email: string;
 }
 ```
 
@@ -86,86 +86,85 @@ Before (Your Code)
 ```
 /** @derive(Debug, Serialize) */
 class User {
-    /** @debug({ rename: "userId" }) */
-    /** @serde({ rename: "user_id" }) */
-    id: number;
+  /** @debug({ rename: "userId" }) */
+  /** @serde({ rename: "user_id" }) */
+  id: number;
 
-    name: string;
+  name: string;
 
-    /** @debug({ skip: true }) */
-    /** @serde({ skip: true }) */
-    password: string;
+  /** @debug({ skip: true }) */
+  /** @serde({ skip: true }) */
+  password: string;
 
-    metadata: Record<string, unknown>;
+  metadata: Record<string, unknown>;
 }
 ```
 
 After (Generated)
 
 ```
-import { SerializeContext as __mf_SerializeContext } from '@macroforge/core/serde';
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
 
 class User {
-    id: number;
+  
+  
+  id: number;
 
-    name: string;
+  name: string;
 
-    password: string;
+  
+  
+  password: string;
 
-    metadata: Record<string, unknown>;
+  metadata: Record<string, unknown>;
 
-    static toString(value: User): string {
-        return userToString(value);
-    }
-    /** Serializes a value to a JSON string.
-@param value - The value to serialize
-@returns JSON string representation with cycle detection metadata  */
+static toString(value: User): string {
+                    return userToString(value);
+                }
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static serialize(value: User, keepMetadata?: boolean): string {
+                    return userSerialize(value, keepMetadata);
+                }
 
-    static serialize(value: User): string {
-        return userSerialize(value);
-    }
-    /** @internal Serializes with an existing context for nested/cyclic object graphs.
-@param value - The value to serialize
-@param ctx - The serialization context  */
-
-    static serializeWithContext(value: User, ctx: __mf_SerializeContext): Record<string, unknown> {
-        return userSerializeWithContext(value, ctx);
-    }
-}
+                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                static serializeWithContext(value: User, ctx: __mf_SerializeContext): Record<string, unknown> {
+                    return userSerializeWithContext(value, ctx);
+                }}
 
 export function userToString(value: User): string {
-    const parts: string[] = [];
-    parts.push('userId: ' + value.id);
-    parts.push('name: ' + value.name);
-    parts.push('metadata: ' + value.metadata);
-    return 'User { ' + parts.join(', ') + ' }';
-}
+                        const parts: string[] = [];
+                        parts.push("userId: " + value.id);
+parts.push("name: " + value.name);
+parts.push("metadata: " + value.metadata);
 
-/** Serializes a value to a JSON string.
-@param value - The value to serialize
-@returns JSON string representation with cycle detection metadata */ export function userSerialize(
-    value: User
-): string {
-    const ctx = __mf_SerializeContext.create();
-    return JSON.stringify(userSerializeWithContext(value, ctx));
-} /** @internal Serializes with an existing context for nested/cyclic object graphs.
-@param value - The value to serialize
-@param ctx - The serialization context */
-export function userSerializeWithContext(
-    value: User,
-    ctx: __mf_SerializeContext
-): Record<string, unknown> {
-    const existingId = ctx.getId(value);
-    if (existingId !== undefined) {
-        return { __ref: existingId };
-    }
-    const __id = ctx.register(value);
-    const result: Record<string, unknown> = { __type: 'User', __id };
-    result['user_id'] = value.id;
-    result['name'] = value.name;
-    result['metadata'] = value.metadata;
-    return result;
-}
+                        return "User { " + parts.join(", ") + " }";
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function userSerialize(value: User, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = userSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function userSerializeWithContext(value: User, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "User",
+                        __id,
+                    };result.user_id = value.id;result.name = value.name;result.metadata = value.metadata;
+
+                    return result;
+                }
 ```
 
 Syntax rules:

@@ -4,10 +4,10 @@
     "npm:@biomejs/biome@*": "2.3.10",
     "npm:@emotion/weak-memoize@0.4": "0.4.0",
     "npm:@inlang/paraglide-js@^2.6.0": "2.7.1",
-    "npm:@macroforge/core@*": "0.2.0",
-    "npm:@macroforge/shared@*": "0.2.0",
-    "npm:@macroforge/svelte-preprocessor@*": "0.2.0_svelte@5.46.1__acorn@8.15.0",
-    "npm:@macroforge/vite-plugin@*": "0.2.0_typescript@5.9.3_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3",
+    "npm:@macroforge/core@*": "0.3.1",
+    "npm:@macroforge/shared@*": "0.3.1",
+    "npm:@macroforge/svelte-preprocessor@*": "0.3.1_svelte@5.46.1__acorn@8.15.0",
+    "npm:@macroforge/vite-plugin@*": "0.3.1_typescript@5.9.3_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3",
     "npm:@sveltejs/adapter-auto@7": "7.0.0_@sveltejs+kit@2.49.2__@sveltejs+vite-plugin-svelte@6.2.1___svelte@5.46.1____acorn@8.15.0___vite@7.3.0____@types+node@25.0.3____picomatch@4.0.3___@types+node@25.0.3__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___@types+node@25.0.3___picomatch@4.0.3__acorn@8.15.0__@types+node@25.0.3_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___@types+node@25.0.3___picomatch@4.0.3__@types+node@25.0.3_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3_@types+node@25.0.3",
     "npm:@sveltejs/kit@^2.49.0": "2.49.2_@sveltejs+vite-plugin-svelte@6.2.1__svelte@5.46.1___acorn@8.15.0__vite@7.3.0___@types+node@25.0.3___picomatch@4.0.3__@types+node@25.0.3_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3_acorn@8.15.0_@types+node@25.0.3",
     "npm:@sveltejs/vite-plugin-svelte@^6.2.1": "6.2.1_svelte@5.46.1__acorn@8.15.0_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3_@types+node@25.0.3",
@@ -362,16 +362,16 @@
     "@lix-js/server-protocol-schema@0.1.1": {
       "integrity": "sha512-jBeALB6prAbtr5q4vTuxnRZZv1M2rKe8iNqRQhFJ4Tv7150unEa0vKyz0hs8Gl3fUGsWaNJBh3J8++fpbrpRBQ=="
     },
-    "@macroforge/core@0.2.0": {},
-    "@macroforge/shared@0.2.0": {},
-    "@macroforge/svelte-preprocessor@0.2.0_svelte@5.46.1__acorn@8.15.0": {
+    "@macroforge/core@0.3.1": {},
+    "@macroforge/shared@0.3.1": {},
+    "@macroforge/svelte-preprocessor@0.3.1_svelte@5.46.1__acorn@8.15.0": {
       "dependencies": [
         "@macroforge/core",
         "@macroforge/shared",
         "svelte"
       ]
     },
-    "@macroforge/vite-plugin@0.2.0_typescript@5.9.3_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3": {
+    "@macroforge/vite-plugin@0.3.1_typescript@5.9.3_vite@7.3.0__@types+node@25.0.3__picomatch@4.0.3": {
       "dependencies": [
         "@jridgewell/sourcemap-codec",
         "@macroforge/core",
@@ -1703,22 +1703,22 @@
       ]
     },
     "links": {
-      "npm:@macroforge/core@0.2.0": {},
-      "npm:@macroforge/shared@0.2.0": {},
-      "npm:@macroforge/svelte-preprocessor@0.2.0": {
+      "npm:@macroforge/core@0.3.1": {},
+      "npm:@macroforge/shared@0.3.1": {},
+      "npm:@macroforge/svelte-preprocessor@0.3.1": {
         "dependencies": [
-          "npm:@macroforge/core@0.2.0",
-          "npm:@macroforge/shared@0.2.0"
+          "npm:@macroforge/core@0.3.1",
+          "npm:@macroforge/shared@0.3.1"
         ],
         "peerDependencies": [
           "npm:svelte@5"
         ]
       },
-      "npm:@macroforge/vite-plugin@0.2.0": {
+      "npm:@macroforge/vite-plugin@0.3.1": {
         "dependencies": [
           "npm:@jridgewell/sourcemap-codec@^1.6.0",
-          "npm:@macroforge/core@0.2.0",
-          "npm:@macroforge/shared@0.2.0"
+          "npm:@macroforge/core@0.3.1",
+          "npm:@macroforge/shared@0.3.1"
         ],
         "peerDependencies": [
           "npm:typescript@>=5.0.0",

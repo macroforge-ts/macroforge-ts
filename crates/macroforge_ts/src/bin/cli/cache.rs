@@ -24,10 +24,15 @@ pub(crate) struct CacheManifest {
     pub(crate) version: String,
     /// SHA-256 of the macroforge config file content (or `"none"`).
     pub(crate) config_hash: String,
-    /// Hash of external macro NAPI binaries (mtime+size). Invalidates the cache
+    /// Hash of the external macro packages' artifacts. Invalidates the cache
     /// when a local macro package (e.g. `@dealdraft/macros`) is rebuilt.
     #[serde(default)]
     pub(crate) external_macro_hash: String,
+    /// One fingerprint per engine that writes here, keyed by writer: this CLI
+    /// under `cli`, the Vite plugin's wasm under `wasm`. Each writer compares
+    /// and updates only its own key, so neither discards the other's entries.
+    #[serde(default)]
+    pub(crate) engine_hashes: HashMap<String, String>,
     /// Per-file entries keyed by path relative to project root.
     pub(crate) entries: HashMap<String, CacheEntry>,
 }
@@ -107,12 +112,37 @@ pub(crate) fn compute_config_hash(root: &Path) -> String {
     "none".to_string()
 }
 
+/// This writer's key in `engine_hashes`. The Vite plugin owns `wasm`.
+pub(crate) const CLI_ENGINE_KEY: &str = "cli";
+
+/// Fingerprints the running CLI, so expansions it cached are dropped once it
+/// is rebuilt. The engine is linked into this binary, which is why the plugin's
+/// wasm fingerprint cannot stand in for it.
+fn compute_cli_engine_hash() -> String {
+    let Ok(exe) = std::env::current_exe() else {
+        return "none".to_string();
+    };
+    let Ok(meta) = fs::metadata(&exe) else {
+        return "none".to_string();
+    };
+    let modified = meta
+        .modified()
+        .map(|time| {
+            time.duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs()
+        })
+        .unwrap_or(0);
+    content_hash(format!("{}:{}", meta.len(), modified).as_bytes())
+}
+
 /// Computes a hash over external macro package binaries so the cache
 /// invalidates when a local macro package is rebuilt.
 ///
 /// Scans `node_modules` for packages that export `__macroforgeRun` from any of
-/// their JS entry scripts, then hashes the metadata (mtime + size) of their
-/// `.node` / `.wasm` / `.js` artifacts.
+/// their JS entry scripts, then hashes the contents of their `.node` / `.wasm`
+/// / `.js` artifacts. Content, not mtime: an install copies these files, and
+/// copying identical bytes must not throw the cache away.
 ///
 /// Every ancestor's `node_modules` is scanned, not just the project's own,
 /// because that is where Node finds a package and therefore where a workspace
@@ -131,7 +161,7 @@ pub(crate) fn compute_config_hash(root: &Path) -> String {
 /// `packages/vite-plugin/src/index.js`. The two writers share one manifest, so
 /// any disagreement makes each invalidate the other's entries on every run.
 pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
-    // Collect path:size:mtime parts, sort for deterministic ordering
+    // Collect path:size:content parts, sort for deterministic ordering
     // (readdir order varies across platforms and runtimes), then hash.
     let mut parts: Vec<String> = Vec::new();
 
@@ -178,22 +208,13 @@ pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
                 if !tracked {
                     continue;
                 }
-                if let Ok(meta) = fs::metadata(&path) {
-                    use std::fmt::Write;
-                    let mut buf = String::new();
-                    let _ = write!(
-                        buf,
+                if let Ok(bytes) = fs::read(&path) {
+                    parts.push(format!(
                         "{}:{}:{}",
                         path.display(),
-                        meta.len(),
-                        meta.modified()
-                            .map(|t| t
-                                .duration_since(std::time::UNIX_EPOCH)
-                                .unwrap_or_default()
-                                .as_secs())
-                            .unwrap_or(0)
-                    );
-                    parts.push(buf);
+                        bytes.len(),
+                        content_hash(&bytes)
+                    ));
                 }
             }
         }
@@ -247,11 +268,17 @@ pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
 }
 
 impl CacheManifest {
-    pub(crate) fn new(version: String, config_hash: String, external_macro_hash: String) -> Self {
+    pub(crate) fn new(
+        version: String,
+        config_hash: String,
+        external_macro_hash: String,
+        engine_hash: String,
+    ) -> Self {
         Self {
             version,
             config_hash,
             external_macro_hash,
+            engine_hashes: HashMap::from([(CLI_ENGINE_KEY.to_string(), engine_hash)]),
             entries: HashMap::new(),
         }
     }
@@ -578,8 +605,9 @@ pub(crate) fn init_cache(root: &Path, label: &str) -> Result<(PathBuf, CacheMani
     let version = env!("CARGO_PKG_VERSION").to_string();
     let config_hash = compute_config_hash(root);
     let external_macro_hash = compute_external_macro_hash(root);
+    let engine_hash = compute_cli_engine_hash();
 
-    let manifest = CacheManifest::load(&cache_dir)
+    let mut manifest = CacheManifest::load(&cache_dir)
         .filter(|m| {
             if m.version != version {
                 eprintln!("[macroforge {label}] Cache invalidated: macroforge version changed");
@@ -593,6 +621,15 @@ pub(crate) fn init_cache(root: &Path, label: &str) -> Result<(PathBuf, CacheMani
                 eprintln!("[macroforge {label}] Cache invalidated: external macro binary changed");
                 return false;
             }
+            // Only this writer's key: a manifest last written by the plugin
+            // carries `wasm` alone, and its entries are as good as ours.
+            if m.engine_hashes
+                .get(CLI_ENGINE_KEY)
+                .is_some_and(|recorded| recorded != &engine_hash)
+            {
+                eprintln!("[macroforge {label}] Cache invalidated: the CLI was rebuilt");
+                return false;
+            }
             true
         })
         .unwrap_or_else(|| {
@@ -601,8 +638,12 @@ pub(crate) fn init_cache(root: &Path, label: &str) -> Result<(PathBuf, CacheMani
                 version.clone(),
                 config_hash.clone(),
                 external_macro_hash.clone(),
+                engine_hash.clone(),
             )
         });
+    manifest
+        .engine_hashes
+        .insert(CLI_ENGINE_KEY.to_string(), engine_hash);
 
     Ok((cache_dir, manifest))
 }

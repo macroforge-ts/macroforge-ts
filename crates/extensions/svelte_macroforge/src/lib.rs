@@ -21,7 +21,7 @@ use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree};
 
 const SVELTE_LS_PACKAGE: &str = "@macroforge/svelte-language-server";
-const SVELTE_LS_VERSION: &str = "0.3.0";
+const SVELTE_LS_VERSION: &str = "0.3.1";
 const SVELTE_LS_COMMAND: &str = "svelteserver";
 const MACROFORGE_PACKAGE: &str = "@macroforge/core";
 
@@ -140,6 +140,6 @@ mod tests {
 
     #[test]
     fn test_svelte_ls_version_constant() {
-        assert_eq!(SVELTE_LS_VERSION, "0.3.0");
+        assert_eq!(SVELTE_LS_VERSION, "0.3.1");
     }
 }

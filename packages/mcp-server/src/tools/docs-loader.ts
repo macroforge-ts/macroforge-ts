@@ -76,6 +76,7 @@ export interface Section {
  *
  * @returns Array of Section objects with content loaded. Returns empty array if
  *          sections.json is not found (with a warning logged to stderr).
+ * @throws When sections.json lists a markdown file that does not exist.
  *
  * @example
  * ```typescript
@@ -88,7 +89,7 @@ export function loadSections(): Section[] {
 
     if (!existsSync(sectionsPath)) {
         console.error(
-            'Warning: sections.json not found. Run "npm run build:docs" to generate documentation.'
+            'Warning: sections.json not found. Run "pixi run docs:mcp" to generate documentation.'
         );
         return [];
     }
@@ -104,12 +105,7 @@ export function loadSections(): Section[] {
             continue;
         }
 
-        const contentPath = join(docsDir, section.path);
-        if (existsSync(contentPath)) {
-            section.content = readFileSync(contentPath, 'utf-8');
-        } else {
-            section.content = `Documentation file not found: ${section.path}`;
-        }
+        section.content = readFileSync(join(docsDir, section.path), 'utf-8');
     }
 
     return sectionsData;

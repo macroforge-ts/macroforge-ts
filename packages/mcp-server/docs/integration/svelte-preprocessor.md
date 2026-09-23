@@ -62,8 +62,8 @@ UserCard.svelte
   }
 
   let user = new User("Alice", "alice@example.com");
-  console.log(user.toString());  // Generated by Debug macro
-</script>
+  console.log(User.toString(user));  // Static wrapper generated by Debug
+<\/script>
 
 <p>User: {user.name}</p>
 ```
@@ -185,5 +185,5 @@ Svelte
       this.value = value;
     }
   }
-</script>
+<\/script>
 ```

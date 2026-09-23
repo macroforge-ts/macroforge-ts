@@ -181,6 +181,19 @@ fn update_package_json(path: &Path, version: &str, versions: &VersionsCache) -> 
         update_dep(deps, "@macroforge/typescript-plugin", "typescript-plugin");
     }
 
+    // The website carries `@macroforge/core` here, and it resolves to the
+    // workspace package only while the two versions agree. Leaving it behind
+    // pins it at a release the workspace has moved past and the registry does
+    // not have yet, which fails the next install.
+    if let Some(deps) = pkg
+        .get_mut("devDependencies")
+        .and_then(|v| v.as_object_mut())
+    {
+        update_dep(deps, "@macroforge/core", "core");
+        update_dep(deps, "@macroforge/shared", "shared");
+        update_dep(deps, "@macroforge/typescript-plugin", "typescript-plugin");
+    }
+
     if let Some(deps) = pkg
         .get_mut("peerDependencies")
         .and_then(|v| v.as_object_mut())

@@ -16,6 +16,9 @@ struct DeriveInput {
     fn as_class(&self) -> Option<&DataClass>;
     fn as_interface(&self) -> Option<&DataInterface>;
     fn as_enum(&self) -> Option<&DataEnum>;
+    fn as_type_alias(&self) -> Option<&DataTypeAlias>;
+    fn body_span(&self) -> SpanIR;       // Span of the type body
+    fn error_span(&self) -> SpanIR;      // Preferred span for diagnostics
 }
 
 enum Data {

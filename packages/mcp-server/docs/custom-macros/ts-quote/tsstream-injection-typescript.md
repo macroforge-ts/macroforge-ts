@@ -7,21 +7,21 @@ Rust
 
 ```
 // Create a helper method with its own import
-let mut helper = body! {
+let mut helper = ts_template!(Within {
     validateEmail(email: string): boolean {
         return Result.ok(true);
     }
-};
-helper.add_import("Result", "macroforge/utils");
+});
+helper.add_import("Result", "@macroforge/core/utils");
 
 // Inject the helper into the main template
-let result = body! {
+let result = ts_template!(Within {
     {$typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
     }
-};
+});
 // result now includes helper's source AND its Result import
 ```
 
@@ -31,20 +31,20 @@ Rust
 
 ```
 let extra_methods = if include_validation {
-    Some(body! {
+    Some(ts_template!(Within {
         validate(): boolean { return true; }
-    })
+    }))
 } else {
     None
 };
 
-body! {
+ts_template!(Within {
     mainMethod(): void {}
 
     {#if let Some(methods) = extra_methods}
         {$typescript methods}
     {/if}
-}
+})
 ```
 
 ## Escape Syntax

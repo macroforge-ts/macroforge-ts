@@ -23,7 +23,7 @@ manually.
 Bash
 
 ```
-git clone https://github.com/macroforge-ts/macroforge-ts.git
+git clone https://gitlab.com/macroforge-ts/macroforge-ts.git
 cd macroforge-ts
 ```
 
@@ -32,12 +32,9 @@ cd macroforge-ts
 Bash
 
 ```
-# Install dependencies
-npm install
-
-# Build the Svelte language server
+# Build the Svelte language server (Deno workspace)
 cd packages/svelte-language-server
-npm run build
+deno task build
 ```
 
 ### 3\. Configure Your Editor
@@ -48,14 +45,27 @@ The language server exposes a `svelteserver` binary that implements the Language
 Bash
 
 ```
-# The binary is located at:
-./packages/svelte-language-server/bin/server.js
+# The build writes the package to npm/svelte-language-server; its binary is:
+./npm/svelte-language-server/script/server-bin.js
 ```
 
 ## Package Info
 
-| Package | `@macroforge/svelte-language-server` | | Version | 0.1.7 | | CLI Command |
-`svelteserver` | | Node Version | \>= 18.0.0 |
+Package
+
+`@macroforge/svelte-language-server`
+
+Version
+
+0.1.80
+
+CLI Command
+
+`svelteserver`
+
+Node Version
+
+\>= 18.0.0
 
 ## How It Works
 

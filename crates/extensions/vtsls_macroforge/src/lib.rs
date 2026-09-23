@@ -24,7 +24,7 @@ use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree, serde_json};
 
 const TS_PLUGIN: &str = "@macroforge/typescript-plugin";
-const TS_PLUGIN_VERSION: &str = "0.3.0";
+const TS_PLUGIN_VERSION: &str = "0.3.1";
 const VTSLS_PACKAGE: &str = "@vtsls/language-server";
 const VTSLS_VERSION: &str = "0.2.6";
 

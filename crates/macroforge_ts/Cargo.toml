@@ -1,7 +1,7 @@
 [package]
 name = "macroforge_ts"
 description = "TypeScript macro expansion engine - write compile-time macros in Rust"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2024"
 authors = ["macroforge contributors"]
 license = "MIT"
@@ -42,9 +42,9 @@ swc_core = { version = "79.0.0", optional = true, features = [
 oxc = { version = "0.150", optional = true, features = ["codegen", "ast_visit", "transformer", "semantic"] }
 
 # Macroforge crates
-macroforge_ts_syn = { version = "0.3.0", path = "../macroforge_ts_syn" }
-macroforge_ts_quote = { version = "0.3.0", path = "../macroforge_ts_quote" }
-macroforge_ts_macros = { version = "0.3.0", path = "../macroforge_ts_macros" }
+macroforge_ts_syn = { version = "0.3.1", path = "../macroforge_ts_syn" }
+macroforge_ts_quote = { version = "0.3.1", path = "../macroforge_ts_quote" }
+macroforge_ts_macros = { version = "0.3.1", path = "../macroforge_ts_macros" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -74,9 +74,13 @@ tempfile = "3.27.0"
 # dependency tree. Optional; gated by `buildtime-boa`.
 boa_engine = { version = "0.22", optional = true }
 
-# Boa pulls in `getrandom` transitively. On wasm32 it requires a
-# backend selection — we use the wasm-bindgen Crypto.getRandomValues
-# bridge. The matching cfg flag is set in `crates/.cargo/config.toml`.
+# Boa pulls in `getrandom` transitively. A wasm32-unknown-unknown target
+# says nothing about whether a JavaScript host exists, so the backend is
+# chosen here: `wasm_js` reaches Crypto.getRandomValues through wasm-bindgen,
+# which covers the hosts this engine runs in (Node, for the Vite plugin and
+# the website's build and server) and a browser, where a consumer may run it.
+# Since getrandom 0.3.4 the feature selects the backend on its own, so no cfg
+# flag goes with it.
 getrandom = { version = "0.4", features = ["wasm_js"], optional = true }
 
 # `web_time` is a drop-in replacement for `std::time::Instant` that

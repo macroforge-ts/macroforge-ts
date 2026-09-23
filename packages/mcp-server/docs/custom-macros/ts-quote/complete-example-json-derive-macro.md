@@ -14,19 +14,19 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
         Data::Class(class) => {
             let class_name = input.name();
 
-            let mut body_stmts = vec![ts_quote!( const result = {}; as Stmt )];
+            let mut body_stmts = vec![ts_quote!("const result = {};" as Stmt)];
 
             for field_name in class.field_names() {
                 body_stmts.push(ts_quote!(
-                    result.$(ident!("{}", field_name)) = this.$(ident!("{}", field_name));
-                    as Stmt
+                    "result.$field = this.$field;" as Stmt,
+                    field = ts_ident!(field_name)
                 ));
             }
 
-            body_stmts.push(ts_quote!( return result; as Stmt ));
+            body_stmts.push(ts_quote!("return result;" as Stmt));
 
             let runtime_code = fn_assign!(
-                member_expr!(Expr::Ident(ident!(class_name)), "prototype"),
+                member_expr!(Expr::Ident(ts_ident!(class_name)), "prototype"),
                 "toJSON",
                 body_stmts
             );
@@ -70,13 +70,13 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 
 1. **Compile-Time:** The template is parsed during macro expansion
 2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
-3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
-4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+3. **Parsing:** The generated string is parsed with oxc to produce a typed AST.
+4. **Result:** Returns a `TsStream` that can be returned directly as macro output
 
 ## Return Type
 
-`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and
-provides helpful error messages showing the generated TypeScript code if parsing fails:
+`ts_template!` returns a `TsStream`, which is what a macro function returns as its output. If the
+generated source fails to parse, the macro reports an error showing the generated TypeScript:
 
 Text
 

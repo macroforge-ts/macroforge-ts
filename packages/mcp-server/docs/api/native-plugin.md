@@ -1,10 +1,9 @@
 # NativePlugin
 
-macroforge v0.1.48
+macroforge v0.3.1
 
-The main plugin class for macro expansion with caching support. \`NativePlugin\` is designed to be
-instantiated once and reused across multiple file processing operations. It maintains a cache of
-expansion results keyed by filepath and version, enabling efficient incremental processing.
+A stateful expander for editor integrations: it caches each file's expansion by version and maps
+positions and diagnostics back to the source.
 
 ## Constructor
 
@@ -36,6 +35,24 @@ TypeScript
 interface ProcessFileOptions {
   // Cache key - if unchanged, returns cached result
   version?: string;
+
+  // Keep @derive decorators in output (default: false)
+  keepDecorators?: boolean;
+
+  // External decorator module packages to load
+  externalDecoratorModules?: Array<string>;
+
+  // Path to a previously loaded config file
+  configPath?: string;
+
+  // JSON string of project-wide type registry
+  typeRegistryJson?: string;
+
+  // JSON string of the project-wide declarative macro registry
+  declarativeRegistryJson?: string;
+
+  // "dev" | "prod" (default: "prod")
+  buildMode?: string;
 }
 ```
 
@@ -46,7 +63,7 @@ Get the position mapper for a previously processed file:
 TypeScript
 
 ```
-getMapper(filepath: string): NativeMapper | null
+getMapper(filepath: string): PositionMapper | undefined
 ```
 
 ### mapDiagnostics()
@@ -97,7 +114,7 @@ const result3 = plugin.processFile("user.ts", newCode, { version: "2" })
 TypeScript
 
 ```
-import { NativePlugin } from "macroforge";
+import { NativePlugin } from "@macroforge/core";
 
 class MacroforgeLanguageService {
   private plugin = new NativePlugin();

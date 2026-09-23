@@ -33,11 +33,12 @@
     },
     "scripts": {
         "build": "deno task build:wasm && deno task build:npm",
-        "build:wasm": "deno install --node-modules-dir && cargo build --release --target wasm32-unknown-unknown && deno run -A ../../tooling/scripts/bench.mjs --wasm-bindgen ../../target/wasm32-unknown-unknown/release/macroforge_ts.wasm pkg",
-        "clean": "rm -rf pkg node_modules",
-        "cleanbuild": "deno task clean && deno task build",
-        "build:npm": "deno run -A ../../tooling/npm/build.ts core"
+        "build:npm": "deno run -A ../../tooling/npm/build.ts core",
+        "build:wasm": "deno install --node-modules-dir && cargo build --target wasm32-unknown-unknown && deno run -A ../../tooling/scripts/bench.mjs --wasm-bindgen ../../target/wasm32-unknown-unknown/debug/macroforge_ts.wasm pkg pkg-deno",
+        "build:wasm:release": "deno install --node-modules-dir && cargo build --release --target wasm32-unknown-unknown && deno run -A ../../tooling/scripts/bench.mjs --wasm-bindgen ../../target/wasm32-unknown-unknown/release/macroforge_ts.wasm pkg pkg-deno",
+        "clean": "rm -rf pkg pkg-deno node_modules",
+        "cleanbuild": "deno task clean && deno task build"
     },
     "type": "module",
-    "version": "0.3.0"
+    "version": "0.3.1"
 }

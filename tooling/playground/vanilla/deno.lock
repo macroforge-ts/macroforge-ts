@@ -1,8 +1,8 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@macroforge/core@*": "0.2.0",
-    "npm:@macroforge/vite-plugin@*": "0.2.0_typescript@5.9.3_vite@7.3.6__@types+node@22.20.4",
+    "npm:@macroforge/core@*": "0.3.1",
+    "npm:@macroforge/vite-plugin@*": "0.3.1_typescript@5.9.3_vite@7.3.6__@types+node@22.20.4",
     "npm:@types/node@^22.10.2": "22.20.4",
     "npm:effect@^3.19.4": "3.22.2",
     "npm:typescript@^5.9.3": "5.9.3",
@@ -142,9 +142,9 @@
     "@jridgewell/sourcemap-codec@1.6.0": {
       "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="
     },
-    "@macroforge/core@0.2.0": {},
-    "@macroforge/shared@0.2.0": {},
-    "@macroforge/vite-plugin@0.2.0_typescript@5.9.3_vite@7.3.6__@types+node@22.20.4": {
+    "@macroforge/core@0.3.1": {},
+    "@macroforge/shared@0.3.1": {},
+    "@macroforge/vite-plugin@0.3.1_typescript@5.9.3_vite@7.3.6__@types+node@22.20.4": {
       "dependencies": [
         "@jridgewell/sourcemap-codec",
         "@macroforge/core",
@@ -464,13 +464,13 @@
       ]
     },
     "links": {
-      "npm:@macroforge/core@0.2.0": {},
-      "npm:@macroforge/shared@0.2.0": {},
-      "npm:@macroforge/vite-plugin@0.2.0": {
+      "npm:@macroforge/core@0.3.1": {},
+      "npm:@macroforge/shared@0.3.1": {},
+      "npm:@macroforge/vite-plugin@0.3.1": {
         "dependencies": [
           "npm:@jridgewell/sourcemap-codec@^1.6.0",
-          "npm:@macroforge/core@0.2.0",
-          "npm:@macroforge/shared@0.2.0"
+          "npm:@macroforge/core@0.3.1",
+          "npm:@macroforge/shared@0.3.1"
         ],
         "peerDependencies": [
           "npm:typescript@>=5.0.0",

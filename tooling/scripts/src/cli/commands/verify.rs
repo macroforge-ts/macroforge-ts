@@ -32,12 +32,23 @@ fn skipped(number: usize, what: &str) {
     );
 }
 
+/// Whether `repo` builds anything of its own. The other Rust crates compile as
+/// `core`'s dependencies, and the extensions build in their own target pass.
+fn has_build_step(repo: &Repo) -> Result<bool> {
+    Ok(match repo.repo_type {
+        RepoType::Rust => repo.name == "core",
+        RepoType::Ts => repo.has_script("build")?,
+        RepoType::Website => true,
+        RepoType::Tooling | RepoType::Extension => false,
+    })
+}
+
 /// Build a single repository. Dependencies are installed once for the whole
 /// workspace beforehand, and repos build in dependency order, which the npm
 /// packages rely on: each links the built outputs of the ones it depends on.
 fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
     match repo.repo_type {
-        RepoType::Rust if repo.name == "core" => {
+        RepoType::Rust => {
             // NAPI_BUILD_SKIP_WATCHER stops build.rs from spawning another napi build.
             shell::run(
                 "NAPI_BUILD_SKIP_WATCHER=1 deno task build",
@@ -45,15 +56,10 @@ fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
                 verbose,
             )?;
         }
-        RepoType::Ts => {
-            if repo.has_script("build")? {
-                shell::deno::task(&repo.abs_path, "build")?;
-            }
-        }
-        RepoType::Website => {
+        RepoType::Ts | RepoType::Website => {
             shell::deno::task(&repo.abs_path, "build")?;
         }
-        RepoType::Rust | RepoType::Tooling | RepoType::Extension => {}
+        RepoType::Tooling | RepoType::Extension => {}
     }
     Ok(())
 }
@@ -145,6 +151,9 @@ pub fn run(args: VerifyArgs) -> Result<()> {
 
         step(3, "Building packages");
         for repo in &repos {
+            if !has_build_step(repo)? {
+                continue;
+            }
             print!("  {} {}... ", "Building:".bold(), repo.name.cyan());
             io::stdout().flush()?;
             build_repo(repo, verbose).with_context(|| format!("Build failed for {}", repo.name))?;

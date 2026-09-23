@@ -1,6 +1,6 @@
 {
     "exports": {
-        ".": "./pkg/macroforge_ts.js",
+        ".": "./pkg-deno/macroforge_ts.js",
         "./buildtime": "./js/buildtime/index.ts",
         "./rules": "./js/rules/index.ts",
         "./serde": "./js/serde/index.ts",
@@ -34,8 +34,8 @@
     "name": "@macroforge/core",
     "publish": {
         "include": [
-            "pkg/",
-            "pkg/macroforge_ts_bg.wasm",
+            "pkg-deno/",
+            "pkg-deno/macroforge_ts_bg.wasm",
             "js/buildtime/",
             "js/rules/",
             "js/serde/",
@@ -45,5 +45,5 @@
             "README.md"
         ]
     },
-    "version": "0.3.0"
+    "version": "0.3.1"
 }

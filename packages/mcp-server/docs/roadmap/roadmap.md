@@ -52,11 +52,11 @@ Expanding the library of built-in derive macros.
 
 Making it easier to publish and share custom macros.
 
-| Feature                | Status      | Description                                                       |
-| ---------------------- | ----------- | ----------------------------------------------------------------- |
-| Native Node Binaries   | Available   | Platform-specific binaries for maximum performance                |
-| WASM Binary Generation | Planned     | Cross-platform WebAssembly binaries for easier macro distribution |
-| Macro Registry         | Considering | Central registry for discovering and sharing community macros     |
+| Feature                | Status      | Description                                                                                            |
+| ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
+| Native Node Binaries   | Available   | Platform-specific binaries for maximum performance                                                     |
+| WASM Binary Generation | Available   | Cross-platform WebAssembly binaries for easier macro distribution — build them with `macroforge build` |
+| Macro Registry         | Considering | Central registry for discovering and sharing community macros                                          |
 
 ## Tooling & DX
 
@@ -74,7 +74,7 @@ Improvements to the developer experience.
 Interested in helping? We welcome contributions of all kinds:
 
 - Feature requests and feedback on
-  [GitHub Issues](https://github.com/macroforge-ts/macroforge-ts/issues)
+  [GitLab Issues](https://gitlab.com/macroforge-ts/macroforge-ts/-/issues)
 - Pull requests for new macros or improvements
 - Documentation improvements
 - Framework integrations

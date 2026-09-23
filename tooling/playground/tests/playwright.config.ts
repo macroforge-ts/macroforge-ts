@@ -25,8 +25,11 @@ export default defineConfig({
             use: { ...devices['Desktop Chrome'] }
         }
     ],
+    // The built app, not the dev server: a preview serves static files, so no
+    // test pays for an on-demand macro expansion or races Vite's warm-up.
+    // `mf test playground` builds the app; preview fails loudly without one.
     webServer: {
-        command: 'deno task dev',
+        command: 'deno task preview',
         cwd: '../vanilla',
         url: origin,
         reuseExistingServer: !globalThis.process.env.CI,

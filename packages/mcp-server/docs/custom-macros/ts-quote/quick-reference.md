@@ -4,8 +4,8 @@
 | -------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `@{expr}`                                                      | Interpolate a Rust expression (adds space after)                                        |
 | `{&#124; content &#124;}`                                      | Ident block: concatenates without spaces (e.g., `{&#124;get@{name}&#124;}` → `getUser`) |
-| `{> "comment" <}`                                              | Block comment: outputs `/* comment */` (string preserves whitespace)                    |
-| `{>> "doc" <<}`                                                | Doc comment: outputs `/** doc */` (string preserves whitespace)                         |
+| `{> "comment" <}`                                              | Line comment: outputs `// comment` (string preserves whitespace)                        |
+| `{>> "doc" <<}`                                                | Block comment: outputs `/* comment */` (string preserves whitespace)                    |
 | `@@{`                                                          | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)                                  |
 | `"text @{expr}"`                                               | String interpolation (auto-detected)                                                    |
 | `"'^template ${js}^'"`                                         | JS backtick template literal (outputs `` `template ${js}` ``)                           |
@@ -19,6 +19,7 @@
 | `{#while let pattern = expr}...{/while}`                       | While-let pattern matching loop                                                         |
 | `{$let name = expr}`                                           | Define a local constant                                                                 |
 | `{$let mut name = expr}`                                       | Define a mutable local variable                                                         |
+| `{%let name = expr}`                                           | Bind a Rust variable (alternate syntax for `{$let}`)                                    |
 | `{$do expr}`                                                   | Execute a side-effectful expression                                                     |
 | `{$typescript stream}`                                         | Inject a TsStream, preserving its source and runtime\_patches (imports)                 |
 

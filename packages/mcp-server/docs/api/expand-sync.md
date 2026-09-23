@@ -1,9 +1,8 @@
 # expandSync()
 
-macroforge v0.1.48
+macroforge v0.3.1
 
-Synchronously expands macros in TypeScript code. This is the standalone macro expansion function
-that doesn't use caching. For cached expansion, use \[\`NativePlugin::process\_file\`\] instead.
+Expands macros in TypeScript code synchronously and returns the transformed output.
 
 ## Signature
 
@@ -33,6 +32,23 @@ TypeScript
 interface ExpandOptions {
   // Keep @derive decorators in output (default: false)
   keepDecorators?: boolean;
+
+  // External decorator module packages to load
+  externalDecoratorModules?: Array<string>;
+
+  // Path to a previously loaded config file
+  configPath?: string;
+
+  // JSON string of project-wide type registry for cross-file awareness
+  typeRegistryJson?: string;
+
+  // JSON string of the project-wide declarative macro registry, produced by
+  // scanProjectSync(). Required for cross-file "import macro" JSDoc resolution.
+  declarativeRegistryJson?: string;
+
+  // "dev" | "prod" (default: "prod"). Controls declarative macro emission:
+  // prod enables reverse monomorphization, dev expands inline.
+  buildMode?: string;
 }
 ```
 
@@ -56,6 +72,10 @@ interface ExpandResult {
 
   // Position mapping data for source maps
   sourceMapping?: SourceMappingResult;
+
+  // Files read at build time via the buildtime API. Use these to invalidate
+  // caches / trigger rebuilds when a dependency changes.
+  buildtimeDependencies: string[];
 }
 ```
 
@@ -65,12 +85,10 @@ TypeScript
 
 ```
 interface MacroDiagnostic {
+  level: string;    // "error", "warning", or "info"
   message: string;
-  severity: "error" | "warning" | "info";
-  span: {
-    start: number;
-    end: number;
-  };
+  start?: number;   // Start position in source
+  end?: number;     // End position in source
 }
 ```
 
@@ -106,7 +124,7 @@ if (result.types) {
 
 if (result.diagnostics.length > 0) {
   for (const diag of result.diagnostics) {
-    console.log(`[${diag.severity}] ${diag.message}`);
+    console.log(`[${diag.level}] ${diag.message}`);
   }
 }
 ```
@@ -121,8 +139,8 @@ TypeScript
 const result = expandSync(invalidCode, "file.ts");
 
 for (const diag of result.diagnostics) {
-  if (diag.severity === "error") {
-    console.error(`Error at ${diag.span.start}: ${diag.message}`);
+  if (diag.level === "error") {
+    console.error(`Error at ${diag.start}: ${diag.message}`);
   }
 }
 ```

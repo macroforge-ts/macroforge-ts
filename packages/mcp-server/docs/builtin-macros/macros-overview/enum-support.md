@@ -13,19 +13,24 @@ enum Status {
   Pending = "pending",
 }
 
-// Generated namespace:
+// Generated standalone functions:
+// export function statusToString(value: Status): string { ... }
+// export function statusClone(value: Status): Status { ... }
+// export function statusEquals(a: Status, b: Status): boolean { ... }
+// export function statusHashCode(value: Status): number { ... }
+// export function statusSerialize(value: Status): string { ... }
+// export function statusDeserialize(input: unknown): Status { ... }
+
+// Enums use namespace merging for the convenience names:
 // namespace Status {
-//   export function toString(value: Status): string { ... }
-//   export function clone(value: Status): Status { ... }
-//   export function equals(a: Status, b: Status): boolean { ... }
-//   export function hashCode(value: Status): number { ... }
-//   export function toJSON(value: Status): string | number { ... }
-//   export function fromJSON(data: unknown): Status { ... }
+//   export const toString = statusToString;
+//   export const serialize = statusSerialize;
 // }
 
-// Use the namespace functions
-console.log(Status.toString(Status.Active));     // "Status.Active"
-console.log(Status.equals(Status.Active, Status.Active)); // true
-const json = Status.toJSON(Status.Pending);      // "pending"
-const parsed = Status.fromJSON("active");        // Status.Active
+console.log(statusToString(Status.Active));                // "Status.Active"
+console.log(statusEquals(Status.Active, Status.Active));   // true
+const json = statusSerialize(Status.Pending);              // "pending"
+// Note: enum deserialize throws on invalid input rather than
+// returning a success/errors union.
+const parsed = statusDeserialize("active");                // Status.Active
 ```

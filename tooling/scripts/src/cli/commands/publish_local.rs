@@ -447,9 +447,11 @@ pub fn run(args: &PublishLocalArgs) -> Result<()> {
         step += 1;
         format::step(step, total, "Building WASM");
         if args.dry_run {
-            format::info("[dry-run] deno task build:wasm");
+            format::info("[dry-run] deno task build:wasm:release");
         } else {
-            shell::deno::task_inherit(&root.join("crates/macroforge_ts"), "build:wasm")
+            // Publishing is what opts into the release profile; every other
+            // build in this repo is debug.
+            shell::deno::task_inherit(&root.join("crates/macroforge_ts"), "build:wasm:release")
                 .context("WASM build failed")?;
             format::success("Built WASM package");
         }

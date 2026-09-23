@@ -1,6 +1,6 @@
 # PositionMapper
 
-macroforge v0.1.48
+macroforge v0.3.1
 
 Bidirectional position mapper for translating between original and expanded source positions. This
 mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with
@@ -12,7 +12,7 @@ the expanded source (what the compiler sees).
 TypeScript
 
 ```
-import { NativePlugin, PositionMapper } from "macroforge";
+import { NativePlugin, PositionMapper } from "@macroforge/core";
 
 const plugin = new NativePlugin();
 const result = plugin.processFile("user.ts", code, { version: "1" });
@@ -53,10 +53,10 @@ Map a position from expanded to original code:
 TypeScript
 
 ```
-expandedToOriginal(pos: number): number | null
+expandedToOriginal(pos: number): number | undefined
 ```
 
-Returns `null` if the position is in generated code.
+Returns `undefined` if the position is in generated code.
 
 ### isInGenerated()
 
@@ -75,7 +75,7 @@ Get the name of the macro that generated code at a position:
 TypeScript
 
 ```
-generatedBy(pos: number): string | null
+generatedBy(pos: number): string | undefined
 ```
 
 ### mapSpanToOriginal()

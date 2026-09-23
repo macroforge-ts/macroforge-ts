@@ -1,10 +1,8 @@
 # transformSync()
 
-macroforge v0.1.48
+macroforge v0.3.1
 
-Synchronously transforms TypeScript code through the macro expansion system. This is similar to
-\[\`expand\_sync\`\] but returns a \[\`TransformResult\`\] which includes source map information
-(when available).
+A lower-level transform function that returns additional metadata alongside the transformed code.
 
 ## Signature
 
@@ -58,7 +56,7 @@ interface TransformResult {
 TypeScript
 
 ```
-import { transformSync } from "macroforge";
+import { transformSync } from "@macroforge/core";
 
 const sourceCode = \`
 /** @derive(Debug) */
