@@ -12,7 +12,7 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeErro
     match &input.data {
         Data::Class(_) => {
             // Generate code...
-            Ok(body! { /* ... */ })
+            Ok(ts_template!(Within { /* ... */ }))
         }
         _ => Err(MacroforgeError::new(
             input.decorator_span(),

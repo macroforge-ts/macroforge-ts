@@ -1,7 +1,7 @@
 ## Type Alias Support
 
-All built-in macros work with type aliases. For object type aliases, field-aware methods are
-generated in a namespace:
+All built-in macros work with type aliases. Object type aliases get field-aware standalone
+functions, plus the optional grouping `const`:
 
 TypeScript
 
@@ -12,20 +12,19 @@ type Point = {
   y: number;
 };
 
-// Generated namespace:
-// namespace Point {
-//   export function toString(value: Point): string { ... }
-//   export function clone(value: Point): Point { ... }
-//   export function equals(a: Point, b: Point): boolean { ... }
-//   export function hashCode(value: Point): number { ... }
-//   export function toJSON(value: Point): Record<string, unknown> { ... }
-//   export function fromJSON(data: unknown): Point { ... }
-// }
+// Generated standalone functions:
+// export function pointToString(value: Point): string { ... }
+// export function pointClone(value: Point): Point { ... }
+// export function pointEquals(a: Point, b: Point): boolean { ... }
+// export function pointHashCode(value: Point): number { ... }
+// export function pointSerialize(value: Point, keepMetadata?: boolean): string { ... }
+// export function pointDeserialize(input: unknown, opts?): { success: true; value: Point }
+//                                                        | { success: false; errors } { ... }
 
 const point: Point = { x: 10, y: 20 };
-console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
-const copy = Point.clone(point);        // { x: 10, y: 20 }
-console.log(Point.equals(point, copy)); // true
+console.log(pointToString(point));      // "Point { x: 10, y: 20 }"
+const copy = pointClone(point);         // { x: 10, y: 20 }
+console.log(pointEquals(point, copy));  // true
 ```
 
 Union type aliases also work, using JSON-based implementations:
@@ -51,13 +50,13 @@ TypeScript
 const user = new User("Alice", 30);
 
 // Debug
-console.log(user.toString());
+console.log(User.toString(user));
 // "User { name: Alice, age: 30 }"
 
 // Clone
-const copy = user.clone();
+const copy = User.clone(user);
 console.log(copy.name); // "Alice"
 
-// Eq
-console.log(user.equals(copy)); // true
+// PartialEq
+console.log(User.equals(user, copy)); // true
 ```

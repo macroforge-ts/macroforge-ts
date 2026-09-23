@@ -13,7 +13,7 @@
 <h1>Architecture</h1>
 
 <p class="lead">
-	Macroforge is built as a modular Rust engine with multiple output targets. It leverages SWC for fast TypeScript parsing and code generation, while providing both native Node.js and universal WebAssembly bindings.
+	Macroforge is built as a modular Rust engine with multiple output targets. It parses and generates TypeScript with oxc, and provides both native Node.js and universal WebAssembly bindings.
 </p>
 
 <h2 id="overview">Overview</h2>
@@ -23,7 +23,7 @@
 	{ title: "Target Bindings", items: ["NAPI-RS (Node)", "wasm-bindgen (Universal)"] },
 	{ title: "Unified API", items: ["MacroforgeApi Trait", "CoreEngine"] },
 	{ title: "Macro Crates", items: ["macroforge_ts_syn", "macroforge_ts_quote", "macroforge_ts_macros"] },
-	{ title: "SWC Core", items: ["TypeScript parsing & codegen"] }
+	{ title: "oxc", items: ["TypeScript parsing & codegen"] }
 ]} />
 
 <h2 id="components">Core Components</h2>
@@ -39,7 +39,7 @@
 	<li><strong>wasm-bindgen</strong>: Compiles the engine to WebAssembly for universal compatibility across browsers and edge workers.</li>
 </ul>
 
-<h3>SWC Core</h3>
+<h3>oxc</h3>
 <p>
 	The foundation layer provides:
 </p>
@@ -94,11 +94,11 @@
 <Flowchart steps={[
 	{ title: "1. Source Code", description: "TypeScript with @derive" },
 	{ title: "2. NAPI-RS", description: "receives JavaScript string" },
-	{ title: "3. SWC Parser", description: "parses to AST" },
+	{ title: "3. oxc Parser", description: "parses to AST" },
 	{ title: "4. Macro Expander", description: "finds @derive decorators" },
 	{ title: "5. For Each Macro", description: "extract data, run macro, generate AST nodes" },
 	{ title: "6. Merge", description: "generated nodes into AST" },
-	{ title: "7. SWC Codegen", description: "generates source code" },
+	{ title: "7. oxc Codegen", description: "generates source code" },
 	{ title: "8. Return", description: "to JavaScript with source mapping" }
 ]} />
 
@@ -108,7 +108,7 @@
 	<li><strong>Isolated Execution</strong>: In Node.js, each expansion runs in a dedicated thread with a 32MB stack to prevent stack overflow during deep recursion. In WASM, execution is synchronous on the main thread.</li>
 	<li><strong>Caching</strong>: <code>NativePlugin</code> (Node) and API calls support version-based caching to skip redundant work.</li>
 	<li><strong>Binary search</strong>: Position mapping uses optimized O(log n) lookups.</li>
-	<li><strong>Zero-copy</strong>: SWC's arena allocator minimizes allocations during AST manipulation.</li>
+	<li><strong>Arena allocation</strong>: oxc parses into an arena, so AST nodes borrow from one allocation rather than each owning their own.</li>
 </ul>
 
 <h2 id="re-exports">Re-exported Crates</h2>
@@ -121,10 +121,8 @@
 use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-// Also available: raw crate access and SWC modules
-use macroforge_ts::swc_core;
-use macroforge_ts::swc_common;
-use macroforge_ts::swc_ecma_ast;`} lang="rust" />
+// Also available: the AST crate itself
+use macroforge_ts::ts_syn::oxc;`} lang="rust" />
 
 <h2 id="next-steps">Next Steps</h2>
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env rust-script
 //! Extract documentation from website prerendered HTML into markdown files for MCP server.
-//! Reads from build output (website/build/prerendered/) to include all dynamic content.
+//! Reads the static build (website/build/) for pages without mdsvex source, so
+//! the website must be built first.
 //! Auto-discovers all pages from the website's navigation.ts config.
 //! Large documents are automatically chunked at H2 headers for better AI consumption.
 //!
@@ -197,9 +198,18 @@ fn href_to_id(href: &str, category_map: &HashMap<&str, &str>) -> String {
     }
 }
 
-fn href_to_prerendered_path(href: &str, website_dir: &Path) -> PathBuf {
+fn href_to_prerendered_path(href: &str, prerendered_dir: &Path) -> PathBuf {
     let path = href.strip_prefix("/").unwrap_or(href);
-    website_dir.join("build/prerendered").join(path).with_extension("html")
+    prerendered_dir.join(path).with_extension("html")
+}
+
+fn write_file(path: &Path, contents: &str) -> Result<(), String> {
+    fs::write(path, contents).map_err(|error| format!("failed to write {}: {error}", path.display()))
+}
+
+fn create_dir(path: &Path) -> Result<(), String> {
+    fs::create_dir_all(path)
+        .map_err(|error| format!("failed to create {}: {error}", path.display()))
 }
 
 fn href_to_source_path(href: &str, website_dir: &Path) -> PathBuf {
@@ -411,8 +421,16 @@ fn should_chunk(content: &str) -> bool {
 // ============================================================================
 
 fn main() {
+    if let Err(message) = run() {
+        eprintln!("error: {message}");
+        std::process::exit(1);
+    }
+}
+
+fn run() -> Result<(), String> {
     // Paths - script runs from repo root or from packages/mcp-server
-    let cwd = std::env::current_dir().unwrap();
+    let cwd = std::env::current_dir()
+        .map_err(|error| format!("failed to read the working directory: {error}"))?;
 
     // Determine repo root - check for pixi.toml to confirm we're at root
     let repo_root = if cwd.join("pixi.toml").exists() {
@@ -432,15 +450,15 @@ fn main() {
     };
 
     let website_dir = repo_root.join("website");
-    let prerendered_dir = website_dir.join("build/prerendered");
+    let prerendered_dir = website_dir.join("build");
     let navigation_path = website_dir.join("src/lib/config/navigation.ts");
     let output_dir = repo_root.join("packages/mcp-server/docs");
 
-    // Check prerendered exists
-    let has_prerendered = prerendered_dir.exists();
-    if !has_prerendered {
-        eprintln!("Warning: Prerendered directory not found: {:?}", prerendered_dir);
-        eprintln!("Falling back to mdsvex source pages when available.\n");
+    if !prerendered_dir.exists() {
+        return Err(format!(
+            "{} not found: build the website first (pixi run build:website)",
+            prerendered_dir.display()
+        ));
     }
 
     println!("Auto-discovering pages from navigation.ts...\n");
@@ -449,11 +467,7 @@ fn main() {
     let navigation = parse_navigation(&navigation_path);
     println!("Found {} sections in navigation.ts\n", navigation.len());
 
-    // Ensure output directory exists
-    if let Err(e) = fs::create_dir_all(&output_dir) {
-        eprintln!("Failed to create output directory: {}", e);
-        std::process::exit(1);
-    }
+    create_dir(&output_dir)?;
 
     let use_cases_map = get_use_cases_map();
     let category_id_map = get_category_id_map();
@@ -464,7 +478,7 @@ fn main() {
 
         // Create category directory
         let category_dir = output_dir.join(&category);
-        fs::create_dir_all(&category_dir).ok();
+        create_dir(&category_dir)?;
 
         for item in &section.items {
             let item_id = href_to_id(&item.href, &category_id_map);
@@ -474,19 +488,18 @@ fn main() {
             let markdown_content = match read_markdown_source(&item.href, &website_dir) {
                 Some(md) => md,
                 None => {
-                    if !has_prerendered {
-                        eprintln!("Warning: No source markdown for {} and no prerendered HTML", item.href);
-                        continue;
+                    let html_path = href_to_prerendered_path(&item.href, &prerendered_dir);
+                    let raw_html = fs::read_to_string(&html_path).map_err(|error| {
+                        format!("no page for {} at {}: {error}", item.href, html_path.display())
+                    })?;
+                    let markdown = html_to_markdown(&raw_html);
+                    if markdown.is_empty() {
+                        return Err(format!(
+                            "{} has no div.prose or article content",
+                            html_path.display()
+                        ));
                     }
-
-                    let html_path = href_to_prerendered_path(&item.href, &website_dir);
-                    if !html_path.exists() {
-                        eprintln!("Warning: File not found: {:?}", html_path);
-                        continue;
-                    }
-
-                    let raw_html = fs::read_to_string(&html_path).unwrap_or_default();
-                    html_to_markdown(&raw_html)
+                    markdown
                 }
             };
 
@@ -503,14 +516,14 @@ fn main() {
 
                     // Create chunk directory
                     let chunk_dir = category_dir.join(&item_id);
-                    fs::create_dir_all(&chunk_dir).ok();
+                    create_dir(&chunk_dir)?;
 
                     let mut chunk_ids = Vec::new();
 
                     for chunk in &chunks {
                         let chunk_id = format!("{}/{}", item_id, chunk.slug);
                         let chunk_path = chunk_dir.join(format!("{}.md", chunk.slug));
-                        fs::write(&chunk_path, &chunk.content).ok();
+                        write_file(&chunk_path, &chunk.content)?;
 
                         chunk_ids.push(chunk_id.clone());
 
@@ -541,23 +554,22 @@ fn main() {
                     });
 
                     // Write full file for reference
-                    let output_path = category_dir.join(format!("{}.md", item_id));
-                    fs::write(&output_path, &markdown_content).ok();
+                    write_file(&category_dir.join(format!("{}.md", item_id)), &markdown_content)?;
 
                     continue;
                 }
             }
 
             // Not chunked - write as single file
-            let output_path = category_dir.join(format!("{}.md", item_id));
-            fs::write(&output_path, &markdown_content).ok();
+            let relative_path = format!("{}/{}.md", category, item_id);
+            write_file(&output_dir.join(&relative_path), &markdown_content)?;
 
             sections.push(DocSection {
                 id: item_id,
                 title: item.title.clone(),
                 category: category.clone(),
                 category_title: section.title.clone(),
-                path: format!("{}/{}.md", category, item.href.split('/').last().unwrap_or("")),
+                path: relative_path,
                 use_cases,
                 is_chunked: None,
                 chunk_ids: None,
@@ -568,9 +580,11 @@ fn main() {
 
     // Write sections.json
     let sections_path = output_dir.join("sections.json");
-    let json = serde_json::to_string_pretty(&sections).unwrap();
-    fs::write(&sections_path, json).ok();
+    let json = serde_json::to_string_pretty(&sections)
+        .map_err(|error| format!("failed to serialize sections: {error}"))?;
+    write_file(&sections_path, &json)?;
 
     println!("\nExtracted {} documentation sections", sections.len());
     println!("Output directory: {:?}", output_dir);
+    Ok(())
 }

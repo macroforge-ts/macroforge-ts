@@ -6,7 +6,7 @@ it easy to generate complex TypeScript code.
 
 ## Available Macros
 
-| Macro          | Output              | Use Case                |
-| -------------- | ------------------- | ----------------------- |
-| `ts_template!` | Any TypeScript code | General code generation |
-| `body!`        | Class body members  | Methods and properties  |
+| Macro                                      | Output              | Use Case                |
+| ------------------------------------------ | ------------------- | ----------------------- |
+| `ts_template!`                             | Any TypeScript code | General code generation |
+| `ts_template!(Within &lbrace; … &rbrace;)` | Class body members  | Methods and properties  |

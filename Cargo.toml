@@ -18,3 +18,15 @@ lto = true
 codegen-units = 1
 opt-level = 3
 strip = true
+
+# Dependencies are compiled once and never stepped through, so optimize them
+# even in a debug build. The engine runs expansion through oxc and boa, and
+# unoptimized copies of those make every playground and e2e run crawl.
+[profile.dev.package."*"]
+opt-level = 3
+
+# Line tables carry a readable panic backtrace. Full debuginfo costs compile
+# time and disk on every artifact in the workspace, for a debugger this repo's
+# checks never attach.
+[profile.dev]
+debug = "line-tables-only"

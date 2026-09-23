@@ -5,9 +5,9 @@
     },
     "dependencies": {
         "@jridgewell/trace-mapping": "^0.3.25",
-        "@macroforge/core": "0.3.0",
-        "@macroforge/shared": "0.3.0",
-        "@macroforge/typescript-plugin": "0.3.0",
+        "@macroforge/core": "0.3.1",
+        "@macroforge/shared": "0.3.1",
+        "@macroforge/typescript-plugin": "0.3.1",
         "@vscode/emmet-helper": "2.8.4",
         "chokidar": "^4.0.1",
         "fdir": "^6.2.0",
@@ -64,5 +64,5 @@
         "pretest": "node test/setup-fixtures.js",
         "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --timeout 60000 --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types"
     },
-    "version": "0.3.0"
+    "version": "0.3.1"
 }

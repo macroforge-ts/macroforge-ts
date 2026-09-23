@@ -12,6 +12,7 @@
     "jsr:@std/fs@^1.0.24": "1.0.24",
     "jsr:@std/internal@^1.0.12": "1.0.14",
     "jsr:@std/internal@^1.0.14": "1.0.14",
+    "jsr:@std/media-types@^1.1.0": "1.1.0",
     "jsr:@std/path@1": "1.1.6",
     "jsr:@std/path@^1.1.5": "1.1.6",
     "jsr:@std/path@^1.1.6": "1.1.6",
@@ -21,11 +22,11 @@
     "npm:@jridgewell/sourcemap-codec@^1.6.0": "1.6.0",
     "npm:@jridgewell/trace-mapping@~0.3.25": "0.3.31",
     "npm:@modelcontextprotocol/sdk@^1.30.0": "1.30.0_zod@4.6.5",
-    "npm:@sveltejs/adapter-static@^3.0.10": "3.0.10_@sveltejs+kit@2.70.3_esbuild@0.28.1",
-    "npm:@sveltejs/kit@^2.70.3": "2.70.3_@sveltejs+vite-plugin-svelte@7.3.0_svelte@5.57.1_typescript@5.9.3_vite@8.3.0_esbuild@0.28.1",
-    "npm:@sveltejs/vite-plugin-svelte@^7.3.0": "7.3.0_svelte@5.57.1_vite@8.3.0_esbuild@0.28.1",
+    "npm:@sveltejs/adapter-static@^3.0.10": "3.0.10_@sveltejs+kit@2.70.3__@sveltejs+vite-plugin-svelte@7.3.0___svelte@5.57.1___vite@8.3.0____@types+node@26.6.2____esbuild@0.28.1___esbuild@0.28.1__svelte@5.57.1__typescript@5.9.3__vite@8.3.0___@types+node@26.6.2___esbuild@0.28.1__esbuild@0.28.1_esbuild@0.28.1",
+    "npm:@sveltejs/kit@^2.70.3": "2.70.3_@sveltejs+vite-plugin-svelte@7.3.0__svelte@5.57.1__vite@8.3.0___@types+node@26.6.2___esbuild@0.28.1__esbuild@0.28.1_svelte@5.57.1_typescript@5.9.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1",
+    "npm:@sveltejs/vite-plugin-svelte@^7.3.0": "7.3.0_svelte@5.57.1_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1",
     "npm:@tailwindcss/typography@~0.5.20": "0.5.20_tailwindcss@4.3.3",
-    "npm:@tailwindcss/vite@^4.3.3": "4.3.3_vite@8.3.0_esbuild@0.28.1",
+    "npm:@tailwindcss/vite@^4.3.3": "4.3.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1",
     "npm:@types/estree@^0.0.42": "0.0.42",
     "npm:@types/globrex@~0.1.4": "0.1.4",
     "npm:@types/lodash-es@^4.17.12": "4.17.12",
@@ -116,6 +117,9 @@
     },
     "@std/internal@1.0.14": {
       "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
+    },
+    "@std/media-types@1.1.0": {
+      "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
     },
     "@std/path@1.1.6": {
       "integrity": "c68485c2a4dfbb5ae3cc74fae4e8c4e5d874cf8a8ed12927917235c758b46cbe",
@@ -831,13 +835,13 @@
         "acorn"
       ]
     },
-    "@sveltejs/adapter-static@3.0.10_@sveltejs+kit@2.70.3_esbuild@0.28.1": {
+    "@sveltejs/adapter-static@3.0.10_@sveltejs+kit@2.70.3__@sveltejs+vite-plugin-svelte@7.3.0___svelte@5.57.1___vite@8.3.0____@types+node@26.6.2____esbuild@0.28.1___esbuild@0.28.1__svelte@5.57.1__typescript@5.9.3__vite@8.3.0___@types+node@26.6.2___esbuild@0.28.1__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-7D9lYFWJmB7zxZyTE/qxjksvMqzMuYrrsyh1f4AlZqeZeACPRySjbC3aFiY55wb1tWUaKOQG9PVbm74JcN2Iew==",
       "dependencies": [
         "@sveltejs/kit"
       ]
     },
-    "@sveltejs/kit@2.70.3_@sveltejs+vite-plugin-svelte@7.3.0_svelte@5.57.1_typescript@5.9.3_vite@8.3.0_esbuild@0.28.1": {
+    "@sveltejs/kit@2.70.3_@sveltejs+vite-plugin-svelte@7.3.0__svelte@5.57.1__vite@8.3.0___@types+node@26.6.2___esbuild@0.28.1__esbuild@0.28.1_svelte@5.57.1_typescript@5.9.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-UDvEYuZqAMbfB/oXIoqKvbKcb7YczK5zYrzmsGV1zRJk03jntwp8dXiYoIJotxAndsKvcPFtx9H1GRSKFdSHgg==",
       "dependencies": [
         "@standard-schema/spec",
@@ -865,7 +869,7 @@
     "@sveltejs/load-config@0.2.3": {
       "integrity": "sha512-VT3qmUb8pRV2QrZjd8iAmtg8lf4W0TIjZbvXtz5MKei/q96teWZgGJyyidJzOjzZzvdq616eSRVeMYIQChUTAQ=="
     },
-    "@sveltejs/vite-plugin-svelte@7.3.0_svelte@5.57.1_vite@8.3.0_esbuild@0.28.1": {
+    "@sveltejs/vite-plugin-svelte@7.3.0_svelte@5.57.1_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-QbRoJyD92e9R0ufeQIWRHrCC0ObcqSv/aBDdrQMoU+sypav3cDx5wytdQ6GLdXjEMO6xjrXGzfkUygng8JMv0A==",
       "dependencies": [
         "deepmerge",
@@ -971,7 +975,7 @@
         "tailwindcss"
       ]
     },
-    "@tailwindcss/vite@4.3.3_vite@8.3.0_esbuild@0.28.1": {
+    "@tailwindcss/vite@4.3.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-yYU8cogLeSh/ms2jh8Fj7jaba/EWa7Ja6GoUqYZaraEuCI5YS6ms6ObZgjjedm+jm6XZjdNRWBpPP6Z86oOxcw==",
       "dependencies": [
         "@tailwindcss/node",
@@ -3348,7 +3352,7 @@
       ],
       "bin": true
     },
-    "vitefu@1.1.3_vite@8.3.0_esbuild@0.28.1": {
+    "vitefu@1.1.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-ub4okH7Z5KLjb6hDyjqrGXqWtWvoYdU3IGm/NorpgHncKoLTCfRIbvlhBm7r0YstIaQRYlp4yEbFqDcKSzXSSg==",
       "dependencies": [
         "vite"
@@ -3540,6 +3544,7 @@
           "jsr:@std/assert@^1.0.19",
           "jsr:@std/cli@^1.0.32",
           "jsr:@std/fs@^1.0.24",
+          "jsr:@std/media-types@^1.1.0",
           "jsr:@std/path@^1.1.6"
         ]
       },
@@ -3549,7 +3554,7 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.3.0",
+            "npm:@macroforge/core@0.3.1",
             "npm:@modelcontextprotocol/sdk@^1.30.0",
             "npm:@types/node@^26.6.2",
             "npm:typescript@^5.9.3"
@@ -3589,9 +3594,9 @@
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/trace-mapping@~0.3.25",
-            "npm:@macroforge/core@0.3.0",
-            "npm:@macroforge/shared@0.3.0",
-            "npm:@macroforge/typescript-plugin@0.3.0",
+            "npm:@macroforge/core@0.3.1",
+            "npm:@macroforge/shared@0.3.1",
+            "npm:@macroforge/typescript-plugin@0.3.1",
             "npm:@types/estree@^0.0.42",
             "npm:@types/globrex@~0.1.4",
             "npm:@types/lodash-es@^4.17.12",
@@ -3628,8 +3633,8 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.3.0",
-            "npm:@macroforge/shared@0.3.0",
+            "npm:@macroforge/core@0.3.1",
+            "npm:@macroforge/shared@0.3.1",
             "npm:@types/node@^26.6.2",
             "npm:svelte@^5.57.1",
             "npm:typescript@^5.9.3"
@@ -3642,8 +3647,8 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.3.0",
-            "npm:@macroforge/shared@0.3.0",
+            "npm:@macroforge/core@0.3.1",
+            "npm:@macroforge/shared@0.3.1",
             "npm:@types/node@^26.6.2",
             "npm:typescript@^5.9.3"
           ]
@@ -3657,8 +3662,8 @@
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/sourcemap-codec@^1.6.0",
-            "npm:@macroforge/core@0.3.0",
-            "npm:@macroforge/shared@0.3.0",
+            "npm:@macroforge/core@0.3.1",
+            "npm:@macroforge/shared@0.3.1",
             "npm:@types/node@^26.6.2"
           ]
         }
@@ -3667,7 +3672,7 @@
         "packageJson": {
           "dependencies": [
             "npm:@biomejs/biome@^2.5.14",
-            "npm:@macroforge/core@0.3.0",
+            "npm:@macroforge/core@0.3.1",
             "npm:@sveltejs/adapter-static@^3.0.10",
             "npm:@sveltejs/kit@^2.70.3",
             "npm:@sveltejs/vite-plugin-svelte@^7.3.0",

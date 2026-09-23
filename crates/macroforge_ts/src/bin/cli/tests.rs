@@ -390,6 +390,7 @@ fn test_warm_cache_backfills_normalized_hash() {
         env!("CARGO_PKG_VERSION").to_string(),
         "none".to_string(),
         "none".to_string(),
+        "none".to_string(),
     );
     manifest.entries.insert(
         "src/test.ts".to_string(),

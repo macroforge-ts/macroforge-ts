@@ -6,8 +6,8 @@ Node.js addon.
 ## Prerequisites
 
 - Rust toolchain (1.88 or later)
-- Node.js 24 or later
-- NAPI-RS CLI: `cargo install macroforge_ts`
+- Node.js 18 or later
+- NAPI-RS CLI: `npm install -g @napi-rs/cli`
 
 ## Create the Project
 
@@ -38,7 +38,7 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-macroforge_ts = "0.1"
+macroforge_ts = { version = "0.1", features = ["node"] }
 napi = { version = "3", features = ["napi8", "compat-mode"] }
 napi-derive = "3"
 
@@ -65,7 +65,7 @@ fn main() {
 src/lib.rs
 
 ```
-use macroforge_ts::macros::{ts_macro_derive, body};
+use macroforge_ts::macros::{ts_macro_derive, ts_template};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
 };
@@ -79,7 +79,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
     match &input.data {
         Data::Class(class) => {
-            Ok(body! {
+            Ok(ts_template!(Within {
                 toJSON(): Record<string, unknown> {
                     return {
                         {#for field in class.field_names()}
@@ -87,7 +87,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                         {/for}
                     };
                 }
-            })
+            }))
         }
         _ => Err(MacroforgeError::new(
             input.decorator_span(),

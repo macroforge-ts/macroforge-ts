@@ -3,7 +3,7 @@
         "url": "https://gitlab.com/macroforge-ts/macroforge-ts/-/issues"
     },
     "dependencies": {
-        "@macroforge/core": "0.3.0",
+        "@macroforge/core": "0.3.1",
         "@modelcontextprotocol/sdk": "^1.30.0"
     },
     "description": "MCP server for Macroforge documentation and code analysis",
@@ -37,5 +37,5 @@
         "test": "node --test tests/**/*.test.js"
     },
     "type": "module",
-    "version": "0.3.0"
+    "version": "0.3.1"
 }

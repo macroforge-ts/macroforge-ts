@@ -6,10 +6,10 @@ it easy to generate complex TypeScript code.
 
 ## Available Macros
 
-| Macro          | Output              | Use Case                |
-| -------------- | ------------------- | ----------------------- |
-| `ts_template!` | Any TypeScript code | General code generation |
-| `body!`        | Class body members  | Methods and properties  |
+| Macro                                      | Output              | Use Case                |
+| ------------------------------------------ | ------------------- | ----------------------- |
+| `ts_template!`                             | Any TypeScript code | General code generation |
+| `ts_template!(Within &lbrace; … &rbrace;)` | Class body members  | Methods and properties  |
 
 ## Quick Reference
 
@@ -17,8 +17,8 @@ it easy to generate complex TypeScript code.
 | -------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `@{expr}`                                                      | Interpolate a Rust expression (adds space after)                                        |
 | `{&#124; content &#124;}`                                      | Ident block: concatenates without spaces (e.g., `{&#124;get@{name}&#124;}` → `getUser`) |
-| `{> "comment" <}`                                              | Block comment: outputs `/* comment */` (string preserves whitespace)                    |
-| `{>> "doc" <<}`                                                | Doc comment: outputs `/** doc */` (string preserves whitespace)                         |
+| `{> "comment" <}`                                              | Line comment: outputs `// comment` (string preserves whitespace)                        |
+| `{>> "doc" <<}`                                                | Block comment: outputs `/* comment */` (string preserves whitespace)                    |
 | `@@{`                                                          | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)                                  |
 | `"text @{expr}"`                                               | String interpolation (auto-detected)                                                    |
 | `"'^template ${js}^'"`                                         | JS backtick template literal (outputs `` `template ${js}` ``)                           |
@@ -32,8 +32,9 @@ it easy to generate complex TypeScript code.
 | `{#while let pattern = expr}...{/while}`                       | While-let pattern matching loop                                                         |
 | `{$let name = expr}`                                           | Define a local constant                                                                 |
 | `{$let mut name = expr}`                                       | Define a mutable local variable                                                         |
+| `{%let name = expr}`                                           | Bind a Rust variable (alternate syntax for `{$let}`)                                    |
 | `{$do expr}`                                                   | Execute a side-effectful expression                                                     |
-| `{$typescript stream}`                                         | Inject a TsStream, preserving its source and runtime_patches (imports)                  |
+| `{$typescript stream}`                                         | Inject a TsStream, preserving its source and runtime\_patches (imports)                 |
 
 **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works
 as expected).
@@ -65,10 +66,10 @@ User.prototype.toString = function () {
 };
 ```
 
-## Identifier Concatenation: `content`
+## Identifier Concatenation: `{| content |}`
 
 When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block
-syntax. Everything inside `` is concatenated without spaces:
+syntax. Everything inside `{| |}` is concatenated without spaces:
 
 Rust
 
@@ -92,8 +93,8 @@ function getUser() {
 }
 ```
 
-Without ident blocks, `@{}` always adds a space after for readability. Use `` when you explicitly
-want concatenation:
+Without ident blocks, `@{}` always adds a space after for readability. Use `{| |}` when you
+explicitly want concatenation:
 
 Rust
 
@@ -636,21 +637,21 @@ Rust
 
 ```
 // Create a helper method with its own import
-let mut helper = body! {
+let mut helper = ts_template!(Within {
     validateEmail(email: string): boolean {
         return Result.ok(true);
     }
-};
-helper.add_import("Result", "macroforge/utils");
+});
+helper.add_import("Result", "@macroforge/core/utils");
 
 // Inject the helper into the main template
-let result = body! {
+let result = ts_template!(Within {
     {$typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
     }
-};
+});
 // result now includes helper's source AND its Result import
 ```
 
@@ -660,20 +661,20 @@ Rust
 
 ```
 let extra_methods = if include_validation {
-    Some(body! {
+    Some(ts_template!(Within {
         validate(): boolean { return true; }
-    })
+    }))
 } else {
     None
 };
 
-body! {
+ts_template!(Within {
     mainMethod(): void {}
 
     {#if let Some(methods) = extra_methods}
         {$typescript methods}
     {/if}
-}
+})
 ```
 
 ## Escape Syntax
@@ -714,19 +715,19 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
         Data::Class(class) => {
             let class_name = input.name();
 
-            let mut body_stmts = vec![ts_quote!( const result = {}; as Stmt )];
+            let mut body_stmts = vec![ts_quote!("const result = {};" as Stmt)];
 
             for field_name in class.field_names() {
                 body_stmts.push(ts_quote!(
-                    result.$(ident!("{}", field_name)) = this.$(ident!("{}", field_name));
-                    as Stmt
+                    "result.$field = this.$field;" as Stmt,
+                    field = ts_ident!(field_name)
                 ));
             }
 
-            body_stmts.push(ts_quote!( return result; as Stmt ));
+            body_stmts.push(ts_quote!("return result;" as Stmt));
 
             let runtime_code = fn_assign!(
-                member_expr!(Expr::Ident(ident!(class_name)), "prototype"),
+                member_expr!(Expr::Ident(ts_ident!(class_name)), "prototype"),
                 "toJSON",
                 body_stmts
             );
@@ -737,7 +738,7 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 }
 ```
 
-### After (With ts_template!)
+### After (With ts\_template!)
 
 Rust
 
@@ -770,13 +771,13 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 
 1. **Compile-Time:** The template is parsed during macro expansion
 2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
-3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
-4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+3. **Parsing:** The generated string is parsed with oxc to produce a typed AST.
+4. **Result:** Returns a `TsStream` that can be returned directly as macro output
 
 ## Return Type
 
-`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and
-provides helpful error messages showing the generated TypeScript code if parsing fails:
+`ts_template!` returns a `TsStream`, which is what a macro function returns as its output. If the
+generated source fails to parse, the macro reports an error showing the generated TypeScript:
 
 Text
 

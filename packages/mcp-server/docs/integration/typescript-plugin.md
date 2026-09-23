@@ -73,7 +73,7 @@ TypeScript
 
 ```
 const user = new User("Alice");
-user.to  // Suggests: toString(), toJSON(), etc.
+User.  // Suggests: toString(), clone(), serialize(), etc.
 ```
 
 ### Type Information
@@ -84,8 +84,8 @@ TypeScript
 
 ```
 // Hover over 'clone' shows:
-// (method) User.clone(): User
-const copy = user.clone();
+// (method) User.clone(value: User): User
+const copy = User.clone(user);
 ```
 
 ## Troubleshooting

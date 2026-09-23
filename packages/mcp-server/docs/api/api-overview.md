@@ -1,6 +1,6 @@
 # API Reference
 
-macroforge v0.1.48 33 exported items
+macroforge v0.3.1 55 exported items
 
 Macroforge provides a programmatic API for expanding macros in TypeScript code.
 
@@ -14,9 +14,13 @@ import {
   transformSync,
   checkSyntax,
   parseImportSources,
+  loadConfig,
+  clearConfigCache,
+  scanProjectSync,
+  Derive,
   NativePlugin,
   PositionMapper
-} from "macroforge";
+} from "@macroforge/core";
 ```
 
 ## Core Functions
@@ -27,6 +31,10 @@ import {
 | [`transformSync()`](../docs/api/transform-sync) | Transform code with additional metadata |
 | `checkSyntax()`                                 | Validate TypeScript syntax              |
 | `parseImportSources()`                          | Extract import information              |
+| `loadConfig()`                                  | Load and parse a Macroforge config file |
+| `clearConfigCache()`                            | Clear the cached config                 |
+| `scanProjectSync()`                             | Scan a project directory for types      |
+| `Derive()`                                      | TC39 decorator for macro expansion      |
 
 ## Classes
 
@@ -40,7 +48,7 @@ import {
 TypeScript
 
 ```
-import { expandSync } from "macroforge";
+import { expandSync } from "@macroforge/core";
 
 const sourceCode = \`
 /** @derive(Debug) */

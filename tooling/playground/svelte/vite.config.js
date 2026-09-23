@@ -9,6 +9,11 @@ export default defineConfig({
         port: Number(globalThis.process.env.PLAYGROUND_SVELTE_PORT ?? 5173),
         strictPort: true
     },
+    // The e2e suite drives the built app, so `preview` reads the same port.
+    preview: {
+        port: Number(globalThis.process.env.PLAYGROUND_SVELTE_PORT ?? 5173),
+        strictPort: true
+    },
     ssr: {
         noExternal: ['effect', '@playground/macro']
     },

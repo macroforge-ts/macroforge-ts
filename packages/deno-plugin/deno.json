@@ -16,6 +16,7 @@
         "@std/assert": "jsr:@std/assert@^1.0.19",
         "@std/cli": "jsr:@std/cli@^1.0.32",
         "@std/fs": "jsr:@std/fs@^1.0.24",
+        "@std/media-types": "jsr:@std/media-types@^1.1.0",
         "@std/path": "jsr:@std/path@^1.1.6"
     },
     "license": "MIT",
@@ -27,12 +28,12 @@
         ]
     },
     "tasks": {
-        "build": "echo 'No build needed — JSR publishes src/ directly'",
+        "build": "echo 'No build needed: JSR publishes src/ directly'",
         "clean": "rm -rf node_modules",
         "cleanbuild": "deno task clean && deno task build",
         "expand": "deno run -A src/cli.ts expand",
-        "test": "deno test -A tests/",
+        "test": "deno test -A --no-lock tests/",
         "watch": "deno run -A src/cli.ts watch"
     },
-    "version": "0.3.0"
+    "version": "0.3.1"
 }

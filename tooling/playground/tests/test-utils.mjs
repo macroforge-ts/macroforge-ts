@@ -134,7 +134,6 @@ export function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
     const runner = typeof optionsOrRunner === 'function' ? optionsOrRunner : maybeRunner;
 
     return withManagedEnv(rootDir, options, async () => {
-        const _uniquePort = getNextPort();
         const userConfig = buildMacroforgeViteConfig();
 
         const server = await createServer({

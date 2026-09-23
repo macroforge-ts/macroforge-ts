@@ -10,8 +10,11 @@ can either install it globally and then reference it in your configuration or ru
 Bash
 
 ```
-npx -y @macroforge/mcp-server
+npx -y @macroforge/mcp-server@latest
 ```
+
+Keep the `@latest` tag: without it, `npx` reuses whichever version it cached first and never
+upgrades.
 
 Here's how to set it up in some common MCP clients:
 
@@ -22,7 +25,7 @@ To include the local MCP version in Claude Code, simply run the following comman
 Bash
 
 ```
-claude mcp add -t stdio -s [scope] macroforge -- npx -y @macroforge/mcp-server
+claude mcp add -t stdio -s [scope] macroforge -- npx -y @macroforge/mcp-server@latest
 ```
 
 The `[scope]` must be `user`, `project` or `local`.
@@ -37,7 +40,7 @@ claude\_desktop\_config.json
 ```
 {
     "mcpServers": {
-        "macroforge": {
+        "@macroforge/core": {
             "command": "npx",
             "args": ["-y", "@macroforge/mcp-server"]
         }
@@ -66,7 +69,7 @@ To include the local MCP version in Gemini CLI, simply run the following command
 Bash
 
 ```
-gemini mcp add -t stdio -s [scope] macroforge npx -y @macroforge/mcp-server
+gemini mcp add -t stdio -s [scope] macroforge npx -y @macroforge/mcp-server@latest
 ```
 
 The `[scope]` must be `user`, `project` or `local`.
@@ -74,7 +77,7 @@ The `[scope]` must be `user`, `project` or `local`.
 ## Other Clients
 
 If we didn't include the MCP client you are using, refer to their documentation for `stdio` servers
-and use `npx` as the command and `-y @macroforge/mcp-server` as the arguments.
+and use `npx` as the command and `-y @macroforge/mcp-server@latest` as the arguments.
 
 ## Available Tools
 
@@ -91,5 +94,5 @@ The MCP server provides five tools for AI assistants:
 Note
 
 For code validation and expansion features (`macroforge-autofixer`, `expand-code`,
-`get-macro-info`), the MCP server requires `macroforge` as a peer dependency. Install it in your
-project with `npm install macroforge`.
+`get-macro-info`), the MCP server requires `@macroforge/core` as a peer dependency. Install it in
+your project with `npm install @macroforge/core`.

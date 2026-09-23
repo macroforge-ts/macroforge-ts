@@ -3,7 +3,7 @@
 Rust
 
 ```
-use macroforge_ts::macros::{ts_macro_derive, body};
+use macroforge_ts::macros::{ts_macro_derive, ts_template};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
 };
@@ -28,7 +28,7 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, Macroforg
                 .filter(|f| has_decorator(f, "validate"))
                 .collect();
 
-            Ok(body! {
+            Ok(ts_template!(Within {
                 validate(): string[] {
                     const errors: string[] = [];
                     {#for field in validations}
@@ -38,7 +38,7 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, Macroforg
                     {/for}
                     return errors;
                 }
-            })
+            }))
         }
         _ => Err(MacroforgeError::new(
             input.decorator_span(),

@@ -940,9 +940,8 @@ const example = "Use @{foo} for templates";`}
         string at runtime
     </li>
     <li>
-        <strong>Parsing:</strong> The generated string is parsed with OXC (the default
-        backend) to produce a typed AST. An SWC backend is available behind the opt-in
-        <code>swc</code> feature.
+        <strong>Parsing:</strong> The generated string is parsed with oxc to produce a
+        typed AST.
     </li>
     <li>
         <strong>Result:</strong> Returns a <code>TsStream</code> that can be returned

@@ -18,7 +18,7 @@ Add the plugin to your `vite.config.ts`:
 vite.config.ts
 
 ```
-import macroforge from "@macroforge/vite-plugin";
+import { macroforge } from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -30,36 +30,46 @@ export default defineConfig({
 
 ## Options
 
-TypeScript
+The vite plugin reads its configuration from a `macroforge.config.ts` (or `.js`, `.mjs`, `.cjs`)
+file in your project root. Vite-specific options go under the `vite` key:
+
+macroforge.config.ts
 
 ```
-macroforge({
-  // Generate .d.ts files for expanded code
-  generateTypes: true,
-
-  // Output directory for generated types
-  typesOutputDir: ".macroforge/types",
-
-  // Emit metadata files for debugging
-  emitMetadata: false,
-
+export default {
   // Keep @derive decorators in output (for debugging)
   keepDecorators: false,
 
-  // File patterns to process
-  include: ["**/*.ts", "**/*.tsx"],
-  exclude: ["node_modules/**"]
-})
+  // Vite-specific options
+  vite: {
+    // Generate .d.ts files for expanded code
+    generateTypes: true,
+
+    // Output directory for generated types
+    typesOutputDir: ".macroforge/types",
+
+    // Emit metadata files for debugging
+    emitMetadata: true,
+
+    // Output directory for metadata files
+    metadataOutputDir: ".macroforge/meta",
+
+    // Enable disk cache in dev mode
+    devCache: true,
+  }
+};
 ```
 
 ### Option Reference
 
-| Option           | Type      | Default             | Description               |
-| ---------------- | --------- | ------------------- | ------------------------- |
-| `generateTypes`  | `boolean` | `true`              | Generate .d.ts files      |
-| `typesOutputDir` | `string`  | `.macroforge/types` | Where to write type files |
-| `emitMetadata`   | `boolean` | `false`             | Emit macro metadata files |
-| `keepDecorators` | `boolean` | `false`             | Keep decorators in output |
+| Option                   | Type      | Default             | Description                          |
+| ------------------------ | --------- | ------------------- | ------------------------------------ |
+| `vite.generateTypes`     | `boolean` | `true`              | Generate .d.ts files                 |
+| `vite.typesOutputDir`    | `string`  | `.macroforge/types` | Where to write type files            |
+| `vite.emitMetadata`      | `boolean` | `true`              | Emit macro metadata files            |
+| `vite.metadataOutputDir` | `string`  | `.macroforge/meta`  | Where to write metadata files        |
+| `vite.devCache`          | `boolean` | `true`              | Enable disk cache during development |
+| `keepDecorators`         | `boolean` | `false`             | Keep decorators in output            |
 
 ## Framework Integration
 
@@ -68,7 +78,7 @@ macroforge({
 vite.config.ts
 
 ```
-import macroforge from "@macroforge/vite-plugin";
+import { macroforge } from "@macroforge/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -85,7 +95,7 @@ export default defineConfig({
 vite.config.ts
 
 ```
-import macroforge from "@macroforge/vite-plugin";
+import { macroforge } from "@macroforge/vite-plugin";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 
@@ -109,46 +119,6 @@ During development, the plugin:
 - Watches for file changes
 - Expands macros on save
 - Provides HMR support for expanded code
-
-### Custom Macro Packages with `file:` Dependencies
-
-If your custom macro package is a local `file:` dependency (e.g. `"@my/macros": "file:./macros"`),
-the expanded code may contain runtime imports pointing to files inside that package. Vite's dev
-server restricts filesystem access to a set of allowed directories (`src/`, `.svelte-kit/`,
-`node_modules/`, etc.), and local `file:` dependencies outside those paths will be blocked.
-
-You must add the package directory to `server.fs.allow`:
-
-vite.config.ts
-
-```
-export default defineConfig({
-  plugins: [macroforge()],
-  server: {
-    fs: {
-      allow: ['macros']  // path to your local macro package
-    }
-  }
-});
-```
-
-The macro package also needs a `package.json` `exports` field so Vite can resolve subpath imports.
-For example, if expanded code imports from `@my/macros/helpers`:
-
-macros/package.json
-
-```
-{
-  "name": "@my/macros",
-  "exports": {
-    ".": { "types": "./index.d.ts", "default": "./index.js" },
-    "./helpers": "./helpers.ts"
-  }
-}
-```
-
-Without this, Vite's dev server will fail with `Pre-transform error: Failed to load url ...` even
-though the file exists on disk.
 
 ## Production Build
 

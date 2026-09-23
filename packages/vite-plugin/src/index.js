@@ -505,7 +505,7 @@ export async function macroforge() {
     let isDevMode = false;
     /** @type {string | undefined} */
     let cacheDir;
-    /** @type {{ version: string, configHash: string, externalMacroHash: string, engineHash: string, builtinOnly?: boolean, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null} */
+    /** @type {{ version: string, configHash: string, externalMacroHash: string, engineHashes: Record<string, string>, builtinOnly?: boolean, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null} */
     let cacheManifest = null;
     /** @type {string} */
     let macroforgeVersion = 'unknown';
@@ -604,8 +604,7 @@ export async function macroforge() {
      */
     function getEngineHash() {
         const wasmPath = path.join(path.dirname(engineEntryPath()), 'macroforge_ts_bg.wasm');
-        const stat = fs.statSync(wasmPath);
-        return contentHash(`${stat.size}:${Math.floor(stat.mtimeMs)}`);
+        return contentHash(fs.readFileSync(wasmPath));
     }
 
     /**
@@ -614,8 +613,10 @@ export async function macroforge() {
      * @returns {string}
      */
     function getExternalMacroHash() {
-        // Collect path:size:mtime_seconds parts, sort for deterministic ordering
-        // (readdir order varies across Node/Deno/Rust), then hash.
+        // Collect path:size:content parts, sort for deterministic ordering
+        // (readdir order varies across Node/Deno/Rust), then hash. Content, not
+        // mtime: an install copies these files, and copying identical bytes
+        // must not throw the cache away.
         const parts = [];
 
         /**
@@ -664,10 +665,8 @@ export async function macroforge() {
                         }
                         const full = path.join(dir, entry);
                         try {
-                            const stat = fs.statSync(full);
-                            parts.push(
-                                `${full}:${stat.size}:${Math.floor(stat.mtimeMs / 1000)}`
-                            );
+                            const bytes = fs.readFileSync(full);
+                            parts.push(`${full}:${bytes.length}:${contentHash(bytes)}`);
                         } catch { /* expected */ }
                     }
                 } catch { /* expected */ }
@@ -735,7 +734,7 @@ export async function macroforge() {
     /**
      * Loads and validates the cache manifest from disk.
      * Returns null if the cache is stale (version or config mismatch).
-     * @returns {{ version: string, configHash: string, externalMacroHash: string, engineHash: string, builtinOnly?: boolean, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null}
+     * @returns {{ version: string, configHash: string, externalMacroHash: string, engineHashes: Record<string, string>, builtinOnly?: boolean, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null}
      */
     function loadCacheManifest() {
         const manifestPath = path.join(cacheDir, 'manifest.json');
@@ -782,9 +781,11 @@ export async function macroforge() {
                 return null;
             }
 
-            // A manifest without the field (the CLI writes this format too)
-            // is missing evidence, not a match.
-            if (manifest.engineHash !== getEngineHash()) {
+            // Only this writer's key. A manifest last written by the CLI
+            // carries `cli` alone, and its entries are as good as ours, so a
+            // missing `wasm` is not evidence against them.
+            const recordedEngine = manifest.engineHashes?.wasm;
+            if (recordedEngine !== undefined && recordedEngine !== getEngineHash()) {
                 console.log(
                     '[@macroforge/vite-plugin] Cache invalidated: macroforge engine rebuilt'
                 );
@@ -955,7 +956,7 @@ export async function macroforge() {
                     version: macroforgeVersion,
                     configHash: getConfigHash(),
                     externalMacroHash: getExternalMacroHash(),
-                    engineHash: getEngineHash(),
+                    engineHashes: { wasm: getEngineHash() },
                     entries: {}
                 };
             }
@@ -1104,6 +1105,11 @@ export async function macroforge() {
                 cacheManifest = loadCacheManifest();
 
                 if (cacheManifest) {
+                    // Keep whatever key the CLI recorded and stamp our own.
+                    cacheManifest.engineHashes = {
+                        ...cacheManifest.engineHashes,
+                        wasm: getEngineHash()
+                    };
                     const entryCount = Object.keys(cacheManifest.entries).length;
                     console.log(
                         `[@macroforge/vite-plugin] Dev cache loaded: ${entryCount} entries`

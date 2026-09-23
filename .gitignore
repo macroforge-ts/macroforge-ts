@@ -18,6 +18,7 @@ tooling/playground/library/dist-unexpanded/
 **/*.wasm
 **/*.pdb
 crates/macroforge_ts/pkg/
+crates/macroforge_ts/pkg-deno/
 tooling/playground/macro/pkg/
 tooling/playground/macro/pkg-wasm/
 

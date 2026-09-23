@@ -5,8 +5,9 @@
 //   pixi run bench                                  — benchmark current build
 //   pixi run bench:all                              — compare all backends in bench-bins/
 //   pixi run bench:build                            — build all 4 variants into bench-bins/
-//   bench.mjs --wasm-bindgen <input.wasm> <out-dir> — run wasm-bindgen (invoked
-//                                                     directly by the build:wasm task)
+//   bench.mjs --wasm-bindgen <input.wasm> <node-out-dir> <deno-out-dir>
+//                                                   run wasm-bindgen for npm and
+//                                                   JSR (the build:wasm task)
 //   MF_BENCH_ITERATIONS=50                          — control iteration count (default: 20)
 
 import { pathToFileURL } from 'node:url';
@@ -33,25 +34,34 @@ const mode = args.includes('--build')
 // wasm-bindgen subcommand (replaces the old wasm-bindgen-build.mjs)
 // ============================================================================
 
-async function wasmBindgen() {
-    const wasmInput = args.find((a) => a.endsWith('.wasm'));
-    const outDir = args.filter((a) => !a.startsWith('--') && !a.endsWith('.wasm')).pop();
+// The npm package sits in node_modules, so its glue reads the wasm off disk
+// with `node:fs`. A JSR module runs from `https://jsr.io/`, where only `fetch`
+// reaches the sidecar, so each registry gets the glue that suits it.
+const WASM_TARGETS = ['experimental-nodejs-module', 'deno'];
 
-    if (!wasmInput || !outDir) {
-        console.error('Usage: bench.mjs --wasm-bindgen <input.wasm> <out-dir>');
+async function wasmBindgen() {
+    const wasmInput = args.find((arg) => arg.endsWith('.wasm'));
+    const outDirs = args.filter((arg) => !arg.startsWith('--') && !arg.endsWith('.wasm'));
+
+    if (!wasmInput || outDirs.length !== WASM_TARGETS.length) {
+        console.error('Usage: bench.mjs --wasm-bindgen <input.wasm> <node-out-dir> <deno-out-dir>');
         Deno.exit(1);
     }
 
     const bin = await resolveWasmBindgen();
-    await Deno.mkdir(outDir, { recursive: true });
 
-    const result = await new Deno.Command(bin, {
-        args: ['--target', 'experimental-nodejs-module', '--out-dir', outDir, wasmInput],
-        stdout: 'inherit',
-        stderr: 'inherit'
-    }).output();
+    for (const [index, target] of WASM_TARGETS.entries()) {
+        const outDir = outDirs[index];
+        await Deno.mkdir(outDir, { recursive: true });
 
-    if (!result.success) Deno.exit(result.code);
+        const result = await new Deno.Command(bin, {
+            args: ['--target', target, '--out-dir', outDir, wasmInput],
+            stdout: 'inherit',
+            stderr: 'inherit'
+        }).output();
+
+        if (!result.success) Deno.exit(result.code);
+    }
 }
 
 async function resolveWasmBindgen() {

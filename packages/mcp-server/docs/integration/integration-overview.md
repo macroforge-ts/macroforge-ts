@@ -4,10 +4,14 @@ Macroforge integrates with your development workflow through IDE plugins and bui
 
 ## Overview
 
-| Integration       | Purpose                           | Package                         |
-| ----------------- | --------------------------------- | ------------------------------- |
-| TypeScript Plugin | IDE support (errors, completions) | `@macroforge/typescript-plugin` |
-| Vite Plugin       | Build-time macro expansion        | `@macroforge/vite-plugin`       |
+| Integration         | Purpose                                                 | Package                           |
+| ------------------- | ------------------------------------------------------- | --------------------------------- |
+| TypeScript Plugin   | IDE support (errors, completions)                       | `@macroforge/typescript-plugin`   |
+| Vite Plugin         | Build-time macro expansion                              | `@macroforge/vite-plugin`         |
+| Svelte Preprocessor | Expand macros inside `.svelte` components               | `@macroforge/svelte-preprocessor` |
+| CLI                 | Expand, watch, type-check and package from the terminal | `macroforge`                      |
+| Deno Plugin         | Expansion for Deno projects (CLI + programmatic API)    | `@macroforge/deno-plugin`         |
+| MCP Server          | Macro documentation and tooling for AI assistants       | `@macroforge/mcp-server`          |
 
 ## Recommended Setup
 

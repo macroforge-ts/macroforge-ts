@@ -1,13 +1,31 @@
 # Architecture
 
-Macroforge is built as a native Node.js module using Rust and NAPI-RS. It leverages SWC for fast
-TypeScript parsing and code generation.
+Macroforge is built as a modular Rust engine with multiple output targets. It parses and generates
+TypeScript with oxc, and provides both native Node.js and universal WebAssembly bindings.
 
 ## Overview
 
-Node.js / Vite
+JavaScript Environments
 
-NAPI-RS Bindings
+Node.js
+
+Vite
+
+Browser
+
+Edge
+
+Target Bindings
+
+NAPI-RS (Node)
+
+wasm-bindgen (Universal)
+
+Unified API
+
+MacroforgeApi Trait
+
+CoreEngine
 
 Macro Crates
 
@@ -17,13 +35,25 @@ macroforge\_ts\_quote
 
 macroforge\_ts\_macros
 
-SWC Core
+oxc
 
 TypeScript parsing & codegen
 
 ## Core Components
 
-### SWC Core
+### Unified API & Core Engine
+
+At the heart of Macroforge is an output-agnostic `MacroforgeApi` trait. This allows the core
+expansion logic to remain identical across all platforms while supporting different transport layers
+(NAPI or WASM).
+
+### Target Bindings
+
+- **NAPI-RS**: Bridges Rust and Node.js for maximum performance using native binaries.
+- **wasm-bindgen**: Compiles the engine to WebAssembly for universal compatibility across browsers
+  and edge workers.
+
+### oxc
 
 The foundation layer provides:
 
@@ -44,7 +74,7 @@ A Rust crate that provides:
 Template-based code generation similar to Rust's `quote!`:
 
 - `ts_template!` - Generate TypeScript code from templates
-- `body!` - Generate class body members
+- `ts_template!(Within &lbrace; … &rbrace;)` - Generate class body members
 - Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{$let}"}`
 
 ### macroforge\_ts\_macros
@@ -73,7 +103,7 @@ TypeScript with @derive
 
 receives JavaScript string
 
-3\. SWC Parser
+3\. oxc Parser
 
 parses to AST
 
@@ -89,7 +119,7 @@ extract data, run macro, generate AST nodes
 
 generated nodes into AST
 
-7\. SWC Codegen
+7\. oxc Codegen
 
 generates source code
 
@@ -99,10 +129,14 @@ to JavaScript with source mapping
 
 ## Performance Characteristics
 
-- **Thread-safe**: Each expansion runs in an isolated thread with a 32MB stack
-- **Caching**: `NativePlugin` caches results by file version
-- **Binary search**: Position mapping uses O(log n) lookups
-- **Zero-copy**: SWC's arena allocator minimizes allocations
+- **Isolated Execution**: In Node.js, each expansion runs in a dedicated thread with a 32MB stack to
+  prevent stack overflow during deep recursion. In WASM, execution is synchronous on the main
+  thread.
+- **Caching**: `NativePlugin` (Node) and API calls support version-based caching to skip redundant
+  work.
+- **Binary search**: Position mapping uses optimized O(log n) lookups.
+- **Arena allocation**: oxc parses into an arena, so AST nodes borrow from one allocation rather
+  than each owning their own.
 
 ## Re-exported Crates
 
@@ -115,10 +149,8 @@ Rust
 use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-// Also available: raw crate access and SWC modules
-use macroforge_ts::swc_core;
-use macroforge_ts::swc_common;
-use macroforge_ts::swc_ecma_ast;
+// Also available: the AST crate itself
+use macroforge_ts::ts_syn::oxc;
 ```
 
 ## Next Steps
