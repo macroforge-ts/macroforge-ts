@@ -124,8 +124,12 @@ libc = { version = "0.2", optional = true }
 #
 # Excluded from wasm builds — a wasm host has no business instantiating another
 # wasm module, and the JS side already calls macros directly.
+#
+# `portable-dispatch`: the default tail-call dispatch pushes a native frame per
+# executed instruction unless LLVM turns each call into a jump, which a dev
+# build does not, so any real macro overflowed the stack of a debug CLI.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-wasmi = "2.0"
+wasmi = { version = "2.0", features = ["portable-dispatch"] }
 
 [features]
 default = ["wasm", "oxc", "buildtime-boa"]

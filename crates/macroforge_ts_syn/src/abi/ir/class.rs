@@ -93,7 +93,7 @@ pub struct ClassIR {
     /// For `class Foo extends Bar implements IBaz`, this would be `["Bar", "IBaz"]`.
     pub heritage: Vec<String>,
 
-    /// Decorators applied to the class (from JSDoc or decorator syntax).
+    /// Macro directives from the JSDoc comment above the class.
     pub decorators: Vec<DecoratorIR>,
 
     /// The raw SWC decorator AST nodes (not serialized).

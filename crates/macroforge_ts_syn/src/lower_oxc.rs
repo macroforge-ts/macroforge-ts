@@ -110,35 +110,8 @@ fn lower_class(
         }
     }
 
-    let mut decorators = Vec::new();
-    // 1. Native decorators
-    for dec in &decl.decorators {
-        if let Expression::CallExpression(call) = &dec.expression {
-            if let Expression::Identifier(ident) = &call.callee {
-                decorators.push(DecoratorIR {
-                    name: ident.name.to_string(),
-                    args_src: source[call.span.start as usize..call.span.end as usize].to_string(),
-                    span: oxc_span_ir(dec.span),
-                    #[cfg(feature = "swc")]
-                    node: None,
-                });
-            }
-        } else if let Expression::Identifier(ident) = &dec.expression {
-            decorators.push(DecoratorIR {
-                name: ident.name.to_string(),
-                args_src: String::new(),
-                span: oxc_span_ir(dec.span),
-                #[cfg(feature = "swc")]
-                node: None,
-            });
-        }
-    }
-    // 2. JSDoc class-level decorators (e.g. @serde({ denyUnknownFields: true }))
-    decorators.extend(collect_leading_decorators_oxc(
-        source,
-        decl.span.start as usize,
-        filter,
-    ));
+    // JSDoc class-level decorators (e.g. @serde({ denyUnknownFields: true }))
+    let decorators = collect_leading_decorators_oxc(source, decl.span.start as usize, filter);
 
     let mut fields = Vec::new();
     let mut methods = Vec::new();

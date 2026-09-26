@@ -463,12 +463,11 @@ impl<'a> Visit for ClassCollector<'a> {
             span
         };
 
-        let mut decorators = lower_decorators(&n.class.decorators, self.source);
-        decorators.extend(collect_leading_macro_directives(
+        let decorators = collect_leading_macro_directives(
             self.source,
             n.class.span.lo.0 as usize,
             self.valid_annotations,
-        ));
+        );
 
         let (fields, methods) = lower_members(&n.class.body, self.source, self.valid_annotations);
 
@@ -581,12 +580,11 @@ impl<'a> Visit for TargetCollector<'a> {
             span
         };
 
-        let mut decorators = lower_decorators(&n.class.decorators, self.source);
-        decorators.extend(collect_leading_macro_directives(
+        let decorators = collect_leading_macro_directives(
             self.source,
             n.class.span.lo.0 as usize,
             self.valid_annotations,
-        ));
+        );
 
         let (fields, methods) = lower_members(&n.class.body, self.source, self.valid_annotations);
 
@@ -1075,12 +1073,11 @@ fn lower_members(
                     .map(|t| snippet(source, t.type_ann.span()))
                     .unwrap_or_else(|| "any".into());
 
-                let mut decorators = lower_decorators(&p.decorators, source);
-                decorators.extend(collect_leading_macro_directives(
+                let decorators = collect_leading_macro_directives(
                     source,
                     p.span.lo.0 as usize,
                     valid_annotations,
-                ));
+                );
 
                 fields.push(FieldIR {
                     name,
@@ -1151,7 +1148,7 @@ fn lower_members(
                     is_static: meth.is_static,
                     is_async: meth.function.is_async,
                     visibility: lower_visibility(meth.accessibility),
-                    decorators: lower_decorators(&meth.function.decorators, source),
+                    decorators: Vec::new(),
                     body_span: method_body_span,
                     body_src: method_body_src,
                     member_ast: Some(MethodAstIR::Method(meth.clone())),
@@ -1209,35 +1206,6 @@ fn lower_members(
     }
 
     (fields, methods)
-}
-
-#[cfg(feature = "swc")]
-fn lower_decorators(decs: &[Decorator], source: &str) -> Vec<DecoratorIR> {
-    decs.iter()
-        .filter_map(|d| {
-            let span = adjust_decorator_span(d.span, source);
-            let (name, args_src) = match &*d.expr {
-                Expr::Ident(i) => (i.sym.to_string(), String::new()),
-                Expr::Call(call) => {
-                    let callee = match &call.callee {
-                        Callee::Expr(e) => match &**e {
-                            Expr::Ident(i) => i.sym.to_string(),
-                            _ => return None,
-                        },
-                        _ => return None,
-                    };
-                    (callee, call_args_src(call, source))
-                }
-                _ => return None,
-            };
-            Some(DecoratorIR {
-                name,
-                args_src,
-                span,
-                node: Some(d.clone()),
-            })
-        })
-        .collect()
 }
 
 fn collect_leading_macro_directives(
@@ -1315,21 +1283,6 @@ fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
         ir.end = end as u32;
     }
     ir
-}
-
-#[cfg(feature = "swc")]
-fn call_args_src(call: &CallExpr, source: &str) -> String {
-    if call.args.is_empty() {
-        return String::new();
-    }
-
-    let call_src = snippet(source, call.span);
-    if let (Some(open), Some(close)) = (call_src.find('('), call_src.rfind(')'))
-        && open < close
-    {
-        return call_src[open + 1..close].trim().to_string();
-    }
-    String::new()
 }
 
 #[cfg(feature = "swc")]
@@ -1641,29 +1594,6 @@ mod tests {
         );
         let mut parser = Parser::new_from(lexer);
         parser.parse_module().expect("module to parse")
-    }
-
-    #[cfg(feature = "swc")]
-    #[test]
-    fn lowers_decorator_arguments_for_fields() {
-        GLOBALS.set(&Globals::new(), || {
-            let source = r#"
-            class User {
-                @Debug({ rename: "identifier", skip: false })
-                id: string;
-            }
-            "#;
-            let module = parse_module(source);
-            let classes = lower_classes(&module, source, None).expect("lowering to succeed");
-            let first = classes.first().expect("class");
-            let field = first.fields.first().expect("field");
-            let decorator = field.decorators.first().expect("decorator");
-            assert_eq!(decorator.name, "Debug");
-            assert_eq!(
-                decorator.args_src.trim(),
-                r#"{ rename: "identifier", skip: false }"#
-            );
-        });
     }
 
     #[cfg(feature = "swc")]

@@ -82,19 +82,6 @@ pub fn decorator_metadata() -> Vec<DecoratorMetadata> {
         .collect()
 }
 
-/// Returns all unique decorator module names (package names).
-///
-/// Note: this returns the `module` field of `DecoratorDescriptor` which is the
-/// npm package name. For the actual annotation keywords used in JSDoc (e.g.,
-/// `"serde"`, `"debug"`, `"hash"`), use [`decorator_annotation_names`].
-pub fn decorator_modules() -> BTreeSet<&'static str> {
-    inventory::iter::<DerivedMacroRegistration>
-        .into_iter()
-        .flat_map(|entry| entry.descriptor.decorators)
-        .map(|decorator| decorator.module)
-        .collect()
-}
-
 /// Returns all unique decorator annotation names.
 ///
 /// These are the keywords used in field-level decorators like `@serde({ ... })`,
