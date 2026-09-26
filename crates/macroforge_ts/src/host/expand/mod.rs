@@ -2156,15 +2156,6 @@ impl MacroExpander {
         };
 
         let mut code = runtime_result.code;
-        if !self.keep_decorators {
-            // Convert Vec<String> to Vec<&str> for strip_decorators
-            let external_modules: Vec<&str> = self
-                .external_decorator_modules
-                .iter()
-                .map(|s| s.as_str())
-                .collect();
-            code = strip_decorators(&code, &external_modules);
-        }
 
         // Emit all generated imports from the registry (namespace + type-only)
         let import_block =
@@ -2253,57 +2244,4 @@ fn is_macro_not_found(result: &MacroResult) -> bool {
             && (d.message.contains("not found")
                 || d.message.contains("is not a Macroforge built-in"))
     })
-}
-
-/// Strips Macroforge decorator lines from expanded code.
-///
-/// Only strips lines that contain Macroforge-specific decorators, preserving
-/// standard JSDoc annotations like @returns, @param, @internal, etc.
-///
-/// # Arguments
-///
-/// * `code` - The expanded source code
-/// * `external_decorator_modules` - Additional decorator module names from external macros
-///
-/// # Decorator patterns stripped
-///
-/// - `@derive(...)` - the main macro invocation keyword
-/// - `@<decorator_module>({ ... })` - field-level decorators (e.g., @serde, @debug)
-fn strip_decorators(code: &str, external_decorator_modules: &[&str]) -> String {
-    // Get built-in decorator modules from the macro registry
-    let builtin_modules = derived::decorator_modules();
-
-    let lines: Vec<&str> = code.lines().collect();
-    let mut result = Vec::with_capacity(lines.len());
-
-    for line in &lines {
-        let trimmed = line.trim_start();
-        if let Some(after_at) = trimmed.strip_prefix('@') {
-            // Extract the keyword after @
-            let keyword_end = after_at
-                .find(|c: char| !c.is_alphanumeric() && c != '_')
-                .unwrap_or(after_at.len());
-            let keyword = &after_at[..keyword_end];
-
-            // Check if this is:
-            // 1. The main macro keyword "derive" (case-insensitive)
-            // 2. A built-in decorator module name (case-insensitive)
-            // 3. An external decorator module name (case-insensitive)
-            let is_derive = keyword.eq_ignore_ascii_case("derive");
-            let is_builtin_module = builtin_modules
-                .iter()
-                .any(|m| m.eq_ignore_ascii_case(keyword));
-            let is_external_module = external_decorator_modules
-                .iter()
-                .any(|m| m.eq_ignore_ascii_case(keyword));
-
-            if is_derive || is_builtin_module || is_external_module {
-                // This is a Macroforge decorator, skip it
-                continue;
-            }
-        }
-        result.push(*line);
-    }
-
-    result.join("\n")
 }

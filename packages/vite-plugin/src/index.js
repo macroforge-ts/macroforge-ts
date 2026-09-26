@@ -271,6 +271,8 @@ function getCompilerOptions(projectRoot) {
         ...options,
         declaration: true,
         emitDeclarationOnly: true,
+        // Vite projects set `noEmit`, under which emit writes nothing at all.
+        noEmit: false,
         noEmitOnError: false,
         incremental: false
     };
@@ -288,6 +290,63 @@ function getCompilerOptions(projectRoot) {
 
     compilerOptionsCache.set(projectRoot, normalized);
     return normalized;
+}
+
+/**
+ * @typedef {object} DeclarationEmitter
+ * @property {import('typescript').CompilerHost} host
+ * @property {Map<string, string>} overrides - In-memory text for the file being emitted
+ * @property {import('typescript').Program | undefined} previousProgram
+ */
+
+/** @type {Map<string, DeclarationEmitter>} */
+const declarationEmitters = new Map();
+
+/**
+ * The declaration emitter for `projectRoot`. Every emit shares its compiler
+ * host, which keeps each parsed source file until its text changes, and hands
+ * the previous program to the next one: a fresh program per module re-parsed
+ * the whole import graph and every ambient `@types` package each time.
+ * @param {typeof import('typescript')} ts
+ * @param {string} projectRoot
+ * @param {import('typescript').CompilerOptions} compilerOptions
+ * @returns {DeclarationEmitter}
+ */
+function declarationEmitterFor(ts, projectRoot, compilerOptions) {
+    const existing = declarationEmitters.get(projectRoot);
+    if (existing) return existing;
+
+    const baseHost = ts.createCompilerHost(compilerOptions, true);
+    /** @type {Map<string, string>} */
+    const overrides = new Map();
+    /** @type {Map<string, { text: string, sourceFile: import('typescript').SourceFile }>} */
+    const parsed = new Map();
+    const readFile = (/** @type {string} */ fileName) =>
+        overrides.get(path.resolve(fileName)) ?? baseHost.readFile(fileName);
+
+    /** @type {DeclarationEmitter} */
+    const emitter = {
+        host: {
+            ...baseHost,
+            readFile,
+            fileExists: (fileName) =>
+                overrides.has(path.resolve(fileName)) || baseHost.fileExists(fileName),
+            getSourceFile: (fileName, languageVersion) => {
+                const text = readFile(fileName);
+                if (text === undefined) return undefined;
+                const key = path.resolve(fileName);
+                const cached = parsed.get(key);
+                if (cached && cached.text === text) return cached.sourceFile;
+                const sourceFile = ts.createSourceFile(fileName, text, languageVersion, true);
+                parsed.set(key, { text, sourceFile });
+                return sourceFile;
+            }
+        },
+        overrides,
+        previousProgram: undefined
+    };
+    declarationEmitters.set(projectRoot, emitter);
+    return emitter;
 }
 
 /**
@@ -310,44 +369,7 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
     }
 
     const normalizedFileName = path.resolve(fileName);
-    const sourceText = code;
-    const compilerHost = tsModule.createCompilerHost(compilerOptions, true);
-
-    // Override getSourceFile to serve in-memory code for the target file
-    compilerHost.getSourceFile = (requestedFileName, languageVersion) => {
-        if (path.resolve(requestedFileName) === normalizedFileName) {
-            return tsModule.createSourceFile(
-                requestedFileName,
-                sourceText,
-                languageVersion,
-                true
-            );
-        }
-        const text = tsModule.sys.readFile(requestedFileName);
-        return text !== undefined
-            ? tsModule.createSourceFile(
-                requestedFileName,
-                text,
-                languageVersion,
-                true
-            )
-            : undefined;
-    };
-
-    // Override readFile to serve in-memory code for the target file
-    compilerHost.readFile = (requestedFileName) => {
-        return path.resolve(requestedFileName) === normalizedFileName
-            ? sourceText
-            : tsModule.sys.readFile(requestedFileName);
-    };
-
-    // Override fileExists to report the virtual file as existing
-    compilerHost.fileExists = (requestedFileName) => {
-        return (
-            path.resolve(requestedFileName) === normalizedFileName ||
-            tsModule.sys.fileExists(requestedFileName)
-        );
-    };
+    const emitter = declarationEmitterFor(tsModule, projectRoot, compilerOptions);
 
     // Capture emitted declaration content
     /** @type {string | undefined} */
@@ -361,12 +383,21 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
         }
     };
 
-    const program = tsModule.createProgram(
-        [normalizedFileName],
-        compilerOptions,
-        compilerHost
-    );
-    const emitResult = program.emit(undefined, writeFile, undefined, true);
+    emitter.overrides.set(normalizedFileName, code);
+    /** @type {import('typescript').EmitResult} */
+    let emitResult;
+    try {
+        const program = tsModule.createProgram(
+            [normalizedFileName],
+            compilerOptions,
+            emitter.host,
+            emitter.previousProgram
+        );
+        emitter.previousProgram = program;
+        emitResult = program.emit(undefined, writeFile, undefined, true);
+    } finally {
+        emitter.overrides.delete(normalizedFileName);
+    }
 
     // Log diagnostics if emission was skipped due to errors
     if (emitResult.emitSkipped && emitResult.diagnostics.length > 0) {
@@ -387,6 +418,14 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
             }\n${formatted}`
         );
         return undefined;
+    }
+
+    if (output === undefined) {
+        console.warn(
+            `[@macroforge/vite-plugin] Declaration emit produced no .d.ts for ${
+                path.relative(projectRoot, fileName)
+            }`
+        );
     }
 
     return output;
@@ -1012,10 +1051,8 @@ export async function macroforge() {
      */
     function writeTypeDefinitions(id, types) {
         const relativePath = path.relative(projectRoot, id);
-        const parsed = path.parse(relativePath);
-        const outputBase = path.join(projectRoot, typesOutputDir, parsed.dir);
-        ensureDir(outputBase);
-        const targetPath = path.join(outputBase, `${parsed.name}.d.ts`);
+        const targetPath = typesPathFor(id);
+        ensureDir(path.dirname(targetPath));
 
         try {
             const existing = fs.existsSync(targetPath)
@@ -1032,6 +1069,46 @@ export async function macroforge() {
         } catch (error) {
             console.error(
                 `[@macroforge/vite-plugin] Failed to write type definitions for ${id}:`,
+                error
+            );
+        }
+    }
+
+    /**
+     * Where the declarations generated for `id` are written.
+     * @param {string} id - The absolute path of the source file
+     * @returns {string}
+     */
+    function typesPathFor(id) {
+        const parsed = path.parse(path.relative(projectRoot, id));
+        return path.join(projectRoot, typesOutputDir, parsed.dir, `${parsed.name}.d.ts`);
+    }
+
+    /**
+     * Emits and writes declarations for a file whose macros generated code.
+     * @param {string} id - The absolute path of the source file
+     * @param {string} expandedCode - The file's macro-expanded source
+     */
+    function generateTypeDefinitions(id, expandedCode) {
+        const emitted = emitDeclarationsFromCode(expandedCode, id, projectRoot);
+        if (emitted) {
+            writeTypeDefinitions(id, emitted);
+        }
+    }
+
+    /**
+     * Deletes the declarations generated for a file that no longer has macros:
+     * tsc derives its types from the source, and a leftover file would shadow
+     * them with stale macro members.
+     * @param {string} id - The absolute path of the source file
+     */
+    function removeTypeDefinitions(id) {
+        const targetPath = typesPathFor(id);
+        try {
+            fs.rmSync(targetPath, { force: true });
+        } catch (error) {
+            console.error(
+                `[@macroforge/vite-plugin] Failed to remove stale type definitions ${targetPath}:`,
                 error
             );
         }
@@ -1241,6 +1318,12 @@ export async function macroforge() {
                             );
                         }
 
+                        // Only files with macros are cached, and their generated
+                        // members reach tsc through these declarations.
+                        if (generateTypes && !fs.existsSync(typesPathFor(id))) {
+                            generateTypeDefinitions(id, cachedCode);
+                        }
+
                         return {
                             code: cachedCode,
                             map: null
@@ -1323,15 +1406,13 @@ export async function macroforge() {
                         );
                     }
 
-                    // Generate type definitions if enabled
+                    // Declarations only for files whose macros generated code;
+                    // tsc derives every other file's types from its source.
                     if (generateTypes) {
-                        const emitted = emitDeclarationsFromCode(
-                            result.code,
-                            id,
-                            projectRoot
-                        );
-                        if (emitted) {
-                            writeTypeDefinitions(id, emitted);
+                        if (hasMacros) {
+                            generateTypeDefinitions(id, result.code);
+                        } else {
+                            removeTypeDefinitions(id);
                         }
                     }
 

@@ -268,38 +268,43 @@ describe('SSR Module Loading', () => {
 // =============================================================================
 
 describe('Type Generation', () => {
+    const typesDir = path.join(vanillaRoot, '.macroforge/types');
+
     test(
         'generates .d.ts files for macro files',
         { timeout: 30000 },
         async () => {
+            const userDtsPath = path.join(typesDir, 'src/user.d.ts');
+            fs.rmSync(userDtsPath, { force: true });
+
             await withViteServer(vanillaRoot, async (server) => {
-                // Trigger transformation
                 await server.transformRequest('/src/user.ts');
-
-                // Check if types were generated
-                const typesDir = path.join(vanillaRoot, '.macroforge/types');
-
-                // Types directory should exist (created by previous runs or this test)
-                if (fs.existsSync(typesDir)) {
-                    const files = fs.readdirSync(typesDir, { recursive: true });
-                    const hasDtsFile = files.some((f) => f.toString().endsWith('.d.ts'));
-
-                    if (hasDtsFile) {
-                        // Find and verify the user.d.ts content
-                        const userDtsPath = path.join(typesDir, 'src/user.d.ts');
-                        if (fs.existsSync(userDtsPath)) {
-                            const content = fs.readFileSync(userDtsPath, 'utf-8');
-                            assert.ok(
-                                content.includes('User'),
-                                '.d.ts should declare User class'
-                            );
-                        }
-                    }
-                }
-
-                // The test passes if no errors occurred during transformation
-                assert.ok(true, 'Type generation completed without errors');
             });
+
+            const content = fs.readFileSync(userDtsPath, 'utf-8');
+            assert.ok(
+                content.includes('toString(value: User): string'),
+                `user.d.ts should declare the Debug-generated member:\n${content}`
+            );
+        }
+    );
+
+    test(
+        'writes no .d.ts for files without macros and removes a stale one',
+        { timeout: 30000 },
+        async () => {
+            const domDtsPath = path.join(typesDir, 'src/dom.util.d.ts');
+            fs.mkdirSync(path.dirname(domDtsPath), { recursive: true });
+            fs.writeFileSync(domDtsPath, 'export {};\n');
+
+            await withViteServer(vanillaRoot, async (server) => {
+                await server.transformRequest('/src/dom.util.ts');
+            });
+
+            assert.ok(
+                !fs.existsSync(domDtsPath),
+                'a file without macros should have no generated declarations'
+            );
         }
     );
 
@@ -311,27 +316,19 @@ describe('Type Generation', () => {
                 svelteRoot,
                 { useProjectCwd: true },
                 async (server) => {
-                    // Trigger transformation of a nested file
+                    const nestedPath = path.join(
+                        svelteRoot,
+                        '.macroforge/types/src/lib/demo/macro-user.d.ts'
+                    );
+                    fs.rmSync(nestedPath, { force: true });
+
                     await server.transformRequest('/src/lib/demo/macro-user.ts');
 
-                    const typesDir = path.join(svelteRoot, '.macroforge/types');
-
-                    if (fs.existsSync(typesDir)) {
-                        // The nested structure should be preserved
-                        const nestedPath = path.join(
-                            typesDir,
-                            'src/lib/demo/macro-user.d.ts'
-                        );
-                        if (fs.existsSync(nestedPath)) {
-                            const content = fs.readFileSync(nestedPath, 'utf-8');
-                            assert.ok(
-                                content.includes('MacroUser'),
-                                'Nested .d.ts should include MacroUser'
-                            );
-                        }
-                    }
-
-                    assert.ok(true, 'Directory structure handling completed');
+                    const content = fs.readFileSync(nestedPath, 'utf-8');
+                    assert.ok(
+                        content.includes('MacroUser'),
+                        `Nested .d.ts should declare MacroUser:\n${content}`
+                    );
                 }
             );
         }
