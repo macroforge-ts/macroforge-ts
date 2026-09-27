@@ -56,8 +56,8 @@ sync = { cmd = "target/debug/mf bump --sync-versions" }
 rebase = { cmd = "target/debug/mf versions" }
 
 # Documentation (using mf)
-# Reads the prerendered website, so it builds it first; the formatted docs are canonical.
-"docs:mcp" = { cmd = "rust-script packages/mcp-server/scripts/extract-docs.rs && deno fmt packages/mcp-server/docs", depends-on = ["build:website"] }
+# docs:mcp reads the prerendered website, so it builds it first.
+"docs:mcp" = { cmd = "target/debug/mf docs extract-mcp", depends-on = ["build:website"] }
 "docs:api" = { cmd = "target/debug/mf docs extract-rust && target/debug/mf docs extract-ts" }
 "docs:readmes" = { cmd = "target/debug/mf docs generate-readmes" }
 "docs:all" = { cmd = "target/debug/mf docs all" }
@@ -70,6 +70,16 @@ push = { cmd = "target/debug/mf push" }
 "publish:skip-build" = { cmd = "target/debug/mf publish-local --skip-build" }
 publish = { cmd = "target/debug/mf publish-local" }
 "publish:dry" = { cmd = "target/debug/mf publish-local --dry-run" }
+# The release pipeline. The self-hosted job publishes the crates and builds the
+# npm and JSR packages; a GitLab-hosted job publishes those with
+# `publish:ci:packages` from the `publish` environment. Credentials come from
+# the environment, and nothing prompts.
+"publish:ci:crates" = { cmd = "target/debug/mf publish-local --non-interactive --registry crates" }
+"publish:ci:build" = { cmd = "target/debug/mf publish-local --build-only --registry npm --registry jsr" }
+
+# Builds the image GitLab CI jobs run in, on the machine hosting the runner.
+# Rebuild whenever tooling/ci/Dockerfile changes; jobs refuse a stale image.
+"ci:image" = { cmd = "docker build --build-arg DOCKERFILE_SHA256=$(shasum -a 256 tooling/ci/Dockerfile | cut -c1-64) --tag macroforge-ci tooling/ci" }
 
 # Manifest manipulation (using mf)
 "manifest:list" = { cmd = "target/debug/mf manifest list" }
@@ -99,18 +109,9 @@ scripts = { cmd = "target/debug/mf --tui" }
 # auto-installs that toolchain on first cargo invocation. RUSTUP_HOME is
 # shared with the global rustup install via [activation.env] below.
 rustup = "*"
-# Deno — `deno task build` across crates/macroforge_ts, packages/*, website,
-# and `deno run` for bench.mjs / concurrently. From the github-releases channel.
-deno = { version = "*", channel = "https://prefix.dev/github-releases" }
-# Node + npm — `node --test` e2e harness (tooling/tests/e2e) and npm-driven
-# package builds shelled out from the tooling crate.
-nodejs = "*"
-# `rust-script` runs the docs:mcp extract-docs.rs script.
-rust-script = ">=0.36"
 # `wasm-pack` builds the macroforge_ts wasm artifact (see build:rust / bench.mjs;
 # the wasm-bindgen-cli version is pinned separately via `setup:wasm-bindgen`).
 wasm-pack = ">=0.15"
-rust-std-wasm32-unknown-unknown = ">=1.97.1,<2"
 cargo-nextest = ">=0.9.140,<0.10"
 
 [activation.env]
@@ -123,6 +124,26 @@ CARGO_HOME = "$HOME/.cargo"
 # The CLI every task and test drives: this checkout's debug build, never the
 # `macroforge` on PATH.
 MACROFORGE_CLI = "$PIXI_PROJECT_ROOT/target/debug/macroforge"
+
+# Deno and Node, a feature of their own so the `publish` environment can
+# install just these.
+[feature.js.dependencies]
+# Deno — `deno task build` across crates/macroforge_ts, packages/*, website,
+# and `deno run` for bench.mjs / concurrently. From the github-releases channel.
+deno = { version = "*", channel = "https://prefix.dev/github-releases" }
+# Node + npm — `node --test` e2e harness (tooling/tests/e2e) and npm-driven
+# package builds shelled out from the tooling crate.
+nodejs = "*"
+
+[feature.js.tasks]
+# npm's trusted publishing only accepts GitLab-hosted runners, so the release
+# publishes npm, and JSR after it, from one, with the mf and packages
+# `publish:ci:build` built.
+"publish:ci:packages" = { cmd = "target/debug/mf publish-local --non-interactive --skip-build --registry npm --registry jsr" }
+
+[environments]
+default = { features = ["js"], solve-group = "default" }
+publish = { features = ["js"], no-default-feature = true, solve-group = "default" }
 
 # mold linker — Linux only. `.cargo/config.toml` sets `-fuse-ld=mold` for the
 # linux target; this puts `mold` on the env PATH so cargo finds it. macOS uses

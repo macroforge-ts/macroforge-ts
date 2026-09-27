@@ -9,6 +9,7 @@ use crate::core::versions::VersionsCache;
 use crate::utils::format;
 use anyhow::{Context, Result};
 use serde_json::{Value, json};
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
@@ -18,12 +19,16 @@ struct DenoManifest {
     name: Option<String>,
 }
 
-/// The fields of a package.json the publishing tools read.
+/// The fields of a package.json the tooling reads.
 #[derive(serde::Deserialize)]
 struct NpmManifest {
     name: Option<String>,
     #[serde(default)]
     private: bool,
+    #[serde(default)]
+    dependencies: HashMap<String, String>,
+    #[serde(default, rename = "devDependencies")]
+    dev_dependencies: HashMap<String, String>,
 }
 
 fn read_npm_manifest(dir: &Path) -> Result<Option<NpmManifest>> {
@@ -65,6 +70,15 @@ pub fn jsr_package_name(dir: &Path) -> Result<Option<String>> {
 /// and ship through JSR alone.
 pub fn npm_private(dir: &Path) -> Result<bool> {
     Ok(read_npm_manifest(dir)?.is_some_and(|manifest| manifest.private))
+}
+
+/// Whether a directory's package.json lists `package` as a dependency or
+/// dev dependency.
+pub fn npm_depends_on(dir: &Path, package: &str) -> Result<bool> {
+    Ok(read_npm_manifest(dir)?.is_some_and(|manifest| {
+        manifest.dependencies.contains_key(package)
+            || manifest.dev_dependencies.contains_key(package)
+    }))
 }
 
 /// Write one repo's version into every manifest that carries it.

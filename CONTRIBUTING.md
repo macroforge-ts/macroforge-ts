@@ -156,10 +156,30 @@ pixi run docs:all            # Generate all documentation
 pixi run scripts             # Interactive TUI dashboard
 ```
 
-A release runs three commands in order:
+## Releasing
+
+Every merge request into `main` runs `pixi run verify --check` in CI. Locally, `verify` regenerates
+the docs; with `--check` it writes nothing and fails when a committed generated file differs from
+its source, which `pixi run docs:check` also reports on its own. A release is one version for every
+package:
 
 ```bash
-pixi run verify              # Build, check, test and regenerate the docs
-pixi run bump                # Raise the versions and everything stamped with them
-pixi run publish             # Publish to npm, JSR and crates.io
+pixi run bump                # On a branch: raise the versions and everything stamped with them
+pixi run verify              # Regenerate what the bump changed, then open the merge request
+pixi run push                # After the merge, on main: tag vX.Y.Z and push the tag
 ```
+
+The tag's pipeline checks that it is on `main` and matches `tooling/versions.json`, verifies again,
+and publishes to crates.io, npm and JSR whatever is not there yet. `pixi run publish` does the same
+from this machine.
+
+CI jobs run on a self-hosted GitLab runner tagged `mac-docker`, in the image `pixi run ci:image`
+builds from `tooling/ci/Dockerfile` on the runner's host. Rebuild it after changing that file; jobs
+refuse an image built from an older one. The release jobs run on `mac-docker-release`, a protected
+runner in the same `gitlab-runner` container with cache volumes of its own, so nothing a branch
+pipeline writes reaches a release build.
+
+crates.io and npm authenticate the release jobs through trusted publishing, and JSR through the
+protected `JSR_TOKEN` CI/CD variable. npm accepts trusted publishing from GitLab-hosted runners
+only, so the tag pipeline publishes the crates and builds the packages on `mac-docker-release`, then
+publishes the npm and JSR packages from a GitLab-hosted runner with the `mf` it built.

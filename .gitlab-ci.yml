@@ -1,0 +1,107 @@
+# Merge requests into main run `verify`. A `vX.Y.Z` tag on main verifies again
+# and publishes every package whose version is not yet on its registry.
+#
+# Jobs run on the self-hosted `mac-docker` runner, in the image
+# `pixi run ci:image` builds on the runner host from tooling/ci/Dockerfile.
+# The release jobs run on `mac-docker-release`, a protected runner on the
+# same host whose cache volumes no branch pipeline can write, except the npm
+# and JSR publish, which runs on a GitLab-hosted runner.
+
+workflow:
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+        - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+
+stages: [check, verify, publish]
+
+variables:
+    GIT_STRATEGY: fetch
+    # Keeps the incremental build and the pixi environment between jobs.
+    GIT_CLEAN_FLAGS: -ffdx -e target/ -e .pixi/
+
+default:
+    image: macroforge-ci
+    tags: [mac-docker]
+    before_script:
+        - |
+              if [ "$(sha256sum tooling/ci/Dockerfile | cut -c1-64)" != "$DOCKERFILE_SHA256" ]; then
+                echo "The macroforge-ci image was not built from this tooling/ci/Dockerfile."
+                echo "Run 'pixi run ci:image' on the runner host."
+                exit 1
+              fi
+
+.toolchain: &toolchain
+    - pixi install --locked
+    - pixi run setup-rust
+    - pixi run setup:wasm-bindgen
+    - pixi run build:mf
+
+release-check:
+    stage: check
+    tags: [mac-docker-release]
+    rules:
+        - if: $CI_COMMIT_TAG
+    variables:
+        GIT_DEPTH: 0
+    script:
+        - version="$(jq -r .core.local tooling/versions.json)"
+        - |
+              if [ "$CI_COMMIT_TAG" != "v$version" ]; then
+                echo "Tag $CI_COMMIT_TAG does not match version $version in tooling/versions.json."
+                exit 1
+              fi
+        - git fetch --quiet origin "$CI_DEFAULT_BRANCH"
+        - |
+              if ! git merge-base --is-ancestor "$CI_COMMIT_SHA" FETCH_HEAD; then
+                echo "$CI_COMMIT_TAG is not on $CI_DEFAULT_BRANCH; releases are tagged on $CI_DEFAULT_BRANCH only."
+                exit 1
+              fi
+
+verify:
+    stage: verify
+    interruptible: true
+    timeout: 2h
+    script:
+        - *toolchain
+        - pixi run build:cli
+        - pixi run verify --check
+
+publish-crates:
+    stage: publish
+    tags: [mac-docker-release]
+    rules:
+        - if: $CI_COMMIT_TAG
+    environment: release
+    id_tokens:
+        CRATES_IO_ID_TOKEN:
+            aud: crates.io
+    script:
+        - *toolchain
+        - pixi run publish:ci:crates
+        - pixi run publish:ci:build
+    artifacts:
+        paths:
+            - target/debug/mf
+            - npm/
+            - crates/macroforge_ts/pkg-deno/
+        expire_in: 1 day
+
+# npm's trusted publishing only accepts GitLab-hosted runners. JSR publishes
+# after npm, since it resolves the packages' npm imports of each other.
+publish-packages:
+    stage: publish
+    needs: [publish-crates]
+    rules:
+        - if: $CI_COMMIT_TAG
+    environment: release
+    image: ghcr.io/prefix-dev/pixi:0.81.0-noble
+    tags: [saas-linux-small-amd64]
+    before_script: []
+    id_tokens:
+        NPM_ID_TOKEN:
+            aud: npm:registry.npmjs.org
+        # npm signs the provenance it attaches to each package with this.
+        SIGSTORE_ID_TOKEN:
+            aud: sigstore
+    script:
+        - pixi run --locked --environment publish publish:ci:packages

@@ -3,8 +3,7 @@
 //! Parses TypeScript source files using SWC for proper AST-based extraction of
 //! JSDoc comments, exported declarations, and type signatures.
 
-use crate::cli::commands::docs::write_docs_json;
-use crate::core::config::Config;
+use crate::cli::commands::docs::generated::GeneratedFiles;
 use crate::utils::format;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
@@ -71,9 +70,9 @@ struct JsDoc {
     module_description: String,
 }
 
-/// TypeScript packages to document
+/// TypeScript packages to document. `@macroforge/core` is absent: its API
+/// is the wasm bindings, documented from the Rust source.
 const TS_PACKAGES: &[(&str, &str)] = &[
-    ("core", "crates/macroforge_ts"),
     ("shared", "packages/shared"),
     ("vite-plugin", "packages/vite-plugin"),
     ("typescript-plugin", "packages/typescript-plugin"),
@@ -83,21 +82,21 @@ const TS_PACKAGES: &[(&str, &str)] = &[
     ("deno-plugin", "packages/deno-plugin"),
 ];
 
-/// Entry point for `mf docs extract-ts`: extracts TypeScript JSDoc/type info to JSON.
-pub fn run(output_dir: &Path) -> Result<()> {
-    let config = Config::load()?;
-    let output_path = config.root.join(output_dir);
+/// Where the TypeScript API JSON lives, relative to the repository root.
+const OUTPUT_DIR: &str = "website/static/api-data/typescript";
 
-    fs::create_dir_all(&output_path)?;
+/// Extracts TypeScript JSDoc and type information into the API JSON.
+pub fn generate(root: &Path) -> Result<GeneratedFiles> {
+    let output_path = Path::new(OUTPUT_DIR);
 
     format::header("Extracting TypeScript Documentation");
-    println!("Output: {}", output_path.display());
 
+    let mut files: Vec<(PathBuf, String)> = Vec::new();
     let mut all_docs = Vec::new();
     let mut total_exports = 0;
 
     for (pkg_name, pkg_path) in TS_PACKAGES {
-        let pkg_dir = config.root.join(pkg_path);
+        let pkg_dir = root.join(pkg_path);
         if !pkg_dir.exists() {
             anyhow::bail!("Package not found: {}", pkg_dir.display());
         }
@@ -110,67 +109,58 @@ pub fn run(output_dir: &Path) -> Result<()> {
         let export_count = docs.exports.len();
         total_exports += export_count;
 
-        let out_path = output_path.join(format!("{}.json", pkg_name));
-        let json = crate::utils::json::to_string_pretty(&docs)?;
-        write_docs_json(&out_path, &json)?;
+        files.push((
+            output_path.join(format!("{}.json", pkg_name)),
+            crate::utils::json::to_string_pretty(&docs)?,
+        ));
 
         println!("{} exports", export_count);
         all_docs.push(docs);
     }
 
-    // Write index
     let index = serde_json::json!({
-        "generated": chrono::Utc::now().to_rfc3339(),
-        "packages": all_docs.iter().map(|d| serde_json::json!({
-            "name": d.name,
-            "version": d.version,
-            "exportCount": d.exports.len(),
+        "packages": all_docs.iter().map(|doc| serde_json::json!({
+            "name": doc.name,
+            "version": doc.version,
+            "exportCount": doc.exports.len(),
         })).collect::<Vec<_>>(),
     });
+    files.push((
+        output_path.join("index.json"),
+        crate::utils::json::to_string_pretty(&index)?,
+    ));
 
-    let index_path = output_path.join("index.json");
-    write_docs_json(&index_path, &crate::utils::json::to_string_pretty(&index)?)?;
-
-    println!();
     format::success(&format!(
         "Extracted {} exports from {} packages",
         total_exports,
         all_docs.len()
     ));
 
-    Ok(())
+    GeneratedFiles::build(root, vec![output_path.to_path_buf()], files)
+}
+
+/// The package.json fields the API docs record.
+#[derive(Deserialize)]
+struct PackageManifest {
+    name: Option<String>,
+    version: String,
+    #[serde(default)]
+    description: String,
+    main: Option<String>,
+    module: Option<String>,
 }
 
 fn extract_package_docs(pkg_dir: &Path, pkg_name: &str) -> Result<PackageDoc> {
     let pkg_json_path = pkg_dir.join("package.json");
+    let pkg_json_content = fs::read_to_string(&pkg_json_path)
+        .with_context(|| format!("failed to read {}", pkg_json_path.display()))?;
+    let manifest: PackageManifest = serde_json::from_str(&pkg_json_content)
+        .with_context(|| format!("{} is not a valid package.json", pkg_json_path.display()))?;
 
-    // Parse package.json
-    let pkg_json_content = fs::read_to_string(&pkg_json_path).unwrap_or_default();
-    let pkg_json: serde_json::Value = serde_json::from_str(&pkg_json_content).unwrap_or_default();
-
-    let name = pkg_json
-        .get("name")
-        .and_then(|n| n.as_str())
-        .unwrap_or(pkg_name)
-        .to_string();
-
-    let version = pkg_json
-        .get("version")
-        .and_then(|v| v.as_str())
-        .unwrap_or("0.0.0")
-        .to_string();
-
-    let description = pkg_json
-        .get("description")
-        .and_then(|d| d.as_str())
-        .unwrap_or("")
-        .to_string();
-
-    // Find entry point from package.json
-    let main_file = pkg_json
-        .get("main")
-        .or_else(|| pkg_json.get("module"))
-        .and_then(|m| m.as_str())
+    let main_file = manifest
+        .main
+        .as_deref()
+        .or(manifest.module.as_deref())
         .unwrap_or("src/index.ts");
 
     // Look for source files to parse
@@ -180,44 +170,41 @@ fn extract_package_docs(pkg_dir: &Path, pkg_name: &str) -> Result<PackageDoc> {
         pkg_dir.join(main_file.replace(".js", ".ts")),
         pkg_dir.join("src/index.d.ts"),
     ];
+    let entry_path = source_paths
+        .iter()
+        .find(|path| path.exists())
+        .with_context(|| format!("{} has no TypeScript entry point", pkg_dir.display()))?;
+    let source = fs::read_to_string(entry_path)
+        .with_context(|| format!("failed to read {}", entry_path.display()))?;
 
-    let mut exports = Vec::new();
+    let mut exports = extract_exports_swc(&source, entry_path, pkg_dir)?;
 
-    for source_path in &source_paths {
-        if source_path.exists() {
-            if let Ok(source) = fs::read_to_string(source_path) {
-                let mut file_exports = extract_exports_swc(&source, source_path, pkg_dir)?;
-                exports.append(&mut file_exports);
+    // A barrel entry re-exports from other files, which hold the declarations.
+    for re_path in find_reexport_sources(&source, entry_path) {
+        let re_source = fs::read_to_string(&re_path)
+            .with_context(|| format!("failed to read {}", re_path.display()))?;
+        let re_exports = match extract_exports_swc(&re_source, &re_path, pkg_dir) {
+            Ok(re_exports) => re_exports,
+            Err(error) => {
+                format::warning(&format!(
+                    "skipping re-exported {}: {error:#}",
+                    re_path.display()
+                ));
+                continue;
             }
-            break;
-        }
-    }
-
-    // If the main entry is a barrel file with re-exports, also parse the referenced files
-    if let Some(first_path) = source_paths.iter().find(|p| p.exists())
-        && let Ok(source) = fs::read_to_string(first_path)
-    {
-        let re_export_files = find_reexport_sources(&source, first_path);
-        for re_path in re_export_files {
-            if re_path.exists()
-                && let Ok(re_source) = fs::read_to_string(&re_path)
-            {
-                let mut re_exports =
-                    extract_exports_swc(&re_source, &re_path, pkg_dir).unwrap_or_default();
-                // Only add exports not already present (avoid duplicates from barrel)
-                for exp in re_exports.drain(..) {
-                    if !exports.iter().any(|e| e.name == exp.name) {
-                        exports.push(exp);
-                    }
-                }
+        };
+        // Only add exports not already present (avoid duplicates from barrel)
+        for export in re_exports {
+            if !exports.iter().any(|existing| existing.name == export.name) {
+                exports.push(export);
             }
         }
     }
 
     Ok(PackageDoc {
-        name,
-        version,
-        description,
+        name: manifest.name.unwrap_or_else(|| pkg_name.to_string()),
+        version: manifest.version,
+        description: manifest.description,
         exports,
     })
 }

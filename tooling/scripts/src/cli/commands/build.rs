@@ -2,7 +2,7 @@
 //!
 //! Performs complete clean rebuilds of selected packages.
 
-use crate::cli::BuildArgs;
+use crate::cli::args::BuildArgs;
 use crate::core::config::Config;
 use crate::core::shell;
 use crate::utils::format;

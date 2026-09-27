@@ -18,7 +18,7 @@ mod parsers;
 mod tui;
 mod utils;
 
-use cli::{Cli, Commands, DocsCommands};
+use cli::args::{Cli, Commands, DocsCommands};
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
@@ -51,26 +51,30 @@ fn run_cli(cli: Cli) -> Result<()> {
         Some(Commands::Diagnostics(args)) => cli::commands::diagnostics::run(args),
         Some(Commands::Build(args)) => cli::commands::build::run(args),
         Some(Commands::Docs(args)) => {
+            let config = crate::core::config::Config::load()?;
+            let root = &config.root;
             match args.command {
-                DocsCommands::ExtractRust { output_dir } => {
-                    cli::commands::docs::extract_rust::run(&output_dir)
+                DocsCommands::ExtractRust => {
+                    cli::commands::docs::extract_rust::generate(root)?.write(root)?;
+                    Ok(())
                 }
-                DocsCommands::ExtractTs { output_dir } => {
-                    cli::commands::docs::extract_ts::run(&output_dir)
+                DocsCommands::ExtractTs => {
+                    cli::commands::docs::extract_ts::generate(root)?.write(root)?;
+                    Ok(())
                 }
-                DocsCommands::GenerateReadmes => cli::commands::docs::generate_readmes::run(),
+                DocsCommands::GenerateReadmes => {
+                    cli::commands::docs::generate_readmes::generate(root)?.write(root)?;
+                    Ok(())
+                }
+                DocsCommands::ExtractMcp => {
+                    cli::commands::docs::extract_mcp::generate(root)?.write(root)?;
+                    Ok(())
+                }
                 DocsCommands::CheckFreshness => cli::commands::docs::check_freshness::run(),
                 DocsCommands::All => {
                     utils::format::header("Generating all documentation");
-                    // Run all doc generation steps
-                    let root = std::env::current_dir()?;
-                    cli::commands::docs::extract_rust::run(
-                        &root.join("website/static/api-data/rust"),
-                    )?;
-                    cli::commands::docs::extract_ts::run(
-                        &root.join("website/static/api-data/typescript"),
-                    )?;
-                    cli::commands::docs::generate_readmes::run()?;
+                    cli::commands::docs::extract_api_docs(root)?;
+                    cli::commands::docs::extract_derived_docs(root)?;
                     utils::format::success("All documentation generated");
                     Ok(())
                 }

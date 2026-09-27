@@ -1,7 +1,7 @@
 //! Shared configuration management
 
 use crate::core::deps;
-use crate::core::repos::{self, EnvConfig, Repo, RepoType};
+use crate::core::repos::{self, Repo, RepoType};
 use crate::core::versions::VersionsCache;
 use anyhow::{Context, Result};
 use std::collections::HashMap;
@@ -25,10 +25,7 @@ impl Config {
     pub fn load() -> Result<Self> {
         let root = find_root()?;
 
-        // Load .env file from tooling directory
-        let env_config = EnvConfig::load(&root);
-
-        let repos = repos::build_repos_map(&root, &env_config);
+        let repos = repos::build_repos_map(&root);
         let deps_map = deps::load_deps(&root)?;
         let versions = VersionsCache::load(&root)?;
 

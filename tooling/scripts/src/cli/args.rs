@@ -1,7 +1,6 @@
 //! CLI argument definitions using clap
 
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "mf")]
@@ -60,7 +59,7 @@ pub enum Commands {
     #[command(name = "publish-local")]
     PublishLocal(PublishLocalArgs),
 
-    /// Tag and push the monorepo
+    /// Tag main at the release version and push the tag, which CI publishes
     Push(PushArgs),
 }
 
@@ -73,6 +72,11 @@ pub struct VerifyArgs {
     /// Skip the documentation steps
     #[arg(long)]
     pub skip_docs: bool,
+
+    /// Check that the generated docs match their sources instead of
+    /// regenerating them, so the tree is left untouched. For CI.
+    #[arg(long, conflicts_with = "skip_docs")]
+    pub check: bool,
 }
 
 #[derive(clap::Args)]
@@ -174,27 +178,23 @@ pub struct DocsArgs {
 
 #[derive(Subcommand)]
 pub enum DocsCommands {
-    /// Extract Rust documentation to JSON
-    ExtractRust {
-        /// Output directory for JSON files
-        #[arg(long, default_value = "website/static/api-data/rust")]
-        output_dir: PathBuf,
-    },
+    /// Extract Rust documentation to JSON and the builtin macro pages
+    ExtractRust,
 
     /// Extract TypeScript documentation to JSON
-    ExtractTs {
-        /// Output directory for JSON files
-        #[arg(long, default_value = "website/static/api-data/typescript")]
-        output_dir: PathBuf,
-    },
+    ExtractTs,
 
-    /// Generate README.md files
+    /// Generate README.md files from the extracted JSON
     GenerateReadmes,
 
-    /// Check if documentation is up to date
+    /// Extract the built website's pages into the MCP server's docs
+    ExtractMcp,
+
+    /// Check that every generated doc matches its sources, writing nothing
     CheckFreshness,
 
-    /// Run API extraction (Rust + TypeScript) and README generation
+    /// Regenerate every doc: API data, READMEs, and the MCP docs from a
+    /// fresh website build
     All,
 }
 
@@ -205,9 +205,28 @@ pub struct TestArgs {
     pub suite: String,
 }
 
+/// A registry `publish-local` publishes to.
+#[derive(Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+pub enum Registry {
+    Crates,
+    Npm,
+    Jsr,
+}
+
 #[derive(clap::Args)]
 pub struct PublishLocalArgs {
-    /// Skip the WASM build step (`deno task build:wasm`; package already built)
+    /// Publish to this registry only; repeat for several. All of them when
+    /// omitted.
+    #[arg(long = "registry", value_enum)]
+    pub registries: Vec<Registry>,
+
+    /// Build what the selected registries' unpublished packages need and
+    /// publish nothing, so another machine can publish them with
+    /// `--skip-build`.
+    #[arg(long, conflicts_with = "skip_build")]
+    pub build_only: bool,
+
+    /// Skip the WASM and npm package builds (already built)
     #[arg(long)]
     pub skip_build: bool,
 
@@ -218,6 +237,14 @@ pub struct PublishLocalArgs {
     /// Skip confirmation prompts
     #[arg(short = 'y', long)]
     pub yes: bool,
+
+    /// Never prompt or log in: credentials come from the environment (npm's
+    /// config or a trusted publishing `NPM_ID_TOKEN`, `CARGO_REGISTRY_TOKEN`
+    /// or a trusted publishing `CRATES_IO_ID_TOKEN`, `JSR_TOKEN`) and an auth
+    /// failure is an error.
+    /// Implies `--yes`. For CI.
+    #[arg(long)]
+    pub non_interactive: bool,
 }
 
 #[derive(clap::Args)]

@@ -2,7 +2,7 @@
 //!
 //! Runs comprehensive diagnostics across the codebase using multiple tools.
 
-use crate::cli::DiagnosticsArgs;
+use crate::cli::args::DiagnosticsArgs;
 use crate::core::config::Config;
 use crate::diagnostics::runner::{DiagnosticOptions, Formatting};
 use crate::diagnostics::{DiagnosticLevel, DiagnosticTool, DiagnosticsRunner};

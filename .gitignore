@@ -26,8 +26,6 @@ tooling/playground/macro/pkg-wasm/
 **/node_modules/
 **/.pnpm-store/
 **/.pixi/
-# Symlinks into this checkout, created by the macro crate's `setup-vendor` task.
-tooling/playground/macro/vendor/
 
 # Per-project macroforge state: registries, cache, lock and debug log. The
 # registries record absolute paths, so they must never be committed.
@@ -65,8 +63,6 @@ packages/svelte-language-server/test/plugins/typescript/features/inlayHints/debu
 # Environment
 **/.env
 **/.env.*
-!**/.env.example
-!**/.env.test
 
 # Deployment
 **/.vercel/

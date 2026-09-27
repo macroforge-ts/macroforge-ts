@@ -16,22 +16,19 @@ pub struct CommandResult {
 }
 
 impl CommandResult {
-    /// Get combined output (stderr preferred if not empty)
-    pub fn output(&self) -> &str {
-        if self.stderr.trim().is_empty() {
-            &self.stdout
-        } else {
-            &self.stderr
-        }
-    }
-
-    /// Get last N lines of output
-    pub fn last_lines(&self, n: usize) -> String {
-        let lines: Vec<&str> = self.output().lines().collect();
-        if lines.len() > n {
-            format!("...\n{}", lines[lines.len() - n..].join("\n"))
-        } else {
-            lines.join("\n")
+    /// Everything the command printed, both streams in full, for reporting a
+    /// failure. Stdout and stderr each carry part of the story, so neither is
+    /// dropped and nothing is truncated.
+    pub fn transcript(&self) -> String {
+        match (self.stdout.trim().is_empty(), self.stderr.trim().is_empty()) {
+            (true, true) => "(no output)".to_string(),
+            (false, true) => self.stdout.trim_end().to_string(),
+            (true, false) => self.stderr.trim_end().to_string(),
+            (false, false) => format!(
+                "stdout:\n{}\nstderr:\n{}",
+                self.stdout.trim_end(),
+                self.stderr.trim_end()
+            ),
         }
     }
 }
@@ -40,6 +37,8 @@ impl CommandResult {
 pub struct Shell<'a> {
     program: &'a str,
     args: Vec<&'a str>,
+    /// Arguments passed through but shown as `***` wherever the command is printed.
+    secrets: Vec<&'a str>,
     envs: Vec<(String, String)>,
     cwd: Option<&'a Path>,
     inherit_stdio: bool,
@@ -51,6 +50,7 @@ impl<'a> Shell<'a> {
         Self {
             program,
             args: Vec::new(),
+            secrets: Vec::new(),
             envs: Vec::new(),
             cwd: None,
             inherit_stdio: false,
@@ -67,6 +67,29 @@ impl<'a> Shell<'a> {
     pub fn arg(mut self, arg: &'a str) -> Self {
         self.args.push(arg);
         self
+    }
+
+    /// Add an argument that never appears in printed command lines
+    pub fn secret_arg(mut self, arg: &'a str) -> Self {
+        self.args.push(arg);
+        self.secrets.push(arg);
+        self
+    }
+
+    /// The command line for messages, with secret arguments redacted
+    fn display(&self) -> String {
+        let args: Vec<&str> = self
+            .args
+            .iter()
+            .map(|arg| {
+                if self.secrets.contains(arg) {
+                    "***"
+                } else {
+                    arg
+                }
+            })
+            .collect();
+        format!("{} {}", self.program, args.join(" "))
     }
 
     /// Add environment variables
@@ -102,13 +125,9 @@ impl<'a> Shell<'a> {
 
         if self.inherit_stdio {
             cmd.stdout(Stdio::inherit()).stderr(Stdio::inherit());
-            let status = cmd.status().with_context(|| {
-                format!(
-                    "Failed to execute: {} {}",
-                    self.program,
-                    self.args.join(" ")
-                )
-            })?;
+            let status = cmd
+                .status()
+                .with_context(|| format!("Failed to execute: {}", self.display()))?;
             Ok(CommandResult {
                 success: status.success(),
                 exit_code: status.code(),
@@ -116,13 +135,9 @@ impl<'a> Shell<'a> {
                 stderr: String::new(),
             })
         } else {
-            let output = cmd.output().with_context(|| {
-                format!(
-                    "Failed to execute: {} {}",
-                    self.program,
-                    self.args.join(" ")
-                )
-            })?;
+            let output = cmd
+                .output()
+                .with_context(|| format!("Failed to execute: {}", self.display()))?;
             Ok(CommandResult {
                 success: output.status.success(),
                 exit_code: output.status.code(),
@@ -134,9 +149,9 @@ impl<'a> Shell<'a> {
 
     /// Run and return Ok only if successful
     pub fn run_checked(self) -> Result<CommandResult> {
-        let program = self.program.to_string();
-        let args = self.args.join(" ");
+        let command = self.display();
         let cwd = self.cwd.map(|p| p.to_path_buf());
+        let inherited = self.inherit_stdio;
 
         let result = self.run()?;
 
@@ -148,16 +163,20 @@ impl<'a> Shell<'a> {
                 .map(|p| p.display().to_string())
                 .unwrap_or_else(|| ".".to_string());
 
+            let output = if inherited {
+                "(output shown above)".to_string()
+            } else {
+                result.transcript()
+            };
             anyhow::bail!(
-                "Command `{} {}` failed in {}\nExit code: {}\n{}",
-                program,
-                args,
+                "Command `{}` failed in {}\nExit code: {}\n{}",
+                command,
                 cwd_str,
                 result
                     .exit_code
                     .map(|c| c.to_string())
                     .unwrap_or("unknown".to_string()),
-                result.last_lines(25)
+                output
             )
         }
     }
@@ -202,64 +221,20 @@ pub mod cargo {
         }
     }
 
-    /// PATH override that puts the toolchain pinned by `rust-toolchain.toml`
-    /// ahead of every other Rust on PATH, or `None` if rustup cannot resolve
-    /// one.
-    ///
-    /// The pixi environment ships a conda-provided `rust` whose `bin` shadows
-    /// the rustup shims, and that compiler carries std for the host and
-    /// `wasm32-unknown-unknown` only — conda-forge publishes no
-    /// `wasm32-wasip1` std, so cross-target builds fail there with a missing
-    /// `core`. `rustup which cargo` resolves the pinned toolchain, which does
-    /// list the target; prepending its `bin` makes cargo, rustc, and
-    /// clippy-driver all come from it.
-    ///
-    /// `rustup run <toolchain> cargo …` is not enough: it execs the requested
-    /// binary without putting the toolchain ahead of the conda one on PATH,
-    /// so the cargo it starts still picks up the shadowing rustc.
-    fn pinned_toolchain_env(cwd: &Path) -> Option<Vec<(String, String)>> {
-        let result = Shell::new("rustup")
-            .args(&["which", "cargo"])
-            .dir(cwd)
-            .run()
-            .ok()?;
-        if !result.success {
-            return None;
-        }
-
-        let bin = Path::new(result.stdout.trim()).parent()?.to_path_buf();
-        let mut dirs = vec![bin];
-        if let Some(existing) = std::env::var_os("PATH") {
-            dirs.extend(std::env::split_paths(&existing));
-        }
-        let path = std::env::join_paths(dirs).ok()?;
-
-        Some(vec![(
-            "PATH".to_string(),
-            path.to_string_lossy().into_owned(),
-        )])
-    }
-
     /// Run cargo clippy with a specific target
     pub fn clippy_target(cwd: &Path, target: &str) -> Result<CommandResult> {
-        let mut shell = Shell::new("cargo")
+        Shell::new("cargo")
             .args(&["clippy", "--target", target, "--", "-D", "warnings"])
-            .dir(cwd);
-        if let Some(envs) = pinned_toolchain_env(cwd) {
-            shell = shell.envs(envs);
-        }
-        shell.run_checked()
+            .dir(cwd)
+            .run_checked()
     }
 
     /// Run cargo build with a specific target
     pub fn build_target(cwd: &Path, target: &str) -> Result<CommandResult> {
-        let mut shell = Shell::new("cargo")
+        Shell::new("cargo")
             .args(&["build", "--target", target, "--release"])
-            .dir(cwd);
-        if let Some(envs) = pinned_toolchain_env(cwd) {
-            shell = shell.envs(envs);
-        }
-        shell.run_checked()
+            .dir(cwd)
+            .run_checked()
     }
 
     /// Clippy over every workspace member, target and feature, as JSON.
@@ -389,13 +364,13 @@ pub mod deno {
         shell.dir(cwd).run_checked()
     }
 
-    /// Format markdown `text` as `deno fmt` would format a file under `cwd`,
-    /// so generated files are written in their canonical form.
-    pub fn format_markdown(cwd: &Path, text: &str) -> Result<String> {
+    /// Format `text` as `deno fmt` would format a file with `extension` under
+    /// `cwd`, so generated files are written in their canonical form.
+    pub fn format(cwd: &Path, extension: &str, text: &str) -> Result<String> {
         use std::io::Write;
 
         let mut child = Command::new("deno")
-            .args(["fmt", "--ext", "md", "-"])
+            .args(["fmt", "--ext", extension, "-"])
             .current_dir(cwd)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -407,7 +382,7 @@ pub mod deno {
             .take()
             .context("deno fmt has no stdin")?
             .write_all(text.as_bytes())
-            .context("failed to send markdown to deno fmt")?;
+            .context("failed to send the text to deno fmt")?;
         let output = child
             .wait_with_output()
             .context("deno fmt did not finish")?;
@@ -445,13 +420,23 @@ pub mod deno {
             .run_checked()
     }
 
-    /// Run deno publish to JSR with live output (auto-discovers deno.json)
-    pub fn publish(cwd: &Path) -> Result<CommandResult> {
+    /// Generate a SvelteKit project's `.svelte-kit/` types and tsconfig, with
+    /// the project's own `svelte-kit` resolved as its tasks resolve it.
+    pub fn svelte_kit_sync(cwd: &Path) -> Result<CommandResult> {
         Shell::new("deno")
-            .args(&["publish", "--allow-dirty"])
+            .args(&["task", "--eval", "svelte-kit sync"])
             .dir(cwd)
-            .inherit()
             .run_checked()
+    }
+
+    /// Run deno publish to JSR with live output (auto-discovers deno.json).
+    /// Without a token, deno authenticates interactively in the browser.
+    pub fn publish(cwd: &Path, token: Option<&str>) -> Result<CommandResult> {
+        let mut shell = Shell::new("deno").args(&["publish", "--allow-dirty"]);
+        if let Some(token) = token {
+            shell = shell.arg("--token").secret_arg(token);
+        }
+        shell.dir(cwd).inherit().run_checked()
     }
 
     /// Dry-run a JSR publish of every workspace member. This is the only step
@@ -523,22 +508,60 @@ pub mod git {
         let result = Shell::new("git")
             .args(&["status", "--short"])
             .dir(cwd)
-            .run()?;
+            .run_checked()?;
         Ok(result.stdout)
     }
 
-    /// Create or overwrite a tag (force)
-    pub fn tag_force(cwd: &Path, tag_name: &str) -> Result<()> {
+    /// The checked-out branch; fails on a detached HEAD.
+    pub fn current_branch(cwd: &Path) -> Result<String> {
+        let result = Shell::new("git")
+            .args(&["symbolic-ref", "--short", "HEAD"])
+            .dir(cwd)
+            .run_checked()
+            .context("HEAD is not on a branch")?;
+        Ok(result.stdout.trim().to_string())
+    }
+
+    /// Fetch one branch from origin into `FETCH_HEAD`.
+    pub fn fetch(cwd: &Path, branch: &str) -> Result<()> {
         Shell::new("git")
-            .args(&["tag", "-f", tag_name])
+            .args(&["fetch", "--quiet", "origin", branch])
             .dir(cwd)
             .run_checked()?;
         Ok(())
     }
 
-    /// Push to remote
-    pub fn push(cwd: &Path) -> Result<()> {
-        Shell::new("git").arg("push").dir(cwd).run_checked()?;
+    /// The commit a revision resolves to, or `None` when it names nothing.
+    pub fn commit_of(cwd: &Path, revision: &str) -> Result<Option<String>> {
+        let commit = format!("{revision}^{{commit}}");
+        let result = Shell::new("git")
+            .args(&["rev-parse", "--quiet", "--verify", &commit])
+            .dir(cwd)
+            .run()?;
+        // `--verify --quiet` exits 1 without output for an unknown revision.
+        match result.exit_code {
+            Some(0) => Ok(Some(result.stdout.trim().to_string())),
+            Some(1) if result.stdout.trim().is_empty() => Ok(None),
+            _ => anyhow::bail!("git rev-parse {revision} failed: {}", result.transcript()),
+        }
+    }
+
+    /// Whether origin has the tag.
+    pub fn tag_exists_remote(cwd: &Path, tag_name: &str) -> Result<bool> {
+        let reference = format!("refs/tags/{tag_name}");
+        let result = Shell::new("git")
+            .args(&["ls-remote", "--tags", "origin", &reference])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(!result.stdout.trim().is_empty())
+    }
+
+    /// Create a lightweight tag at HEAD; fails if the tag exists.
+    pub fn tag(cwd: &Path, tag_name: &str) -> Result<()> {
+        Shell::new("git")
+            .args(&["tag", tag_name])
+            .dir(cwd)
+            .run_checked()?;
         Ok(())
     }
 
@@ -549,66 +572,6 @@ pub mod git {
             .dir(cwd)
             .run_checked()?;
         Ok(())
-    }
-
-    /// Delete a remote tag
-    pub fn delete_remote_tag(cwd: &Path, tag_name: &str) -> Result<()> {
-        Shell::new("git")
-            .args(&["push", "origin", "--delete", tag_name])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
-    }
-
-    /// Push with upstream tracking
-    pub fn push_with_upstream(cwd: &Path, branch: &str) -> Result<()> {
-        Shell::new("git")
-            .args(&["push", "-u", "origin", branch])
-            .dir(cwd)
-            .run_checked()?;
-        Ok(())
-    }
-
-    /// Get current branch name
-    pub fn current_branch(cwd: &Path) -> Option<String> {
-        Shell::new("git")
-            .args(&["branch", "--show-current"])
-            .dir(cwd)
-            .run()
-            .ok()
-            .map(|r| r.stdout.trim().to_string())
-            .filter(|s| !s.is_empty())
-    }
-
-    /// Check if tag exists on remote
-    pub fn tag_exists_remote(cwd: &Path, tag_name: &str) -> bool {
-        Shell::new("git")
-            .args(&["ls-remote", "--tags", "origin", tag_name])
-            .dir(cwd)
-            .run()
-            .map(|r| !r.stdout.trim().is_empty())
-            .unwrap_or(false)
-    }
-
-    /// Get count of unpushed commits
-    pub fn unpushed_count(cwd: &Path) -> usize {
-        Shell::new("git")
-            .args(&["rev-list", "@{u}..HEAD", "--count"])
-            .dir(cwd)
-            .run()
-            .ok()
-            .and_then(|r| r.stdout.trim().parse().ok())
-            .unwrap_or(0)
-    }
-
-    /// Check if branch has upstream
-    pub fn has_upstream(cwd: &Path) -> bool {
-        Shell::new("git")
-            .args(&["rev-parse", "--abbrev-ref", "@{u}"])
-            .dir(cwd)
-            .run()
-            .map(|r| r.success)
-            .unwrap_or(false)
     }
 }
 
@@ -692,11 +655,8 @@ pub fn run(cmd: &str, cwd: &Path, verbose: bool) -> Result<CommandResult> {
                     .map(|c| c.to_string())
                     .unwrap_or("unknown".to_string())
             );
-            let last = result.last_lines(25);
-            if !last.trim().is_empty() {
-                eprintln!("{}", "─".repeat(60).dimmed());
-                eprintln!("{}", last);
-            }
+            eprintln!("{}", "─".repeat(60).dimmed());
+            eprintln!("{}", result.transcript());
             eprintln!("{}", "─".repeat(60).dimmed());
 
             anyhow::bail!(

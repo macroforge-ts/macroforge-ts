@@ -2,7 +2,7 @@
 //!
 //! Runs tests for Rust crates, TypeScript packages, and playground.
 
-use crate::cli::TestArgs;
+use crate::cli::args::TestArgs;
 use crate::core::config::Config;
 use crate::core::repos::RepoType;
 use crate::core::shell;
@@ -102,10 +102,16 @@ fn run_playground_tests(config: &Config) -> Result<()> {
 /// The playground projects that consume the published packages.
 const PLAYGROUND_APPS: [&str; 4] = ["vanilla", "svelte", "library", "tests"];
 
-/// Reinstalls every playground app. Each is its own project linking the built
-/// `npm/` packages, and Deno copies a linked package at install time, so only
-/// a fresh install makes the playground see the current build.
-pub fn install_playground_apps(config: &Config) -> Result<()> {
+/// Builds the playground's macro package, then reinstalls every playground
+/// app. Each app is its own project linking the built `npm/` packages and the
+/// macro package, and Deno copies a linked package at install time, so only a
+/// fresh install makes the playground see the current build.
+pub fn prepare_playground_apps(config: &Config) -> Result<()> {
+    let macro_dir = config.root.join("tooling/playground/macro");
+    println!("  {} building the playground macro package...", "→".blue());
+    shell::deno::task_inherit(&macro_dir, "build")
+        .context("deno task build failed in the playground macro package")?;
+
     for app in PLAYGROUND_APPS {
         let app_dir = config.root.join("tooling/playground").join(app);
         println!("  {} installing {app}...", "→".blue());
@@ -130,10 +136,9 @@ fn build_e2e_apps(config: &Config) -> Result<()> {
 }
 
 /// Runs the playground's deno, validator and e2e suites with their output
-/// shown./// Runs the playground's deno, validator and e2e suites with their output
 /// shown. The suites drive this checkout's debug CLI (`MACROFORGE_CLI`).
 pub fn run_playground_suites(config: &Config) -> Result<()> {
-    install_playground_apps(config)?;
+    prepare_playground_apps(config)?;
     build_e2e_apps(config)?;
 
     let playground_tests = config.root.join("tooling/playground/tests");

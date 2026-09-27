@@ -3,8 +3,10 @@
 //! Builds every package, gates on repo-wide diagnostics, runs the tests and
 //! regenerates the documentation. It changes no versions; `mf bump` does.
 
-use crate::cli::VerifyArgs;
-use crate::cli::commands::docs::extract_api_docs;
+use crate::cli::args::VerifyArgs;
+use crate::cli::commands::docs::{
+    check_freshness, extract_api_docs, extract_mcp, generate_readmes,
+};
 use crate::core::config::Config;
 use crate::core::deps;
 use crate::core::repos::{Repo, RepoType};
@@ -137,9 +139,12 @@ pub fn run(args: VerifyArgs) -> Result<()> {
 
     if args.skip_docs {
         skipped(1, "API extraction");
+    } else if args.check {
+        skipped(1, "API extraction (checked in step 8)");
     } else {
         step(1, "Extracting API documentation");
         extract_api_docs(&config.root)?;
+        generate_readmes::generate(&config.root)?.write(&config.root)?;
     }
 
     if args.skip_build {
@@ -160,7 +165,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             println!("{}", "done".green());
         }
         // The playground is type-checked next, against the packages it links.
-        super::test::install_playground_apps(&config)?;
+        super::test::prepare_playground_apps(&config)?;
     }
 
     // After the build: the type-checks expand through the engine it just
@@ -185,18 +190,17 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         check_extensions(&config)?;
     }
 
+    // Both need the website step 3 built.
     if args.skip_docs {
         skipped(8, "MCP docs");
+    } else if args.check {
+        step(8, "Checking the generated documentation");
+        check_freshness::check(&config.root)?;
     } else {
-        step(8, "Syncing MCP server docs");
-        let mcp_path = config.root.join("packages/mcp-server");
-        shell::deno::task(&mcp_path, "build:docs").context("Failed to sync the MCP server docs")?;
-        // The sync writes raw markdown; the formatted tree is canonical.
-        shell::deno::deno_fmt(&config.root, &["packages/mcp-server/docs"])
-            .context("Failed to format the MCP server docs")?;
+        step(8, "Extracting the MCP server docs");
+        extract_mcp::generate(&config.root)?.write(&config.root)?;
     }
 
     println!("\n{} {}", "✓".green(), "Verified".bold());
-    println!("\n{} {}", "Next step:".bold(), "pixi run bump".cyan());
     Ok(())
 }

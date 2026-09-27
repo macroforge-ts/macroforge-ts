@@ -251,60 +251,78 @@ async function buildPackage(name: string, spec: NpmPackage): Promise<void> {
     );
 
     console.log(`\n=== ${manifest.name}@${version} -> ${relative(repoRoot, outDir)}`);
-    await emptyDir(outDir);
-    // dnt installs the output's dependencies to type-check it. The workspace
-    // ones may not be on the registry yet, so link their built outputs, the
-    // way a consumer's install resolves them.
-    const links = workspaceDependencies.map(([dependency]) => `../${shortName(dependency)}`);
-    await Deno.writeTextFile(join(outDir, 'deno.json'), JSON.stringify({ links }, null, 4));
+    // dnt installs in the output with a deno.json of its own, which deno
+    // rejects as a stray member of the repository's workspace, so the package
+    // is built outside the repository and moved into place.
+    const stagingDir = await Deno.makeTempDir({ prefix: `macroforge-npm-${name}-` });
+    try {
+        // dnt installs the output's dependencies to type-check it. The
+        // workspace ones may not be on the registry yet, so link their built
+        // outputs, the way a consumer's install resolves them.
+        const links = workspaceDependencies.map(([dependency]) =>
+            join(repoRoot, 'npm', shortName(dependency))
+        );
+        await Deno.writeTextFile(
+            join(stagingDir, 'deno.json'),
+            JSON.stringify({ links }, null, 4)
+        );
 
-    await build({
-        entryPoints: spec.entryPoints.map((entry) =>
-            typeof entry === 'string'
-                ? join(packageDir, entry)
-                : { ...entry, path: join(packageDir, entry.path) }
-        ),
-        outDir,
-        configFile: join(packageDir, 'deno.json'),
-        scriptModule: spec.moduleFormat === 'cjs' ? 'cjs' : false,
-        esModule: spec.moduleFormat === 'esm',
-        declaration: 'inline',
-        // The Deno test suites run against the sources; the output is proven
-        // by the playground, which installs it the way a consumer does.
-        test: false,
-        packageManager: 'deno',
-        shims: {},
-        polyfills: spec.moduleFormat === 'esm' ? { importMeta: false } : {},
-        compilerOptions: { target: 'ES2023', lib: ['ES2023'] },
-        mappings,
-        package: {
-            name: manifest.name,
-            version,
-            description: manifest.description,
-            license: manifest.license,
-            author: manifest.author,
-            homepage: manifest.homepage,
-            repository: manifest.repository,
-            bugs: manifest.bugs,
-            keywords: manifest.keywords,
-            engines: manifest.engines,
-            dependencies: manifest.dependencies,
-            peerDependencies: manifest.peerDependencies,
-            peerDependenciesMeta: manifest.peerDependenciesMeta,
-            devDependencies: manifest.devDependencies
-        },
-        async postBuild() {
-            for (const scaffolding of ['deno.json', 'deno.lock', 'node_modules']) {
-                await Deno.remove(join(outDir, scaffolding), { recursive: true });
+        await build({
+            entryPoints: spec.entryPoints.map((entry) =>
+                typeof entry === 'string'
+                    ? join(packageDir, entry)
+                    : { ...entry, path: join(packageDir, entry.path) }
+            ),
+            outDir: stagingDir,
+            configFile: join(packageDir, 'deno.json'),
+            scriptModule: spec.moduleFormat === 'cjs' ? 'cjs' : false,
+            esModule: spec.moduleFormat === 'esm',
+            declaration: 'inline',
+            // The Deno test suites run against the sources; the output is
+            // proven by the playground, which installs it the way a consumer
+            // does.
+            test: false,
+            packageManager: 'deno',
+            shims: {},
+            polyfills: spec.moduleFormat === 'esm' ? { importMeta: false } : {},
+            compilerOptions: { target: 'ES2023', lib: ['ES2023'] },
+            mappings,
+            package: {
+                name: manifest.name,
+                version,
+                description: manifest.description,
+                license: manifest.license,
+                author: manifest.author,
+                homepage: manifest.homepage,
+                repository: manifest.repository,
+                bugs: manifest.bugs,
+                keywords: manifest.keywords,
+                engines: manifest.engines,
+                dependencies: manifest.dependencies,
+                peerDependencies: manifest.peerDependencies,
+                peerDependenciesMeta: manifest.peerDependenciesMeta,
+                devDependencies: manifest.devDependencies
+            },
+            async postBuild() {
+                for (const scaffolding of ['deno.json', 'deno.lock', 'node_modules']) {
+                    await Deno.remove(join(stagingDir, scaffolding), { recursive: true });
+                }
+                await Deno.copyFile(join(repoRoot, 'LICENSE'), join(stagingDir, 'LICENSE'));
+                await Deno.copyFile(join(packageDir, 'README.md'), join(stagingDir, 'README.md'));
+                for (const [destination, source] of Object.entries(spec.assets ?? {})) {
+                    await copy(join(repoRoot, source), join(stagingDir, destination), {
+                        overwrite: true
+                    });
+                }
+                await finishManifest(join(stagingDir, 'package.json'), manifest);
             }
-            await Deno.copyFile(join(repoRoot, 'LICENSE'), join(outDir, 'LICENSE'));
-            await Deno.copyFile(join(packageDir, 'README.md'), join(outDir, 'README.md'));
-            for (const [destination, source] of Object.entries(spec.assets ?? {})) {
-                await copy(join(repoRoot, source), join(outDir, destination), { overwrite: true });
-            }
-            await finishManifest(join(outDir, 'package.json'), manifest);
-        }
-    });
+        });
+
+        await emptyDir(outDir);
+        await copy(stagingDir, outDir, { overwrite: true });
+    } finally {
+        await Deno.remove(stagingDir, { recursive: true });
+    }
 }
 
 const requested = Deno.args.length > 0 ? Deno.args : Object.keys(PACKAGES);

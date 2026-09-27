@@ -10,6 +10,12 @@ if [ ! -x "$RUSTUP_BIN" ]; then
     pixi global install -c https://prefix.dev/brads-forge rustup
 fi
 
+# brads-forge's rustup is a static musl build, so it defaults to musl-host
+# toolchains, whose binaries need a musl loader a glibc system lacks.
+if [ "$(uname -s)" = "Linux" ]; then
+    "$RUSTUP_BIN" set default-host "$(uname -m)-unknown-linux-gnu"
+fi
+
 for name in cargo rustc rustdoc cargo-clippy cargo-fmt clippy-driver rustfmt rust-gdb rust-lldb; do
     ln -sf "$RUSTUP_BIN" "$HOME/.cargo/bin/$name"
 done
