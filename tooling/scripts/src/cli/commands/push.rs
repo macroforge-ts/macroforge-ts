@@ -1,6 +1,7 @@
-//! Push command — tags and pushes the monorepo
+//! Push command: tags the release on main and pushes the tag, which CI
+//! verifies and publishes.
 
-use crate::cli::PushArgs;
+use crate::cli::args::PushArgs;
 use crate::core::config::Config;
 use crate::core::shell;
 use crate::utils::format;
@@ -8,43 +9,58 @@ use anyhow::{Context, Result};
 use colored::Colorize;
 use dialoguer::Confirm;
 
-/// Entry point for `mf push`: tags the release and pushes the monorepo.
+/// The branch releases are tagged on; the pipeline refuses tags elsewhere.
+const RELEASE_BRANCH: &str = "main";
+
+/// Entry point for `mf push`: tags origin's main at the manifest version.
 pub fn run(args: &PushArgs) -> Result<()> {
     let config = Config::load()?;
     let root = &config.root;
-    let versions = &config.versions;
 
-    let version = versions
+    let version = config
+        .versions
         .get_local("core")
-        .map(|s| s.to_string())
-        .unwrap_or_else(|| "0.0.0".to_string());
-
-    let tag = format!("v{}", version);
-    let unpushed = shell::git::unpushed_count(root);
-    let status = shell::git::status(root)?;
-    let has_uncommitted = !status.trim().is_empty();
+        .context("No local version for 'core'")?;
+    let tag = format!("v{version}");
 
     format::header("Push");
     println!("  {} {}", "version:".dimmed(), version.green());
     println!("  {} {}", "tag:".dimmed(), tag.cyan());
-    println!(
-        "  {} {}",
-        "unpushed:".dimmed(),
-        unpushed.to_string().yellow()
-    );
-    if has_uncommitted {
-        format::warning("There are uncommitted changes — commit them first");
-    }
     println!();
 
-    if unpushed == 0 && !has_uncommitted {
-        format::warning("Nothing to push");
+    let branch = shell::git::current_branch(root)?;
+    if branch != RELEASE_BRANCH {
+        anyhow::bail!("Releases are tagged on {RELEASE_BRANCH}, not {branch}");
+    }
+    if !shell::git::status(root)?.trim().is_empty() {
+        anyhow::bail!("There are uncommitted changes; commit them through a merge request first");
+    }
+
+    // The tag must name the commit origin's main holds: the one its merge
+    // request pipeline verified.
+    shell::git::fetch(root, RELEASE_BRANCH)?;
+    let head = shell::git::commit_of(root, "HEAD")?.context("HEAD has no commit")?;
+    let remote = shell::git::commit_of(root, "FETCH_HEAD")?.context("FETCH_HEAD is missing")?;
+    if head != remote {
+        anyhow::bail!(
+            "Local {RELEASE_BRANCH} is at {head}, origin/{RELEASE_BRANCH} at {remote}; pull or push first"
+        );
+    }
+
+    if shell::git::tag_exists_remote(root, &tag)? {
+        anyhow::bail!("{tag} is already on origin; run `pixi run bump` for a new version");
+    }
+    let local_tag = shell::git::commit_of(root, &format!("refs/tags/{tag}"))?;
+    if let Some(tagged) = &local_tag
+        && *tagged != head
+    {
+        anyhow::bail!("A local {tag} points at {tagged}, not HEAD; delete it or bump the version");
     }
 
     if !args.yes
         && !args.dry_run
         && !Confirm::new()
-            .with_prompt("Proceed?")
+            .with_prompt(format!("Tag {head} as {tag} and push the tag?"))
             .default(false)
             .interact()?
     {
@@ -53,32 +69,21 @@ pub fn run(args: &PushArgs) -> Result<()> {
     }
 
     if args.dry_run {
-        format::info(&format!("[dry-run] git tag -f {}", tag));
-        format::info("[dry-run] git push");
-        format::info(&format!("[dry-run] git push origin {}", tag));
+        if local_tag.is_none() {
+            format::info(&format!("[dry-run] git tag {tag}"));
+        }
+        format::info(&format!("[dry-run] git push origin {tag}"));
         return Ok(());
     }
 
-    // Create tag
-    shell::git::tag_force(root, &tag).context(format!("Failed to create tag {}", tag))?;
-    format::success(&format!("Tagged {}", tag));
-
-    // Push commits
-    if shell::git::has_upstream(root) {
-        shell::git::push(root).context("git push failed")?;
-    } else if let Some(branch) = shell::git::current_branch(root) {
-        shell::git::push_with_upstream(root, &branch).context("git push -u failed")?;
-    } else {
-        shell::git::push(root).context("git push failed")?;
+    if local_tag.is_none() {
+        shell::git::tag(root, &tag).with_context(|| format!("Failed to create tag {tag}"))?;
+        format::success(&format!("Tagged {tag}"));
     }
-    format::success("Pushed commits");
-
-    // Push tag (delete remote first if it exists, to allow re-tagging)
-    if shell::git::tag_exists_remote(root, &tag) {
-        shell::git::delete_remote_tag(root, &tag).ok();
-    }
-    shell::git::push_tag(root, &tag).context(format!("Failed to push tag {}", tag))?;
-    format::success(&format!("Pushed tag {}", tag));
+    shell::git::push_tag(root, &tag).with_context(|| format!("Failed to push tag {tag}"))?;
+    format::success(&format!(
+        "Pushed {tag}; its pipeline verifies and publishes it"
+    ));
 
     Ok(())
 }

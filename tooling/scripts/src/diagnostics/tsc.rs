@@ -50,7 +50,7 @@ pub fn run(root: &Path, tsconfig_paths: &[&Path]) -> Result<Vec<UnifiedDiagnosti
             bail!(
                 "macroforge tsc failed for {} without reporting diagnostics:\n{}",
                 tsconfig.display(),
-                result.output()
+                result.transcript()
             );
         }
     }

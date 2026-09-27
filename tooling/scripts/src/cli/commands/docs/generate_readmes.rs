@@ -4,9 +4,8 @@
 //! reading the extracted JSON docs and including badges, overview text, key
 //! exports grouped by kind, first code example, and API reference links.
 
-use crate::core::config::Config;
+use crate::cli::commands::docs::generated::GeneratedFiles;
 use crate::core::manifests;
-use crate::core::shell;
 use crate::utils::format;
 use anyhow::{Context, Result};
 use std::fs;
@@ -57,91 +56,31 @@ const RUST_CRATES: &[(&str, &str)] = &[
     ("macroforge_ts_macros", "crates/macroforge_ts_macros"),
 ];
 
-// ── Public entry points ─────────────────────────────────────────────────────
+// ── Public entry point ──────────────────────────────────────────────────────
 
-/// Generate README files in-place (used by `mf docs generate-readmes`).
-pub fn run() -> Result<()> {
-    let config = Config::load()?;
-
+/// Generates every crate and package README from the extracted API JSON.
+pub fn generate(root: &Path) -> Result<GeneratedFiles> {
     format::header("Generating README Files");
 
-    let mut generated = 0;
+    let mut files = Vec::new();
 
-    // Rust crates
     for (crate_name, crate_path) in RUST_CRATES {
-        let crate_dir = config.root.join(crate_path);
-        if !crate_dir.exists() {
-            format::warning(&format!("Crate not found: {}", crate_path));
-            continue;
-        }
-
-        print!("Generating README for {}... ", crate_name);
-        let readme = shell::deno::format_markdown(
-            &config.root,
-            &generate_rust_readme(&config.root, crate_name, crate_path)?,
-        )?;
-        fs::write(crate_dir.join("README.md"), readme)?;
-        println!("done");
-        generated += 1;
-    }
-
-    // TypeScript packages
-    for (json_name, pkg_path, npm_name) in TS_PACKAGES {
-        let pkg_dir = config.root.join(pkg_path);
-        if !pkg_dir.exists() {
-            format::warning(&format!("Package not found: {}", pkg_path));
-            continue;
-        }
-
-        print!("Generating README for {}... ", json_name);
-        let readme = shell::deno::format_markdown(
-            &config.root,
-            &generate_ts_readme(&config.root, json_name, npm_name, pkg_path)?,
-        )?;
-        fs::write(pkg_dir.join("README.md"), readme)?;
-        println!("done");
-        generated += 1;
-    }
-
-    println!();
-    format::success(&format!("Generated {} README files", generated));
-
-    Ok(())
-}
-
-/// Generate all READMEs into a given output directory tree, mirroring the
-/// project layout.  Used by `check_freshness` to compare without touching the
-/// real working tree.
-pub fn generate_all_to(root: &Path, out_root: &Path) -> Result<()> {
-    for (crate_name, crate_path) in RUST_CRATES {
-        let crate_dir = root.join(crate_path);
-        if !crate_dir.exists() {
-            continue;
-        }
-        let dest = out_root.join(crate_path);
-        fs::create_dir_all(&dest)?;
-        let readme = shell::deno::format_markdown(
-            root,
-            &generate_rust_readme(root, crate_name, crate_path)?,
-        )?;
-        fs::write(dest.join("README.md"), readme)?;
+        println!("Generating README for {}", crate_name);
+        files.push((
+            Path::new(crate_path).join("README.md"),
+            generate_rust_readme(root, crate_name, crate_path)?,
+        ));
     }
 
     for (json_name, pkg_path, npm_name) in TS_PACKAGES {
-        let pkg_dir = root.join(pkg_path);
-        if !pkg_dir.exists() {
-            continue;
-        }
-        let dest = out_root.join(pkg_path);
-        fs::create_dir_all(&dest)?;
-        let readme = shell::deno::format_markdown(
-            root,
-            &generate_ts_readme(root, json_name, npm_name, pkg_path)?,
-        )?;
-        fs::write(dest.join("README.md"), readme)?;
+        println!("Generating README for {}", json_name);
+        files.push((
+            Path::new(pkg_path).join("README.md"),
+            generate_ts_readme(root, json_name, npm_name, pkg_path)?,
+        ));
     }
 
-    Ok(())
+    GeneratedFiles::build(root, Vec::new(), files)
 }
 
 // ── Rust README generation ──────────────────────────────────────────────────

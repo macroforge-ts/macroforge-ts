@@ -1,6 +1,6 @@
 //! Fetch latest versions from npm and crates.io and update versions.json
 
-use crate::cli::VersionsArgs;
+use crate::cli::args::VersionsArgs;
 use crate::core::config::{self, Config};
 use crate::core::manifests;
 use crate::core::registry;

@@ -48,7 +48,7 @@ struct DenoLintError {
 pub fn run(root: &Path) -> Result<Vec<UnifiedDiagnostic>> {
     let result = shell::deno::lint_json(root)?;
     let output: DenoLintOutput = serde_json::from_str(&result.stdout)
-        .with_context(|| format!("deno lint did not produce JSON:\n{}", result.output()))?;
+        .with_context(|| format!("deno lint did not produce JSON:\n{}", result.transcript()))?;
 
     let mut diagnostics = Vec::new();
     for diagnostic in output.diagnostics {

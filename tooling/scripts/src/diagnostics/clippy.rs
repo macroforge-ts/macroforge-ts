@@ -146,7 +146,7 @@ fn collect(
         bail!(
             "clippy failed in {} without reporting diagnostics:\n{}",
             project_dir.display(),
-            result.output()
+            result.transcript()
         );
     }
     Ok(())

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { toggleMode, mode } from 'mode-watcher';
-	import Sun from 'lucide-svelte/icons/sun';
-	import Moon from 'lucide-svelte/icons/moon';
+	import Sun from '@lucide/svelte/icons/sun';
+	import Moon from '@lucide/svelte/icons/moon';
 </script>
 
 <button

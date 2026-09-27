@@ -1,12 +1,10 @@
-//! Extract Rust documentation to JSON, .svx pages, and MCP markdown
+//! Extract Rust documentation to JSON and .svx pages
 //!
 //! Parses //! (module docs) and /// (item docs) comments from Rust crates
-//! and outputs structured JSON for website/README generation, .svx pages
-//! for the website, and markdown docs for the MCP server.
+//! and outputs structured JSON for website/README generation and .svx pages
+//! for the website's builtin macro docs.
 
-use crate::cli::commands::docs::write_docs_json;
-use crate::core::config::Config;
-use crate::core::shell;
+use crate::cli::commands::docs::generated::GeneratedFiles;
 use crate::parsers::rust_docs::{self, ItemDoc};
 use crate::utils::format;
 use anyhow::{Context, Result};
@@ -14,7 +12,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Crate documentation output
 #[derive(Debug, Serialize, Deserialize)]
@@ -90,17 +88,20 @@ const BUILTIN_MACROS: &[(&str, &str, &str)] = &[
     ),
 ];
 
-/// Entry point for `mf docs extract-rust`: extracts Rust doc comments to JSON/.svx/markdown.
-pub fn run(output_dir: &Path) -> Result<()> {
-    let config = Config::load()?;
-    let crates_root = config.root.join("crates");
-    let output_path = config.root.join(output_dir);
+/// Where the Rust API JSON lives, relative to the repository root.
+const OUTPUT_DIR: &str = "website/static/api-data/rust";
 
-    fs::create_dir_all(&output_path)?;
+/// Where the builtin macro pages live, relative to the repository root.
+const BUILTIN_PAGES_DIR: &str = "website/src/routes/docs/builtin-macros";
+
+/// Extracts Rust doc comments into the API JSON and the builtin macro pages.
+pub fn generate(root: &Path) -> Result<GeneratedFiles> {
+    let crates_root = root.join("crates");
+    let output_path = Path::new(OUTPUT_DIR);
 
     format::header("Extracting Rust Documentation");
-    println!("Output: {}", output_path.display());
 
+    let mut files: Vec<(PathBuf, String)> = Vec::new();
     let mut all_docs = Vec::new();
     let mut total_items = 0;
 
@@ -118,11 +119,11 @@ pub fn run(output_dir: &Path) -> Result<()> {
         let mut docs = extract_crate_docs(&crate_path, entry_file)
             .with_context(|| format!("failed to extract docs for {crate_name}"))?;
 
-        for (extra_crate, files) in EXTRA_ITEM_FILES {
+        for (extra_crate, extra_files) in EXTRA_ITEM_FILES {
             if extra_crate != crate_name {
                 continue;
             }
-            for file in *files {
+            for file in *extra_files {
                 let path = crate_path.join(file);
                 let source = fs::read_to_string(&path)
                     .with_context(|| format!("failed to read {}", path.display()))?;
@@ -133,29 +134,27 @@ pub fn run(output_dir: &Path) -> Result<()> {
         let item_count = docs.items.len();
         total_items += item_count;
 
-        let out_path = output_path.join(format!("{}.json", crate_name));
-        let json = crate::utils::json::to_string_pretty(&docs)?;
-        write_docs_json(&out_path, &json)?;
+        files.push((
+            output_path.join(format!("{}.json", crate_name)),
+            crate::utils::json::to_string_pretty(&docs)?,
+        ));
 
         println!("{} items", item_count);
         all_docs.push(docs);
     }
 
-    // Regenerate the CLI payload from the `mf`-facing binary's module docs.
-    // Without this, cli.json is a hand-committed artifact that silently rots.
+    // The CLI page's payload, from the `macroforge` binary's module docs.
     {
         let (cli_crate, cli_file) = CLI_ENTRY;
         let cli_path = crates_root.join(cli_crate).join(cli_file);
-        if !cli_path.exists() {
-            anyhow::bail!("CLI entry not found: {}", cli_path.display());
-        }
         print!("\nProcessing CLI... ");
-        let source = fs::read_to_string(&cli_path)?;
+        let source = fs::read_to_string(&cli_path)
+            .with_context(|| format!("failed to read {}", cli_path.display()))?;
         let version = all_docs
             .iter()
-            .find(|d| d.name == "macroforge_ts")
-            .map(|d| d.version.clone())
-            .unwrap_or_else(|| "0.0.0".to_string());
+            .find(|doc| doc.name == "macroforge_ts")
+            .map(|doc| doc.version.clone())
+            .context("macroforge_ts was not among the extracted crates")?;
         let cli_doc = CrateDoc {
             name: "macroforge".to_string(),
             kind: "cli".to_string(),
@@ -164,72 +163,64 @@ pub fn run(output_dir: &Path) -> Result<()> {
             overview: rust_docs::extract_module_docs(&source),
             items: rust_docs::extract_item_docs(&source),
         };
-        let out_path = output_path.join("cli.json");
-        write_docs_json(&out_path, &crate::utils::json::to_string_pretty(&cli_doc)?)?;
         println!("{} items", cli_doc.items.len());
+        files.push((
+            output_path.join("cli.json"),
+            crate::utils::json::to_string_pretty(&cli_doc)?,
+        ));
     }
 
     // Process builtin macros
     println!("\nProcessing builtin macros...");
-    // BTreeMap, not HashMap: this map is serialized directly to builtin-macros.json
-    // and its keys drive index.json. HashMap ordering is nondeterministic, which
-    // made both files differ on every run and kept `docs check-freshness` red.
+    // BTreeMap: serialized directly to builtin-macros.json, and its keys drive
+    // index.json, so the order has to be deterministic.
     let mut builtin_docs: BTreeMap<String, serde_json::Value> = BTreeMap::new();
     let mut macro_data: Vec<BuiltinMacroData> = Vec::new();
 
     for (name, file, display_name) in BUILTIN_MACROS {
         let file_path = crates_root.join("macroforge_ts").join(file);
-        if !file_path.exists() {
-            anyhow::bail!("Macro file not found: {}", file_path.display());
-        }
+        let source = fs::read_to_string(&file_path)
+            .with_context(|| format!("failed to read {}", file_path.display()))?;
+        let module_docs = rust_docs::extract_module_docs(&source);
+        let slug = name.replace('_', "-");
 
-        if let Ok(source) = fs::read_to_string(&file_path) {
-            let module_docs = rust_docs::extract_module_docs(&source);
-            let slug = name.replace('_', "-");
+        builtin_docs.insert(
+            name.to_string(),
+            serde_json::json!({
+                "name": display_name,
+                "slug": slug,
+                "description": module_docs,
+            }),
+        );
 
-            builtin_docs.insert(
-                name.to_string(),
-                serde_json::json!({
-                    "name": display_name,
-                    "slug": slug,
-                    "description": module_docs,
-                }),
-            );
-
-            macro_data.push(BuiltinMacroData {
-                display_name: display_name.to_string(),
-                slug,
-                raw_docs: module_docs,
-            });
-        }
+        macro_data.push(BuiltinMacroData {
+            display_name: display_name.to_string(),
+            slug,
+            raw_docs: module_docs,
+        });
     }
-
-    let builtin_path = output_path.join("builtin-macros.json");
-    write_docs_json(
-        &builtin_path,
-        &crate::utils::json::to_string_pretty(&builtin_docs)?,
-    )?;
     println!("  {} macros documented", builtin_docs.len());
 
-    // Write index
+    files.push((
+        output_path.join("builtin-macros.json"),
+        crate::utils::json::to_string_pretty(&builtin_docs)?,
+    ));
+
     let index = serde_json::json!({
-        "generated": chrono::Utc::now().to_rfc3339(),
-        "crates": all_docs.iter().map(|d| serde_json::json!({
-            "name": d.name,
-            "version": d.version,
-            "itemCount": d.items.len(),
+        "crates": all_docs.iter().map(|doc| serde_json::json!({
+            "name": doc.name,
+            "version": doc.version,
+            "itemCount": doc.items.len(),
         })).collect::<Vec<_>>(),
         "builtinMacros": builtin_docs.keys().collect::<Vec<_>>(),
     });
+    files.push((
+        output_path.join("index.json"),
+        crate::utils::json::to_string_pretty(&index)?,
+    ));
 
-    let index_path = output_path.join("index.json");
-    write_docs_json(&index_path, &crate::utils::json::to_string_pretty(&index)?)?;
+    files.extend(builtin_macro_pages(&macro_data));
 
-    // Generate .svx pages and MCP markdown docs
-    println!("\nGenerating .svx pages and MCP docs...");
-    write_builtin_macro_pages(&macro_data, &config.root)?;
-
-    println!();
     format::success(&format!(
         "Extracted {} items from {} crates, {} macros",
         total_items,
@@ -237,7 +228,7 @@ pub fn run(output_dir: &Path) -> Result<()> {
         builtin_docs.len()
     ));
 
-    Ok(())
+    GeneratedFiles::build(root, vec![output_path.to_path_buf()], files)
 }
 
 /// Transform markdown code block pairs into before/after annotated blocks.
@@ -537,64 +528,46 @@ fn remove_h1_headers(md: &str) -> String {
     result.join("\n")
 }
 
-/// Write .svx pages and MCP markdown docs for all builtin macros.
-fn write_builtin_macro_pages(macros: &[BuiltinMacroData], root_path: &Path) -> Result<()> {
-    let svx_base = root_path.join("website/src/routes/docs/builtin-macros");
-    let mcp_base = root_path.join("packages/mcp-server/docs/builtin-macros");
+/// The website's .svx page for each builtin macro. The MCP server's copies
+/// are extracted from these pages with the rest of the website.
+fn builtin_macro_pages(macros: &[BuiltinMacroData]) -> Vec<(PathBuf, String)> {
+    macros
+        .iter()
+        .map(|macro_data| {
+            let raw_md = &macro_data.raw_docs;
 
-    let mut svx_count = 0;
-    let mut mcp_count = 0;
+            // Extract first paragraph for meta description (before any transformations)
+            let first_para = extract_first_paragraph(raw_md);
 
-    for macro_data in macros {
-        let raw_md = &macro_data.raw_docs;
+            // Remove H1 headers from the raw docs
+            let without_h1 = remove_h1_headers(raw_md);
 
-        // Extract first paragraph for meta description (before any transformations)
-        let first_para = extract_first_paragraph(raw_md);
+            // Add our own H1 with the display name
+            let with_h1 = format!("# {}\n\n{}", macro_data.display_name, without_h1);
 
-        // Remove H1 headers from the raw docs
-        let without_h1 = remove_h1_headers(raw_md);
+            // Strip {identifier} template patterns
+            let stripped = strip_template_braces(&with_h1);
 
-        // Add our own H1 with the display name
-        let with_h1 = format!("# {}\n\n{}", macro_data.display_name, without_h1);
+            // Escape comparisons in table rows
+            let escaped = escape_comparisons_in_tables(&stripped);
 
-        // Strip {identifier} template patterns
-        let stripped = strip_template_braces(&with_h1);
+            // Transform code block pairs (before/after)
+            let transformed = transform_macro_blocks(&escaped);
 
-        // Escape comparisons in table rows
-        let escaped = escape_comparisons_in_tables(&stripped);
+            let final_md = if transformed.ends_with('\n') {
+                transformed
+            } else {
+                format!("{}\n", transformed)
+            };
 
-        // Transform code block pairs (before/after)
-        let transformed = transform_macro_blocks(&escaped);
-
-        // Ensure content ends with a trailing newline
-        let final_md = if transformed.ends_with('\n') {
-            transformed.clone()
-        } else {
-            format!("{}\n", transformed)
-        };
-
-        // Write .svx page
-        let svx_dir = svx_base.join(&macro_data.slug);
-        fs::create_dir_all(&svx_dir)?;
-        let svx_path = svx_dir.join("+page.svx");
-        let svx_content = generate_svx_page(&macro_data.display_name, &first_para, &final_md);
-        fs::write(&svx_path, &svx_content)?;
-        svx_count += 1;
-
-        // Write MCP markdown doc
-        fs::create_dir_all(&mcp_base)?;
-        let mcp_path = mcp_base.join(format!("{}.md", macro_data.slug));
-        fs::write(
-            &mcp_path,
-            shell::deno::format_markdown(root_path, &final_md)?,
-        )?;
-        mcp_count += 1;
-    }
-
-    println!("  {} .svx pages written", svx_count);
-    println!("  {} MCP markdown docs written", mcp_count);
-
-    Ok(())
+            (
+                Path::new(BUILTIN_PAGES_DIR)
+                    .join(&macro_data.slug)
+                    .join("+page.svx"),
+                generate_svx_page(&macro_data.display_name, &first_para, &final_md),
+            )
+        })
+        .collect()
 }
 
 fn extract_crate_docs(crate_path: &Path, entry_file: &str) -> Result<CrateDoc> {

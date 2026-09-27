@@ -1,6 +1,7 @@
 //! Svelte diagnostic runner
 
 use super::{DiagnosticLevel, DiagnosticTool, UnifiedDiagnostic};
+use crate::core::manifests;
 use crate::core::shell;
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
@@ -43,6 +44,11 @@ pub fn run(root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic>
     let mut diagnostics = Vec::new();
 
     for project_dir in project_dirs {
+        // A SvelteKit tsconfig extends the generated `.svelte-kit/tsconfig.json`.
+        if manifests::npm_depends_on(project_dir, "@sveltejs/kit")? {
+            shell::deno::svelte_kit_sync(project_dir)
+                .with_context(|| format!("svelte-kit sync failed in {}", project_dir.display()))?;
+        }
         let result = shell::macroforge::svelte_check(root, project_dir).with_context(|| {
             format!(
                 "macroforge svelte-check failed to start in {}",
@@ -100,7 +106,7 @@ pub fn run(root: &Path, project_dirs: &[&Path]) -> Result<Vec<UnifiedDiagnostic>
             None => bail!(
                 "svelte-check in {} did not complete:\n{}",
                 project_dir.display(),
-                result.output()
+                result.transcript()
             ),
         }
     }

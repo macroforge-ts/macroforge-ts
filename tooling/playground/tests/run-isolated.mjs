@@ -28,8 +28,7 @@ const denoArgs = [
     '--allow-all',
     '--no-check',
     '--unstable-detect-cjs',
-    '--node-modules-dir=manual',
-    '--env-file=../../.env'
+    '--node-modules-dir=manual'
 ];
 
 let passed = 0;

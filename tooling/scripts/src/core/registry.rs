@@ -2,8 +2,8 @@
 //!
 //! Uses HTTP APIs directly instead of shelling out to npm/cargo.
 
-use anyhow::Result;
-use serde::Deserialize;
+use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
 /// Create a ureq agent with reasonable timeouts to prevent hanging
@@ -90,4 +90,54 @@ pub fn crates_version(crate_name: &str) -> Result<Option<String>> {
         Err(ureq::Error::StatusCode(404)) => Ok(None),
         Err(e) => Err(e.into()),
     }
+}
+
+/// crates.io's trusted publishing endpoint: POST exchanges, DELETE revokes.
+const CRATES_TRUSTED_PUBLISHING_TOKENS: &str = "https://crates.io/api/v1/trusted_publishing/tokens";
+
+#[derive(Serialize)]
+struct TrustedPublishingRequest<'a> {
+    jwt: &'a str,
+}
+
+#[derive(Deserialize)]
+struct TrustedPublishingResponse {
+    token: String,
+}
+
+/// Exchanges a CI OIDC ID token for a crates.io publish token. The ID token is
+/// single-use and the publish token expires after 30 minutes.
+pub fn crates_trusted_publishing_token(id_token: &str) -> Result<String> {
+    let mut response = agent()
+        .post(CRATES_TRUSTED_PUBLISHING_TOKENS)
+        .config()
+        .http_status_as_error(false)
+        .build()
+        .header("User-Agent", "mf-cli")
+        .send_json(TrustedPublishingRequest { jwt: id_token })
+        .context("crates.io trusted publishing request failed")?;
+    let status = response.status();
+    if !status.is_success() {
+        let body = response
+            .body_mut()
+            .read_to_string()
+            .context("failed to read the crates.io error response")?;
+        anyhow::bail!("crates.io refused the trusted publishing exchange ({status}): {body}");
+    }
+    let exchanged: TrustedPublishingResponse = response
+        .body_mut()
+        .read_json()
+        .context("unexpected crates.io trusted publishing response")?;
+    Ok(exchanged.token)
+}
+
+/// Revokes a publish token from [`crates_trusted_publishing_token`].
+pub fn revoke_crates_trusted_publishing_token(token: &str) -> Result<()> {
+    agent()
+        .delete(CRATES_TRUSTED_PUBLISHING_TOKENS)
+        .header("User-Agent", "mf-cli")
+        .header("Authorization", &format!("Bearer {token}"))
+        .call()
+        .context("crates.io did not revoke the trusted publishing token")?;
+    Ok(())
 }

@@ -5,7 +5,7 @@
 //! the Zed extension constants, Cargo.lock and the extracted API docs. Rolls
 //! the whole bump back on failure or Ctrl+C.
 
-use crate::cli::BumpArgs;
+use crate::cli::args::BumpArgs;
 use crate::cli::commands::docs::extract_api_docs;
 use crate::core::config::{self, Config};
 use crate::core::deps;
@@ -60,16 +60,13 @@ fn cascade_to_dependents(
 const GENERATED_DOC_TREES: &[&str] = &[
     "website/static/api-data",
     "website/src/routes/docs/builtin-macros",
-    "packages/mcp-server/docs/builtin-macros",
 ];
 
 /// The generated documentation as it stood before a run touched it.
 ///
 /// The docs carry the version they were extracted at, so a bump rewrites them
-/// and undoing the bump has to put them back. Restoring the bytes rather than
-/// re-extracting is what makes that exact: every extraction stamps a fresh
-/// `generated` time, so a regenerated file matches the original in content and
-/// still shows up as a change on a run that produced nothing.
+/// and undoing the bump has to put them back. Restoring the bytes needs no
+/// extraction to succeed, which matters when extraction is what failed.
 struct DocsSnapshot {
     files: Vec<(PathBuf, Vec<u8>)>,
 }
@@ -290,8 +287,6 @@ pub fn run(args: BumpArgs) -> Result<()> {
 
         println!("\n{}", "Re-extracting the API docs".bold());
         extract_api_docs(&config.root)?;
-        shell::deno::deno_fmt(&config.root, &["website/static/api-data"])
-            .context("Failed to format the API docs")?;
         Ok(())
     };
 

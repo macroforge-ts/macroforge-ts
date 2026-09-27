@@ -8,8 +8,8 @@ members = [
     "crates/extensions/vtsls_macroforge",
     "tooling/scripts",
 ]
-# Built against vendored symlinks with its own napi/wasm toolchain, and never
-# published, so it resolves on its own rather than against this lockfile.
+# Built with its own napi/wasm toolchain and never published, so it resolves
+# on its own rather than against this lockfile.
 exclude = ["tooling/playground/macro"]
 resolver = "3"
 

@@ -8,6 +8,7 @@
         "@macroforge/core": "*",
         "@macroforge/typescript-plugin": "*",
         "@macroforge/vite-plugin": "*",
+        "@playground/macro": "file:../macro",
         "@playwright/test": "^1.63.0",
         "@vtsls/language-server": "^0.2.9",
         "typescript": "^5",
