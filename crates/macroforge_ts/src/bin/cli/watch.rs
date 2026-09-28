@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use ignore::WalkBuilder;
 use notify_debouncer_full::{new_debouncer, notify::RecursiveMode};
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     fs,
     path::{Path, PathBuf},
     time::Duration,
@@ -53,129 +53,156 @@ fn detect_build_system(root: &Path) -> BuildSystem {
     }
 }
 
-/// Discover macro source packages from workspace configuration.
-fn discover_macro_sources(root: &Path) -> Vec<MacroSourceInfo> {
-    let pkg_json_path = root.join("package.json");
-    let pkg_json = match fs::read_to_string(&pkg_json_path) {
-        Ok(s) => s,
-        Err(_) => return Vec::new(),
-    };
-    let pkg: serde_json::Value = match serde_json::from_str(&pkg_json) {
-        Ok(v) => v,
-        Err(_) => return Vec::new(),
+/// The part of the root `package.json` that lists workspace packages.
+#[derive(serde::Deserialize)]
+struct RootManifest {
+    workspaces: Option<Workspaces>,
+}
+
+/// npm and yarn take a list of patterns; yarn also takes `{ packages: [...] }`.
+#[derive(serde::Deserialize)]
+#[serde(untagged)]
+enum Workspaces {
+    Patterns(Vec<String>),
+    Config {
+        #[serde(default)]
+        packages: Vec<String>,
+    },
+}
+
+/// The part of a workspace package's `package.json` that marks it as a macro
+/// package.
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MemberManifest {
+    name: Option<String>,
+    #[serde(default)]
+    dependencies: HashMap<String, serde::de::IgnoredAny>,
+    #[serde(default)]
+    dev_dependencies: HashMap<String, serde::de::IgnoredAny>,
+    #[serde(default)]
+    peer_dependencies: HashMap<String, serde::de::IgnoredAny>,
+}
+
+impl MemberManifest {
+    fn depends_on(&self, package: &str) -> bool {
+        [
+            &self.dependencies,
+            &self.dev_dependencies,
+            &self.peer_dependencies,
+        ]
+        .iter()
+        .any(|dependencies| dependencies.contains_key(package))
+    }
+}
+
+fn read_json<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T> {
+    let text =
+        fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
+    serde_json::from_str(&text).with_context(|| format!("failed to parse {}", path.display()))
+}
+
+/// The directories the root manifest's workspace patterns name.
+fn workspace_dirs(root: &Path) -> Result<Vec<PathBuf>> {
+    let manifest_path = root.join("package.json");
+    if !manifest_path.is_file() {
+        return Ok(Vec::new());
+    }
+    let patterns = match read_json::<RootManifest>(&manifest_path)?.workspaces {
+        Some(Workspaces::Patterns(patterns)) => patterns,
+        Some(Workspaces::Config { packages }) => packages,
+        None => Vec::new(),
     };
 
-    // Collect workspace patterns
-    let workspace_patterns: Vec<String> = match &pkg["workspaces"] {
-        serde_json::Value::Array(arr) => arr
-            .iter()
-            .filter_map(|v| v.as_str().map(String::from))
-            .collect(),
-        serde_json::Value::Object(obj) => obj
-            .get("packages")
-            .and_then(|v| v.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|v| v.as_str().map(String::from))
-                    .collect()
-            })
-            .unwrap_or_default(),
-        _ => Vec::new(),
-    };
-
-    // Expand workspace patterns into actual directories
-    let mut workspace_dirs: Vec<PathBuf> = Vec::new();
-    for pattern in &workspace_patterns {
-        if pattern.contains('*') {
-            // Simple glob: "packages/*" -> list subdirs of "packages/"
-            let prefix = pattern.trim_end_matches("/*").trim_end_matches("/**");
-            let base = root.join(prefix);
-            if let Ok(entries) = fs::read_dir(&base) {
-                for entry in entries.flatten() {
-                    if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
-                        workspace_dirs.push(entry.path());
-                    }
-                }
-            }
-        } else {
+    let mut dirs = Vec::new();
+    for pattern in &patterns {
+        if !pattern.contains('*') {
             let dir = root.join(pattern);
             if dir.is_dir() {
-                workspace_dirs.push(dir);
+                dirs.push(dir);
             }
-        }
-    }
-
-    let mut sources = Vec::new();
-    for dir in &workspace_dirs {
-        let cargo_toml = dir.join("Cargo.toml");
-        let child_pkg_json = dir.join("package.json");
-
-        // Check if it's a Rust NAPI macro crate
-        if cargo_toml.exists()
-            && let Ok(content) = fs::read_to_string(&cargo_toml)
-            && content.contains("macroforge_ts")
-        {
-            let src_dir = dir.join("src");
-            let name = dir
-                .file_name()
-                .unwrap_or_default()
-                .to_string_lossy()
-                .to_string();
-            sources.push(MacroSourceInfo {
-                name,
-                package_dir: dir.clone(),
-                source_dirs: if src_dir.is_dir() {
-                    vec![src_dir]
-                } else {
-                    vec![dir.clone()]
-                },
-                kind: MacroSourceKind::RustNapi,
-            });
             continue;
         }
-
-        // Check if it's a JS/TS macro package
-        if child_pkg_json.exists()
-            && let Ok(content) = fs::read_to_string(&child_pkg_json)
-            && let Ok(child_pkg) = serde_json::from_str::<serde_json::Value>(&content)
+        // Simple glob: "packages/*" -> list subdirs of "packages/"
+        let base = root.join(pattern.trim_end_matches("/*").trim_end_matches("/**"));
+        if !base.is_dir() {
+            continue;
+        }
+        for entry in
+            fs::read_dir(&base).with_context(|| format!("failed to list {}", base.display()))?
         {
-            let has_macroforge_dep = ["dependencies", "devDependencies", "peerDependencies"]
-                .iter()
-                .any(|key| {
-                    child_pkg[key]
-                        .as_object()
-                        .is_some_and(|deps| deps.contains_key(macroforge_ts::package::PACKAGE))
-                });
-
-            if has_macroforge_dep {
-                let src_dir = dir.join("src");
-                let name = child_pkg["name"].as_str().unwrap_or_default().to_string();
-                sources.push(MacroSourceInfo {
-                    name: if name.is_empty() {
-                        dir.file_name()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .to_string()
-                    } else {
-                        name
-                    },
-                    package_dir: dir.clone(),
-                    source_dirs: if src_dir.is_dir() {
-                        vec![src_dir]
-                    } else {
-                        vec![dir.clone()]
-                    },
-                    kind: MacroSourceKind::JsTs,
-                });
+            let entry = entry.with_context(|| format!("failed to list {}", base.display()))?;
+            let file_type = entry
+                .file_type()
+                .with_context(|| format!("failed to inspect {}", entry.path().display()))?;
+            if file_type.is_dir() {
+                dirs.push(entry.path());
             }
         }
     }
+    Ok(dirs)
+}
 
-    sources
+fn dir_name(dir: &Path) -> String {
+    dir.file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_string()
+}
+
+/// The directories to watch in a macro package: `src/` when it has one.
+fn source_dirs(dir: &Path) -> Vec<PathBuf> {
+    let src_dir = dir.join("src");
+    if src_dir.is_dir() {
+        vec![src_dir]
+    } else {
+        vec![dir.to_path_buf()]
+    }
+}
+
+/// Discover macro source packages from workspace configuration.
+fn discover_macro_sources(root: &Path) -> Result<Vec<MacroSourceInfo>> {
+    let mut sources = Vec::new();
+    for dir in workspace_dirs(root)? {
+        // A Rust NAPI macro crate
+        let cargo_toml = dir.join("Cargo.toml");
+        if cargo_toml.is_file() {
+            let content = fs::read_to_string(&cargo_toml)
+                .with_context(|| format!("failed to read {}", cargo_toml.display()))?;
+            if content.contains("macroforge_ts") {
+                sources.push(MacroSourceInfo {
+                    name: dir_name(&dir),
+                    source_dirs: source_dirs(&dir),
+                    package_dir: dir,
+                    kind: MacroSourceKind::RustNapi,
+                });
+                continue;
+            }
+        }
+
+        // A JS/TS macro package
+        let manifest_path = dir.join("package.json");
+        if !manifest_path.is_file() {
+            continue;
+        }
+        let manifest: MemberManifest = read_json(&manifest_path)?;
+        if manifest.depends_on(macroforge_ts::package::PACKAGE) {
+            sources.push(MacroSourceInfo {
+                name: manifest
+                    .name
+                    .filter(|name| !name.is_empty())
+                    .unwrap_or_else(|| dir_name(&dir)),
+                source_dirs: source_dirs(&dir),
+                package_dir: dir,
+                kind: MacroSourceKind::JsTs,
+            });
+        }
+    }
+    Ok(sources)
 }
 
 /// Rebuild a macro package. Returns Ok(()) on success.
-fn rebuild_macro(info: &MacroSourceInfo, build_system: BuildSystem, _root: &Path) -> Result<()> {
+fn rebuild_macro(info: &MacroSourceInfo, build_system: BuildSystem) -> Result<()> {
     let (cmd, args) = match build_system {
         BuildSystem::Pnpm => ("pnpm", vec!["run", "build"]),
         BuildSystem::Yarn => ("yarn", vec!["build"]),
@@ -245,7 +272,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
     drop(lock);
 
     // Discover macro source packages and watch them
-    let macro_sources = discover_macro_sources(root);
+    let macro_sources = discover_macro_sources(root)?;
     let build_system = detect_build_system(root);
 
     if !macro_sources.is_empty() {
@@ -410,7 +437,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                     // minutes; it touches the macro package, not this
                     // project's `.macroforge/`, so it runs unlocked. Only the
                     // re-expansion that consumes its output needs the lock.
-                    match rebuild_macro(macro_info, build_system, root) {
+                    match rebuild_macro(macro_info, build_system) {
                         Ok(()) => {
                             eprintln!(
                                 "[macroforge watch] Macro '{}' rebuilt, re-expanding all files...",

@@ -387,6 +387,9 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             let ctx: macroforge_ts::ts_syn::MacroContextIR =
                 macroforge_ts::serde_json::from_str(&context_json)
                     .map_err(|e| format!("Invalid context JSON: {}", e))?;
+            // Every copy of the context below shares this registry's record, so
+            // the host learns which types the expansion depended on.
+            ctx.type_registry.start_recording();
 
             macroforge_ts::ts_syn::import_registry::install_registry(ctx.import_registry.clone());
             macroforge_ts::ts_syn::context_registry::install_context(ctx.clone());
@@ -405,7 +408,8 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             .map_err(|e| format!("Failed to create TsStream: {:?}", e))?;
 
             let macro_impl = #struct_ident;
-            let result = macro_impl.run(input);
+            let mut result = macro_impl.run(input);
+            result.registry_reads = ctx.type_registry.finish_recording();
 
             macroforge_ts::ts_syn::import_registry::clear_registry();
             macroforge_ts::ts_syn::context_registry::clear_context();

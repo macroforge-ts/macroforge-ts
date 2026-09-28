@@ -524,6 +524,13 @@ pub struct MacroResult {
     #[serde(default)]
     pub cross_module_suffixes: Vec<String>,
 
+    /// The type registry lookups the macro made, so a caller caching its output
+    /// can tell which registry changes affect it. `None` from a macro built
+    /// before lookups were reported, which may have read anything.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub registry_reads:
+        Option<std::collections::BTreeSet<crate::abi::ir::type_registry::RegistryRead>>,
+
     /// Cross-module type suffixes for auto-import resolution of PascalCase type references.
     /// Unlike `cross_module_suffixes` (which resolve `{camelCase}{Suffix}` function calls),
     /// these resolve `{PascalCase}{Suffix}` type references and generate `import type` statements.

@@ -371,11 +371,7 @@ fn test_type_has_derive_ambiguous_name() {
     registry.insert(barrel_entry, "/project");
 
     // Must be marked ambiguous
-    assert!(
-        registry
-            .ambiguous_names
-            .contains(&"PhoneNumber".to_string())
-    );
+    assert!(registry.ambiguous_names.contains("PhoneNumber"));
 
     // type_has_derive should still return true
     assert!(type_has_derive(&registry, "PhoneNumber", "Gigaform"));

@@ -39,11 +39,8 @@ pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &s
     }
 
     // If ambiguous, check all qualified entries with this name
-    if registry.ambiguous_names.iter().any(|n| n == type_name) {
-        return registry
-            .qualified_types
-            .values()
-            .any(|entry| entry.name == type_name && has_derive(entry));
+    if registry.ambiguous_names.contains(type_name) {
+        return registry.get_all(type_name).any(has_derive);
     }
 
     false
@@ -51,7 +48,6 @@ pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &s
 
 /// Check if a resolved field type (or its inner element type for collections)
 /// has a specific derive. Handles arrays, generics, and direct types.
-#[allow(dead_code)]
 pub fn resolved_type_has_derive(
     registry: &TypeRegistry,
     resolved: &ResolvedTypeRef,

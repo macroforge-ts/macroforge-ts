@@ -12,7 +12,7 @@
 //! WASM boundary as JSON, mirroring how `TypeRegistry` is threaded
 //! through `ExpandOptions.type_registry_json`.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -20,13 +20,16 @@ use serde::{Deserialize, Serialize};
 use crate::ts_syn::declarative::MacroDef;
 
 /// Project-wide declarative macro registry keyed by absolute file path.
+///
+/// Ordered maps, so two scans of the same sources serialize identically and
+/// the written registry can be compared by its bytes.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProjectDeclarativeRegistry {
     /// Map of `absolute_file_path` → (`$name` sans `$` → parsed `MacroDef`).
     ///
     /// File paths are stored as `String` for JSON friendliness; convert to
     /// `PathBuf` on lookup if needed.
-    by_file: HashMap<String, HashMap<String, MacroDef>>,
+    by_file: BTreeMap<String, BTreeMap<String, MacroDef>>,
 }
 
 impl ProjectDeclarativeRegistry {
@@ -41,15 +44,15 @@ impl ProjectDeclarativeRegistry {
         if macros.is_empty() {
             return;
         }
-        let mut entry: HashMap<String, MacroDef> = HashMap::with_capacity(macros.len());
-        for def in macros {
-            entry.insert(def.name.clone(), def);
-        }
+        let entry: BTreeMap<String, MacroDef> = macros
+            .into_iter()
+            .map(|def| (def.name.clone(), def))
+            .collect();
         self.by_file.insert(file_path.into(), entry);
     }
 
     /// Look up the macros declared in a given file.
-    pub fn file_macros(&self, file_path: &Path) -> Option<&HashMap<String, MacroDef>> {
+    pub fn file_macros(&self, file_path: &Path) -> Option<&BTreeMap<String, MacroDef>> {
         self.by_file.get(file_path.to_string_lossy().as_ref())
     }
 
@@ -74,7 +77,7 @@ impl ProjectDeclarativeRegistry {
     }
 
     /// Iterate over (file_path, name → MacroDef) entries.
-    pub fn iter(&self) -> impl Iterator<Item = (&String, &HashMap<String, MacroDef>)> {
+    pub fn iter(&self) -> impl Iterator<Item = (&String, &BTreeMap<String, MacroDef>)> {
         self.by_file.iter()
     }
 

@@ -532,6 +532,29 @@ fn project_registry_resolves_ts_extension() {
 }
 
 #[test]
+fn project_registry_serializes_the_same_whatever_the_scan_order() {
+    use crate::ts_syn::declarative::parse_macro_def;
+
+    let def = |name: &str| {
+        let source = "($($x:Expr),+) => [$($x),+]";
+        let mut def = parse_macro_def(source, SpanIR::new(0, source.len() as u32)).expect("parse");
+        def.name = name.to_string();
+        def
+    };
+    let mut forward = ProjectDeclarativeRegistry::new();
+    forward.insert_file("/project/src/a.ts", vec![def("first"), def("second")]);
+    forward.insert_file("/project/src/b.ts", vec![def("third")]);
+    let mut backward = ProjectDeclarativeRegistry::new();
+    backward.insert_file("/project/src/b.ts", vec![def("third")]);
+    backward.insert_file("/project/src/a.ts", vec![def("second"), def("first")]);
+
+    assert_eq!(
+        forward.to_json().expect("serialize"),
+        backward.to_json().expect("serialize")
+    );
+}
+
+#[test]
 fn project_registry_json_roundtrip() {
     let (registry, _) = library_registry();
     let json = registry.to_json().expect("serialize");

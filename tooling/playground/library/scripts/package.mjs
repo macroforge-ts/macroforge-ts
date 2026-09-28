@@ -66,7 +66,8 @@ if (globalThis.process.argv.includes('--unexpanded')) {
         'svelte-package'
     );
 } else {
-    rmSync(path.join(libraryRoot, 'dist'), { recursive: true, force: true });
+    // No `rm dist` first: the packager swaps its output into place, and a
+    // missing `dist` would make every build a full repackage.
     run(
         findMacroforgeCli(),
         [

@@ -327,8 +327,10 @@ function distMtimes() {
 function withEditedSource(relPath, edit, fn) {
     const abs = path.join(libraryRoot, relPath);
     const original = readFileSync(abs, 'utf8');
+    const edited = edit(original);
+    assert.notEqual(edited, original, `the edit to ${relPath} changed nothing`);
     try {
-        writeFileSync(abs, edit(original));
+        writeFileSync(abs, edited);
         return fn();
     } finally {
         writeFileSync(abs, original);
@@ -345,6 +347,22 @@ function withNewSource(relPath, contents, fn) {
     } finally {
         rmSync(abs, { force: true });
     }
+}
+
+/** Each expanded artifact's mtime, to tell a re-expanded module from a reused one. */
+function expandedMtimes() {
+    const dir = path.join(libraryRoot, '.macroforge/svelte-package/expanded');
+    return Object.fromEntries(
+        listFiles(dir).map((rel) => [rel, statSync(path.join(dir, rel)).mtimeMs])
+    );
+}
+
+/** The artifacts rewritten between two `expandedMtimes` snapshots. */
+function reexpandedSince(before) {
+    const after = expandedMtimes();
+    return Object.keys(after)
+        .filter((rel) => before[rel] !== after[rel])
+        .sort();
 }
 
 test('packaging: an unchanged project is not repackaged', () => {
@@ -384,10 +402,13 @@ test('packaging: a formatting-only edit is not a change', () => {
     );
 });
 
-test('packaging: a changed type re-expands every macro module', () => {
+test('packaging: a changed type re-expands exactly the modules that read it', () => {
     ensureInstalled();
     packageOk();
+    const before = expandedMtimes();
 
+    // `Customer` has a `PersonName` field, so its derives read `PersonName`
+    // from the type registry; `Order` never does and keeps its expansion.
     withEditedSource(
         'src/lib/types/person-name.ts',
         (source) => source.replace(/lastName/g, 'familyName'),
@@ -395,20 +416,85 @@ test('packaging: a changed type re-expands every macro module', () => {
             const output = packageOk();
 
             assert.ok(!wasSkipped(output), `a real edit must rebuild.\n${output}`);
-            // A renamed field moves the project's type surface, and expansion
-            // output depends on it globally — so both macro modules are
-            // re-expanded, not just the edited one. The log has to say that,
-            // or re-expanding a whole library after a one-field edit reads as
-            // a bug.
             assert.match(
                 output,
-                /Re-expanded all 2 macro module\(s\) — the project's type surface changed/
+                /Re-expanded 2 of 3 macro module\(s\) — 1 changed file\(s\), 1 reading a changed type/
             );
+            assert.deepEqual(reexpandedSince(before), [
+                'types/customer.svelte.ts',
+                'types/person-name.ts'
+            ]);
             assert.match(
                 readFileSync(path.join(distDir, 'types/person-name.js'), 'utf8'),
                 /familyName/,
                 'the packaged runtime should reflect the renamed field'
             );
+        }
+    );
+});
+
+test('packaging: an annotation-only change re-expands only the modules that read the type', () => {
+    ensureInstalled();
+    packageOk();
+    const before = expandedMtimes();
+
+    // The registry records a type's annotations with its shape, and a macro
+    // that reads the type can act on them, so readers re-expand; the rest keep
+    // their expansions.
+    withEditedSource(
+        'src/lib/types/person-name.ts',
+        (source) =>
+            source.replace(
+                '/** @serde({ validate: ["nonEmpty"] }) */\n    firstName',
+                '/** @serde({ validate: ["nonEmpty", "maxLength(40)"] }) */\n    firstName'
+            ),
+        () => {
+            const output = packageOk();
+
+            assert.match(
+                output,
+                /Re-expanded 2 of 3 macro module\(s\) — 1 changed file\(s\), 1 reading a changed type/
+            );
+            assert.deepEqual(reexpandedSince(before), [
+                'types/customer.svelte.ts',
+                'types/person-name.ts'
+            ]);
+        }
+    );
+});
+
+test('packaging: a comment-only edit re-expands only the edited module', () => {
+    ensureInstalled();
+    packageOk();
+    const before = expandedMtimes();
+
+    // The comment shifts where `PersonName` sits in its file, which moves
+    // nothing `Customer`'s expansion reads from the registry.
+    withEditedSource(
+        'src/lib/types/person-name.ts',
+        (source) => `// Names as a person gives them.\n${source}`,
+        () => {
+            const output = packageOk();
+
+            assert.match(output, /Re-expanded 1 of 3 macro module\(s\) — 1 changed file\(s\)\n/);
+            assert.deepEqual(reexpandedSince(before), ['types/person-name.ts']);
+        }
+    );
+});
+
+test('packaging: a change to a type nothing else reads re-expands only its own module', () => {
+    ensureInstalled();
+    packageOk();
+    const before = expandedMtimes();
+
+    withEditedSource(
+        'src/lib/types/order.svelte.ts',
+        (source) => source.replace('quantity: number;', 'quantity: number;\n    note?: string;'),
+        () => {
+            const output = packageOk();
+
+            assert.match(output, /Re-expanded 1 of 3 macro module\(s\) — 1 changed file\(s\)\n/);
+            assert.deepEqual(reexpandedSince(before), ['types/order.svelte.ts']);
         }
     );
 });
@@ -428,7 +514,7 @@ test('packaging: an edit that leaves the type surface alone re-expands nothing',
             assert.ok(!wasSkipped(output), `a real edit must rebuild.\n${output}`);
             assert.match(
                 output,
-                /Reused all 2 expanded module\(s\) — none of the 1 changed file\(s\) carry macros/
+                /Reused all 3 expanded module\(s\) — none of the 1 changed file\(s\) carry macros/
             );
             assert.match(
                 readFileSync(path.join(distDir, 'index.js'), 'utf8'),
@@ -462,7 +548,7 @@ test('packaging: --full-rebuild repackages an unchanged project', () => {
         !wasSkipped(output),
         `--full-rebuild must ignore the previous build.\n${output}`
     );
-    assert.match(output, /Re-expanded all 2 macro module\(s\) — no previous build to reuse/);
+    assert.match(output, /Re-expanded all 3 macro module\(s\) — no previous build to reuse/);
 });
 
 test('packaging: an added source is packaged and its removal is propagated', () => {
@@ -647,7 +733,7 @@ test('packaging: a rebuilt macro binary re-expands rather than replaying the tre
 
         assert.match(
             output,
-            /Re-expanded all 2 macro module\(s\) — the external macro binary changed/,
+            /Re-expanded all 3 macro module\(s\) — the external macro binary changed/,
             `a rebuilt macro binary must re-expand every module.\n${output}`
         );
         assert.ok(

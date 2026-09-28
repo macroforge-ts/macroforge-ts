@@ -370,6 +370,11 @@ impl MacroExpander {
         self.type_registry = registry;
     }
 
+    /// The project-wide type registry every macro invocation receives.
+    pub fn type_registry(&self) -> &crate::ts_syn::abi::ir::type_registry::TypeRegistry {
+        &self.type_registry
+    }
+
     /// Set the project-wide declarative macro registry.
     ///
     /// When set, the declarative pre-pass resolves `/** import macro */`

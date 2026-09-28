@@ -9,10 +9,15 @@ use crate::expand::{get_expanded_path, offset_to_line_col, type_surface_rel_path
 use crate::lock::{ProjectLock, resolve_project_root};
 use crate::package_expand::is_expandable;
 use crate::package_state::{
-    FileStamp, PackageInputs, PackageState, ResolvedPackageConfig, diff_files, output_fingerprint,
-    project_hash, registry_hash, scan_input, state_dir,
+    FileStamp, PackageInputs, PackageState, Resolutions, ResolvedPackageConfig, declarative_hash,
+    diff_files, output_fingerprint, project_hash, scan_input, state_dir,
 };
 use crate::wrappers::registries_for_check;
+use macroforge_ts::ts_syn::abi::SpanIR;
+use macroforge_ts::ts_syn::abi::ir::InterfaceIR;
+use macroforge_ts::ts_syn::abi::ir::type_registry::{
+    RegistryRead, TypeDefinitionIR, TypeRegistry, TypeRegistryEntry,
+};
 
 // =========================================================================
 // get_expanded_path tests
@@ -802,44 +807,23 @@ fn test_output_fingerprint_notices_a_deleted_file() {
 }
 
 #[test]
-fn test_registry_hash_ignores_key_order() {
-    // The registries are `HashMap`-backed, so two scans of identical sources
-    // serialize their keys in whatever order the map iterates. Hashing the raw
-    // text would report a changed type surface on every single build.
+fn test_declarative_hash_notices_a_changed_macro() {
     let tmp = tempfile::tempdir().unwrap();
-    let dir = tmp.path().join(".macroforge");
+    let path = tmp.path().join(".macroforge/declarative-registry.json");
 
-    write(&dir.join("declarative-registry.json"), "{}");
-    write(
-        &dir.join("type-registry.json"),
-        r#"{"types":{"A":{"name":"A"},"B":{"name":"B"}}}"#,
-    );
-    let original = registry_hash(tmp.path());
+    write(&path, r#"{"by_file":{"a.ts":{"n":1}}}"#);
+    let original = declarative_hash(tmp.path()).unwrap();
 
-    write(
-        &dir.join("type-registry.json"),
-        r#"{"types":{"B":{"name":"B"},"A":{"name":"A"}}}"#,
-    );
-    assert_eq!(registry_hash(tmp.path()), original);
+    write(&path, r#"{"by_file":{"a.ts":{"n":2}}}"#);
+    assert_ne!(declarative_hash(tmp.path()).unwrap(), original);
 }
 
 #[test]
-fn test_registry_hash_notices_a_changed_type() {
+fn test_declarative_hash_requires_the_scanned_registry() {
+    // The scan writes the registry before the hash is taken, so a missing one
+    // means the scan failed; hashing a placeholder would hide that.
     let tmp = tempfile::tempdir().unwrap();
-    let dir = tmp.path().join(".macroforge");
-
-    write(&dir.join("declarative-registry.json"), "{}");
-    write(
-        &dir.join("type-registry.json"),
-        r#"{"types":{"A":{"f":1}}}"#,
-    );
-    let original = registry_hash(tmp.path());
-
-    write(
-        &dir.join("type-registry.json"),
-        r#"{"types":{"A":{"f":2}}}"#,
-    );
-    assert_ne!(registry_hash(tmp.path()), original);
+    assert!(declarative_hash(tmp.path()).is_err());
 }
 
 #[test]
@@ -985,7 +969,8 @@ fn recorded_state(files: &[&str]) -> PackageState {
             input: PathBuf::from("/project/src/lib"),
             extensions: vec![".svelte".to_string()],
         },
-        registry_hash: "registry-a".to_string(),
+        declarative_hash: "declarative-a".to_string(),
+        module_reads: Default::default(),
         expanded_entries: files.iter().map(|rel| (*rel).to_string()).collect(),
     }
 }
@@ -1006,7 +991,7 @@ fn test_a_rebuilt_macro_binary_re_expands_every_artifact() {
         "a rebuilt macro binary must trigger a run at all"
     );
     assert_eq!(
-        state.expansion_stale_reason(&current, &state.registry_hash),
+        state.expansion_stale_reason(&current, &state.declarative_hash),
         Some("the external macro binary changed"),
         "and that run must produce every expansion again, not reuse the tree"
     );
@@ -1022,7 +1007,7 @@ fn test_an_upgraded_macroforge_re_expands_every_artifact() {
     current.version = "1.0.1".to_string();
 
     assert_eq!(
-        state.expansion_stale_reason(&current, &state.registry_hash),
+        state.expansion_stale_reason(&current, &state.declarative_hash),
         Some("the macroforge version changed")
     );
 }
@@ -1035,18 +1020,86 @@ fn test_a_changed_macroforge_config_re_expands_every_artifact() {
     current.config_hash = "config-b".to_string();
 
     assert_eq!(
-        state.expansion_stale_reason(&current, &state.registry_hash),
+        state.expansion_stale_reason(&current, &state.declarative_hash),
         Some("the macroforge config changed")
     );
 }
 
 #[test]
-fn test_a_changed_type_surface_re_expands_every_artifact() {
+fn test_a_changed_declarative_macro_re_expands_every_artifact() {
+    // A declarative macro can expand anywhere, so no lookup names its users.
     let state = recorded_state(&["types/person-name.ts"]);
 
     assert_eq!(
-        state.expansion_stale_reason(&state.inputs, "registry-b"),
-        Some("the project's type surface changed")
+        state.expansion_stale_reason(&state.inputs, "declarative-b"),
+        Some("the project's declarative macros changed")
+    );
+}
+
+/// A registry holding one interface per `(name, is_exported)`.
+fn registry_of(types: &[(&str, bool)]) -> TypeRegistry {
+    let mut registry = TypeRegistry::new();
+    for (name, is_exported) in types {
+        registry.insert(
+            TypeRegistryEntry {
+                name: (*name).to_string(),
+                file_path: format!("/project/src/{name}.ts"),
+                is_exported: *is_exported,
+                definition: TypeDefinitionIR::Interface(InterfaceIR {
+                    name: (*name).to_string(),
+                    span: SpanIR::new(0, 0),
+                    body_span: SpanIR::new(0, 0),
+                    type_params: vec![],
+                    heritage: vec![],
+                    decorators: vec![],
+                    fields: vec![],
+                    methods: vec![],
+                }),
+                file_imports: vec![],
+            },
+            "/project",
+        );
+    }
+    registry
+}
+
+#[test]
+fn test_a_changed_type_re_expands_only_the_modules_that_read_it() {
+    let before = registry_of(&[("User", true), ("Order", true)]);
+    let mut resolutions = Resolutions::new(&before);
+    let mut state = recorded_state(&["user-form.ts", "order-form.ts"]);
+    for (module, name) in [("user-form.ts", "User"), ("order-form.ts", "Order")] {
+        let reads = [RegistryRead::Name(name.to_string())].into_iter().collect();
+        state
+            .module_reads
+            .insert(module.to_string(), resolutions.stamps(&reads).unwrap());
+    }
+
+    let unchanged = registry_of(&[("User", true), ("Order", true)]);
+    assert!(
+        state
+            .stale_readers(&mut Resolutions::new(&unchanged))
+            .unwrap()
+            .is_empty()
+    );
+
+    let after = registry_of(&[("User", false), ("Order", true)]);
+    assert_eq!(
+        state.stale_readers(&mut Resolutions::new(&after)).unwrap(),
+        vec!["user-form.ts".to_string()]
+    );
+}
+
+#[test]
+fn test_a_module_with_no_recorded_lookups_is_re_expanded() {
+    // Nothing recorded means nothing is known about what it read.
+    let registry = registry_of(&[("User", true)]);
+    let state = recorded_state(&["user-form.ts"]);
+    assert_eq!(
+        state
+            .stale_readers(&mut Resolutions::new(&registry))
+            .unwrap(),
+        vec!["user-form.ts".to_string()]
     );
 }
 
@@ -1064,7 +1117,7 @@ fn test_repackaging_alone_keeps_the_expanded_tree() {
 
     assert!(state.stale_reason(&current).is_some());
     assert_eq!(
-        state.expansion_stale_reason(&current, &state.registry_hash),
+        state.expansion_stale_reason(&current, &state.declarative_hash),
         None
     );
 }

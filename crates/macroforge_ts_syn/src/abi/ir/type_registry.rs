@@ -27,14 +27,15 @@
 //! ```
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::sync::{Arc, Mutex, PoisonError};
 
 use super::{ClassIR, EnumIR, InterfaceIR, TypeAliasIR, TypeBody, TypeMemberKind};
 
 /// The kind of IR stored in a registry entry.
 ///
 /// Wraps the existing IR types to allow uniform storage in the registry.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TypeDefinitionIR {
     /// A class declaration.
     Class(ClassIR),
@@ -46,11 +47,23 @@ pub enum TypeDefinitionIR {
     TypeAlias(TypeAliasIR),
 }
 
+impl TypeDefinitionIR {
+    /// Resets every source span, for comparing declarations by content.
+    fn clear_spans(&mut self) {
+        match self {
+            TypeDefinitionIR::Class(class) => class.clear_spans(),
+            TypeDefinitionIR::Interface(interface) => interface.clear_spans(),
+            TypeDefinitionIR::Enum(enum_ir) => enum_ir.clear_spans(),
+            TypeDefinitionIR::TypeAlias(alias) => alias.clear_spans(),
+        }
+    }
+}
+
 /// A single type in the project-wide type registry.
 ///
 /// Contains the full IR of the type along with its file location
 /// and export information, enabling cross-file type resolution.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TypeRegistryEntry {
     /// The simple type name (e.g., "User", "Status").
     pub name: String,
@@ -68,8 +81,17 @@ pub struct TypeRegistryEntry {
     pub file_imports: Vec<FileImportEntry>,
 }
 
+impl TypeRegistryEntry {
+    /// This entry with every source span reset.
+    fn without_spans(&self) -> Self {
+        let mut entry = self.clone();
+        entry.definition.clear_spans();
+        entry
+    }
+}
+
 /// A simplified import entry from a file (for cross-file resolution).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FileImportEntry {
     /// The local name used in this file (e.g., "User", "MyUser").
     pub local_name: String,
@@ -81,6 +103,146 @@ pub struct FileImportEntry {
     pub is_type_only: bool,
 }
 
+/// A registry lookup that an expansion depended on.
+///
+/// Recorded while a macro runs, so a build that caches expansions can tell
+/// which of them a change to the registry affects: an expansion is only as
+/// current as every lookup it made.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(tag = "kind", content = "key", rename_all = "camelCase")]
+pub enum RegistryRead {
+    /// Everything registered under a simple name: its primary entry, every
+    /// definition sharing the name, and whether the name is ambiguous.
+    Name(String),
+    /// One qualified entry, `"relative/path/to/file.ts::TypeName"`.
+    Qualified(String),
+    /// The whole registry, for a lookup that enumerated it.
+    All,
+}
+
+/// Where a registry, and every clone of it, notes the lookups made through it.
+///
+/// Off until [`TypeRegistry::start_recording`], so a long-lived registry does
+/// not accumulate reads that nobody collects.
+#[derive(Debug, Clone, Default)]
+struct ReadLog(Arc<Mutex<Option<BTreeSet<RegistryRead>>>>);
+
+impl ReadLog {
+    fn with<R>(&self, f: impl FnOnce(&mut Option<BTreeSet<RegistryRead>>) -> R) -> R {
+        // The set is only ever inserted into, so a poisoned lock still holds a
+        // consistent one.
+        let mut guard = self.0.lock().unwrap_or_else(PoisonError::into_inner);
+        f(&mut guard)
+    }
+
+    fn note(&self, read: RegistryRead) {
+        self.with(|reads| {
+            if let Some(reads) = reads {
+                reads.insert(read);
+            }
+        });
+    }
+}
+
+/// Which read a lookup in a [`RegistryMap`] records.
+#[derive(Debug, Clone, Copy, Default)]
+enum MapKeys {
+    #[default]
+    Names,
+    Qualified,
+}
+
+/// One of the registry's maps. Reads the same as a `HashMap`, and records each
+/// lookup in the registry's read log.
+#[derive(Debug, Clone, Default)]
+pub struct RegistryMap {
+    entries: HashMap<String, TypeRegistryEntry>,
+    keys: MapKeys,
+    log: ReadLog,
+}
+
+impl RegistryMap {
+    fn read_of(&self, key: &str) -> RegistryRead {
+        match self.keys {
+            MapKeys::Names => RegistryRead::Name(key.to_string()),
+            MapKeys::Qualified => RegistryRead::Qualified(key.to_string()),
+        }
+    }
+
+    /// The entry under `key`.
+    pub fn get(&self, key: &str) -> Option<&TypeRegistryEntry> {
+        self.log.note(self.read_of(key));
+        self.entries.get(key)
+    }
+
+    /// Whether anything is registered under `key`.
+    pub fn contains_key(&self, key: &str) -> bool {
+        self.log.note(self.read_of(key));
+        self.entries.contains_key(key)
+    }
+
+    /// Every key and entry. Depends on the whole registry.
+    pub fn iter(&self) -> impl Iterator<Item = (&String, &TypeRegistryEntry)> {
+        self.log.note(RegistryRead::All);
+        self.entries.iter()
+    }
+
+    /// Every key. Depends on the whole registry.
+    pub fn keys(&self) -> impl Iterator<Item = &String> {
+        self.log.note(RegistryRead::All);
+        self.entries.keys()
+    }
+
+    /// Every entry. Depends on the whole registry.
+    pub fn values(&self) -> impl Iterator<Item = &TypeRegistryEntry> {
+        self.log.note(RegistryRead::All);
+        self.entries.values()
+    }
+
+    /// How many entries there are. Depends on the whole registry.
+    pub fn len(&self) -> usize {
+        self.log.note(RegistryRead::All);
+        self.entries.len()
+    }
+
+    /// Whether there are none. Depends on the whole registry.
+    pub fn is_empty(&self) -> bool {
+        self.log.note(RegistryRead::All);
+        self.entries.is_empty()
+    }
+
+    /// Registers `entry` under `key`, returning the entry it replaced.
+    pub fn insert(&mut self, key: String, entry: TypeRegistryEntry) -> Option<TypeRegistryEntry> {
+        self.entries.insert(key, entry)
+    }
+}
+
+/// The simple names defined in more than one file. Reads like a list, and
+/// records each lookup in the registry's read log.
+#[derive(Debug, Clone, Default)]
+pub struct AmbiguousNames {
+    names: Vec<String>,
+    log: ReadLog,
+}
+
+impl AmbiguousNames {
+    /// Whether `name` is defined in more than one file.
+    pub fn contains(&self, name: &str) -> bool {
+        self.log.note(RegistryRead::Name(name.to_string()));
+        self.names.iter().any(|ambiguous| ambiguous == name)
+    }
+
+    /// Every ambiguous name. Depends on the whole registry.
+    pub fn iter(&self) -> impl Iterator<Item = &String> {
+        self.log.note(RegistryRead::All);
+        self.names.iter()
+    }
+
+    fn has(&self, name: &str) -> bool {
+        self.names.iter().any(|ambiguous| ambiguous == name)
+    }
+}
+
 /// Project-wide type registry mapping type names to their definitions.
 ///
 /// This is the core data structure for type-awareness. It is built during
@@ -89,20 +251,94 @@ pub struct FileImportEntry {
 /// The registry supports lookup by simple name. When ambiguity exists
 /// (multiple types with the same name in different files), the
 /// `qualified_types` map resolves via `"relative/path/file.ts::TypeName"` keys.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+///
+/// Every lookup, through a method or through the maps, can be recorded: see
+/// [`Self::start_recording`]. Clones share one record, so the copies a macro
+/// receives report into the same one.
+#[derive(Debug, Clone)]
 pub struct TypeRegistry {
     /// Primary lookup: simple type name -> entry.
     /// For unique names, this provides O(1) access.
     /// When multiple types share a name, this holds the first one found;
     /// use `qualified_types` for disambiguation.
-    pub types: HashMap<String, TypeRegistryEntry>,
+    pub types: RegistryMap,
 
     /// Qualified lookup: `"relative/path/to/file.ts::TypeName"` -> entry.
     /// Always populated for all types, used when simple name is ambiguous.
-    pub qualified_types: HashMap<String, TypeRegistryEntry>,
+    pub qualified_types: RegistryMap,
 
     /// Tracks which simple names are ambiguous (exist in multiple files).
-    pub ambiguous_names: Vec<String>,
+    pub ambiguous_names: AmbiguousNames,
+
+    log: ReadLog,
+}
+
+/// What a [`RegistryRead`] resolves to: everything the lookup can answer
+/// from, with source spans cleared and maps ordered, so two resolutions
+/// serialize identically exactly when the lookup's answer is the same.
+///
+/// Spans are left out because they locate a declaration in its own file: an
+/// edit above it moves them without changing anything another module's
+/// expansion can use.
+#[derive(Debug, PartialEq, Serialize)]
+pub enum Resolution {
+    /// The entry the name resolves to, whether it is ambiguous, and every
+    /// declaration of it by qualified key.
+    Name {
+        primary: Option<TypeRegistryEntry>,
+        ambiguous: bool,
+        definitions: BTreeMap<String, TypeRegistryEntry>,
+    },
+    Qualified(Option<TypeRegistryEntry>),
+    All {
+        types: BTreeMap<String, TypeRegistryEntry>,
+        qualified_types: BTreeMap<String, TypeRegistryEntry>,
+        ambiguous_names: BTreeSet<String>,
+    },
+}
+
+/// The registry's serialized form.
+#[derive(Deserialize)]
+struct RegistryData {
+    types: HashMap<String, TypeRegistryEntry>,
+    qualified_types: HashMap<String, TypeRegistryEntry>,
+    ambiguous_names: Vec<String>,
+}
+
+/// The registry's serialized form, borrowed.
+#[derive(Serialize)]
+struct RegistryDataRef<'a> {
+    types: &'a HashMap<String, TypeRegistryEntry>,
+    qualified_types: &'a HashMap<String, TypeRegistryEntry>,
+    ambiguous_names: &'a [String],
+}
+
+impl Serialize for TypeRegistry {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        RegistryDataRef {
+            types: &self.types.entries,
+            qualified_types: &self.qualified_types.entries,
+            ambiguous_names: &self.ambiguous_names.names,
+        }
+        .serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for TypeRegistry {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let data = RegistryData::deserialize(deserializer)?;
+        Ok(Self::from_parts(
+            data.types,
+            data.qualified_types,
+            data.ambiguous_names,
+        ))
+    }
+}
+
+impl Default for TypeRegistry {
+    fn default() -> Self {
+        Self::from_parts(HashMap::new(), HashMap::new(), Vec::new())
+    }
 }
 
 impl TypeRegistry {
@@ -111,14 +347,100 @@ impl TypeRegistry {
         Self::default()
     }
 
+    fn from_parts(
+        types: HashMap<String, TypeRegistryEntry>,
+        qualified_types: HashMap<String, TypeRegistryEntry>,
+        ambiguous_names: Vec<String>,
+    ) -> Self {
+        let log = ReadLog::default();
+        Self {
+            types: RegistryMap {
+                entries: types,
+                keys: MapKeys::Names,
+                log: log.clone(),
+            },
+            qualified_types: RegistryMap {
+                entries: qualified_types,
+                keys: MapKeys::Qualified,
+                log: log.clone(),
+            },
+            ambiguous_names: AmbiguousNames {
+                names: ambiguous_names,
+                log: log.clone(),
+            },
+            log,
+        }
+    }
+
+    /// Starts recording the lookups made through this registry and its clones,
+    /// discarding any recorded so far.
+    pub fn start_recording(&self) {
+        self.log.with(|reads| *reads = Some(BTreeSet::new()));
+    }
+
+    /// Stops recording and returns what was recorded, or `None` if recording
+    /// was never started.
+    pub fn finish_recording(&self) -> Option<BTreeSet<RegistryRead>> {
+        self.log.with(Option::take)
+    }
+
+    /// Adds the lookups a macro reported making against its own copy of the
+    /// registry. A macro that reports none was built before lookups were
+    /// recorded, so it may have read anything.
+    pub fn record_macro_reads(&self, reported: Option<&BTreeSet<RegistryRead>>) {
+        self.log.with(|reads| {
+            if let Some(reads) = reads {
+                match reported {
+                    Some(reported) => reads.extend(reported.iter().cloned()),
+                    None => {
+                        reads.insert(RegistryRead::All);
+                    }
+                }
+            }
+        });
+    }
+
+    /// What `read` currently resolves to. Unlike the lookups themselves, this
+    /// records nothing.
+    pub fn resolution_of(&self, read: &RegistryRead) -> Resolution {
+        match read {
+            RegistryRead::Name(name) => Resolution::Name {
+                primary: self
+                    .types
+                    .entries
+                    .get(name)
+                    .map(TypeRegistryEntry::without_spans),
+                ambiguous: self.ambiguous_names.has(name),
+                definitions: without_spans(
+                    self.qualified_types
+                        .entries
+                        .iter()
+                        .filter(|(_, entry)| &entry.name == name),
+                ),
+            },
+            RegistryRead::Qualified(key) => Resolution::Qualified(
+                self.qualified_types
+                    .entries
+                    .get(key)
+                    .map(TypeRegistryEntry::without_spans),
+            ),
+            RegistryRead::All => Resolution::All {
+                types: without_spans(self.types.entries.iter()),
+                qualified_types: without_spans(self.qualified_types.entries.iter()),
+                ambiguous_names: self.ambiguous_names.names.iter().cloned().collect(),
+            },
+        }
+    }
+
     /// Look up a type by simple name. Returns `None` if the name is ambiguous
     /// (exists in multiple files) — callers must use `resolve()` with import
     /// context or `get_qualified()` for file-specific resolution.
     pub fn get(&self, name: &str) -> Option<&TypeRegistryEntry> {
-        if self.ambiguous_names.iter().any(|n| n == name) {
+        self.log.note(RegistryRead::Name(name.to_string()));
+        if self.ambiguous_names.has(name) {
             None
         } else {
-            self.types.get(name)
+            self.types.entries.get(name)
         }
     }
 
@@ -162,7 +484,9 @@ impl TypeRegistry {
     /// Get all qualified entries matching a simple type name.
     /// Returns an iterator over entries from different files that share this name.
     pub fn get_all(&self, name: &str) -> impl Iterator<Item = &TypeRegistryEntry> {
+        self.log.note(RegistryRead::Name(name.to_string()));
         self.qualified_types
+            .entries
             .values()
             .filter(move |entry| entry.name == name)
     }
@@ -193,9 +517,10 @@ impl TypeRegistry {
         caller_file_path: &str,
         file_imports: &[FileImportEntry],
     ) -> Option<&TypeRegistryEntry> {
+        self.log.note(RegistryRead::Name(name.to_string()));
         // Fast path: unambiguous name.
-        if !self.ambiguous_names.iter().any(|n| n == name) {
-            return self.types.get(name);
+        if !self.ambiguous_names.has(name) {
+            return self.types.entries.get(name);
         }
         // Same-file resolution — the caller and the declaration share a file,
         // so the entry whose file_path matches the caller is canonical here
@@ -242,8 +567,10 @@ impl TypeRegistry {
     /// Every definition named `name`, in qualified-key order, so a lookup
     /// never depends on hash map iteration order.
     fn candidates(&self, name: &str) -> Vec<&TypeRegistryEntry> {
+        self.log.note(RegistryRead::Name(name.to_string()));
         let mut entries: Vec<(&String, &TypeRegistryEntry)> = self
             .qualified_types
+            .entries
             .iter()
             .filter(|(_, entry)| entry.name == name)
             .collect();
@@ -267,32 +594,39 @@ impl TypeRegistry {
             .trim_start_matches('/');
         let qualified = format!("{}::{}", relative_path, entry.name);
 
-        if self.types.contains_key(&entry.name) {
-            if !self.ambiguous_names.iter().any(|n| n == &entry.name) {
-                self.ambiguous_names.push(entry.name.clone());
+        if self.types.entries.contains_key(&entry.name) {
+            if !self.ambiguous_names.has(&entry.name) {
+                self.ambiguous_names.names.push(entry.name.clone());
             }
         } else {
-            self.types.insert(entry.name.clone(), entry.clone());
+            self.types.entries.insert(entry.name.clone(), entry.clone());
         }
 
-        self.qualified_types.insert(qualified, entry);
+        self.qualified_types.entries.insert(qualified, entry);
     }
 
-    /// Get the number of types registered.
+    /// Get the number of types registered. Depends on the whole registry.
     pub fn len(&self) -> usize {
-        self.qualified_types.len()
+        self.log.note(RegistryRead::All);
+        self.qualified_types.entries.len()
     }
 
-    /// Check if the registry is empty.
+    /// Check if the registry is empty. Depends on the whole registry.
     pub fn is_empty(&self) -> bool {
-        self.qualified_types.is_empty()
+        self.log.note(RegistryRead::All);
+        self.qualified_types.entries.is_empty()
     }
 }
 
-/// Extract the module-name portion of an import path, dropping leading
-/// relative prefixes (`./`, `../`, repeated `../../`) and any trailing
-/// source extension. `./record-link.svelte` → `record-link.svelte`,
-/// `../models/user` → `user`, `@lib/foo/bar.ts` → `bar`.
+/// `entries` in key order, each without its source spans.
+fn without_spans<'a>(
+    entries: impl Iterator<Item = (&'a String, &'a TypeRegistryEntry)>,
+) -> BTreeMap<String, TypeRegistryEntry> {
+    entries
+        .map(|(key, entry)| (key.clone(), entry.without_spans()))
+        .collect()
+}
+
 /// `path` without one trailing source extension.
 fn strip_source_extension(path: &str) -> &str {
     [".ts", ".tsx", ".js", ".mjs", ".cjs"]
@@ -301,6 +635,10 @@ fn strip_source_extension(path: &str) -> &str {
         .unwrap_or(path)
 }
 
+/// Extract the module-name portion of an import path, dropping leading
+/// relative prefixes (`./`, `../`, repeated `../../`) and any trailing
+/// source extension. `./record-link.svelte` → `record-link.svelte`,
+/// `../models/user` → `user`, `@lib/foo/bar.ts` → `bar`.
 fn module_specifier_basename(module_specifier: &str) -> &str {
     let mut s = module_specifier.trim();
     while let Some(rest) = s.strip_prefix("./").or_else(|| s.strip_prefix("../")) {
@@ -466,11 +804,7 @@ mod tests {
         registry.insert(entry2, "/project");
 
         // Name should be ambiguous
-        assert!(
-            registry
-                .ambiguous_names
-                .contains(&"PhoneNumber".to_string())
-        );
+        assert!(registry.ambiguous_names.contains("PhoneNumber"));
 
         // get() returns None for ambiguous names — callers must use resolve() or get_all()
         assert!(registry.get("PhoneNumber").is_none());
@@ -590,6 +924,155 @@ mod tests {
             nested.map(|entry| entry.file_path.as_str()),
             Some("/project/src/lib/idp/index.ts")
         );
+    }
+
+    fn reads_of(registry: &TypeRegistry) -> Vec<RegistryRead> {
+        registry
+            .finish_recording()
+            .expect("recording was started")
+            .into_iter()
+            .collect()
+    }
+
+    #[test]
+    fn lookups_are_not_recorded_until_recording_starts() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        assert!(registry.get("User").is_some());
+        assert_eq!(registry.finish_recording(), None);
+    }
+
+    #[test]
+    fn each_lookup_records_what_it_depended_on() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        registry.insert(
+            make_interface_entry("Order", "/project/src/order.ts", vec![]),
+            "/project",
+        );
+
+        registry.start_recording();
+        assert!(registry.get("User").is_some());
+        assert!(registry.types.get("Order").is_some());
+        assert!(!registry.ambiguous_names.contains("Missing"));
+        assert!(registry.get_qualified("src/user.ts::User").is_some());
+        assert_eq!(
+            reads_of(&registry),
+            vec![
+                RegistryRead::Name("Missing".to_string()),
+                RegistryRead::Name("Order".to_string()),
+                RegistryRead::Name("User".to_string()),
+                RegistryRead::Qualified("src/user.ts::User".to_string()),
+            ]
+        );
+
+        registry.start_recording();
+        assert_eq!(registry.types.iter().count(), 2);
+        assert_eq!(reads_of(&registry), vec![RegistryRead::All]);
+    }
+
+    #[test]
+    fn clones_record_into_the_same_log() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        registry.start_recording();
+        let copy = registry.clone();
+        assert!(copy.get("User").is_some());
+        assert_eq!(
+            reads_of(&registry),
+            vec![RegistryRead::Name("User".to_string())]
+        );
+    }
+
+    #[test]
+    fn a_macro_that_reports_no_reads_may_have_read_anything() {
+        let registry = TypeRegistry::new();
+        registry.start_recording();
+        registry.record_macro_reads(Some(&BTreeSet::from([RegistryRead::Name("A".to_string())])));
+        registry.record_macro_reads(None);
+        assert_eq!(
+            reads_of(&registry),
+            vec![RegistryRead::Name("A".to_string()), RegistryRead::All]
+        );
+    }
+
+    #[test]
+    fn a_resolution_ignores_spans_but_not_annotations() {
+        let read = RegistryRead::Name("User".to_string());
+        let resolution = |entry: TypeRegistryEntry| {
+            let mut registry = TypeRegistry::new();
+            registry.insert(entry, "/project");
+            registry.resolution_of(&read)
+        };
+        let original = make_interface_entry(
+            "User",
+            "/project/src/user.ts",
+            vec![derive_decorator("Clone")],
+        );
+
+        let mut moved = original.clone();
+        if let TypeDefinitionIR::Interface(interface) = &mut moved.definition {
+            interface.span = SpanIR::new(40, 90);
+            interface.body_span = SpanIR::new(60, 90);
+            interface.decorators[0].span = SpanIR::new(20, 38);
+        }
+        assert_eq!(resolution(original.clone()), resolution(moved));
+
+        let annotated = make_interface_entry(
+            "User",
+            "/project/src/user.ts",
+            vec![derive_decorator("Clone, Debug")],
+        );
+        assert_ne!(resolution(original), resolution(annotated));
+    }
+
+    #[test]
+    fn a_type_alias_resolution_ignores_its_members_spans() {
+        let read = RegistryRead::Name("Shape".to_string());
+        let resolution = |decorator_span: SpanIR| {
+            let mut member = type_ref("Circle");
+            member.decorators = vec![DecoratorIR {
+                span: decorator_span,
+                ..derive_decorator("Default")
+            }];
+            let mut registry = TypeRegistry::new();
+            registry.insert(
+                make_alias_entry("Shape", TypeBody::Union(vec![member])),
+                "/project",
+            );
+            registry.resolution_of(&read)
+        };
+        assert_eq!(
+            resolution(SpanIR::new(0, 10)),
+            resolution(SpanIR::new(100, 110))
+        );
+    }
+
+    #[test]
+    fn the_serialized_form_is_the_plain_maps_and_starts_unrecorded() {
+        let mut registry = TypeRegistry::new();
+        registry.insert(
+            make_interface_entry("User", "/project/src/user.ts", vec![]),
+            "/project",
+        );
+        let json = serde_json::to_value(&registry).expect("the registry serializes");
+        let mut keys: Vec<&String> = json.as_object().expect("an object").keys().collect();
+        keys.sort();
+        assert_eq!(keys, ["ambiguous_names", "qualified_types", "types"]);
+
+        let restored: TypeRegistry =
+            serde_json::from_value(json).expect("the registry deserializes");
+        assert!(restored.get("User").is_some());
+        assert_eq!(restored.finish_recording(), None);
     }
 
     #[test]

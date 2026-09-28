@@ -634,11 +634,7 @@ mod import_specifier_tests {
     }
 
     fn registry_with(name: &str, file_path: &str) -> TypeRegistry {
-        let mut reg = TypeRegistry {
-            types: HashMap::new(),
-            qualified_types: HashMap::new(),
-            ambiguous_names: vec![],
-        };
+        let mut reg = TypeRegistry::new();
         reg.types.insert(
             name.to_string(),
             TypeRegistryEntry {

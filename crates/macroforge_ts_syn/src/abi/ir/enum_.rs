@@ -167,6 +167,20 @@ pub struct EnumIR {
     pub is_const: bool,
 }
 
+impl EnumIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.body_span = SpanIR::default();
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+        self.variants
+            .iter_mut()
+            .for_each(EnumVariantIR::clear_spans);
+    }
+}
+
 /// Intermediate representation of an enum variant/member.
 ///
 /// Each variant has a name, optional initializer value, and can have
@@ -200,4 +214,14 @@ pub struct EnumVariantIR {
     /// Decorators applied to this variant (from JSDoc comments).
     /// Useful for variant-level metadata like `@default` or `@deprecated`.
     pub decorators: Vec<DecoratorIR>,
+}
+
+impl EnumVariantIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+    }
 }
