@@ -673,7 +673,7 @@ Available decorators: ${manifest.decorators.map((d) => d.export).join(', ')}`
  * Represents a diagnostic message from the Macroforge analyzer.
  *
  * Diagnostics are produced during code validation and expansion to report
- * errors, warnings, and informational messages. Matches the napi-exposed
+ * errors, warnings, and informational messages. Matches the engine's
  * Rust `MacroDiagnostic` type from crates/macroforge_ts/src/api_types.rs.
  *
  * @property level - Severity level: 'error', 'warning', or 'info' (lowercase)
@@ -848,7 +848,7 @@ async function importMacroforge(): Promise<MacroforgeModule | null> {
 /**
  * Normalizes a diagnostic level string to lowercase.
  *
- * The napi layer already emits lowercase levels ('error', 'warning', 'info'),
+ * The engine already emits lowercase levels ('error', 'warning', 'info'),
  * so this is purely defensive normalization in case a future or third-party
  * binding returns differently cased values.
  *

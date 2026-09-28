@@ -23,11 +23,11 @@
     "npm:@jridgewell/trace-mapping@~0.3.25": "0.3.31",
     "npm:@lucide/svelte@^1.48.0": "1.48.0_svelte@5.57.1",
     "npm:@modelcontextprotocol/sdk@^1.30.0": "1.30.0_zod@4.6.5",
-    "npm:@sveltejs/adapter-static@^3.0.10": "3.0.10_@sveltejs+kit@2.70.3_esbuild@0.28.1",
-    "npm:@sveltejs/kit@^2.70.3": "2.70.3_@sveltejs+vite-plugin-svelte@7.3.0_svelte@5.57.1_typescript@5.9.3_vite@8.3.0_esbuild@0.28.1",
-    "npm:@sveltejs/vite-plugin-svelte@^7.3.0": "7.3.0_svelte@5.57.1_vite@8.3.0_esbuild@0.28.1",
+    "npm:@sveltejs/adapter-static@^3.0.10": "3.0.10_@sveltejs+kit@2.70.3__@sveltejs+vite-plugin-svelte@7.3.0___svelte@5.57.1___vite@8.3.0____@types+node@26.6.2____esbuild@0.28.1___esbuild@0.28.1__svelte@5.57.1__typescript@5.9.3__vite@8.3.0___@types+node@26.6.2___esbuild@0.28.1__esbuild@0.28.1_esbuild@0.28.1",
+    "npm:@sveltejs/kit@^2.70.3": "2.70.3_@sveltejs+vite-plugin-svelte@7.3.0__svelte@5.57.1__vite@8.3.0___@types+node@26.6.2___esbuild@0.28.1__esbuild@0.28.1_svelte@5.57.1_typescript@5.9.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1",
+    "npm:@sveltejs/vite-plugin-svelte@^7.3.0": "7.3.0_svelte@5.57.1_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1",
     "npm:@tailwindcss/typography@~0.5.20": "0.5.20_tailwindcss@4.3.3",
-    "npm:@tailwindcss/vite@^4.3.3": "4.3.3_vite@8.3.0_esbuild@0.28.1",
+    "npm:@tailwindcss/vite@^4.3.3": "4.3.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1",
     "npm:@types/estree@^0.0.42": "0.0.42",
     "npm:@types/globrex@~0.1.4": "0.1.4",
     "npm:@types/lodash-es@^4.17.12": "4.17.12",
@@ -822,13 +822,13 @@
         "acorn"
       ]
     },
-    "@sveltejs/adapter-static@3.0.10_@sveltejs+kit@2.70.3_esbuild@0.28.1": {
+    "@sveltejs/adapter-static@3.0.10_@sveltejs+kit@2.70.3__@sveltejs+vite-plugin-svelte@7.3.0___svelte@5.57.1___vite@8.3.0____@types+node@26.6.2____esbuild@0.28.1___esbuild@0.28.1__svelte@5.57.1__typescript@5.9.3__vite@8.3.0___@types+node@26.6.2___esbuild@0.28.1__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-7D9lYFWJmB7zxZyTE/qxjksvMqzMuYrrsyh1f4AlZqeZeACPRySjbC3aFiY55wb1tWUaKOQG9PVbm74JcN2Iew==",
       "dependencies": [
         "@sveltejs/kit"
       ]
     },
-    "@sveltejs/kit@2.70.3_@sveltejs+vite-plugin-svelte@7.3.0_svelte@5.57.1_typescript@5.9.3_vite@8.3.0_esbuild@0.28.1": {
+    "@sveltejs/kit@2.70.3_@sveltejs+vite-plugin-svelte@7.3.0__svelte@5.57.1__vite@8.3.0___@types+node@26.6.2___esbuild@0.28.1__esbuild@0.28.1_svelte@5.57.1_typescript@5.9.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-UDvEYuZqAMbfB/oXIoqKvbKcb7YczK5zYrzmsGV1zRJk03jntwp8dXiYoIJotxAndsKvcPFtx9H1GRSKFdSHgg==",
       "dependencies": [
         "@standard-schema/spec",
@@ -856,7 +856,7 @@
     "@sveltejs/load-config@0.2.3": {
       "integrity": "sha512-VT3qmUb8pRV2QrZjd8iAmtg8lf4W0TIjZbvXtz5MKei/q96teWZgGJyyidJzOjzZzvdq616eSRVeMYIQChUTAQ=="
     },
-    "@sveltejs/vite-plugin-svelte@7.3.0_svelte@5.57.1_vite@8.3.0_esbuild@0.28.1": {
+    "@sveltejs/vite-plugin-svelte@7.3.0_svelte@5.57.1_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-QbRoJyD92e9R0ufeQIWRHrCC0ObcqSv/aBDdrQMoU+sypav3cDx5wytdQ6GLdXjEMO6xjrXGzfkUygng8JMv0A==",
       "dependencies": [
         "deepmerge",
@@ -962,7 +962,7 @@
         "tailwindcss"
       ]
     },
-    "@tailwindcss/vite@4.3.3_vite@8.3.0_esbuild@0.28.1": {
+    "@tailwindcss/vite@4.3.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-yYU8cogLeSh/ms2jh8Fj7jaba/EWa7Ja6GoUqYZaraEuCI5YS6ms6ObZgjjedm+jm6XZjdNRWBpPP6Z86oOxcw==",
       "dependencies": [
         "@tailwindcss/node",
@@ -3019,7 +3019,7 @@
       ],
       "bin": true
     },
-    "vitefu@1.1.3_vite@8.3.0_esbuild@0.28.1": {
+    "vitefu@1.1.3_vite@8.3.0__@types+node@26.6.2__esbuild@0.28.1_esbuild@0.28.1": {
       "integrity": "sha512-ub4okH7Z5KLjb6hDyjqrGXqWtWvoYdU3IGm/NorpgHncKoLTCfRIbvlhBm7r0YstIaQRYlp4yEbFqDcKSzXSSg==",
       "dependencies": [
         "vite"
@@ -3180,7 +3180,7 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.3.1",
+            "npm:@macroforge/core@0.4.0",
             "npm:@modelcontextprotocol/sdk@^1.30.0",
             "npm:@types/node@^26.6.2",
             "npm:typescript@^5.9.3"
@@ -3220,9 +3220,9 @@
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/trace-mapping@~0.3.25",
-            "npm:@macroforge/core@0.3.1",
-            "npm:@macroforge/shared@0.3.1",
-            "npm:@macroforge/typescript-plugin@0.3.1",
+            "npm:@macroforge/core@0.4.0",
+            "npm:@macroforge/shared@0.4.0",
+            "npm:@macroforge/typescript-plugin@0.4.0",
             "npm:@types/estree@^0.0.42",
             "npm:@types/globrex@~0.1.4",
             "npm:@types/lodash-es@^4.17.12",
@@ -3257,8 +3257,8 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.3.1",
-            "npm:@macroforge/shared@0.3.1",
+            "npm:@macroforge/core@0.4.0",
+            "npm:@macroforge/shared@0.4.0",
             "npm:@types/node@^26.6.2",
             "npm:svelte@^5.57.1",
             "npm:typescript@^5.9.3"
@@ -3271,8 +3271,8 @@
         ],
         "packageJson": {
           "dependencies": [
-            "npm:@macroforge/core@0.3.1",
-            "npm:@macroforge/shared@0.3.1",
+            "npm:@macroforge/core@0.4.0",
+            "npm:@macroforge/shared@0.4.0",
             "npm:@types/node@^26.6.2",
             "npm:typescript@^5.9.3"
           ]
@@ -3286,8 +3286,8 @@
         "packageJson": {
           "dependencies": [
             "npm:@jridgewell/sourcemap-codec@^1.6.0",
-            "npm:@macroforge/core@0.3.1",
-            "npm:@macroforge/shared@0.3.1",
+            "npm:@macroforge/core@0.4.0",
+            "npm:@macroforge/shared@0.4.0",
             "npm:@types/node@^26.6.2"
           ]
         }
@@ -3297,7 +3297,7 @@
           "dependencies": [
             "npm:@biomejs/biome@^2.5.14",
             "npm:@lucide/svelte@^1.48.0",
-            "npm:@macroforge/core@0.3.1",
+            "npm:@macroforge/core@0.4.0",
             "npm:@sveltejs/adapter-static@^3.0.10",
             "npm:@sveltejs/kit@^2.70.3",
             "npm:@sveltejs/vite-plugin-svelte@^7.3.0",

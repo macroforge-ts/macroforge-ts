@@ -8,13 +8,11 @@
 **/.svelte-kit/
 **/.output/
 **/*.tsbuildinfo
-tooling/bench-bins/
 tooling/playground/library/dist-unexpanded/
 
-# Native and WebAssembly artifacts. `crates/macroforge_ts/pkg` is the
+# WebAssembly and debugger artifacts. `crates/macroforge_ts/pkg` is the
 # wasm-bindgen output the npm package ships; it is produced by `deno task
 # build`, not committed.
-**/*.node
 **/*.wasm
 **/*.pdb
 crates/macroforge_ts/pkg/

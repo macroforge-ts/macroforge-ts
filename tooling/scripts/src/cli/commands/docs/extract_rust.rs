@@ -5,6 +5,7 @@
 //! for the website's builtin macro docs.
 
 use crate::cli::commands::docs::generated::GeneratedFiles;
+use crate::core::manifests;
 use crate::parsers::rust_docs::{self, ItemDoc};
 use crate::utils::format;
 use anyhow::{Context, Result};
@@ -49,9 +50,7 @@ const EXTRA_ITEM_FILES: &[(&str, &[&str])] = &[(
     &[
         "src/api.rs",
         "src/api_types.rs",
-        "src/bindings_napi.rs",
         "src/bindings_wasm.rs",
-        "src/plugin.rs",
         "src/position_mapper.rs",
     ],
 )];
@@ -100,6 +99,7 @@ pub fn generate(root: &Path) -> Result<GeneratedFiles> {
     let output_path = Path::new(OUTPUT_DIR);
 
     format::header("Extracting Rust Documentation");
+    let version = manifests::current_version(root)?;
 
     let mut files: Vec<(PathBuf, String)> = Vec::new();
     let mut all_docs = Vec::new();
@@ -116,7 +116,7 @@ pub fn generate(root: &Path) -> Result<GeneratedFiles> {
 
         print!("Processing {}... ", crate_name);
 
-        let mut docs = extract_crate_docs(&crate_path, entry_file)
+        let mut docs = extract_crate_docs(&crate_path, entry_file, &version)
             .with_context(|| format!("failed to extract docs for {crate_name}"))?;
 
         for (extra_crate, extra_files) in EXTRA_ITEM_FILES {
@@ -570,48 +570,37 @@ fn builtin_macro_pages(macros: &[BuiltinMacroData]) -> Vec<(PathBuf, String)> {
         .collect()
 }
 
-fn extract_crate_docs(crate_path: &Path, entry_file: &str) -> Result<CrateDoc> {
+/// The Cargo.toml fields the crate docs record. The version is not among them:
+/// every crate inherits the release version from the workspace.
+#[derive(Deserialize)]
+struct CrateManifest {
+    package: CratePackage,
+}
+
+#[derive(Deserialize)]
+struct CratePackage {
+    name: String,
+    description: String,
+}
+
+fn extract_crate_docs(crate_path: &Path, entry_file: &str, version: &str) -> Result<CrateDoc> {
     let cargo_path = crate_path.join("Cargo.toml");
+    let cargo_content = fs::read_to_string(&cargo_path)
+        .with_context(|| format!("failed to read {}", cargo_path.display()))?;
+    let manifest: CrateManifest = toml::from_str(&cargo_content)
+        .with_context(|| format!("failed to parse {}", cargo_path.display()))?;
+
     let entry_path = crate_path.join(entry_file);
-
-    // Parse Cargo.toml for version
-    let cargo_content = fs::read_to_string(&cargo_path).unwrap_or_default();
-    let cargo: toml::Value =
-        toml::from_str(&cargo_content).unwrap_or(toml::Value::Table(Default::default()));
-
-    let name = cargo
-        .get("package")
-        .and_then(|p| p.get("name"))
-        .and_then(|n| n.as_str())
-        .unwrap_or("")
-        .to_string();
-
-    let version = cargo
-        .get("package")
-        .and_then(|p| p.get("version"))
-        .and_then(|v| v.as_str())
-        .unwrap_or("0.0.0")
-        .to_string();
-
-    let description = cargo
-        .get("package")
-        .and_then(|p| p.get("description"))
-        .and_then(|d| d.as_str())
-        .unwrap_or("")
-        .to_string();
-
-    // Parse source file
-    let source = fs::read_to_string(&entry_path)?;
-    let overview = rust_docs::extract_module_docs(&source);
-    let items = rust_docs::extract_item_docs(&source);
+    let source = fs::read_to_string(&entry_path)
+        .with_context(|| format!("failed to read {}", entry_path.display()))?;
 
     Ok(CrateDoc {
-        name,
+        name: manifest.package.name,
         kind: "rust_crate".to_string(),
-        version,
-        description,
-        overview,
-        items,
+        version: version.to_string(),
+        description: manifest.package.description,
+        overview: rust_docs::extract_module_docs(&source),
+        items: rust_docs::extract_item_docs(&source),
     })
 }
 

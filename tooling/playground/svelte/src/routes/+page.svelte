@@ -69,7 +69,7 @@ function runAllMacroTests() {
             This page is rendered by <code>test-macros-svelte</code> and
             showcases the local
             <code>macroforge</code> transformer running inside Vite via
-            <code>vite-plugin-napi</code>.
+            <code>@macroforge/vite-plugin</code>.
         </p>
     </section>
 

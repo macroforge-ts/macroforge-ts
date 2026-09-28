@@ -9,7 +9,7 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^2.5.14",
-        "@macroforge/core": "0.3.1",
+        "@macroforge/core": "0.4.0",
         "@sveltejs/adapter-static": "^3.0.10",
         "@sveltejs/kit": "^2.70.3",
         "@sveltejs/vite-plugin-svelte": "^7.3.0",
@@ -41,5 +41,5 @@
         "preview": "vite preview"
     },
     "type": "module",
-    "version": "0.3.1"
+    "version": "0.4.0"
 }

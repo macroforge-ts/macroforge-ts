@@ -17,37 +17,38 @@
 <h1>Rust Setup</h1>
 
 <p class="lead">
-    Create a new Rust crate that will contain your custom macros. This crate
-    compiles to a native Node.js addon.
+    Create a new Rust crate that will contain your custom macros. It compiles to
+    WebAssembly, packaged as an npm package that Macroforge loads.
 </p>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
 <ul>
-    <li>Rust toolchain (1.88 or later)</li>
-    <li>Node.js 18 or later</li>
     <li>
-        NAPI-RS CLI: <code>npm install -g @napi-rs/cli</code>
+        A Rust toolchain with the WebAssembly target:
+        <code>rustup target add wasm32-unknown-unknown</code>
+    </li>
+    <li>
+        The Macroforge CLI: <code>cargo install macroforge_ts</code>
+    </li>
+    <li>
+        <code>wasm-bindgen-cli</code> at the version of the <code>wasm-bindgen</code>
+        crate your macro crate builds with. After adding <code>macroforge_ts</code>
+        below, <code>cargo tree -i wasm-bindgen --depth 0</code> prints it; install
+        that version with
+        <code>cargo install wasm-bindgen-cli --version &lt;version&gt; --locked</code>.
     </li>
 </ul>
 
 <h2 id="create-project">Create the Project</h2>
 
 <CodeBlock
-    code={`# Create a new directory
-mkdir my-macros
-cd my-macros
-
-# Initialize with NAPI-RS
-napi new --platform --name my-macros`}
+    code={`cargo new --lib my-macros
+cd my-macros`}
     lang="bash"
 />
 
 <h2 id="cargo-toml">Configure Cargo.toml</h2>
-
-<p>
-    Update your <code>Cargo.toml</code> with the required dependencies:
-</p>
 
 <CodeBlock
     code={`[package]
@@ -56,31 +57,16 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-macroforge_ts = { version = "${data.requirement}", features = ["node"] }
-napi = { version = "3", features = ["napi8", "compat-mode"] }
-napi-derive = "3"
-
-[build-dependencies]
-napi-build = "2"
+macroforge_ts = "${data.requirement}"
 
 [profile.release]
 lto = true
 strip = true`}
     lang="toml"
     filename="Cargo.toml"
-/>
-
-<h2 id="build-rs">Create build.rs</h2>
-
-<CodeBlock
-    code={`fn main() {
-    napi_build::setup();
-}`}
-    lang="rust"
-    filename="build.rs"
 />
 
 <h2 id="lib-rs">Create src/lib.rs</h2>
@@ -122,29 +108,20 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 
 <h2 id="package-json">Create package.json</h2>
 
+<p>
+    <code>macroforge build</code> writes the package into <code>pkg/</code>, named
+    after the library target: <code>my_macros</code> for this crate.
+</p>
+
 <CodeBlock
     code={`{
   "name": "@my-org/macros",
   "version": "0.1.0",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "napi": {
-    "name": "my-macros",
-    "triples": {
-      "defaults": true
-    }
-  },
-  "files": [
-    "index.js",
-    "index.d.ts",
-    "*.node"
-  ],
+  "main": "pkg/my_macros.js",
+  "types": "pkg/my_macros.d.ts",
+  "files": ["pkg"],
   "scripts": {
-    "build": "napi build --release",
-    "prepublishOnly": "napi build --release"
-  },
-  "devDependencies": {
-    "@napi-rs/cli": "^3.0.0-alpha.0"
+    "build": "macroforge build . --out pkg"
   }
 }`}
     lang="json"
@@ -154,18 +131,17 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 <h2 id="build">Build the Package</h2>
 
 <CodeBlock
-    code={`# Build the native addon
-npm run build
+    code={`npm run build
 
-# This creates:
-# - index.js (JavaScript bindings)
-# - index.d.ts (TypeScript types)
-# - *.node (native binary)`}
+# This creates, in pkg/:
+# - my_macros.js       (JavaScript bindings)
+# - my_macros.d.ts     (TypeScript types)
+# - my_macros_bg.wasm  (the macros)`}
     lang="bash"
 />
 
 <Alert type="tip">
-    For cross-platform builds, use GitHub Actions with the NAPI-RS CI template.
+    The WebAssembly module runs on every platform, so one build serves every OS.
 </Alert>
 
 <h2 id="next-steps">Next Steps</h2>

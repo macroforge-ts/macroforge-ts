@@ -30,8 +30,8 @@ struct MacroSourceInfo {
 
 #[derive(Debug)]
 enum MacroSourceKind {
-    /// Rust NAPI macro (has Cargo.toml with macroforge_ts dependency)
-    RustNapi,
+    /// Rust macro crate (has Cargo.toml with macroforge_ts dependency)
+    Rust,
     /// JavaScript/TypeScript macro package
     JsTs,
 }
@@ -164,7 +164,7 @@ fn source_dirs(dir: &Path) -> Vec<PathBuf> {
 fn discover_macro_sources(root: &Path) -> Result<Vec<MacroSourceInfo>> {
     let mut sources = Vec::new();
     for dir in workspace_dirs(root)? {
-        // A Rust NAPI macro crate
+        // A Rust macro crate
         let cargo_toml = dir.join("Cargo.toml");
         if cargo_toml.is_file() {
             let content = fs::read_to_string(&cargo_toml)
@@ -174,7 +174,7 @@ fn discover_macro_sources(root: &Path) -> Result<Vec<MacroSourceInfo>> {
                     name: dir_name(&dir),
                     source_dirs: source_dirs(&dir),
                     package_dir: dir,
-                    kind: MacroSourceKind::RustNapi,
+                    kind: MacroSourceKind::Rust,
                 });
                 continue;
             }
@@ -219,7 +219,6 @@ fn rebuild_macro(info: &MacroSourceInfo, build_system: BuildSystem) -> Result<()
     let output = std::process::Command::new(cmd)
         .args(&args)
         .current_dir(&info.package_dir)
-        .env("NAPI_BUILD_SKIP_WATCHER", "1")
         .output()
         .with_context(|| format!("failed to run `{cmd}` for macro package '{}'", info.name))?;
 

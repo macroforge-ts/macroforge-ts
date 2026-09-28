@@ -141,8 +141,8 @@ fn compute_cli_engine_hash() -> String {
 /// invalidates when a local macro package is rebuilt.
 ///
 /// Scans `node_modules` for packages that export `__macroforgeRun` from any of
-/// their JS entry scripts, then hashes the contents of their `.node` / `.wasm`
-/// / `.js` artifacts. Content, not mtime: an install copies these files, and
+/// their JS entry scripts, then hashes the contents of their `.wasm` and `.js`
+/// artifacts. Content, not mtime: an install copies these files, and
 /// copying identical bytes must not throw the cache away.
 ///
 /// Every ancestor's `node_modules` is scanned, not just the project's own,
@@ -153,10 +153,9 @@ fn compute_cli_engine_hash() -> String {
 /// invalidates anything and every consumer keeps serving expansions produced by
 /// the previous build.
 ///
-/// Both the package root and its `pkg/` subdirectory are probed: NAPI builds
-/// emit `index.js` + `*.node` at the root, while `macroforge build`
-/// (wasm-bindgen) emits `pkg/<name>.js` + `pkg/<name>_bg.wasm` and leaves no
-/// root `index.js` at all.
+/// Both the package root and its `pkg/` subdirectory are probed: `macroforge
+/// build` emits `pkg/<name>.js` + `pkg/<name>_bg.wasm`, and a package may put
+/// its own entry script at the root.
 ///
 /// Must stay byte-for-byte equivalent to `getExternalMacroHash` in
 /// `packages/vite-plugin/src/index.js`. The two writers share one manifest, so
@@ -192,7 +191,7 @@ pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
             return;
         }
 
-        let extensions = ["node", "wasm", "js"];
+        let extensions = ["wasm", "js"];
         for dir in &dirs {
             let Ok(entries) = fs::read_dir(dir) else {
                 continue;

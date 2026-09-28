@@ -131,7 +131,7 @@ pub fn concat_names_macro(input: TsStream) -> Result<TsStream, MacroforgeError> 
 
 <p>
     Each <code>#[ts_macro]</code> auto-generates a no-op identity
-    function in the WASM and NAPI builds so consumers can
+    function in the WASM build so consumers can
     type-check their code before expansion:
 </p>
 

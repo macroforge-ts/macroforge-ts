@@ -1,22 +1,22 @@
 [package]
 name = "macroforge_ts_syn"
 description = "TypeScript syntax types for build-time macro code generation"
-version = "0.3.1"
-edition = "2024"
-authors = ["macroforge contributors"]
-license = "MIT"
-repository = "https://gitlab.com/macroforge-ts/macroforge-ts"
-homepage = "https://macroforge.dev"
-keywords = ["typescript", "macros", "codegen", "derive"]
-categories = ["development-tools::procedural-macro-helpers"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "README.md"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
 
-oxc = { version = "0.150", features = ["codegen"] }
+oxc = { workspace = true }
 
-thiserror = "2.0.20"
-indexmap = { version = "2.14", features = ["serde"] }
-pathdiff = "0.2"
+thiserror = { workspace = true }
+indexmap = { workspace = true }
+pathdiff = { workspace = true }

@@ -18,11 +18,11 @@
 <h2 id="overview">Overview</h2>
 
 <p>
-	Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
+	Custom macros are written in Rust and compiled to WebAssembly. The process involves:
 </p>
 
 <ol>
-	<li>Creating a Rust crate with NAPI bindings</li>
+	<li>Creating a Rust crate that builds to WebAssembly</li>
 	<li>Defining macro functions with <code>#[ts_macro_derive]</code></li>
 	<li>Using <code>macroforge_ts_quote</code> to generate TypeScript code</li>
 	<li>Building and publishing as an npm package</li>

@@ -4,50 +4,23 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "mf")]
-#[command(about = "Macroforge Tooling - unified CLI for build, release, and diagnostics")]
+#[command(about = "Macroforge tooling: build, verify, document and release the monorepo")]
 #[command(version)]
 pub struct Cli {
-    /// Enable TUI mode (dashboard interface)
-    #[arg(long, global = true)]
-    pub tui: bool,
-
-    /// Enable verbose output
-    #[arg(short, long, global = true)]
-    pub verbose: bool,
-
-    /// Enable debug logging
-    #[arg(long, global = true)]
-    pub debug: bool,
-
     #[command(subcommand)]
     pub command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Interactive TUI dashboard
-    Tui,
-
     /// Verify a release: build, check, test and regenerate the docs
     Verify(VerifyArgs),
 
-    /// Bump release versions and everything stamped with them
+    /// Set the release version every package carries
     Bump(BumpArgs),
-
-    /// Manifest manipulation (versions, dependencies)
-    Manifest(ManifestArgs),
-
-    /// Fetch latest versions from npm/crates.io and sync them to disk
-    ///
-    /// Rewrites versions.json, package.json/Cargo.toml manifests, and the Zed
-    /// extension version constants unless --check-only is passed.
-    Versions(VersionsArgs),
 
     /// Run comprehensive multi-tool diagnostics
     Diagnostics(DiagnosticsArgs),
-
-    /// Clean build packages
-    Build(BuildArgs),
 
     /// Documentation generation and management
     Docs(DocsArgs),
@@ -60,7 +33,7 @@ pub enum Commands {
     PublishLocal(PublishLocalArgs),
 
     /// Tag main at the release version and push the tag, which CI publishes
-    Push(PushArgs),
+    Tag(TagArgs),
 }
 
 #[derive(clap::Args)]
@@ -81,67 +54,9 @@ pub struct VerifyArgs {
 
 #[derive(clap::Args)]
 pub struct BumpArgs {
-    /// Repos to bump (comma-separated, or 'all', 'rust', 'ts')
-    #[arg(default_value = "all")]
-    pub repos: String,
-
-    /// Version to set (e.g. 0.2.1); increments the patch version if omitted
+    /// Version to set (e.g. 0.4.0); increments the patch version if omitted
     #[arg(long)]
     pub version: Option<String>,
-
-    /// Move every selected package to one shared version
-    #[arg(long)]
-    pub sync_versions: bool,
-
-    /// Don't cascade the bump to dependents
-    #[arg(long)]
-    pub no_cascade: bool,
-}
-
-#[derive(clap::Args)]
-pub struct ManifestArgs {
-    #[command(subcommand)]
-    pub command: ManifestCommands,
-}
-
-#[derive(Subcommand)]
-pub enum ManifestCommands {
-    /// List all repositories as JSON
-    List,
-
-    /// Get version for a repo
-    GetVersion {
-        repo: String,
-        #[arg(long)]
-        registry: bool,
-    },
-
-    /// Set version for a repo
-    SetVersion {
-        repo: String,
-        version: String,
-        #[arg(long)]
-        registry: bool,
-    },
-
-    /// Apply versions from cache to all files
-    ApplyVersions {
-        #[arg(long)]
-        local: bool,
-    },
-
-    /// Dump all versions as JSON
-    DumpVersions,
-
-    /// Update Zed extension files
-    UpdateZed,
-}
-
-#[derive(clap::Args)]
-pub struct VersionsArgs {
-    /// Only check versions, don't update
-    #[arg(long)]
-    pub check_only: bool,
 }
 
 #[derive(clap::Args)]
@@ -158,16 +73,10 @@ pub struct DiagnosticsArgs {
     #[arg(long)]
     pub json: bool,
 
-    /// Skip formatting (deno fmt for JS/TS, cargo fmt for Rust)
+    /// Report only: skip formatting (deno fmt, cargo fmt) and lint fixes
+    /// (deno lint --fix, cargo clippy --fix)
     #[arg(long)]
-    pub no_format: bool,
-}
-
-#[derive(clap::Args)]
-pub struct BuildArgs {
-    /// Repos to build (comma-separated, or 'all', 'rust', 'ts')
-    #[arg(short, long, default_value = "all")]
-    pub repos: String,
+    pub no_fix: bool,
 }
 
 #[derive(clap::Args)]
@@ -248,7 +157,7 @@ pub struct PublishLocalArgs {
 }
 
 #[derive(clap::Args)]
-pub struct PushArgs {
+pub struct TagArgs {
     /// Skip confirmation prompts
     #[arg(short = 'y', long)]
     pub yes: bool,
@@ -256,4 +165,9 @@ pub struct PushArgs {
     /// Dry run - show what would be done
     #[arg(long)]
     pub dry_run: bool,
+
+    /// Move an existing tag to HEAD, on origin too, which reruns its release
+    /// pipeline
+    #[arg(long)]
+    pub retag: bool,
 }

@@ -1,8 +1,7 @@
 //! Shared configuration management
 
 use crate::core::deps;
-use crate::core::repos::{self, Repo, RepoType};
-use crate::core::versions::VersionsCache;
+use crate::core::repos::{self, Repo};
 use anyhow::{Context, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -16,8 +15,6 @@ pub struct Config {
     pub repos: HashMap<String, Repo>,
     /// Dependency graph (repo -> dependencies)
     pub deps: HashMap<String, Vec<String>>,
-    /// Version cache
-    pub versions: VersionsCache,
 }
 
 impl Config {
@@ -27,35 +24,12 @@ impl Config {
 
         let repos = repos::build_repos_map(&root);
         let deps_map = deps::load_deps(&root)?;
-        let versions = VersionsCache::load(&root)?;
 
         Ok(Self {
             root,
             repos,
             deps: deps_map,
-            versions,
         })
-    }
-
-    /// Get repos filtered by type or name list
-    pub fn filter_repos(&self, filter: &str) -> Vec<&Repo> {
-        match filter {
-            "all" => self.repos.values().collect(),
-            "rust" => self
-                .repos
-                .values()
-                .filter(|r| r.repo_type == RepoType::Rust)
-                .collect(),
-            "ts" => self
-                .repos
-                .values()
-                .filter(|r| r.repo_type == RepoType::Ts)
-                .collect(),
-            names => names
-                .split(',')
-                .filter_map(|n| self.repos.get(n.trim()))
-                .collect(),
-        }
     }
 }
 
@@ -78,34 +52,4 @@ pub fn find_root() -> Result<PathBuf> {
     }
 
     anyhow::bail!("Project root not found (no pixi.toml in ancestors)")
-}
-
-/// npm package name mappings (repo name -> npm package name)
-pub fn npm_package_names() -> HashMap<&'static str, &'static str> {
-    [
-        ("core", "@macroforge/core"),
-        ("shared", "@macroforge/shared"),
-        ("vite-plugin", "@macroforge/vite-plugin"),
-        ("typescript-plugin", "@macroforge/typescript-plugin"),
-        (
-            "svelte-language-server",
-            "@macroforge/svelte-language-server",
-        ),
-        ("svelte-preprocessor", "@macroforge/svelte-preprocessor"),
-        ("mcp-server", "@macroforge/mcp-server"),
-        ("deno-plugin", "@macroforge/deno-plugin"),
-    ]
-    .into_iter()
-    .collect()
-}
-
-/// crates.io package name mappings (repo name -> crate name)
-pub fn crate_package_names() -> HashMap<&'static str, &'static str> {
-    [
-        ("syn", "macroforge_ts_syn"),
-        ("template", "macroforge_ts_quote"),
-        ("macros", "macroforge_ts_macros"),
-    ]
-    .into_iter()
-    .collect()
 }

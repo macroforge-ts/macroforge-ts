@@ -11,8 +11,6 @@ pub enum RepoType {
     Rust,
     Ts,
     Website,
-    Tooling,
-    Extension,
 }
 
 /// Repository definition
@@ -23,7 +21,6 @@ pub struct Repo {
     pub abs_path: PathBuf,
     pub repo_type: RepoType,
     pub package_json: Option<PathBuf>,
-    pub cargo_toml: Option<PathBuf>,
     /// npm package name (if different from repo name)
     pub npm_name: Option<String>,
     /// crates.io package name (if different from repo name)
@@ -87,7 +84,6 @@ pub fn build_repos_map(root: &Path) -> HashMap<String, Repo> {
                 } else {
                     None
                 },
-                cargo_toml: Some(abs_path.join("Cargo.toml")),
                 npm_name: if name == "core" {
                     Some("@macroforge/core".to_string())
                 } else {
@@ -142,40 +138,25 @@ pub fn build_repos_map(root: &Path) -> HashMap<String, Repo> {
                 abs_path: abs_path.clone(),
                 repo_type: RepoType::Ts,
                 package_json: Some(abs_path.join("package.json")),
-                cargo_toml: None,
                 npm_name: Some(npm_name.to_string()),
                 crate_name: None,
             },
         );
     }
 
-    let other_configs = [
-        ("website", RepoType::Website, "website", true),
-        ("tooling", RepoType::Tooling, "tooling", true),
-        (
-            "zed-extensions",
-            RepoType::Extension,
-            "crates/extensions",
-            false,
-        ),
-    ];
-
-    for (name, repo_type, path, has_package_json) in other_configs {
-        let abs_path = root.join(path);
-        repos.insert(
-            name.to_string(),
-            Repo {
-                name: name.to_string(),
-                path: path.to_string(),
-                abs_path: abs_path.clone(),
-                repo_type,
-                package_json: has_package_json.then(|| abs_path.join("package.json")),
-                cargo_toml: None,
-                npm_name: None,
-                crate_name: None,
-            },
-        );
-    }
+    let website = root.join("website");
+    repos.insert(
+        "website".to_string(),
+        Repo {
+            name: "website".to_string(),
+            path: "website".to_string(),
+            abs_path: website.clone(),
+            repo_type: RepoType::Website,
+            package_json: Some(website.join("package.json")),
+            npm_name: None,
+            crate_name: None,
+        },
+    );
 
     repos
 }

@@ -66,6 +66,16 @@ pub fn excluded_crates(root: &Path) -> Result<Vec<PathBuf>> {
         .collect())
 }
 
+/// Applies clippy's machine-applicable fixes to the workspace and each excluded
+/// crate.
+pub fn fix(root: &Path) -> Result<()> {
+    shell::cargo::clippy_fix_workspace(root)?;
+    for crate_dir in excluded_crates(root)? {
+        shell::cargo::clippy_fix(&crate_dir)?;
+    }
+    Ok(())
+}
+
 /// Runs clippy over the whole workspace with every feature and target, then
 /// over each excluded crate, and collects the diagnostics.
 pub fn run(root: &Path) -> Result<Vec<UnifiedDiagnostic>> {

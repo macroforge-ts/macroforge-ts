@@ -4,7 +4,7 @@
 
 use crate::cli::args::DiagnosticsArgs;
 use crate::core::config::Config;
-use crate::diagnostics::runner::{DiagnosticOptions, Formatting};
+use crate::diagnostics::runner::{DiagnosticOptions, Fixes};
 use crate::diagnostics::{DiagnosticLevel, DiagnosticTool, DiagnosticsRunner};
 use crate::utils::format;
 use anyhow::{Context, Result};
@@ -35,10 +35,10 @@ pub fn run(args: DiagnosticsArgs) -> Result<()> {
     } else {
         DiagnosticOptions::all()
     };
-    options.formatting = if args.no_format {
-        Formatting::Skip
+    options.fixes = if args.no_fix {
+        Fixes::Skip
     } else {
-        Formatting::Fix
+        Fixes::Apply
     };
 
     // Run diagnostics

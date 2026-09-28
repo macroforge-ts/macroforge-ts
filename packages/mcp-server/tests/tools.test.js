@@ -173,7 +173,7 @@ class User {
 
     const result = macroforge.expandSync(validCode, 'test.ts', {});
 
-    // Valid code should have no errors (napi levels are lowercase)
+    // Valid code should have no errors (the engine's levels are lowercase)
     const errors = (result.diagnostics || []).filter((d) => d.level === 'error');
     assert.strictEqual(errors.length, 0, 'valid code should have no errors');
 });

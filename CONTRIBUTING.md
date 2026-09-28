@@ -144,7 +144,7 @@ trait and is registered via `inventory`. See the existing `Debug` or `Clone` mac
 ## Code style
 
 - Rust 2024 edition
-- Default features: `wasm` + `oxc`
+- Default features: `wasm` + `buildtime-boa`
 - Don't suppress warnings with `#[allow(...)]` -- fix the root cause
 - Don't add `TODO` comments unless you intend to leave them as-is
 
@@ -153,25 +153,29 @@ trait and is registered via `inventory`. See the existing `Debug` or `Clone` mac
 ```bash
 pixi run diagnostics         # Run project diagnostics
 pixi run docs:all            # Generate all documentation
-pixi run scripts             # Interactive TUI dashboard
 ```
 
 ## Releasing
 
-Every merge request into `main` runs `pixi run verify --check` in CI. Locally, `verify` regenerates
-the docs; with `--check` it writes nothing and fails when a committed generated file differs from
-its source, which `pixi run docs:check` also reports on its own. A release is one version for every
-package:
+Every merge request into `main` runs `pixi run verify --check` in CI. Locally, `verify` formats the
+tree, applies lint fixes and regenerates the docs; with `--check` it writes nothing and fails when a
+file is unformatted or a committed generated file differs from its source, which
+`pixi run
+docs:check` also reports on its own. A release is one version for every package:
 
 ```bash
-pixi run bump                # On a branch: raise the versions and everything stamped with them
+pixi run bump                # On a branch: raise the version and everything stamped with it
 pixi run verify              # Regenerate what the bump changed, then open the merge request
-pixi run push                # After the merge, on main: tag vX.Y.Z and push the tag
+pixi run tag                 # After the merge, on main: tag vX.Y.Z and push the tag
 ```
 
-The tag's pipeline checks that it is on `main` and matches `tooling/versions.json`, verifies again,
-and publishes to crates.io, npm and JSR whatever is not there yet. `pixi run publish` does the same
-from this machine.
+`pixi run bump` increments the patch version; `pixi run bump --version X.Y.Z` sets one, and
+rerunning it finishes an interrupted bump. When a release pipeline fails and needs a new commit on
+`main`, `pixi run tag --retag` moves the tag to it and pushes it again.
+
+The tag's pipeline checks that it is on `main` and matches `crates/macroforge_ts/package.json`,
+verifies again, and publishes to crates.io, npm and JSR whatever is not there yet.
+`pixi run publish` does the same from this machine.
 
 CI jobs run on a self-hosted GitLab runner tagged `mac-docker`, in the image `pixi run ci:image`
 builds from `tooling/ci/Dockerfile` on the runner's host. Rebuild it after changing that file; jobs

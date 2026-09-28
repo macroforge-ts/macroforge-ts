@@ -1,30 +1,26 @@
 # Rust Setup
 
-Create a new Rust crate that will contain your custom macros. This crate compiles to a native
-Node.js addon.
+Create a new Rust crate that will contain your custom macros. It compiles to WebAssembly, packaged
+as an npm package that Macroforge loads.
 
 ## Prerequisites
 
-- Rust toolchain (1.88 or later)
-- Node.js 18 or later
-- NAPI-RS CLI: `npm install -g @napi-rs/cli`
+- A Rust toolchain with the WebAssembly target: `rustup target add wasm32-unknown-unknown`
+- The Macroforge CLI: `cargo install macroforge_ts`
+- `wasm-bindgen-cli` at the version of the `wasm-bindgen` crate your macro crate builds with. After
+  adding `macroforge_ts` below, `cargo tree -i wasm-bindgen --depth 0` prints it; install that
+  version with `cargo install wasm-bindgen-cli --version <version> --locked`.
 
 ## Create the Project
 
 Bash
 
 ```
-# Create a new directory
-mkdir my-macros
+cargo new --lib my-macros
 cd my-macros
-
-# Initialize with NAPI-RS
-napi new --platform --name my-macros
 ```
 
 ## Configure Cargo.toml
-
-Update your `Cargo.toml` with the required dependencies:
 
 Cargo.toml
 
@@ -35,29 +31,14 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-macroforge_ts = { version = "0.3", features = ["node"] }
-napi = { version = "3", features = ["napi8", "compat-mode"] }
-napi-derive = "3"
-
-[build-dependencies]
-napi-build = "2"
+macroforge_ts = "0.4"
 
 [profile.release]
 lto = true
 strip = true
-```
-
-## Create build.rs
-
-build.rs
-
-```
-fn main() {
-    napi_build::setup();
-}
 ```
 
 ## Create src/lib.rs
@@ -99,31 +80,20 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
 ## Create package.json
 
+`macroforge build` writes the package into `pkg/`, named after the library target: `my_macros` for
+this crate.
+
 package.json
 
 ```
 {
   "name": "@my-org/macros",
   "version": "0.1.0",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "napi": {
-    "name": "my-macros",
-    "triples": {
-      "defaults": true
-    }
-  },
-  "files": [
-    "index.js",
-    "index.d.ts",
-    "*.node"
-  ],
+  "main": "pkg/my_macros.js",
+  "types": "pkg/my_macros.d.ts",
+  "files": ["pkg"],
   "scripts": {
-    "build": "napi build --release",
-    "prepublishOnly": "napi build --release"
-  },
-  "devDependencies": {
-    "@napi-rs/cli": "^3.0.0-alpha.0"
+    "build": "macroforge build . --out pkg"
   }
 }
 ```
@@ -133,18 +103,17 @@ package.json
 Bash
 
 ```
-# Build the native addon
 npm run build
 
-# This creates:
-# - index.js (JavaScript bindings)
-# - index.d.ts (TypeScript types)
-# - *.node (native binary)
+# This creates, in pkg/:
+# - my_macros.js       (JavaScript bindings)
+# - my_macros.d.ts     (TypeScript types)
+# - my_macros_bg.wasm  (the macros)
 ```
 
 Tip
 
-For cross-platform builds, use GitHub Actions with the NAPI-RS CI template.
+The WebAssembly module runs on every platform, so one build serves every OS.
 
 ## Next Steps
 

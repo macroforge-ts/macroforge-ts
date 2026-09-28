@@ -13,14 +13,14 @@
 <h1>Architecture</h1>
 
 <p class="lead">
-	Macroforge is built as a modular Rust engine with multiple output targets. It parses and generates TypeScript with oxc, and provides both native Node.js and universal WebAssembly bindings.
+	Macroforge is built as a modular Rust engine with multiple output targets. It parses and generates TypeScript with oxc, and compiles to WebAssembly, which runs in every JavaScript environment.
 </p>
 
 <h2 id="overview">Overview</h2>
 
 <ArchitectureDiagram layers={[
 	{ title: "JavaScript Environments", items: ["Node.js", "Vite", "Browser", "Edge"] },
-	{ title: "Target Bindings", items: ["NAPI-RS (Node)", "wasm-bindgen (Universal)"] },
+	{ title: "Bindings", items: ["wasm-bindgen"] },
 	{ title: "Unified API", items: ["CoreEngine"] },
 	{ title: "Macro Crates", items: ["macroforge_ts_syn", "macroforge_ts_quote", "macroforge_ts_macros"] },
 	{ title: "oxc", items: ["TypeScript parsing & codegen"] }
@@ -30,14 +30,13 @@
 
 <h3>Unified API & Core Engine</h3>
 <p>
-	At the heart of Macroforge is <code>CoreEngine</code>, an output-agnostic facade that both bindings delegate to. This keeps the core expansion logic identical across all platforms while supporting different transport layers (NAPI or WASM).
+	At the heart of Macroforge is <code>CoreEngine</code>, an output-agnostic facade that the WebAssembly bindings and the <code>macroforge</code> CLI delegate to, so the expansion logic is identical wherever it runs.
 </p>
 
-<h3>Target Bindings</h3>
-<ul>
-	<li><strong>NAPI-RS</strong>: Bridges Rust and Node.js for maximum performance using native binaries.</li>
-	<li><strong>wasm-bindgen</strong>: Compiles the engine to WebAssembly for universal compatibility across browsers and edge workers.</li>
-</ul>
+<h3>Bindings</h3>
+<p>
+	<strong>wasm-bindgen</strong> compiles the engine to WebAssembly, which runs in Node, Deno, browsers and edge workers.
+</p>
 
 <h3>oxc</h3>
 <p>
@@ -79,9 +78,9 @@
 	<li>Error handling and span tracking</li>
 </ul>
 
-<h3>NAPI-RS Bindings</h3>
+<h3>wasm-bindgen Bindings</h3>
 <p>
-	Bridges Rust and Node.js:
+	Bridges the WebAssembly engine and JavaScript:
 </p>
 <ul>
 	<li>Exposes <code>expandSync</code>, <code>checkSyntax</code>, <code>scanProjectSync</code>, etc.</li>
@@ -93,7 +92,7 @@
 
 <Flowchart steps={[
 	{ title: "1. Source Code", description: "TypeScript with @derive" },
-	{ title: "2. NAPI-RS", description: "receives JavaScript string" },
+	{ title: "2. wasm-bindgen", description: "receives JavaScript string" },
 	{ title: "3. oxc Parser", description: "parses to AST" },
 	{ title: "4. Macro Expander", description: "finds @derive decorators" },
 	{ title: "5. For Each Macro", description: "extract data, run macro, generate AST nodes" },
@@ -105,8 +104,8 @@
 <h2 id="performance">Performance Characteristics</h2>
 
 <ul>
-	<li><strong>Isolated Execution</strong>: In Node.js, each expansion runs in a dedicated thread with a 32MB stack to prevent stack overflow during deep recursion. In WASM, execution is synchronous on the main thread.</li>
-	<li><strong>Caching</strong>: <code>NativePlugin</code> (Node) and API calls support version-based caching to skip redundant work.</li>
+	<li><strong>Isolated Execution</strong>: In the <code>macroforge</code> CLI, each expansion runs in a dedicated thread with a 32MB stack to prevent stack overflow during deep recursion. In WASM, execution is synchronous on the main thread.</li>
+	<li><strong>Caching</strong>: <code>NativePlugin</code> and API calls support version-based caching to skip redundant work.</li>
 	<li><strong>Binary search</strong>: Position mapping uses optimized O(log n) lookups.</li>
 	<li><strong>Arena allocation</strong>: oxc parses into an arena, so AST nodes borrow from one allocation rather than each owning their own.</li>
 </ul>

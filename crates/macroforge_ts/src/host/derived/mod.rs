@@ -30,7 +30,7 @@
 //! and their decorators at runtime. This is used by:
 //! - IDE extensions for autocompletion
 //! - Documentation generators
-//! - The `__macroforgeGetManifest()` NAPI export
+//! - The `__macroforgeGetManifest()` wasm export
 
 mod descriptors;
 pub mod manifest;

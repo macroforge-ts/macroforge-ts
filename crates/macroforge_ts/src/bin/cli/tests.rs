@@ -891,10 +891,10 @@ fn test_external_macro_hash_finds_a_workspace_root_package() {
 
     let macros = workspace.join("node_modules/@acme/macros");
     write(
-        &macros.join("index.js"),
-        "exports.__macroforgeRunThing = () => {};",
+        &macros.join("pkg/macros.js"),
+        "export function __macroforgeRunThing() {}",
     );
-    write(&macros.join("macros.darwin-x64.node"), "binary");
+    write(&macros.join("pkg/macros_bg.wasm"), "binary");
 
     let found = compute_external_macro_hash(&project);
     assert_ne!(
@@ -903,7 +903,7 @@ fn test_external_macro_hash_finds_a_workspace_root_package() {
     );
 
     // And rebuilding it has to move the hash, or nothing downstream reruns.
-    write(&macros.join("macros.darwin-x64.node"), "a different binary");
+    write(&macros.join("pkg/macros_bg.wasm"), "a different binary");
     assert_ne!(
         compute_external_macro_hash(&project),
         found,

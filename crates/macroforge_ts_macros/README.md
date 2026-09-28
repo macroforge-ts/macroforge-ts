@@ -35,7 +35,7 @@ This generates:
 - A struct implementing the
   [`Macroforge`](https://docs.rs/macroforge_ts_macros/latest/macroforge_ts_macros/?search=Macroforge)
   trait
-- A NAPI function for JavaScript interop
+- wasm-bindgen exports for JavaScript interop, and a C-ABI export for the CLI
 - Registration with the macro registry via `inventory`
 
 ## Architecture
@@ -43,7 +43,7 @@ This generates:
 The generated code follows this pattern:
 
 1. **Macro Struct**: A unit struct that implements the `Macroforge` trait
-2. **NAPI Bridge**: A function exposed to JavaScript that handles JSON serialization
+2. **Bridges**: exports that take and return the macro context as JSON
 3. **Descriptor**: Static metadata about the macro for runtime discovery
 4. **Registration**: Automatic registration with the `inventory` crate
 

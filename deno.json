@@ -12,7 +12,6 @@
             "**/.macroforge",
             "**/*.expanded.ts",
             "**/*.expanded.svelte.ts",
-            "**/*.node",
             "**/fixtures/**"
         ],
         "indentWidth": 4,

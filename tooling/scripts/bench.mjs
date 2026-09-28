@@ -3,8 +3,6 @@
 //
 // Usage:
 //   pixi run bench                                  — benchmark current build
-//   pixi run bench:all                              — compare every build in bench-bins/
-//   pixi run bench:build                            — build the wasm and native variants into bench-bins/
 //   bench.mjs --wasm-bindgen <input.wasm> <node-out-dir> <deno-out-dir>
 //                                                   run wasm-bindgen for npm and
 //                                                   JSR (the build:wasm task)
@@ -13,22 +11,14 @@
 import { pathToFileURL } from 'node:url';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { execSync } from 'node:child_process';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const root = path.resolve(__dirname, '../..');
 const crateDir = path.join(root, 'crates/macroforge_ts');
-const binsDir = path.join(root, 'tooling/bench-bins');
 const iterations = parseInt(Deno.env.get('MF_BENCH_ITERATIONS') || '20', 10);
 
 const args = Deno.args;
-const mode = args.includes('--build')
-    ? 'build'
-    : args.includes('--all')
-    ? 'all'
-    : args.includes('--wasm-bindgen')
-    ? 'wasm-bindgen'
-    : 'current';
+const mode = args.includes('--wasm-bindgen') ? 'wasm-bindgen' : 'current';
 
 // ============================================================================
 // wasm-bindgen subcommand (replaces the old wasm-bindgen-build.mjs)
@@ -173,102 +163,12 @@ async function bench(label, modPath) {
     return { label, results };
 }
 
-function printTable(all) {
-    const files = all[0].results.map((r) => r.file);
-    const header = ['File', ...all.map((r) => r.label)];
-    const rows = files.map((f, i) => [f, ...all.map((r) => r.results[i].median.toFixed(1))]);
-    const w = header.map((h, c) => Math.max(h.length, ...rows.map((r) => r[c].length)));
-    const sep = w.map((n) => '-'.repeat(n + 2)).join('+');
-    console.log(header.map((h, i) => ` ${h.padEnd(w[i])} `).join('|'));
-    console.log(sep);
-    for (const row of rows) console.log(row.map((c, i) => ` ${c.padEnd(w[i])} `).join('|'));
-    console.log(sep);
-    const avg = [
-        'AVERAGE',
-        ...all.map((r) =>
-            (r.results.reduce((s, x) => s + x.median, 0) / r.results.length).toFixed(1)
-        )
-    ];
-    console.log(avg.map((c, i) => ` ${c.padEnd(w[i])} `).join('|'));
-    if (all.length > 1) {
-        const base = all[0].results.reduce((s, x) => s + x.median, 0) / all[0].results.length;
-        console.log('\nSpeedup vs ' + all[0].label + ':');
-        for (const r of all.slice(1)) {
-            const a = r.results.reduce((s, x) => s + x.median, 0) / r.results.length;
-            console.log(
-                `  ${r.label}: ${(base / a).toFixed(2)}x ${base / a > 1 ? 'faster' : 'slower'}`
-            );
-        }
-    }
-}
-
-// ============================================================================
-// Build
-// ============================================================================
-
-function build() {
-    fs.mkdirSync(binsDir, { recursive: true });
-    const run = (cmd, cwd) => {
-        console.log(`  $ ${cmd}`);
-        execSync(cmd, { cwd, stdio: 'inherit' });
-    };
-
-    console.log('\n[1/2] wasm');
-    run('pixi run build:rust', root);
-    fs.cpSync(path.join(crateDir, 'pkg'), path.join(binsDir, 'wasm'), { recursive: true });
-
-    console.log('\n[2/2] native');
-    fs.mkdirSync(path.join(binsDir, 'native'), { recursive: true });
-    run(
-        `deno run -A npm:@napi-rs/cli/napi build --platform --release --no-default-features --features node --output-dir ${
-            path.join(binsDir, 'native')
-        }`,
-        crateDir
-    );
-
-    console.log('\nRestoring default...');
-    run('pixi run build:rust', root);
-    console.log('Done. Run: pixi run bench:all');
-}
-
 // ============================================================================
 // Main
 // ============================================================================
 
 if (mode === 'wasm-bindgen') {
     await wasmBindgen();
-} else if (mode === 'build') {
-    build();
-} else if (mode === 'all') {
-    if (!fs.existsSync(binsDir)) {
-        console.error('No bench-bins/. Run: pixi run bench:build');
-        Deno.exit(1);
-    }
-    const combos = fs.readdirSync(binsDir, { withFileTypes: true }).filter((d) => d.isDirectory())
-        .map((d) => d.name).sort();
-    if (!combos.length) {
-        console.error('Empty bench-bins/. Run: pixi run bench:build');
-        Deno.exit(1);
-    }
-    console.log(`\nMacroforge Benchmark — ${iterations} iterations`);
-    console.log('='.repeat(60));
-    const all = [];
-    for (const c of combos) {
-        const dir = path.join(binsDir, c);
-        const entry = fs.existsSync(path.join(dir, 'macroforge_ts.js'))
-            ? path.join(dir, 'macroforge_ts.js')
-            : path.join(dir, 'index.js');
-        console.log(`  ${c}...`);
-        const r = await bench(c, entry);
-        if (r) all.push(r);
-    }
-    if (!all.length) {
-        console.log('No results.');
-        Deno.exit(1);
-    }
-    console.log('\nMedian expansion time (ms)');
-    console.log('='.repeat(60));
-    printTable(all);
 } else {
     const entry = path.join(crateDir, 'pkg/macroforge_ts.js');
     if (!fs.existsSync(entry)) {

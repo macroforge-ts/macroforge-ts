@@ -5,9 +5,9 @@ class AST and can generate any TypeScript code.
 
 ## Overview
 
-Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
+Custom macros are written in Rust and compiled to WebAssembly. The process involves:
 
-1. Creating a Rust crate with NAPI bindings
+1. Creating a Rust crate that builds to WebAssembly
 2. Defining macro functions with `#[ts_macro_derive]`
 3. Using `macroforge_ts_quote` to generate TypeScript code
 4. Building and publishing as an npm package

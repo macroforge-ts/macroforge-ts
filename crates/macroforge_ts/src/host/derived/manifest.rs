@@ -2,11 +2,7 @@ use super::descriptors::DerivedMacroRegistration;
 use super::registry::decorator_metadata;
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "node")]
-use napi_derive::napi;
-
 /// Manifest entry describing a single macro.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MacroManifestEntry {
@@ -21,7 +17,6 @@ pub struct MacroManifestEntry {
 }
 
 /// Entry for a registered decorator in the manifest.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DecoratorManifestEntry {
     /// The module this decorator belongs to (e.g., "serde").
@@ -35,7 +30,6 @@ pub struct DecoratorManifestEntry {
 }
 
 /// Complete manifest of all available macros and decorators.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MacroManifest {

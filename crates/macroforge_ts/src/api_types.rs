@@ -1,5 +1,3 @@
-#[cfg(feature = "node")]
-use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 
 // ============================================================================
@@ -30,7 +28,6 @@ use serde::{Deserialize, Serialize};
 ///     end: Some(45),
 /// };
 /// ```
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MacroDiagnostic {
     /// Severity level of the diagnostic.
@@ -57,7 +54,6 @@ pub struct MacroDiagnostic {
 /// - `original_start < original_end`
 /// - `expanded_start < expanded_end`
 /// - Segments are non-overlapping and sorted by position
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MappingSegmentResult {
@@ -81,7 +77,6 @@ pub struct MappingSegmentResult {
 /// For a `@derive(Debug)` macro that generates a `toString()` method,
 /// a `GeneratedRegionResult` would mark the entire method body as generated
 /// with `source_macro = "Debug"`.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GeneratedRegionResult {
@@ -104,7 +99,6 @@ pub struct GeneratedRegionResult {
 /// - Converting positions from original source to expanded source and vice versa
 /// - Identifying which macro generated a given piece of code
 /// - Mapping IDE diagnostics from expanded code back to original source
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SourceMappingResult {
@@ -141,7 +135,6 @@ pub struct SourceMappingResult {
 ///     // Handle errors
 /// }
 /// ```
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExpandResult {
@@ -194,7 +187,6 @@ impl ExpandResult {
 /// Information about an imported identifier from a TypeScript module.
 ///
 /// Used to track where decorators and macro-related imports come from.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ImportSourceResult {
     /// Local identifier name in the import statement (e.g., `Derive` in `import { Derive }`).
@@ -206,7 +198,6 @@ pub struct ImportSourceResult {
 /// Result of checking TypeScript syntax validity.
 ///
 /// Returned by [`check_syntax`] to indicate whether code parses successfully.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct SyntaxCheckResult {
     /// `true` if the code parsed without errors, `false` otherwise.
@@ -218,7 +209,6 @@ pub struct SyntaxCheckResult {
 /// A span (range) in source code, represented as start position and length.
 ///
 /// Used for mapping diagnostics and other positional information.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct SpanResult {
     /// Byte offset where the span starts.
@@ -231,7 +221,6 @@ pub struct SpanResult {
 ///
 /// This structure mirrors TypeScript's diagnostic format for interoperability
 /// with language servers and IDEs.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct JsDiagnostic {
     /// Byte offset where the diagnostic starts. `None` for global diagnostics.
@@ -249,7 +238,6 @@ pub struct JsDiagnostic {
 /// Options for macro expansion.
 ///
 /// Used by [`expand_sync`] to configure expansion behavior.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExpandOptions {
@@ -345,7 +333,6 @@ pub struct ExpandOptions {
 ///
 /// Used by [`NativePlugin::process_file`] to configure expansion behavior
 /// and caching.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProcessFileOptions {
@@ -373,7 +360,6 @@ pub struct ProcessFileOptions {
 }
 
 /// Options for scanning a TypeScript project for type information.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScanOptions {
@@ -384,7 +370,6 @@ pub struct ScanOptions {
 }
 
 /// Result of scanning a project for type information.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScanResult {
@@ -409,7 +394,6 @@ pub struct ScanResult {
 /// Result of loading a macroforge configuration file.
 ///
 /// Returned by [`load_config`] after parsing a `macroforge.config.js/ts` file.
-#[cfg_attr(feature = "node", napi(object))]
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LoadConfigResult {

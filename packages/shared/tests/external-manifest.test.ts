@@ -6,22 +6,35 @@ import {
     getExternalManifest
 } from '../src/external-manifest.ts';
 
-// Mock manifest for testing
+// A manifest shaped the way the engine's `MacroManifest` serializes.
 const mockManifest = {
+    version: 1,
     macros: [
-        { name: 'JSON', description: 'JSON serialization macro' },
-        { name: 'Debug', description: 'Debug implementation macro' }
+        {
+            name: 'JSON',
+            kind: 'derive',
+            description: 'JSON serialization macro',
+            package: 'test-package'
+        },
+        {
+            name: 'Debug',
+            kind: 'derive',
+            description: 'Debug implementation macro',
+            package: 'test-package'
+        }
     ],
     decorators: [
         {
-            export: 'hiddenController',
             module: 'hiddenController',
-            description: 'Hidden field'
+            export: 'hiddenController',
+            kind: 'property',
+            docs: 'Hidden field'
         },
         {
-            export: 'fieldController',
             module: 'fieldController',
-            description: 'Field controller'
+            export: 'fieldController',
+            kind: 'property',
+            docs: 'Field controller'
         }
     ]
 };
@@ -81,6 +94,13 @@ Deno.test('getExternalManifest - caches result', () => {
 
     // Should only have called require once
     assertEquals(callCount, 1);
+});
+
+Deno.test('getExternalManifest - rejects a malformed manifest', () => {
+    clearExternalManifestCache();
+    const malformed = createMockRequire({ macros: [{ name: 'JSON' }], decorators: [] });
+
+    assertEquals(getExternalManifest('malformed-package', malformed), null);
 });
 
 Deno.test('getExternalManifest - returns null for missing package', () => {
