@@ -9,7 +9,6 @@
 //! | Function | Use Case |
 //! |----------|----------|
 //! | [`insert_into_class`] | Add a method or property to a class |
-//! | [`insert_class_member`] | Insert an SWC ClassMember AST node |
 //!
 //! ## Example
 //!
@@ -42,7 +41,7 @@ use crate::abi::*;
 /// # Arguments
 ///
 /// - `class_span` - The `body_span` of the class (from [`ClassIR::body_span`])
-/// - `code` - The code to insert (string, `PatchCode`, or any type implementing `Into<PatchCode>`)
+/// - `code` - The code to insert
 ///
 /// # Returns
 ///
@@ -82,47 +81,11 @@ use crate::abi::*;
 /// let _patch = insert_into_class(class_body_span, code)
 ///     .with_source_macro("Debug");
 /// ```
-pub fn insert_into_class(class_span: SpanIR, code: impl Into<PatchCode>) -> Patch {
+pub fn insert_into_class(class_span: SpanIR, code: impl Into<String>) -> Patch {
     let insert_at = class_span.end.saturating_sub(1);
     Patch::Insert {
         at: SpanIR::new(insert_at, insert_at),
         code: code.into(),
         source_macro: None,
     }
-}
-
-/// Creates a patch to insert an SWC `ClassMember` into a class body.
-///
-/// This is a convenience wrapper around [`insert_into_class`] that accepts
-/// an SWC [`ClassMember`](swc_ast::ClassMember) AST node directly.
-///
-/// # Arguments
-///
-/// - `class_span` - The `body_span` of the class
-/// - `member` - An SWC `ClassMember` (method, property, constructor, etc.)
-///
-/// # Example
-///
-/// ```rust,ignore
-/// use macroforge_ts_syn::{insert_class_member, ts_ident, ClassIR};
-/// use swc_core::ecma::ast::*;
-/// use swc_core::common::DUMMY_SP;
-///
-/// fn add_property(class: &ClassIR) -> Patch {
-///     let prop = ClassMember::ClassProp(ClassProp {
-///         span: DUMMY_SP,
-///         key: PropName::Ident(ts_ident!("generated")),
-///         value: Some(Box::new(Expr::Lit(Lit::Bool(Bool {
-///             span: DUMMY_SP,
-///             value: true,
-///         })))),
-///         // ... other fields
-///     });
-///
-///     insert_class_member(class.body_span, prop)
-/// }
-/// ```
-#[cfg(feature = "swc")]
-pub fn insert_class_member(class_span: SpanIR, member: crate::abi::swc_ast::ClassMember) -> Patch {
-    insert_into_class(class_span, PatchCode::from(member))
 }

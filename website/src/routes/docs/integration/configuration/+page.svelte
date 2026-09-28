@@ -54,7 +54,7 @@
 
 <p>
 	Whether to preserve <code>@derive</code> decorators in the output code after macro expansion.
-	When <code>false</code>, decorators are removed after expansion since they serve only as compile-time directives. When <code>true</code>, decorators are kept in the output, which can be useful for debugging or when using runtime reflection.
+	When <code>false</code>, decorators are removed after expansion since they serve only as build-time directives. When <code>true</code>, decorators are kept in the output, which can be useful for debugging or when using runtime reflection.
 </p>
 
 <h3>generateConvenienceConst</h3>

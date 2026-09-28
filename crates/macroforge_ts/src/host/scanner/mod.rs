@@ -1,6 +1,6 @@
 //! Project-wide TypeScript scanner for building the type registry.
 //!
-//! This module walks the project directory, parses all `.ts`/`.tsx` files with SWC,
+//! This module walks the project directory, parses all `.ts`/`.tsx` files with OXC,
 //! lowers declarations to IR, and collects them into a [`TypeRegistry`].
 //!
 //! The scanner runs BEFORE macro expansion as a pre-pass to give macros
@@ -21,14 +21,11 @@
 //! ```
 
 pub mod cache;
-mod collectors;
 mod config;
 mod core;
 #[cfg(test)]
 mod tests;
 
 pub use cache::{CacheEntry, ScanCache};
-#[cfg(feature = "swc")]
-pub use collectors::{collect_exported_names, collect_file_imports};
 pub use config::ScanConfig;
 pub use core::{ProjectScanner, ScanOutput};

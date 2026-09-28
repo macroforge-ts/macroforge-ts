@@ -76,7 +76,7 @@ export const quoted = "1 + 2 * 3";`}
 <CodeBlock
     code={`#[ts_macro(
     sql,
-    description = "Compile-time SQL validation"
+    description = "Build-time SQL validation"
 )]`}
     lang="rust"
 />
@@ -146,7 +146,7 @@ export { stringify as $stringify };`}
 <p>
     Consumers can import the <code>$</code>-prefixed alias from the
     generated package and both the runtime (as a passthrough) and the
-    compile-time expansion will work.
+    build-time expansion will work.
 </p>
 
 <h2 id="import-at-call-site">Importing Call Macros in Consumer Code</h2>

@@ -68,7 +68,7 @@
         "category": "concepts",
         "category_title": "Core Concepts",
         "path": "concepts/architecture.md",
-        "use_cases": "internals, rust, swc, napi, how it works"
+        "use_cases": "internals, rust, oxc, napi, how it works"
     },
     {
         "id": "declarative-macros",
@@ -600,6 +600,15 @@
         "parent_id": "ts-quote"
     },
     {
+        "id": "ts-quote/comparison-with-alternatives",
+        "title": "Template Syntax: Comparison with Alternatives",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/ts-quote/comparison-with-alternatives.md",
+        "use_cases": "ts_quote, template, ts_quote!, parse_expr(), parse_statement(), ts_template!",
+        "parent_id": "ts-quote"
+    },
+    {
         "id": "ts-quote",
         "title": "Template Syntax",
         "category": "custom-macros",
@@ -622,7 +631,8 @@
             "ts-quote/local-constants-let",
             "ts-quote/side-effects-do",
             "ts-quote/tsstream-injection-typescript",
-            "ts-quote/complete-example-json-derive-macro"
+            "ts-quote/complete-example-json-derive-macro",
+            "ts-quote/comparison-with-alternatives"
         ]
     },
     {
@@ -802,14 +812,6 @@
         "category_title": "API Reference",
         "path": "api/expand-sync.md",
         "use_cases": "expandSync, expand, transform, macro expansion"
-    },
-    {
-        "id": "transform-sync",
-        "title": "transformSync()",
-        "category": "api",
-        "category_title": "API Reference",
-        "path": "api/transform-sync.md",
-        "use_cases": "transformSync, transform, metadata, low-level"
     },
     {
         "id": "native-plugin",

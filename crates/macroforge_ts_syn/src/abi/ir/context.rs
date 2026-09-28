@@ -11,7 +11,7 @@
 //!        │
 //!        ▼
 //! ┌─────────────────┐
-//! │  Parse & Lower  │  (SWC parser → IR types)
+//! │  Parse & Lower  │  (OXC parser → IR types)
 //! └────────┬────────┘
 //!          │
 //!          ▼
@@ -223,7 +223,7 @@ pub struct MacroContextIR {
 
     /// Project-wide type registry, populated during pre-expansion scan.
     /// Gives macros access to all types defined in the project for
-    /// Zig-style compile-time type awareness.
+    /// Zig-style build-time type awareness.
     ///
     /// Always present — defaults to an empty `TypeRegistry` when no scan
     /// data is available (e.g. unit-test fixtures that don't exercise

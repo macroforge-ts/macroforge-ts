@@ -425,16 +425,15 @@ fn path_pattern_matches() {
 // Discovery + prepass integration tests
 // ---------------------------------------------------------------------
 
-#[cfg(feature = "oxc")]
 fn run_prepass_fixture(source: &str) -> crate::host::buildtime::prepass::PrepassOutput {
     use crate::host::buildtime::prepass::run_prepass;
     use crate::host::buildtime::sandbox::SandboxOptions;
     use oxc::allocator::Allocator;
-    use oxc::parser::Parser as OxcParser;
+    use oxc::parser::Parser;
     use oxc::span::SourceType;
 
     let allocator = Allocator::default();
-    let ret = OxcParser::new(&allocator, source, SourceType::ts()).parse();
+    let ret = Parser::new(&allocator, source, SourceType::ts()).parse();
     assert!(
         ret.diagnostics.is_empty(),
         "parse errors in fixture: {:?}",
@@ -453,7 +452,6 @@ fn run_prepass_fixture(source: &str) -> crate::host::buildtime::prepass::Prepass
     )
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_rewrites_tier1_const() {
     let src = r#"/** @buildtime */
@@ -470,7 +468,6 @@ const ANSWER = 6 * 7;
     assert!(out.dependencies.is_empty());
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_preserves_export_keyword() {
     let src = r#"/** @buildtime */
@@ -489,7 +486,6 @@ export const ANSWER = 6 * 7;
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_leaves_non_annotated_decls_alone() {
     let src = r#"const NORMAL = 1;
@@ -511,7 +507,6 @@ const AFTER = 2;
     assert!(rewritten.contains("const AFTER = 2;"));
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_returns_none_when_no_decls() {
     let src = r#"const X = 1;
@@ -522,7 +517,6 @@ const Y = 2;
     assert!(out.rewritten.is_none());
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_rewrites_tier2_function_with_string_return() {
     let src = r#"/** @buildtime */
@@ -545,7 +539,6 @@ function gen() {
     assert!(!rewritten.contains("function gen"));
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_tier2_non_string_degrades_to_const() {
     let src = r#"/** @buildtime */
@@ -567,7 +560,6 @@ function compute() {
     assert!(!rewritten.contains("function compute"));
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_tier1_emits_diagnostic_on_throw() {
     let src = r#"/** @buildtime */
@@ -590,7 +582,6 @@ const BROKEN = (() => { throw new Error("kapow"); })();
     assert!(out.rewritten.is_none());
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_records_dependencies() {
     use std::io::Write;
@@ -617,7 +608,6 @@ const FROM_FILE = buildtime.fs.readJson({path_lit}).value;
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_throw_remaps_stack_to_user_source() {
     // The declaration lives on line 2 of the source. When the sandbox
@@ -654,7 +644,6 @@ const BAD = (() => { throw new Error("bang"); })();
     assert_eq!(line_of_span, 2);
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_same_file_prelude_allows_function_reference() {
     // Zig-comptime-style: a @buildtime body can call a pure function
@@ -677,7 +666,6 @@ const RESULT = upper("hello");
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_same_file_prelude_with_pure_const() {
     let src = r#"const MULTIPLIER = 10;
@@ -695,7 +683,6 @@ const TOTAL = MULTIPLIER * 5;
     assert!(rewritten.contains("const TOTAL = 50;"), "got: {rewritten}");
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_iife_with_ts_annotations_in_body() {
     // Reproduces the GREETINGS issue from the vanilla playground:
@@ -729,7 +716,6 @@ const GREETINGS = ((): Record<string, string> => {
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_actual_playground_demo_file() {
     // Loads the playground demo source from disk and runs the prepass
@@ -771,7 +757,6 @@ fn prepass_actual_playground_demo_file() {
     assert!(rewritten.contains("const GREETINGS"), "GREETINGS missing");
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_full_playground_demo() {
     // Full reproduction of the vanilla playground's buildtime-demo.ts.
@@ -788,7 +773,7 @@ const SCHEMA_HASH = buildtime.crypto.sha256('user-schema-v1');
 /** @buildtime */
 const CONSTANT_OBJECT = {
     thirteen: 13,
-    label: 'compile-time',
+    label: 'build-time',
     items: [1, 2, 3]
 };
 
@@ -847,7 +832,6 @@ export function collectBuildtimeDemo(): BuildtimeDemoResult {
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_same_file_prelude_warns_on_impure_top_level() {
     // An impure top-level call disables the prelude and emits a warning
@@ -881,7 +865,6 @@ const VAL = helper();
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_top_level_await_inside_buildtime_resolves() {
     // Users can write `await` directly inside a @buildtime body.
@@ -900,7 +883,6 @@ const RESULT = await Promise.resolve(7).then(x => x * 6);
     assert!(rewritten.contains("const RESULT = 42;"), "got: {rewritten}");
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_await_chain_resolves_fully() {
     let src = r#"/** @buildtime */
@@ -920,7 +902,6 @@ const CHAIN = await (async () => {
     assert!(rewritten.contains("const CHAIN = 42;"), "got: {rewritten}");
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_tier3_type_splices_string_as_type() {
     let src = r#"/** @buildtime */
@@ -939,7 +920,6 @@ type UserId = "string";
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_tier3_type_template_literal_composes() {
     let src = r#"/** @buildtime */
@@ -958,7 +938,6 @@ type UnionOfLits = `"a" | "b" | "c"`;
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_tier3_type_export_preserved() {
     let src = r#"/** @buildtime */
@@ -972,12 +951,11 @@ export type Level = "number";
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_tier3_non_string_errors() {
     // Non-string TS types — e.g., the type `number` itself — can't be
     // evaluated as a JS expression. So this intentionally fails at
-    // compile time with a diagnostic on the user's decl.
+    // build time with a diagnostic on the user's decl.
     let src = r#"/** @buildtime */
 type Bad = 42;
 "#;
@@ -1000,7 +978,6 @@ type Bad = 42;
     );
 }
 
-#[cfg(feature = "oxc")]
 #[test]
 fn prepass_multiple_decls_compose() {
     let src = r#"/** @buildtime */

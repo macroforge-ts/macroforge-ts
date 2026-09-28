@@ -1,10 +1,9 @@
 //! Backend-agnostic parsing of the attribute-macro config blocks
 //! (`cfg`, `deprecated`, `mustUse`, `nonExhaustive`).
 //!
-//! The SWC and OXC parsers each know how to convert their own AST literal
-//! expressions into [`serde_json::Value`] — a tiny per-backend function.
-//! From there, every config key lookup and type coercion is identical, so
-//! we centralise it here. New keys only need to be added in one place.
+//! The config loader converts each block's literal expression into a
+//! [`serde_json::Value`]; every key lookup and type coercion from there lives
+//! here, so a new key only needs adding in one place.
 
 use macroforge_ts_syn::config::{
     BuildtimeConfig, CfgFlags, DeprecatedConfig, MustUseConfig, MustUseMode, NonExhaustiveConfig,

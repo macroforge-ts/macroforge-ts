@@ -13,7 +13,7 @@
 //! ┌──────────────────────────────────────────┐
 //! │            MacroExpander                  │
 //! │                                           │
-//! │  0. declarative_prepass_oxc()             │
+//! │  0. declarative_prepass()             │
 //! │     - Discover/rewrite `$name(...)`       │
 //! │       declarative macro calls (oxc only)  │
 //! │                                           │
@@ -101,26 +101,17 @@ mod tests;
 #[cfg(not(target_arch = "wasm32"))]
 mod wasm_loader;
 
-#[cfg(feature = "swc")]
-pub use imports::{ImportCollectionResult, collect_import_sources};
-
 use std::collections::HashMap;
 
 use crate::ts_syn::abi::{
     ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR, MacroContextIR,
-    MacroResult, Patch, PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
+    MacroResult, Patch, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
 };
-#[cfg(feature = "swc")]
-use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 use crate::ts_syn::{
-    lower_classes_oxc, lower_enums_oxc, lower_functions_oxc, lower_interfaces_oxc,
-    lower_type_aliases_oxc,
+    lower_classes, lower_enums, lower_functions, lower_interfaces, lower_type_aliases,
 };
-#[cfg(any(not(target_arch = "wasm32"), feature = "swc"))]
+#[cfg(not(target_arch = "wasm32"))]
 use anyhow::Context;
-#[cfg(feature = "swc")]
-use swc_core::ecma::ast::{ClassMember, Module, Program};
 
 use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
@@ -132,17 +123,13 @@ pub(crate) use derive_targets::{
 };
 pub(crate) use external_loader::ExternalMacroLoader;
 use external_loader::resolve_external_decorator_names;
-#[cfg(feature = "swc")]
-use helpers::{MemberWithComment, parse_members_from_tokens};
 use helpers::{
     derive_insert_pos, extract_function_names_from_patches, find_macro_comment_span,
     generate_convenience_export, get_derive_target_end_span, get_derive_target_name,
     get_derive_target_start_span, has_existing_namespace_or_const, is_declaration_exported,
     split_by_markers,
 };
-#[cfg(feature = "swc")]
-use imports::check_builtin_import_warnings;
-use imports::external_type_function_import_patches;
+use imports::{check_builtin_import_warnings, external_type_function_import_patches};
 use registration::register_packages;
 
 /// Default module path for built-in derive macros
@@ -150,20 +137,6 @@ const DERIVE_MODULE_PATH: &str = "@macro/derive";
 
 /// Special marker for dynamic module resolution
 const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
-
-/// Built-in macro names that don't need to be imported
-#[cfg(feature = "swc")]
-const BUILTIN_MACRO_NAMES: &[&str] = &[
-    "Debug",
-    "Clone",
-    "Default",
-    "Hash",
-    "Ord",
-    "PartialEq",
-    "PartialOrd",
-    "Serialize",
-    "Deserialize",
-];
 
 /// Result of macro expansion.
 ///
@@ -206,7 +179,7 @@ pub struct MacroExpander {
     /// Additional decorator module names from external macros
     external_decorator_modules: Vec<String>,
     external_loader: Option<ExternalMacroLoader>,
-    /// Project-wide type registry for compile-time type awareness.
+    /// Project-wide type registry for build-time type awareness.
     /// When set, macros receive type information about all types in the project.
     type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry,
     /// Project-wide declarative macro registry for cross-file
@@ -225,7 +198,6 @@ pub struct MacroExpander {
 type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
 
 /// Renders an Oxc parse failure as one line.
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 fn join_parse_diagnostics(diagnostics: &[oxc::diagnostics::OxcDiagnostic]) -> String {
     diagnostics
         .iter()
@@ -359,7 +331,7 @@ impl MacroExpander {
         self.external_decorator_modules = modules;
     }
 
-    /// Set the project-wide type registry for compile-time type awareness.
+    /// Set the project-wide type registry for build-time type awareness.
     ///
     /// When set, each macro invocation receives the full registry and
     /// resolved field types in its [`MacroContextIR`].
@@ -443,8 +415,7 @@ impl MacroExpander {
     /// Returns `Ok((None, diagnostics))` if no declarative work fires in
     /// this file (fast path). Otherwise returns `Ok((Some(new_source),
     /// diagnostics))` with the rewritten source.
-    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-    fn declarative_prepass_oxc(
+    fn declarative_prepass(
         &self,
         source: &str,
         file_name: &str,
@@ -591,8 +562,7 @@ impl MacroExpander {
 
     /// Run the attribute-macro pre-pass (`@cfg`, `@deprecated`, `@mustUse`,
     /// `@nonExhaustive`). Returns `None` when no tag rewrote the source.
-    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-    fn attributes_prepass_oxc(
+    fn attributes_prepass(
         &self,
         source: &str,
         file_name: &str,
@@ -625,8 +595,7 @@ impl MacroExpander {
     /// Evaluate every `@buildtime` declaration in its sandbox and splice the
     /// results in as literals. Returns the rewritten source (`None` when
     /// nothing changed), the files the evaluation read, and its diagnostics.
-    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-    fn buildtime_prepass_oxc(
+    fn buildtime_prepass(
         &self,
         source: &str,
         file_name: &str,
@@ -691,21 +660,20 @@ impl MacroExpander {
     /// The pre-passes run in a fixed order, each on the previous one's output:
     /// attributes (so `@cfg`-stripped declarations are never evaluated), then
     /// `@buildtime`, then declarative macros, then derives.
-    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
     pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
         use oxc::allocator::Allocator;
         use oxc::parser::Parser;
 
         let (attribute_rewritten, mut prepass_diagnostics) =
-            self.attributes_prepass_oxc(source, file_name)?;
+            self.attributes_prepass(source, file_name)?;
         let source: &str = attribute_rewritten.as_deref().unwrap_or(source);
 
-        let mut buildtime = self.buildtime_prepass_oxc(source, file_name)?;
+        let mut buildtime = self.buildtime_prepass(source, file_name)?;
         prepass_diagnostics.append(&mut buildtime.diagnostics);
         let source: &str = buildtime.rewritten.as_deref().unwrap_or(source);
 
         let (declarative_rewritten, decl_diagnostics) =
-            self.declarative_prepass_oxc(source, file_name)?;
+            self.declarative_prepass(source, file_name)?;
         prepass_diagnostics.extend(decl_diagnostics);
         let source: &str = declarative_rewritten.as_deref().unwrap_or(source);
 
@@ -729,6 +697,8 @@ impl MacroExpander {
             )));
         }
 
+        prepass_diagnostics.extend(check_builtin_import_warnings(&parsed.program));
+
         let valid_annotations = self.valid_annotation_names(
             &crate::ts_syn::import_registry::macro_imports_in_comments(
                 &parsed.program.comments,
@@ -738,17 +708,17 @@ impl MacroExpander {
         let filter = Some(&valid_annotations);
 
         let items = LoweredItems {
-            classes: lower_classes_oxc(&parsed.program, source, filter)
+            classes: lower_classes(&parsed.program, source, filter)
                 .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
-            interfaces: lower_interfaces_oxc(&parsed.program, source, filter)
+            interfaces: lower_interfaces(&parsed.program, source, filter)
                 .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
-            enums: lower_enums_oxc(&parsed.program, source, filter)
+            enums: lower_enums(&parsed.program, source, filter)
                 .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
-            type_aliases: lower_type_aliases_oxc(&parsed.program, source, filter)
+            type_aliases: lower_type_aliases(&parsed.program, source, filter)
                 .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
-            functions: lower_functions_oxc(&parsed.program, source, filter)
+            functions: lower_functions(&parsed.program, source, filter)
                 .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
-            imports: crate::host::import_registry::ImportRegistry::from_oxc_program(
+            imports: crate::host::import_registry::ImportRegistry::from_program(
                 &parsed.program,
                 source,
             ),
@@ -778,8 +748,7 @@ impl MacroExpander {
             imports: crate::host::import_registry::ImportRegistry::new(),
         };
 
-        let (mut collector, mut diagnostics) =
-            self.collect_macro_patches_oxc(items, file_name, source);
+        let (mut collector, mut diagnostics) = self.collect_macro_patches(items, file_name, source);
 
         prepass_diagnostics.append(&mut diagnostics);
 
@@ -794,182 +763,7 @@ impl MacroExpander {
         Ok(result)
     }
 
-    /// Expand all macros in the source code (simple API for CLI usage)
-    #[cfg(feature = "swc")]
-    pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
-        use crate::ts_syn::parse_ts_module;
-
-        let module = parse_ts_module(source)
-            .map_err(|e| MacroError::InvalidConfig(format!("Parse error: {:?}", e)))?;
-
-        let valid_annotations = self.valid_annotation_names(
-            &crate::ts_syn::import_registry::macro_imports_in_source(source),
-        )?;
-        let filter = Some(&valid_annotations);
-
-        let classes = lower_classes(&module, source, filter)
-            .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
-
-        let interfaces = lower_interfaces(&module, source, filter)
-            .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
-
-        let enums = lower_enums(&module, source, filter)
-            .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
-
-        let type_aliases = lower_type_aliases(&module, source, filter)
-            .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
-
-        let imports = crate::host::import_registry::ImportRegistry::from_module(&module, source);
-
-        let items = LoweredItems {
-            classes,
-            interfaces,
-            enums,
-            type_aliases,
-            functions: vec![],
-            imports,
-        };
-        if items.is_empty() {
-            return Ok(MacroExpansion {
-                code: source.to_string(),
-                diagnostics: Vec::new(),
-                changed: false,
-                type_output: None,
-                classes: Vec::new(),
-                interfaces: Vec::new(),
-                enums: Vec::new(),
-                type_aliases: Vec::new(),
-                source_mapping: None,
-                buildtime_dependencies: Vec::new(),
-            });
-        }
-
-        let items_clone = LoweredItems {
-            classes: items.classes.clone(),
-            interfaces: items.interfaces.clone(),
-            enums: items.enums.clone(),
-            type_aliases: items.type_aliases.clone(),
-            functions: vec![],
-            imports: crate::host::import_registry::ImportRegistry::new(),
-        };
-
-        let (mut collector, mut diagnostics) =
-            self.collect_macro_patches(&module, items, file_name, source);
-
-        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, items_clone)
-    }
-
-    /// Expand all macros found in the parsed program and return the updated source code.
-    #[cfg(feature = "swc")]
-    pub fn expand(
-        &self,
-        source: &str,
-        program: &Program,
-        file_name: &str,
-    ) -> anyhow::Result<MacroExpansion> {
-        let (module, items) = match self.prepare_expansion_context(program, source)? {
-            Some(context) => context,
-            None => {
-                return Ok(MacroExpansion {
-                    code: source.to_string(),
-                    diagnostics: Vec::new(),
-                    changed: false,
-                    type_output: None,
-                    classes: Vec::new(),
-                    interfaces: Vec::new(),
-                    enums: Vec::new(),
-                    type_aliases: Vec::new(),
-                    source_mapping: None,
-                    buildtime_dependencies: Vec::new(),
-                });
-            }
-        };
-
-        let items_clone = LoweredItems {
-            classes: items.classes.clone(),
-            interfaces: items.interfaces.clone(),
-            enums: items.enums.clone(),
-            type_aliases: items.type_aliases.clone(),
-            functions: vec![],
-            imports: crate::host::import_registry::ImportRegistry::new(),
-        };
-
-        let (mut collector, mut diagnostics) =
-            self.collect_macro_patches(&module, items, file_name, source);
-        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, items_clone)
-            .map_err(anyhow::Error::from)
-    }
-
-    #[cfg(feature = "swc")]
-    pub(crate) fn prepare_expansion_context(
-        &self,
-        program: &Program,
-        source: &str,
-    ) -> anyhow::Result<Option<(Module, LoweredItems)>> {
-        let module = match program {
-            Program::Module(module) => module.clone(),
-            Program::Script(script) => {
-                use swc_core::ecma::ast::{Module as SwcModule, ModuleItem};
-                SwcModule {
-                    span: script.span,
-                    body: script
-                        .body
-                        .iter()
-                        .map(|stmt| ModuleItem::Stmt(stmt.clone()))
-                        .collect(),
-                    shebang: script.shebang.clone(),
-                }
-            }
-        };
-
-        let valid_annotations = self.valid_annotation_names(
-            &crate::ts_syn::import_registry::macro_imports_in_source(source),
-        )?;
-        let filter = Some(&valid_annotations);
-
-        let classes = lower_classes(&module, source, filter)
-            .context("failed to lower classes for macro processing")?;
-
-        let interfaces = lower_interfaces(&module, source, filter)
-            .context("failed to lower interfaces for macro processing")?;
-
-        let enums = lower_enums(&module, source, filter)
-            .context("failed to lower enums for macro processing")?;
-
-        let type_aliases = lower_type_aliases(&module, source, filter)
-            .context("failed to lower type aliases for macro processing")?;
-
-        let imports = crate::host::import_registry::ImportRegistry::from_module(&module, source);
-
-        let items = LoweredItems {
-            classes,
-            interfaces,
-            enums,
-            type_aliases,
-            functions: vec![],
-            imports,
-        };
-        if items.is_empty() {
-            return Ok(None);
-        }
-
-        Ok(Some((module, items)))
-    }
-
-    #[cfg(feature = "swc")]
     pub(crate) fn collect_macro_patches(
-        &self,
-        module: &Module,
-        items: LoweredItems,
-        file_name: &str,
-        source: &str,
-    ) -> (PatchCollector, Vec<Diagnostic>) {
-        let mut diagnostics = check_builtin_import_warnings(module, source);
-        self.collect_macro_patches_inner(items, file_name, source, &mut diagnostics)
-    }
-
-    #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-    pub(crate) fn collect_macro_patches_oxc(
         &self,
         items: LoweredItems,
         file_name: &str,
@@ -1190,7 +984,7 @@ impl MacroExpander {
 
                     collector.add_type_patches(vec![Patch::Replace {
                         span: method.span,
-                        code: method_signature.into(),
+                        code: method_signature,
                         source_macro: None,
                     }]);
                 }
@@ -1583,7 +1377,7 @@ impl MacroExpander {
                             start: end_pos,
                             end: end_pos,
                         },
-                        code: PatchCode::Text(format!("\n\n{}", const_code)),
+                        code: format!("\n\n{}", const_code),
                         source_macro: Some("__convenience_const".to_string()),
                     };
                     collector.add_runtime_patches(vec![patch.clone()]);
@@ -1789,9 +1583,8 @@ impl MacroExpander {
                         if let Patch::Replace { span, code, .. } = patch
                             && span.start == target_span.start
                             && span.end == target_span.end
-                            && let Some(text) = code.as_text()
                         {
-                            current_source = Some(text.to_string());
+                            current_source = Some(code.clone());
                         }
                     }
                 }
@@ -1847,7 +1640,7 @@ impl MacroExpander {
                                         start: class_ir.span.start,
                                         end: class_ir.span.start,
                                     },
-                                    code: PatchCode::Text(code.clone()),
+                                    code: code.clone(),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());
@@ -1859,7 +1652,7 @@ impl MacroExpander {
                                         start: class_ir.span.end,
                                         end: class_ir.span.end,
                                     },
-                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    code: format!("\n\n{}", code.trim()),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());
@@ -1871,7 +1664,7 @@ impl MacroExpander {
                                         start: class_ir.body_span.start,
                                         end: class_ir.body_span.start,
                                     },
-                                    code: PatchCode::Text(code.clone()),
+                                    code: code.clone(),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());
@@ -1879,139 +1672,30 @@ impl MacroExpander {
                             }
                             "body" => {
                                 let insert_pos = derive_insert_pos(class_ir, source);
-                                #[cfg(feature = "swc")]
-                                match parse_members_from_tokens(&code) {
-                                    Ok(members_with_comments) => {
-                                        for MemberWithComment {
-                                            leading_comment,
-                                            member,
-                                        } in members_with_comments
-                                        {
-                                            // Insert leading JSDoc comment if present
-                                            if let Some(comment_text) = &leading_comment {
-                                                let jsdoc = format!("/**{} */\n", comment_text);
-                                                runtime_patches.push(Patch::InsertRaw {
-                                                    at: SpanIR {
-                                                        start: insert_pos,
-                                                        end: insert_pos,
-                                                    },
-                                                    code: jsdoc.clone(),
-                                                    context: Some("JSDoc comment".into()),
-                                                    source_macro: macro_name.clone(),
-                                                });
-                                                type_patches.push(Patch::InsertRaw {
-                                                    at: SpanIR {
-                                                        start: insert_pos,
-                                                        end: insert_pos,
-                                                    },
-                                                    code: jsdoc,
-                                                    context: Some("JSDoc comment".into()),
-                                                    source_macro: macro_name.clone(),
-                                                });
-                                            }
+                                let payload = if code.starts_with('\n') {
+                                    code.clone()
+                                } else {
+                                    format!("\n{}", code)
+                                };
 
-                                            runtime_patches.push(Patch::Insert {
-                                                at: SpanIR {
-                                                    start: insert_pos,
-                                                    end: insert_pos,
-                                                },
-                                                code: PatchCode::ClassMember(member.clone()),
-                                                source_macro: macro_name.clone(),
-                                            });
-
-                                            let mut signature_member = member.clone();
-                                            match &mut signature_member {
-                                                ClassMember::Method(m) => m.function.body = None,
-                                                ClassMember::Constructor(c) => c.body = None,
-                                                ClassMember::PrivateMethod(m) => {
-                                                    m.function.body = None
-                                                }
-                                                _ => {}
-                                            }
-
-                                            type_patches.push(Patch::Insert {
-                                                at: SpanIR {
-                                                    start: insert_pos,
-                                                    end: insert_pos,
-                                                },
-                                                code: PatchCode::ClassMember(signature_member),
-                                                source_macro: macro_name.clone(),
-                                            });
-                                        }
-                                    }
-                                    Err(err) => {
-                                        let warning = format!(
-                                            "/** macroforge warning: Failed to parse macro output for {}::{}: {:?} */\n",
-                                            ctx.module_path, ctx.macro_name, err
-                                        );
-                                        let payload = format!("{warning}{code}");
-
-                                        runtime_patches.push(Patch::InsertRaw {
-                                            at: SpanIR {
-                                                start: insert_pos,
-                                                end: insert_pos,
-                                            },
-                                            code: payload.clone(),
-                                            context: Some(format!(
-                                                "Macro {}::{} output (unparsed)",
-                                                ctx.module_path, ctx.macro_name
-                                            )),
-                                            source_macro: macro_name.clone(),
-                                        });
-                                        type_patches.push(Patch::ReplaceRaw {
-                                            span: SpanIR {
-                                                start: insert_pos,
-                                                end: insert_pos,
-                                            },
-                                            code: payload,
-                                            context: Some(format!(
-                                                "Macro {}::{} output (unparsed)",
-                                                ctx.module_path, ctx.macro_name
-                                            )),
-                                            source_macro: macro_name.clone(),
-                                        });
-
-                                        result.diagnostics.push(Diagnostic {
-                                            level: DiagnosticLevel::Warning,
-                                            message: format!(
-                                                "Failed to parse macro output, inserted raw tokens: {err:?}"
-                                            ),
-                                            span: Some(diagnostic_span_for_derive(
-                                                ctx.decorator_span,
-                                                source,
-                                            )),
-                                            notes: vec![],
-                                            help: None,
-                                        });
-                                    }
-                                }
-                                #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-                                {
-                                    let payload = if code.starts_with('\n') {
-                                        code.clone()
-                                    } else {
-                                        format!("\n{}", code)
-                                    };
-
-                                    runtime_patches.push(Patch::InsertRaw {
-                                        at: SpanIR {
-                                            start: insert_pos,
-                                            end: insert_pos,
-                                        },
-                                        code: payload.clone(),
-                                        context: Some("class body".to_string()),
-                                        source_macro: macro_name.clone(),
-                                    });
-                                    type_patches.push(Patch::InsertRaw {
-                                        at: SpanIR {
-                                            start: insert_pos,
-                                            end: insert_pos,
-                                        },
-                                        code: payload,
-                                        context: Some("class body".to_string()),
-                                        source_macro: macro_name.clone(),
-                                    });
-                                }
+                                runtime_patches.push(Patch::InsertRaw {
+                                    at: SpanIR {
+                                        start: insert_pos,
+                                        end: insert_pos,
+                                    },
+                                    code: payload.clone(),
+                                    context: Some("class body".to_string()),
+                                    source_macro: macro_name.clone(),
+                                });
+                                type_patches.push(Patch::InsertRaw {
+                                    at: SpanIR {
+                                        start: insert_pos,
+                                        end: insert_pos,
+                                    },
+                                    code: payload,
+                                    context: Some("class body".to_string()),
+                                    source_macro: macro_name.clone(),
+                                });
                             }
                             _ => {}
                         }
@@ -2028,7 +1712,7 @@ impl MacroExpander {
                                         start: interface_ir.span.start,
                                         end: interface_ir.span.start,
                                     },
-                                    code: PatchCode::Text(code.clone()),
+                                    code: code.clone(),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());
@@ -2040,7 +1724,7 @@ impl MacroExpander {
                                         start: interface_ir.span.end,
                                         end: interface_ir.span.end,
                                     },
-                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    code: format!("\n\n{}", code.trim()),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());
@@ -2061,7 +1745,7 @@ impl MacroExpander {
                                         start: enum_ir.span.start,
                                         end: enum_ir.span.start,
                                     },
-                                    code: PatchCode::Text(code.clone()),
+                                    code: code.clone(),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());
@@ -2074,7 +1758,7 @@ impl MacroExpander {
                                         start: enum_ir.span.end,
                                         end: enum_ir.span.end,
                                     },
-                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    code: format!("\n\n{}", code.trim()),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());
@@ -2094,7 +1778,7 @@ impl MacroExpander {
                                         start: type_alias_ir.span.start,
                                         end: type_alias_ir.span.start,
                                     },
-                                    code: PatchCode::Text(code.clone()),
+                                    code: code.clone(),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());
@@ -2107,7 +1791,7 @@ impl MacroExpander {
                                         start: type_alias_ir.span.end,
                                         end: type_alias_ir.span.end,
                                     },
-                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    code: format!("\n\n{}", code.trim()),
                                     source_macro: macro_name.clone(),
                                 };
                                 runtime_patches.push(patch.clone());

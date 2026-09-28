@@ -8,7 +8,6 @@ use crate::manifest::{
     debug_descriptors, debug_get_modules, debug_lookup, get_macro_manifest, get_macro_names,
     is_macro_package,
 };
-#[cfg(feature = "oxc")]
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 
@@ -21,7 +20,6 @@ pub fn has_macro_annotations(code: &str) -> bool {
 
 /// The macros `code` imports through `import macro` JSDoc comments, as macro
 /// name to module.
-#[cfg(feature = "oxc")]
 #[wasm_bindgen(
     js_name = "macroImports",
     unchecked_return_type = "Record<string, string>"
@@ -68,13 +66,6 @@ pub fn clear_config_cache() {
     CoreEngine::clear_config_cache();
 }
 
-/// Expands the macros in `code` and returns the result with its metadata.
-#[wasm_bindgen(js_name = "transformSync")]
-pub fn transform_sync(code: String, filepath: String) -> Result<JsValue, JsValue> {
-    let result = CoreEngine::transform_sync(code, filepath).map_err(|e| JsValue::from_str(&e))?;
-    serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
-}
-
 /// Expands the macros in `code`, the source of `filepath`, and returns the
 /// expanded code, its type declarations, diagnostics and source mapping.
 #[wasm_bindgen(js_name = "expandSync")]
@@ -112,12 +103,6 @@ impl NativePlugin {
         Self {
             cache: std::sync::Mutex::new(std::collections::HashMap::new()),
         }
-    }
-
-    /// Expands the macros in `code` and returns the result with its metadata.
-    #[wasm_bindgen(js_name = "transformSync")]
-    pub fn transform_sync(&self, code: String, filepath: String) -> Result<JsValue, JsValue> {
-        transform_sync(code, filepath)
     }
 
     /// Expands the macros in `code`, uncached; see the module-level `expandSync`.

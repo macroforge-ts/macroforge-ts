@@ -1,18 +1,12 @@
-use crate::host::error::Result;
-use crate::ts_syn::abi::{Patch, PatchCode};
+use crate::ts_syn::abi::Patch;
 use std::collections::HashSet;
-#[cfg(feature = "swc")]
-use swc_core::{
-    common::{SourceMap, sync::Lrc},
-    ecma::codegen::{Config, Emitter, Node, text_writer::JsWriter},
-};
 
 /// Fixed dedupe logic: Separate key generation from filtering.
 /// Also performs import-aware deduplication: when both `import type { X }` and
 /// `import { X }` exist for the same specifier and module, the value import
 /// subsumes the type-only import (since a value import is usable in both
 /// value and type positions).
-pub(crate) fn dedupe_patches(patches: &mut Vec<Patch>) -> Result<()> {
+pub(crate) fn dedupe_patches(patches: &mut Vec<Patch>) {
     // Phase 1: Collect import-aware dedup info.
     // For InsertRaw patches with context == "import", parse the specifier and module,
     // then drop type-only imports when a matching value import exists.
@@ -24,11 +18,9 @@ pub(crate) fn dedupe_patches(patches: &mut Vec<Patch>) -> Result<()> {
 
     for (i, patch) in patches.iter().enumerate() {
         let key = match patch {
-            Patch::Insert { at, code, .. } => (0, at.start, at.end, Some(render_patch_code(code)?)),
+            Patch::Insert { at, code, .. } => (0, at.start, at.end, Some(code.clone())),
             Patch::InsertRaw { at, code, .. } => (3, at.start, at.end, Some(code.clone())),
-            Patch::Replace { span, code, .. } => {
-                (1, span.start, span.end, Some(render_patch_code(code)?))
-            }
+            Patch::Replace { span, code, .. } => (1, span.start, span.end, Some(code.clone())),
             Patch::ReplaceRaw { span, code, .. } => (4, span.start, span.end, Some(code.clone())),
             Patch::Delete { span } => (2, span.start, span.end, None),
         };
@@ -43,8 +35,6 @@ pub(crate) fn dedupe_patches(patches: &mut Vec<Patch>) -> Result<()> {
         .into_iter()
         .map(|i| old_patches[i].clone())
         .collect();
-
-    Ok(())
 }
 
 /// Parses an import patch's code string into (specifier, module, is_type_only).
@@ -126,36 +116,4 @@ pub(crate) fn dedupe_imports(patches: &mut Vec<Patch>) {
         }
         true
     });
-}
-
-pub(crate) fn render_patch_code(code: &PatchCode) -> Result<String> {
-    match code {
-        PatchCode::Text(s) => Ok(s.clone()),
-        #[cfg(feature = "swc")]
-        PatchCode::ClassMember(member) => emit_node(member),
-        #[cfg(feature = "swc")]
-        PatchCode::Stmt(stmt) => emit_node(stmt),
-        #[cfg(feature = "swc")]
-        PatchCode::ModuleItem(item) => emit_node(item),
-    }
-}
-
-#[cfg(feature = "swc")]
-pub(crate) fn emit_node<N: Node>(node: &N) -> Result<String> {
-    let cm: Lrc<SourceMap> = Default::default();
-    let mut buf = Vec::new();
-    {
-        let writer = JsWriter::new(cm.clone(), "\n", &mut buf, None);
-        let mut emitter = Emitter {
-            cfg: Config::default(),
-            cm: cm.clone(),
-            comments: None,
-            wr: writer,
-        };
-        node.emit_with(&mut emitter)
-            .map_err(|err| anyhow::anyhow!(err))?;
-    }
-    let output = String::from_utf8(buf).map_err(|err| anyhow::anyhow!(err))?;
-    // Trim trailing whitespace and newlines from the emitted code
-    Ok(output.trim_end().to_string())
 }

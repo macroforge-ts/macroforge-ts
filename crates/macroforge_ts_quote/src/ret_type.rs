@@ -114,14 +114,14 @@ impl OutputKind {
     /// The call that parses the quote's source into the caller's arena.
     fn parser_expr(self) -> syn::Expr {
         let parser: syn::Path = match self {
-            Self::Expr => parse_quote!(macroforge_ts::ts_syn::parse_oxc_expr),
-            Self::Pat => parse_quote!(macroforge_ts::ts_syn::parse_oxc_binding_pattern),
-            Self::Stmt => parse_quote!(macroforge_ts::ts_syn::parse_oxc_statement),
-            Self::AssignTarget => parse_quote!(macroforge_ts::ts_syn::parse_oxc_assignment_target),
-            Self::ModuleItem => parse_quote!(macroforge_ts::ts_syn::parse_oxc_module_item),
-            Self::Program => parse_quote!(macroforge_ts::ts_syn::parse_oxc_program),
-            Self::TsType => parse_quote!(macroforge_ts::ts_syn::parse_oxc_type),
-            Self::PropOrSpread => parse_quote!(macroforge_ts::ts_syn::parse_oxc_prop_or_spread),
+            Self::Expr => parse_quote!(macroforge_ts::ts_syn::parse_expr),
+            Self::Pat => parse_quote!(macroforge_ts::ts_syn::parse_binding_pattern),
+            Self::Stmt => parse_quote!(macroforge_ts::ts_syn::parse_statement),
+            Self::AssignTarget => parse_quote!(macroforge_ts::ts_syn::parse_assignment_target),
+            Self::ModuleItem => parse_quote!(macroforge_ts::ts_syn::parse_module_item),
+            Self::Program => parse_quote!(macroforge_ts::ts_syn::parse_program),
+            Self::TsType => parse_quote!(macroforge_ts::ts_syn::parse_type),
+            Self::PropOrSpread => parse_quote!(macroforge_ts::ts_syn::parse_prop_or_spread),
         };
         parse_quote!(#parser(__mf_quote_allocator, &__mf_quote_source))
     }
@@ -300,41 +300,43 @@ fn build_source_expr(source: &str, placeholders: &[Placeholder], cx: &Ctx) -> sy
 
 fn placeholder_replacement_expr(placeholder: &Placeholder, cx: &Ctx) -> Option<syn::Expr> {
     match placeholder.mode {
-        PlaceholderMode::StringLiteral => cx.var(crate::ctxt::VarPos::Str, &placeholder.name).map(|var| {
-            let expr = var.get_expr();
-            parse_quote! {
-                macroforge_ts::ts_syn::ToOxcStringLiteralSource::to_oxc_string_literal_source(&#expr)
-            }
-        }),
+        PlaceholderMode::StringLiteral => cx.var(crate::ctxt::VarPos::Str, &placeholder.name).map(
+            |var| {
+                let expr = var.get_expr();
+                parse_quote! {
+                    macroforge_ts::ts_syn::ToStringLiteralSource::to_string_literal_source(&#expr)
+                }
+            },
+        ),
         PlaceholderMode::Bare => {
             if let Some(var) = cx.var(crate::ctxt::VarPos::Ident, &placeholder.name) {
                 let expr = var.get_expr();
                 return Some(parse_quote! {
-                    macroforge_ts::ts_syn::ToOxcIdentSource::to_oxc_ident_source(&#expr)
+                    macroforge_ts::ts_syn::ToIdentSource::to_ident_source(&#expr)
                 });
             }
             if let Some(var) = cx.var(crate::ctxt::VarPos::Expr, &placeholder.name) {
                 let expr = var.get_expr();
                 return Some(parse_quote! {
-                    macroforge_ts::ts_syn::ToOxcExprSource::to_oxc_expr_source(&#expr)
+                    macroforge_ts::ts_syn::ToExprSource::to_expr_source(&#expr)
                 });
             }
             if let Some(var) = cx.var(crate::ctxt::VarPos::Pat, &placeholder.name) {
                 let expr = var.get_expr();
                 return Some(parse_quote! {
-                    macroforge_ts::ts_syn::ToOxcPatSource::to_oxc_pat_source(&#expr)
+                    macroforge_ts::ts_syn::ToPatSource::to_pat_source(&#expr)
                 });
             }
             if let Some(var) = cx.var(crate::ctxt::VarPos::AssignTarget, &placeholder.name) {
                 let expr = var.get_expr();
                 return Some(parse_quote! {
-                    macroforge_ts::ts_syn::ToOxcAssignTargetSource::to_oxc_assign_target_source(&#expr)
+                    macroforge_ts::ts_syn::ToAssignTargetSource::to_assign_target_source(&#expr)
                 });
             }
             if let Some(var) = cx.var(crate::ctxt::VarPos::TsType, &placeholder.name) {
                 let expr = var.get_expr();
                 return Some(parse_quote! {
-                    macroforge_ts::ts_syn::ToOxcTypeSource::to_oxc_type_source(&#expr)
+                    macroforge_ts::ts_syn::ToTypeSource::to_type_source(&#expr)
                 });
             }
             None

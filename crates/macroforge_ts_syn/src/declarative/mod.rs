@@ -7,7 +7,7 @@
 //!
 //! The output is a [`MacroDef`] that the host can use to match
 //! invocations and expand bodies. The types and parser here are
-//! host-agnostic (no OXC or SWC dependencies) so they can be unit
+//! host-agnostic (no parser dependency) so they can be unit
 //! tested in isolation.
 
 pub mod errors;

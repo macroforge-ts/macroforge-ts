@@ -1,6 +1,6 @@
 # macroforge_ts_macros
 
-Derive macros for TypeScript compile-time code generation
+Derive macros for TypeScript build-time code generation
 
 [![Crates.io](https://img.shields.io/crates/v/macroforge_ts_macros.svg)](https://crates.io/crates/macroforge_ts_macros)
 [![Documentation](https://docs.rs/macroforge_ts_macros/badge.svg)](https://docs.rs/macroforge_ts_macros)
@@ -9,7 +9,7 @@ Derive macros for TypeScript compile-time code generation
 
 This crate provides procedural macros for generating TypeScript macro infrastructure in the
 Macroforge ecosystem. It simplifies the creation of derive macros that can transform TypeScript
-classes at compile time.
+classes at build time.
 
 ## Overview
 

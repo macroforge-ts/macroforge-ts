@@ -1,11 +1,11 @@
 # How Macros Work
 
-Macroforge performs compile-time code generation by parsing your TypeScript, expanding macros, and
+Macroforge performs build-time code generation by parsing your TypeScript, expanding macros, and
 outputting transformed code. This happens before your code runs, resulting in zero runtime overhead.
 
-## Compile-Time Expansion
+## Build-Time Expansion
 
-Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at compile time:
+Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at build time:
 
 1. **Parse**: Your TypeScript code is parsed into an AST using oxc
 2. **Find**: Macroforge finds `@derive` decorators and their associated items
@@ -41,7 +41,7 @@ export function userToString(value: User): string {
 
 ## Zero Runtime Overhead
 
-Because code generation happens at compile time, there's no:
+Because code generation happens at build time, there's no:
 
 - Runtime reflection or metadata
 - Proxy objects or wrappers

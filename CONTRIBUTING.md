@@ -123,7 +123,7 @@ pixi run test:all
 The core expansion pipeline:
 
 1. **Input** -- TypeScript source with `/** @derive(Debug, Clone, ...) */` JSDoc decorators
-2. **Parse** -- OXC (default) or SWC parses the TypeScript into an AST
+2. **Parse** -- OXC parses the TypeScript into an AST
 3. **Lower** -- AST is lowered to `ClassIR`, `InterfaceIR`, `EnumIR`, `TypeAliasIR`
 4. **Dispatch** -- `MacroDispatcher` routes each derive name to its registered macro
 5. **Expand** -- Each macro produces `Patch` objects (code insertions)

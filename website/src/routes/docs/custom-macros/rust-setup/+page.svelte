@@ -2,6 +2,8 @@
     import CodeBlock from "$lib/components/ui/CodeBlock.svelte";
     import Alert from "$lib/components/ui/Alert.svelte";
     import { resolve } from "$app/paths";
+
+    let { data } = $props();
 </script>
 
 <svelte:head>
@@ -57,7 +59,7 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-macroforge_ts = { version = "0.1", features = ["node"] }
+macroforge_ts = { version = "${data.requirement}", features = ["node"] }
 napi = { version = "3", features = ["napi8", "compat-mode"] }
 napi-derive = "3"
 

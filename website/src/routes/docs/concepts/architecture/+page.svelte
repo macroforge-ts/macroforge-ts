@@ -21,7 +21,7 @@
 <ArchitectureDiagram layers={[
 	{ title: "JavaScript Environments", items: ["Node.js", "Vite", "Browser", "Edge"] },
 	{ title: "Target Bindings", items: ["NAPI-RS (Node)", "wasm-bindgen (Universal)"] },
-	{ title: "Unified API", items: ["MacroforgeApi Trait", "CoreEngine"] },
+	{ title: "Unified API", items: ["CoreEngine"] },
 	{ title: "Macro Crates", items: ["macroforge_ts_syn", "macroforge_ts_quote", "macroforge_ts_macros"] },
 	{ title: "oxc", items: ["TypeScript parsing & codegen"] }
 ]} />
@@ -30,7 +30,7 @@
 
 <h3>Unified API & Core Engine</h3>
 <p>
-	At the heart of Macroforge is an output-agnostic <code>MacroforgeApi</code> trait. This allows the core expansion logic to remain identical across all platforms while supporting different transport layers (NAPI or WASM).
+	At the heart of Macroforge is <code>CoreEngine</code>, an output-agnostic facade that both bindings delegate to. This keeps the core expansion logic identical across all platforms while supporting different transport layers (NAPI or WASM).
 </p>
 
 <h3>Target Bindings</h3>
@@ -84,7 +84,7 @@
 	Bridges Rust and Node.js:
 </p>
 <ul>
-	<li>Exposes <code>expandSync</code>, <code>transformSync</code>, etc.</li>
+	<li>Exposes <code>expandSync</code>, <code>checkSyntax</code>, <code>scanProjectSync</code>, etc.</li>
 	<li>Provides the <code>NativePlugin</code> class for caching</li>
 	<li>Handles data marshaling between Rust and JavaScript</li>
 </ul>

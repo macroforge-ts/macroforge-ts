@@ -1,6 +1,6 @@
 //! # `@buildtime` evaluation
 //!
-//! Compile-time JavaScript execution for macroforge. Semantically modelled
+//! Build-time JavaScript execution for macroforge. Semantically modelled
 //! on Zig's `comptime`: a declaration annotated with `/** @buildtime */` is
 //! evaluated in a sandboxed JS context during source transformation, its
 //! result is serialized back to a TypeScript literal, and the original
@@ -39,7 +39,6 @@ pub mod capabilities;
 pub mod discovery;
 pub mod host_fs;
 pub mod prepass;
-#[cfg(feature = "oxc")]
 pub mod purity;
 pub mod sandbox;
 pub mod serialize;
@@ -50,7 +49,6 @@ mod tests;
 pub use capabilities::{CapabilityError, CapabilitySet, PathPattern};
 pub use discovery::{BuildtimeDecl, BuildtimeKind, Visibility, discover};
 pub use prepass::{PrepassOutput, run_prepass};
-#[cfg(feature = "oxc")]
 pub use purity::{Purity, analyze as analyze_purity};
 pub use sandbox::{BuildtimeSandbox, EvalResult, SandboxError, SandboxOptions, SandboxValue};
 pub use serialize::{SerializeError, value_to_ts_source};

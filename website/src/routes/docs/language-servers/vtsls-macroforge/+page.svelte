@@ -12,7 +12,7 @@
 <h1>vtsls-macroforge</h1>
 
 <p class="lead">
-	A Zed extension that wraps <a href="https://github.com/yioneko/vtsls">VTSLS</a> (VS Code's TypeScript language server) with the <code>@macroforge/typescript-plugin</code> pre-configured for compile-time macros.
+	A Zed extension that wraps <a href="https://github.com/yioneko/vtsls">VTSLS</a> (VS Code's TypeScript language server) with the <code>@macroforge/typescript-plugin</code> pre-configured for build-time macros.
 </p>
 
 <Alert type="warning" title="Developer Installation Required">

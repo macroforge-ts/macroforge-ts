@@ -6,9 +6,6 @@
 //! (`const $name = macroRules({...})`). It runs as a pre-pass before the
 //! existing derive macro pipeline, producing a set of [`Patch`]es that
 //! rewrite call sites and strip the original macro definitions.
-//!
-//! Unless noted, everything here only compiles under the `oxc` feature —
-//! the SWC pipeline does not support declarative macros in the MVP.
 
 /// Build mode that controls reverse-monomorphization behavior.
 ///
@@ -115,46 +112,32 @@ impl BuildMode {
     }
 }
 
-#[cfg(feature = "oxc")]
 pub mod discovery;
-#[cfg(feature = "oxc")]
 pub mod expander;
-#[cfg(feature = "oxc")]
 mod hygiene;
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 pub(crate) mod macro_imports;
-#[cfg(feature = "oxc")]
 pub mod matcher;
-#[cfg(feature = "oxc")]
 pub mod megamorph;
 pub mod project_registry;
-#[cfg(feature = "oxc")]
 pub mod registry;
-#[cfg(feature = "oxc")]
 pub mod rewriter;
-#[cfg(feature = "oxc")]
 pub mod type_walker;
 
-#[cfg(all(test, feature = "oxc"))]
+#[cfg(test)]
 mod tests;
 
-#[cfg(feature = "oxc")]
 pub use discovery::{
     DiscoveredMacro, ImportedMacro, ResolvedImports, collect_dollar_imports, discover,
     resolve_cross_file_imports,
 };
-#[cfg(feature = "oxc")]
 pub use megamorph::{
     MacroPolymorphism, MegamorphReport, Recommendation, ResolvedCallSite, TypeCluster, TypeShape,
     analyze as analyze_megamorphism, extract_type_shape,
 };
 pub use project_registry::ProjectDeclarativeRegistry;
-#[cfg(feature = "oxc")]
 pub use registry::{DeclarativeMacroRegistry, RegistryError};
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 pub use rewriter::ProcMacroFallback;
 pub use rewriter::RewriteOutput;
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 pub use rewriter::rewrite;
 
 /// Parse `source` with OXC purely to confirm it is syntactically valid
@@ -174,7 +157,6 @@ pub use rewriter::rewrite;
 /// `message` is the OXC diagnostic text; `span` is left unset because
 /// the caller is responsible for mapping offsets back to a source
 /// macro.
-#[cfg(feature = "oxc")]
 pub fn reparse_for_validation(
     source: &str,
     jsx: bool,
@@ -220,7 +202,6 @@ pub fn reparse_for_validation(
 ///
 /// Returns an empty vector when the source parses cleanly. Otherwise
 /// returns one `Error`-level `Diagnostic` per OXC parse error.
-#[cfg(feature = "oxc")]
 pub fn validate_expanded_source(
     source: &str,
     mapping: &crate::ts_syn::abi::SourceMapping,
@@ -273,7 +254,7 @@ pub fn validate_expanded_source(
         .collect()
 }
 
-#[cfg(all(test, feature = "oxc"))]
+#[cfg(test)]
 mod reparse_validation_tests {
     use super::reparse_for_validation;
     use crate::ts_syn::abi::DiagnosticLevel;

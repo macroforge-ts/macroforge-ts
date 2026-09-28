@@ -1,12 +1,9 @@
 use super::super::error::Result;
 use super::{CONFIG_CACHE, CONFIG_FILES, CachedConfig, MacroforgeConfig};
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 use macroforge_ts_syn::config::{ForeignTypeAlias, ForeignTypeConfig, ImportInfo};
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 use oxc::span::GetSpan;
 
 /// Loader/parser for MacroforgeConfig files.
@@ -15,145 +12,97 @@ pub struct MacroforgeConfigLoader;
 impl MacroforgeConfigLoader {
     /// Parse a macroforge.config.js/ts file and extract configuration.
     pub fn from_config_file(content: &str, filepath: &str) -> Result<MacroforgeConfig> {
-        #[cfg(feature = "swc")]
-        {
-            use super::parser::{extract_default_export, extract_imports};
-            use swc_core::{
-                common::{FileName, SourceMap, sync::Lrc},
-                ecma::parser::{EsSyntax, Lexer, Parser, StringInput, Syntax, TsSyntax},
-            };
+        use oxc::ast::ast::{
+            Argument, ExportDefaultDeclarationKind, ImportDeclarationSpecifier, Statement,
+        };
+        use oxc::parser::Parser;
+        use oxc::span::SourceType;
 
-            let is_typescript = filepath.ends_with(".ts") || filepath.ends_with(".mts");
+        let source_type = if filepath.ends_with(".ts") || filepath.ends_with(".mts") {
+            SourceType::ts()
+        } else {
+            SourceType::unambiguous()
+        };
 
-            let cm: Lrc<SourceMap> = Default::default();
-            let fm = cm.new_source_file(
-                FileName::Custom(filepath.to_string()).into(),
-                content.to_string(),
-            );
-
-            let syntax = if is_typescript {
-                Syntax::Typescript(TsSyntax {
-                    tsx: false,
-                    decorators: true,
-                    ..Default::default()
-                })
-            } else {
-                Syntax::Es(EsSyntax {
-                    decorators: true,
-                    ..Default::default()
-                })
-            };
-
-            let lexer = Lexer::new(
-                syntax,
-                swc_core::ecma::ast::EsVersion::latest(),
-                StringInput::from(&*fm),
-                None,
-            );
-            let mut parser = Parser::new_from(lexer);
-
-            let module = parser.parse_module().map_err(|e| {
-                super::super::MacroError::InvalidConfig(format!("Parse error: {:?}", e))
-            })?;
-
-            let imports = extract_imports(&module);
-            extract_default_export(&module, &imports, &cm)
+        let allocator = oxc::allocator::Allocator::default();
+        let parsed = Parser::new(&allocator, content, source_type).parse();
+        if !parsed.diagnostics.is_empty() {
+            return Err(super::super::MacroError::InvalidConfig(format!(
+                "Parse error: {}",
+                parsed
+                    .diagnostics
+                    .into_iter()
+                    .map(|diagnostic| diagnostic.to_string())
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            )));
         }
 
-        #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-        {
-            use oxc::ast::ast::{
-                Argument, ExportDefaultDeclarationKind, ImportDeclarationSpecifier, Statement,
-            };
-            use oxc::parser::Parser;
-            use oxc::span::SourceType;
-
-            let source_type = if filepath.ends_with(".ts") || filepath.ends_with(".mts") {
-                SourceType::ts()
-            } else {
-                SourceType::unambiguous()
-            };
-
-            let allocator = oxc::allocator::Allocator::default();
-            let parsed = Parser::new(&allocator, content, source_type).parse();
-            if !parsed.diagnostics.is_empty() {
-                return Err(super::super::MacroError::InvalidConfig(format!(
-                    "Parse error: {}",
-                    parsed
-                        .diagnostics
-                        .into_iter()
-                        .map(|diagnostic| diagnostic.to_string())
-                        .collect::<Vec<_>>()
-                        .join("; ")
-                )));
-            }
-
-            let imports = {
-                let mut imports = HashMap::new();
-                for stmt in &parsed.program.body {
-                    if let Statement::ImportDeclaration(import) = stmt
-                        && let Some(specifiers) = &import.specifiers
-                    {
-                        let source = import.source.value.to_string();
-                        for specifier in specifiers {
-                            match specifier {
-                                ImportDeclarationSpecifier::ImportSpecifier(named) => {
-                                    imports.insert(
-                                        named.local.name.to_string(),
-                                        ImportInfo {
-                                            name: named.imported.name().to_string(),
-                                            source: source.clone(),
-                                        },
-                                    );
-                                }
-                                ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
-                                    imports.insert(
-                                        default.local.name.to_string(),
-                                        ImportInfo {
-                                            name: "default".to_string(),
-                                            source: source.clone(),
-                                        },
-                                    );
-                                }
-                                ImportDeclarationSpecifier::ImportNamespaceSpecifier(ns) => {
-                                    imports.insert(
-                                        ns.local.name.to_string(),
-                                        ImportInfo {
-                                            name: "*".to_string(),
-                                            source: source.clone(),
-                                        },
-                                    );
-                                }
+        let imports = {
+            let mut imports = HashMap::new();
+            for stmt in &parsed.program.body {
+                if let Statement::ImportDeclaration(import) = stmt
+                    && let Some(specifiers) = &import.specifiers
+                {
+                    let source = import.source.value.to_string();
+                    for specifier in specifiers {
+                        match specifier {
+                            ImportDeclarationSpecifier::ImportSpecifier(named) => {
+                                imports.insert(
+                                    named.local.name.to_string(),
+                                    ImportInfo {
+                                        name: named.imported.name().to_string(),
+                                        source: source.clone(),
+                                    },
+                                );
+                            }
+                            ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
+                                imports.insert(
+                                    default.local.name.to_string(),
+                                    ImportInfo {
+                                        name: "default".to_string(),
+                                        source: source.clone(),
+                                    },
+                                );
+                            }
+                            ImportDeclarationSpecifier::ImportNamespaceSpecifier(ns) => {
+                                imports.insert(
+                                    ns.local.name.to_string(),
+                                    ImportInfo {
+                                        name: "*".to_string(),
+                                        source: source.clone(),
+                                    },
+                                );
                             }
                         }
                     }
                 }
-                imports
-            };
-
-            for stmt in &parsed.program.body {
-                if let Statement::ExportDefaultDeclaration(export) = stmt {
-                    let config = match &export.declaration {
-                        ExportDefaultDeclarationKind::ObjectExpression(obj) => {
-                            parse_config_object_oxc(obj, &imports, content)?
-                        }
-                        ExportDefaultDeclarationKind::CallExpression(call) => {
-                            let first = call.arguments.first();
-                            match first {
-                                Some(Argument::ObjectExpression(obj)) => {
-                                    parse_config_object_oxc(obj, &imports, content)?
-                                }
-                                _ => MacroforgeConfig::default(),
-                            }
-                        }
-                        _ => MacroforgeConfig::default(),
-                    };
-                    return Ok(config);
-                }
             }
+            imports
+        };
 
-            Ok(MacroforgeConfig::default())
+        for stmt in &parsed.program.body {
+            if let Statement::ExportDefaultDeclaration(export) = stmt {
+                let config = match &export.declaration {
+                    ExportDefaultDeclarationKind::ObjectExpression(obj) => {
+                        parse_config_object(obj, &imports, content)?
+                    }
+                    ExportDefaultDeclarationKind::CallExpression(call) => {
+                        let first = call.arguments.first();
+                        match first {
+                            Some(Argument::ObjectExpression(obj)) => {
+                                parse_config_object(obj, &imports, content)?
+                            }
+                            _ => MacroforgeConfig::default(),
+                        }
+                    }
+                    _ => MacroforgeConfig::default(),
+                };
+                return Ok(config);
+            }
         }
+
+        Ok(MacroforgeConfig::default())
     }
 
     /// Load configuration from cache or parse from file content.
@@ -243,8 +192,7 @@ impl MacroforgeConfigLoader {
     }
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn parse_config_object_oxc(
+fn parse_config_object(
     obj: &oxc::ast::ast::ObjectExpression<'_>,
     imports: &HashMap<String, ImportInfo>,
     source: &str,
@@ -259,42 +207,42 @@ fn parse_config_object_oxc(
             continue;
         }
 
-        let key = get_prop_key_oxc(&prop.key, source);
+        let key = get_prop_key(&prop.key, source);
         match key.as_str() {
             "keepDecorators" => {
-                config.keep_decorators = get_bool_value_oxc(&prop.value).unwrap_or(false);
+                config.keep_decorators = get_bool_value(&prop.value).unwrap_or(false);
             }
             "generateConvenienceConst" => {
-                config.generate_convenience_const = get_bool_value_oxc(&prop.value).unwrap_or(true);
+                config.generate_convenience_const = get_bool_value(&prop.value).unwrap_or(true);
             }
             "foreignTypes" => {
                 if let oxc::ast::ast::Expression::ObjectExpression(ft_obj) = &prop.value {
-                    config.foreign_types = parse_foreign_types_oxc(ft_obj, imports, source)?;
+                    config.foreign_types = parse_foreign_types(ft_obj, imports, source)?;
                 }
             }
             "cfg" => {
-                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                if let Some(map) = object_to_json_map(&prop.value) {
                     config.cfg = super::attribute_blocks::parse_cfg_flags(&map);
                 }
             }
             "deprecated" => {
-                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                if let Some(map) = object_to_json_map(&prop.value) {
                     config.deprecated = super::attribute_blocks::parse_deprecated_config(&map);
                 }
             }
             "mustUse" => {
-                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                if let Some(map) = object_to_json_map(&prop.value) {
                     config.must_use = super::attribute_blocks::parse_must_use_config(&map);
                 }
             }
             "nonExhaustive" => {
-                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                if let Some(map) = object_to_json_map(&prop.value) {
                     config.non_exhaustive =
                         super::attribute_blocks::parse_non_exhaustive_config(&map);
                 }
             }
             "buildtime" => {
-                if let Some(map) = object_to_json_map_oxc(&prop.value) {
+                if let Some(map) = object_to_json_map(&prop.value) {
                     config.buildtime = super::attribute_blocks::parse_buildtime_config(&map);
                 }
             }
@@ -309,21 +257,17 @@ fn parse_config_object_oxc(
 /// Convert an OXC object-expression node into a `serde_json::Map` so the
 /// shared attribute-block parsers in [`super::attribute_blocks`] can handle
 /// it. Returns `None` when the expression isn't an object literal.
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn object_to_json_map_oxc(
+fn object_to_json_map(
     expr: &oxc::ast::ast::Expression<'_>,
 ) -> Option<serde_json::Map<String, serde_json::Value>> {
-    match expr_to_json_oxc(expr)? {
+    match expr_to_json(expr)? {
         serde_json::Value::Object(map) => Some(map),
         _ => None,
     }
 }
 
-/// Convert a literal-ish OXC expression into a `serde_json::Value`. Mirrors
-/// the SWC-side `parser.rs::expr_to_json` — the two exist only because the
-/// AST types differ; the downstream shape is identical.
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn expr_to_json_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::Value> {
+/// Convert a literal-ish OXC expression into a `serde_json::Value`.
+fn expr_to_json(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::Value> {
     use oxc::ast::ast::Expression;
     match expr {
         Expression::StringLiteral(s) => Some(serde_json::Value::String(s.value.to_string())),
@@ -339,7 +283,7 @@ fn expr_to_json_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::
                 .filter_map(|e| match e {
                     oxc::ast::ast::ArrayExpressionElement::SpreadElement(_) => None,
                     oxc::ast::ast::ArrayExpressionElement::Elision(_) => None,
-                    other => other.as_expression().and_then(expr_to_json_oxc),
+                    other => other.as_expression().and_then(expr_to_json),
                 })
                 .collect();
             Some(serde_json::Value::Array(items))
@@ -353,8 +297,8 @@ fn expr_to_json_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::
                 if prop.kind != oxc::ast::ast::PropertyKind::Init {
                     continue;
                 }
-                let key = get_prop_key_oxc(&prop.key, "");
-                if let Some(val) = expr_to_json_oxc(&prop.value) {
+                let key = get_prop_key(&prop.key, "");
+                if let Some(val) = expr_to_json(&prop.value) {
                     map.insert(key, val);
                 }
             }
@@ -364,8 +308,7 @@ fn expr_to_json_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::
     }
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn parse_foreign_types_oxc(
+fn parse_foreign_types(
     obj: &oxc::ast::ast::ObjectExpression<'_>,
     imports: &HashMap<String, ImportInfo>,
     source: &str,
@@ -380,9 +323,9 @@ fn parse_foreign_types_oxc(
             continue;
         }
 
-        let type_name = get_prop_key_oxc(&prop.key, source);
+        let type_name = get_prop_key(&prop.key, source);
         if let oxc::ast::ast::Expression::ObjectExpression(type_obj) = &prop.value {
-            foreign_types.push(parse_single_foreign_type_oxc(
+            foreign_types.push(parse_single_foreign_type(
                 &type_name, type_obj, imports, source,
             )?);
         }
@@ -391,8 +334,7 @@ fn parse_foreign_types_oxc(
     Ok(foreign_types)
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn parse_single_foreign_type_oxc(
+fn parse_single_foreign_type(
     name: &str,
     obj: &oxc::ast::ast::ObjectExpression<'_>,
     imports: &HashMap<String, ImportInfo>,
@@ -411,33 +353,33 @@ fn parse_single_foreign_type_oxc(
             continue;
         }
 
-        let key = get_prop_key_oxc(&prop.key, source);
+        let key = get_prop_key(&prop.key, source);
         match key.as_str() {
             "from" => {
-                ft.from = extract_string_or_array_oxc(&prop.value);
+                ft.from = extract_string_or_array(&prop.value);
             }
             "serialize" => {
-                let (expr, import) = extract_function_expr_oxc(&prop.value, imports, source);
+                let (expr, import) = extract_function_expr(&prop.value, imports, source);
                 ft.serialize_expr = expr;
                 ft.serialize_import = import;
             }
             "deserialize" => {
-                let (expr, import) = extract_function_expr_oxc(&prop.value, imports, source);
+                let (expr, import) = extract_function_expr(&prop.value, imports, source);
                 ft.deserialize_expr = expr;
                 ft.deserialize_import = import;
             }
             "default" => {
-                let (expr, import) = extract_function_expr_oxc(&prop.value, imports, source);
+                let (expr, import) = extract_function_expr(&prop.value, imports, source);
                 ft.default_expr = expr;
                 ft.default_import = import;
             }
             "hasShape" => {
-                let (expr, import) = extract_function_expr_oxc(&prop.value, imports, source);
+                let (expr, import) = extract_function_expr(&prop.value, imports, source);
                 ft.has_shape_expr = expr;
                 ft.has_shape_import = import;
             }
             "aliases" => {
-                ft.aliases = parse_aliases_array_oxc(&prop.value, source);
+                ft.aliases = parse_aliases_array(&prop.value, source);
             }
             _ => {}
         }
@@ -453,15 +395,14 @@ fn parse_single_foreign_type_oxc(
     .into_iter()
     .flatten()
     {
-        namespaces.extend(extract_expression_namespaces_oxc(expr));
+        namespaces.extend(extract_expression_namespaces(expr));
     }
     ft.expression_namespaces = namespaces.into_iter().collect();
 
     Ok(ft)
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn parse_aliases_array_oxc(
+fn parse_aliases_array(
     expr: &oxc::ast::ast::Expression<'_>,
     source: &str,
 ) -> Vec<ForeignTypeAlias> {
@@ -482,9 +423,9 @@ fn parse_aliases_array_oxc(
             if prop.kind != oxc::ast::ast::PropertyKind::Init {
                 continue;
             }
-            match get_prop_key_oxc(&prop.key, source).as_str() {
-                "name" => alias.name = get_string_value_oxc(&prop.value).unwrap_or_default(),
-                "from" => alias.from = get_string_value_oxc(&prop.value).unwrap_or_default(),
+            match get_prop_key(&prop.key, source).as_str() {
+                "name" => alias.name = get_string_value(&prop.value).unwrap_or_default(),
+                "from" => alias.from = get_string_value(&prop.value).unwrap_or_default(),
                 _ => {}
             }
         }
@@ -495,8 +436,7 @@ fn parse_aliases_array_oxc(
     aliases
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn extract_function_expr_oxc(
+fn extract_function_expr(
     expr: &oxc::ast::ast::Expression<'_>,
     imports: &HashMap<String, ImportInfo>,
     source: &str,
@@ -510,8 +450,7 @@ fn extract_function_expr_oxc(
     }
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn extract_string_or_array_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Vec<String> {
+fn extract_string_or_array(expr: &oxc::ast::ast::Expression<'_>) -> Vec<String> {
     match expr {
         oxc::ast::ast::Expression::StringLiteral(string) => vec![string.value.to_string()],
         oxc::ast::ast::Expression::ArrayExpression(array) => array
@@ -528,24 +467,21 @@ fn extract_string_or_array_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Vec<Stri
     }
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn get_bool_value_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Option<bool> {
+fn get_bool_value(expr: &oxc::ast::ast::Expression<'_>) -> Option<bool> {
     match expr {
         oxc::ast::ast::Expression::BooleanLiteral(boolean) => Some(boolean.value),
         _ => None,
     }
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn get_string_value_oxc(expr: &oxc::ast::ast::Expression<'_>) -> Option<String> {
+fn get_string_value(expr: &oxc::ast::ast::Expression<'_>) -> Option<String> {
     match expr {
         oxc::ast::ast::Expression::StringLiteral(string) => Some(string.value.to_string()),
         _ => None,
     }
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn get_prop_key_oxc(key: &oxc::ast::ast::PropertyKey<'_>, source: &str) -> String {
+fn get_prop_key(key: &oxc::ast::ast::PropertyKey<'_>, source: &str) -> String {
     match key {
         oxc::ast::ast::PropertyKey::StaticIdentifier(ident) => ident.name.to_string(),
         oxc::ast::ast::PropertyKey::StringLiteral(string) => string.value.to_string(),
@@ -553,9 +489,8 @@ fn get_prop_key_oxc(key: &oxc::ast::ast::PropertyKey<'_>, source: &str) -> Strin
     }
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
-fn extract_expression_namespaces_oxc(expr_str: &str) -> Vec<String> {
-    use crate::ts_syn::parse_oxc_expr;
+fn extract_expression_namespaces(expr_str: &str) -> Vec<String> {
+    use crate::ts_syn::parse_expr;
     use oxc::ast::ast::{Argument, Expression, ObjectPropertyKind, Statement};
 
     fn member_root(expr: &Expression<'_>) -> Option<String> {
@@ -692,7 +627,7 @@ fn extract_expression_namespaces_oxc(expr_str: &str) -> Vec<String> {
     }
 
     let allocator = oxc::allocator::Allocator::default();
-    let Ok(expr) = parse_oxc_expr(&allocator, expr_str) else {
+    let Ok(expr) = parse_expr(&allocator, expr_str) else {
         return Vec::new();
     };
 
@@ -701,7 +636,6 @@ fn extract_expression_namespaces_oxc(expr_str: &str) -> Vec<String> {
     namespaces.into_iter().collect()
 }
 
-#[cfg(all(not(feature = "swc"), feature = "oxc"))]
 fn source_slice(source: &str, span: oxc::span::Span) -> String {
     source
         .get(span.start as usize..span.end as usize)

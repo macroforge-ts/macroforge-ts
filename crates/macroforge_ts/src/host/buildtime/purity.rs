@@ -217,12 +217,12 @@ fn span_to_ir(span: oxc::span::Span) -> SpanIR {
 mod tests {
     use super::*;
     use oxc::allocator::Allocator;
-    use oxc::parser::Parser as OxcParser;
+    use oxc::parser::Parser;
     use oxc::span::SourceType;
 
     fn analyze_src(src: &str) -> Purity {
         let allocator = Allocator::default();
-        let ret = OxcParser::new(&allocator, src, SourceType::ts()).parse();
+        let ret = Parser::new(&allocator, src, SourceType::ts()).parse();
         assert!(ret.diagnostics.is_empty(), "parse: {:?}", ret.diagnostics);
         analyze(&ret.program)
     }

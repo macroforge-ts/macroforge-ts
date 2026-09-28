@@ -3,7 +3,7 @@
  *
  * Declarative pattern-matching macros for TypeScript. Define macros with
  * `` const $name = macroRules`...` ``, invoke them as `$name(args)`, and the
- * macroforge build pass rewrites call sites at compile time.
+ * macroforge build pass rewrites call sites at build time.
  *
  * Example:
  *
@@ -53,14 +53,14 @@ export type MacroInvocation = (...args: any[]) => any;
  * The return type is a generic callable, so TypeScript lets users invoke
  * `$name(...)` without complaint. At runtime (if the build pass did not
  * run) the tag itself throws — any caller would already have seen the
- * compile-time rewrite.
+ * build-time rewrite.
  */
 export function macroRules(
   _strings: TemplateStringsArray,
   ..._values: unknown[]
 ): MacroInvocation {
   throw new Error(
-    "@macroforge/core/rules: macros are compile-time only — they should have been erased by the macroforge build pass. " +
+    "@macroforge/core/rules: macros are build-time only — they should have been erased by the macroforge build pass. " +
       "If you're seeing this at runtime, the macroforge plugin is not installed or not running on this file.",
   );
 }

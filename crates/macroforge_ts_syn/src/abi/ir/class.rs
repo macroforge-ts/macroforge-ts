@@ -33,9 +33,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::abi::{DecoratorIR, SpanIR};
 
-#[cfg(feature = "swc")]
-use crate::abi::swc_ast;
-
 /// Intermediate representation of a TypeScript class declaration.
 ///
 /// This struct captures all relevant information about a class that macro
@@ -96,22 +93,11 @@ pub struct ClassIR {
     /// Macro directives from the JSDoc comment above the class.
     pub decorators: Vec<DecoratorIR>,
 
-    /// The raw SWC decorator AST nodes (not serialized).
-    #[cfg(feature = "swc")]
-    #[serde(skip)]
-    pub decorators_ast: Vec<swc_ast::Decorator>,
-
     /// Class fields/properties.
     pub fields: Vec<FieldIR>,
 
     /// Class methods (including constructor).
     pub methods: Vec<MethodSigIR>,
-
-    /// Raw SWC class members (not serialized).
-    /// Includes all members for advanced use cases.
-    #[cfg(feature = "swc")]
-    #[serde(skip)]
-    pub members: Vec<swc_ast::ClassMember>,
 }
 
 impl ClassIR {
@@ -160,12 +146,6 @@ pub struct FieldIR {
     /// Stored as a string for simplicity in v0.
     pub ts_type: String,
 
-    /// The raw SWC type annotation AST (not serialized).
-    /// Available for advanced type analysis.
-    #[cfg(feature = "swc")]
-    #[serde(skip)]
-    pub type_ann: Option<Box<swc_ast::TsType>>,
-
     /// Whether the field is optional (`?`).
     pub optional: bool,
 
@@ -177,11 +157,6 @@ pub struct FieldIR {
 
     /// Decorators applied to this field.
     pub decorators: Vec<DecoratorIR>,
-
-    /// The raw SWC class property AST (not serialized).
-    #[cfg(feature = "swc")]
-    #[serde(skip)]
-    pub prop_ast: Option<swc_ast::ClassProp>,
 }
 
 impl FieldIR {
@@ -256,12 +231,6 @@ pub struct MethodSigIR {
     /// `None` for abstract or interface methods.
     #[serde(default)]
     pub body_src: Option<String>,
-
-    /// The raw SWC method AST (not serialized).
-    /// Provides access to the full method including body.
-    #[cfg(feature = "swc")]
-    #[serde(skip)]
-    pub member_ast: Option<MethodAstIR>,
 }
 
 impl MethodSigIR {
@@ -273,20 +242,6 @@ impl MethodSigIR {
             .iter_mut()
             .for_each(DecoratorIR::clear_spans);
     }
-}
-
-/// Container for method AST variants.
-///
-/// TypeScript/JavaScript classes have two kinds of method-like members:
-/// regular methods and constructors. This enum allows unified handling
-/// while preserving the distinction.
-#[cfg(feature = "swc")]
-#[derive(Clone, Debug, PartialEq)]
-pub enum MethodAstIR {
-    /// A regular class method.
-    Method(swc_ast::ClassMethod),
-    /// The class constructor.
-    Constructor(swc_ast::Constructor),
 }
 
 /// Access modifier for class members.

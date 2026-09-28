@@ -265,7 +265,6 @@ mod tests {
     // re-parse of just the changed file.
     // -----------------------------------------------------------------
 
-    #[cfg(feature = "oxc")]
     #[test]
     fn second_scan_reuses_cache_entries() {
         use super::super::{ProjectScanner, ScanConfig};
@@ -305,7 +304,6 @@ mod tests {
         std::fs::remove_dir_all(&dir).ok();
     }
 
-    #[cfg(feature = "oxc")]
     #[test]
     fn invalidate_forces_rescan_of_changed_file() {
         use super::super::{ProjectScanner, ScanConfig};

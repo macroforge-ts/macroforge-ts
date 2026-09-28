@@ -3,12 +3,12 @@
         {
             "name": "macroforge_ts",
             "version": "0.3.1",
-            "itemCount": 55
+            "itemCount": 51
         },
         {
             "name": "macroforge_ts_syn",
             "version": "0.3.1",
-            "itemCount": 25
+            "itemCount": 1
         },
         {
             "name": "macroforge_ts_quote",

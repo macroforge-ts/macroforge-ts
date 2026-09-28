@@ -15,13 +15,13 @@
 <h1>How Macros Work</h1>
 
 <p class="lead">
-	Macroforge performs compile-time code generation by parsing your TypeScript, expanding macros, and outputting transformed code. This happens before your code runs, resulting in zero runtime overhead.
+	Macroforge performs build-time code generation by parsing your TypeScript, expanding macros, and outputting transformed code. This happens before your code runs, resulting in zero runtime overhead.
 </p>
 
-<h2 id="compile-time-expansion">Compile-Time Expansion</h2>
+<h2 id="build-time-expansion">Build-Time Expansion</h2>
 
 <p>
-	Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at compile time:
+	Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at build time:
 </p>
 
 <ol>
@@ -36,7 +36,7 @@
 <h2 id="zero-runtime">Zero Runtime Overhead</h2>
 
 <p>
-	Because code generation happens at compile time, there's no:
+	Because code generation happens at build time, there's no:
 </p>
 
 <ul>

@@ -241,7 +241,7 @@ const result = $quad(3);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .expect("expected a Replace patch for the call site");
@@ -1027,7 +1027,7 @@ const result = $serialize(user);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .expect("expected at least one Replace patch");
@@ -1097,9 +1097,7 @@ const a = $id(42);
     // And the Replace should use `expand` arms (splicing `$x` directly),
     // not `call_arms` (which would introduce `__id`).
     let has_id_call = out.patches.iter().any(|p| match p {
-        crate::ts_syn::abi::Patch::Replace { code, .. } => {
-            code.as_text().is_some_and(|t| t.contains("__id"))
-        }
+        crate::ts_syn::abi::Patch::Replace { code, .. } => code.contains("__id"),
         _ => false,
     });
     assert!(!has_id_call, "Dev Auto should not call runtime helper");
@@ -1309,9 +1307,7 @@ const el = <div prop={$id(42)} />;
         "expected exactly 1 Replace inside JSX prop, got: {:#?}",
         replaces
     );
-    if let crate::ts_syn::abi::Patch::Replace { code, .. } = replaces[0]
-        && let Some(text) = code.as_text()
-    {
+    if let crate::ts_syn::abi::Patch::Replace { code: text, .. } = replaces[0] {
         assert!(
             text.contains("42"),
             "expansion should contain the literal: {}",
@@ -1398,7 +1394,7 @@ const x = $tricky();
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .expect("expected a Replace patch for $tricky()");
@@ -1454,9 +1450,7 @@ type T = [$wrap<string>, number];
         "expected type-macro in tuple element to be rewritten, got: {:#?}",
         out.patches
     );
-    if let crate::ts_syn::abi::Patch::Replace { code, .. } = replaces[0]
-        && let Some(text) = code.as_text()
-    {
+    if let crate::ts_syn::abi::Patch::Replace { code: text, .. } = replaces[0] {
         assert!(
             text.contains("wrapped"),
             "expansion should contain the wrapper shape: {}",
@@ -1473,7 +1467,7 @@ type T = [$wrap<string>, number];
 // construct a post-applicator source that either contains an invalid
 // region (traced back to a macro via the source map) or is clean.
 // The expand-pipeline test checks the attribution chain end-to-end,
-// because the plumbing lives inside `declarative_prepass_oxc`.
+// because the plumbing lives inside `declarative_prepass`.
 
 #[test]
 fn validate_expanded_source_returns_empty_on_valid_input() {
@@ -1606,7 +1600,7 @@ const b = $h(User);
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .collect();
@@ -1806,7 +1800,7 @@ function factory() {
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .collect();
@@ -1846,7 +1840,7 @@ function inner() {
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .collect();
@@ -1924,7 +1918,7 @@ function beta() {
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .collect();
@@ -1979,7 +1973,7 @@ const out = $splitLast(1, 2, 3);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .expect("expected a Replace patch for the call site");
@@ -2138,7 +2132,7 @@ const b2 = $serialize(Bert);
     let combined: String = inserts
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Insert { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Insert { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .collect::<Vec<_>>()
@@ -2179,7 +2173,7 @@ const q = $h(Bravo);
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .collect();
@@ -2342,7 +2336,7 @@ const b2 = $serialize(Bert, Cfg);
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Insert { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Insert { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .collect();
@@ -2356,7 +2350,7 @@ const b2 = $serialize(Bert, Cfg);
         .patches
         .iter()
         .filter_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .collect();
@@ -2391,7 +2385,7 @@ type R = $Result<string, Error>;
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .expect("expected a Replace patch for $Result<string, Error>");
@@ -2430,7 +2424,7 @@ const r = $list(1, 2, 3);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .expect("expected a Replace patch for $list(...)");
@@ -2463,7 +2457,7 @@ const r = $apply_each(1, 2, 3);
         .find_map(|p| match p {
             crate::ts_syn::abi::Patch::Replace {
                 code, source_macro, ..
-            } if source_macro.as_deref() == Some("$apply_each") => code.as_text(),
+            } if source_macro.as_deref() == Some("$apply_each") => Some(code.as_str()),
             _ => None,
         })
         .expect("expected a Replace patch for $apply_each(...)");
@@ -2589,7 +2583,7 @@ const r = $cluster(5);
         .patches
         .iter()
         .find_map(|p| match p {
-            crate::ts_syn::abi::Patch::Replace { code, .. } => code.as_text(),
+            crate::ts_syn::abi::Patch::Replace { code, .. } => Some(code.as_str()),
             _ => None,
         })
         .expect("expected a Replace patch for $cluster(5)");

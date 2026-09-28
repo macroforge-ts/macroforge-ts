@@ -1,9 +1,7 @@
-#![cfg(feature = "swc")]
-
 use super::applicator::PatchApplicator;
 use super::collector::PatchCollector;
 use super::helpers::{dedupe_imports, dedupe_patches, parse_import_patch};
-use crate::ts_syn::abi::{Patch, PatchCode, SpanIR};
+use crate::ts_syn::abi::{Patch, SpanIR};
 
 #[test]
 fn test_insert_patch() {
@@ -11,7 +9,7 @@ fn test_insert_patch() {
     // Inserting at position 12 (1-based, just before the closing brace at index 11)
     let patch = Patch::Insert {
         at: SpanIR { start: 12, end: 12 },
-        code: " bar: string; ".to_string().into(),
+        code: " bar: string; ".to_string(),
         source_macro: None,
     };
 
@@ -26,7 +24,7 @@ fn test_replace_patch() {
     // Replace "old: number;" with "new: string;" (1-based spans)
     let patch = Patch::Replace {
         span: SpanIR { start: 13, end: 26 },
-        code: "new: string;".to_string().into(),
+        code: "new: string;".to_string(),
         source_macro: None,
     };
 
@@ -54,12 +52,12 @@ fn test_multiple_patches() {
     let patches = vec![
         Patch::Insert {
             at: SpanIR { start: 12, end: 12 },
-            code: " bar: string;".to_string().into(),
+            code: " bar: string;".to_string(),
             source_macro: None,
         },
         Patch::Insert {
             at: SpanIR { start: 12, end: 12 },
-            code: " baz: number;".to_string().into(),
+            code: " baz: number;".to_string(),
             source_macro: None,
         },
     ];
@@ -82,7 +80,7 @@ fn test_replace_multiline_block_with_single_line() {
             start: constructor_start as u32 + 1,
             end: constructor_end as u32 + 1,
         },
-        code: "constructor();".to_string().into(),
+        code: "constructor();".to_string(),
         source_macro: None,
     };
 
@@ -94,50 +92,6 @@ fn test_replace_multiline_block_with_single_line() {
 }
 
 #[test]
-fn test_detect_indentation_spaces() {
-    let source = r#"class User {
-  id: number;
-  name: string;
-}"#;
-    // Position at closing brace
-    let closing_brace_pos = source.rfind('}').unwrap();
-    let applicator = PatchApplicator::new(source, vec![]);
-    let indent = applicator.detect_indentation(closing_brace_pos);
-    // Should detect 2 spaces from the class members
-    assert_eq!(indent, "  ");
-}
-
-#[test]
-fn test_detect_indentation_tabs() {
-    let source = "class User {\n\tid: number;\n}";
-    let closing_brace_pos = source.rfind('}').unwrap();
-    let applicator = PatchApplicator::new(source, vec![]);
-    let indent = applicator.detect_indentation(closing_brace_pos);
-    // Should detect tab from the class member
-    assert_eq!(indent, "\t");
-}
-
-#[test]
-fn test_format_insertion_adds_newline_and_indent() {
-    let source = r#"class User {
-  id: number;
-}"#;
-    let closing_brace_pos = source.rfind('}').unwrap();
-    let applicator = PatchApplicator::new(source, vec![]);
-
-    // Simulate a class member insertion
-    use swc_core::ecma::ast::{ClassMember, EmptyStmt};
-    let code = PatchCode::ClassMember(ClassMember::Empty(EmptyStmt {
-        span: swc_core::common::DUMMY_SP,
-    }));
-    let formatted = applicator.format_insertion("toString(): string;", closing_brace_pos, &code);
-
-    // Should start with newline and have proper indentation
-    assert!(formatted.starts_with('\n'));
-    assert!(formatted.contains("toString(): string;"));
-}
-
-#[test]
 fn test_insert_class_member_with_proper_formatting() {
     let source = r#"class User {
   id: number;
@@ -146,23 +100,19 @@ fn test_insert_class_member_with_proper_formatting() {
     // Find position just before closing brace (0-based index)
     let closing_brace_pos = source.rfind('}').unwrap();
 
-    // Create a text patch that simulates what emit_node would produce
     // Convert to 1-based span
     let patch = Patch::Insert {
         at: SpanIR {
             start: closing_brace_pos as u32 + 1,
             end: closing_brace_pos as u32 + 1,
         },
-        code: "toString(): string;".to_string().into(),
+        code: "toString(): string;".to_string(),
         source_macro: None,
     };
 
     let applicator = PatchApplicator::new(source, vec![patch]);
     let result = applicator.apply().unwrap();
 
-    // The result should have the method on its own line with proper indentation
-    // Note: Text patches won't get formatted, only ClassMember patches
-    // This test verifies the basic insertion works
     assert!(result.contains("toString(): string;"));
 }
 
@@ -180,7 +130,7 @@ fn test_multiple_class_member_insertions() {
                 start: closing_brace_pos as u32 + 1,
                 end: closing_brace_pos as u32 + 1,
             },
-            code: "toString(): string;".to_string().into(),
+            code: "toString(): string;".to_string(),
             source_macro: None,
         },
         Patch::Insert {
@@ -188,7 +138,7 @@ fn test_multiple_class_member_insertions() {
                 start: closing_brace_pos as u32 + 1,
                 end: closing_brace_pos as u32 + 1,
             },
-            code: "toJSON(): Record<string, unknown>;".to_string().into(),
+            code: "toJSON(): Record<string, unknown>;".to_string(),
             source_macro: None,
         },
     ];
@@ -201,27 +151,17 @@ fn test_multiple_class_member_insertions() {
 }
 
 #[test]
-fn test_indentation_preserved_in_nested_class() {
-    let source = r#"export namespace Models {
-  class User {
-    id: number;
-  }
-}"#;
-    let closing_brace_pos = source.find("  }").unwrap() + 2; // Find the class closing brace
-    let applicator = PatchApplicator::new(source, vec![]);
-    let indent = applicator.detect_indentation(closing_brace_pos);
-    // Should detect the indentation from the class members (4 spaces)
-    assert_eq!(indent, "    ");
-}
-
-#[test]
-fn test_no_formatting_for_text_patches() {
+fn test_inserts_text_verbatim() {
     let source = "class User {}";
-    let pos = 11; // 0-based index for format_insertion (internal use)
-    let applicator = PatchApplicator::new(source, vec![]);
-    let formatted = applicator.format_insertion("test", pos, &PatchCode::Text("test".to_string()));
-    // Text patches should not get extra formatting
-    assert_eq!(formatted, "test");
+    let patch = Patch::Insert {
+        at: SpanIR { start: 13, end: 13 },
+        code: "test".to_string(),
+        source_macro: None,
+    };
+    let result = PatchApplicator::new(source, vec![patch])
+        .apply()
+        .expect("patch should apply");
+    assert_eq!(result, "class User {test}");
 }
 
 #[test]
@@ -230,22 +170,22 @@ fn test_dedupe_patches_removes_identical_inserts() {
     let mut patches = vec![
         Patch::Insert {
             at: SpanIR { start: 11, end: 11 },
-            code: "console.log('a');".to_string().into(),
+            code: "console.log('a');".to_string(),
             source_macro: None,
         },
         Patch::Insert {
             at: SpanIR { start: 11, end: 11 },
-            code: "console.log('a');".to_string().into(),
+            code: "console.log('a');".to_string(),
             source_macro: None,
         },
         Patch::Insert {
             at: SpanIR { start: 21, end: 21 },
-            code: "console.log('b');".to_string().into(),
+            code: "console.log('b');".to_string(),
             source_macro: None,
         },
     ];
 
-    dedupe_patches(&mut patches).expect("dedupe should succeed");
+    dedupe_patches(&mut patches);
     assert_eq!(
         patches.len(),
         2,
@@ -285,7 +225,7 @@ fn test_apply_with_mapping_simple_insert() {
     // Insert at position 12 (1-based span, just before closing brace at index 11)
     let patch = Patch::Insert {
         at: SpanIR { start: 12, end: 12 },
-        code: " bar;".to_string().into(),
+        code: " bar;".to_string(),
         source_macro: Some("Test".to_string()),
     };
 
@@ -337,7 +277,7 @@ fn test_apply_with_mapping_replace() {
     // Replace "old" (1-based span: 9-12) with "new"
     let patch = Patch::Replace {
         span: SpanIR { start: 9, end: 12 },
-        code: "new".to_string().into(),
+        code: "new".to_string(),
         source_macro: None,
     };
 
@@ -401,12 +341,12 @@ fn test_apply_with_mapping_multiple_inserts() {
     let patches = vec![
         Patch::Insert {
             at: SpanIR { start: 3, end: 3 },
-            code: "X".to_string().into(),
+            code: "X".to_string(),
             source_macro: Some("multi".to_string()),
         },
         Patch::Insert {
             at: SpanIR { start: 5, end: 5 },
-            code: "Y".to_string().into(),
+            code: "Y".to_string(),
             source_macro: Some("multi".to_string()),
         },
     ];
@@ -440,7 +380,7 @@ fn test_apply_with_mapping_span_mapping() {
     let source = "class Foo {}";
     let patch = Patch::Insert {
         at: SpanIR { start: 12, end: 12 },
-        code: " bar();".to_string().into(),
+        code: " bar();".to_string(),
         source_macro: None,
     };
 
@@ -469,7 +409,7 @@ fn test_patch_collector_with_mapping() {
     let mut collector = PatchCollector::new();
     collector.add_runtime_patches(vec![Patch::Insert {
         at: SpanIR { start: 12, end: 12 },
-        code: " toString() {}".to_string().into(),
+        code: " toString() {}".to_string(),
         source_macro: Some("Debug".to_string()),
     }]);
 

@@ -18,45 +18,45 @@
         {
             "name": "expand",
             "kind": "function",
-            "type": "(code: tring,, filepath: tring,, options?: xpandOptions) => xpandResult",
+            "type": "(code: string, filepath: string, options?: ExpandOptions) => ExpandResult",
             "description": "Expand a single in-memory TypeScript source string. Looks up and parses `macroforge.config.*` from `projectRoot` (or `Deno.cwd()`) on every call — the config is not cached — and forwards every other concern to the Rust engine.",
             "params": [
                 {
                     "name": "code",
-                    "type": "tring,",
+                    "type": "string",
                     "description": ""
                 },
                 {
                     "name": "filepath",
-                    "type": "tring,",
+                    "type": "string",
                     "description": ""
                 },
                 {
                     "name": "options",
-                    "type": "",
+                    "type": "ExpandOptions",
                     "description": ""
                 }
             ],
-            "returns": "xpandResult"
+            "returns": "ExpandResult"
         },
         {
             "name": "expandFile",
             "kind": "function",
-            "type": "async (filepath: tring,, options?: xpandOptions) => romise<ExpandResult>",
+            "type": "async (filepath: string, options?: ExpandOptions) => Promise<ExpandResult>",
             "description": "Read a file from disk and expand it.",
             "params": [
                 {
                     "name": "filepath",
-                    "type": "tring,",
+                    "type": "string",
                     "description": ""
                 },
                 {
                     "name": "options",
-                    "type": "",
+                    "type": "ExpandOptions",
                     "description": ""
                 }
             ],
-            "returns": "romise<ExpandResult>"
+            "returns": "Promise<ExpandResult>"
         }
     ]
 }

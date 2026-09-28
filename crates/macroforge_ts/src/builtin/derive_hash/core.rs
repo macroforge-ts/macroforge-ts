@@ -1,11 +1,9 @@
 use convert_case::{Case, Casing};
 
+use crate::ast::Expr;
 use crate::builtin::derive_common::CompareFieldOptions;
 use crate::macros::{ts_macro_derive, ts_template};
-use crate::swc_ecma_ast::Expr;
-use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, parse_ts_expr, parse_ts_macro_input, ts_ident,
-};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
 
 use super::hash_generation::generate_field_hash_for_interface;
 use super::types::HashField;
@@ -54,7 +52,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                     let expr_src =
                         generate_field_hash_for_interface(f, "value", resolved, type_registry);
-                    let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                    let expr = Expr::parse(&expr_src).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
                             format!(
@@ -63,7 +61,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                             ),
                         )
                     })?;
-                    Ok(*expr)
+                    Ok(expr)
                 })
                 .collect::<Result<_, MacroforgeError>>()?;
 
@@ -148,7 +146,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                     let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                     let expr_src =
                         generate_field_hash_for_interface(f, "value", resolved, type_registry);
-                    let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                    let expr = Expr::parse(&expr_src).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
                             format!(
@@ -157,7 +155,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                             ),
                         )
                     })?;
-                    Ok(*expr)
+                    Ok(expr)
                 })
                 .collect::<Result<_, MacroforgeError>>()?;
 
@@ -204,7 +202,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                         let resolved = resolved_fields.and_then(|rf| rf.get(&f.name));
                         let expr_src =
                             generate_field_hash_for_interface(f, "value", resolved, type_registry);
-                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                        let expr = Expr::parse(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
                                 format!(
@@ -213,7 +211,7 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                                 ),
                             )
                         })?;
-                        Ok(*expr)
+                        Ok(expr)
                     })
                     .collect::<Result<_, MacroforgeError>>()?;
 

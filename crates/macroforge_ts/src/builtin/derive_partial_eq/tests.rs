@@ -1,8 +1,8 @@
 use super::*;
 
+use crate::ast::Expr;
 use crate::macros::ts_template;
 use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
-use crate::ts_syn::parse_ts_expr;
 
 #[test]
 fn test_partial_eq_macro_output() {
@@ -23,7 +23,7 @@ fn test_partial_eq_macro_output() {
         .map(|f| generate_field_equality_for_interface(f, "a", "b", None, &TypeRegistry::default()))
         .collect::<Vec<_>>()
         .join(" && ");
-    let comparison_expr = parse_ts_expr(&comparison).expect("comparison expr should parse");
+    let comparison_expr = Expr::parse(&comparison).expect("comparison expr should parse");
 
     let output = ts_template!(Within {
         equals(other: unknown): boolean {
@@ -39,8 +39,7 @@ fn test_partial_eq_macro_output() {
     let wrapped = format!("class __Temp {{ {} }}", body_content);
 
     assert!(
-        macroforge_ts_syn::parse_oxc_statement(&oxc::allocator::Allocator::default(), &wrapped)
-            .is_ok(),
+        macroforge_ts_syn::parse_statement(&oxc::allocator::Allocator::default(), &wrapped).is_ok(),
         "Generated PartialEq macro output should parse as class members"
     );
     assert!(source.contains("equals"), "Should contain equals method");

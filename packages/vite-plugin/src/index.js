@@ -2,10 +2,10 @@
 /**
  * @module @macroforge/vite-plugin
  *
- * Vite plugin for Macroforge compile-time TypeScript macro expansion.
+ * Vite plugin for Macroforge build-time TypeScript macro expansion.
  *
  * This plugin integrates Macroforge's Rust-based macro expander into the Vite build pipeline,
- * enabling compile-time code generation through `@derive` decorators. It processes TypeScript
+ * enabling build-time code generation through `@derive` decorators. It processes TypeScript
  * files during the build, expands macros, generates type definitions, and emits metadata.
  *
  * All configuration is loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
@@ -432,7 +432,7 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
 }
 
 /**
- * Creates a Vite plugin for Macroforge compile-time macro expansion.
+ * Creates a Vite plugin for Macroforge build-time macro expansion.
  *
  * Configuration is loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
  * Vite-specific options can be set under the `vite` key in the config file.
@@ -1196,7 +1196,7 @@ export async function macroforge() {
         },
 
         /**
-         * Load the type registry from the CLI cache for compile-time type awareness.
+         * Load the type registry from the CLI cache for build-time type awareness.
          * The registry is passed to every expandSync call so macros can introspect
          * any type in the project.
          */

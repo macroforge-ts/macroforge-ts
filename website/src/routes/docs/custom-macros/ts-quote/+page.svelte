@@ -867,7 +867,7 @@ const example = "Use @{foo} for templates";`}
     Here's a comparison showing how <code>ts_template!</code> simplifies code generation:
 </p>
 
-<h3>Before (Manual AST Building)</h3>
+<h3>Before (Manual String Building)</h3>
 
 <CodeBlock
     code={`pub fn derive_json_macro(input: TsStream) -> MacroResult {
@@ -877,22 +877,15 @@ const example = "Use @{foo} for templates";`}
         Data::Class(class) => {
             let class_name = input.name();
 
-            let mut body_stmts = vec![ts_quote!("const result = {};" as Stmt)];
-
+            let mut body = String::from("const result = {};\\n");
             for field_name in class.field_names() {
-                body_stmts.push(ts_quote!(
-                    "result.$field = this.$field;" as Stmt,
-                    field = ts_ident!(field_name)
-                ));
+                body.push_str(&format!("result.{field_name} = this.{field_name};\\n"));
             }
+            body.push_str("return result;");
 
-            body_stmts.push(ts_quote!("return result;" as Stmt));
-
-            let runtime_code = fn_assign!(
-                member_expr!(Expr::Ident(ts_ident!(class_name)), "prototype"),
-                "toJSON",
-                body_stmts
-            );
+            let runtime_code = TsStream::from_string(format!(
+                "{class_name}.prototype.toJSON = function() {{\\n{body}\\n}};"
+            ));
 
             // ...
         }
@@ -933,7 +926,7 @@ const example = "Use @{foo} for templates";`}
 
 <ol>
     <li>
-        <strong>Compile-Time:</strong> The template is parsed during macro expansion
+        <strong>Rust Compile Time:</strong> The template is parsed during macro expansion
     </li>
     <li>
         <strong>String Building:</strong> Generates Rust code that builds a TypeScript
@@ -1010,11 +1003,11 @@ User.prototype.toJSON = function( {
     <tbody>
         <tr>
             <td><code>ts_quote!</code></td>
-            <td>Compile-time validation, type-safe</td>
+            <td>Rust compile-time validation, type-safe</td>
             <td>Can't handle Vec&lt;Stmt&gt;, verbose</td>
         </tr>
         <tr>
-            <td><code>parse_ts_str()</code></td>
+            <td><code>parse_expr()</code>, <code>parse_statement()</code></td>
             <td>Maximum flexibility</td>
             <td>Runtime parsing, less readable</td>
         </tr>

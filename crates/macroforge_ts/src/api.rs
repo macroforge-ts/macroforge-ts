@@ -1,39 +1,8 @@
-#[cfg(feature = "swc")]
-use swc_core::common::{GLOBALS, Globals};
-
 use crate::api_types::{
     ExpandOptions, ExpandResult, ImportSourceResult, LoadConfigResult, MacroDiagnostic,
-    ScanOptions, ScanResult, SyntaxCheckResult, TransformResult,
+    ScanOptions, ScanResult, SyntaxCheckResult,
 };
-use crate::expand_core::{expand_inner, transform_inner};
-
-/// Trait sketch of the output-agnostic macro API surface.
-///
-/// Currently not implemented by anything — both the NAPI and WASM bindings
-/// call the inherent methods on [`CoreEngine`] directly. Kept public for
-/// semver compatibility; may be wired up (or removed) in a future major
-/// version.
-pub trait MacroforgeApi {
-    type Error;
-
-    fn check_syntax(code: String, filepath: String) -> Result<SyntaxCheckResult, Self::Error>;
-    fn parse_import_sources(
-        code: String,
-        filepath: String,
-    ) -> Result<Vec<ImportSourceResult>, Self::Error>;
-    fn load_config(content: String, filepath: String) -> Result<LoadConfigResult, Self::Error>;
-    fn clear_config_cache();
-    fn transform_sync(code: String, filepath: String) -> Result<TransformResult, Self::Error>;
-    fn expand_sync(
-        code: String,
-        filepath: String,
-        options: Option<ExpandOptions>,
-    ) -> Result<ExpandResult, Self::Error>;
-    fn scan_project_sync(
-        root_dir: String,
-        options: Option<ScanOptions>,
-    ) -> Result<ScanResult, Self::Error>;
-}
+use crate::expand_core::expand_inner;
 
 // ---------------------------------------------------------------------------
 // Singleton scanner (Phase 17)
@@ -66,8 +35,8 @@ fn singleton() -> &'static std::sync::Mutex<Option<CachedScanner>> {
 /// Every public entry point in `bindings_napi` and `bindings_wasm` delegates
 /// to an associated function here, so this is the single place where
 /// parsing, expansion, and scanning behavior is defined for both targets.
-/// On native targets, [`CoreEngine::expand_sync`], [`CoreEngine::transform_sync`],
-/// and [`CoreEngine::scan_project_sync`] run their work on a dedicated worker
+/// On native targets, [`CoreEngine::expand_sync`] and
+/// [`CoreEngine::scan_project_sync`] run their work on a dedicated worker
 /// thread with a 32MB stack (deep AST recursion overflows the default stack)
 /// and catch panics, reporting them as `Err(String)` instead of aborting the
 /// host process.
@@ -76,47 +45,30 @@ pub struct CoreEngine;
 impl CoreEngine {
     /// Parse `code` and report whether it is syntactically valid TypeScript.
     pub fn check_syntax(code: &str, filepath: &str) -> Result<SyntaxCheckResult, String> {
-        #[cfg(feature = "swc")]
-        {
-            match crate::expand_core::parse_program(code, filepath) {
-                Ok(_) => Ok(SyntaxCheckResult {
-                    ok: true,
-                    error: None,
-                }),
-                Err(err) => Ok(SyntaxCheckResult {
-                    ok: false,
-                    error: Some(err.to_string()),
-                }),
-            }
-        }
+        use oxc::allocator::Allocator;
+        use oxc::parser::Parser;
 
-        #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-        {
-            use oxc::allocator::Allocator;
-            use oxc::parser::Parser;
+        let allocator = Allocator::default();
+        let source_type = crate::source_type::for_path(filepath);
+        let parsed = Parser::new(&allocator, code, source_type).parse();
 
-            let allocator = Allocator::default();
-            let source_type = crate::source_type::for_path(filepath);
-            let parsed = Parser::new(&allocator, code, source_type).parse();
-
-            if parsed.diagnostics.is_empty() {
-                Ok(SyntaxCheckResult {
-                    ok: true,
-                    error: None,
-                })
-            } else {
-                Ok(SyntaxCheckResult {
-                    ok: false,
-                    error: Some(
-                        parsed
-                            .diagnostics
-                            .into_iter()
-                            .map(|diagnostic| diagnostic.to_string())
-                            .collect::<Vec<_>>()
-                            .join("; "),
-                    ),
-                })
-            }
+        if parsed.diagnostics.is_empty() {
+            Ok(SyntaxCheckResult {
+                ok: true,
+                error: None,
+            })
+        } else {
+            Ok(SyntaxCheckResult {
+                ok: false,
+                error: Some(
+                    parsed
+                        .diagnostics
+                        .into_iter()
+                        .map(|diagnostic| diagnostic.to_string())
+                        .collect::<Vec<_>>()
+                        .join("; "),
+                ),
+            })
         }
     }
 
@@ -125,49 +77,27 @@ impl CoreEngine {
         code: &str,
         filepath: &str,
     ) -> Result<Vec<ImportSourceResult>, String> {
-        #[cfg(feature = "swc")]
-        {
-            use swc_core::ecma::ast::Program;
+        use oxc::allocator::Allocator;
+        use oxc::parser::Parser;
 
-            let (program, _cm) =
-                crate::expand_core::parse_program(code, filepath).map_err(|e| e.to_string())?;
-            let module = match program {
-                Program::Module(module) => module,
-                Program::Script(_) => return Ok(vec![]),
-            };
-
-            let import_result = crate::host::collect_import_sources(&module, code);
-            let mut imports = Vec::with_capacity(import_result.sources.len());
-            for (local, module) in import_result.sources {
-                imports.push(ImportSourceResult { local, module });
-            }
-            Ok(imports)
-        }
-
-        #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-        {
-            use oxc::allocator::Allocator;
-            use oxc::parser::Parser;
-
-            let allocator = Allocator::default();
-            let source_type = crate::source_type::for_path(filepath);
-            let parsed = Parser::new(&allocator, code, source_type).parse();
-            if !parsed.diagnostics.is_empty() {
-                return Err(parsed
-                    .diagnostics
-                    .into_iter()
-                    .map(|diagnostic| diagnostic.to_string())
-                    .collect::<Vec<_>>()
-                    .join("; "));
-            }
-
-            let registry = crate::ts_syn::ImportRegistry::from_oxc_program(&parsed.program, code);
-            Ok(registry
-                .source_modules()
+        let allocator = Allocator::default();
+        let source_type = crate::source_type::for_path(filepath);
+        let parsed = Parser::new(&allocator, code, source_type).parse();
+        if !parsed.diagnostics.is_empty() {
+            return Err(parsed
+                .diagnostics
                 .into_iter()
-                .map(|(local, module)| ImportSourceResult { local, module })
-                .collect())
+                .map(|diagnostic| diagnostic.to_string())
+                .collect::<Vec<_>>()
+                .join("; "));
         }
+
+        let registry = crate::ts_syn::ImportRegistry::from_program(&parsed.program, code);
+        Ok(registry
+            .source_modules()
+            .into_iter()
+            .map(|(local, module)| ImportSourceResult { local, module })
+            .collect())
     }
 
     /// Parse a `macroforge.config.*` source, cache it process-wide, and
@@ -224,60 +154,6 @@ impl CoreEngine {
         crate::host::clear_config_cache();
     }
 
-    /// Expand macros in `code` with default options and return the
-    /// transformed source. On native targets the work runs on a worker
-    /// thread with a 32MB stack; panics are caught and returned as `Err`.
-    pub fn transform_sync(code: String, filepath: String) -> Result<TransformResult, String> {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            let builder = std::thread::Builder::new().stack_size(32 * 1024 * 1024);
-            let handle = builder
-                .spawn(
-                    move || -> std::thread::Result<anyhow::Result<TransformResult>> {
-                        #[cfg(feature = "swc")]
-                        {
-                            let globals = Globals::default();
-                            GLOBALS.set(&globals, || {
-                                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                                    transform_inner(&code, &filepath)
-                                }))
-                            })
-                        }
-
-                        #[cfg(not(feature = "swc"))]
-                        {
-                            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                                transform_inner(&code, &filepath)
-                            }))
-                        }
-                    },
-                )
-                .map_err(|e| format!("Failed to spawn transform thread: {}", e))?;
-
-            handle
-                .join()
-                .map_err(|_| "Transform worker crashed".to_string())?
-                .map_err(|_| "Transform panicked".to_string())?
-                .map_err(|e| e.to_string())
-        }
-
-        #[cfg(target_arch = "wasm32")]
-        {
-            #[cfg(feature = "swc")]
-            {
-                let globals = Globals::default();
-                GLOBALS.set(&globals, || {
-                    transform_inner(&code, &filepath).map_err(|e| e.to_string())
-                })
-            }
-
-            #[cfg(not(feature = "swc"))]
-            {
-                transform_inner(&code, &filepath).map_err(|e| e.to_string())
-            }
-        }
-    }
-
     /// Expand macros in `code` and return the full result (code, diagnostics,
     /// source mapping, metadata). On native targets the work runs on a worker
     /// thread with a 32MB stack; panics are caught and returned as `Err`.
@@ -302,22 +178,9 @@ impl CoreEngine {
             let handle = builder
                 .spawn(
                     move || -> std::thread::Result<anyhow::Result<ExpandResult>> {
-                        #[cfg(feature = "swc")]
-                        {
-                            let globals = Globals::default();
-                            GLOBALS.set(&globals, || {
-                                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                                    expand_inner(&code, &filepath, options)
-                                }))
-                            })
-                        }
-
-                        #[cfg(not(feature = "swc"))]
-                        {
-                            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                                expand_inner(&code, &filepath, options)
-                            }))
-                        }
+                        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                            expand_inner(&code, &filepath, options)
+                        }))
                     },
                 )
                 .map_err(|e| format!("Failed to spawn expand thread: {}", e))?;
@@ -331,18 +194,7 @@ impl CoreEngine {
 
         #[cfg(target_arch = "wasm32")]
         {
-            #[cfg(feature = "swc")]
-            {
-                let globals = Globals::default();
-                GLOBALS.set(&globals, || {
-                    expand_inner(&code, &filepath, options).map_err(|e| e.to_string())
-                })
-            }
-
-            #[cfg(not(feature = "swc"))]
-            {
-                expand_inner(&code, &filepath, options).map_err(|e| e.to_string())
-            }
+            expand_inner(&code, &filepath, options).map_err(|e| e.to_string())
         }
     }
 

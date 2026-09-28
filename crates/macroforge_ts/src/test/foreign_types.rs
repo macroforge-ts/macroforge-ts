@@ -1,4 +1,6 @@
 use super::*;
+use crate::host::import_registry::{clear_foreign_types, set_foreign_types};
+use crate::ts_syn::abi::DiagnosticLevel;
 
 // ============================================================================
 // Foreign Types in Default macro -- foreign expression body references a

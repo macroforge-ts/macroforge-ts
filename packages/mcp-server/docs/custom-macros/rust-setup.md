@@ -30,24 +30,24 @@ Cargo.toml
 
 ```
 [package]
-name = "my-macros"
-version = "0.1.0"
-edition = "2024"
+name = "my-macros"
+version = "0.1.0"
+edition = "2024"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib"]
 
 [dependencies]
-macroforge_ts = { version = "0.1", features = ["node"] }
-napi = { version = "3", features = ["napi8", "compat-mode"] }
-napi-derive = "3"
+macroforge_ts = { version = "0.3", features = ["node"] }
+napi = { version = "3", features = ["napi8", "compat-mode"] }
+napi-derive = "3"
 
 [build-dependencies]
-napi-build = "2"
+napi-build = "2"
 
 [profile.release]
-lto = true
-strip = true
+lto = true
+strip = true
 ```
 
 ## Create build.rs

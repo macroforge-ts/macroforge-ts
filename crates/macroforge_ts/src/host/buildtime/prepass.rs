@@ -663,7 +663,7 @@ fn prelude_warning(reason: &str, start: u32, end: u32) -> Diagnostic {
 fn strip_ts_from_body(body: &str) -> Result<String, String> {
     use oxc::allocator::Allocator;
     use oxc::codegen::Codegen;
-    use oxc::parser::Parser as OxcParser;
+    use oxc::parser::Parser;
     use oxc::semantic::SemanticBuilder;
     use oxc::span::SourceType;
     use oxc::transformer::{TransformOptions, Transformer};
@@ -671,7 +671,7 @@ fn strip_ts_from_body(body: &str) -> Result<String, String> {
     // Wrap as async so `await` in the user body parses.
     let wrapped = format!("async function __mf_body() {{\n{}\n}}", body);
     let allocator = Allocator::default();
-    let parsed = OxcParser::new(&allocator, &wrapped, SourceType::ts()).parse();
+    let parsed = Parser::new(&allocator, &wrapped, SourceType::ts()).parse();
     if !parsed.diagnostics.is_empty() {
         return Err(format!(
             "parse error while stripping TS: {}",

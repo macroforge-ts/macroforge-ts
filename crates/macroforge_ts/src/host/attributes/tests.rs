@@ -5,7 +5,7 @@
 use std::path::PathBuf;
 
 use oxc::allocator::Allocator;
-use oxc::parser::Parser as OxcParser;
+use oxc::parser::Parser;
 use oxc::span::SourceType;
 
 use macroforge_ts_syn::config::{
@@ -16,7 +16,7 @@ use super::run_prepass;
 
 fn run(code: &str, config: &MacroforgeConfig) -> super::AttributePrepassOutput {
     let allocator = Allocator::default();
-    let ret = OxcParser::new(&allocator, code, SourceType::ts()).parse();
+    let ret = Parser::new(&allocator, code, SourceType::ts()).parse();
     assert!(
         ret.diagnostics.is_empty(),
         "parse errors: {:?}",

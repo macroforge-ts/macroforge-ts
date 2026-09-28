@@ -135,8 +135,6 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/api');
         case '/docs/api/expand-sync':
             return resolve('/docs/api/expand-sync');
-        case '/docs/api/transform-sync':
-            return resolve('/docs/api/transform-sync');
         case '/docs/api/native-plugin':
             return resolve('/docs/api/native-plugin');
         case '/docs/api/position-mapper':
@@ -277,7 +275,6 @@ export const navigation: NavSection[] = [
         items: [
             { title: 'Overview', href: '/docs/api' },
             { title: 'expandSync()', href: '/docs/api/expand-sync' },
-            { title: 'transformSync()', href: '/docs/api/transform-sync' },
             { title: 'NativePlugin', href: '/docs/api/native-plugin' },
             { title: 'PositionMapper', href: '/docs/api/position-mapper' }
         ]

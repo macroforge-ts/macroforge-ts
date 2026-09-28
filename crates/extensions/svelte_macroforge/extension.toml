@@ -3,7 +3,7 @@ name = "Svelte Language Server Macroforge"
 version = "0.1.0"
 schema_version = 1
 authors = ["macroforge contributors"]
-description = "Svelte language server with macroforge integration for compile-time macros."
+description = "Svelte language server with macroforge integration for build-time macros."
 repository = "https://gitlab.com/macroforge-ts/macroforge-ts"
 
 [language_servers.svelte-macroforge]

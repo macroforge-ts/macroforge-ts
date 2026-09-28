@@ -60,7 +60,7 @@ impl PatchCollector {
             return Ok(source.to_string());
         }
         let mut patches = self.runtime_patches.clone();
-        dedupe_patches(&mut patches)?;
+        dedupe_patches(&mut patches);
         let applicator = PatchApplicator::new(source, patches);
         applicator.apply()
     }
@@ -74,7 +74,7 @@ impl PatchCollector {
             return Ok(source.to_string());
         }
         let mut patches = self.type_patches.clone();
-        dedupe_patches(&mut patches)?;
+        dedupe_patches(&mut patches);
         let applicator = PatchApplicator::new(source, patches);
         applicator.apply()
     }
@@ -103,7 +103,7 @@ impl PatchCollector {
             });
         }
         let mut patches = self.runtime_patches.clone();
-        dedupe_patches(&mut patches)?;
+        dedupe_patches(&mut patches);
         let applicator = PatchApplicator::new(source, patches);
         applicator.apply_with_mapping(macro_name)
     }
@@ -131,7 +131,7 @@ impl PatchCollector {
             });
         }
         let mut patches = self.type_patches.clone();
-        dedupe_patches(&mut patches)?;
+        dedupe_patches(&mut patches);
         let applicator = PatchApplicator::new(source, patches);
         applicator.apply_with_mapping(macro_name)
     }

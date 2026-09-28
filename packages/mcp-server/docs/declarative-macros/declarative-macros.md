@@ -1,6 +1,6 @@
 # Declarative Macros
 
-Declarative macros let you define compile-time code transformations entirely in TypeScript. They use
+Declarative macros let you define build-time code transformations entirely in TypeScript. They use
 pattern-matching syntax inspired by Rust's `macro_rules!`, adapted to TypeScript's grammar. No Rust
 knowledge and no native build step are required — you define the macro in the same `.ts` file where
 you use it.
@@ -20,7 +20,7 @@ const $vec = macroRules`
   }
 `;
 
-// Usage — expanded at compile time:
+// Usage — expanded at build time:
 const empty = $vec(); // → []
 const xs = $vec(1, 2, 3);
 ```

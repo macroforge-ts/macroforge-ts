@@ -1,11 +1,9 @@
 use convert_case::{Case, Casing};
 
+use crate::ast::Expr;
 use crate::builtin::derive_common::CompareFieldOptions;
 use crate::macros::{ts_macro_derive, ts_template};
-use crate::swc_ecma_ast::Expr;
-use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, parse_ts_expr, parse_ts_macro_input, ts_ident,
-};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
 
 use super::equality::generate_field_equality_for_interface;
 use super::types::EqField;
@@ -57,7 +55,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     .collect::<Vec<_>>()
                     .join(" && ")
             };
-            let comparison_expr = parse_ts_expr(&comparison_src).map_err(|err| {
+            let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
                 MacroforgeError::new(
                     input.decorator_span(),
                     format!("@derive(PartialEq): invalid comparison expression: {err:?}"),
@@ -126,7 +124,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     .collect::<Vec<_>>()
                     .join(" && ")
             };
-            let comparison_expr = parse_ts_expr(&comparison_src).map_err(|err| {
+            let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
                 MacroforgeError::new(
                     input.decorator_span(),
                     format!("@derive(PartialEq): invalid comparison expression: {err:?}"),
@@ -183,7 +181,7 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                         .collect::<Vec<_>>()
                         .join(" && ")
                 };
-                let comparison_expr = parse_ts_expr(&comparison_src).map_err(|err| {
+                let comparison_expr = Expr::parse(&comparison_src).map_err(|err| {
                     MacroforgeError::new(
                         input.decorator_span(),
                         format!("@derive(PartialEq): invalid comparison expression: {err:?}"),

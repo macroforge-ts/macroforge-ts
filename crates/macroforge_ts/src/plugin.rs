@@ -1,7 +1,5 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
-#[cfg(feature = "swc")]
-use swc_core::common::{GLOBALS, Globals};
 
 use crate::api_types::{ExpandOptions, ExpandResult, JsDiagnostic, ProcessFileOptions};
 use crate::expand_core::expand_inner;
@@ -193,7 +191,7 @@ impl NativePlugin {
     /// # Thread Safety
     ///
     /// Macro expansion runs in a separate thread because:
-    /// 1. SWC AST operations can be deeply recursive, exceeding default stack limits
+    /// 1. Parsing, lowering and template expansion recurse deeply, exceeding default stack limits
     /// 2. Node.js thread stack is typically only 2MB
     /// 3. Panics in the worker thread are caught and reported gracefully
     #[napi]
@@ -217,7 +215,7 @@ impl NativePlugin {
 
         // Run expansion in a separate thread with a LARGE stack (32MB).
         // Standard threads (and Node threads) often have 2MB stacks, which causes
-        // "Broken pipe" / SEGFAULTS when SWC recurses deeply in macros.
+        // "Broken pipe" / SEGFAULTS when expansion recurses deeply in macros.
         let opts_clone = option_expand_options(options);
         let filepath_for_thread = filepath.clone();
 
@@ -234,18 +232,7 @@ impl NativePlugin {
                     }))
                 };
 
-                #[cfg(feature = "swc")]
-                {
-                    // Set up SWC globals for this thread.
-                    // SWC uses thread-local storage for some operations.
-                    let globals = Globals::default();
-                    GLOBALS.set(&globals, work)
-                }
-
-                #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-                {
-                    work()
-                }
+                work()
             })
             .map_err(|e| {
                 Error::new(

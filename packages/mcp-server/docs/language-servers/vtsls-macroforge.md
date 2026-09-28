@@ -1,7 +1,7 @@
 # vtsls-macroforge
 
 A Zed extension that wraps [VTSLS](https://github.com/yioneko/vtsls) (VS Code's TypeScript language
-server) with the `@macroforge/typescript-plugin` pre-configured for compile-time macros.
+server) with the `@macroforge/typescript-plugin` pre-configured for build-time macros.
 
 Developer Installation Required
 

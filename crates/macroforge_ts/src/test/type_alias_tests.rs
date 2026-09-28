@@ -1,4 +1,5 @@
 use super::*;
+use crate::ts_syn::abi::DiagnosticLevel;
 
 // ==================== TYPE ALIAS TESTS ====================
 
@@ -119,13 +120,6 @@ type User = {
         assert!(
             result.code.contains("userSerialize"),
             "Should generate userSerialize function for type"
-        );
-
-        // Verify no syntax context markers in output (would indicate Ident emission bug)
-        assert!(
-            !result.code.contains("#0"),
-            "Output should not contain SWC syntax context markers like #0. Got:\n{}",
-            result.code
         );
     }
 }

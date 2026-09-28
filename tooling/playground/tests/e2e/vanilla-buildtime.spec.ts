@@ -20,8 +20,8 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
         await expect(answer).toHaveText('42');
     });
 
-    test('Tier 1 compile-time sha256 hash is stable', async ({ page }) => {
-        // sha256('user-schema-v1') is deterministic — the compile-time
+    test('Tier 1 build-time sha256 hash is stable', async ({ page }) => {
+        // sha256('user-schema-v1') is deterministic — the build-time
         // result must match what a runtime sha256 would produce.
         const hash = page.locator('[data-testid="bt-hash"]');
         const hashText = (await hash.textContent())?.trim() ?? '';
@@ -40,7 +40,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
         await expect(routes).toHaveText('home,users,settings');
     });
 
-    test('Tier 1 IIFE produces compile-time greeting table', async ({ page }) => {
+    test('Tier 1 IIFE produces build-time greeting table', async ({ page }) => {
         const alice = page.locator('[data-testid="bt-greet-alice"]');
         await expect(alice).toHaveText('hello, alice');
 
@@ -54,7 +54,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
         await expect(thirteen).toHaveText('13');
     });
 
-    test('Tier 1 template literal composes compile-time values', async ({ page }) => {
+    test('Tier 1 template literal composes build-time values', async ({ page }) => {
         const summary = page.locator('[data-testid="bt-summary"]');
         const text = (await summary.textContent())?.trim() ?? '';
         // `answer=42, hash=XXXXXXXX` (8 hex chars from the sha256 prefix)
@@ -63,7 +63,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
 
     test('runtime `@macroforge/core/buildtime` stub still throws', async ({ page }) => {
         // If the Vite plugin runs, every real @buildtime use was already
-        // evaluated at compile time. But importing `buildtime` at runtime
+        // evaluated at build time. But importing `buildtime` at runtime
         // and calling a method on it should still throw — that's the
         // contract of the runtime stub.
         const stubThrows = page.locator('[data-testid="bt-stub-throws"]');

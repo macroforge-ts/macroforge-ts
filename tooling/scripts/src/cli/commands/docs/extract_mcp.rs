@@ -44,7 +44,7 @@ const USE_CASES: &[(&str, &str)] = &[
     ),
     (
         "/docs/concepts/architecture",
-        "internals, rust, swc, napi, how it works",
+        "internals, rust, oxc, napi, how it works",
     ),
     // Built-in Macros
     (
@@ -145,10 +145,6 @@ const USE_CASES: &[(&str, &str)] = &[
     (
         "/docs/api/expand-sync",
         "expandSync, expand, transform, macro expansion",
-    ),
-    (
-        "/docs/api/transform-sync",
-        "transformSync, transform, metadata, low-level",
     ),
     (
         "/docs/api/native-plugin",

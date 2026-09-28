@@ -1,6 +1,6 @@
 use super::types::DefaultField;
+use crate::ast::Expr;
 use crate::macros::ts_template;
-use crate::ts_syn::parse_ts_expr;
 use crate::ts_syn::ts_ident;
 
 #[test]
@@ -24,7 +24,7 @@ fn test_default_macro_output() {
             const instance = new @{class_ident.clone()}();
             {#if !default_fields.is_empty()}
                 {#for f in default_fields.iter()}
-                    instance.@{ts_ident!(f.name.as_str())} = @{*parse_ts_expr(&f.value).expect("should parse")};
+                    instance.@{ts_ident!(f.name.as_str())} = @{Expr::parse(&f.value).expect("should parse")};
                 {/for}
             {/if}
             return instance;
@@ -38,8 +38,7 @@ fn test_default_macro_output() {
     let wrapped = format!("class __Temp {{ {} }}", body_content);
 
     assert!(
-        macroforge_ts_syn::parse_oxc_statement(&oxc::allocator::Allocator::default(), &wrapped)
-            .is_ok(),
+        macroforge_ts_syn::parse_statement(&oxc::allocator::Allocator::default(), &wrapped).is_ok(),
         "Generated Default macro output should parse as class members"
     );
     assert!(

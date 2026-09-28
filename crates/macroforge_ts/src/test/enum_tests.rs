@@ -1,4 +1,5 @@
 use super::*;
+use crate::ts_syn::abi::DiagnosticLevel;
 
 // ==================== ENUM TESTS ====================
 

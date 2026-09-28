@@ -1,20 +1,22 @@
 //! Extract TypeScript documentation to JSON
 //!
-//! Parses TypeScript source files using SWC for proper AST-based extraction of
+//! Parses TypeScript source files using OXC for proper AST-based extraction of
 //! JSDoc comments, exported declarations, and type signatures.
 
 use crate::cli::commands::docs::generated::GeneratedFiles;
 use crate::utils::format;
 use anyhow::{Context, Result};
+use oxc::allocator::Allocator;
+use oxc::ast::Comment;
+use oxc::ast::ast::{
+    BindingPattern, Declaration, ExportDefaultDeclarationKind, FormalParameter, Function, Program,
+    Statement, TSTypeAnnotation, VariableDeclarationKind,
+};
+use oxc::parser::Parser;
+use oxc::span::{GetSpan, SourceType, Span};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use swc_core::common::comments::{CommentKind, Comments, SingleThreadedComments};
-use swc_core::common::input::StringInput;
-use swc_core::common::source_map::SmallPos;
-use swc_core::common::{FileName, SourceMap, Span, Spanned};
-use swc_core::ecma::ast::*;
-use swc_core::ecma::parser::{Parser, Syntax, TsSyntax, lexer::Lexer};
 
 /// TypeScript package documentation
 #[derive(Debug, Serialize, Deserialize)]
@@ -47,7 +49,7 @@ pub struct ExportDoc {
     pub deprecated: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParamDoc {
     pub name: String,
     #[serde(rename = "type")]
@@ -56,7 +58,7 @@ pub struct ParamDoc {
 }
 
 /// Parsed JSDoc block
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 struct JsDoc {
     description: String,
     params: Vec<ParamDoc>,
@@ -163,7 +165,6 @@ fn extract_package_docs(pkg_dir: &Path, pkg_name: &str) -> Result<PackageDoc> {
         .or(manifest.module.as_deref())
         .unwrap_or("src/index.ts");
 
-    // Look for source files to parse
     let source_paths = [
         pkg_dir.join("src/index.ts"),
         pkg_dir.join("src/lib.ts"),
@@ -174,27 +175,17 @@ fn extract_package_docs(pkg_dir: &Path, pkg_name: &str) -> Result<PackageDoc> {
         .iter()
         .find(|path| path.exists())
         .with_context(|| format!("{} has no TypeScript entry point", pkg_dir.display()))?;
-    let source = fs::read_to_string(entry_path)
-        .with_context(|| format!("failed to read {}", entry_path.display()))?;
+    let source = read_source(entry_path)?;
+    let allocator = Allocator::default();
+    let program = parse(&allocator, &source, entry_path)?;
+    let mut exports = extract_exports(&program, &source);
 
-    let mut exports = extract_exports_swc(&source, entry_path, pkg_dir)?;
-
-    // A barrel entry re-exports from other files, which hold the declarations.
-    for re_path in find_reexport_sources(&source, entry_path) {
-        let re_source = fs::read_to_string(&re_path)
-            .with_context(|| format!("failed to read {}", re_path.display()))?;
-        let re_exports = match extract_exports_swc(&re_source, &re_path, pkg_dir) {
-            Ok(re_exports) => re_exports,
-            Err(error) => {
-                format::warning(&format!(
-                    "skipping re-exported {}: {error:#}",
-                    re_path.display()
-                ));
-                continue;
-            }
-        };
-        // Only add exports not already present (avoid duplicates from barrel)
-        for export in re_exports {
+    // A barrel entry re-exports other files, which hold the declarations.
+    for re_path in relative_module_files(&program, entry_path) {
+        let re_source = read_source(&re_path)?;
+        let re_allocator = Allocator::default();
+        let re_program = parse(&re_allocator, &re_source, &re_path)?;
+        for export in extract_exports(&re_program, &re_source) {
             if !exports.iter().any(|existing| existing.name == export.name) {
                 exports.push(export);
             }
@@ -209,356 +200,206 @@ fn extract_package_docs(pkg_dir: &Path, pkg_name: &str) -> Result<PackageDoc> {
     })
 }
 
-/// Find source files referenced by re-export statements (e.g., `export { ... } from './foo.js'`)
-fn find_reexport_sources(source: &str, entry_path: &Path) -> Vec<PathBuf> {
-    let parent = entry_path.parent().unwrap_or(Path::new("."));
-    let mut paths = Vec::new();
-
-    // Use a simple regex to find `from './...'` or `from "../..."` patterns
-    let re = regex::Regex::new(r#"from\s+['"](\./[^'"]+)['"]"#).unwrap();
-    for cap in re.captures_iter(source) {
-        if let Some(m) = cap.get(1) {
-            let rel = m.as_str();
-            // Try .ts extension variants
-            let base = rel
-                .trim_end_matches(".js")
-                .trim_end_matches(".ts")
-                .trim_end_matches(".d.ts");
-            for ext in &[".ts", ".d.ts", "/index.ts"] {
-                let candidate = parent.join(format!("{}{}", base, ext));
-                if candidate.exists() && candidate != entry_path {
-                    paths.push(candidate);
-                    break;
-                }
-            }
-        }
-    }
-
-    paths
+fn read_source(path: &Path) -> Result<String> {
+    fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))
 }
 
-/// Parse a TypeScript source file with SWC and extract exported declarations
-fn extract_exports_swc(source: &str, file_path: &Path, _pkg_dir: &Path) -> Result<Vec<ExportDoc>> {
-    let cm = SourceMap::default();
-    let comments = SingleThreadedComments::default();
+fn parse<'a>(allocator: &'a Allocator, source: &'a str, path: &Path) -> Result<Program<'a>> {
+    let source_type = SourceType::from_path(path)
+        .map_err(|error| anyhow::anyhow!("{}: {error}", path.display()))?;
+    let parsed = Parser::new(allocator, source, source_type).parse();
+    if !parsed.diagnostics.is_empty() {
+        anyhow::bail!(
+            "parse errors in {}: {}",
+            path.display(),
+            parsed
+                .diagnostics
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<_>>()
+                .join("; ")
+        );
+    }
+    Ok(parsed.program)
+}
 
-    let fm = cm.new_source_file(
-        FileName::Real(file_path.to_path_buf()).into(),
-        source.to_string(),
-    );
+/// Files the entry point imports or re-exports through a `./` specifier.
+fn relative_module_files(program: &Program<'_>, entry_path: &Path) -> Vec<PathBuf> {
+    let parent = entry_path.parent().unwrap_or(Path::new("."));
+    program
+        .body
+        .iter()
+        .filter_map(|statement| match statement {
+            Statement::ImportDeclaration(import) => Some(import.source.value.as_str()),
+            Statement::ExportFromDeclaration(export) => Some(export.source.value.as_str()),
+            Statement::ExportAllDeclaration(export) => Some(export.source.value.as_str()),
+            _ => None,
+        })
+        .filter(|specifier| specifier.starts_with("./"))
+        .filter_map(|specifier| {
+            let base = specifier
+                .trim_end_matches(".js")
+                .trim_end_matches(".d.ts")
+                .trim_end_matches(".ts");
+            [".ts", ".d.ts", "/index.ts"]
+                .iter()
+                .map(|extension| parent.join(format!("{base}{extension}")))
+                .find(|candidate| candidate.exists() && candidate != entry_path)
+        })
+        .collect()
+}
 
-    let lexer = Lexer::new(
-        Syntax::Typescript(TsSyntax {
-            tsx: file_path.extension().is_some_and(|e| e == "tsx"),
-            decorators: true,
-            ..Default::default()
-        }),
-        EsVersion::latest(),
-        StringInput::from(&*fm),
-        Some(&comments),
-    );
-
-    let mut parser = Parser::new_from(lexer);
-    let module = parser
-        .parse_module()
-        .map_err(|e| anyhow::anyhow!("SWC parse error in {}: {:?}", file_path.display(), e))?;
-
+/// The documented exports declared in `program`.
+fn extract_exports(program: &Program<'_>, source: &str) -> Vec<ExportDoc> {
     let mut exports = Vec::new();
 
-    for item in &module.body {
-        match item {
-            // export function foo(...) { ... }
-            // export async function foo(...) { ... }
-            ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => {
-                if let Some(exp) =
-                    extract_from_decl(&export_decl.decl, export_decl.span, source, &comments)
-                {
-                    exports.extend(exp);
-                }
-            }
-
-            // export default function foo() { ... }
-            // export default class Foo { ... }
-            ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultDecl(default_decl)) => {
-                if let Some(exp) = extract_from_default_decl(default_decl, source, &comments) {
-                    exports.push(exp);
-                }
-            }
-
-            // export default expression
-            ModuleItem::ModuleDecl(ModuleDecl::ExportDefaultExpr(default_expr)) => {
-                let jsdoc = get_leading_jsdoc(default_expr.span, source, &comments);
+    for statement in &program.body {
+        match statement {
+            // export function foo() {}, export const x = 1, export interface Foo {}, ...
+            Statement::ExportDeclaration(export) => {
+                let jsdoc = leading_jsdoc(export.span, &program.comments, source);
                 if !jsdoc.is_internal {
-                    exports.push(ExportDoc {
-                        name: "default".to_string(),
-                        kind: "const".to_string(),
-                        export_type: None,
-                        description: jsdoc.description,
-                        params: None,
-                        returns: None,
-                        examples: nonempty_vec(jsdoc.examples),
-                        remarks: jsdoc.remarks,
-                        see: nonempty_vec(jsdoc.see),
-                        deprecated: jsdoc.deprecated,
-                    });
+                    exports.extend(declaration_docs(&export.declaration, source, jsdoc));
                 }
             }
 
-            // export { Foo, Bar } from './module'  -- named re-exports
-            // We skip these since we resolve re-exported files separately
-            ModuleItem::ModuleDecl(ModuleDecl::ExportNamed(_)) => {}
+            // export default function foo() {}, export default class Foo {}, export default expr
+            Statement::ExportDefaultDeclaration(export) => {
+                let jsdoc = leading_jsdoc(export.span, &program.comments, source);
+                if !jsdoc.is_internal {
+                    exports.push(default_export_doc(&export.declaration, source, jsdoc));
+                }
+            }
 
-            // export * from './module'  -- star re-exports
-            ModuleItem::ModuleDecl(ModuleDecl::ExportAll(_)) => {}
-
+            // Re-exports are documented from the files they point at.
             _ => {}
         }
     }
 
-    Ok(exports)
+    exports
 }
 
-/// Extract exports from a declaration (function, class, interface, type alias, enum, var/const)
-fn extract_from_decl(
-    decl: &Decl,
-    span: Span,
-    source: &str,
-    comments: &SingleThreadedComments,
-) -> Option<Vec<ExportDoc>> {
-    match decl {
-        Decl::Fn(fn_decl) => {
-            let jsdoc = get_leading_jsdoc(span, source, comments);
-            if jsdoc.is_internal {
-                return None;
-            }
-
-            let name = fn_decl.ident.sym.to_string();
-            let (params, return_type) = extract_fn_signature(&fn_decl.function, source, &jsdoc);
-
-            Some(vec![ExportDoc {
-                name,
-                kind: "function".to_string(),
-                export_type: Some(format_fn_type(&fn_decl.function, source)),
-                description: jsdoc.description,
-                params: nonempty_vec(params),
-                returns: return_type,
-                examples: nonempty_vec(jsdoc.examples),
-                remarks: jsdoc.remarks,
-                see: nonempty_vec(jsdoc.see),
-                deprecated: jsdoc.deprecated,
-            }])
+fn declaration_docs(declaration: &Declaration<'_>, source: &str, jsdoc: JsDoc) -> Vec<ExportDoc> {
+    match declaration {
+        Declaration::FunctionDeclaration(function) => {
+            let name = function
+                .id
+                .as_ref()
+                .map_or_else(|| "default".to_string(), |id| id.name.to_string());
+            vec![function_doc(name, function, source, jsdoc)]
         }
-
-        Decl::Class(class_decl) => {
-            let jsdoc = get_leading_jsdoc(span, source, comments);
-            if jsdoc.is_internal {
-                return None;
-            }
-
-            let name = class_decl.ident.sym.to_string();
-
-            Some(vec![ExportDoc {
-                name,
-                kind: "class".to_string(),
-                export_type: None,
-                description: jsdoc.description,
-                params: None,
-                returns: None,
-                examples: nonempty_vec(jsdoc.examples),
-                remarks: jsdoc.remarks,
-                see: nonempty_vec(jsdoc.see),
-                deprecated: jsdoc.deprecated,
-            }])
+        Declaration::ClassDeclaration(class) => {
+            let name = class
+                .id
+                .as_ref()
+                .map_or_else(|| "default".to_string(), |id| id.name.to_string());
+            vec![export_doc(name, "class", None, jsdoc)]
         }
-
-        Decl::TsInterface(iface) => {
-            let jsdoc = get_leading_jsdoc(span, source, comments);
-            if jsdoc.is_internal {
-                return None;
-            }
-
-            let name = iface.id.sym.to_string();
-
-            Some(vec![ExportDoc {
-                name,
-                kind: "interface".to_string(),
-                export_type: None,
-                description: jsdoc.description,
-                params: None,
-                returns: None,
-                examples: nonempty_vec(jsdoc.examples),
-                remarks: jsdoc.remarks,
-                see: nonempty_vec(jsdoc.see),
-                deprecated: jsdoc.deprecated,
-            }])
+        Declaration::TSInterfaceDeclaration(interface) => {
+            vec![export_doc(
+                interface.id.name.to_string(),
+                "interface",
+                None,
+                jsdoc,
+            )]
         }
-
-        Decl::TsTypeAlias(type_alias) => {
-            let jsdoc = get_leading_jsdoc(span, source, comments);
-            if jsdoc.is_internal {
-                return None;
-            }
-
-            let name = type_alias.id.sym.to_string();
-            let type_text = span_text(type_alias.type_ann.span(), source);
-
-            Some(vec![ExportDoc {
-                name,
-                kind: "type".to_string(),
-                export_type: Some(type_text),
-                description: jsdoc.description,
-                params: None,
-                returns: None,
-                examples: nonempty_vec(jsdoc.examples),
-                remarks: jsdoc.remarks,
-                see: nonempty_vec(jsdoc.see),
-                deprecated: jsdoc.deprecated,
-            }])
+        Declaration::TSTypeAliasDeclaration(alias) => {
+            let type_text = span_text(alias.type_annotation.span(), source);
+            vec![export_doc(
+                alias.id.name.to_string(),
+                "type",
+                Some(type_text),
+                jsdoc,
+            )]
         }
-
-        Decl::TsEnum(ts_enum) => {
-            let jsdoc = get_leading_jsdoc(span, source, comments);
-            if jsdoc.is_internal {
-                return None;
-            }
-
-            let name = ts_enum.id.sym.to_string();
-
-            Some(vec![ExportDoc {
-                name,
-                kind: "enum".to_string(),
-                export_type: None,
-                description: jsdoc.description,
-                params: None,
-                returns: None,
-                examples: nonempty_vec(jsdoc.examples),
-                remarks: jsdoc.remarks,
-                see: nonempty_vec(jsdoc.see),
-                deprecated: jsdoc.deprecated,
-            }])
+        Declaration::TSEnumDeclaration(ts_enum) => {
+            vec![export_doc(ts_enum.id.name.to_string(), "enum", None, jsdoc)]
         }
-
-        Decl::Var(var_decl) => {
-            let mut results = Vec::new();
-            for declarator in &var_decl.decls {
-                let jsdoc = get_leading_jsdoc(span, source, comments);
-                if jsdoc.is_internal {
-                    continue;
-                }
-
-                let name = match &declarator.name {
-                    Pat::Ident(ident) => ident.sym.to_string(),
-                    _ => continue,
-                };
-
-                let kind = match var_decl.kind {
-                    VarDeclKind::Const => "const",
-                    VarDeclKind::Let => "let",
-                    VarDeclKind::Var => "var",
-                };
-
-                let type_text = declarator
-                    .name
-                    .as_ident()
-                    .and_then(|id| id.type_ann.as_ref())
-                    .map(|ann| span_text(ann.type_ann.span(), source));
-
-                results.push(ExportDoc {
-                    name,
-                    kind: kind.to_string(),
-                    export_type: type_text,
-                    description: jsdoc.description,
-                    params: None,
-                    returns: None,
-                    examples: nonempty_vec(jsdoc.examples),
-                    remarks: jsdoc.remarks,
-                    see: nonempty_vec(jsdoc.see),
-                    deprecated: jsdoc.deprecated,
-                });
-            }
-            if results.is_empty() {
-                None
-            } else {
-                Some(results)
-            }
+        Declaration::VariableDeclaration(variable) => {
+            let kind = match variable.kind {
+                VariableDeclarationKind::Const => "const",
+                VariableDeclarationKind::Let => "let",
+                VariableDeclarationKind::Var => "var",
+                VariableDeclarationKind::Using => "using",
+                VariableDeclarationKind::AwaitUsing => "await using",
+            };
+            // Every declarator in the statement shares its JSDoc.
+            variable
+                .declarations
+                .iter()
+                .filter_map(|declarator| match &declarator.id {
+                    BindingPattern::BindingIdentifier(ident) => Some(export_doc(
+                        ident.name.to_string(),
+                        kind,
+                        annotation_text(declarator.type_annotation.as_deref(), source),
+                        jsdoc.clone(),
+                    )),
+                    _ => None,
+                })
+                .collect()
         }
-
-        _ => None,
+        Declaration::TSExternalModuleDeclaration(_)
+        | Declaration::TSNamespaceDeclaration(_)
+        | Declaration::TSGlobalDeclaration(_)
+        | Declaration::TSImportEqualsDeclaration(_) => Vec::new(),
     }
 }
 
-/// Extract export from a default declaration
-fn extract_from_default_decl(
-    default_decl: &ExportDefaultDecl,
+fn default_export_doc(
+    declaration: &ExportDefaultDeclarationKind<'_>,
     source: &str,
-    comments: &SingleThreadedComments,
-) -> Option<ExportDoc> {
-    let jsdoc = get_leading_jsdoc(default_decl.span, source, comments);
-    if jsdoc.is_internal {
-        return None;
+    jsdoc: JsDoc,
+) -> ExportDoc {
+    match declaration {
+        ExportDefaultDeclarationKind::FunctionDeclaration(function) => {
+            let name = function
+                .id
+                .as_ref()
+                .map_or_else(|| "default".to_string(), |id| id.name.to_string());
+            function_doc(name, function, source, jsdoc)
+        }
+        ExportDefaultDeclarationKind::ClassDeclaration(class) => {
+            let name = class
+                .id
+                .as_ref()
+                .map_or_else(|| "default".to_string(), |id| id.name.to_string());
+            export_doc(name, "class", None, jsdoc)
+        }
+        ExportDefaultDeclarationKind::TSInterfaceDeclaration(interface) => {
+            export_doc(interface.id.name.to_string(), "interface", None, jsdoc)
+        }
+        // Every remaining variant is an expression: `export default <expr>`.
+        _ => export_doc("default".to_string(), "const", None, jsdoc),
     }
+}
 
-    match &default_decl.decl {
-        DefaultDecl::Fn(fn_expr) => {
-            let name = fn_expr
-                .ident
-                .as_ref()
-                .map(|id| id.sym.to_string())
-                .unwrap_or_else(|| "default".to_string());
+fn export_doc(name: String, kind: &str, export_type: Option<String>, jsdoc: JsDoc) -> ExportDoc {
+    ExportDoc {
+        name,
+        kind: kind.to_string(),
+        export_type,
+        description: jsdoc.description,
+        params: None,
+        returns: None,
+        examples: nonempty_vec(jsdoc.examples),
+        remarks: jsdoc.remarks,
+        see: nonempty_vec(jsdoc.see),
+        deprecated: jsdoc.deprecated,
+    }
+}
 
-            let (params, return_type) = extract_fn_signature(&fn_expr.function, source, &jsdoc);
-
-            Some(ExportDoc {
-                name,
-                kind: "function".to_string(),
-                export_type: Some(format_fn_type(&fn_expr.function, source)),
-                description: jsdoc.description,
-                params: nonempty_vec(params),
-                returns: return_type,
-                examples: nonempty_vec(jsdoc.examples),
-                remarks: jsdoc.remarks,
-                see: nonempty_vec(jsdoc.see),
-                deprecated: jsdoc.deprecated,
-            })
-        }
-
-        DefaultDecl::Class(class_expr) => {
-            let name = class_expr
-                .ident
-                .as_ref()
-                .map(|id| id.sym.to_string())
-                .unwrap_or_else(|| "default".to_string());
-
-            Some(ExportDoc {
-                name,
-                kind: "class".to_string(),
-                export_type: None,
-                description: jsdoc.description,
-                params: None,
-                returns: None,
-                examples: nonempty_vec(jsdoc.examples),
-                remarks: jsdoc.remarks,
-                see: nonempty_vec(jsdoc.see),
-                deprecated: jsdoc.deprecated,
-            })
-        }
-
-        DefaultDecl::TsInterfaceDecl(iface) => {
-            let name = iface.id.sym.to_string();
-
-            Some(ExportDoc {
-                name,
-                kind: "interface".to_string(),
-                export_type: None,
-                description: jsdoc.description,
-                params: None,
-                returns: None,
-                examples: nonempty_vec(jsdoc.examples),
-                remarks: jsdoc.remarks,
-                see: nonempty_vec(jsdoc.see),
-                deprecated: jsdoc.deprecated,
-            })
-        }
+fn function_doc(name: String, function: &Function<'_>, source: &str, jsdoc: JsDoc) -> ExportDoc {
+    let params = function_params(function, source, &jsdoc);
+    // Prefer the JSDoc @returns text, fall back to the annotated return type.
+    let returns = jsdoc
+        .returns
+        .clone()
+        .or_else(|| annotation_text(function.return_type.as_deref(), source));
+    let export_type = format_fn_type(function, source);
+    ExportDoc {
+        params: nonempty_vec(params),
+        returns,
+        ..export_doc(name, "function", Some(export_type), jsdoc)
     }
 }
 
@@ -566,142 +407,90 @@ fn extract_from_default_decl(
 // Function signature extraction
 // ---------------------------------------------------------------------------
 
-/// Extract parameter docs and return type from a function declaration
-fn extract_fn_signature(
-    func: &Function,
-    source: &str,
-    jsdoc: &JsDoc,
-) -> (Vec<ParamDoc>, Option<String>) {
-    let mut params = Vec::new();
+/// One parameter of a function signature.
+struct Param {
+    name: String,
+    type_text: Option<String>,
+    optional: bool,
+}
 
-    for param in &func.params {
-        let (name, type_text) = match &param.pat {
-            Pat::Ident(ident) => {
-                let name = ident.sym.to_string();
-                let ty = ident
-                    .type_ann
-                    .as_ref()
-                    .map(|ann| span_text(ann.type_ann.span(), source))
-                    .unwrap_or_default();
-                (name, ty)
-            }
-            Pat::Rest(rest) => {
-                let name = match &*rest.arg {
-                    Pat::Ident(ident) => format!("...{}", ident.sym),
-                    _ => "...args".to_string(),
-                };
-                let ty = rest
-                    .type_ann
-                    .as_ref()
-                    .map(|ann| span_text(ann.type_ann.span(), source))
-                    .unwrap_or_default();
-                (name, ty)
-            }
-            Pat::Assign(assign) => {
-                let name = match &*assign.left {
-                    Pat::Ident(ident) => ident.sym.to_string(),
-                    _ => "_".to_string(),
-                };
-                (name, String::new())
-            }
-            Pat::Object(obj) => {
-                let ty = obj
-                    .type_ann
-                    .as_ref()
-                    .map(|ann| span_text(ann.type_ann.span(), source))
-                    .unwrap_or_default();
-                ("options".to_string(), ty)
-            }
-            Pat::Array(arr) => {
-                let ty = arr
-                    .type_ann
-                    .as_ref()
-                    .map(|ann| span_text(ann.type_ann.span(), source))
-                    .unwrap_or_default();
-                ("items".to_string(), ty)
-            }
-            _ => continue,
+fn signature_params(function: &Function<'_>, source: &str) -> Vec<Param> {
+    let mut params: Vec<Param> = function
+        .params
+        .items
+        .iter()
+        .map(|param| formal_param(param, source))
+        .collect();
+    if let Some(rest) = &function.params.rest {
+        let name = match &rest.rest.argument {
+            BindingPattern::BindingIdentifier(ident) => format!("...{}", ident.name),
+            _ => "...args".to_string(),
         };
-
-        // Look up description from JSDoc @param tags
-        let description = jsdoc
-            .params
-            .iter()
-            .find(|p| p.name == name || name.ends_with(&p.name))
-            .map(|p| p.description.clone())
-            .unwrap_or_default();
-
-        params.push(ParamDoc {
+        params.push(Param {
             name,
-            param_type: type_text,
-            description,
+            type_text: annotation_text(rest.type_annotation.as_deref(), source),
+            optional: false,
         });
     }
+    params
+}
 
-    // Return type: prefer JSDoc @returns, fall back to AST type annotation
-    let return_type = jsdoc.returns.clone().or_else(|| {
-        func.return_type
-            .as_ref()
-            .map(|ann| span_text(ann.type_ann.span(), source))
-    });
+fn formal_param(param: &FormalParameter<'_>, source: &str) -> Param {
+    Param {
+        name: pattern_name(&param.pattern),
+        type_text: annotation_text(param.type_annotation.as_deref(), source),
+        optional: param.optional || param.initializer.is_some(),
+    }
+}
 
-    (params, return_type)
+/// The documented name of a parameter: its identifier, or a stand-in for a
+/// destructuring pattern.
+fn pattern_name(pattern: &BindingPattern<'_>) -> String {
+    match pattern {
+        BindingPattern::BindingIdentifier(ident) => ident.name.to_string(),
+        BindingPattern::ObjectPattern(_) => "options".to_string(),
+        BindingPattern::ArrayPattern(_) => "items".to_string(),
+        BindingPattern::AssignmentPattern(assignment) => pattern_name(&assignment.left),
+    }
+}
+
+/// Parameter docs, each described by the matching JSDoc `@param`.
+fn function_params(function: &Function<'_>, source: &str, jsdoc: &JsDoc) -> Vec<ParamDoc> {
+    signature_params(function, source)
+        .into_iter()
+        .map(|param| {
+            let description = jsdoc
+                .params
+                .iter()
+                .find(|tag| tag.name == param.name || param.name.ends_with(&tag.name))
+                .map(|tag| tag.description.clone())
+                .unwrap_or_default();
+            ParamDoc {
+                name: param.name,
+                param_type: param.type_text.unwrap_or_default(),
+                description,
+            }
+        })
+        .collect()
 }
 
 /// Format a function's type signature as a string like `(param: Type) => ReturnType`
-fn format_fn_type(func: &Function, source: &str) -> String {
-    let params: Vec<String> = func
-        .params
-        .iter()
-        .map(|p| match &p.pat {
-            Pat::Ident(ident) => {
-                let name = ident.sym.to_string();
-                let opt = if ident.optional { "?" } else { "" };
-                match &ident.type_ann {
-                    Some(ann) => {
-                        let ty = span_text(ann.type_ann.span(), source);
-                        format!("{}{}: {}", name, opt, ty)
-                    }
-                    None => format!("{}{}", name, opt),
-                }
+fn format_fn_type(function: &Function<'_>, source: &str) -> String {
+    let params: Vec<String> = signature_params(function, source)
+        .into_iter()
+        .map(|param| {
+            let optional = if param.optional { "?" } else { "" };
+            match param.type_text {
+                Some(type_text) => format!("{}{optional}: {type_text}", param.name),
+                None => format!("{}{optional}", param.name),
             }
-            Pat::Rest(rest) => {
-                let name = match &*rest.arg {
-                    Pat::Ident(ident) => format!("...{}", ident.sym),
-                    _ => "...args".to_string(),
-                };
-                match &rest.type_ann {
-                    Some(ann) => {
-                        let ty = span_text(ann.type_ann.span(), source);
-                        format!("{}: {}", name, ty)
-                    }
-                    None => name,
-                }
-            }
-            Pat::Assign(assign) => match &*assign.left {
-                Pat::Ident(ident) => {
-                    let name = ident.sym.to_string();
-                    match &ident.type_ann {
-                        Some(ann) => {
-                            let ty = span_text(ann.type_ann.span(), source);
-                            format!("{}?: {}", name, ty)
-                        }
-                        None => format!("{}?", name),
-                    }
-                }
-                _ => "_".to_string(),
-            },
-            _ => "_".to_string(),
         })
         .collect();
 
-    let ret = func
-        .return_type
-        .as_ref()
-        .map(|ann| span_text(ann.type_ann.span(), source))
+    let ret = annotation_text(function.return_type.as_deref(), source)
         .unwrap_or_else(|| "void".to_string());
 
-    if func.is_async {
+    if function.r#async {
         format!("async ({}) => {}", params.join(", "), ret)
     } else {
         format!("({}) => {}", params.join(", "), ret)
@@ -712,18 +501,17 @@ fn format_fn_type(func: &Function, source: &str) -> String {
 // JSDoc parsing
 // ---------------------------------------------------------------------------
 
-/// Get the leading JSDoc comment for a span and parse it
-fn get_leading_jsdoc(span: Span, _source: &str, comments: &SingleThreadedComments) -> JsDoc {
-    let leading = comments.get_leading(span.lo);
-    if let Some(leading) = leading {
-        // Find the last block comment (JSDoc) before this node
-        for comment in leading.iter().rev() {
-            if comment.kind == CommentKind::Block && comment.text.starts_with('*') {
-                return parse_jsdoc(&comment.text);
-            }
-        }
-    }
-    JsDoc::default()
+/// The JSDoc block directly before the node starting at `span.start`.
+fn leading_jsdoc(span: Span, comments: &[Comment], source: &str) -> JsDoc {
+    comments
+        .iter()
+        .rev()
+        .filter(|comment| comment.is_block() && comment.attached_to == span.start)
+        .map(|comment| comment.content_span())
+        .map(|content| &source[content.start as usize..content.end as usize])
+        .find(|text| text.starts_with('*'))
+        .map(parse_jsdoc)
+        .unwrap_or_default()
 }
 
 /// Parse a JSDoc comment body (the text between `/**` and `*/`)
@@ -742,7 +530,9 @@ fn parse_jsdoc(text: &str) -> JsDoc {
         // Handle example code blocks
         if in_example {
             if trimmed.starts_with("```")
-                && example_lines.iter().any(|l: &String| l.contains("```"))
+                && example_lines
+                    .iter()
+                    .any(|example_line: &String| example_line.contains("```"))
             {
                 example_lines.push(trimmed.to_string());
                 doc.examples.push(example_lines.join("\n"));
@@ -769,60 +559,45 @@ fn parse_jsdoc(text: &str) -> JsDoc {
             flush_tag(&mut doc, &current_tag, &current_tag_content);
             current_tag_content.clear();
 
-            if trimmed.starts_with("@param") {
+            let tag_rest = |prefixes: &[&str]| {
+                prefixes
+                    .iter()
+                    .find_map(|prefix| trimmed.strip_prefix(prefix))
+                    .map(str::trim)
+            };
+
+            if let Some(rest) = tag_rest(&["@param"]) {
                 current_tag = Some("param".to_string());
-                let rest = trimmed.strip_prefix("@param").unwrap().trim();
                 current_tag_content.push(rest.to_string());
-            } else if trimmed.starts_with("@returns") || trimmed.starts_with("@return") {
+            } else if let Some(rest) = tag_rest(&["@returns", "@return"]) {
                 current_tag = Some("returns".to_string());
-                let rest = if trimmed.starts_with("@returns") {
-                    trimmed.strip_prefix("@returns").unwrap().trim()
-                } else {
-                    trimmed.strip_prefix("@return").unwrap().trim()
-                };
                 current_tag_content.push(rest.to_string());
-            } else if trimmed.starts_with("@example") {
+            } else if let Some(rest) = tag_rest(&["@example"]) {
                 current_tag = Some("example".to_string());
                 in_example = true;
-                let rest = trimmed.strip_prefix("@example").unwrap().trim();
                 if !rest.is_empty() {
                     example_lines.push(rest.to_string());
                 }
-            } else if trimmed.starts_with("@remarks") {
+            } else if let Some(rest) = tag_rest(&["@remarks"]) {
                 current_tag = Some("remarks".to_string());
-                let rest = trimmed.strip_prefix("@remarks").unwrap().trim();
                 current_tag_content.push(rest.to_string());
-            } else if trimmed.starts_with("@see") {
+            } else if let Some(rest) = tag_rest(&["@see"]) {
                 current_tag = Some("see".to_string());
-                let rest = trimmed.strip_prefix("@see").unwrap().trim();
                 current_tag_content.push(rest.to_string());
-            } else if trimmed.starts_with("@deprecated") {
+            } else if let Some(rest) = tag_rest(&["@deprecated"]) {
                 current_tag = Some("deprecated".to_string());
-                let rest = trimmed.strip_prefix("@deprecated").unwrap().trim();
                 current_tag_content.push(rest.to_string());
-            } else if trimmed.starts_with("@internal") {
+            } else if tag_rest(&["@internal"]).is_some() {
                 doc.is_internal = true;
                 current_tag = None;
-            } else if trimmed.starts_with("@module") || trimmed.starts_with("@fileoverview") {
+            } else if let Some(rest) = tag_rest(&["@module", "@fileoverview"]) {
                 doc.is_module = true;
                 current_tag = Some("module".to_string());
-                let rest = if trimmed.starts_with("@module") {
-                    trimmed.strip_prefix("@module").unwrap().trim()
-                } else {
-                    trimmed.strip_prefix("@fileoverview").unwrap().trim()
-                };
                 if !rest.is_empty() {
                     current_tag_content.push(rest.to_string());
                 }
-            } else if trimmed.starts_with("@packageDocumentation")
-                || trimmed.starts_with("@template")
-                || trimmed.starts_with("@default")
-                || trimmed.starts_with("@throws")
-            {
-                // Known tags we skip but don't treat as description
-                current_tag = Some("skip".to_string());
             } else {
-                // Unknown tag, skip
+                // Other tags (@template, @default, @throws, ...) are not description.
                 current_tag = Some("skip".to_string());
             }
         } else if current_tag.is_some() {
@@ -858,7 +633,10 @@ fn parse_jsdoc(text: &str) -> JsDoc {
 
 /// Check if we're inside a code fence in collected example lines
 fn in_code_fence(lines: &[String]) -> bool {
-    let fence_count = lines.iter().filter(|l| l.trim().starts_with("```")).count();
+    let fence_count = lines
+        .iter()
+        .filter(|line| line.trim().starts_with("```"))
+        .count();
     fence_count % 2 != 0
 }
 
@@ -872,7 +650,7 @@ fn flush_tag(doc: &mut JsDoc, tag: &Option<String>, content: &[String]) {
                 let (name, param_type, desc) = parse_param_tag(first);
                 let extra: String = content[1..]
                     .iter()
-                    .map(|s| s.as_str())
+                    .map(String::as_str)
                     .collect::<Vec<_>>()
                     .join(" ");
                 let full_desc = if extra.is_empty() {
@@ -967,18 +745,173 @@ fn split_name_desc(text: &str) -> (String, String) {
 // Utilities
 // ---------------------------------------------------------------------------
 
-/// Extract the text of a span from source
+/// The trimmed source text `span` covers.
 fn span_text(span: Span, source: &str) -> String {
-    let lo = span.lo.to_usize();
-    let hi = span.hi.to_usize();
-    if lo < source.len() && hi <= source.len() && lo < hi {
-        source[lo..hi].trim().to_string()
-    } else {
-        String::new()
-    }
+    source[span.start as usize..span.end as usize]
+        .trim()
+        .to_string()
+}
+
+/// The type text of an annotation, without its leading `:`.
+fn annotation_text(annotation: Option<&TSTypeAnnotation<'_>>, source: &str) -> Option<String> {
+    annotation.map(|annotation| span_text(annotation.type_annotation.span(), source))
 }
 
 /// Convert a vec to Option<Vec>, returning None if empty
-fn nonempty_vec<T>(v: Vec<T>) -> Option<Vec<T>> {
-    if v.is_empty() { None } else { Some(v) }
+fn nonempty_vec<T>(items: Vec<T>) -> Option<Vec<T>> {
+    if items.is_empty() { None } else { Some(items) }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn exports_of(source: &str) -> Vec<ExportDoc> {
+        let allocator = Allocator::default();
+        let program =
+            parse(&allocator, source, Path::new("fixture.ts")).expect("fixture should parse");
+        extract_exports(&program, source)
+    }
+
+    fn export<'a>(exports: &'a [ExportDoc], name: &str) -> &'a ExportDoc {
+        exports
+            .iter()
+            .find(|export| export.name == name)
+            .unwrap_or_else(|| panic!("{name} should be exported"))
+    }
+
+    #[test]
+    fn function_signature_keeps_exact_type_text() {
+        let exports = exports_of(
+            r#"
+/**
+ * Expands macros.
+ * @param code - The source text
+ * @param options - How to expand
+ */
+export async function expand(code: string, options?: ExpandOptions, ...rest: Array<string>): Promise<Result> {
+    return run(code);
+}
+"#,
+        );
+
+        let expand = export(&exports, "expand");
+        assert_eq!(expand.kind, "function");
+        assert_eq!(expand.description, "Expands macros.");
+        assert_eq!(
+            expand.export_type.as_deref(),
+            Some(
+                "async (code: string, options?: ExpandOptions, ...rest: Array<string>) => Promise<Result>"
+            )
+        );
+        assert_eq!(expand.returns.as_deref(), Some("Promise<Result>"));
+
+        let params = expand.params.as_ref().expect("function has params");
+        assert_eq!(params.len(), 3);
+        assert_eq!(params[0].name, "code");
+        assert_eq!(params[0].param_type, "string");
+        assert_eq!(params[0].description, "The source text");
+        assert_eq!(params[1].description, "How to expand");
+        assert_eq!(params[2].name, "...rest");
+        assert_eq!(params[2].param_type, "Array<string>");
+    }
+
+    #[test]
+    fn defaulted_and_destructured_params() {
+        let exports = exports_of(
+            "export function build({ root }: Config, [first]: string[], retries: number = 3) {}
+",
+        );
+
+        let build = export(&exports, "build");
+        assert_eq!(
+            build.export_type.as_deref(),
+            Some("(options: Config, items: string[], retries?: number) => void")
+        );
+        let params = build.params.as_ref().expect("function has params");
+        assert_eq!(params[0].name, "options");
+        assert_eq!(params[1].name, "items");
+        assert_eq!(params[2].param_type, "number");
+    }
+
+    #[test]
+    fn declaration_kinds_and_jsdoc_tags() {
+        let exports = exports_of(
+            r#"
+/** A plugin. */
+export class Plugin {}
+/**
+ * Options.
+ * @see https://macroforge.dev
+ */
+export interface Options {}
+/**
+ * A result.
+ * @deprecated Use Outcome
+ */
+export type Result = { ok: boolean } | null;
+export enum Level { Info }
+/** Both share this doc. */
+export const first: number = 1, second = 2;
+/** @internal */
+export const hidden = 3;
+export default function () {}
+"#,
+        );
+
+        assert_eq!(export(&exports, "Plugin").kind, "class");
+        assert_eq!(export(&exports, "Plugin").description, "A plugin.");
+        assert_eq!(export(&exports, "Options").kind, "interface");
+        assert_eq!(
+            export(&exports, "Options").see.as_deref(),
+            Some(&["https://macroforge.dev".to_string()][..])
+        );
+        let result = export(&exports, "Result");
+        assert_eq!(
+            result.export_type.as_deref(),
+            Some("{ ok: boolean } | null")
+        );
+        assert_eq!(result.deprecated.as_deref(), Some("Use Outcome"));
+        assert_eq!(export(&exports, "Level").kind, "enum");
+        let first = export(&exports, "first");
+        assert_eq!(first.kind, "const");
+        assert_eq!(first.export_type.as_deref(), Some("number"));
+        assert_eq!(
+            export(&exports, "second").description,
+            "Both share this doc."
+        );
+        assert!(exports.iter().all(|export| export.name != "hidden"));
+        assert_eq!(export(&exports, "default").kind, "function");
+    }
+
+    #[test]
+    fn examples_keep_fenced_code() {
+        let exports = exports_of(
+            r#"
+/**
+ * Runs.
+ * @example
+ * ```ts
+ * run();
+ * ```
+ */
+export function run() {}
+"#,
+        );
+
+        assert_eq!(
+            export(&exports, "run").examples.as_deref(),
+            Some(&["```ts\nrun();\n```".to_string()][..])
+        );
+    }
+
+    #[test]
+    fn a_non_jsdoc_block_comment_is_not_documentation() {
+        let exports = exports_of(
+            "/* plain */
+export const value = 1;
+",
+        );
+        assert_eq!(export(&exports, "value").description, "");
+    }
 }

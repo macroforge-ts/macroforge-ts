@@ -1,14 +1,6 @@
 use convert_case::{Case, Casing};
 
-use crate::ts_syn::abi::{ClassIR, Patch, PatchCode, SpanIR};
-#[cfg(feature = "swc")]
-use swc_core::{
-    common::{FileName, SourceMap, sync::Lrc},
-    ecma::{
-        ast::{ClassMember, EsVersion},
-        parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer},
-    },
-};
+use crate::ts_syn::abi::{ClassIR, Patch, SpanIR};
 
 use super::derive_targets::DeriveTargetIR;
 
@@ -23,14 +15,7 @@ pub(super) fn extract_function_names_from_patches(
 
     for patch in patches {
         let code = match patch {
-            Patch::Insert {
-                code: PatchCode::Text(text),
-                ..
-            } => text,
-            Patch::Replace {
-                code: PatchCode::Text(text),
-                ..
-            } => text,
+            Patch::Insert { code, .. } | Patch::Replace { code, .. } => code,
             _ => continue,
         };
 
@@ -351,120 +336,4 @@ pub(super) fn split_by_markers(
     }
 
     chunks
-}
-
-/// A class member with its associated leading JSDoc comment (if any).
-#[cfg(feature = "swc")]
-pub(super) struct MemberWithComment {
-    /// The leading JSDoc comment text (without /** */)
-    pub leading_comment: Option<String>,
-    /// The class member AST node
-    pub member: ClassMember,
-}
-
-#[cfg(feature = "swc")]
-pub(super) fn parse_members_from_tokens(tokens: &str) -> anyhow::Result<Vec<MemberWithComment>> {
-    // First, extract JSDoc comments and their associated code segments
-    // The body! macro outputs: /** comment */code /** comment */code ...
-    let segments = extract_jsdoc_segments(tokens);
-
-    // Build class body without comments for parsing
-    let code_only: String = segments.iter().map(|(_, code)| code.as_str()).collect();
-    let wrapped_stmt = format!("class __Temp {{ {} }}", code_only);
-
-    // Parse using standard SWC (comments stripped)
-    let cm: Lrc<SourceMap> = Lrc::new(Default::default());
-    let fm = cm.new_source_file(
-        FileName::Custom("macro_body.ts".into()).into(),
-        wrapped_stmt,
-    );
-
-    let syntax = Syntax::Typescript(TsSyntax {
-        tsx: true,
-        decorators: true,
-        ..Default::default()
-    });
-
-    let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
-    let mut parser = Parser::new_from(lexer);
-
-    let module = parser
-        .parse_module()
-        .map_err(|e| anyhow::anyhow!("Failed to parse macro output: {:?}", e))?;
-
-    let class_body = module
-        .body
-        .into_iter()
-        .find_map(|item| {
-            if let swc_core::ecma::ast::ModuleItem::Stmt(swc_core::ecma::ast::Stmt::Decl(
-                swc_core::ecma::ast::Decl::Class(class_decl),
-            )) = item
-            {
-                Some(class_decl.class.body)
-            } else {
-                None
-            }
-        })
-        .ok_or_else(|| anyhow::anyhow!("Failed to parse macro output into class members"))?;
-
-    // Match parsed members with their extracted JSDoc comments
-    // Use enumerate instead of zip to handle cases where there are more members than segments
-    // (e.g., when no JSDoc comments exist, all code is in one segment but parses to multiple members)
-    let result = class_body
-        .into_iter()
-        .enumerate()
-        .map(|(i, member)| MemberWithComment {
-            leading_comment: segments.get(i).and_then(|(comment, _)| comment.clone()),
-            member,
-        })
-        .collect();
-
-    Ok(result)
-}
-
-/// Extract JSDoc comments and their following code segments from body! output.
-/// Returns a vec of (Option<comment_text>, code_segment) pairs.
-#[cfg(feature = "swc")]
-pub(super) fn extract_jsdoc_segments(input: &str) -> Vec<(Option<String>, String)> {
-    let mut result = Vec::new();
-    let mut remaining = input;
-
-    while !remaining.is_empty() {
-        remaining = remaining.trim_start();
-        if remaining.is_empty() {
-            break;
-        }
-
-        // Check if starts with JSDoc comment
-        if remaining.starts_with("/**") {
-            // Find the end of the comment
-            if let Some(end_idx) = remaining.find("*/") {
-                let comment_text = &remaining[3..end_idx]; // Skip /** and exclude */
-                remaining = &remaining[end_idx + 2..]; // Skip past */
-                // Now find the code until the next JSDoc or end
-                let code_end = remaining.find("/**").unwrap_or(remaining.len());
-                let code = remaining[..code_end].to_string();
-                remaining = &remaining[code_end..];
-
-                if !code.trim().is_empty() {
-                    result.push((Some(comment_text.to_string()), code));
-                }
-            } else {
-                // Malformed comment, treat rest as code
-                result.push((None, remaining.to_string()));
-                break;
-            }
-        } else {
-            // No JSDoc comment, find code until next JSDoc or end
-            let code_end = remaining.find("/**").unwrap_or(remaining.len());
-            let code = remaining[..code_end].to_string();
-            remaining = &remaining[code_end..];
-
-            if !code.trim().is_empty() {
-                result.push((None, code));
-            }
-        }
-    }
-
-    result
 }

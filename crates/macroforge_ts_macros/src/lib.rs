@@ -2,7 +2,7 @@
 //!
 //! This crate provides procedural macros for generating TypeScript macro infrastructure
 //! in the Macroforge ecosystem. It simplifies the creation of derive macros that can
-//! transform TypeScript classes at compile time.
+//! transform TypeScript classes at build time.
 //!
 //! ## Overview
 //!
@@ -49,7 +49,7 @@ use syn::{Ident, ItemFn, LitStr, Result, parse::Parser, parse_macro_input, spann
 /// # Example
 ///
 /// ```rust,ignore
-/// #[ts_macro(sql, description = "Compile-time SQL validation")]
+/// #[ts_macro(sql, description = "Build-time SQL validation")]
 /// pub fn sql_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
 ///     Ok(input)
 /// }

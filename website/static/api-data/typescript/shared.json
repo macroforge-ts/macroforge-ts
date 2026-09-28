@@ -30,30 +30,30 @@
         {
             "name": "RequireFunction",
             "kind": "type",
-            "type": "id: string) => unknown;",
+            "type": "(id: string) => unknown",
             "description": "Function type for requiring modules. Accepts any function that can load a module by path."
         },
         {
             "name": "clearExternalManifestCache",
             "kind": "function",
-            "type": "() => oid",
+            "type": "() => void",
             "description": "Clears the external manifest cache. Useful for testing or when packages may have been updated.",
-            "returns": "oid"
+            "returns": "void"
         },
         {
             "name": "getExternalManifest",
             "kind": "function",
-            "type": "(modulePath: tring,, requireFn?: equireFunction) => acroManifest | null",
+            "type": "(modulePath: string, requireFn?: RequireFunction) => MacroManifest | null",
             "description": "Attempts to load the manifest from an external macro package. External macro packages (like `@playground/macro`) export their own `__macroforgeGetManifest()` function that provides macro metadata including descriptions. ```",
             "params": [
                 {
                     "name": "modulePath",
-                    "type": "tring,",
+                    "type": "string",
                     "description": "The package path (e.g., \"@playground/macro\")"
                 },
                 {
                     "name": "requireFn",
-                    "type": "equireFunction",
+                    "type": "RequireFunction",
                     "description": "Optional custom require function. If not provided, creates one using import.meta.url context."
                 }
             ],
@@ -65,22 +65,22 @@
         {
             "name": "getExternalMacroInfo",
             "kind": "function",
-            "type": "(macroName: tring,, modulePath: tring,, requireFn?: equireFunction) => acroManifestEntry | null",
+            "type": "(macroName: string, modulePath: string, requireFn?: RequireFunction) => MacroManifestEntry | null",
             "description": "Looks up macro info from an external package manifest. ```",
             "params": [
                 {
                     "name": "macroName",
-                    "type": "tring,",
+                    "type": "string",
                     "description": "The macro name to look up"
                 },
                 {
                     "name": "modulePath",
-                    "type": "tring,",
+                    "type": "string",
                     "description": "The package path"
                 },
                 {
                     "name": "requireFn",
-                    "type": "equireFunction",
+                    "type": "RequireFunction",
                     "description": "Optional custom require function"
                 }
             ],
@@ -92,22 +92,22 @@
         {
             "name": "getExternalDecoratorInfo",
             "kind": "function",
-            "type": "(decoratorName: tring,, modulePath: tring,, requireFn?: equireFunction) => ecoratorManifestEntry | null",
+            "type": "(decoratorName: string, modulePath: string, requireFn?: RequireFunction) => DecoratorManifestEntry | null",
             "description": "Looks up decorator info from an external package manifest. ```",
             "params": [
                 {
                     "name": "decoratorName",
-                    "type": "tring,",
+                    "type": "string",
                     "description": "The decorator name to look up"
                 },
                 {
                     "name": "modulePath",
-                    "type": "tring,",
+                    "type": "string",
                     "description": "The package path"
                 },
                 {
                     "name": "requireFn",
-                    "type": "equireFunction",
+                    "type": "RequireFunction",
                     "description": "Optional custom require function"
                 }
             ],
@@ -172,18 +172,18 @@
         {
             "name": "ConfigLoader",
             "kind": "type",
-            "type": "content: string,\n    filepath: string\n) => ConfigLoadResult;",
+            "type": "(\n    content: string,\n    filepath: string\n) => ConfigLoadResult",
             "description": "Function type for loading config content. This allows plugins to inject their own config loading mechanism."
         },
         {
             "name": "findConfigFile",
             "kind": "function",
-            "type": "(startDir: tring)) => tring | null",
+            "type": "(startDir: string) => string | null",
             "description": "Finds a macroforge config file in the directory tree. ```",
             "params": [
                 {
                     "name": "startDir",
-                    "type": "tring)",
+                    "type": "string",
                     "description": "The directory to start searching from"
                 }
             ],
@@ -196,17 +196,17 @@
         {
             "name": "loadMacroConfig",
             "kind": "function",
-            "type": "(startDir: tring,, loadConfigFn?: onfigLoader) => acroConfig",
+            "type": "(startDir: string, loadConfigFn?: ConfigLoader) => MacroConfig",
             "description": "Loads Macroforge configuration from `macroforge.config.js` (or .ts/.mjs/.cjs). ```",
             "params": [
                 {
                     "name": "startDir",
-                    "type": "tring,",
+                    "type": "string",
                     "description": "The directory to start searching from (typically the project root)"
                 },
                 {
                     "name": "loadConfigFn",
-                    "type": "onfigLoader",
+                    "type": "ConfigLoader",
                     "description": "Optional function to parse the config file content. If provided, will be called with (content, filepath). If not provided, only the configPath will be set."
                 }
             ],

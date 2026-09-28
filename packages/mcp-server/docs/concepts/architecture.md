@@ -23,8 +23,6 @@ wasm-bindgen (Universal)
 
 Unified API
 
-MacroforgeApi Trait
-
 CoreEngine
 
 Macro Crates
@@ -43,9 +41,9 @@ TypeScript parsing & codegen
 
 ### Unified API & Core Engine
 
-At the heart of Macroforge is an output-agnostic `MacroforgeApi` trait. This allows the core
-expansion logic to remain identical across all platforms while supporting different transport layers
-(NAPI or WASM).
+At the heart of Macroforge is `CoreEngine`, an output-agnostic facade that both bindings delegate
+to. This keeps the core expansion logic identical across all platforms while supporting different
+transport layers (NAPI or WASM).
 
 ### Target Bindings
 
@@ -89,7 +87,7 @@ The procedural macro attribute for defining derive macros:
 
 Bridges Rust and Node.js:
 
-- Exposes `expandSync`, `transformSync`, etc.
+- Exposes `expandSync`, `checkSyntax`, `scanProjectSync`, etc.
 - Provides the `NativePlugin` class for caching
 - Handles data marshaling between Rust and JavaScript
 

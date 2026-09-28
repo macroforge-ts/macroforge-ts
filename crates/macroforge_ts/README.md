@@ -1,6 +1,6 @@
 # macroforge_ts
 
-TypeScript macro expansion engine - write compile-time macros in Rust
+TypeScript macro expansion engine - write build-time macros in Rust
 
 [![Crates.io](https://img.shields.io/crates/v/macroforge_ts.svg)](https://crates.io/crates/macroforge_ts)
 [![Documentation](https://docs.rs/macroforge_ts/badge.svg)](https://docs.rs/macroforge_ts)
@@ -24,8 +24,7 @@ concrete implementations. For example, a class decorated with `@derive(Debug, Cl
 The crate is organized into several key components:
 
 - **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade that both bindings
-  delegate to. (The `MacroforgeApi` trait sketches the same surface but is currently not implemented
-  by anything.)
+  delegate to.
 - **Target Bindings**:
   - `bindings_napi`: Node.js specific entry points using NAPI-RS.
   - `bindings_wasm`: Universal entry points using `wasm-bindgen`.
@@ -49,7 +48,7 @@ This crate re-exports several dependencies for convenience when writing custom m
 
 - `ts_syn`: TypeScript syntax types for AST manipulation
 - `macros`: Macro attributes and quote templates
-- `swc_core`, `swc_common`, `swc_ecma_ast`: SWC compatibility infrastructure
+- `ast`: Source-backed expression and identifier values for templates
 
 ## Installation
 
@@ -70,7 +69,6 @@ cargo add macroforge_ts
 ### Structs
 
 - **`CoreEngine`** - Output-agnostic facade over the macro engine.
-- **`TransformResult`** - Result of transforming TypeScript code through the macro system.
 - **`MacroDiagnostic`** - A diagnostic message produced during macro expansion.
 - **`MappingSegmentResult`** - A segment mapping a range in the original source to a range in the
   expanded source.
@@ -80,7 +78,8 @@ cargo add macroforge_ts
 - **`ImportSourceResult`** - Information about an imported identifier from a TypeScript module.
 - **`SyntaxCheckResult`** - Result of checking TypeScript syntax validity.
 - **`SpanResult`** - A span (range) in source code, represented as start position and length.
-- ... and 11 more
+- **`JsDiagnostic`** - A diagnostic from the TypeScript/JavaScript compiler or IDE.
+- ... and 10 more
 
 ### Functions
 
@@ -93,12 +92,8 @@ cargo add macroforge_ts
 - **`derive_decorator`** -
 - **`load_config`** -
 - **`clear_config_cache`** -
-- **`transform_sync`** -
-- ... and 23 more
-
-### Traits
-
-- **`MacroforgeApi`** - Trait sketch of the output-agnostic macro API surface.
+- **`expand_sync`** -
+- ... and 21 more
 
 ## API Reference
 

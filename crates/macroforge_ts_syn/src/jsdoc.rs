@@ -2,7 +2,7 @@
 //!
 //! Pure string-parsing functions for locating the JSDoc block that belongs to
 //! a declaration and extracting `@name(args)` directives from its body. Shared
-//! between the SWC and Oxc lowering backends and the expansion host.
+//! by lowering and the expansion host.
 
 use std::collections::HashSet;
 

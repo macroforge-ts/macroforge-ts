@@ -9,12 +9,12 @@ fn test_hash_macro_output() {
     }];
     let has_fields = !hash_fields.is_empty();
 
-    let hash_exprs: Vec<crate::swc_ecma_ast::Expr> = hash_fields
+    let hash_exprs: Vec<crate::ast::Expr> = hash_fields
         .iter()
         .map(|f| {
             let expr_src =
                 generate_field_hash_for_interface(f, "value", None, &TypeRegistry::default());
-            *crate::ts_syn::parse_ts_expr(&expr_src).expect("hash expr should parse")
+            crate::ast::Expr::parse(&expr_src).expect("hash expr should parse")
         })
         .collect();
 
@@ -37,8 +37,7 @@ fn test_hash_macro_output() {
     let wrapped = format!("class __Temp {{ {} }}", body_content);
 
     assert!(
-        macroforge_ts_syn::parse_oxc_statement(&oxc::allocator::Allocator::default(), &wrapped)
-            .is_ok(),
+        macroforge_ts_syn::parse_statement(&oxc::allocator::Allocator::default(), &wrapped).is_ok(),
         "Generated Hash macro output should parse as class members"
     );
     assert!(

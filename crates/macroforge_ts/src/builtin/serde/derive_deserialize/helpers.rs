@@ -1,5 +1,5 @@
-use crate::swc_ecma_ast::Expr;
-use crate::ts_syn::{TsSynError, parse_ts_expr};
+use crate::ast::Expr;
+use crate::ts_syn::TsSynError;
 
 use convert_case::{Case, Casing};
 
@@ -160,12 +160,12 @@ pub(super) fn alias_primitive_arm_validators(
 }
 
 pub(super) fn parse_default_expr(expr_src: &str) -> Result<Expr, TsSynError> {
-    let expr = parse_ts_expr(expr_src)?;
-    if matches!(*expr, Expr::Ident(_)) {
+    let expr = Expr::parse(expr_src)?;
+    if matches!(expr, Expr::Ident(_)) {
         let literal_src = format!("{expr_src:?}");
-        return parse_ts_expr(&literal_src).map(|expr| *expr);
+        return Expr::parse(&literal_src);
     }
-    Ok(*expr)
+    Ok(expr)
 }
 
 pub(super) fn is_ts_primitive_keyword(s: &str) -> bool {

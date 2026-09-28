@@ -31,7 +31,7 @@ use oxc::ast::ast::{
 use oxc::ast_visit::{Visit, walk};
 use oxc::span::GetSpan;
 
-use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, PatchCode, SpanIR};
+use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, SpanIR};
 use crate::ts_syn::declarative::{MacroArm, MacroDef, MacroMode};
 
 use super::BuildMode;
@@ -761,7 +761,7 @@ pub(super) fn try_rewrite_call(
             };
             visitor.output.patches.push(Patch::Insert {
                 at: SpanIR::new(1, 1),
-                code: PatchCode::Text(format!("{}\n", runtime_emit.trim())),
+                code: format!("{}\n", runtime_emit.trim()),
                 // PR 14: attribution includes the cluster id when
                 // the emission is clustered, so error blame and
                 // source-map consumers can distinguish between
@@ -801,7 +801,7 @@ pub(super) fn try_rewrite_call(
                     let cluster_attr = cluster_id.as_deref().unwrap_or("");
                     visitor.output.patches.push(Patch::Replace {
                         span: span_ir,
-                        code: PatchCode::Text(expanded),
+                        code: expanded,
                         // PR 14: per-call-site attribution carries
                         // the cluster id so error blame
                         // disambiguates between variants of the
@@ -957,7 +957,7 @@ fn try_dispatch_proc_call(
     if let Some(tokens) = &result.tokens {
         visitor.output.patches.push(Patch::Replace {
             span: call_span,
-            code: PatchCode::Text(tokens.clone()),
+            code: tokens.clone(),
             source_macro: Some(format!("${}", name_without_dollar)),
         });
     }

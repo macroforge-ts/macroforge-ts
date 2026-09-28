@@ -180,7 +180,7 @@ function runAllMacroTests() {
     <section>
         <h2>@buildtime evaluation</h2>
         <p>
-            Every value below was computed at compile time by macroforge
+            Every value below was computed at build time by macroforge
             and spliced into the module as a TS literal. The runtime
             stub imported from <code>@macroforge/core/buildtime</code> still
             throws when called — proving the plugin did the work, not
@@ -218,7 +218,7 @@ function runAllMacroTests() {
                 >
             </div>
             <div>
-                <strong>constant list (compile-time map):</strong>
+                <strong>constant list (build-time map):</strong>
                 <code data-testid="svelte-bt-constant-list"
                     >{buildtimeResults.constantList.join(',')}</code
                 >

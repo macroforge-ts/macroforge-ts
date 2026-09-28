@@ -1,4 +1,4 @@
-//! Gigaform macro - generates compile-time form handling with Svelte 5 reactive state.
+//! Gigaform macro - generates build-time form handling with Svelte 5 reactive state.
 //!
 //! This macro **composes with** other Macroforge macros:
 //! - `@derive(Default)` provides `defaultValue()`
