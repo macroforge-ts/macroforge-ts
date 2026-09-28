@@ -159,8 +159,8 @@ fn test_offset_to_line_col_empty_lines() {
 /// Parse code and build its ImportRegistry.
 fn registry_from_code(code: &str) -> macroforge_ts_syn::ImportRegistry {
     let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
-    let program = macroforge_ts_syn::parse_oxc_program(&allocator, code).expect("failed to parse");
-    macroforge_ts_syn::ImportRegistry::from_oxc_program(&program, code)
+    let program = macroforge_ts_syn::parse_program(&allocator, code).expect("failed to parse");
+    macroforge_ts_syn::ImportRegistry::from_program(&program, code)
 }
 
 #[test]

@@ -1,11 +1,17 @@
-#![cfg(feature = "swc")]
-
-#[cfg(test)]
-#[cfg(feature = "swc")]
 mod builtin_import_warning_tests {
     use super::super::imports::check_builtin_import_warnings;
-    use crate::ts_syn::abi::DiagnosticLevel;
-    use crate::ts_syn::parse_ts_module;
+    use crate::host::MacroExpander;
+    use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel};
+    use oxc::allocator::Allocator;
+    use oxc::parser::Parser;
+    use oxc::span::SourceType;
+
+    fn warnings_for(source: &str) -> Vec<Diagnostic> {
+        let allocator = Allocator::default();
+        let parsed = Parser::new(&allocator, source, SourceType::ts()).parse();
+        assert!(parsed.diagnostics.is_empty(), "{:?}", parsed.diagnostics);
+        check_builtin_import_warnings(&parsed.program)
+    }
 
     #[test]
     fn warns_on_importing_debug_from_macroforge() {
@@ -16,8 +22,7 @@ class User {
     name: string;
 }"#;
 
-        let module = parse_ts_module(source).unwrap();
-        let warnings = check_builtin_import_warnings(&module, source);
+        let warnings = warnings_for(source);
 
         assert_eq!(warnings.len(), 1);
         assert_eq!(warnings[0].level, DiagnosticLevel::Warning);
@@ -26,9 +31,8 @@ class User {
         assert!(
             warnings[0]
                 .help
-                .as_ref()
-                .unwrap()
-                .contains("@derive(Debug)")
+                .as_deref()
+                .is_some_and(|help| help.contains("@derive(Debug)"))
         );
     }
 
@@ -41,12 +45,19 @@ class User {
     name: string;
 }"#;
 
-        let module = parse_ts_module(source).unwrap();
-        let warnings = check_builtin_import_warnings(&module, source);
+        let warnings = warnings_for(source);
 
         assert_eq!(warnings.len(), 2);
-        assert!(warnings.iter().any(|w| w.message.contains("Serialize")));
-        assert!(warnings.iter().any(|w| w.message.contains("Deserialize")));
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.message.contains("Serialize"))
+        );
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.message.contains("Deserialize"))
+        );
     }
 
     #[test]
@@ -58,13 +69,24 @@ class Config {
     value: number;
 }"#;
 
-        let module = parse_ts_module(source).unwrap();
-        let warnings = check_builtin_import_warnings(&module, source);
+        let warnings = warnings_for(source);
 
         assert_eq!(warnings.len(), 3);
-        assert!(warnings.iter().any(|w| w.message.contains("Clone")));
-        assert!(warnings.iter().any(|w| w.message.contains("Default")));
-        assert!(warnings.iter().any(|w| w.message.contains("Hash")));
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.message.contains("Clone"))
+        );
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.message.contains("Default"))
+        );
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.message.contains("Hash"))
+        );
     }
 
     #[test]
@@ -76,11 +98,7 @@ class User {
     name: string;
 }"#;
 
-        let module = parse_ts_module(source).unwrap();
-        let warnings = check_builtin_import_warnings(&module, source);
-
-        // No warnings because imports are not from macro-related modules
-        assert!(warnings.is_empty());
+        assert!(warnings_for(source).is_empty());
     }
 
     #[test]
@@ -92,25 +110,18 @@ class User {
     name: string;
 }"#;
 
-        let module = parse_ts_module(source).unwrap();
-        let warnings = check_builtin_import_warnings(&module, source);
-
-        // No warnings because MyCustomMacro is not a built-in
-        assert!(warnings.is_empty());
+        assert!(warnings_for(source).is_empty());
     }
 
     #[test]
     fn warns_with_correct_span() {
         let source = r#"import { Debug } from "@macroforge/core";"#;
 
-        let module = parse_ts_module(source).unwrap();
-        let warnings = check_builtin_import_warnings(&module, source);
+        let warnings = warnings_for(source);
 
         assert_eq!(warnings.len(), 1);
-        let span = warnings[0].span.unwrap();
-        // Span should point to "Debug" in the import statement
-        let highlighted = &source[span.start as usize..span.end as usize];
-        assert_eq!(highlighted, "Debug");
+        let span = warnings[0].span.expect("warning should carry a span");
+        assert_eq!(&source[span.start as usize..span.end as usize], "Debug");
     }
 
     #[test]
@@ -122,17 +133,51 @@ class Comparable {
     value: number;
 }"#;
 
-        let module = parse_ts_module(source).unwrap();
-        let warnings = check_builtin_import_warnings(&module, source);
+        let warnings = warnings_for(source);
 
         assert_eq!(warnings.len(), 3);
-        assert!(warnings.iter().any(|w| w.message.contains("Ord")));
-        assert!(warnings.iter().any(|w| w.message.contains("PartialOrd")));
-        assert!(warnings.iter().any(|w| w.message.contains("PartialEq")));
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.message.contains("Ord"))
+        );
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.message.contains("PartialOrd"))
+        );
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.message.contains("PartialEq"))
+        );
+    }
+
+    #[test]
+    fn expansion_reports_builtin_import_warning() {
+        let source = r#"import { Debug } from "@macroforge/core";
+
+/** @derive(Debug) */
+class User {
+    name: string;
+}"#;
+
+        let expansion = MacroExpander::new()
+            .expect("expander should build")
+            .expand_source(source, "user.ts")
+            .expect("source should expand");
+
+        assert!(
+            expansion.diagnostics.iter().any(|diagnostic| {
+                diagnostic.level == DiagnosticLevel::Warning
+                    && diagnostic.message.contains("'Debug' is a built-in macro")
+            }),
+            "{:?}",
+            expansion.diagnostics
+        );
     }
 }
 
-#[cfg(test)]
 mod external_type_function_import_tests {
     use super::super::imports::external_type_function_import_patches;
     use crate::host::import_registry::{clear_registry, with_registry};

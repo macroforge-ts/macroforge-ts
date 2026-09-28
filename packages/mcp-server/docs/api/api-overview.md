@@ -1,6 +1,6 @@
 # API Reference
 
-macroforge v0.3.1 55 exported items
+macroforge v0.3.1 51 exported items
 
 Macroforge provides a programmatic API for expanding macros in TypeScript code.
 
@@ -11,7 +11,6 @@ TypeScript
 ```
 import {
   expandSync,
-  transformSync,
   checkSyntax,
   parseImportSources,
   loadConfig,
@@ -25,16 +24,15 @@ import {
 
 ## Core Functions
 
-| Function                                        | Description                             |
-| ----------------------------------------------- | --------------------------------------- |
-| [`expandSync()`](../docs/api/expand-sync)       | Expand macros synchronously             |
-| [`transformSync()`](../docs/api/transform-sync) | Transform code with additional metadata |
-| `checkSyntax()`                                 | Validate TypeScript syntax              |
-| `parseImportSources()`                          | Extract import information              |
-| `loadConfig()`                                  | Load and parse a Macroforge config file |
-| `clearConfigCache()`                            | Clear the cached config                 |
-| `scanProjectSync()`                             | Scan a project directory for types      |
-| `Derive()`                                      | TC39 decorator for macro expansion      |
+| Function                                  | Description                             |
+| ----------------------------------------- | --------------------------------------- |
+| [`expandSync()`](../docs/api/expand-sync) | Expand macros synchronously             |
+| `checkSyntax()`                           | Validate TypeScript syntax              |
+| `parseImportSources()`                    | Extract import information              |
+| `loadConfig()`                            | Load and parse a Macroforge config file |
+| `clearConfigCache()`                      | Clear the cached config                 |
+| `scanProjectSync()`                       | Scan a project directory for types      |
+| `Derive()`                                | TC39 decorator for macro expansion      |
 
 ## Classes
 
@@ -75,6 +73,5 @@ if (result.diagnostics.length > 0) {
 ## Detailed Reference
 
 - [`expandSync()`](../docs/api/expand-sync) - Full options and return types
-- [`transformSync()`](../docs/api/transform-sync) - Transform with source maps
 - [`NativePlugin`](../docs/api/native-plugin) - Caching for language servers
 - [`PositionMapper`](../docs/api/position-mapper) - Position mapping utilities

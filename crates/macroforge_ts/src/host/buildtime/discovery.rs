@@ -191,7 +191,7 @@ fn try_extract_decl(stmt: &Statement<'_>, source: &str) -> Option<BuildtimeDecl>
             //     /** @buildtime */
             //     type Sig = `() => ${buildtime.fs.readText("./return.d.ts")}`;
             //
-            // which evaluates the template at compile time and splices
+            // which evaluates the template at build time and splices
             // the resulting string as the type.
             let ann_span = ty.type_annotation.span();
             let (ann_start, ann_end) = (ann_span.start as usize, ann_span.end as usize);

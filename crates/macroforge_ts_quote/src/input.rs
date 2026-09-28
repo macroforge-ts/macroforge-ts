@@ -7,7 +7,6 @@ use syn::{
 pub(super) struct QuoteInput {
     /// The oxc arena the quote parses into: the first argument, or the
     /// caller's `arena` binding when omitted. The node lives as long as it does.
-    #[cfg(feature = "oxc")]
     pub allocator: syn::Expr,
     pub src: syn::LitStr,
     pub output_type: syn::Type,
@@ -17,7 +16,7 @@ pub(super) struct QuoteInput {
 
 pub(super) struct QuoteVar {
     pub name: syn::Ident,
-    /// Defaults to `swc_ecma_ast::Ident`
+    /// The placeholder position the variable fills; `Ident` when omitted.
     pub ty: Option<syn::Type>,
     pub value: syn::Expr,
 }
@@ -26,7 +25,6 @@ impl Parse for QuoteInput {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         // Without an explicit arena, the quote uses the `arena` binding in
         // scope at the call site.
-        #[cfg(feature = "oxc")]
         let allocator = if input.peek(syn::LitStr) {
             let arena = syn::Ident::new("arena", proc_macro2::Span::call_site());
             syn::parse_quote!(#arena)
@@ -47,7 +45,6 @@ impl Parse for QuoteInput {
         };
 
         Ok(Self {
-            #[cfg(feature = "oxc")]
             allocator,
             src,
             output_type,

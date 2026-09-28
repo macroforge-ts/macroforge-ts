@@ -1,8 +1,8 @@
 //! Source span representation for position tracking.
 //!
 //! This module provides [`SpanIR`], a stable, serializable span type that
-//! represents byte ranges in source code. Unlike SWC's `Span` type, `SpanIR`
-//! uses simple byte offsets and is designed for ABI stability.
+//! represents byte ranges in source code. Unlike a parser's own span type,
+//! `SpanIR` is plain byte offsets and is designed for ABI stability.
 //!
 //! ## Byte Offsets
 //!
@@ -31,7 +31,7 @@ use serde::{Deserialize, Serialize};
 /// A stable source span using byte offsets.
 ///
 /// Represents a contiguous range in source code from `start` (inclusive)
-/// to `end` (exclusive). The host system maps between SWC's internal
+/// to `end` (exclusive). The host system maps between the parser's
 /// spans and `SpanIR` for macro communication.
 ///
 /// # Fields

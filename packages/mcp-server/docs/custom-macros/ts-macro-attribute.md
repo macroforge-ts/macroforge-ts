@@ -11,7 +11,7 @@ Rust
 ```
 use macroforge_ts::macros::ts_macro_attribute;
 use macroforge_ts::ts_syn::{
-    MacroforgeError, Patch, PatchCode, TargetIR, TsStream,
+    MacroforgeError, Patch, TargetIR, TsStream,
 };
 
 #[ts_macro_attribute(traced, description = "Count calls to the decorated function")]
@@ -44,7 +44,7 @@ pub fn traced_macro(input: TsStream) -> Result<TsStream, MacroforgeError>�
     let mut out = TsStream::from_string(String::new());
     out.runtime_patches.push(Patch::Replace {
         span: f.span,
-        code: PatchCode::Text(replacement),
+        code: replacement,
         source_macro: Some("traced".to_string()),
     });
     Ok(out)
@@ -89,7 +89,7 @@ let replacement = format!("{sig}{{ /* new body */ }}", sig = signatur
 let mut out = TsStream::from_string(String::new());
 out.runtime_patches.push(Patch::Replace {
     span: f.span,
-    code: PatchCode::Text(replacement),
+    code: replacement,
     source_macro: Some("my_macro".to_string()),
 });
 Ok(out)

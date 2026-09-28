@@ -1,4 +1,9 @@
-use super::*;
+use super::expand_test;
+#[cfg(feature = "node")]
+use crate::{
+    GeneratedRegionResult, MappingSegmentResult, NativePositionMapper, SourceMappingResult,
+    parse_import_sources,
+};
 
 #[test]
 fn test_source_mapping_produced() {
@@ -11,27 +16,22 @@ class User {
 }
 "#;
 
-    GLOBALS.set(&Default::default(), || {
-        let program = parse_module(source);
-        let host = MacroExpander::new().unwrap();
-        let result = host.expand(source, &program, "test.ts").unwrap();
+    let result = expand_test(source);
 
-        assert!(result.changed, "Expansion should report changes");
+    assert!(result.changed, "Expansion should report changes");
 
-        // Source mapping should be produced
-        let mapping = result
-            .source_mapping
-            .expect("Source mapping should be produced");
+    let mapping = result
+        .source_mapping
+        .expect("Source mapping should be produced");
 
-        // Should have segments for unchanged regions
-        assert!(!mapping.segments.is_empty(), "Should have mapping segments");
+    // Unchanged regions map through segments.
+    assert!(!mapping.segments.is_empty(), "Should have mapping segments");
 
-        // Should have a generated region for the toString implementation
-        assert!(
-            !mapping.generated_regions.is_empty(),
-            "Should have generated regions"
-        );
-    });
+    // The generated toString implementation is a generated region.
+    assert!(
+        !mapping.generated_regions.is_empty(),
+        "Should have generated regions"
+    );
 }
 
 #[cfg(feature = "node")]

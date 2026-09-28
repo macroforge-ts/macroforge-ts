@@ -17,7 +17,7 @@
 use macroforge_ts_syn::config::NonExhaustiveConfig;
 
 use super::discovery::{AttributeAnnotation, AttributeKind, DeclKind};
-use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, PatchCode};
+use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch};
 
 pub fn apply(
     annotations: &[&AttributeAnnotation],
@@ -61,7 +61,7 @@ pub fn apply(
         // Replace just the RHS span, then strip the annotation JSDoc.
         patches.push(Patch::Replace {
             span: rhs_span,
-            code: PatchCode::Text(replacement),
+            code: replacement,
             source_macro: Some("nonExhaustive".into()),
         });
         patches.push(Patch::Delete {

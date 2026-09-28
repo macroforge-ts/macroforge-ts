@@ -1,4 +1,5 @@
 use super::*;
+use crate::ts_syn::abi::DiagnosticLevel;
 
 // ============================================================================
 // Interface Derive Macro Tests
@@ -290,13 +291,6 @@ interface Point {
         assert!(
             result.code.contains("pointSerializeWithContext"),
             "Should generate prefix-style pointSerializeWithContext function"
-        );
-
-        // Verify no syntax context markers in output (would indicate Ident emission bug)
-        assert!(
-            !result.code.contains("#0"),
-            "Output should not contain SWC syntax context markers like #0. Got:\n{}",
-            result.code
         );
     }
 }

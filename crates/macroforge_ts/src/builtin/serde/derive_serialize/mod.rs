@@ -153,12 +153,11 @@ pub(crate) use types::{
     nested_serialize_fn_name,
 };
 
+use crate::ast::{Expr, Ident};
 use crate::macros::{ts_macro_derive, ts_template};
-use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_expr,
-    parse_ts_macro_input, ts_ident,
+    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input, ts_ident,
 };
 
 use convert_case::{Case, Casing};
@@ -335,8 +334,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     };
 
                     let serialize_with = serialize_with_src.as_ref().and_then(|expr_src| {
-                        match parse_ts_expr(expr_src) {
-                            Ok(expr) => Some(*expr),
+                        match Expr::parse(expr_src) {
+                            Ok(expr) => Some(expr),
                             Err(err) => {
                                 all_diagnostics.error(
                                     field.span,
@@ -1046,8 +1045,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     };
 
                     let serialize_with = serialize_with_src.as_ref().and_then(|expr_src| {
-                        match parse_ts_expr(expr_src) {
-                            Ok(expr) => Some(*expr),
+                        match Expr::parse(expr_src) {
+                            Ok(expr) => Some(expr),
                             Err(err) => {
                                 all_diagnostics.error(
                                     field.span,
@@ -1739,8 +1738,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         };
 
                         let serialize_with = opts.serialize_with.as_ref().and_then(|expr_src| {
-                            match parse_ts_expr(expr_src) {
-                                Ok(expr) => Some(*expr),
+                            match Expr::parse(expr_src) {
+                                Ok(expr) => Some(expr),
                                 Err(err) => {
                                     all_diagnostics.error(
                                         field.span,
@@ -1919,8 +1918,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 // as raw values instead of passing through the per-variant serializer.
                 struct SerVariant {
                     tag_value: String,
-                    ser_fn: crate::swc_ecma_ast::Ident,
-                    has_shape_fn: crate::swc_ecma_ast::Ident,
+                    ser_fn: crate::ast::Ident,
+                    has_shape_fn: crate::ast::Ident,
                 }
                 let mut ser_variants: Vec<SerVariant> = Vec::new();
                 // Externally-tagged single-key object variants (`{ Name: Payload }`)
@@ -1936,7 +1935,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     /// verbatim, so every field inside it that needs a non-identity
                     /// serialization (decimals, dates, record links) leaks its
                     /// runtime shape.
-                    payload_ser_fn: Option<crate::swc_ecma_ast::Ident>,
+                    payload_ser_fn: Option<crate::ast::Ident>,
                 }
                 let mut external_ser_variants: Vec<ExternalSerVariant> = Vec::new();
                 if let Some(members) = type_alias.as_union() {
@@ -2069,7 +2068,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 const __exName = Object.keys(value as object)[0];
                                 {#for ov in &external_ser_variants}
                                 {#if let Some(ref ser_inline) = ov.foreign_serialize_inline}
-                                {$let foreign_ser_expr: Expr = *parse_ts_expr(ser_inline).expect("inner foreign serialize expr should parse")}
+                                {$let foreign_ser_expr: Expr = Expr::parse(ser_inline).expect("inner foreign serialize expr should parse")}
                                 if (!__matched && __exName === "@{ov.name}") {
                                     __variant = ({ "@{ov.name}": (@{foreign_ser_expr})((value as any)["@{ov.name}"]) });
                                     __matched = true;
@@ -2164,7 +2163,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 const __exName = Object.keys(value as object)[0];
                                 {#for ov in &external_ser_variants}
                                 {#if let Some(ref ser_inline) = ov.foreign_serialize_inline}
-                                {$let foreign_ser_expr: Expr = *parse_ts_expr(ser_inline).expect("inner foreign serialize expr should parse")}
+                                {$let foreign_ser_expr: Expr = Expr::parse(ser_inline).expect("inner foreign serialize expr should parse")}
                                 if (!__matched && __exName === "@{ov.name}") {
                                     __variant = ({ "@{ov.name}": (@{foreign_ser_expr})((value as any)["@{ov.name}"]) });
                                     __matched = true;

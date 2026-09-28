@@ -1,4 +1,9 @@
-use crate::{ToOxcExprSource, ToOxcIdentSource, TsSynError, oxc_expr_to_string};
+//! Owned, source-backed expression and identifier values.
+//!
+//! Derive macros compute these ahead of a template and interpolate them with
+//! `@{...}`; they carry source text, not an arena-bound AST node.
+
+use crate::{ToExprSource, ToIdentSource, TsSynError, expr_to_string};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct Ident {
@@ -24,6 +29,17 @@ pub enum Expr {
 }
 
 impl Expr {
+    /// Parse `code` as a single expression.
+    pub fn parse(code: &str) -> Result<Self, TsSynError> {
+        let allocator = oxc::allocator::Allocator::default();
+        Ok(match crate::parse_expr(&allocator, code)? {
+            oxc::ast::ast::Expression::Identifier(ident) => {
+                Self::Ident(Ident::new(ident.name.as_str()))
+            }
+            other => Self::Source(expr_to_string(&other)),
+        })
+    }
+
     pub fn source(&self) -> &str {
         match self {
             Self::Ident(ident) => ident.sym.as_str(),
@@ -62,35 +78,20 @@ impl From<&str> for Expr {
     }
 }
 
-impl ToOxcIdentSource for Ident {
-    fn to_oxc_ident_source(&self) -> String {
+impl ToIdentSource for Ident {
+    fn to_ident_source(&self) -> String {
         self.sym.clone()
     }
 }
 
-impl ToOxcExprSource for Expr {
-    fn to_oxc_expr_source(&self) -> String {
+impl ToExprSource for Expr {
+    fn to_expr_source(&self) -> String {
         self.source().to_string()
     }
 }
 
-impl ToOxcExprSource for Ident {
-    fn to_oxc_expr_source(&self) -> String {
+impl ToExprSource for Ident {
+    fn to_expr_source(&self) -> String {
         self.sym.clone()
     }
-}
-
-pub fn parse_ts_expr(code: &str) -> Result<Box<Expr>, TsSynError> {
-    let allocator = oxc::allocator::Allocator::default();
-    let expr = match crate::parse_oxc_expr(&allocator, code)? {
-        oxc::ast::ast::Expression::Identifier(ident) => {
-            Expr::Ident(Ident::new(ident.name.as_str()))
-        }
-        other => Expr::Source(oxc_expr_to_string(&other)),
-    };
-    Ok(Box::new(expr))
-}
-
-pub fn emit_expr(expr: &Expr) -> String {
-    expr.source().to_string()
 }

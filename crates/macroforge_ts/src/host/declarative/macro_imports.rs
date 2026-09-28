@@ -11,7 +11,7 @@ use oxc::semantic::{Scoping, SemanticBuilder};
 use oxc::span::GetSpan;
 
 use crate::host::patch_applicator::PatchApplicator;
-use crate::ts_syn::abi::{Patch, PatchCode, SpanIR};
+use crate::ts_syn::abi::{Patch, SpanIR};
 
 /// Removes every `$name` import binding that nothing in `source` references,
 /// and each import statement left with no bindings. Returns `None` when there
@@ -98,7 +98,7 @@ fn import_patch(source: &str, import: &ImportDeclaration<'_>, scoping: &Scoping)
     let tail = &source[import.source.span.start as usize..import.span.end as usize];
     Some(Patch::Replace {
         span: to_span_ir(import.span),
-        code: PatchCode::Text(format!("import {} from {tail}", clauses.join(", "))),
+        code: format!("import {} from {tail}", clauses.join(", ")),
         source_macro: None,
     })
 }

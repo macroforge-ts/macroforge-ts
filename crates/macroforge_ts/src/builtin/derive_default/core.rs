@@ -1,18 +1,16 @@
 use convert_case::{Case, Casing};
 
+use crate::ast::{Expr, Ident};
 use crate::builtin::derive_common::{
     DefaultFieldOptions, flatten_intersection_fields, get_type_default_with_registry,
     has_known_default,
 };
 use crate::macros::{ts_macro_derive, ts_template};
-use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::ir::{
     FileImportEntry, TypeBody, TypeDefinitionIR, TypeMemberKind, TypeRegistry,
 };
 use crate::ts_syn::ts_ident;
-use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, emit_expr, parse_ts_expr, parse_ts_macro_input,
-};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 use super::types::{DefaultField, validate_default_fields};
 
@@ -240,7 +238,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         file_imports,
                     );
 
-                    let value_expr = parse_ts_expr(&default_value).map_err(|err| {
+                    let value_expr = Expr::parse(&default_value).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
                             format!(
@@ -249,7 +247,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                             ),
                         )
                     })?;
-                    Ok((ts_ident!(field.name.as_str()), *value_expr))
+                    Ok((ts_ident!(field.name.as_str()), value_expr))
                 })
                 .collect::<Result<_, MacroforgeError>>()?;
 
@@ -386,7 +384,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 let object_fields: Vec<(Ident, Expr)> = default_fields
                     .iter()
                     .map(|f| {
-                        let value_expr = parse_ts_expr(&f.value).map_err(|err| {
+                        let value_expr = Expr::parse(&f.value).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
                                 format!(
@@ -395,14 +393,14 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                                 ),
                             )
                         })?;
-                        Ok((ts_ident!(f.name.as_str()), *value_expr))
+                        Ok((ts_ident!(f.name.as_str()), value_expr))
                     })
                     .collect::<Result<_, MacroforgeError>>()?;
 
                 let mut props = String::new();
                 for (name_ident, value_expr) in &object_fields {
                     let name: &str = name_ident.sym.as_ref();
-                    let value = emit_expr(value_expr);
+                    let value = value_expr.source();
                     props.push_str(&format!("{name}: {value},\n"));
                 }
 
@@ -515,7 +513,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let object_fields: Vec<(Ident, Expr)> = default_fields
                         .iter()
                         .map(|f| {
-                            let value_expr = parse_ts_expr(&f.value).map_err(|err| {
+                            let value_expr = Expr::parse(&f.value).map_err(|err| {
                                 MacroforgeError::new(
                                     input.decorator_span(),
                                     format!(
@@ -524,14 +522,14 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                                     ),
                                 )
                             })?;
-                            Ok((ts_ident!(f.name.as_str()), *value_expr))
+                            Ok((ts_ident!(f.name.as_str()), value_expr))
                         })
                         .collect::<Result<_, MacroforgeError>>()?;
 
                     let mut props = String::new();
                     for (name_ident, value_expr) in &object_fields {
                         let name: &str = name_ident.sym.as_ref();
-                        let value = emit_expr(value_expr);
+                        let value = value_expr.source();
                         props.push_str(&format!("{name}: {value},\n"));
                     }
 
@@ -830,7 +828,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let generic_params_ident = ts_ident!(generic_params.as_str());
 
                     let fn_name_ident = ts_ident!("{}DefaultValue", type_name.to_case(Case::Camel));
-                    let return_expr = parse_ts_expr(&default_expr).map_err(|err| {
+                    let return_expr = Expr::parse(&default_expr).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
                             format!(
@@ -866,7 +864,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                 if let Some(default_variant) = default_opts.value {
                     let fn_name_ident = ts_ident!("{}DefaultValue", type_name.to_case(Case::Camel));
-                    let return_expr = parse_ts_expr(&default_variant).map_err(|err| {
+                    let return_expr = Expr::parse(&default_variant).map_err(|err| {
                         MacroforgeError::new(
                             input.decorator_span(),
                             format!(

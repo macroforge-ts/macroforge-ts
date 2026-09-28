@@ -5,8 +5,6 @@ use crate::ts_syn::abi::{
     TypeAliasIR,
 };
 use crate::ts_syn::jsdoc::adjacent_jsdoc;
-#[cfg(feature = "swc")]
-use swc_core::common::Span;
 
 use super::DERIVE_MODULE_PATH;
 
@@ -16,13 +14,6 @@ pub(crate) struct SpanKey(u32, u32);
 impl From<SpanIR> for SpanKey {
     fn from(span: SpanIR) -> Self {
         SpanKey(span.start, span.end)
-    }
-}
-
-#[cfg(feature = "swc")]
-impl From<Span> for SpanKey {
-    fn from(span: Span) -> Self {
-        SpanKey(span.lo.0, span.hi.0)
     }
 }
 

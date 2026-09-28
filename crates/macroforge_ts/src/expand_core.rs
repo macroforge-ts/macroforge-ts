@@ -1,34 +1,18 @@
 use anyhow::{Context, Result, anyhow};
-#[cfg(feature = "swc")]
-use swc_core::{
-    common::{FileName, SourceMap, errors::Handler, sync::Lrc},
-    ecma::{
-        ast::{EsVersion, Program},
-        codegen::{Emitter, text_writer::JsWriter},
-        parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer},
-    },
-};
 
-#[cfg(feature = "oxc")]
 use oxc::allocator::Allocator;
-#[cfg(feature = "oxc")]
-use oxc::codegen::Codegen as OxcCodegen;
-#[cfg(feature = "oxc")]
-use oxc::parser::Parser as OxcParser;
-#[cfg(feature = "oxc")]
+use oxc::parser::Parser;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::sync::LazyLock;
 
 use crate::api_types::{
     ExpandOptions, ExpandResult, GeneratedRegionResult, MacroDiagnostic, MappingSegmentResult,
-    SourceMappingResult, TransformResult,
+    SourceMappingResult,
 };
 use crate::host::CONFIG_CACHE;
 use crate::host::MacroExpander;
 use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
-#[cfg(feature = "swc")]
-use crate::ts_syn::{Diagnostic, DiagnosticLevel};
 
 // ============================================================================
 // MacroExpander Cache
@@ -103,119 +87,6 @@ pub(crate) fn get_or_parse_registry(json: &str) -> Result<TypeRegistry> {
     Ok(registry)
 }
 
-// ============================================================================
-// Backend Abstraction
-// ============================================================================
-
-pub(crate) trait CompilerBackend {
-    fn expand(
-        &self,
-        code: &str,
-        filepath: &str,
-        options: &Option<ExpandOptions>,
-    ) -> Result<ExpandResult>;
-    fn transform(&self, code: &str, filepath: &str) -> Result<TransformResult>;
-}
-
-#[cfg(feature = "swc")]
-pub(crate) struct SwcBackend;
-
-#[cfg(feature = "swc")]
-impl CompilerBackend for SwcBackend {
-    fn expand(
-        &self,
-        code: &str,
-        filepath: &str,
-        options: &Option<ExpandOptions>,
-    ) -> Result<ExpandResult> {
-        let mut macro_host = create_expander()?;
-        apply_options(&mut macro_host, options)?;
-
-        let (program, _) = match parse_program(code, filepath) {
-            Ok(p) => p,
-            Err(e) => return Ok(make_syntax_error_result(code, &e.to_string())),
-        };
-
-        let expanded = macro_host.expand(code, &program, filepath);
-        crate::host::import_registry::clear_registry();
-
-        let expansion = expanded.map_err(|err| anyhow!("Macro expansion failed: {err:?}"))?;
-
-        Ok(finalize_expansion(expansion))
-    }
-
-    fn transform(&self, code: &str, filepath: &str) -> Result<TransformResult> {
-        let macro_host = create_expander()?;
-        let (program, cm) = parse_program(code, filepath)?;
-
-        let expansion = macro_host
-            .expand(code, &program, filepath)
-            .map_err(|err| anyhow!("Expansion failed: {err:?}"))?;
-
-        handle_macro_diagnostics(&expansion.diagnostics, filepath).map_err(|e| anyhow!(e))?;
-
-        let generated = if expansion.changed {
-            expansion.code
-        } else {
-            emit_program(&program, &cm)?
-        };
-
-        Ok(TransformResult {
-            code: generated,
-            map: None,
-            types: expansion.type_output,
-            metadata: serialize_metadata(&expansion.classes),
-        })
-    }
-}
-
-#[cfg(feature = "oxc")]
-pub(crate) struct OxcBackend;
-
-#[cfg(feature = "oxc")]
-impl CompilerBackend for OxcBackend {
-    fn expand(
-        &self,
-        code: &str,
-        filepath: &str,
-        options: &Option<ExpandOptions>,
-    ) -> Result<ExpandResult> {
-        #[cfg(feature = "swc")]
-        {
-            SwcBackend.expand(code, filepath, options)
-        }
-        #[cfg(not(feature = "swc"))]
-        {
-            let mut macro_host = create_expander()?;
-            apply_options(&mut macro_host, options)?;
-            let expansion = macro_host
-                .expand_source(code, filepath)
-                .map_err(anyhow::Error::from)?;
-            Ok(expansion_result(expansion))
-        }
-    }
-
-    fn transform(&self, code: &str, filepath: &str) -> Result<TransformResult> {
-        let allocator = Allocator::default();
-        let source_type = crate::source_type::for_path(filepath);
-
-        let ret = OxcParser::new(&allocator, code, source_type).parse();
-
-        if !ret.diagnostics.is_empty() {
-            return Err(anyhow!("Oxc parse errors: {:?}", ret.diagnostics));
-        }
-
-        let generated = OxcCodegen::new().build(&ret.program).code;
-
-        Ok(TransformResult {
-            code: generated,
-            map: None,
-            types: None,
-            metadata: None,
-        })
-    }
-}
-
 fn apply_options(macro_host: &mut MacroExpander, options: &Option<ExpandOptions>) -> Result<()> {
     let Some(opts) = options else {
         return Ok(());
@@ -258,25 +129,6 @@ fn apply_options(macro_host: &mut MacroExpander, options: &Option<ExpandOptions>
         macro_host.set_project_config(config);
     }
     Ok(())
-}
-
-#[cfg(feature = "swc")]
-fn make_syntax_error_result(code: &str, error_msg: &str) -> ExpandResult {
-    crate::host::import_registry::clear_registry();
-    crate::host::import_registry::clear_foreign_types();
-    ExpandResult {
-        code: code.to_string(),
-        types: None,
-        metadata: None,
-        diagnostics: vec![MacroDiagnostic {
-            level: "info".to_string(),
-            message: format!("Macro expansion skipped due to syntax error: {}", error_msg),
-            start: None,
-            end: None,
-        }],
-        source_mapping: None,
-        buildtime_dependencies: vec![],
-    }
 }
 
 fn serialize_metadata(classes: &Vec<crate::ts_syn::abi::ir::ClassIR>) -> Option<String> {
@@ -338,33 +190,9 @@ fn expansion_result(expansion: crate::host::expand::MacroExpansion) -> ExpandRes
     result
 }
 
-#[cfg(feature = "swc")]
-fn finalize_expansion(expansion: crate::host::expand::MacroExpansion) -> ExpandResult {
-    let mut result = expansion_result(expansion);
-    if let Some(types) = &mut result.types
-        && result.code.contains("toJSON(")
-        && !types.contains("toJSON(")
-        && let Some(insert_at) = types.rfind('}')
-    {
-        types.insert_str(insert_at, "  toJSON(): Record<string, unknown>;\n");
-    }
-    result
-}
-
 // ============================================================================
 // Public Interface
 // ============================================================================
-
-pub(crate) fn get_backend() -> Box<dyn CompilerBackend> {
-    #[cfg(feature = "oxc")]
-    {
-        Box::new(OxcBackend)
-    }
-    #[cfg(all(not(feature = "oxc"), feature = "swc"))]
-    {
-        Box::new(SwcBackend)
-    }
-}
 
 pub(crate) fn expand_inner(
     code: &str,
@@ -375,11 +203,12 @@ pub(crate) fn expand_inner(
         return Ok(ExpandResult::unchanged(code));
     }
 
-    get_backend().expand(code, filepath, &options)
-}
-
-pub(crate) fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {
-    get_backend().transform(code, filepath)
+    let mut macro_host = create_expander()?;
+    apply_options(&mut macro_host, &options)?;
+    let expansion = macro_host
+        .expand_source(code, filepath)
+        .map_err(anyhow::Error::from)?;
+    Ok(expansion_result(expansion))
 }
 
 // ============================================================================
@@ -551,11 +380,9 @@ pub fn has_macro_annotations(source: &str) -> bool {
 /// comments, as macro name to module. Directives come from the parser's
 /// comments, so the same text in a string or a doc example does not count. A
 /// file mid-edit still yields the directives the parser reached.
-#[cfg(feature = "oxc")]
 pub fn macro_imports(source: &str, file_name: &str) -> std::collections::HashMap<String, String> {
     let allocator = Allocator::default();
-    let parsed =
-        OxcParser::new(&allocator, source, crate::source_type::for_path(file_name)).parse();
+    let parsed = Parser::new(&allocator, source, crate::source_type::for_path(file_name)).parse();
     crate::ts_syn::import_registry::macro_imports_in_comments(&parsed.program.comments, source)
 }
 
@@ -565,66 +392,4 @@ pub(crate) fn has_dollar_call(source: &str) -> bool {
         .as_bytes()
         .windows(2)
         .any(|pair| pair[0] == b'$' && pair[1].is_ascii_alphabetic())
-}
-
-#[cfg(feature = "swc")]
-pub(crate) fn parse_program(code: &str, filepath: &str) -> Result<(Program, Lrc<SourceMap>)> {
-    let cm: Lrc<SourceMap> = Lrc::new(SourceMap::default());
-    let fm = cm.new_source_file(
-        FileName::Custom(filepath.to_string()).into(),
-        code.to_string(),
-    );
-    let handler =
-        Handler::with_emitter_writer(Box::new(std::io::Cursor::new(Vec::new())), Some(cm.clone()));
-
-    let lexer = Lexer::new(
-        Syntax::Typescript(TsSyntax {
-            tsx: filepath.ends_with(".tsx"),
-            decorators: true,
-            no_early_errors: true,
-            ..Default::default()
-        }),
-        EsVersion::latest(),
-        StringInput::from(&*fm),
-        None,
-    );
-
-    let mut parser = Parser::new_from(lexer);
-    match parser.parse_program() {
-        Ok(program) => Ok((program, cm)),
-        Err(error) => {
-            let msg = format!("Failed to parse TypeScript: {:?}", error);
-            error.into_diagnostic(&handler).emit();
-            Err(anyhow!(msg))
-        }
-    }
-}
-
-#[cfg(feature = "swc")]
-pub(crate) fn emit_program(program: &Program, cm: &Lrc<SourceMap>) -> Result<String> {
-    let mut buf = vec![];
-    let mut emitter = Emitter {
-        cfg: swc_core::ecma::codegen::Config::default(),
-        cm: cm.clone(),
-        comments: None,
-        wr: Box::new(JsWriter::new(cm.clone(), "\n", &mut buf, None)),
-    };
-    emitter
-        .emit_program(program)
-        .map_err(|e| anyhow!("{:?}", e))?;
-    Ok(String::from_utf8_lossy(&buf).to_string())
-}
-
-#[cfg(feature = "swc")]
-pub(crate) fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<(), String> {
-    for diag in diags {
-        if matches!(diag.level, DiagnosticLevel::Error) {
-            let loc = diag
-                .span
-                .map(|s| format!("{}:{}-{}", file, s.start, s.end))
-                .unwrap_or_else(|| file.to_string());
-            return Err(format!("Macro error at {}: {}", loc, diag.message));
-        }
-    }
-    Ok(())
 }

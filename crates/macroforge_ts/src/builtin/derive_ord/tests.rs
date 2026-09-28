@@ -1,10 +1,10 @@
 use super::comparison::generate_field_compare_for_interface;
 use super::types::OrdField;
 
+use crate::ast::{Expr, Ident};
 use crate::macros::ts_template;
-use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
-use crate::ts_syn::{parse_ts_expr, ts_ident};
+use crate::ts_syn::ts_ident;
 
 #[test]
 fn test_ord_macro_output() {
@@ -22,8 +22,8 @@ fn test_ord_macro_output() {
             let cmp_ident = ts_ident!(format!("cmp{}", i));
             let expr_src =
                 generate_field_compare_for_interface(f, "a", "b", None, &TypeRegistry::default());
-            let expr = parse_ts_expr(&expr_src).expect("compare expr should parse");
-            (cmp_ident, *expr)
+            let expr = Expr::parse(&expr_src).expect("compare expr should parse");
+            (cmp_ident, expr)
         })
         .collect();
 
@@ -48,8 +48,7 @@ fn test_ord_macro_output() {
     let wrapped = format!("class __Temp {{ {} }}", body_content);
 
     assert!(
-        macroforge_ts_syn::parse_oxc_statement(&oxc::allocator::Allocator::default(), &wrapped)
-            .is_ok(),
+        macroforge_ts_syn::parse_statement(&oxc::allocator::Allocator::default(), &wrapped).is_ok(),
         "Generated Ord macro output should parse as class members"
     );
     assert!(

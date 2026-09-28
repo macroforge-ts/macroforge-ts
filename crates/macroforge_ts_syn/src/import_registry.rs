@@ -14,8 +14,7 @@ use indexmap::IndexMap;
 use crate::abi::ir::type_registry::FileImportEntry;
 
 /// Extract import declarations from a parsed Oxc program.
-#[cfg(feature = "oxc")]
-pub fn collect_file_imports_oxc(program: &oxc::ast::ast::Program<'_>) -> Vec<FileImportEntry> {
+pub fn collect_file_imports(program: &oxc::ast::ast::Program<'_>) -> Vec<FileImportEntry> {
     use oxc::ast::ast::*;
     let mut imports = Vec::new();
 
@@ -65,11 +64,6 @@ pub fn collect_file_imports_oxc(program: &oxc::ast::ast::Program<'_>) -> Vec<Fil
 
     imports
 }
-
-#[cfg(feature = "swc")]
-use swc_core::ecma::ast::{
-    ImportDecl, ImportSpecifier, Module, ModuleDecl, ModuleExportName, ModuleItem,
-};
 
 // ============================================================================
 // Core types
@@ -148,8 +142,7 @@ impl ImportRegistry {
     }
 
     /// Build from Oxc AST.
-    #[cfg(feature = "oxc")]
-    pub fn from_oxc_program(program: &oxc::ast::ast::Program<'_>, source: &str) -> Self {
+    pub fn from_program(program: &oxc::ast::ast::Program<'_>, source: &str) -> Self {
         use oxc::ast::ast::*;
         let mut source_imports = HashMap::new();
 
@@ -211,95 +204,6 @@ impl ImportRegistry {
                                     },
                                 );
                             }
-                        }
-                    }
-                }
-            }
-        }
-
-        Self {
-            source_imports,
-            config_imports: HashMap::new(),
-            generated: IndexMap::new(),
-        }
-    }
-
-    /// Build from AST — extracts all import declarations from the module.
-    /// Called during IR lowering in `prepare_expansion_context`.
-    #[cfg(feature = "swc")]
-    pub fn from_module(module: &Module, source: &str) -> Self {
-        let mut source_imports = HashMap::new();
-
-        // Also extract imports from JSDoc `@import macro` comments
-        source_imports.extend(macro_imports_in_source(source).into_iter().map(
-            |(name, module_src)| {
-                (
-                    name,
-                    SourceImport {
-                        source_module: module_src,
-                        original_name: None,
-                        is_type_only: false,
-                    },
-                )
-            },
-        ));
-
-        for item in &module.body {
-            if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
-                specifiers,
-                src,
-                type_only: import_type_only,
-                ..
-            })) = item
-            {
-                let module_source = src.value.to_string_lossy().to_string();
-
-                for specifier in specifiers {
-                    match specifier {
-                        ImportSpecifier::Named(named) => {
-                            let local_name = named.local.sym.to_string();
-                            let is_type_only = *import_type_only || named.is_type_only;
-
-                            let original_name = named.imported.as_ref().and_then(|imported| {
-                                let orig = match imported {
-                                    ModuleExportName::Ident(ident) => ident.sym.to_string(),
-                                    ModuleExportName::Str(s) => {
-                                        String::from_utf8_lossy(s.value.as_bytes()).to_string()
-                                    }
-                                };
-                                if orig != local_name { Some(orig) } else { None }
-                            });
-
-                            source_imports.insert(
-                                local_name,
-                                SourceImport {
-                                    source_module: module_source.clone(),
-                                    original_name,
-                                    is_type_only,
-                                },
-                            );
-                        }
-                        ImportSpecifier::Default(default) => {
-                            let local_name = default.local.sym.to_string();
-                            source_imports.insert(
-                                local_name,
-                                SourceImport {
-                                    source_module: module_source.clone(),
-                                    original_name: None,
-                                    is_type_only: *import_type_only,
-                                },
-                            );
-                        }
-                        ImportSpecifier::Namespace(ns) => {
-                            let local_name = ns.local.sym.to_string();
-                            source_imports.insert(
-                                local_name,
-                                SourceImport {
-                                    source_module: module_source.clone(),
-                                    original_name: None,
-                                    is_type_only: *import_type_only,
-                                },
-                            );
                         }
                     }
                 }
@@ -591,7 +495,6 @@ pub fn clear_registry() {
 /// The macro imports declared by a program's `/** import macro { A } from "pkg" */`
 /// comments, as macro name to module. Only real comments count: the same text
 /// inside a string literal or a doc example is not a directive.
-#[cfg(feature = "oxc")]
 pub fn macro_imports_in_comments(
     comments: &[oxc::ast::Comment],
     source: &str,
@@ -607,28 +510,6 @@ pub fn macro_imports_in_comments(
         {
             insert_macro_import_directive(&mut out, body);
         }
-    }
-    out
-}
-
-/// The macro imports declared by `/** import macro … */` comments in `source`,
-/// for the SWC backend, whose parsed module carries no comments. A directive
-/// must open its own line, which keeps the same text inside a string literal
-/// or a doc example from counting.
-#[cfg(feature = "swc")]
-pub fn macro_imports_in_source(source: &str) -> HashMap<String, String> {
-    let mut out = HashMap::new();
-    let mut search_start = 0usize;
-    while let Some(offset) = source[search_start..].find("/**") {
-        let open = search_start + offset;
-        let Some(body_len) = source[open + 3..].find("*/") else {
-            break;
-        };
-        let line_start = source[..open].rfind('\n').map_or(0, |newline| newline + 1);
-        if source[line_start..open].trim().is_empty() {
-            insert_macro_import_directive(&mut out, &source[open + 3..open + 3 + body_len]);
-        }
-        search_start = open + 3 + body_len + 2;
     }
     out
 }
@@ -697,7 +578,7 @@ fn extract_quoted_string(input: &str) -> Option<String> {
     None
 }
 
-#[cfg(all(test, feature = "oxc"))]
+#[cfg(test)]
 mod tests {
     use super::macro_imports_in_comments;
     use oxc::allocator::Allocator;

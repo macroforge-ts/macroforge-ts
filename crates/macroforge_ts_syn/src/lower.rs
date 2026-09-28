@@ -1,672 +1,215 @@
-//! AST lowering from SWC types to IR representations.
-//!
-//! This module provides functions to convert SWC's parsed AST into the
-//! intermediate representation (IR) types used by the macro system. This
-//! "lowering" process extracts the information relevant for macros while
-//! discarding unnecessary AST details.
-//!
-//! ## Overview
-//!
-//! The lowering process:
-//! 1. Visits the SWC [`Module`](swc_core::ecma::ast::Module) AST
-//! 2. Extracts declarations (classes, interfaces, enums, type aliases)
-//! 3. Collects decorators from both TypeScript decorators and JSDoc comments
-//! 4. Computes source spans for each declaration
-//! 5. Returns IR types ready for macro processing
-//!
-//! ## Functions
-//!
-//! | Function | Extracts |
-//! |----------|----------|
-//! | [`lower_classes`] | All class declarations |
-//! | [`lower_interfaces`] | All interface declarations |
-//! | [`lower_enums`] | All enum declarations |
-//! | [`lower_type_aliases`] | All type alias declarations |
-//! | [`lower_targets`] | All supported declarations as [`LoweredTarget`] |
-//!
-//! ## Feature Flag
-//!
-//! This module is only compiled with the `swc` feature, which is *not* part of
-//! the default feature set. Under the default `oxc` backend, use the
-//! equivalents in [`lower_oxc`](crate::lower_oxc) (`lower_classes_oxc`,
-//! `lower_interfaces_oxc`, `lower_enums_oxc`, `lower_type_aliases_oxc`,
-//! `lower_targets_oxc`).
-//!
-//! ## Example
-//!
-//! ```rust
-//! use macroforge_ts_syn::TsSynError;
-//!
-//! fn main() -> Result<(), TsSynError> {
-//!     let source = r#"
-//!         class User {
-//!             name: string;
-//!             age: number;
-//!         }
-//!     "#;
-//!
-//! # #[cfg(feature = "swc")] {
-//! use macroforge_ts_syn::{lower_classes, parse::parse_ts_module};
-//! let module = parse_ts_module(source, "input.ts")?;
-//! let classes = lower_classes(&module, source, None)?;
-//! # }
-//! # #[cfg(feature = "oxc")] {
-//! use macroforge_ts_syn::{lower_classes_oxc, parse_oxc_program};
-//! let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
-//! let program = parse_oxc_program(&allocator, source)?;
-//! let classes = lower_classes_oxc(&program, source, None)?;
-//! # }
-//!
-//!     assert_eq!(classes.len(), 1);
-//!     assert_eq!(classes[0].name, "User");
-//!     assert_eq!(classes[0].fields.len(), 2);
-//!     Ok(())
-//! }
-//! ```
-//!
-//! ## JSDoc Decorators
-//!
-//! The lowering process collects decorators from JSDoc comments using the
-//! `@name(args)` syntax. For example:
-//!
-//! ```typescript
-//! /**
-//!  * @derive(Debug, Clone)
-//!  * @serde(rename = "user")
-//!  */
-//! class User { }
-//! ```
-//!
-//! Both `@derive(Debug, Clone)` and `@serde(rename = "user")` are collected
-//! as decorators on the class.
+//! AST lowering from Oxc types to IR representations.
 
+use crate::LoweredTarget;
+use crate::TsSynError;
+use crate::abi::*;
+use ::oxc::ast::ast::*;
+use oxc::span::GetSpan;
 use std::collections::HashSet;
 
-use crate::abi::*;
+/// Convert a 0-based Oxc span to a 1-based SpanIR (matching the patch applicator convention).
+fn oxc_span_ir(span: oxc::span::Span) -> SpanIR {
+    SpanIR::new(span.start + 1, span.end + 1)
+}
 
-use crate::TsSynError;
+/// Collect JSDoc field-level decorators (e.g. `/** @serde({ rename: "user_id" }) */`)
+/// from the source text preceding a given 0-based byte offset.
+fn collect_leading_decorators(
+    source: &str,
+    target_start_0: usize,
+    valid_annotations: Option<&HashSet<String>>,
+) -> Vec<DecoratorIR> {
+    use crate::jsdoc::{
+        adjacent_jsdoc, is_macro_import_comment, parse_all_macro_directives, stacked_jsdoc_above,
+    };
 
-/// A union type representing any lowerable TypeScript declaration.
-///
-/// This enum allows functions to return mixed collections of different
-/// declaration types, useful when processing an entire module without
-/// knowing what types of declarations it contains.
-///
-/// # Example
-///
-/// ```rust
-/// use macroforge_ts_syn::{LoweredTarget, TsSynError};
-///
-/// fn main() -> Result<(), TsSynError> {
-///     let source = "class Foo {} interface Bar {}";
-/// # #[cfg(feature = "swc")] {
-/// use macroforge_ts_syn::{lower_targets, parse::parse_ts_module};
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let targets = lower_targets(&module, source, None)?;
-/// # }
-/// # #[cfg(feature = "oxc")] {
-/// use macroforge_ts_syn::{lower_targets_oxc, parse_oxc_program};
-/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
-/// let program = parse_oxc_program(&allocator, source)?;
-/// let targets = lower_targets_oxc(&program, source, None)?;
-/// # }
-///
-///     for target in targets {
-///         match target {
-///             LoweredTarget::Class(c) => println!("Class: {}", c.name),
-///             LoweredTarget::Interface(i) => println!("Interface: {}", i.name),
-///             LoweredTarget::Enum(e) => println!("Enum: {}", e.name),
-///             LoweredTarget::TypeAlias(t) => println!("Type alias: {}", t.name),
-///         }
-///     }
-///     Ok(())
-/// }
-/// ```
-#[cfg(feature = "swc")]
-use swc_core::common::{Span, Spanned};
-#[cfg(feature = "swc")]
-use swc_core::ecma::ast::*;
-#[cfg(feature = "swc")]
-use swc_core::ecma::visit::{Visit, VisitWith};
+    let mut all_directives = Vec::new();
+    let mut block = adjacent_jsdoc(source, target_start_0);
 
-/// Extracts all class declarations from a module and converts them to IR.
-///
-/// This function visits the parsed module AST and extracts all class
-/// declarations, converting them to [`ClassIR`] representations. It collects:
-/// - Class name and spans
-/// - Fields with types and modifiers
-/// - Methods with signatures
-/// - Decorators from both TypeScript decorator syntax and JSDoc comments
-///
-/// # Arguments
-///
-/// - `module` - The parsed SWC module AST
-/// - `source` - The original source code (needed for span extraction)
-///
-/// # Returns
-///
-/// A `Vec<ClassIR>` containing all class declarations in the module.
-///
-/// # Example
-///
-/// ```rust
-/// use macroforge_ts_syn::TsSynError;
-///
-/// fn main() -> Result<(), TsSynError> {
-///     let source = "class User { name: string; }";
-/// # #[cfg(feature = "swc")] {
-/// use macroforge_ts_syn::{lower_classes, parse::parse_ts_module};
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let classes = lower_classes(&module, source, None)?;
-/// # }
-/// # #[cfg(feature = "oxc")] {
-/// use macroforge_ts_syn::{lower_classes_oxc, parse_oxc_program};
-/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
-/// let program = parse_oxc_program(&allocator, source)?;
-/// let classes = lower_classes_oxc(&program, source, None)?;
-/// # }
-///
-///     assert_eq!(classes.len(), 1);
-///     assert_eq!(classes[0].name, "User");
-///     Ok(())
-/// }
-/// ```
-#[cfg(feature = "swc")]
+    // Walk back over every JSDoc block stacked directly above the target.
+    while let Some(current) = block {
+        let comment_body = current.body(source);
+        if !is_macro_import_comment(comment_body) {
+            for (name, args_src) in parse_all_macro_directives(comment_body, valid_annotations) {
+                // Use 1-based spans for SpanIR (matching the convention)
+                all_directives.push(DecoratorIR {
+                    name,
+                    args_src,
+                    span: SpanIR::new(current.start as u32 + 1, current.end as u32 + 1),
+                });
+            }
+        }
+        block = stacked_jsdoc_above(source, current);
+    }
+
+    all_directives
+}
+
 pub fn lower_classes(
-    module: &Module,
+    program: &Program<'_>,
     source: &str,
-    valid_annotations: Option<&HashSet<String>>,
+    filter: Option<&HashSet<String>>,
 ) -> Result<Vec<ClassIR>, TsSynError> {
-    let mut v = ClassCollector {
-        out: vec![],
-        source,
-        valid_annotations,
-    };
-    module.visit_with(&mut v);
-    Ok(v.out)
-}
-
-/// Extracts all interface declarations from a module and converts them to IR.
-///
-/// Similar to [`lower_classes`], but for TypeScript interfaces. Collects:
-/// - Interface name and spans
-/// - Properties with types and modifiers
-/// - Method signatures
-/// - Decorators from JSDoc comments
-///
-/// # Arguments
-///
-/// - `module` - The parsed SWC module AST
-/// - `source` - The original source code
-///
-/// # Example
-///
-/// ```rust
-/// use macroforge_ts_syn::TsSynError;
-///
-/// fn main() -> Result<(), TsSynError> {
-///     let source = "interface User { name: string; greet(): void; }";
-/// # #[cfg(feature = "swc")] {
-/// use macroforge_ts_syn::{lower_interfaces, parse::parse_ts_module};
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let interfaces = lower_interfaces(&module, source, None)?;
-/// # }
-/// # #[cfg(feature = "oxc")] {
-/// use macroforge_ts_syn::{lower_interfaces_oxc, parse_oxc_program};
-/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
-/// let program = parse_oxc_program(&allocator, source)?;
-/// let interfaces = lower_interfaces_oxc(&program, source, None)?;
-/// # }
-///
-///     assert_eq!(interfaces[0].name, "User");
-///     assert_eq!(interfaces[0].fields.len(), 1);
-///     assert_eq!(interfaces[0].methods.len(), 1);
-///     Ok(())
-/// }
-/// ```
-#[cfg(feature = "swc")]
-pub fn lower_interfaces(
-    module: &Module,
-    source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Result<Vec<InterfaceIR>, TsSynError> {
-    let mut v = InterfaceCollector {
-        out: vec![],
-        source,
-        valid_annotations,
-    };
-    module.visit_with(&mut v);
-    Ok(v.out)
-}
-
-/// Extracts all supported declarations from a module as [`LoweredTarget`].
-///
-/// This function is useful when you need to process all macro targets in
-/// a module without knowing their types in advance. It collects classes,
-/// interfaces, enums, and type aliases into a single vector.
-///
-/// # Arguments
-///
-/// - `module` - The parsed SWC module AST
-/// - `source` - The original source code
-///
-/// # Example
-///
-/// ```rust
-/// use macroforge_ts_syn::TsSynError;
-///
-/// fn main() -> Result<(), TsSynError> {
-///     let source = r#"
-///         class User { }
-///         interface IUser { }
-///         enum Status { Active }
-///         type ID = string;
-///     "#;
-///
-/// # #[cfg(feature = "swc")] {
-/// use macroforge_ts_syn::{lower_targets, parse::parse_ts_module};
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let targets = lower_targets(&module, source, None)?;
-/// # }
-/// # #[cfg(feature = "oxc")] {
-/// use macroforge_ts_syn::{lower_targets_oxc, parse_oxc_program};
-/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
-/// let program = parse_oxc_program(&allocator, source)?;
-/// let targets = lower_targets_oxc(&program, source, None)?;
-/// # }
-///
-///     // targets contains all 4 declarations
-///     assert_eq!(targets.len(), 4);
-///     Ok(())
-/// }
-/// ```
-#[cfg(feature = "swc")]
-pub fn lower_targets(
-    module: &Module,
-    source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Result<Vec<LoweredTarget>, TsSynError> {
-    let mut v = TargetCollector {
-        out: vec![],
-        source,
-        valid_annotations,
-    };
-    module.visit_with(&mut v);
-    Ok(v.out)
-}
-
-/// Extracts all enum declarations from a module and converts them to IR.
-///
-/// Collects TypeScript enum declarations including:
-/// - Enum name and spans
-/// - Variants with their values (string, number, auto, or expression)
-/// - Whether the enum is a `const enum`
-/// - Decorators from JSDoc comments
-///
-/// # Arguments
-///
-/// - `module` - The parsed SWC module AST
-/// - `source` - The original source code
-///
-/// # Example
-///
-/// ```rust
-/// use macroforge_ts_syn::TsSynError;
-///
-/// fn main() -> Result<(), TsSynError> {
-///     let source = r#"
-///         enum Status {
-///             Active = "ACTIVE",
-///             Inactive = "INACTIVE",
-///         }
-///     "#;
-///
-/// # #[cfg(feature = "swc")] {
-/// use macroforge_ts_syn::{lower_enums, parse::parse_ts_module};
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let enums = lower_enums(&module, source, None)?;
-/// # }
-/// # #[cfg(feature = "oxc")] {
-/// use macroforge_ts_syn::{lower_enums_oxc, parse_oxc_program};
-/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
-/// let program = parse_oxc_program(&allocator, source)?;
-/// let enums = lower_enums_oxc(&program, source, None)?;
-/// # }
-///
-///     assert_eq!(enums[0].name, "Status");
-///     assert_eq!(enums[0].variants.len(), 2);
-///     Ok(())
-/// }
-/// ```
-#[cfg(feature = "swc")]
-pub fn lower_enums(
-    module: &Module,
-    source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Result<Vec<EnumIR>, TsSynError> {
-    let mut v = EnumCollector {
-        out: vec![],
-        source,
-        valid_annotations,
-    };
-    module.visit_with(&mut v);
-    Ok(v.out)
-}
-
-/// Extracts all type alias declarations from a module and converts them to IR.
-///
-/// Collects TypeScript type alias declarations including:
-/// - Type alias name and spans
-/// - Type parameters (generics)
-/// - The type body (union, intersection, object literal, tuple, or simple alias)
-/// - Decorators from JSDoc comments
-///
-/// For union and intersection types, the individual members are also lowered
-/// with their own decorators, enabling features like marking a default variant.
-///
-/// # Arguments
-///
-/// - `module` - The parsed SWC module AST
-/// - `source` - The original source code
-///
-/// # Type Body Variants
-///
-/// The [`TypeBody`] returned in [`TypeAliasIR::body`] reflects the structure:
-/// - `TypeBody::Union` - For `A | B | C` union types
-/// - `TypeBody::Intersection` - For `A & B & C` intersection types
-/// - `TypeBody::Object` - For inline object types `{ x: number; y: string }`
-/// - `TypeBody::Tuple` - For tuple types `[string, number]`
-/// - `TypeBody::Alias` - For simple type references `string`, `Array<T>`
-/// - `TypeBody::Other` - For complex types (mapped, conditional, etc.)
-///
-/// # Example
-///
-/// ```rust
-/// use macroforge_ts_syn::{TypeBody, TsSynError};
-///
-/// fn main() -> Result<(), TsSynError> {
-///     let source = r#"
-///         type Status = "active" | "inactive" | "pending";
-///         type Point = { x: number; y: number };
-///     "#;
-///
-/// # #[cfg(feature = "swc")] {
-/// use macroforge_ts_syn::{lower_type_aliases, parse::parse_ts_module};
-/// let module = parse_ts_module(source, "input.ts")?;
-/// let type_aliases = lower_type_aliases(&module, source, None)?;
-/// # }
-/// # #[cfg(feature = "oxc")] {
-/// use macroforge_ts_syn::{lower_type_aliases_oxc, parse_oxc_program};
-/// let allocator = macroforge_ts_syn::oxc::allocator::Allocator::default();
-/// let program = parse_oxc_program(&allocator, source)?;
-/// let type_aliases = lower_type_aliases_oxc(&program, source, None)?;
-/// # }
-///
-///     assert_eq!(type_aliases.len(), 2);
-///     assert_eq!(type_aliases[0].name, "Status");
-///     assert!(matches!(&type_aliases[0].body, TypeBody::Union(_)));
-///     Ok(())
-/// }
-/// ```
-///
-/// # Union Variant Decorators
-///
-/// Each member of a union type can have its own decorators from inline JSDoc:
-///
-/// ```typescript
-/// /** @derive(Default) */
-/// type Mode =
-///   | /** @default */ "light"
-///   | "dark";
-/// ```
-///
-/// The `@default` decorator on the "light" variant is captured in the
-/// corresponding [`TypeMember::decorators`] field.
-#[cfg(feature = "swc")]
-pub fn lower_type_aliases(
-    module: &Module,
-    source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Result<Vec<TypeAliasIR>, TsSynError> {
-    let mut v = TypeAliasCollector {
-        out: vec![],
-        source,
-        valid_annotations,
-    };
-    module.visit_with(&mut v);
-    Ok(v.out)
-}
-
-#[cfg(feature = "swc")]
-struct ClassCollector<'a> {
-    out: Vec<ClassIR>,
-    source: &'a str,
-    valid_annotations: Option<&'a HashSet<String>>,
-}
-
-#[cfg(feature = "swc")]
-impl<'a> Visit for ClassCollector<'a> {
-    fn visit_class_decl(&mut self, n: &ClassDecl) {
-        let name = n.ident.sym.to_string();
-        let span = swc_span_to_ir(n.class.span);
-
-        let class_source = snippet(self.source, n.class.span);
-        let body_span = if let (Some(open_brace), Some(close_brace)) =
-            (class_source.find('{'), class_source.rfind('}'))
-        {
-            SpanIR::new(
-                n.class.span.lo.0 + open_brace as u32,
-                n.class.span.lo.0 + close_brace as u32 + 1,
-            )
-        } else {
-            // fallback for classes without a body, though they can't have macros.
-            span
-        };
-
-        let decorators = collect_leading_macro_directives(
-            self.source,
-            n.class.span.lo.0 as usize,
-            self.valid_annotations,
-        );
-
-        let (fields, methods) = lower_members(&n.class.body, self.source, self.valid_annotations);
-
-        let mut type_params = Vec::new();
-        if let Some(tp) = &n.class.type_params {
-            for p in &tp.params {
-                type_params.push(p.name.sym.to_string());
+    let mut classes = Vec::new();
+    for stmt in &program.body {
+        match stmt {
+            Statement::ClassDeclaration(decl) => {
+                if let Some(class_ir) = lower_class(decl, source, filter) {
+                    classes.push(class_ir);
+                }
             }
-        }
-
-        let mut heritage = Vec::new();
-        if let Some(super_class) = &n.class.super_class
-            && let Expr::Ident(ident) = &**super_class
-        {
-            heritage.push(ident.sym.to_string());
-        }
-        for item in &n.class.implements {
-            let TsExprWithTypeArgs { expr, .. } = item;
-            if let Expr::Ident(ident) = &**expr {
-                heritage.push(ident.sym.to_string());
+            Statement::ExportDeclaration(decl) => {
+                if let Declaration::ClassDeclaration(class_decl) = &decl.declaration
+                    && let Some(class_ir) = lower_class(class_decl, source, filter)
+                {
+                    classes.push(class_ir);
+                }
             }
-        }
-
-        self.out.push(ClassIR {
-            name,
-            span,
-            body_span,
-            is_abstract: n.class.is_abstract,
-            type_params,
-            heritage,
-            decorators,
-            decorators_ast: n.class.decorators.clone(),
-            fields,
-            methods,
-            members: n.class.body.clone(),
-        });
-    }
-}
-
-#[cfg(feature = "swc")]
-struct InterfaceCollector<'a> {
-    out: Vec<InterfaceIR>,
-    source: &'a str,
-    valid_annotations: Option<&'a HashSet<String>>,
-}
-
-#[cfg(feature = "swc")]
-impl<'a> Visit for InterfaceCollector<'a> {
-    fn visit_ts_interface_decl(&mut self, n: &TsInterfaceDecl) {
-        if let Some(ir) = lower_interface(n, self.source, self.valid_annotations) {
-            self.out.push(ir);
+            Statement::ExportDefaultDeclaration(decl) => {
+                if let ExportDefaultDeclarationKind::ClassDeclaration(class_decl) =
+                    &decl.declaration
+                    && let Some(class_ir) = lower_class(class_decl, source, filter)
+                {
+                    classes.push(class_ir);
+                }
+            }
+            _ => {}
         }
     }
+    Ok(classes)
 }
 
-#[cfg(feature = "swc")]
-struct EnumCollector<'a> {
-    out: Vec<EnumIR>,
-    source: &'a str,
-    valid_annotations: Option<&'a HashSet<String>>,
-}
-
-#[cfg(feature = "swc")]
-impl<'a> Visit for EnumCollector<'a> {
-    fn visit_ts_enum_decl(&mut self, n: &TsEnumDecl) {
-        if let Some(ir) = lower_enum(n, self.source, self.valid_annotations) {
-            self.out.push(ir);
-        }
-    }
-}
-
-#[cfg(feature = "swc")]
-struct TypeAliasCollector<'a> {
-    out: Vec<TypeAliasIR>,
-    source: &'a str,
-    valid_annotations: Option<&'a HashSet<String>>,
-}
-
-#[cfg(feature = "swc")]
-impl<'a> Visit for TypeAliasCollector<'a> {
-    fn visit_ts_type_alias_decl(&mut self, n: &TsTypeAliasDecl) {
-        if let Some(ir) = lower_type_alias(n, self.source, self.valid_annotations) {
-            self.out.push(ir);
-        }
-    }
-}
-
-#[cfg(feature = "swc")]
-struct TargetCollector<'a> {
-    out: Vec<LoweredTarget>,
-    source: &'a str,
-    valid_annotations: Option<&'a HashSet<String>>,
-}
-
-#[cfg(feature = "swc")]
-impl<'a> Visit for TargetCollector<'a> {
-    fn visit_class_decl(&mut self, n: &ClassDecl) {
-        let name = n.ident.sym.to_string();
-        let span = swc_span_to_ir(n.class.span);
-
-        let class_source = snippet(self.source, n.class.span);
-        let body_span = if let (Some(open_brace), Some(close_brace)) =
-            (class_source.find('{'), class_source.rfind('}'))
-        {
-            SpanIR::new(
-                n.class.span.lo.0 + open_brace as u32,
-                n.class.span.lo.0 + close_brace as u32 + 1,
-            )
-        } else {
-            span
-        };
-
-        let decorators = collect_leading_macro_directives(
-            self.source,
-            n.class.span.lo.0 as usize,
-            self.valid_annotations,
-        );
-
-        let (fields, methods) = lower_members(&n.class.body, self.source, self.valid_annotations);
-
-        self.out.push(LoweredTarget::Class(ClassIR {
-            name,
-            span,
-            body_span,
-            is_abstract: n.class.is_abstract,
-            type_params: vec![],
-            heritage: vec![],
-            decorators,
-            decorators_ast: n.class.decorators.clone(),
-            fields,
-            methods,
-            members: n.class.body.clone(),
-        }));
-    }
-
-    fn visit_ts_interface_decl(&mut self, n: &TsInterfaceDecl) {
-        if let Some(ir) = lower_interface(n, self.source, self.valid_annotations) {
-            self.out.push(LoweredTarget::Interface(ir));
-        }
-    }
-
-    fn visit_ts_enum_decl(&mut self, n: &TsEnumDecl) {
-        if let Some(ir) = lower_enum(n, self.source, self.valid_annotations) {
-            self.out.push(LoweredTarget::Enum(ir));
-        }
-    }
-
-    fn visit_ts_type_alias_decl(&mut self, n: &TsTypeAliasDecl) {
-        if let Some(ir) = lower_type_alias(n, self.source, self.valid_annotations) {
-            self.out.push(LoweredTarget::TypeAlias(ir));
-        }
-    }
-}
-
-#[cfg(feature = "swc")]
-fn lower_interface(
-    n: &TsInterfaceDecl,
+fn lower_class(
+    decl: &Class<'_>,
     source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Option<InterfaceIR> {
-    let name = n.id.sym.to_string();
-    let span = swc_span_to_ir(n.span);
+    filter: Option<&HashSet<String>>,
+) -> Option<ClassIR> {
+    let name = decl.id.as_ref()?.name.to_string();
+    let span = oxc_span_ir(decl.span);
+    let body_span = oxc_span_ir(decl.body.span);
 
-    let interface_source = snippet(source, n.span);
-    let body_span = if let (Some(open_brace), Some(close_brace)) =
-        (interface_source.find('{'), interface_source.rfind('}'))
-    {
-        SpanIR::new(
-            n.span.lo.0 + open_brace as u32,
-            n.span.lo.0 + close_brace as u32 + 1,
-        )
-    } else {
-        span
-    };
-
-    // Collect decorators from leading JSDoc comments
-    let decorators =
-        collect_leading_macro_directives(source, n.span.lo.0 as usize, valid_annotations);
-
-    let (fields, methods) = lower_interface_members(&n.body.body, source, valid_annotations);
-
-    let mut type_params = Vec::new();
-    if let Some(tp) = &n.type_params {
-        for p in &tp.params {
-            type_params.push(p.name.sym.to_string());
-        }
-    }
+    let type_params = decl
+        .type_parameters
+        .as_ref()
+        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
+        .unwrap_or_default();
 
     let mut heritage = Vec::new();
-    for ext in &n.extends {
-        if let Expr::Ident(ident) = &*ext.expr {
-            heritage.push(ident.sym.to_string());
+    if let Some(super_class) = &decl.heritage
+        && let Expression::Identifier(ident) = &super_class.expression
+    {
+        heritage.push(ident.name.to_string());
+    }
+    for item in &decl.implements {
+        if let TSTypeName::IdentifierReference(ident) = &item.expression {
+            heritage.push(ident.name.to_string());
         }
     }
 
-    Some(InterfaceIR {
+    // JSDoc class-level decorators (e.g. @serde({ denyUnknownFields: true }))
+    let decorators = collect_leading_decorators(source, decl.span.start as usize, filter);
+
+    let mut fields = Vec::new();
+    let mut methods = Vec::new();
+
+    for element in &decl.body.body {
+        match element {
+            ClassElement::PropertyDefinition(prop) => {
+                if let PropertyKey::StaticIdentifier(ident) = &prop.key {
+                    let field_decorators =
+                        collect_leading_decorators(source, prop.span.start as usize, filter);
+                    fields.push(FieldIR {
+                        name: ident.name.to_string(),
+                        span: oxc_span_ir(prop.span),
+                        ts_type: prop
+                            .type_annotation
+                            .as_ref()
+                            .map(|ann| {
+                                let sp = ann.type_annotation.span();
+                                source[sp.start as usize..sp.end as usize].to_string()
+                            })
+                            .unwrap_or_else(|| "any".to_string()),
+                        optional: prop.optional,
+                        readonly: prop.readonly,
+                        visibility: match prop.accessibility {
+                            Some(TSAccessibility::Private) => Visibility::Private,
+                            Some(TSAccessibility::Protected) => Visibility::Protected,
+                            _ => Visibility::Public,
+                        },
+                        decorators: field_decorators,
+                    });
+                }
+            }
+            ClassElement::MethodDefinition(method) => {
+                if let PropertyKey::StaticIdentifier(ident) = &method.key {
+                    let func = &method.value;
+
+                    let type_params_src = func
+                        .type_parameters
+                        .as_ref()
+                        .map(|tp| source[tp.span.start as usize..tp.span.end as usize].to_string())
+                        .unwrap_or_default();
+
+                    let params_src = {
+                        let sp = func.params.span;
+                        let raw = &source[sp.start as usize..sp.end as usize];
+                        raw.strip_prefix('(')
+                            .and_then(|s| s.strip_suffix(')'))
+                            .unwrap_or(raw)
+                            .trim()
+                            .to_string()
+                    };
+
+                    let return_type_src = func
+                        .return_type
+                        .as_ref()
+                        .map(|ann| {
+                            let sp = ann.type_annotation.span();
+                            source[sp.start as usize..sp.end as usize].to_string()
+                        })
+                        .unwrap_or_default();
+
+                    let method_decorators =
+                        collect_leading_decorators(source, method.span.start as usize, filter);
+
+                    let (method_body_span, method_body_src) = if let Some(body) = &func.body {
+                        let bspan = oxc_span_ir(body.span);
+                        let inner_start = body.span.start as usize + 1;
+                        let inner_end = body.span.end as usize - 1;
+                        let src = source.get(inner_start..inner_end).unwrap_or("").to_string();
+                        (Some(bspan), Some(src))
+                    } else {
+                        (None, None)
+                    };
+
+                    methods.push(MethodSigIR {
+                        name: ident.name.to_string(),
+                        span: oxc_span_ir(method.span),
+                        type_params_src,
+                        params_src,
+                        return_type_src,
+                        is_static: method.r#static,
+                        is_async: method.value.r#async,
+                        visibility: match method.accessibility {
+                            Some(TSAccessibility::Private) => Visibility::Private,
+                            Some(TSAccessibility::Protected) => Visibility::Protected,
+                            _ => Visibility::Public,
+                        },
+                        decorators: method_decorators,
+                        body_span: method_body_span,
+                        body_src: method_body_src,
+                    });
+                }
+            }
+            _ => {}
+        }
+    }
+
+    Some(ClassIR {
         name,
         span,
         body_span,
+        is_abstract: decl.r#abstract,
         type_params,
         heritage,
         decorators,
@@ -675,86 +218,211 @@ fn lower_interface(
     })
 }
 
-#[cfg(feature = "swc")]
-fn lower_enum(
-    n: &TsEnumDecl,
+pub fn lower_interfaces(
+    program: &Program<'_>,
     source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Option<EnumIR> {
-    let name = n.id.sym.to_string();
-    let span = swc_span_to_ir(n.span);
+    filter: Option<&HashSet<String>>,
+) -> Result<Vec<InterfaceIR>, TsSynError> {
+    let mut interfaces = Vec::new();
+    for stmt in &program.body {
+        let decl = match stmt {
+            Statement::TSInterfaceDeclaration(d) => Some(d.as_ref()),
+            Statement::ExportDeclaration(d) => match &d.declaration {
+                Declaration::TSInterfaceDeclaration(d) => Some(d.as_ref()),
+                _ => None,
+            },
+            _ => None,
+        };
+        if let Some(d) = decl {
+            interfaces.push(lower_interface(d, source, filter));
+        }
+    }
+    Ok(interfaces)
+}
 
-    let enum_source = snippet(source, n.span);
-    let body_span = if let (Some(open_brace), Some(close_brace)) =
-        (enum_source.find('{'), enum_source.rfind('}'))
-    {
-        SpanIR::new(
-            n.span.lo.0 + open_brace as u32,
-            n.span.lo.0 + close_brace as u32 + 1,
-        )
-    } else {
-        span
-    };
+fn lower_interface(
+    decl: &TSInterfaceDeclaration<'_>,
+    source: &str,
+    filter: Option<&HashSet<String>>,
+) -> InterfaceIR {
+    let name = decl.id.name.to_string();
+    let span = oxc_span_ir(decl.span);
+    let body_span = oxc_span_ir(decl.body.span);
 
-    // Collect decorators from leading JSDoc comments
-    let decorators =
-        collect_leading_macro_directives(source, n.span.lo.0 as usize, valid_annotations);
+    let type_params = decl
+        .type_parameters
+        .as_ref()
+        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
+        .unwrap_or_default();
 
-    // Lower enum members with values
-    let variants = lower_enum_members(&n.members, source, valid_annotations);
+    let mut heritage = Vec::new();
+    for ext in &decl.extends {
+        if let TSTypeName::IdentifierReference(ident) = &ext.type_name {
+            heritage.push(ident.name.to_string());
+        }
+    }
 
-    Some(EnumIR {
+    let (fields, methods) = lower_interface_members(&decl.body.body, source, filter);
+
+    // JSDoc interface-level decorators
+    let decorators = collect_leading_decorators(source, decl.span.start as usize, filter);
+
+    InterfaceIR {
         name,
         span,
         body_span,
+        type_params,
+        heritage,
         decorators,
-        variants,
-        is_const: n.is_const,
-    })
+        fields,
+        methods,
+    }
 }
 
-#[cfg(feature = "swc")]
-fn lower_enum_members(
-    members: &[TsEnumMember],
+fn lower_interface_members(
+    body: &[TSSignature<'_>],
     source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Vec<EnumVariantIR> {
-    let mut variants = vec![];
-    let mut next_auto_value: f64 = 0.0;
+    filter: Option<&HashSet<String>>,
+) -> (Vec<InterfaceFieldIR>, Vec<InterfaceMethodIR>) {
+    let mut fields = Vec::new();
+    let mut methods = Vec::new();
 
-    for member in members {
-        let name = match &member.id {
-            TsEnumMemberId::Ident(i) => i.sym.to_string(),
-            TsEnumMemberId::Str(s) => String::from_utf8_lossy(s.value.as_bytes()).to_string(),
+    for elem in body {
+        match elem {
+            TSSignature::TSPropertySignature(prop) => {
+                if let PropertyKey::StaticIdentifier(ident) = &prop.key {
+                    let ts_type = prop
+                        .type_annotation
+                        .as_ref()
+                        .map(|ann| {
+                            let sp = ann.type_annotation.span();
+                            source[sp.start as usize..sp.end as usize].to_string()
+                        })
+                        .unwrap_or_else(|| "any".to_string());
+
+                    let field_decorators =
+                        collect_leading_decorators(source, prop.span.start as usize, filter);
+                    fields.push(InterfaceFieldIR {
+                        name: ident.name.to_string(),
+                        span: oxc_span_ir(prop.span),
+                        ts_type,
+                        optional: prop.optional,
+                        readonly: prop.readonly,
+                        decorators: field_decorators,
+                    });
+                }
+            }
+            TSSignature::TSMethodSignature(meth) => {
+                if let PropertyKey::StaticIdentifier(ident) = &meth.key {
+                    let params_src = {
+                        let sp = meth.params.span;
+                        let raw = &source[sp.start as usize..sp.end as usize];
+                        raw.strip_prefix('(')
+                            .and_then(|s| s.strip_suffix(')'))
+                            .unwrap_or(raw)
+                            .trim()
+                            .to_string()
+                    };
+
+                    let type_params_src = meth
+                        .type_parameters
+                        .as_ref()
+                        .map(|tp| source[tp.span.start as usize..tp.span.end as usize].to_string())
+                        .unwrap_or_default();
+
+                    let return_type_src = meth
+                        .return_type
+                        .as_ref()
+                        .map(|ann| {
+                            let sp = ann.type_annotation.span();
+                            source[sp.start as usize..sp.end as usize].to_string()
+                        })
+                        .unwrap_or_else(|| "void".to_string());
+
+                    let meth_decorators =
+                        collect_leading_decorators(source, meth.span.start as usize, filter);
+                    methods.push(InterfaceMethodIR {
+                        name: ident.name.to_string(),
+                        span: oxc_span_ir(meth.span),
+                        type_params_src,
+                        params_src,
+                        return_type_src,
+                        optional: meth.optional,
+                        decorators: meth_decorators,
+                    });
+                }
+            }
+            _ => {}
+        }
+    }
+
+    (fields, methods)
+}
+
+pub fn lower_enums(
+    program: &Program<'_>,
+    source: &str,
+    _filter: Option<&HashSet<String>>,
+) -> Result<Vec<EnumIR>, TsSynError> {
+    let mut enums = Vec::new();
+    for stmt in &program.body {
+        let decl = match stmt {
+            Statement::TSEnumDeclaration(d) => Some(d.as_ref()),
+            Statement::ExportDeclaration(d) => match &d.declaration {
+                Declaration::TSEnumDeclaration(d) => Some(d.as_ref()),
+                _ => None,
+            },
+            _ => None,
+        };
+        if let Some(d) = decl {
+            enums.push(lower_enum(d, source));
+        }
+    }
+    Ok(enums)
+}
+
+fn lower_enum(decl: &TSEnumDeclaration<'_>, source: &str) -> EnumIR {
+    let name = decl.id.name.to_string();
+    let span = oxc_span_ir(decl.span);
+
+    let enum_source = &source[decl.span.start as usize..decl.span.end as usize];
+    let body_span =
+        if let (Some(open), Some(close)) = (enum_source.find('{'), enum_source.rfind('}')) {
+            SpanIR::new(
+                decl.span.start + open as u32 + 1,
+                decl.span.start + close as u32 + 2,
+            )
+        } else {
+            span
         };
 
-        // Collect field-level decorators from JSDoc comments
-        let decorators =
-            collect_leading_macro_directives(source, member.span.lo.0 as usize, valid_annotations);
+    let mut variants = Vec::new();
+    let mut next_auto_value: f64 = 0.0;
 
-        // Extract the value from the initializer
-        let value = if let Some(init) = &member.init {
-            match &**init {
-                // String literal: "ACTIVE"
-                Expr::Lit(Lit::Str(s)) => {
-                    // String enums reset auto-increment behavior
-                    EnumValue::String(String::from_utf8_lossy(s.value.as_bytes()).to_string())
+    for member in &decl.body.members {
+        let member_name = match &member.id {
+            TSEnumMemberName::Identifier(i) => i.name.to_string(),
+            TSEnumMemberName::String(s) | TSEnumMemberName::ComputedString(s) => {
+                s.value.to_string()
+            }
+            TSEnumMemberName::ComputedTemplateString(_) => continue,
+        };
+
+        let value = if let Some(init) = &member.initializer {
+            match init {
+                Expression::StringLiteral(s) => EnumValue::String(s.value.to_string()),
+                Expression::NumericLiteral(n) => {
+                    next_auto_value = n.value + 1.0;
+                    EnumValue::Number(n.value)
                 }
-                // Numeric literal: 42
-                Expr::Lit(Lit::Num(n)) => {
-                    let val = n.value;
-                    next_auto_value = val + 1.0;
-                    EnumValue::Number(val)
-                }
-                // Unary expression: -1, +5
-                Expr::Unary(unary)
+                Expression::UnaryExpression(unary)
                     if matches!(
-                        unary.op,
-                        swc_core::ecma::ast::UnaryOp::Minus | swc_core::ecma::ast::UnaryOp::Plus
+                        unary.operator,
+                        UnaryOperator::UnaryNegation | UnaryOperator::UnaryPlus
                     ) =>
                 {
-                    if let Expr::Lit(Lit::Num(n)) = &*unary.arg {
-                        let val = if matches!(unary.op, swc_core::ecma::ast::UnaryOp::Minus) {
+                    if let Expression::NumericLiteral(n) = &unary.argument {
+                        let val = if matches!(unary.operator, UnaryOperator::UnaryNegation) {
                             -n.value
                         } else {
                             n.value
@@ -762,1045 +430,551 @@ fn lower_enum_members(
                         next_auto_value = val + 1.0;
                         EnumValue::Number(val)
                     } else {
-                        // Complex unary expression, store as expression
-                        let expr_src = snippet(source, init.span());
-                        EnumValue::Expr(expr_src)
+                        let sp = init.span();
+                        EnumValue::Expr(source[sp.start as usize..sp.end as usize].to_string())
                     }
                 }
-                // Any other expression (function call, binary op, etc.)
                 _ => {
-                    let expr_src = snippet(source, init.span());
-                    // Try to evaluate simple expressions like A + 1 where A is known
-                    EnumValue::Expr(expr_src)
+                    let sp = init.span();
+                    EnumValue::Expr(source[sp.start as usize..sp.end as usize].to_string())
                 }
             }
         } else {
-            // No initializer - use auto-increment
             let val = next_auto_value;
             next_auto_value += 1.0;
-            // Check if this is truly auto (first member with no init) or follows string enum
-            // For simplicity, we track numeric auto-increment
             EnumValue::Number(val)
         };
 
+        let variant_decorators =
+            collect_leading_decorators(source, member.span.start as usize, None);
         variants.push(EnumVariantIR {
-            name,
-            span: swc_span_to_ir(member.span),
+            name: member_name,
+            span: oxc_span_ir(member.span),
             value,
-            decorators,
+            decorators: variant_decorators,
         });
     }
 
-    variants
+    let decorators = collect_leading_decorators(source, decl.span.start as usize, None);
+
+    EnumIR {
+        name,
+        span,
+        body_span,
+        decorators,
+        variants,
+        is_const: decl.r#const,
+    }
 }
 
-#[cfg(feature = "swc")]
-fn lower_type_alias(
-    n: &TsTypeAliasDecl,
+pub fn lower_type_aliases(
+    program: &Program<'_>,
     source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Option<TypeAliasIR> {
-    let name = n.id.sym.to_string();
-    let span = swc_span_to_ir(n.span);
+    _filter: Option<&HashSet<String>>,
+) -> Result<Vec<TypeAliasIR>, TsSynError> {
+    let mut aliases = Vec::new();
+    for stmt in &program.body {
+        let decl = match stmt {
+            Statement::TSTypeAliasDeclaration(d) => Some(d.as_ref()),
+            Statement::ExportDeclaration(d) => match &d.declaration {
+                Declaration::TSTypeAliasDeclaration(d) => Some(d.as_ref()),
+                _ => None,
+            },
+            _ => None,
+        };
+        if let Some(d) = decl {
+            aliases.push(lower_type_alias(d, source));
+        }
+    }
+    Ok(aliases)
+}
 
-    // Collect decorators from leading JSDoc comments
-    let decorators =
-        collect_leading_macro_directives(source, n.span.lo.0 as usize, valid_annotations);
+fn lower_type_alias(decl: &TSTypeAliasDeclaration<'_>, source: &str) -> TypeAliasIR {
+    let name = decl.id.name.to_string();
+    let span = oxc_span_ir(decl.span);
 
-    // Extract type parameters
-    let type_params = n
-        .type_params
+    let type_params = decl
+        .type_parameters
         .as_ref()
-        .map(|tp| tp.params.iter().map(|p| p.name.sym.to_string()).collect())
+        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
         .unwrap_or_default();
 
-    // Lower the type body
-    let body = lower_type_body(&n.type_ann, source, valid_annotations);
+    let body = lower_type_body(&decl.type_annotation, source);
 
-    Some(TypeAliasIR {
+    let decorators = collect_leading_decorators(source, decl.span.start as usize, None);
+
+    TypeAliasIR {
         name,
         span,
         decorators,
         type_params,
         body,
-    })
-}
-
-#[cfg(feature = "swc")]
-fn lower_type_body(
-    ts_type: &TsType,
-    source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> TypeBody {
-    use swc_core::ecma::ast::TsType::*;
-
-    match ts_type {
-        // Union type: A | B | C
-        TsUnionOrIntersectionType(swc_core::ecma::ast::TsUnionOrIntersectionType::TsUnionType(
-            union,
-        )) => {
-            let members: Vec<TypeMember> = union
-                .types
-                .iter()
-                .map(|t| lower_type_member(t, source, valid_annotations))
-                .collect();
-            TypeBody::Union(members)
-        }
-
-        // Intersection type: A & B & C
-        TsUnionOrIntersectionType(
-            swc_core::ecma::ast::TsUnionOrIntersectionType::TsIntersectionType(intersection),
-        ) => {
-            let members: Vec<TypeMember> = intersection
-                .types
-                .iter()
-                .map(|t| lower_type_member(t, source, valid_annotations))
-                .collect();
-            TypeBody::Intersection(members)
-        }
-
-        // Type literal (object type): { x: number; y: number }
-        TsTypeLit(lit) => {
-            let (fields, _methods) =
-                lower_interface_members(&lit.members, source, valid_annotations);
-            TypeBody::Object { fields }
-        }
-
-        // Tuple type: [string, number]
-        TsTupleType(tuple) => {
-            let elements: Vec<String> = tuple
-                .elem_types
-                .iter()
-                .map(|elem| snippet(source, elem.span()))
-                .collect();
-            TypeBody::Tuple(elements)
-        }
-
-        // Type reference: string, number, Array<T>, etc.
-        TsTypeRef(type_ref) => {
-            let type_str = snippet(source, type_ref.span());
-            TypeBody::Alias(type_str)
-        }
-
-        // Keyword types: string, number, boolean, etc.
-        TsKeywordType(kw) => {
-            let type_str = snippet(source, kw.span);
-            TypeBody::Alias(type_str)
-        }
-
-        // Literal type: "active", 42
-        TsLitType(lit) => {
-            let type_str = snippet(source, lit.span);
-            TypeBody::Alias(type_str)
-        }
-
-        // Array type: string[]
-        TsArrayType(arr) => {
-            let type_str = snippet(source, arr.span);
-            TypeBody::Alias(type_str)
-        }
-
-        // Fallback for other types (mapped, conditional, etc.)
-        _ => {
-            let type_str = snippet(source, ts_type.span());
-            TypeBody::Other(type_str)
-        }
     }
 }
 
-#[cfg(feature = "swc")]
-fn lower_type_member(
-    ts_type: &TsType,
-    source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> TypeMember {
-    use crate::abi::ir::type_alias::TypeMemberKind;
-    use swc_core::ecma::ast::TsType::*;
-
-    // Parse any leading JSDoc comment decorators (e.g., /** @default */)
-    let decorators =
-        collect_leading_macro_directives(source, ts_type.span().lo.0 as usize, valid_annotations);
-
-    let kind = match ts_type {
-        // Literal type: "active", 42, true
-        TsLitType(lit) => {
-            let lit_str = snippet(source, lit.span);
-            TypeMemberKind::Literal(lit_str)
-        }
-
-        // Type literal (inline object): { role: string }
-        TsTypeLit(lit) => {
-            let (fields, _methods) =
-                lower_interface_members(&lit.members, source, valid_annotations);
+fn lower_union_member(t: &TSType<'_>, source: &str) -> TypeMember {
+    let sp = t.span();
+    let text = source[sp.start as usize..sp.end as usize].to_string();
+    let decorators = collect_leading_decorators(source, sp.start as usize, None);
+    let kind = match t {
+        TSType::TSLiteralType(_) => TypeMemberKind::Literal(text),
+        TSType::TSTypeLiteral(lit) => {
+            let (fields, _) = lower_interface_members(&lit.members, source, None);
             TypeMemberKind::Object { fields }
         }
-
-        // Intersection type nested inside a union: { variant: 'Account' } & Account
-        TsUnionOrIntersectionType(
-            swc_core::ecma::ast::TsUnionOrIntersectionType::TsIntersectionType(intersection),
-        ) => {
-            let members: Vec<TypeMember> = intersection
+        TSType::TSIntersectionType(inter) => {
+            let members = inter
                 .types
                 .iter()
-                .map(|t| lower_type_member(t, source, valid_annotations))
+                .map(|t| lower_union_member(t, source))
                 .collect();
             TypeMemberKind::Intersection(members)
         }
-
-        // Parenthesized type: `({ kind: 'A' } & ADetail)` — unwrap and lower
-        // the inner type. The parens are purely a parser disambiguator; the
-        // semantic shape is whatever's inside. Decorators on the parenthesized
-        // member (e.g. `/** @default */ ({ ... } & T)`) are merged onto the
-        // inner member so the union pass still sees them.
-        TsParenthesizedType(paren) => {
-            let mut inner = lower_type_member(&paren.type_ann, source, valid_annotations);
-            for decorator in decorators {
-                if !inner.has_decorator(&decorator.name) {
-                    inner.decorators.push(decorator);
-                }
+        TSType::TSParenthesizedType(paren) => {
+            let mut inner = lower_union_member(&paren.type_annotation, source);
+            if inner.decorators.is_empty() && !decorators.is_empty() {
+                inner.decorators = decorators;
             }
             return inner;
         }
-
-        // Type reference or other: User, string, Array<T>
-        _ => {
-            let type_str = snippet(source, ts_type.span());
-            TypeMemberKind::TypeRef(type_str)
-        }
+        _ => TypeMemberKind::TypeRef(text),
     };
-
     TypeMember::with_decorators(kind, decorators)
 }
 
-#[cfg(feature = "swc")]
-fn lower_interface_members(
-    body: &[TsTypeElement],
+fn lower_type_body(ts_type: &TSType<'_>, source: &str) -> TypeBody {
+    match ts_type {
+        TSType::TSUnionType(union) => {
+            let members = union
+                .types
+                .iter()
+                .map(|t| lower_union_member(t, source))
+                .collect();
+            TypeBody::Union(members)
+        }
+        TSType::TSIntersectionType(inter) => {
+            let members = inter
+                .types
+                .iter()
+                .map(|t| lower_union_member(t, source))
+                .collect();
+            TypeBody::Intersection(members)
+        }
+        TSType::TSTypeLiteral(lit) => {
+            let (fields, _methods) = lower_interface_members(&lit.members, source, None);
+            TypeBody::Object { fields }
+        }
+        TSType::TSTupleType(tuple) => {
+            let elements = tuple
+                .element_types
+                .iter()
+                .map(|elem| {
+                    let sp = elem.span();
+                    source[sp.start as usize..sp.end as usize].to_string()
+                })
+                .collect();
+            TypeBody::Tuple(elements)
+        }
+        _ => {
+            let sp = ts_type.span();
+            TypeBody::Other(source[sp.start as usize..sp.end as usize].to_string())
+        }
+    }
+}
+
+pub fn lower_functions(
+    program: &Program<'_>,
     source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> (Vec<InterfaceFieldIR>, Vec<InterfaceMethodIR>) {
-    let mut fields = vec![];
-    let mut methods = vec![];
-
-    for elem in body {
-        match elem {
-            TsTypeElement::TsPropertySignature(prop) => {
-                let name = match &*prop.key {
-                    Expr::Ident(i) => i.sym.to_string(),
-                    _ => continue,
-                };
-
-                let ts_type = prop
-                    .type_ann
-                    .as_ref()
-                    .map(|t| snippet(source, t.type_ann.span()))
-                    .unwrap_or_else(|| "any".into());
-
-                // Collect decorators from leading JSDoc comments
-                let decorators = collect_leading_macro_directives(
-                    source,
-                    prop.span.lo.0 as usize,
-                    valid_annotations,
-                );
-
-                fields.push(InterfaceFieldIR {
-                    name,
-                    span: swc_span_to_ir(prop.span),
-                    ts_type,
-                    optional: prop.optional,
-                    readonly: prop.readonly,
-                    decorators,
-                });
+    _filter: Option<&HashSet<String>>,
+) -> Result<Vec<FunctionIR>, TsSynError> {
+    let mut functions = Vec::new();
+    for stmt in &program.body {
+        match stmt {
+            Statement::FunctionDeclaration(decl) => {
+                if let Some(func_ir) = lower_function(decl, source, false, false, None) {
+                    functions.push(func_ir);
+                }
             }
-            TsTypeElement::TsMethodSignature(meth) => {
-                let name = match &*meth.key {
-                    Expr::Ident(i) => i.sym.to_string(),
-                    _ => continue,
-                };
-
-                let method_src = snippet(source, meth.span);
-                let params_src = extract_params_from_source(&method_src);
-                let type_params_src = extract_type_params_from_source(&method_src, &name);
-
-                let return_type_src = meth
-                    .type_ann
-                    .as_ref()
-                    .map(|t| snippet(source, t.type_ann.span()).trim().to_string())
-                    .unwrap_or_else(|| "void".into());
-
-                let decorators = collect_leading_macro_directives(
-                    source,
-                    meth.span.lo.0 as usize,
-                    valid_annotations,
-                );
-
-                methods.push(InterfaceMethodIR {
-                    name,
-                    span: swc_span_to_ir(meth.span),
-                    type_params_src,
-                    params_src,
-                    return_type_src,
-                    optional: meth.optional,
-                    decorators,
-                });
+            Statement::ExportDeclaration(decl) => {
+                if let Declaration::FunctionDeclaration(func_decl) = &decl.declaration
+                    && let Some(func_ir) =
+                        lower_function(func_decl, source, true, false, Some(decl.span))
+                {
+                    functions.push(func_ir);
+                }
+            }
+            Statement::ExportDefaultDeclaration(decl) => {
+                if let ExportDefaultDeclarationKind::FunctionDeclaration(func_decl) =
+                    &decl.declaration
+                    && let Some(func_ir) =
+                        lower_function(func_decl, source, true, true, Some(decl.span))
+                {
+                    functions.push(func_ir);
+                }
             }
             _ => {}
         }
     }
-
-    (fields, methods)
+    Ok(functions)
 }
 
-#[cfg(feature = "swc")]
-fn lower_members(
-    body: &[ClassMember],
+fn lower_function(
+    decl: &Function<'_>,
     source: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> (Vec<FieldIR>, Vec<MethodSigIR>) {
-    let mut fields = vec![];
-    let mut methods = vec![];
+    is_exported: bool,
+    is_default_export: bool,
+    export_span: Option<oxc::span::Span>,
+) -> Option<FunctionIR> {
+    let name = decl.id.as_ref()?.name.to_string();
 
-    for m in body {
-        match m {
-            ClassMember::ClassProp(p) => {
-                let name = match &p.key {
-                    PropName::Ident(i) => i.sym.to_string(),
-                    _ => continue,
-                };
+    let body = decl.body.as_ref()?;
 
-                let ts_type = p
-                    .type_ann
+    // Use the export statement span if present, otherwise the function's own span.
+    let outer_span = export_span.unwrap_or(decl.span);
+    let span = oxc_span_ir(outer_span);
+    let body_span = oxc_span_ir(body.span);
+
+    // Signature span: from the start of the outer span to just before the body's `{`.
+    let sig_end = body.span.start;
+    let signature_span = SpanIR::new(outer_span.start + 1, sig_end + 1);
+
+    let type_params = decl
+        .type_parameters
+        .as_ref()
+        .map(|tp| tp.params.iter().map(|p| p.name.to_string()).collect())
+        .unwrap_or_default();
+
+    let mut params = Vec::new();
+    for param in &decl.params.items {
+        let p_span = param.span;
+        let p_src = &source[p_span.start as usize..p_span.end as usize];
+
+        let is_rest = p_src.starts_with("...");
+
+        let (p_name, type_src, default_src, is_optional) = match &param.pattern {
+            BindingPattern::BindingIdentifier(ident) => {
+                let ts = param
+                    .type_annotation
                     .as_ref()
-                    .map(|t| snippet(source, t.type_ann.span()))
-                    .unwrap_or_else(|| "any".into());
-
-                let decorators = collect_leading_macro_directives(
-                    source,
-                    p.span.lo.0 as usize,
-                    valid_annotations,
-                );
-
-                fields.push(FieldIR {
-                    name,
-                    span: swc_span_to_ir(p.span),
-                    ts_type,
-                    type_ann: p.type_ann.as_ref().map(|ann| ann.type_ann.clone()),
-                    optional: p.is_optional, // Changed from p.optional
-                    readonly: p.readonly,
-                    visibility: lower_visibility(p.accessibility),
-                    decorators,
-                    prop_ast: Some(p.clone()),
-                });
+                    .map(|ann| {
+                        let sp = ann.type_annotation.span();
+                        source[sp.start as usize..sp.end as usize].to_string()
+                    })
+                    .unwrap_or_default();
+                (ident.name.to_string(), ts, None, param.optional)
             }
-            ClassMember::Method(meth) => {
-                let name = match &meth.key {
-                    PropName::Ident(i) => i.sym.to_string(),
-                    _ => continue,
+            BindingPattern::AssignmentPattern(assign) => {
+                let id_name = match &assign.left {
+                    BindingPattern::BindingIdentifier(ident) => ident.name.to_string(),
+                    _ => p_src.to_string(),
                 };
-
-                let method_span = if let Some(body) = &meth.function.body {
-                    Span::new(meth.span.lo, body.span.hi)
-                } else {
-                    meth.span
+                let ts = param
+                    .type_annotation
+                    .as_ref()
+                    .map(|ann| {
+                        let sp = ann.type_annotation.span();
+                        source[sp.start as usize..sp.end as usize].to_string()
+                    })
+                    .unwrap_or_default();
+                let default = {
+                    let sp = assign.right.span();
+                    source[sp.start as usize..sp.end as usize].to_string()
                 };
-
-                // Extract parameters and type parameters from method source
-                let method_src = snippet(source, meth.span);
-                let params_src = extract_params_from_source(&method_src);
-                let type_params_src = extract_type_params_from_source(&method_src, &name);
-
-                // Adjust span to find the actual start (handles modifiers like public, static, async)
-                let adjusted_span = adjust_method_span(
-                    source,
-                    method_span,
-                    &name,
-                    meth.is_static,
-                    meth.accessibility,
-                );
-
-                let (method_body_span, method_body_src) = if let Some(body) = &meth.function.body {
-                    let bspan = swc_span_to_ir(body.span);
-                    let inner_start = body.span.lo.0 as usize;
-                    let inner_end = body.span.hi.0 as usize;
-                    let src = if inner_end > inner_start + 1 {
-                        source
-                            .get(inner_start..inner_end - 1)
-                            .unwrap_or("")
-                            .to_string()
-                    } else {
-                        String::new()
-                    };
-                    (Some(bspan), Some(src))
-                } else {
-                    (None, None)
-                };
-
-                methods.push(MethodSigIR {
-                    name,
-                    span: swc_span_to_ir(adjusted_span),
-                    type_params_src,
-                    params_src,
-                    return_type_src: meth
-                        .function
-                        .return_type
-                        .as_ref()
-                        .map(|t| snippet(source, t.span()).trim().to_string())
-                        .unwrap_or_else(|| "void".into()),
-                    is_static: meth.is_static,
-                    is_async: meth.function.is_async,
-                    visibility: lower_visibility(meth.accessibility),
-                    decorators: Vec::new(),
-                    body_span: method_body_span,
-                    body_src: method_body_src,
-                    member_ast: Some(MethodAstIR::Method(meth.clone())),
-                });
+                (id_name, ts, Some(default), false)
             }
-            ClassMember::Constructor(c) => {
-                let constructor_span = if let Some(body) = &c.body {
-                    Span::new(c.span.lo, body.span.hi)
-                } else {
-                    c.span
-                };
-
-                // Extract parameters from constructor source
-                let constructor_src = snippet(source, c.span);
-                let params_src = extract_params_from_source(&constructor_src);
-
-                // Adjust span to find the actual start (handles modifiers like private, protected, public)
-                let adjusted_span =
-                    adjust_constructor_span(source, constructor_span, c.accessibility);
-
-                let (ctor_body_span, ctor_body_src) = if let Some(body) = &c.body {
-                    let bspan = swc_span_to_ir(body.span);
-                    let inner_start = body.span.lo.0 as usize;
-                    let inner_end = body.span.hi.0 as usize;
-                    let src = if inner_end > inner_start + 1 {
-                        source
-                            .get(inner_start..inner_end - 1)
-                            .unwrap_or("")
-                            .to_string()
-                    } else {
-                        String::new()
-                    };
-                    (Some(bspan), Some(src))
-                } else {
-                    (None, None)
-                };
-
-                methods.push(MethodSigIR {
-                    name: "constructor".into(),
-                    span: swc_span_to_ir(adjusted_span),
-                    type_params_src: String::new(),
-                    params_src,
-                    return_type_src: String::new(),
-                    is_static: false,
-                    is_async: false,
-                    visibility: lower_visibility(c.accessibility),
-                    decorators: vec![],
-                    body_span: ctor_body_span,
-                    body_src: ctor_body_src,
-                    member_ast: Some(MethodAstIR::Constructor(c.clone())),
-                });
-            }
-            _ => {}
-        }
-    }
-
-    (fields, methods)
-}
-
-fn collect_leading_macro_directives(
-    source: &str,
-    target_start: usize,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Vec<DecoratorIR> {
-    // target_start is 1-based (from SWC BytePos).
-    let mut all_directives = Vec::new();
-    let mut block = crate::jsdoc::adjacent_jsdoc(source, target_start.saturating_sub(1));
-
-    // Walk back over every JSDoc block stacked directly above the target.
-    while let Some(current) = block {
-        let comment_body = current.body(source);
-        let directives = if crate::jsdoc::is_macro_import_comment(comment_body) {
-            Vec::new()
-        } else {
-            parse_all_macro_directives(comment_body, valid_annotations)
+            _ => (p_src.to_string(), String::new(), None, false),
         };
 
-        for (name, args_src) in directives {
-            let final_span_ir = adjust_decorator_span(
-                swc_core::common::Span::new(
-                    swc_core::common::BytePos(current.start as u32 + 1),
-                    swc_core::common::BytePos(current.end as u32 + 1),
-                ),
-                source,
-            );
-
-            all_directives.push(DecoratorIR {
-                name,
-                args_src,
-                span: final_span_ir,
-                node: None,
-            });
-        }
-
-        block = crate::jsdoc::stacked_jsdoc_above(source, current);
+        params.push(FunctionParamIR {
+            name: p_name,
+            span: oxc_span_ir(p_span),
+            type_src,
+            default_src,
+            is_optional,
+            is_rest,
+            decorators: vec![],
+        });
     }
 
-    all_directives
+    let return_type_src = decl
+        .return_type
+        .as_ref()
+        .map(|ann| {
+            let sp = ann.type_annotation.span();
+            source[sp.start as usize..sp.end as usize].to_string()
+        })
+        .unwrap_or_default();
+
+    // Body source: between the braces (exclusive).
+    let inner_start = body.span.start as usize + 1;
+    let inner_end = body.span.end as usize - 1;
+    let body_src = source.get(inner_start..inner_end).unwrap_or("").to_string();
+
+    // Collect leading JSDoc decorators (no filter — preserve all decorators).
+    let decorator_start = export_span
+        .map(|s| s.start as usize)
+        .unwrap_or(decl.span.start as usize);
+    let decorators = collect_leading_decorators(source, decorator_start, None);
+
+    Some(FunctionIR {
+        name,
+        span,
+        body_span,
+        signature_span,
+        is_async: decl.r#async,
+        is_generator: decl.generator,
+        is_exported,
+        is_default_export,
+        type_params,
+        params,
+        return_type_src,
+        body_src,
+        decorators,
+    })
 }
 
-/// Parse ALL macro directives from a JSDoc comment body.
-/// Returns a Vec of (name, args) tuples for each @directive or @directive(...) found.
-/// Supports multiple directives on the same line: `@derive(X) @default(Y)`
-/// Also supports directives without parens: `@default` (treated as empty args)
-/// Supports multiline decorator arguments: `@overview({ ... \n ... })`
-pub(crate) fn parse_all_macro_directives(
-    comment_body: &str,
-    valid_annotations: Option<&HashSet<String>>,
-) -> Vec<(String, String)> {
-    crate::jsdoc::parse_all_macro_directives(comment_body, valid_annotations)
-}
-
-fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
-    let mut ir = swc_span_to_ir(span);
-    let bytes = source.as_bytes();
-    let mut start = ir.start.saturating_sub(1) as usize;
-    let mut end = ir.end.saturating_sub(1) as usize;
-
-    // Extend backward to include '@' symbol and any leading whitespace on the same line
-    if start > 0 && bytes[start - 1] == b'@' {
-        start -= 1;
-        // Continue backward to include leading whitespace, but stop at newline
-        while start > 0 && (bytes[start - 1] == b' ' || bytes[start - 1] == b'\t') {
-            start -= 1;
-        }
-        ir.start = start as u32;
-    }
-
-    // Extend forward to include only one trailing newline character if it exists
-    if end < bytes.len() && bytes[end] == b'\n' {
-        end += 1; // Include the newline
-        ir.end = end as u32;
-    }
-    ir
-}
-
-#[cfg(feature = "swc")]
-fn lower_visibility(acc: Option<Accessibility>) -> Visibility {
-    match acc {
-        Some(Accessibility::Public) => Visibility::Public,
-        Some(Accessibility::Protected) => Visibility::Protected,
-        Some(Accessibility::Private) => Visibility::Private,
-        None => Visibility::Public,
-    }
-}
-
-#[cfg(feature = "swc")]
-fn swc_span_to_ir(sp: Span) -> SpanIR {
-    SpanIR::new(sp.lo.0, sp.hi.0)
-}
-
-#[cfg(feature = "swc")]
-fn snippet(source: &str, sp: Span) -> String {
-    if sp.is_dummy() {
-        return String::new();
-    }
-    // SWC BytePos is 1-based (each file is parsed with its own SourceMap).
-    // Subtract 1 to map to 0-based string index.
-    let lo = (sp.lo.0 as usize).saturating_sub(1);
-    let hi = (sp.hi.0 as usize).saturating_sub(1);
-
-    if lo >= source.len() {
-        return String::new();
-    }
-    let end = std::cmp::min(hi, source.len());
-
-    source.get(lo..end).unwrap_or("").to_string()
-}
-
-#[cfg(feature = "swc")]
-fn extract_params_from_source(method_src: &str) -> String {
-    // Find the first '(' which starts the parameter list
-    let Some(open) = method_src.find('(') else {
-        return String::new();
-    };
-
-    // Now find the matching closing ')', accounting for nested parentheses
-    let chars: Vec<char> = method_src.chars().collect();
-    let mut depth = 0;
-    let mut close_pos = None;
-
-    for (i, &ch) in chars.iter().enumerate().skip(open) {
-        match ch {
-            '(' => depth += 1,
-            ')' => {
-                depth -= 1;
-                if depth == 0 {
-                    close_pos = Some(i);
-                    break;
-                }
-            }
-            _ => {}
-        }
-    }
-
-    if let Some(close) = close_pos
-        && open < close
-    {
-        return chars[open + 1..close].iter().collect();
-    }
-
-    String::new()
-}
-
-#[cfg(feature = "swc")]
-fn extract_type_params_from_source(method_src: &str, method_name: &str) -> String {
-    // Find the method name in the source
-    let Some(name_pos) = method_src.find(method_name) else {
-        return String::new();
-    };
-
-    // Look for '<' after the method name
-    let after_name = &method_src[name_pos + method_name.len()..];
-    let chars: Vec<char> = after_name.chars().collect();
-
-    // Skip whitespace
-    let mut i = 0;
-    while i < chars.len() && chars[i].is_whitespace() {
-        i += 1;
-    }
-
-    // Check if we have a '<'
-    if i >= chars.len() || chars[i] != '<' {
-        return String::new();
-    }
-
-    let start = i;
-    i += 1; // skip the '<'
-    let mut depth = 1;
-
-    // Find matching '>'
-    while i < chars.len() && depth > 0 {
-        match chars[i] {
-            '<' => depth += 1,
-            '>' => depth -= 1,
-            _ => {}
-        }
-        i += 1;
-    }
-
-    if depth == 0 {
-        return chars[start..i].iter().collect();
-    }
-
-    String::new()
-}
-
-#[cfg(feature = "swc")]
-fn adjust_constructor_span(source: &str, span: Span, accessibility: Option<Accessibility>) -> Span {
-    let search_start = span.lo.0 as usize;
-    let bytes = source.as_bytes();
-
-    // Build list of possible keywords
-    let mut keywords = vec!["constructor"];
-    match accessibility {
-        Some(Accessibility::Public) => keywords.insert(0, "public"),
-        Some(Accessibility::Protected) => keywords.insert(0, "protected"),
-        Some(Accessibility::Private) => keywords.insert(0, "private"),
-        None => {}
-    }
-
-    // Search backwards for the earliest matching keyword
-    let mut earliest_start = search_start;
-
-    for keyword in &keywords {
-        let keyword_bytes = keyword.as_bytes();
-        let search_region_start = search_start.saturating_sub(keyword.len() + 20);
-        let search_region_end = (search_start + keyword.len()).min(source.len());
-
-        if search_region_start >= search_region_end {
-            continue;
-        }
-
-        let search_region = &bytes[search_region_start..search_region_end];
-
-        for i in 0..search_region.len() {
-            if i + keyword_bytes.len() <= search_region.len() {
-                let candidate = &search_region[i..i + keyword_bytes.len()];
-                if candidate == keyword_bytes {
-                    let abs_pos = search_region_start + i;
-                    if abs_pos < earliest_start {
-                        let is_word_boundary_before = abs_pos == 0
-                            || !bytes[abs_pos - 1].is_ascii_alphanumeric()
-                                && bytes[abs_pos - 1] != b'_';
-                        let is_word_boundary_after = abs_pos + keyword_bytes.len() >= bytes.len()
-                            || !bytes[abs_pos + keyword_bytes.len()].is_ascii_alphanumeric()
-                                && bytes[abs_pos + keyword_bytes.len()] != b'_';
-
-                        if is_word_boundary_before && is_word_boundary_after {
-                            earliest_start = abs_pos;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Span::new(swc_core::common::BytePos(earliest_start as u32), span.hi)
-}
-
-#[cfg(feature = "swc")]
-fn adjust_method_span(
+pub fn lower_targets(
+    program: &Program<'_>,
     source: &str,
-    span: Span,
-    method_name: &str,
-    is_static: bool,
-    accessibility: Option<Accessibility>,
-) -> Span {
-    let search_start = span.lo.0 as usize;
-    let bytes = source.as_bytes();
-
-    // Build list of possible keywords that might precede the method name
-    let mut keywords = vec![method_name];
-    if is_static {
-        keywords.insert(0, "static");
+    filter: Option<&HashSet<String>>,
+) -> Result<Vec<LoweredTarget>, TsSynError> {
+    let mut targets = Vec::new();
+    for class in lower_classes(program, source, filter)? {
+        targets.push(LoweredTarget::Class(class));
     }
-    match accessibility {
-        Some(Accessibility::Public) => keywords.insert(0, "public"),
-        Some(Accessibility::Protected) => keywords.insert(0, "protected"),
-        Some(Accessibility::Private) => keywords.insert(0, "private"),
-        None => {}
+    for iface in lower_interfaces(program, source, filter)? {
+        targets.push(LoweredTarget::Interface(iface));
     }
-    // Also check for async keyword
-    keywords.push("async");
-
-    // Search backwards for the earliest matching keyword
-    let mut earliest_start = search_start;
-
-    for keyword in &keywords {
-        let keyword_bytes = keyword.as_bytes();
-        let search_region_start = search_start.saturating_sub(keyword.len() + 20); // Extra buffer for whitespace
-        let search_region_end = (search_start + keyword.len()).min(source.len());
-
-        if search_region_start >= search_region_end {
-            continue;
-        }
-
-        let search_region = &bytes[search_region_start..search_region_end];
-
-        // Find all occurrences of this keyword
-        for i in 0..search_region.len() {
-            if i + keyword_bytes.len() <= search_region.len() {
-                let candidate = &search_region[i..i + keyword_bytes.len()];
-                if candidate == keyword_bytes {
-                    let abs_pos = search_region_start + i;
-                    if abs_pos < earliest_start {
-                        // Verify it's a whole word (not part of a larger identifier)
-                        let is_word_boundary_before = abs_pos == 0
-                            || !bytes[abs_pos - 1].is_ascii_alphanumeric()
-                                && bytes[abs_pos - 1] != b'_';
-                        let is_word_boundary_after = abs_pos + keyword_bytes.len() >= bytes.len()
-                            || !bytes[abs_pos + keyword_bytes.len()].is_ascii_alphanumeric()
-                                && bytes[abs_pos + keyword_bytes.len()] != b'_';
-
-                        if is_word_boundary_before && is_word_boundary_after {
-                            earliest_start = abs_pos;
-                        }
-                    }
-                }
-            }
-        }
+    for e in lower_enums(program, source, filter)? {
+        targets.push(LoweredTarget::Enum(e));
     }
-
-    Span::new(swc_core::common::BytePos(earliest_start as u32), span.hi)
+    for ta in lower_type_aliases(program, source, filter)? {
+        targets.push(LoweredTarget::TypeAlias(ta));
+    }
+    for func in lower_functions(program, source, filter)? {
+        targets.push(LoweredTarget::Function(func));
+    }
+    Ok(targets)
 }
 
-#[cfg(not(feature = "swc"))]
-pub fn lower_classes(
-    _module: &(),
-    _source: &str,
-    _valid_annotations: Option<&HashSet<String>>,
-) -> Result<Vec<ClassIR>, TsSynError> {
-    Err(TsSynError::Unsupported("swc feature disabled".into()))
+/// Collect names of exported declarations from a parsed Oxc program.
+pub fn collect_exported_names(program: &Program<'_>) -> HashSet<String> {
+    let mut names = HashSet::new();
+
+    for stmt in &program.body {
+        match stmt {
+            Statement::ExportDeclaration(decl) => match &decl.declaration {
+                Declaration::ClassDeclaration(c) => {
+                    if let Some(id) = &c.id {
+                        names.insert(id.name.to_string());
+                    }
+                }
+                Declaration::TSInterfaceDeclaration(i) => {
+                    names.insert(i.id.name.to_string());
+                }
+                Declaration::TSEnumDeclaration(e) => {
+                    names.insert(e.id.name.to_string());
+                }
+                Declaration::TSTypeAliasDeclaration(t) => {
+                    names.insert(t.id.name.to_string());
+                }
+                _ => {}
+            },
+            Statement::ExportNamedDeclaration(decl) => {
+                // Handle export { foo, bar }
+                for spec in &decl.specifiers {
+                    names.insert(spec.local.name().to_string());
+                }
+            }
+            Statement::ExportFromDeclaration(decl) => {
+                for spec in &decl.specifiers {
+                    names.insert(spec.local.name().to_string());
+                }
+            }
+            Statement::ExportDefaultDeclaration(decl) => {
+                if let ExportDefaultDeclarationKind::ClassDeclaration(c) = &decl.declaration
+                    && let Some(id) = &c.id
+                {
+                    names.insert(id.name.to_string());
+                }
+            }
+            _ => {}
+        }
+    }
+
+    names
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::abi::ir::type_alias::TypeBody;
-    #[cfg(feature = "swc")]
-    use swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
-    #[cfg(feature = "swc")]
-    use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+    use oxc::allocator::Allocator;
+    use oxc::parser::Parser;
+    use oxc::span::SourceType;
 
-    #[cfg(feature = "swc")]
-    #[test]
-    fn test_regular_method_params() {
-        GLOBALS.set(&Globals::new(), || {
-            let source =
-                "class User { getName(prefix: string, suffix: string): string { return ''; } }";
-            let module = parse_module(source);
-            let classes = lower_classes(&module, source, None).expect("lowering to succeed");
-            let class = classes.first().expect("class");
-            let method = class
-                .methods
-                .iter()
-                .find(|m| m.name == "getName")
-                .expect("getName method");
-
-            // The params_src should include the commas and spacing
-            assert!(method.params_src.contains("prefix: string"));
-            assert!(method.params_src.contains("suffix: string"));
-        });
+    fn parse<'a>(allocator: &'a Allocator, source: &'a str) -> Program<'a> {
+        let parsed = Parser::new(allocator, source, SourceType::ts()).parse();
+        assert!(parsed.diagnostics.is_empty(), "{:?}", parsed.diagnostics);
+        parsed.program
     }
 
-    #[cfg(feature = "swc")]
-    #[test]
-    fn test_method_with_modifiers() {
-        GLOBALS.set(&Globals::new(), || {
-            let source =
-                "class User { public static async getUser(): Promise<User> { return null!; } }";
-            let module = parse_module(source);
-            let classes = lower_classes(&module, source, None).expect("lowering to succeed");
-            let class = classes.first().expect("class");
-            let method = class.methods.first().expect("method");
-
-            // Check if the span starts at the correct position
-            assert!(
-                source[method.span.start as usize..].starts_with("public")
-                    || source[method.span.start as usize..].starts_with("getUser"),
-                "Method span should start at modifier or method name, got: {:?}",
-                &source[method.span.start as usize..method.span.start as usize + 10]
-            );
-        });
+    /// The source text a 1-based `SpanIR` covers.
+    fn text_at(source: &str, span: SpanIR) -> &str {
+        &source[span.start as usize - 1..span.end as usize - 1]
     }
 
-    #[cfg(feature = "swc")]
-    fn parse_module(source: &str) -> Module {
-        let cm: Lrc<SourceMap> = Default::default();
-        let fm = cm.new_source_file(
-            FileName::Custom("test.ts".into()).into(),
-            source.to_string(),
+    fn single_class(source: &str) -> ClassIR {
+        let allocator = Allocator::default();
+        let classes =
+            lower_classes(&parse(&allocator, source), source, None).expect("classes should lower");
+        classes.into_iter().next().expect("source declares a class")
+    }
+
+    fn single_interface(source: &str) -> InterfaceIR {
+        let allocator = Allocator::default();
+        let interfaces = lower_interfaces(&parse(&allocator, source), source, None)
+            .expect("interfaces should lower");
+        interfaces
+            .into_iter()
+            .next()
+            .expect("source declares an interface")
+    }
+
+    fn single_type_alias(source: &str) -> TypeAliasIR {
+        let allocator = Allocator::default();
+        let aliases = lower_type_aliases(&parse(&allocator, source), source, None)
+            .expect("type aliases should lower");
+        aliases
+            .into_iter()
+            .next()
+            .expect("source declares a type alias")
+    }
+
+    #[test]
+    fn regular_method_params() {
+        let class = single_class(
+            "class User { getName(prefix: string, suffix: string): string { return ''; } }",
         );
-        let lexer = Lexer::new(
-            Syntax::Typescript(TsSyntax {
-                tsx: false,
-                decorators: true,
-                ..Default::default()
-            }),
-            Default::default(),
-            StringInput::from(&*fm),
-            None,
-        );
-        let mut parser = Parser::new_from(lexer);
-        parser.parse_module().expect("module to parse")
+        let method = class
+            .methods
+            .iter()
+            .find(|method| method.name == "getName")
+            .expect("getName method");
+
+        assert!(method.params_src.contains("prefix: string"));
+        assert!(method.params_src.contains("suffix: string"));
     }
 
-    #[cfg(feature = "swc")]
     #[test]
-    fn class_decorator_span_captures_at_symbol() {
-        GLOBALS.set(&Globals::new(), || {
-            let source = r#"
+    fn method_span_starts_at_modifier() {
+        let source =
+            "class User { public static async getUser(): Promise<User> { return null!; } }";
+        let class = single_class(source);
+        let method = class.methods.first().expect("method");
+
+        assert!(
+            text_at(source, method.span).starts_with("public static async getUser"),
+            "method span should start at its first modifier, got {:?}",
+            text_at(source, method.span)
+        );
+    }
+
+    #[test]
+    fn class_decorator_span_covers_the_directive() {
+        let source = r#"
             /** @derive(Debug) */
             class User {}
             "#;
-            let module = parse_module(source);
-            let classes = lower_classes(&module, source, None).expect("lowering to succeed");
-            let class = classes.first().expect("class");
-            let decorator = class.decorators.first().expect("decorator");
-            let snippet =
-                &source.as_bytes()[decorator.span.start as usize..decorator.span.end as usize];
-            let snippet_str = std::str::from_utf8(snippet).unwrap();
+        let class = single_class(source);
+        let decorator = class.decorators.first().expect("decorator");
 
-            // The span now includes leading whitespace for clean deletion
-            assert!(
-                snippet_str.contains("@derive"),
-                "decorator span should include '@derive', got {:?}",
-                snippet_str
-            );
-
-            // Verify it includes the trailing newline and next line's indentation
-            assert!(
-                snippet_str.contains('\n'),
-                "decorator span should include trailing newline for clean deletion, got {:?}",
-                snippet_str
-            );
-        });
-    }
-
-    #[cfg(feature = "swc")]
-    #[test]
-    fn parse_all_macro_directives_single_line() {
-        let comment_body = " @derive(Default, Deserialize) ";
-        let directives = parse_all_macro_directives(comment_body, None);
-        assert_eq!(directives.len(), 1);
-        assert_eq!(directives[0].0, "Derive");
-        assert_eq!(directives[0].1, "Default, Deserialize");
-    }
-
-    #[cfg(feature = "swc")]
-    #[test]
-    fn parse_all_macro_directives_multiline() {
-        let comment_body = r#"
-         * @derive(Default, Deserialize)
-         * @default(Created.defaultValue())
-         "#;
-        let directives = parse_all_macro_directives(comment_body, None);
-        assert_eq!(
-            directives.len(),
-            2,
-            "Expected 2 directives, got {:?}",
-            directives
+        assert_eq!(decorator.name, "Derive");
+        assert!(
+            text_at(source, decorator.span).contains("@derive"),
+            "decorator span should include '@derive', got {:?}",
+            text_at(source, decorator.span)
         );
-        assert_eq!(directives[0].0, "Derive");
-        assert_eq!(directives[0].1, "Default, Deserialize");
-        assert_eq!(directives[1].0, "default");
-        assert_eq!(directives[1].1, "Created.defaultValue()");
     }
 
-    #[cfg(feature = "swc")]
-    #[test]
-    fn parse_all_macro_directives_same_line() {
-        let comment_body = " @derive(Default) @default(Foo.defaultValue()) ";
-        let directives = parse_all_macro_directives(comment_body, None);
-        // Should parse both directives on the same line
-        assert_eq!(
-            directives.len(),
-            2,
-            "Expected 2 directives on same line, got {:?}",
-            directives
-        );
-        assert_eq!(directives[0].0, "Derive");
-        assert_eq!(directives[0].1, "Default");
-        assert_eq!(directives[1].0, "default");
-        assert_eq!(directives[1].1, "Foo.defaultValue()");
-    }
-
-    #[cfg(feature = "swc")]
     #[test]
     fn import_macro_comment_not_parsed_as_decorator() {
-        GLOBALS.set(&Globals::new(), || {
-            // An import macro comment preceding a @derive comment should not
-            // produce a spurious "playground" decorator from "@playground/macro".
-            let source = r#"/** import macro {Gigaform} from "@playground/macro"; */
+        // The `@playground/macro` inside an import-macro comment is a module
+        // path, not a `@playground` directive.
+        let iface = single_interface(
+            r#"/** import macro {Gigaform} from "@playground/macro"; */
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface PhoneNumber {
     label: string;
     number: string;
-}"#;
-            let module = parse_module(source);
-            let interfaces = lower_interfaces(&module, source, None).expect("lowering to succeed");
-            let iface = interfaces.first().expect("interface");
+}"#,
+        );
 
-            // Should have exactly 1 decorator: Derive
-            assert_eq!(
-                iface.decorators.len(),
-                1,
-                "Expected exactly 1 decorator (Derive), got {:?}",
-                iface.decorators
-            );
-            assert_eq!(iface.decorators[0].name, "Derive");
-            assert!(
-                iface.decorators[0].args_src.contains("Gigaform"),
-                "Derive args should contain Gigaform"
-            );
-
-            // Verify no spurious "playground" decorator
-            assert!(
-                !iface.decorators.iter().any(|d| d.name == "playground"),
-                "Should not have a spurious 'playground' decorator from import macro comment"
-            );
-        });
+        assert_eq!(
+            iface.decorators.len(),
+            1,
+            "Expected exactly 1 decorator (Derive), got {:?}",
+            iface.decorators
+        );
+        assert_eq!(iface.decorators[0].name, "Derive");
+        assert!(iface.decorators[0].args_src.contains("Gigaform"));
     }
 
-    #[cfg(feature = "swc")]
     #[test]
     fn type_alias_with_multiple_decorators() {
-        GLOBALS.set(&Globals::new(), || {
-            // Note: No leading newline, comment directly at start
-            let source = r#"/**
+        let alias = single_type_alias(
+            r#"/**
  * @derive(Default, Deserialize)
  * @default(DailyRecurrenceRule.defaultValue())
  */
-export type Interval = DailyRecurrenceRule | WeeklyRecurrenceRule;"#;
-            let module = parse_module(source);
-            let type_aliases =
-                lower_type_aliases(&module, source, None).expect("lowering to succeed");
-            let alias = type_aliases.first().expect("type alias");
+export type Interval = DailyRecurrenceRule | WeeklyRecurrenceRule;"#,
+        );
 
-            assert_eq!(alias.name, "Interval");
-            assert!(
-                alias.decorators.len() >= 2,
-                "Expected at least 2 decorators, got {:?}",
-                alias.decorators
-            );
-
-            // Check @derive is present
-            let derive = alias.decorators.iter().find(|d| d.name == "Derive");
-            assert!(derive.is_some(), "Expected @derive decorator");
-
-            // Check @default is present
-            let default = alias.decorators.iter().find(|d| d.name == "default");
-            assert!(
-                default.is_some(),
-                "Expected @default decorator, got decorators: {:?}",
-                alias.decorators
-            );
-            if let Some(d) = default {
-                assert_eq!(d.args_src, "DailyRecurrenceRule.defaultValue()");
-            }
-        });
+        assert_eq!(alias.name, "Interval");
+        assert!(
+            alias
+                .decorators
+                .iter()
+                .any(|decorator| decorator.name == "Derive"),
+            "Expected @derive decorator, got {:?}",
+            alias.decorators
+        );
+        let default = alias
+            .decorators
+            .iter()
+            .find(|decorator| decorator.name == "default")
+            .unwrap_or_else(|| panic!("Expected @default decorator, got {:?}", alias.decorators));
+        assert_eq!(default.args_src, "DailyRecurrenceRule.defaultValue()");
     }
 
-    #[cfg(feature = "swc")]
     #[test]
     fn union_variant_with_default_decorator() {
-        use crate::abi::ir::type_alias::TypeBody;
-
-        GLOBALS.set(&Globals::new(), || {
-            let source = r#"/** @derive(Default) */
+        let alias = single_type_alias(
+            r#"/** @derive(Default) */
 export type UnionWithDefault =
   | /** @default */ VariantA
-  | VariantB;"#;
-            let module = parse_module(source);
-            let type_aliases =
-                lower_type_aliases(&module, source, None).expect("lowering to succeed");
-            let alias = type_aliases.first().expect("type alias");
+  | VariantB;"#,
+        );
 
-            assert_eq!(alias.name, "UnionWithDefault");
-
-            // Check that we have a union type
-            if let TypeBody::Union(members) = &alias.body {
-                assert_eq!(members.len(), 2, "Should have 2 union members");
-
-                // First member (VariantA) should have @default decorator
-                let first = &members[0];
-                eprintln!("First member: {:?}", first);
-                eprintln!("First member decorators: {:?}", first.decorators);
-
-                assert!(
-                    first.has_decorator("default"),
-                    "First variant should have @default. Decorators: {:?}",
-                    first.decorators
-                );
-
-                // Second member (VariantB) should NOT have @default
-                let second = &members[1];
-                assert!(
-                    !second.has_decorator("default"),
-                    "Second variant should NOT have @default"
-                );
-            } else {
-                panic!("Expected Union type body, got {:?}", alias.body);
-            }
-        });
+        assert_eq!(alias.name, "UnionWithDefault");
+        let TypeBody::Union(members) = &alias.body else {
+            panic!("Expected Union type body, got {:?}", alias.body);
+        };
+        assert_eq!(members.len(), 2, "Should have 2 union members");
+        assert!(
+            members[0].has_decorator("default"),
+            "First variant should have @default. Decorators: {:?}",
+            members[0].decorators
+        );
+        assert!(
+            !members[1].has_decorator("default"),
+            "Second variant should NOT have @default"
+        );
     }
 
-    #[cfg(feature = "swc")]
     #[test]
     fn interface_field_jsdoc_decorators() {
-        GLOBALS.set(&Globals::new(), || {
-            let source = r#"
+        let iface = single_interface(
+            r#"
 interface UserProfile {
     /** @serde(email) */
     email: string;
@@ -1808,47 +982,32 @@ interface UserProfile {
     /** @serde(minLength(2), maxLength(50)) */
     username: string;
 }
-"#;
-            let module = parse_module(source);
-            let interfaces = lower_interfaces(&module, source, None).expect("lowering to succeed");
-            let iface = interfaces.first().expect("interface");
+"#,
+        );
 
-            assert_eq!(iface.name, "UserProfile");
-            assert_eq!(iface.fields.len(), 2, "Should have 2 fields");
-
-            // Check email field has @serde decorator
-            let email_field = iface
+        assert_eq!(iface.name, "UserProfile");
+        assert_eq!(iface.fields.len(), 2, "Should have 2 fields");
+        for name in ["email", "username"] {
+            let field = iface
                 .fields
                 .iter()
-                .find(|f| f.name == "email")
-                .expect("email field");
-            eprintln!("Email field decorators: {:?}", email_field.decorators);
+                .find(|field| field.name == name)
+                .unwrap_or_else(|| panic!("{name} field"));
             assert!(
-                email_field.decorators.iter().any(|d| d.name == "serde"),
-                "Email field should have @serde decorator. Got: {:?}",
-                email_field.decorators
+                field
+                    .decorators
+                    .iter()
+                    .any(|decorator| decorator.name == "serde"),
+                "{name} should have @serde decorator. Got: {:?}",
+                field.decorators
             );
-
-            // Check username field has @serde decorator
-            let username_field = iface
-                .fields
-                .iter()
-                .find(|f| f.name == "username")
-                .expect("username field");
-            eprintln!("Username field decorators: {:?}", username_field.decorators);
-            assert!(
-                username_field.decorators.iter().any(|d| d.name == "serde"),
-                "Username field should have @serde decorator. Got: {:?}",
-                username_field.decorators
-            );
-        });
+        }
     }
 
-    #[cfg(feature = "swc")]
     #[test]
     fn type_alias_object_field_jsdoc_decorators() {
-        GLOBALS.set(&Globals::new(), || {
-            let source = r#"
+        let alias = single_type_alias(
+            r#"
 type ContactInfo = {
     /** @serde(email) */
     primaryEmail: string;
@@ -1856,46 +1015,27 @@ type ContactInfo = {
     /** @serde(minLength(1)) */
     address: string;
 };
-"#;
-            let module = parse_module(source);
-            let type_aliases =
-                lower_type_aliases(&module, source, None).expect("lowering to succeed");
-            let alias = type_aliases.first().expect("type alias");
+"#,
+        );
 
-            assert_eq!(alias.name, "ContactInfo");
-
-            if let TypeBody::Object { fields } = &alias.body {
-                assert_eq!(fields.len(), 2, "Should have 2 fields");
-
-                // Check primaryEmail field has @serde decorator
-                let email_field = fields
+        assert_eq!(alias.name, "ContactInfo");
+        let TypeBody::Object { fields } = &alias.body else {
+            panic!("Expected Object type body, got {:?}", alias.body);
+        };
+        assert_eq!(fields.len(), 2, "Should have 2 fields");
+        for name in ["primaryEmail", "address"] {
+            let field = fields
+                .iter()
+                .find(|field| field.name == name)
+                .unwrap_or_else(|| panic!("{name} field"));
+            assert!(
+                field
+                    .decorators
                     .iter()
-                    .find(|f| f.name == "primaryEmail")
-                    .expect("primaryEmail field");
-                eprintln!(
-                    "primaryEmail field decorators: {:?}",
-                    email_field.decorators
-                );
-                assert!(
-                    email_field.decorators.iter().any(|d| d.name == "serde"),
-                    "primaryEmail field should have @serde decorator. Got: {:?}",
-                    email_field.decorators
-                );
-
-                // Check address field has @serde decorator
-                let address_field = fields
-                    .iter()
-                    .find(|f| f.name == "address")
-                    .expect("address field");
-                eprintln!("address field decorators: {:?}", address_field.decorators);
-                assert!(
-                    address_field.decorators.iter().any(|d| d.name == "serde"),
-                    "address field should have @serde decorator. Got: {:?}",
-                    address_field.decorators
-                );
-            } else {
-                panic!("Expected Object type body, got {:?}", alias.body);
-            }
-        });
+                    .any(|decorator| decorator.name == "serde"),
+                "{name} should have @serde decorator. Got: {:?}",
+                field.decorators
+            );
+        }
     }
 }

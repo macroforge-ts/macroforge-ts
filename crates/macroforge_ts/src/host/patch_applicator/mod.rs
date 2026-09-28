@@ -38,8 +38,8 @@
 //!
 //! ## Position Conventions
 //!
-//! All [`SpanIR`] positions in patches use **1-based** byte offsets (matching SWC's
-//! internal convention). The [`SourceMapping`] output uses **0-based** positions
+//! All [`SpanIR`] positions in patches use **1-based** byte offsets. The
+//! [`SourceMapping`] output uses **0-based** positions
 //! (matching the TypeScript language service API). The applicator converts between
 //! these conventions internally.
 //!

@@ -14,8 +14,7 @@
 //!
 //! The template source string is parsed as TypeScript at macro-expansion time,
 //! enabling native support for type annotations and TypeScript syntax. Parsing
-//! is backed by OXC with the default `oxc` feature; the SWC backend is
-//! available behind the opt-in `swc` feature.
+//! is backed by OXC.
 //!
 //! # Insert Positions
 //!
@@ -44,23 +43,11 @@ use self::{
     input::QuoteInput,
 };
 
-#[cfg(feature = "oxc")]
-use self::oxc_ret_type::parse_input_type;
-#[cfg(all(feature = "swc", not(feature = "oxc")))]
-use self::swc_ret_type::parse_input_type;
-
-#[cfg(all(feature = "swc", not(feature = "oxc")))]
-mod swc_ast;
-#[cfg(all(feature = "swc", not(feature = "oxc")))]
-mod swc_builder;
-#[cfg(all(feature = "swc", not(feature = "oxc")))]
-mod swc_ret_type;
-
-#[cfg(feature = "oxc")]
-mod oxc_ret_type;
+use self::ret_type::parse_input_type;
 
 mod ctxt;
 mod input;
+mod ret_type;
 mod template;
 
 /// Parse and generate code for a TypeScript quote.
@@ -80,28 +67,9 @@ mod template;
 /// ```
 #[proc_macro]
 pub fn ts_quote(input: TokenStream) -> TokenStream {
-    #[cfg(feature = "oxc")]
-    {
-        match ts_quote_impl(input.into()) {
-            Ok(tokens) => tokens.into(),
-            Err(err) => err.to_compile_error().into(),
-        }
-    }
-    #[cfg(all(not(feature = "oxc"), feature = "swc"))]
-    {
-        match ts_quote_impl(input.into()) {
-            Ok(tokens) => tokens.into(),
-            Err(err) => err.to_compile_error().into(),
-        }
-    }
-    #[cfg(all(not(feature = "swc"), not(feature = "oxc")))]
-    {
-        syn::Error::new(
-            proc_macro2::Span::call_site(),
-            "Either 'swc' or 'oxc' feature must be enabled for macroforge_ts_quote",
-        )
-        .to_compile_error()
-        .into()
+    match ts_quote_impl(input.into()) {
+        Ok(tokens) => tokens.into(),
+        Err(err) => err.to_compile_error().into(),
     }
 }
 
@@ -109,12 +77,10 @@ pub(crate) trait ToCode {
     fn to_code(&self, cx: &Ctx) -> syn::Expr;
 }
 
-#[cfg(any(feature = "swc", feature = "oxc"))]
 fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::TokenStream> {
     use std::iter::once;
 
     let QuoteInput {
-        #[cfg(feature = "oxc")]
         allocator,
         src,
         output_type,
@@ -125,21 +91,15 @@ fn ts_quote_impl(input: proc_macro2::TokenStream) -> syn::Result<proc_macro2::To
         syn::Error::new_spanned(&src, format!("failed to parse TypeScript: {err}"))
     })?;
 
-    let vars = vars.map(|v| v.1);
-
-    let (var_stmts, vars) = if let Some(vars) = vars {
-        prepare_vars(&ret_type, vars)?
-    } else {
-        Default::default()
+    let (var_stmts, vars) = match vars {
+        Some((_, vars)) => prepare_vars(vars)?,
+        None => Default::default(),
     };
     // The generated parse calls read the caller's arena through this binding.
-    #[cfg(feature = "oxc")]
-    let allocator_binding: Vec<syn::Stmt> = vec![syn::parse_quote! {
+    let allocator_binding: syn::Stmt = syn::parse_quote! {
         let __mf_quote_allocator = macroforge_ts::ts_syn::QuoteArena::quote_arena(&#allocator);
-    }];
-    #[cfg(not(feature = "oxc"))]
-    let allocator_binding: Vec<syn::Stmt> = Vec::new();
-    let stmts: Vec<syn::Stmt> = allocator_binding.into_iter().chain(var_stmts).collect();
+    };
+    let stmts: Vec<syn::Stmt> = once(allocator_binding).chain(var_stmts).collect();
 
     let cx = Ctx { vars };
 

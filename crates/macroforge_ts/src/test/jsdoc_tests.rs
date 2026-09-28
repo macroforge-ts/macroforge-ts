@@ -1,4 +1,5 @@
 use super::*;
+use crate::ts_syn::abi::DiagnosticLevel;
 
 #[test]
 fn test_inline_jsdoc_with_export_interface() {

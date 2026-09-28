@@ -11,7 +11,7 @@
 
 use oxc::ast::ast::TSTypeName;
 
-use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, PatchCode, SpanIR};
+use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, SpanIR};
 use crate::ts_syn::declarative::MacroKind;
 
 use super::expander::{ExpansionContext, expand_body_with_registry};
@@ -102,7 +102,7 @@ pub(super) fn try_rewrite_type_ref(
                 Ok(expanded) => {
                     visitor.output_mut().patches.push(Patch::Replace {
                         span: SpanIR::new(tr.span.start + 1, tr.span.end + 1),
-                        code: PatchCode::Text(expanded),
+                        code: expanded,
                         // Type-position macros never cluster (sharing
                         // modes are rejected for them), so the cluster
                         // component is always empty. Use the helper
@@ -264,7 +264,7 @@ fn try_dispatch_proc_type_ref(
     if let Some(tokens) = &result.tokens {
         visitor.output_mut().patches.push(Patch::Replace {
             span: type_span,
-            code: PatchCode::Text(tokens.clone()),
+            code: tokens.clone(),
             source_macro: Some(format!("${}", macro_name)),
         });
     }

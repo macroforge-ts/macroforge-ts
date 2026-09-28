@@ -1,7 +1,7 @@
 /**
  * Gigaform - Svelte 5 Form State Management
  *
- * Integrates with the Gigaform macro (@derive(Gigaform)) for compile-time
+ * Integrates with the Gigaform macro (@derive(Gigaform)) for build-time
  * generated form types and validation.
  *
  * @example

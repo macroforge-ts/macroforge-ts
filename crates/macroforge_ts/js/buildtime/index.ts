@@ -1,7 +1,7 @@
 /**
  * # Macroforge Buildtime Module
  *
- * Compile-time JavaScript evaluation — the Zig-comptime primitive for
+ * Build-time JavaScript evaluation — the Zig-comptime primitive for
  * TypeScript. Annotate a top-level `const` or `function` declaration with
  * `/** @buildtime *\/` and the macroforge build pass evaluates it in a
  * sandboxed JS context, serializes the result, and splices a plain TS
@@ -127,7 +127,7 @@ export interface Buildtime {
 }
 
 /**
- * The compile-time API. Inside a `@buildtime` declaration, calls
+ * The build-time API. Inside a `@buildtime` declaration, calls
  * against this object are routed to native implementations. At
  * runtime, every access throws — see module docs for why.
  */
@@ -190,7 +190,7 @@ export const buildtime: Buildtime = {
 
 /**
  * Re-export with the name `$buildtime` for users who prefer the macroforge
- * convention of prefixing compile-time identifiers with `$`. Points at the
+ * convention of prefixing build-time identifiers with `$`. Points at the
  * same object.
  */
 export const $buildtime: Buildtime = buildtime;

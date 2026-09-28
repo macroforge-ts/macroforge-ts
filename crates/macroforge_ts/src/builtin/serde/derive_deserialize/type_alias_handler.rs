@@ -1,9 +1,7 @@
+use crate::ast::{Expr, Ident};
 use crate::macros::ts_template;
-use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::DiagnosticCollector;
-use crate::ts_syn::{
-    DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_expr, ts_ident,
-};
+use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
 
 use convert_case::{Case, Casing};
 
@@ -219,22 +217,22 @@ fn handle_object_type_alias(
     let return_type_ident = ts_ident!(return_type.as_str());
     let success_result = wrap_success("resultOrRef");
     let success_result_expr =
-        parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
+        Expr::parse(&success_result).expect("deserialize success wrapper should parse");
     let error_root_ref = wrap_error(&format!(
         r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
         type_name
     ));
     let error_root_ref_expr =
-        parse_ts_expr(&error_root_ref).expect("deserialize root error wrapper should parse");
+        Expr::parse(&error_root_ref).expect("deserialize root error wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
     let error_from_catch_expr =
-        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
+        Expr::parse(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
-    let error_generic_message_expr = parse_ts_expr(&error_generic_message)
+    let error_generic_message_expr = Expr::parse(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");
     let error_from_ctx = wrap_error("__errors");
     let error_from_ctx_expr =
-        parse_ts_expr(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
+        Expr::parse(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
 
     // Build known keys array string
     let known_keys_list: Vec<_> = known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
@@ -872,10 +870,6 @@ fn handle_union_type_alias(
         .cloned()
         .collect();
 
-    // Literal types are now properly separated into `literals` via TypeMemberKind::Literal
-    // in the Oxc/SWC lowering, so this vec is unused but kept for template compatibility.
-    let literal_types: Vec<String> = Vec::new();
-
     // Generic type parameters (like T, U) - these are passed through as-is
     let generic_type_params: Vec<String> = type_refs
         .iter()
@@ -982,7 +976,7 @@ fn handle_union_type_alias(
         /// Set when the payload is a generated type instead: without dispatching
         /// to its deserializer the payload is kept verbatim, so decimals stay
         /// strings and dates stay ISO text inside the variant.
-        payload_deserialize_fn: Option<crate::swc_ecma_ast::Ident>,
+        payload_deserialize_fn: Option<crate::ast::Ident>,
     }
     let mut external_object_variants: Vec<ExternalObjectVariant> = Vec::new();
 
@@ -1338,22 +1332,22 @@ fn handle_union_type_alias(
     let full_type_ident = ts_ident!(full_type_name);
     let success_result = wrap_success("resultOrRef");
     let success_result_expr =
-        parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
+        Expr::parse(&success_result).expect("deserialize success wrapper should parse");
     let error_root_ref = wrap_error(&format!(
         r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
         type_name
     ));
     let error_root_ref_expr =
-        parse_ts_expr(&error_root_ref).expect("deserialize root error wrapper should parse");
+        Expr::parse(&error_root_ref).expect("deserialize root error wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
     let error_from_catch_expr =
-        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
+        Expr::parse(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
-    let error_generic_message_expr = parse_ts_expr(&error_generic_message)
+    let error_generic_message_expr = Expr::parse(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");
     let error_from_ctx = wrap_error("__errors");
     let error_from_ctx_expr =
-        parse_ts_expr(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
+        Expr::parse(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
 
     // If string is a valid variant, skip JSON.parse — the string IS the value.
     // Check foreign serializable types directly (their hasShape inline tells us
@@ -1376,9 +1370,9 @@ fn handle_union_type_alias(
             &foreign_types_config,
         );
     let data_init_expr = if has_string_variant {
-        parse_ts_expr("input").expect("data init expr should parse")
+        Expr::parse("input").expect("data init expr should parse")
     } else {
-        parse_ts_expr(r#"typeof input === "string" ? JSON.parse(input) : input"#)
+        Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
             .expect("data init expr should parse")
     };
 
@@ -1427,11 +1421,6 @@ fn handle_union_type_alias(
                                     return value as @{full_type_ident};
                                 }
                             {/for}
-                            {#for lit in &literal_types}
-                                if (value === @{lit}) {
-                                    return value as @{full_type_ident};
-                                }
-                            {/for}
 
                             throw new @{deserialize_error_expr}([{
                                 field: "_root",
@@ -1441,9 +1430,9 @@ fn handle_union_type_alias(
                             // Foreign types may not be objects — check hasShape first
                             {#for type_ref in &foreign_serializables}
                                 {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
-                                    {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                    {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
                                     {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                        {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                        {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                         if ((@{foreign_shape_expr})(value)) {
                                             return (@{foreign_deser_expr})(value) as @{full_type_ident};
                                         }
@@ -1461,7 +1450,7 @@ fn handle_union_type_alias(
                                         {#for ov in &external_object_variants}
                                             if (__variantName === "@{ov.name}") {
                                                 {#if let Some(ref deser_inline) = ov.inner_foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
+                                                    {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("inner foreign deserialize expr should parse")}
                                                     return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
                                                 {:else}
                                                     {#if let Some(ref payload_deser_fn) = ov.payload_deserialize_fn}
@@ -1480,7 +1469,7 @@ fn handle_union_type_alias(
                                         {/for}
                                         {#for type_ref in &foreign_serializables}
                                             {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                                 if (__variantName === "@{type_ref.full_type}") {
                                                     return (@{foreign_deser_expr})(__inner) as @{full_type_ident};
                                                 }
@@ -1519,7 +1508,7 @@ fn handle_union_type_alias(
                                         {/for}
                                         {#for type_ref in &foreign_serializables}
                                             {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                                 if (__typeName === "@{type_ref.full_type}") {
                                                     return (@{foreign_deser_expr})(__content) as @{full_type_ident};
                                                 }
@@ -1544,7 +1533,7 @@ fn handle_union_type_alias(
                                 {/for}
                                 {#for type_ref in &foreign_serializables}
                                     {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
-                                        {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                        {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
                                         if ((@{foreign_shape_expr})(value)) __shapeMatches.push("@{type_ref.full_type}");
                                     {/if}
                                 {/for}
@@ -1560,7 +1549,7 @@ fn handle_union_type_alias(
                                     {/for}
                                     {#for type_ref in &foreign_serializables}
                                         {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                            {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                            {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                             if (__shapeMatches.includes("@{type_ref.full_type}")) {
                                                 try {
                                                     return (@{foreign_deser_expr})(value) as @{full_type_ident};
@@ -1588,7 +1577,7 @@ fn handle_union_type_alias(
                                         {/for}
                                         {#for type_ref in &foreign_serializables}
                                             {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                                 if (__typeName === "@{type_ref.full_type}") {
                                                     return (@{foreign_deser_expr})(value) as @{full_type_ident};
                                                 }
@@ -1634,7 +1623,7 @@ fn handle_union_type_alias(
                                 {/for}
                                 {#for type_ref in &foreign_serializables}
                                     {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
-                                        {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                        {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
                                         if ((@{foreign_shape_expr})(value)) __shapeMatches.push("@{type_ref.full_type}");
                                     {/if}
                                 {/for}
@@ -1648,7 +1637,7 @@ fn handle_union_type_alias(
                                     {/for}
                                     {#for type_ref in &foreign_serializables}
                                         {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                            {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                            {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                             if (__shapeMatches[0] === "@{type_ref.full_type}") {
                                                 return (@{foreign_deser_expr})(value) as @{full_type_ident};
                                             }
@@ -1668,7 +1657,7 @@ fn handle_union_type_alias(
                                     {/for}
                                     {#for type_ref in &foreign_serializables}
                                         {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                            {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                            {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                             if (__shapeMatches.includes("@{type_ref.full_type}")) {
                                                 try {
                                                     return (@{foreign_deser_expr})(value) as @{full_type_ident};
@@ -1702,11 +1691,6 @@ fn handle_union_type_alias(
                                         return value as @{full_type_ident};
                                     }
                                 {/for}
-                                {#for lit in &literal_types}
-                                    if (value === @{lit}) {
-                                        return value as @{full_type_ident};
-                                    }
-                                {/for}
                             {/if}
 
                             {#if has_dates}
@@ -1732,7 +1716,7 @@ fn handle_union_type_alias(
                                             {#for ov in &external_object_variants}
                                             if (__variantName === "@{ov.name}") {
                                                 {#if let Some(ref deser_inline) = ov.inner_foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
+                                                    {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("inner foreign deserialize expr should parse")}
                                                     return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
                                                 {:else}
                                                     {#if let Some(ref payload_deser_fn) = ov.payload_deserialize_fn}
@@ -1751,7 +1735,7 @@ fn handle_union_type_alias(
                                             {/for}
                                             {#for type_ref in &foreign_serializables}
                                                 {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                    {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                                     if (__variantName === "@{type_ref.full_type}") {
                                                         return (@{foreign_deser_expr})(__inner) as @{full_type_ident};
                                                     }
@@ -1781,7 +1765,7 @@ fn handle_union_type_alias(
                                             {/for}
                                             {#for type_ref in &foreign_serializables}
                                                 {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                    {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                                     if (__typeName === "@{type_ref.full_type}") {
                                                         return (@{foreign_deser_expr})(__content) as @{full_type_ident};
                                                     }
@@ -1802,9 +1786,9 @@ fn handle_union_type_alias(
                                     {/for}
                                     {#for type_ref in &foreign_serializables}
                                         {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
-                                            {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                            {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
                                             {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                                 if ((@{foreign_shape_expr})(value)) {
                                                     try {
                                                         return (@{foreign_deser_expr})(value) as @{full_type_ident};
@@ -1826,7 +1810,7 @@ fn handle_union_type_alias(
                                             {/for}
                                             {#for type_ref in &foreign_serializables}
                                                 {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                                    {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                                     if (__typeName === "@{type_ref.full_type}") {
                                                         return (@{foreign_deser_expr})(value) as @{full_type_ident};
                                                     }
@@ -1870,9 +1854,9 @@ fn handle_union_type_alias(
                             // Foreign types may not be objects — check hasShape outside the object block
                             {#for type_ref in &foreign_serializables}
                                 {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
-                                    {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                    {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
                                     {#if let Some(ref deser_inline) = type_ref.foreign_deserialize_inline}
-                                        {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("foreign deserialize expr should parse")}
+                                        {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("foreign deserialize expr should parse")}
                                         if ((@{foreign_shape_expr})(value)) {
                                             return (@{foreign_deser_expr})(value) as @{full_type_ident};
                                         }
@@ -1928,7 +1912,7 @@ fn handle_union_type_alias(
                                         {#for ov in &external_object_variants}
                                             if (__variantName === "@{ov.name}") {
                                                 {#if let Some(ref deser_inline) = ov.inner_foreign_deserialize_inline}
-                                                    {$let foreign_deser_expr: Expr = *parse_ts_expr(deser_inline).expect("inner foreign deserialize expr should parse")}
+                                                    {$let foreign_deser_expr: Expr = Expr::parse(deser_inline).expect("inner foreign deserialize expr should parse")}
                                                     return ({ "@{ov.name}": (@{foreign_deser_expr})(__inner) }) as @{full_type_ident};
                                                 {:else}
                                                     {#if let Some(ref payload_deser_fn) = ov.payload_deserialize_fn}
@@ -1973,7 +1957,7 @@ fn handle_union_type_alias(
                             // Foreign types with hasShape may not be objects — check first
                             {#for type_ref in &foreign_serializables}
                                 {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
-                                    {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                    {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
                                     if ((@{foreign_shape_expr})(value)) return true;
                                 {/if}
                             {/for}
@@ -2036,9 +2020,6 @@ fn handle_union_type_alias(
                             {#if has_primitives}
                                 {#for prim in &primitive_types}
                                     if (typeof value === "@{prim}") return true;
-                                {/for}
-                                {#for lit in &literal_types}
-                                    if (value === @{lit}) return true;
                                 {/for}
                             {/if}
                             {#if has_dates}
@@ -2103,7 +2084,7 @@ fn handle_union_type_alias(
                                 // Foreign types with hasShape may not be objects
                                 {#for type_ref in &foreign_serializables}
                                     {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
-                                        {$let foreign_shape_expr: Expr = *parse_ts_expr(shape_inline).expect("foreign hasShape expr should parse")}
+                                        {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
                                         if ((@{foreign_shape_expr})(value)) return true;
                                     {/if}
                                 {/for}
@@ -2194,16 +2175,16 @@ fn handle_fallback_type_alias(alias: &AliasDeserialize) -> Result<TsStream, Macr
     let return_type_ident = ts_ident!(return_type.as_str());
     let success_result = wrap_success("result");
     let success_result_expr =
-        parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
+        Expr::parse(&success_result).expect("deserialize success wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
     let error_from_catch_expr =
-        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
+        Expr::parse(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
-    let error_generic_message_expr = parse_ts_expr(&error_generic_message)
+    let error_generic_message_expr = Expr::parse(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");
     let error_from_ctx = wrap_error("__errors");
     let error_from_ctx_expr =
-        parse_ts_expr(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
+        Expr::parse(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
 
     // Use the type registry and foreign types to determine if this type accepts strings.
     let foreign_types_config = get_foreign_types();
@@ -2215,9 +2196,9 @@ fn handle_fallback_type_alias(alias: &AliasDeserialize) -> Result<TsStream, Macr
         &foreign_types_config,
     );
     let data_init_expr = if accepts_string {
-        parse_ts_expr("input").expect("data init expr should parse")
+        Expr::parse("input").expect("data init expr should parse")
     } else {
-        parse_ts_expr(r#"typeof input === "string" ? JSON.parse(input) : input"#)
+        Expr::parse(r#"typeof input === "string" ? JSON.parse(input) : input"#)
             .expect("data init expr should parse")
     };
 

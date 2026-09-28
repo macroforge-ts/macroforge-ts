@@ -15,7 +15,7 @@ test.describe('Svelte Playground @buildtime Tests', () => {
         await expect(answer).toHaveText('42');
     });
 
-    test('Tier 1 compile-time sha256 hash is stable', async ({ page }) => {
+    test('Tier 1 build-time sha256 hash is stable', async ({ page }) => {
         const hash = page.locator('[data-testid="svelte-bt-hash"]');
         const hashText = (await hash.textContent())?.trim() ?? '';
         expect(hashText).toMatch(/^[0-9a-f]{64}$/);
@@ -38,7 +38,7 @@ test.describe('Svelte Playground @buildtime Tests', () => {
         await expect(list).toHaveText('2,4,6,10,16,26');
     });
 
-    test('Tier 1 template literal composes compile-time values', async ({ page }) => {
+    test('Tier 1 template literal composes build-time values', async ({ page }) => {
         const summary = page.locator('[data-testid="svelte-bt-summary"]');
         const text = (await summary.textContent())?.trim() ?? '';
         // `app=3.0.0, short=XXXXXXXX`

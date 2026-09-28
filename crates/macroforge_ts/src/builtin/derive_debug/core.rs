@@ -1,7 +1,7 @@
 use convert_case::{Case, Casing};
 
+use crate::ast::Expr;
 use crate::macros::{ts_macro_derive, ts_template};
-use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 

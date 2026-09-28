@@ -4,7 +4,7 @@
 //! processes. These live in `macroforge_ts_syn` so they can be used in [`MacroContextIR`]
 //! for cross-process transfer.
 //!
-//! The config parsing logic (reading `macroforge.config.ts` via SWC) remains in
+//! The config parsing logic (reading `macroforge.config.ts`) remains in
 //! `macroforge_ts::host::config`.
 
 use std::collections::{BTreeMap, HashMap};

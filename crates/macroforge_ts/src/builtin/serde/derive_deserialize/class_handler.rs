@@ -1,9 +1,7 @@
+use crate::ast::{Expr, Ident};
 use crate::macros::ts_template;
-use crate::swc_ecma_ast::{Expr, Ident};
 use crate::ts_syn::abi::DiagnosticCollector;
-use crate::ts_syn::{
-    DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_expr, ts_ident,
-};
+use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts_ident};
 
 use convert_case::{Case, Casing};
 
@@ -221,8 +219,8 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
             let deserialize_with =
                 deserialize_with_src
                     .as_ref()
-                    .and_then(|expr_src| match parse_ts_expr(expr_src) {
-                        Ok(expr) => Some(*expr),
+                    .and_then(|expr_src| match Expr::parse(expr_src) {
+                        Ok(expr) => Some(expr),
                         Err(err) => {
                             all_diagnostics.error(
                                 field.span,
@@ -332,22 +330,22 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
     let return_type_ident = ts_ident!(return_type.as_str());
     let success_result = wrap_success("resultOrRef");
     let success_result_expr =
-        parse_ts_expr(&success_result).expect("deserialize success wrapper should parse");
+        Expr::parse(&success_result).expect("deserialize success wrapper should parse");
     let error_root_ref = wrap_error(&format!(
         r#"[{{ field: "_root", message: "{}.deserialize: root cannot be a forward reference" }}]"#,
         class_name
     ));
     let error_root_ref_expr =
-        parse_ts_expr(&error_root_ref).expect("deserialize root error wrapper should parse");
+        Expr::parse(&error_root_ref).expect("deserialize root error wrapper should parse");
     let error_from_catch = wrap_error("e.errors");
     let error_from_catch_expr =
-        parse_ts_expr(&error_from_catch).expect("deserialize catch error wrapper should parse");
+        Expr::parse(&error_from_catch).expect("deserialize catch error wrapper should parse");
     let error_generic_message = wrap_error(r#"[{ field: "_root", message }]"#);
-    let error_generic_message_expr = parse_ts_expr(&error_generic_message)
+    let error_generic_message_expr = Expr::parse(&error_generic_message)
         .expect("deserialize generic error wrapper should parse");
     let error_from_ctx = wrap_error("__errors");
     let error_from_ctx_expr =
-        parse_ts_expr(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
+        Expr::parse(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
 
     // Build known keys array string
     let known_keys_list: Vec<_> = known_keys.iter().map(|k| format!("\"{}\"", k)).collect();
@@ -1172,7 +1170,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                 return false;
             }
             const result = @{&class_expr}.deserialize(obj);
-            return @{parse_ts_expr(&is_ok_check("result")).expect("deserialize is_ok expression should parse")};
+            return @{Expr::parse(&is_ok_check("result")).expect("deserialize is_ok expression should parse")};
         }
     });
     result.add_aliased_import("DeserializeContext", crate::package::SERDE);

@@ -73,7 +73,7 @@ use thiserror::Error;
 ///
 /// # Variants
 ///
-/// - `Parse` - SWC parsing failures (syntax errors)
+/// - `Parse` - Parsing failures (syntax errors)
 /// - `Unsupported` - Valid syntax that isn't supported by the lowering layer
 ///
 /// # Example
@@ -92,7 +92,7 @@ use thiserror::Error;
 /// ```
 #[derive(Error, Debug)]
 pub enum TsSynError {
-    /// A parsing error from SWC.
+    /// A parsing error (invalid TypeScript syntax).
     #[error("parse error: {0}")]
     Parse(String),
 

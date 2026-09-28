@@ -6,33 +6,6 @@ use serde::{Deserialize, Serialize};
 // Data Structures
 // ============================================================================
 
-/// Result of transforming TypeScript code through the macro system.
-///
-/// This struct is returned by [`transform_sync`] and contains the transformed code
-/// along with optional source maps, type declarations, and metadata about processed classes.
-///
-/// # Fields
-///
-/// * `code` - The transformed TypeScript/JavaScript code with macros expanded
-/// * `map` - Optional source map for debugging (currently not implemented)
-/// * `types` - Optional TypeScript type declarations for generated methods
-/// * `metadata` - Optional JSON metadata about processed classes
-#[cfg_attr(feature = "node", napi(object))]
-#[derive(Clone, Serialize, Deserialize)]
-pub struct TransformResult {
-    /// The transformed TypeScript/JavaScript code with all macros expanded.
-    pub code: String,
-    /// Source map for mapping transformed positions back to original.
-    /// Currently always `None` - source mapping is handled separately via `SourceMappingResult`.
-    pub map: Option<String>,
-    /// TypeScript type declarations (`.d.ts` content) for generated methods.
-    /// Used by IDEs to provide type information for macro-generated code.
-    pub types: Option<String>,
-    /// JSON-serialized metadata about processed classes.
-    /// Contains information about which classes were processed and what was generated.
-    pub metadata: Option<String>,
-}
-
 /// A diagnostic message produced during macro expansion.
 ///
 /// Diagnostics can represent errors, warnings, or informational messages

@@ -1,8 +1,9 @@
+use crate::ast::Expr;
 use crate::builtin::derive_common::detect_primitive_serializable_union;
 use crate::ts_syn::TsStream;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_aliases};
-use crate::ts_syn::{parse_ts_expr, ts_ident};
+use crate::ts_syn::ts_ident;
 
 use super::super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
 use super::super::{get_foreign_types, rewrite_expression_namespaces};
@@ -168,8 +169,8 @@ pub(super) fn interface_field_to_deserialize_field(
     let deserialize_with =
         deserialize_with_src
             .as_ref()
-            .and_then(|expr_src| match parse_ts_expr(expr_src) {
-                Ok(expr) => Some(*expr),
+            .and_then(|expr_src| match Expr::parse(expr_src) {
+                Ok(expr) => Some(expr),
                 Err(err) => {
                     diagnostics.error(
                         field.span,

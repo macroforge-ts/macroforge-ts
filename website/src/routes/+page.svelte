@@ -31,7 +31,7 @@
         {
             title: "Type-Safe Generation",
             description:
-                "Catch errors during compilation, not at runtime. Full TypeScript integration.",
+                "Catch errors at build time, not at runtime. Full TypeScript integration.",
             icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
         },
         {
@@ -80,7 +80,7 @@
             <p
                 class="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto"
             >
-                Push code generation to compile time for faster runtime and
+                Push code generation to build time for faster runtime and
                 safer code. Eliminate boilerplate with zero runtime overhead.
             </p>
 

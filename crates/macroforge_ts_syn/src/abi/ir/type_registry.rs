@@ -1,9 +1,9 @@
-//! Project-wide type registry for compile-time type awareness.
+//! Project-wide type registry for build-time type awareness.
 //!
 //! This module provides the data structures for a project-wide type registry
 //! that maps type names to their full IR definitions. The registry is built
 //! during a pre-expansion scan phase and passed to macros as context, giving
-//! them Zig-style compile-time type awareness.
+//! them Zig-style build-time type awareness.
 //!
 //! ## Architecture
 //!
@@ -733,8 +733,6 @@ mod tests {
             name: "Derive".to_string(),
             args_src: args.to_string(),
             span: SpanIR::new(0, 0),
-            #[cfg(feature = "swc")]
-            node: None,
         }
     }
 

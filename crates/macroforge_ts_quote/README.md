@@ -1,6 +1,6 @@
 # macroforge_ts_quote
 
-Quote macro for generating TypeScript code at compile time
+Quote macro for generating TypeScript code at build time
 
 [![Crates.io](https://img.shields.io/crates/v/macroforge_ts_quote.svg)](https://crates.io/crates/macroforge_ts_quote)
 [![Documentation](https://docs.rs/macroforge_ts_quote/badge.svg)](https://docs.rs/macroforge_ts_quote)
@@ -24,8 +24,7 @@ primary approaches:
 # Architecture
 
 The template source string is parsed as TypeScript at macro-expansion time, enabling native support
-for type annotations and TypeScript syntax. Parsing is backed by OXC with the default `oxc` feature;
-the SWC backend is available behind the opt-in `swc` feature.
+for type annotations and TypeScript syntax. Parsing is backed by OXC.
 
 # Insert Positions
 

@@ -164,7 +164,7 @@ export interface MacroConfig {
      *
      * @remarks
      * When `false` (default), decorators are removed after expansion since they serve
-     * only as compile-time directives. When `true`, decorators are kept in the output,
+     * only as build-time directives. When `true`, decorators are kept in the output,
      * which can be useful for debugging or when using runtime reflection.
      */
     keepDecorators: boolean;

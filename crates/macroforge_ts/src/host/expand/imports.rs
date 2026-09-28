@@ -1,87 +1,66 @@
 use std::collections::HashMap;
 
-use crate::ts_syn::abi::Patch;
-#[cfg(feature = "swc")]
-use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, SpanIR};
-#[cfg(feature = "swc")]
-use swc_core::ecma::ast::Module;
+use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, SpanIR};
 
-#[cfg(feature = "swc")]
-use super::BUILTIN_MACRO_NAMES;
 use super::helpers::contains_identifier;
 
-/// Result of collecting import information from a module.
-#[cfg(feature = "swc")]
-pub struct ImportCollectionResult {
-    /// Maps local identifier names to their module sources.
-    pub sources: HashMap<String, String>,
-    /// Maps local alias names to their original imported names.
-    /// For `import { Option as EffectOption }`, contains `"EffectOption" -> "Option"`.
-    pub aliases: HashMap<String, String>,
-}
+/// Built-in derive macros, available everywhere without an import.
+const BUILTIN_MACRO_NAMES: &[&str] = &[
+    "Debug",
+    "Clone",
+    "Default",
+    "Hash",
+    "Ord",
+    "PartialEq",
+    "PartialOrd",
+    "Serialize",
+    "Deserialize",
+];
 
-/// Collect import information from a module.
-///
-/// Returns both:
-/// - A map of identifier name -> module source
-/// - A map of local alias name -> original imported name
-#[cfg(feature = "swc")]
-pub fn collect_import_sources(module: &Module, source: &str) -> ImportCollectionResult {
-    use swc_core::ecma::ast::{
-        ImportDecl, ImportSpecifier, ModuleDecl, ModuleExportName, ModuleItem,
-    };
+/// Warns on each built-in macro imported from a macro module: built-ins need
+/// no import, so the import is dead and suggests otherwise.
+pub(super) fn check_builtin_import_warnings(
+    program: &oxc::ast::ast::Program<'_>,
+) -> Vec<Diagnostic> {
+    use oxc::ast::ast::{ImportDeclarationSpecifier, Statement};
 
-    let mut import_map = HashMap::new();
-    let mut alias_map = HashMap::new();
-
-    import_map.extend(crate::ts_syn::import_registry::macro_imports_in_source(
-        source,
-    ));
-
-    for item in &module.body {
-        if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
-            specifiers, src, ..
-        })) = item
-        {
-            let module_source = src.value.to_string_lossy().to_string();
-
-            for specifier in specifiers {
-                match specifier {
-                    ImportSpecifier::Named(named) => {
-                        let local_name = named.local.sym.to_string();
-                        import_map.insert(local_name.clone(), module_source.clone());
-
-                        // If there's an alias (imported name differs from local name),
-                        // record the mapping from local -> original
-                        if let Some(imported) = &named.imported {
-                            let original_name = match imported {
-                                ModuleExportName::Ident(ident) => ident.sym.to_string(),
-                                ModuleExportName::Str(s) => {
-                                    String::from_utf8_lossy(s.value.as_bytes()).to_string()
-                                }
-                            };
-                            if original_name != local_name {
-                                alias_map.insert(local_name, original_name);
-                            }
-                        }
-                    }
-                    ImportSpecifier::Default(default) => {
-                        let local_name = default.local.sym.to_string();
-                        import_map.insert(local_name, module_source.clone());
-                    }
-                    ImportSpecifier::Namespace(ns) => {
-                        let local_name = ns.local.sym.to_string();
-                        import_map.insert(local_name, module_source.clone());
-                    }
+    let mut warnings = Vec::new();
+    for statement in &program.body {
+        let Statement::ImportDeclaration(import) = statement else {
+            continue;
+        };
+        let module_source = import.source.value.as_str();
+        if !module_source.contains(crate::package::PACKAGE) && !module_source.contains("macro") {
+            continue;
+        }
+        let Some(specifiers) = &import.specifiers else {
+            continue;
+        };
+        for specifier in specifiers {
+            let (local_name, span) = match specifier {
+                ImportDeclarationSpecifier::ImportSpecifier(named) => {
+                    (named.local.name.as_str(), named.span)
                 }
+                ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
+                    (default.local.name.as_str(), default.span)
+                }
+                ImportDeclarationSpecifier::ImportNamespaceSpecifier(_) => continue,
+            };
+            if !BUILTIN_MACRO_NAMES.contains(&local_name) {
+                continue;
             }
+            warnings.push(Diagnostic {
+                level: DiagnosticLevel::Warning,
+                message: format!("'{local_name}' is a built-in macro and doesn't need to be imported"),
+                span: Some(SpanIR::new(span.start, span.end)),
+                notes: vec![],
+                help: Some(format!(
+                    "Remove this import - just use @derive({local_name}) directly in a JSDoc comment"
+                )),
+            });
         }
     }
-
-    ImportCollectionResult {
-        sources: import_map,
-        aliases: alias_map,
-    }
+    warnings
 }
 
 pub(super) fn external_type_function_import_patches(
@@ -174,66 +153,4 @@ pub(super) fn external_type_function_import_patches(
     });
 
     Vec::new()
-}
-
-/// Check for imports of built-in macros and return warnings
-/// Built-in macros like Debug, Clone, Serialize don't need to be imported
-#[cfg(feature = "swc")]
-pub(super) fn check_builtin_import_warnings(module: &Module, _source: &str) -> Vec<Diagnostic> {
-    use swc_core::ecma::ast::{ImportDecl, ImportSpecifier, ModuleDecl, ModuleItem};
-
-    let mut warnings = Vec::new();
-
-    for item in &module.body {
-        if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
-            specifiers, src, ..
-        })) = item
-        {
-            let module_source = src.value.to_string_lossy().to_string();
-
-            // Only warn for imports that look like they're trying to import macros
-            // e.g., from "@macroforge/core", "@macroforge/core", or similar macro-related modules
-            let is_macro_module = module_source.contains(crate::package::PACKAGE)
-                || module_source.contains("macro")
-                || module_source == "@macro/derive";
-
-            if !is_macro_module {
-                continue;
-            }
-
-            for specifier in specifiers {
-                let (local_name, import_span) = match specifier {
-                    ImportSpecifier::Named(named) => (named.local.sym.to_string(), named.span),
-                    ImportSpecifier::Default(default) => {
-                        (default.local.sym.to_string(), default.span)
-                    }
-                    ImportSpecifier::Namespace(_) => continue,
-                };
-
-                // Check if this is a built-in macro name
-                if BUILTIN_MACRO_NAMES.iter().any(|&name| name == local_name) {
-                    let span_ir = SpanIR::new(
-                        import_span.lo.0.saturating_sub(1),
-                        import_span.hi.0.saturating_sub(1),
-                    );
-
-                    warnings.push(Diagnostic {
-                        level: DiagnosticLevel::Warning,
-                        message: format!(
-                            "'{}' is a built-in macro and doesn't need to be imported",
-                            local_name
-                        ),
-                        span: Some(span_ir),
-                        notes: vec![],
-                        help: Some(format!(
-                            "Remove this import - just use @derive({}) directly in a JSDoc comment",
-                            local_name
-                        )),
-                    });
-                }
-            }
-        }
-    }
-
-    warnings
 }

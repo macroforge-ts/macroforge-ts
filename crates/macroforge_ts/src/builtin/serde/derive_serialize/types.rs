@@ -1,4 +1,4 @@
-use crate::swc_ecma_ast::{Expr, Ident};
+use crate::ast::{Expr, Ident};
 
 use super::super::TypeCategory;
 

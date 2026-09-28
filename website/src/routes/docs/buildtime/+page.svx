@@ -1,11 +1,11 @@
 <svelte:head>
 	<title>Buildtime Evaluation - Macroforge Documentation</title>
-	<meta name="description" content="Run TypeScript at compile time with @buildtime and inline the result into your bundle." />
+	<meta name="description" content="Run TypeScript at build time with @buildtime and inline the result into your bundle." />
 </svelte:head>
 
 # Buildtime Evaluation
 
-`@buildtime` runs a piece of TypeScript **during the build** and replaces it with its result. Reading a schema file, hashing a manifest, or stamping a build time all become compile-time constants rather than runtime work.
+`@buildtime` runs a piece of TypeScript **during the build** and replaces it with its result. Reading a schema file, hashing a manifest, or stamping a build time all become build-time constants rather than runtime work.
 
 ```typescript
 import { buildtime } from "@macroforge/core/buildtime";

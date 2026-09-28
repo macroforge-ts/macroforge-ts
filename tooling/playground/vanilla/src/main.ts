@@ -179,7 +179,7 @@ function testMacros() {
 
       <h2>@buildtime evaluation</h2>
       <p>
-        Every value below was computed at compile time by macroforge and
+        Every value below was computed at build time by macroforge and
         spliced into the module as a TS literal. The runtime stub
         imported from <code>@macroforge/core/buildtime</code> still throws if
         called — proving the plugin did the work, not the browser.

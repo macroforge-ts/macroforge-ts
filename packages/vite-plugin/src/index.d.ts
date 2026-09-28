@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite';
 
 /**
- * Creates a Vite plugin for Macroforge compile-time macro expansion.
+ * Creates a Vite plugin for Macroforge build-time macro expansion.
  *
  * Configuration is loaded from `macroforge.config.js` (or .ts/.mjs/.cjs).
  * Vite-specific options can be set under the `vite` key in the config file.

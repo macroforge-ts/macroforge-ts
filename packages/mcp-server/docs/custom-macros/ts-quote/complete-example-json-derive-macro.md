@@ -2,7 +2,7 @@
 
 Here's a comparison showing how `ts_template!` simplifies code generation:
 
-### Before (Manual AST Building)
+### Before (Manual String Building)
 
 Rust
 
@@ -14,22 +14,15 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
         Data::Class(class) => {
             let class_name = input.name();
 
-            let mut body_stmts = vec![ts_quote!("const result = {};" as Stmt)];
-
+            let mut body = String::from("const result = {};\\n");
             for field_name in class.field_names() {
-                body_stmts.push(ts_quote!(
-                    "result.$field = this.$field;" as Stmt,
-                    field = ts_ident!(field_name)
-                ));
+                body.push_str(&format!("result.{field_name} = this.{field_name};\\n"));
             }
+            body.push_str("return result;");
 
-            body_stmts.push(ts_quote!("return result;" as Stmt));
-
-            let runtime_code = fn_assign!(
-                member_expr!(Expr::Ident(ts_ident!(class_name)), "prototype"),
-                "toJSON",
-                body_stmts
-            );
+            let runtime_code = TsStream::from_string(format!(
+                "{class_name}.prototype.toJSON = function() {{\\n{body}\\n}};"
+            ));
 
             // ...
         }
@@ -68,7 +61,7 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 
 ## How It Works
 
-1. **Compile-Time:** The template is parsed during macro expansion
+1. **Rust Compile Time:** The template is parsed during macro expansion
 2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
 3. **Parsing:** The generated string is parsed with oxc to produce a typed AST.
 4. **Result:** Returns a `TsStream` that can be returned directly as macro output
@@ -110,18 +103,3 @@ ts_template! {
     };
 }
 ```
-
-## Comparison with Alternatives
-
-| Approach         | Pros                               | Cons                             |
-| ---------------- | ---------------------------------- | -------------------------------- |
-| `ts_quote!`      | Compile-time validation, type-safe | Can't handle Vec\<Stmt>, verbose |
-| `parse_ts_str()` | Maximum flexibility                | Runtime parsing, less readable   |
-| `ts_template!`   | Readable, handles loops/conditions | Small runtime parsing overhead   |
-
-## Best Practices
-
-1. Use `ts_template!` for complex code generation with loops/conditions
-2. Use `ts_quote!` for simple, static statements
-3. Keep templates readable - extract complex logic into variables
-4. Don't nest templates too deeply - split into helper functions

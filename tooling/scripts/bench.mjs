@@ -3,8 +3,8 @@
 //
 // Usage:
 //   pixi run bench                                  — benchmark current build
-//   pixi run bench:all                              — compare all backends in bench-bins/
-//   pixi run bench:build                            — build all 4 variants into bench-bins/
+//   pixi run bench:all                              — compare every build in bench-bins/
+//   pixi run bench:build                            — build the wasm and native variants into bench-bins/
 //   bench.mjs --wasm-bindgen <input.wasm> <node-out-dir> <deno-out-dir>
 //                                                   run wasm-bindgen for npm and
 //                                                   JSR (the build:wasm task)
@@ -213,39 +213,15 @@ function build() {
         execSync(cmd, { cwd, stdio: 'inherit' });
     };
 
-    console.log('\n[1/4] oxc-wasm');
+    console.log('\n[1/2] wasm');
     run('pixi run build:rust', root);
-    fs.cpSync(path.join(crateDir, 'pkg'), path.join(binsDir, 'oxc-wasm'), { recursive: true });
+    fs.cpSync(path.join(crateDir, 'pkg'), path.join(binsDir, 'wasm'), { recursive: true });
 
-    console.log('\n[2/4] swc-wasm');
+    console.log('\n[2/2] native');
+    fs.mkdirSync(path.join(binsDir, 'native'), { recursive: true });
     run(
-        'cargo build --release --target wasm32-unknown-unknown --no-default-features --features wasm,swc',
-        crateDir
-    );
-    fs.mkdirSync(path.join(binsDir, 'swc-wasm'), { recursive: true });
-    run(
-        `deno run -A ${
-            path.join(root, 'tooling/scripts/bench.mjs')
-        } --wasm-bindgen target/wasm32-unknown-unknown/release/macroforge_ts.wasm ${
-            path.join(binsDir, 'swc-wasm')
-        }`,
-        crateDir
-    );
-
-    console.log('\n[3/4] oxc-native');
-    fs.mkdirSync(path.join(binsDir, 'oxc-native'), { recursive: true });
-    run(
-        `deno run -A npm:@napi-rs/cli/napi build --platform --release --no-default-features --features node,oxc --output-dir ${
-            path.join(binsDir, 'oxc-native')
-        }`,
-        crateDir
-    );
-
-    console.log('\n[4/4] swc-native');
-    fs.mkdirSync(path.join(binsDir, 'swc-native'), { recursive: true });
-    run(
-        `deno run -A npm:@napi-rs/cli/napi build --platform --release --no-default-features --features node,swc --output-dir ${
-            path.join(binsDir, 'swc-native')
+        `deno run -A npm:@napi-rs/cli/napi build --platform --release --no-default-features --features node --output-dir ${
+            path.join(binsDir, 'native')
         }`,
         crateDir
     );

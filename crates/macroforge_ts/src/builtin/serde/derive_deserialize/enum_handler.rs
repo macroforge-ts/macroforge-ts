@@ -1,5 +1,5 @@
+use crate::ast::Expr;
 use crate::macros::ts_template;
-use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::{DeriveInput, MacroforgeError, TsStream, ts_ident};
 
 use convert_case::{Case, Casing};

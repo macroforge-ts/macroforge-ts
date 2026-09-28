@@ -556,7 +556,7 @@ fn push_js_install(out: &mut String, package_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Rewrites rustdoc intra-doc links (`` [`Expr`](swc_core::ecma::ast::Expr) ``
+/// Rewrites rustdoc intra-doc links (`` [`Program`](oxc::ast::ast::Program) ``
 /// and the shortcut `` [`ts_quote!`] ``) into docs.rs links, since a README is
 /// plain markdown and would read their targets as relative file paths. Code
 /// fences are left untouched.
@@ -649,10 +649,10 @@ mod intra_doc_tests {
     fn links_a_labelled_path_into_its_crate() {
         assert_eq!(
             link_intra_doc_references(
-                "a [`Expr`](swc_core::ecma::ast::Expr) node\n",
+                "a [`Program`](oxc::ast::ast::Program) node\n",
                 "macroforge_ts_syn"
             ),
-            "a [`Expr`](https://docs.rs/swc_core/latest/swc_core/?search=Expr) node\n"
+            "a [`Program`](https://docs.rs/oxc/latest/oxc/?search=Program) node\n"
         );
     }
 

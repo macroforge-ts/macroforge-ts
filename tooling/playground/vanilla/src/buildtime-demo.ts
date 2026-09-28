@@ -8,7 +8,7 @@ import { buildtime } from '@macroforge/core/buildtime';
 import type { BuildtimeDemoResult } from './playground-globals.ts';
 
 // ---------------------------------------------------------------------
-// Tier 1 — compile-time constants
+// Tier 1 — build-time constants
 // ---------------------------------------------------------------------
 
 /** @buildtime */
@@ -23,7 +23,7 @@ const APP_CONFIG = buildtime.fs.readJson('./buildtime-data.json');
 /** @buildtime */
 const CONSTANT_OBJECT = {
     thirteen: 13,
-    label: 'compile-time',
+    label: 'build-time',
     items: [1, 2, 3]
 };
 
@@ -36,7 +36,7 @@ const DERIVED_SUMMARY = `answer=${6 * 7}, hash=${
 
 // Tier 1 can also use IIFEs for larger computation, staying within the
 // tier's serialize-a-value contract. Here we generate a greeting table
-// from a list at compile time.
+// from a list at build time.
 /** @buildtime */
 const GREETINGS = ((): Record<string, string> => {
     const names = ['alice', 'bob', 'cam'];
@@ -46,7 +46,7 @@ const GREETINGS = ((): Record<string, string> => {
 })();
 
 // ---------------------------------------------------------------------
-// Tier 3 — compile-time computed TypeScript type
+// Tier 3 — build-time computed TypeScript type
 // ---------------------------------------------------------------------
 
 /** @buildtime */

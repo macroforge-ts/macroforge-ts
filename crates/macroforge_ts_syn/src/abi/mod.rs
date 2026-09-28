@@ -81,16 +81,8 @@ pub enum LoweredTarget {
     Function(crate::abi::FunctionIR),
 }
 
-/// Re-export of SWC's ECMAScript AST types.
-///
-/// Available when the `swc` feature is enabled. Provides direct access
-/// to the underlying AST types used by the parser.
-#[cfg(feature = "swc")]
-pub use swc_core::ecma::ast as swc_ast;
-
 /// Re-export of Oxc's ECMAScript AST types.
 ///
 /// Available when the `oxc` feature is enabled. Provides direct access
 /// to the underlying AST types used by the parser.
-#[cfg(feature = "oxc")]
 pub use oxc::ast::ast as oxc_ast;

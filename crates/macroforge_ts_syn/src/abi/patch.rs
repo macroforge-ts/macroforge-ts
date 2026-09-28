@@ -26,7 +26,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use macroforge_ts_syn::{Patch, PatchCode, SpanIR, MacroResult};
+//! use macroforge_ts_syn::{Patch, SpanIR, MacroResult};
 //!
 //! fn add_method_to_class(body_span: SpanIR) -> MacroResult {
 //!     // Insert a method just before the closing brace
@@ -48,9 +48,6 @@
 use serde::{Deserialize, Serialize};
 
 use crate::abi::SpanIR;
-
-#[cfg(feature = "swc")]
-use crate::abi::swc_ast;
 
 /// Specifies where generated code should be inserted relative to the target.
 ///
@@ -117,8 +114,6 @@ pub enum InsertPos {
     /// Use for exports or cleanup code.
     Bottom,
 }
-#[cfg(feature = "swc")]
-use swc_core::common::{DUMMY_SP, SyntaxContext};
 
 /// A code modification operation returned by macros.
 ///
@@ -169,7 +164,7 @@ pub enum Patch {
         /// The position to insert at (use zero-width span for pure insertion).
         at: SpanIR,
         /// The code to insert.
-        code: PatchCode,
+        code: String,
         /// Which macro generated this patch (e.g., "Debug", "Clone").
         #[serde(default)]
         source_macro: Option<String>,
@@ -182,7 +177,7 @@ pub enum Patch {
         /// The span of code to replace.
         span: SpanIR,
         /// The replacement code.
-        code: PatchCode,
+        code: String,
         /// Which macro generated this patch.
         #[serde(default)]
         source_macro: Option<String>,
@@ -273,173 +268,6 @@ impl Patch {
                 context,
                 source_macro: Some(macro_name.to_string()),
             },
-        }
-    }
-}
-
-/// The code content of a patch, supporting both text and AST representations.
-///
-/// `PatchCode` can hold code in different forms:
-///
-/// - **Text**: Raw source code strings (serializable)
-/// - **AST nodes**: SWC AST types for programmatic construction (not serializable)
-///
-/// When serialized, AST variants are converted to placeholder text since
-/// SWC AST nodes are not directly serializable.
-///
-/// # Example
-///
-/// ```rust
-/// use macroforge_ts_syn::PatchCode;
-///
-/// // From a string
-/// let _text_code: PatchCode = "myMethod() {}".into();
-///
-/// // From a String
-/// let method_code = "toString() { return 'MyClass'; }".to_string();
-/// let _code: PatchCode = method_code.into();
-/// ```
-#[derive(Clone, Debug, PartialEq)]
-pub enum PatchCode {
-    /// Raw source code as text.
-    ///
-    /// This is the most portable form, as it can be serialized
-    /// and processed by any consumer.
-    Text(String),
-
-    /// An SWC class member AST node.
-    ///
-    /// A class member (property, method, constructor). Generated
-    /// using SWC's AST types or the `quote!` macro.
-    #[cfg(feature = "swc")]
-    ClassMember(swc_ast::ClassMember),
-
-    /// An SWC statement AST node.
-    ///
-    /// Use for standalone statements or function/method bodies.
-    #[cfg(feature = "swc")]
-    Stmt(swc_ast::Stmt),
-
-    /// An SWC module item AST node.
-    ///
-    /// Use for top-level declarations like imports, exports,
-    /// or function/class declarations.
-    #[cfg(feature = "swc")]
-    ModuleItem(swc_ast::ModuleItem),
-}
-
-impl PatchCode {
-    /// Borrow the code as a string slice if this is a [`PatchCode::Text`]
-    /// variant, otherwise `None`.
-    ///
-    /// Convenience accessor for test code that needs to inspect patch
-    /// contents without destructuring across feature-gated variants.
-    /// Under `--features oxc` only `Text` exists so this always returns
-    /// `Some`; under `--features swc` it gracefully returns `None` for
-    /// AST-node variants.
-    pub fn as_text(&self) -> Option<&str> {
-        match self {
-            PatchCode::Text(s) => Some(s.as_str()),
-            #[cfg(feature = "swc")]
-            _ => None,
-        }
-    }
-}
-
-// Custom serde for PatchCode - only serialize Text variant, skip AST variants
-impl serde::Serialize for PatchCode {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            PatchCode::Text(s) => serializer.serialize_str(s),
-            #[cfg(feature = "swc")]
-            _ => serializer.serialize_str("/* AST node - cannot serialize */"),
-        }
-    }
-}
-
-impl<'de> serde::Deserialize<'de> for PatchCode {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-        Ok(PatchCode::Text(s))
-    }
-}
-
-impl From<String> for PatchCode {
-    fn from(value: String) -> Self {
-        PatchCode::Text(value)
-    }
-}
-
-impl From<&str> for PatchCode {
-    fn from(value: &str) -> Self {
-        PatchCode::Text(value.to_string())
-    }
-}
-
-#[cfg(feature = "swc")]
-impl From<swc_ast::ClassMember> for PatchCode {
-    fn from(member: swc_ast::ClassMember) -> Self {
-        PatchCode::ClassMember(member)
-    }
-}
-
-#[cfg(feature = "swc")]
-impl From<swc_ast::Stmt> for PatchCode {
-    fn from(stmt: swc_ast::Stmt) -> Self {
-        PatchCode::Stmt(stmt)
-    }
-}
-
-#[cfg(feature = "swc")]
-impl From<swc_ast::ModuleItem> for PatchCode {
-    fn from(item: swc_ast::ModuleItem) -> Self {
-        PatchCode::ModuleItem(item)
-    }
-}
-
-#[cfg(feature = "swc")]
-impl From<Vec<swc_ast::Stmt>> for PatchCode {
-    fn from(stmts: Vec<swc_ast::Stmt>) -> Self {
-        // For Vec<Stmt>, wrap in a block and convert to a single Stmt
-        if stmts.len() == 1 {
-            PatchCode::Stmt(stmts.into_iter().next().unwrap())
-        } else {
-            PatchCode::Stmt(swc_ast::Stmt::Block(swc_ast::BlockStmt {
-                span: DUMMY_SP,
-                ctxt: SyntaxContext::empty(),
-                stmts,
-            }))
-        }
-    }
-}
-
-/// Lossy conversion: a vector with exactly one item becomes
-/// [`PatchCode::ModuleItem`]; any other length **discards the items** and
-/// produces placeholder text (one literal `/* generated code */` line per
-/// item), because `PatchCode` has no multi-item variant. Emit the items to
-/// source yourself (e.g. via [`emit_module_items`](crate::emit_module_items))
-/// and use `PatchCode::Text` if you need more than one item preserved.
-#[cfg(feature = "swc")]
-impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
-    fn from(items: Vec<swc_ast::ModuleItem>) -> Self {
-        // For Vec<ModuleItem>, take the first if there's only one
-        if items.len() == 1 {
-            PatchCode::ModuleItem(items.into_iter().next().unwrap())
-        } else {
-            // Multiple items - convert to a string representation
-            // This is a limitation since PatchCode doesn't have a Vec variant
-            let code = items
-                .iter()
-                .map(|_| "/* generated code */")
-                .collect::<Vec<_>>()
-                .join("\n");
-            PatchCode::Text(code)
         }
     }
 }

@@ -109,12 +109,12 @@ export function statusDefaultValue(): Status {
 
 ## Error Handling
 
-The macro returns a compile error only if:
+The macro reports an expansion error only if:
 
 - An enum has no variant marked with `@default`
 - A field's `@default` expression fails to parse
 
-Missing defaults on non-primitive fields are **not** compile errors: every type is assumed to
+Missing defaults on non-primitive fields are **not** expansion errors: every type is assumed to
 implement Default (Rust-like philosophy), so the macro emits a `typeNameDefaultValue()` call for any
 custom type. If a field's type is in the type registry but does not derive `Default`, a warning is
 printed to stderr at expansion time and the call is generated anyway — it may then fail at runtime

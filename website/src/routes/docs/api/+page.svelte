@@ -27,7 +27,6 @@
 
 <CodeBlock code={`import {
   expandSync,
-  transformSync,
   checkSyntax,
   parseImportSources,
   loadConfig,
@@ -51,10 +50,6 @@
 		<tr>
 			<td><a href={resolve('/docs/api/expand-sync')}><code>expandSync()</code></a></td>
 			<td>Expand macros synchronously</td>
-		</tr>
-		<tr>
-			<td><a href={resolve('/docs/api/transform-sync')}><code>transformSync()</code></a></td>
-			<td>Transform code with additional metadata</td>
 		</tr>
 		<tr>
 			<td><code>checkSyntax()</code></td>
@@ -133,7 +128,6 @@ if (result.diagnostics.length > 0) {
 
 <ul>
 	<li><a href={resolve('/docs/api/expand-sync')}><code>expandSync()</code></a> - Full options and return types</li>
-	<li><a href={resolve('/docs/api/transform-sync')}><code>transformSync()</code></a> - Transform with source maps</li>
 	<li><a href={resolve('/docs/api/native-plugin')}><code>NativePlugin</code></a> - Caching for language servers</li>
 	<li><a href={resolve('/docs/api/position-mapper')}><code>PositionMapper</code></a> - Position mapping utilities</li>
 </ul>

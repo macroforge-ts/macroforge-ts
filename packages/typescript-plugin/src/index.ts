@@ -1,7 +1,7 @@
 /**
  * @fileoverview TypeScript Language Service Plugin for Macroforge
  *
- * This plugin integrates Macroforge's compile-time macro expansion with TypeScript's
+ * This plugin integrates Macroforge's build-time macro expansion with TypeScript's
  * Language Service to provide seamless IDE support for macro-decorated classes.
  *
  * ## Architecture Overview
@@ -481,7 +481,7 @@ function getMacroHoverInfo(
             documentation: [
                 {
                     text:
-                        'Derive directive - applies compile-time macros to generate methods and implementations.\n\n' +
+                        'Derive directive - applies build-time macros to generate methods and implementations.\n\n' +
                         '**Usage:** `/** @derive(MacroName, AnotherMacro) */`\n\n' +
                         '**Built-in macros:** Debug, Clone, Default, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize\n\n' +
                         'External macros can be imported using:\n' +
@@ -530,7 +530,7 @@ function getMacroHoverInfo(
             );
             const description = externalMacroInfo?.description
                 ? externalMacroInfo.description
-                : 'This macro is loaded from an external package at compile time.';
+                : 'This macro is loaded from an external package at build time.';
 
             return {
                 kind: tsModule.ScriptElementKind.functionElement,

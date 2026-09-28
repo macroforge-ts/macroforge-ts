@@ -19,7 +19,7 @@ const APP_CONFIG = buildtime.fs.readJson('./buildtime-data.json');
 /** @buildtime */
 const CONSTANT_LIST = [1, 2, 3, 5, 8, 13].map((n) => n * 2);
 
-// A derived summary that does its own compile-time I/O + hashing.
+// A derived summary that does its own build-time I/O + hashing.
 // Each @buildtime block runs in its own sandbox and cannot see
 // names bound by sibling @buildtime blocks, so we re-read the file
 // and re-hash here rather than reference ANSWER / APP_CONFIG.

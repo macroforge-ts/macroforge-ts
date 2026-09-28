@@ -1,7 +1,7 @@
 use crate::api::CoreEngine;
 use crate::api_types::{
     ExpandOptions, ExpandResult, ImportSourceResult, LoadConfigResult, ScanOptions, ScanResult,
-    SyntaxCheckResult, TransformResult,
+    SyntaxCheckResult,
 };
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
@@ -15,7 +15,6 @@ pub fn has_macro_annotations(code: String) -> bool {
 
 /// The macros `code` imports through `import macro` JSDoc comments, as macro
 /// name to module.
-#[cfg(feature = "oxc")]
 #[napi]
 pub fn macro_imports(code: String, filepath: String) -> std::collections::HashMap<String, String> {
     crate::macro_imports(&code, &filepath)
@@ -50,11 +49,6 @@ pub fn load_config(content: String, filepath: String) -> Result<LoadConfigResult
 #[napi]
 pub fn clear_config_cache() {
     CoreEngine::clear_config_cache();
-}
-
-#[napi]
-pub fn transform_sync(_env: Env, code: String, filepath: String) -> Result<TransformResult> {
-    CoreEngine::transform_sync(code, filepath).map_err(|e| Error::new(Status::GenericFailure, e))
 }
 
 #[napi]

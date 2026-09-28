@@ -2,20 +2,13 @@ use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 
 use ignore::WalkBuilder;
-#[cfg(feature = "swc")]
-use swc_core::common::{GLOBALS, Globals};
 
-#[cfg(all(feature = "swc", not(feature = "oxc")))]
-use super::collectors::{collect_exported_names, collect_file_imports};
 use crate::host::declarative::ProjectDeclarativeRegistry;
 use crate::ts_syn::abi::ir::type_registry::{TypeDefinitionIR, TypeRegistry, TypeRegistryEntry};
-#[cfg(all(feature = "swc", not(feature = "oxc")))]
-use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
 
-#[cfg(feature = "oxc")]
 use crate::ts_syn::{
-    collect_exported_names_oxc, collect_file_imports_oxc, lower_classes_oxc, lower_enums_oxc,
-    lower_interfaces_oxc, lower_type_aliases_oxc,
+    collect_exported_names, collect_file_imports, lower_classes, lower_enums, lower_interfaces,
+    lower_type_aliases,
 };
 
 use super::cache::{CacheEntry, ScanCache, file_stamp, splice_declarative};
@@ -131,9 +124,6 @@ impl ProjectScanner {
             .git_exclude(false)
             .build();
 
-        #[cfg(feature = "swc")]
-        let globals = Globals::default();
-
         for entry in walker {
             let entry = match entry {
                 Ok(e) => e,
@@ -172,22 +162,9 @@ impl ProjectScanner {
                 break;
             }
 
-            #[cfg(feature = "swc")]
-            {
-                GLOBALS.set(&globals, || {
-                    match self.scan_file(path, &mut registry, &mut declarative_registry, &root_str)
-                    {
-                        Ok(uses_macros) => macro_files += u32::from(uses_macros),
-                        Err(e) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
-                    }
-                });
-            }
-            #[cfg(all(not(feature = "swc"), feature = "oxc"))]
-            {
-                match self.scan_file(path, &mut registry, &mut declarative_registry, &root_str) {
-                    Ok(uses_macros) => macro_files += u32::from(uses_macros),
-                    Err(e) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
-                }
+            match self.scan_file(path, &mut registry, &mut declarative_registry, &root_str) {
+                Ok(uses_macros) => macro_files += u32::from(uses_macros),
+                Err(e) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
             }
         }
 
@@ -256,132 +233,91 @@ impl ProjectScanner {
         let source = std::fs::read_to_string(path)?;
         let uses_macros = crate::has_macro_annotations(&source);
 
-        #[cfg(feature = "oxc")]
+        use oxc::allocator::Allocator;
+        use oxc::parser::Parser;
+        use oxc::span::SourceType;
+
+        let allocator = Allocator::default();
+        let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
+        let ret = Parser::new(&allocator, &source, source_type).parse();
+
+        if !ret.diagnostics.is_empty() {
+            return Err(anyhow::anyhow!("parse errors: {:?}", ret.diagnostics));
+        }
+
+        // Declarative macro discovery shares the same parse. Fast path:
+        // the discovery helper bails out on files that don't import
+        // `macroRules` from `"@macroforge/core/rules"`, so the cost on files
+        // without declarative macros is a single import-statement scan.
+        let declarative_macros: Vec<_> =
+            match crate::host::declarative::discover(&ret.program, &source) {
+                Ok(discovered) => discovered.into_iter().map(|dm| dm.def).collect(),
+                Err(e) => {
+                    return Err(anyhow::anyhow!("Declarative macro discovery failed: {}", e));
+                }
+            };
+        if !declarative_macros.is_empty() {
+            declarative_registry.insert_file(file_name.clone(), declarative_macros.clone());
+        }
+
+        let lower_error = |kind: &str, error: crate::ts_syn::TsSynError| {
+            anyhow::anyhow!("failed to lower {kind}: {error}")
+        };
+        let classes = lower_classes(&ret.program, &source, None)
+            .map_err(|error| lower_error("classes", error))?;
+        let interfaces = lower_interfaces(&ret.program, &source, None)
+            .map_err(|error| lower_error("interfaces", error))?;
+        let enums = lower_enums(&ret.program, &source, None)
+            .map_err(|error| lower_error("enums", error))?;
+        let type_aliases = lower_type_aliases(&ret.program, &source, None)
+            .map_err(|error| lower_error("type aliases", error))?;
+
+        let file_imports = collect_file_imports(&ret.program);
+        let exported_names = collect_exported_names(&ret.program);
+
+        // Write to the cache *before* the early-return on empty
+        // files, so re-scans of files that declare nothing don't
+        // re-parse every time.
+        if let Some(cache_cell) = self.cache.as_ref()
+            && let Some((mtime_ns, size)) = file_stamp(path)
         {
-            use oxc::allocator::Allocator;
-            use oxc::parser::Parser;
-            use oxc::span::SourceType;
-
-            let allocator = Allocator::default();
-            let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
-            let ret = Parser::new(&allocator, &source, source_type).parse();
-
-            if !ret.diagnostics.is_empty() {
-                return Err(anyhow::anyhow!("Oxc parse errors: {:?}", ret.diagnostics));
-            }
-
-            // Declarative macro discovery shares the same parse. Fast path:
-            // the discovery helper bails out on files that don't import
-            // `macroRules` from `"@macroforge/core/rules"`, so the cost on files
-            // without declarative macros is a single import-statement scan.
-            let declarative_macros: Vec<_> =
-                match crate::host::declarative::discover(&ret.program, &source) {
-                    Ok(discovered) => discovered.into_iter().map(|dm| dm.def).collect(),
-                    Err(e) => {
-                        return Err(anyhow::anyhow!("Declarative macro discovery failed: {}", e));
-                    }
-                };
-            if !declarative_macros.is_empty() {
-                declarative_registry.insert_file(file_name.clone(), declarative_macros.clone());
-            }
-
-            let classes = lower_classes_oxc(&ret.program, &source, None).unwrap_or_default();
-            let interfaces = lower_interfaces_oxc(&ret.program, &source, None).unwrap_or_default();
-            let enums = lower_enums_oxc(&ret.program, &source, None).unwrap_or_default();
-            let type_aliases =
-                lower_type_aliases_oxc(&ret.program, &source, None).unwrap_or_default();
-
-            let file_imports = collect_file_imports_oxc(&ret.program);
-            let exported_names = collect_exported_names_oxc(&ret.program);
-
-            // Write to the cache *before* the early-return on empty
-            // files, so re-scans of files that declare nothing don't
-            // re-parse every time.
-            if let Some(cache_cell) = self.cache.as_ref()
-                && let Some((mtime_ns, size)) = file_stamp(path)
-            {
-                cache_cell.borrow_mut().insert(
-                    path.to_path_buf(),
-                    CacheEntry {
-                        mtime_ns,
-                        size,
-                        classes: classes.clone(),
-                        interfaces: interfaces.clone(),
-                        enums: enums.clone(),
-                        type_aliases: type_aliases.clone(),
-                        declarative_macros,
-                        file_imports: file_imports.clone(),
-                        exported_names: exported_names.clone(),
-                        uses_macros,
-                    },
-                );
-            }
-
-            if classes.is_empty()
-                && interfaces.is_empty()
-                && enums.is_empty()
-                && type_aliases.is_empty()
-            {
-                return Ok(uses_macros);
-            }
-
-            self.register_items(
-                registry,
-                project_root,
-                &file_name,
-                classes,
-                interfaces,
-                enums,
-                type_aliases,
-                file_imports,
-                exported_names,
+            cache_cell.borrow_mut().insert(
+                path.to_path_buf(),
+                CacheEntry {
+                    mtime_ns,
+                    size,
+                    classes: classes.clone(),
+                    interfaces: interfaces.clone(),
+                    enums: enums.clone(),
+                    type_aliases: type_aliases.clone(),
+                    declarative_macros,
+                    file_imports: file_imports.clone(),
+                    exported_names: exported_names.clone(),
+                    uses_macros,
+                },
             );
-            Ok(uses_macros)
         }
 
-        #[cfg(all(feature = "swc", not(feature = "oxc")))]
+        if classes.is_empty()
+            && interfaces.is_empty()
+            && enums.is_empty()
+            && type_aliases.is_empty()
         {
-            let module = crate::ts_syn::parse::parse_ts_module(&source, &file_name)
-                .map_err(|e| anyhow::anyhow!("Parse error: {}", e))?;
-
-            // Declarative macros are OXC-only; in the SWC-only build the
-            // declarative registry stays empty. Parameter is still threaded
-            // through so the call site is uniform.
-            let _ = declarative_registry;
-
-            let classes = lower_classes(&module, &source, None).unwrap_or_default();
-            let interfaces = lower_interfaces(&module, &source, None).unwrap_or_default();
-            let enums = lower_enums(&module, &source, None).unwrap_or_default();
-            let type_aliases = lower_type_aliases(&module, &source, None).unwrap_or_default();
-
-            if classes.is_empty()
-                && interfaces.is_empty()
-                && enums.is_empty()
-                && type_aliases.is_empty()
-            {
-                return Ok(uses_macros);
-            }
-
-            let file_imports = collect_file_imports(&module);
-            let exported_names = collect_exported_names(&module);
-
-            self.register_items(
-                registry,
-                project_root,
-                &file_name,
-                classes,
-                interfaces,
-                enums,
-                type_aliases,
-                file_imports,
-                exported_names,
-            );
-            Ok(uses_macros)
+            return Ok(uses_macros);
         }
-        #[cfg(all(not(feature = "swc"), not(feature = "oxc")))]
-        {
-            Err(anyhow::anyhow!("No compiler backend enabled"))
-        }
+
+        self.register_items(
+            registry,
+            project_root,
+            &file_name,
+            classes,
+            interfaces,
+            enums,
+            type_aliases,
+            file_imports,
+            exported_names,
+        );
+        Ok(uses_macros)
     }
 
     #[allow(clippy::too_many_arguments)]

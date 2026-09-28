@@ -1,5 +1,3 @@
-#![cfg(feature = "swc")]
-
 // Integration tests for ts_template! macro and derive macros
 // Migrated from tooling/playground/tests/rust-tests
 
@@ -17,9 +15,11 @@ mod ir_types;
 mod test_single;
 
 use macroforge_ts::macros::ts_template;
-use macroforge_ts::swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
-use macroforge_ts::swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 use macroforge_ts::ts_syn::abi::{MacroContextIR, SpanIR};
+use macroforge_ts::ts_syn::oxc::allocator::Allocator;
+use macroforge_ts::ts_syn::oxc::ast::ast::Program;
+use macroforge_ts::ts_syn::oxc::parser::Parser;
+use macroforge_ts::ts_syn::oxc::span::SourceType;
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, ParseTs, TsStream, lower_classes, lower_interfaces,
 };
@@ -32,91 +32,60 @@ fn capitalize(s: &str) -> String {
     }
 }
 
+fn parse<'a>(allocator: &'a Allocator, source: &'a str) -> Program<'a> {
+    let parsed = Parser::new(allocator, source, SourceType::ts()).parse();
+    assert!(
+        parsed.diagnostics.is_empty(),
+        "Failed to parse test source: {:?}",
+        parsed.diagnostics
+    );
+    parsed.program
+}
+
 // Helper to create a TsStream with valid context for testing derive macros
 fn create_test_stream(source: &str) -> TsStream {
-    GLOBALS.set(&Globals::new(), || {
-        let cm: Lrc<SourceMap> = Default::default();
-        let fm = cm.new_source_file(
-            FileName::Custom("test.ts".into()).into(),
-            source.to_string(),
-        );
+    let allocator = Allocator::default();
+    let classes =
+        lower_classes(&parse(&allocator, source), source, None).expect("Failed to lower classes");
+    let class = classes
+        .into_iter()
+        .next()
+        .expect("Expected at least one class in test source");
 
-        let lexer = Lexer::new(
-            Syntax::Typescript(TsSyntax {
-                tsx: false,
-                decorators: true,
-                ..Default::default()
-            }),
-            Default::default(),
-            StringInput::from(&*fm),
-            None,
-        );
+    let ctx = MacroContextIR::new_derive_class(
+        "TestMacro".to_string(),
+        "test-macro".to_string(),
+        SpanIR::new(0, 0), // Dummy spans
+        class.span,
+        "test.ts".to_string(),
+        class,
+        source.to_string(),
+    );
 
-        let mut parser = Parser::new_from(lexer);
-        let module = parser.parse_module().expect("Failed to parse test source");
-
-        let classes = lower_classes(&module, source, None).expect("Failed to lower classes");
-        let class = classes
-            .first()
-            .expect("Expected at least one class in test source")
-            .clone();
-
-        let ctx = MacroContextIR::new_derive_class(
-            "TestMacro".to_string(),
-            "test-macro".to_string(),
-            SpanIR::new(0, 0), // Dummy spans
-            class.span,
-            "test.ts".to_string(),
-            class,
-            source.to_string(),
-        );
-
-        TsStream::with_context(source, "test.ts", ctx).unwrap()
-    })
+    TsStream::with_context(source, "test.ts", ctx).expect("test stream should build")
 }
 
 // Helper to create a TsStream with valid context for testing derive macros on interfaces
 fn create_test_stream_interface(source: &str) -> TsStream {
-    GLOBALS.set(&Globals::new(), || {
-        let cm: Lrc<SourceMap> = Default::default();
-        let fm = cm.new_source_file(
-            FileName::Custom("test.ts".into()).into(),
-            source.to_string(),
-        );
+    let allocator = Allocator::default();
+    let interfaces = lower_interfaces(&parse(&allocator, source), source, None)
+        .expect("Failed to lower interfaces");
+    let interface = interfaces
+        .into_iter()
+        .next()
+        .expect("Expected at least one interface in test source");
 
-        let lexer = Lexer::new(
-            Syntax::Typescript(TsSyntax {
-                tsx: false,
-                decorators: true,
-                ..Default::default()
-            }),
-            Default::default(),
-            StringInput::from(&*fm),
-            None,
-        );
+    let ctx = MacroContextIR::new_derive_interface(
+        "TestMacro".to_string(),
+        "test-macro".to_string(),
+        SpanIR::new(0, 0), // Dummy spans
+        interface.span,
+        "test.ts".to_string(),
+        interface,
+        source.to_string(),
+    );
 
-        let mut parser = Parser::new_from(lexer);
-        let module = parser.parse_module().expect("Failed to parse test source");
-
-        let interfaces =
-            lower_interfaces(&module, source, None).expect("Failed to lower interfaces");
-        let interface = interfaces
-            .first()
-            .expect("Expected at least one interface in test source")
-            .clone();
-
-        let ctx = MacroContextIR::new_derive_interface(
-            "TestMacro".to_string(),
-            "test-macro".to_string(),
-            SpanIR::new(0, 0), // Dummy spans
-            interface.span,
-            "test.ts".to_string(),
-            interface,
-            source.to_string(),
-        );
-
-        TsStream::with_context(source, "test.ts", ctx).unwrap()
-    })
+    TsStream::with_context(source, "test.ts", ctx).expect("test stream should build")
 }
 
 #[test]
@@ -240,9 +209,9 @@ pub fn field_controller_macro() {
             let source = stream.source();
             println!("Generated FieldController Source:\n{}", source);
 
-            // Assertions - matching SWC default formatting
+            // Assertions on the emitted formatting
             assert!(source.contains("makeFormModelBaseProps"));
-            // SWC adds spaces around colons but NOT before generics
+            // Spaces around colons, none before generics
             assert!(source.contains("memoFieldController(superForm: SuperForm<FormModel>"));
             assert!(source.contains("descriptionFieldController(superForm: SuperForm<FormModel>"));
             // Check correct type generation

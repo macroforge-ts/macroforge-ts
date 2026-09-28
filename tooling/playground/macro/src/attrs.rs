@@ -4,7 +4,7 @@
 //! `/** @MacroName */` decorators on declarations.
 
 use macroforge_ts::macros::{ts_macro, ts_macro_attribute};
-use macroforge_ts::ts_syn::{MacroforgeError, Patch, PatchCode, TargetIR, TsStream};
+use macroforge_ts::ts_syn::{MacroforgeError, Patch, TargetIR, TsStream};
 
 /// `@traced` — wrap a function so every call increments a counter on
 /// `globalThis.__traced[fnName]`.
@@ -69,7 +69,7 @@ pub fn traced_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
     let mut out = TsStream::from_string(String::new());
     out.runtime_patches.push(Patch::Replace {
         span: f.span,
-        code: PatchCode::Text(replacement),
+        code: replacement,
         source_macro: Some("traced".to_string()),
     });
 

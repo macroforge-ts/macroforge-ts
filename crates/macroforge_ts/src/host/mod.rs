@@ -34,7 +34,7 @@
 //! ## Module Organization
 //!
 //! - [`attributes`] - Attribute macros (`@cfg`, `@deprecated`, `@mustUse`, `@nonExhaustive`)
-//! - [`buildtime`] - Sandboxed compile-time `@buildtime` evaluation
+//! - [`buildtime`] - Sandboxed build-time `@buildtime` evaluation
 //! - [`config`] - Configuration loading and management (`macroforge.config.ts`)
 //! - [`declarative`] - Declarative (pattern-matching) `$name(...)` macros
 //! - [`derived`] - Inventory-based registration for built-in derive macros
@@ -88,7 +88,7 @@ pub mod config;
 /// pre-pass that runs before `@buildtime` and derive dispatch.
 pub mod attributes;
 
-/// Compile-time `@buildtime` evaluation — sandboxed JS execution during
+/// Build-time `@buildtime` evaluation — sandboxed JS execution during
 /// source transformation, Zig-comptime style.
 pub mod buildtime;
 
@@ -138,8 +138,6 @@ pub use config::{
 };
 pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
-#[cfg(feature = "swc")]
-pub use expand::{ImportCollectionResult, collect_import_sources};
 pub use expand::{MacroExpander, MacroExpansion};
 pub use import_registry::{
     ImportRegistry, clear_foreign_types, clear_registry, install_registry, set_foreign_types,

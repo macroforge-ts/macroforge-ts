@@ -1,4 +1,5 @@
 use super::*;
+use crate::ts_syn::abi::DiagnosticLevel;
 
 #[test]
 fn test_derive_serialize_dts_output() {
@@ -305,13 +306,6 @@ class Point {
     assert!(
         !result.code.contains("`${"),
         "Should not have template literal syntax. Got:\n{}",
-        result.code
-    );
-
-    // Should NOT have #0 syntax context markers
-    assert!(
-        !result.code.contains("#0"),
-        "Should not have SWC syntax context markers. Got:\n{}",
         result.code
     );
 }

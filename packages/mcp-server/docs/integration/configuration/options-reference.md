@@ -11,8 +11,8 @@ Default
 `false`
 
 Whether to preserve `@derive` decorators in the output code after macro expansion. When `false`,
-decorators are removed after expansion since they serve only as compile-time directives. When
-`true`, decorators are kept in the output, which can be useful for debugging or when using runtime
+decorators are removed after expansion since they serve only as build-time directives. When `true`,
+decorators are kept in the output, which can be useful for debugging or when using runtime
 reflection.
 
 ### generateConvenienceConst

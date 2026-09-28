@@ -1,9 +1,9 @@
 use convert_case::{Case, Casing};
 
+use crate::ast::Expr;
 use crate::builtin::derive_common::CompareFieldOptions;
 use crate::builtin::return_types::partial_ord_return_type;
 use crate::macros::{ts_macro_derive, ts_template};
-use crate::swc_ecma_ast::Expr;
 use crate::ts_syn::ts_ident;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 

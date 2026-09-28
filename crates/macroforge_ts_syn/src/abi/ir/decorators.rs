@@ -22,9 +22,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::abi::SpanIR;
 
-#[cfg(feature = "swc")]
-use crate::abi::swc_ast;
-
 /// Intermediate representation of a JSDoc macro directive.
 ///
 /// Captures the decorator name and its arguments as raw source text,
@@ -73,12 +70,6 @@ pub struct DecoratorIR {
 
     /// Source span of the decorator.
     pub span: SpanIR,
-
-    /// Always `None`: it carried a native decorator's AST, and native
-    /// decorators are not lowered.
-    #[cfg(feature = "swc")]
-    #[serde(skip)]
-    pub node: Option<swc_ast::Decorator>,
 }
 
 impl DecoratorIR {

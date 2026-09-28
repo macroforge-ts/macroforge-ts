@@ -13,7 +13,7 @@
 use macroforge_ts_syn::config::DeprecatedConfig;
 
 use super::discovery::{AttributeAnnotation, AttributeKind};
-use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, PatchCode, SpanIR};
+use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, SpanIR};
 
 pub fn apply(
     annotations: &[&AttributeAnnotation],
@@ -59,7 +59,7 @@ pub fn apply(
         };
         patches.push(Patch::Replace {
             span: ann.jsdoc_span,
-            code: PatchCode::Text(replacement),
+            code: replacement,
             source_macro: Some("deprecated".into()),
         });
 

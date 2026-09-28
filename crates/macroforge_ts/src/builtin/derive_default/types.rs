@@ -16,7 +16,7 @@ pub(super) struct DefaultField {
     pub value: String,
 }
 
-/// Emit compile-time warnings for fields whose types are in the type registry
+/// Emit build-time warnings for fields whose types are in the type registry
 /// but do not derive `Default`. The generated code will still call `typeNameDefaultValue()`,
 /// which may fail at runtime if the type doesn't actually provide that function.
 pub(super) fn validate_default_fields(

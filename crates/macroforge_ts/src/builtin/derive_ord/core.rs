@@ -1,11 +1,9 @@
 use convert_case::{Case, Casing};
 
+use crate::ast::{Expr, Ident};
 use crate::builtin::derive_common::CompareFieldOptions;
 use crate::macros::{ts_macro_derive, ts_template};
-use crate::swc_ecma_ast::{Expr, Ident};
-use crate::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, parse_ts_expr, parse_ts_macro_input, ts_ident,
-};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input, ts_ident};
 
 use super::comparison::generate_field_compare_for_interface;
 use super::types::OrdField;
@@ -60,7 +58,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                             resolved,
                             type_registry,
                         );
-                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                        let expr = Expr::parse(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
                                 format!(
@@ -69,7 +67,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                                 ),
                             )
                         })?;
-                        Ok((cmp_ident, *expr))
+                        Ok((cmp_ident, expr))
                     })
                     .collect::<Result<_, MacroforgeError>>()?;
 
@@ -159,7 +157,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                             resolved,
                             type_registry,
                         );
-                        let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                        let expr = Expr::parse(&expr_src).map_err(|err| {
                             MacroforgeError::new(
                                 input.decorator_span(),
                                 format!(
@@ -168,7 +166,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                                 ),
                             )
                         })?;
-                        Ok((cmp_ident, *expr))
+                        Ok((cmp_ident, expr))
                     })
                     .collect::<Result<_, MacroforgeError>>()?;
 
@@ -227,7 +225,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         let expr_src = generate_field_compare_for_interface(
                             f, "a", "b", resolved, type_registry,
                         );
-                            let expr = parse_ts_expr(&expr_src).map_err(|err| {
+                            let expr = Expr::parse(&expr_src).map_err(|err| {
                                 MacroforgeError::new(
                                     input.decorator_span(),
                                     format!(
@@ -236,7 +234,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                                     ),
                                 )
                             })?;
-                            Ok((cmp_ident, *expr))
+                            Ok((cmp_ident, expr))
                         })
                         .collect::<Result<_, MacroforgeError>>()?;
 

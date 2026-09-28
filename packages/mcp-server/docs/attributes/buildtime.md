@@ -1,8 +1,8 @@
 # Buildtime Evaluation
 
 `@buildtime` runs a piece of TypeScript **during the build** and replaces it with its result.
-Reading a schema file, hashing a manifest, or stamping a build time all become compile-time
-constants rather than runtime work.
+Reading a schema file, hashing a manifest, or stamping a build time all become build-time constants
+rather than runtime work.
 
 ```typescript
 import { buildtime } from '@macroforge/core/buildtime';

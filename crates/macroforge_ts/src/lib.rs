@@ -16,8 +16,7 @@
 //! The crate is organized into several key components:
 //!
 //! - **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade that both
-//!   bindings delegate to. (The `MacroforgeApi` trait sketches the same surface but is
-//!   currently not implemented by anything.)
+//!   bindings delegate to.
 //! - **Target Bindings**:
 //!   - `bindings_napi`: Node.js specific entry points using NAPI-RS.
 //!   - `bindings_wasm`: Universal entry points using `wasm-bindgen`.
@@ -40,7 +39,7 @@
 //! This crate re-exports several dependencies for convenience when writing custom macros:
 //! - `ts_syn`: TypeScript syntax types for AST manipulation
 //! - `macros`: Macro attributes and quote templates
-//! - `swc_core`, `swc_common`, `swc_ecma_ast`: SWC compatibility infrastructure
+//! - `ast`: Source-backed expression and identifier values for templates
 
 // Allow the crate to reference itself as `macroforge_ts`.
 // This self-reference is required for the macroforge_ts_macros generated code
@@ -141,93 +140,7 @@ macro_rules! if_wasm_else {
     };
 }
 
-#[cfg(feature = "swc")]
-#[macro_export]
-macro_rules! if_swc { ($($tokens:tt)*) => { $($tokens)* } }
-#[cfg(not(feature = "swc"))]
-#[macro_export]
-macro_rules! if_swc {
-    ($($tokens:tt)*) => {};
-}
-
-// ============================================================================
-// Wrapper macros for proper $crate resolution
-// ============================================================================
-// These wrapper macros ensure that $crate resolves to macroforge_ts (this crate)
-// rather than macroforge_ts_syn, allowing users to only depend on macroforge_ts.
-
-/// Creates an SWC [`Ident`](swc_core::ecma::ast::Ident) from a string or format expression.
-///
-/// This is a re-export wrapper that ensures `$crate` resolves correctly when
-/// used from crates that only depend on `macroforge_ts`.
-///
-/// # Examples
-///
-/// ```rust,ignore
-/// use macroforge_ts::ident;
-///
-/// let simple = ident!("foo");
-/// let formatted = ident!("{}Bar", "foo");
-/// ```
-#[cfg(feature = "swc")]
-#[macro_export]
-macro_rules! ident {
-    ($name:expr) => {
-        $crate::swc_core::ecma::ast::Ident::new_no_ctxt(
-            AsRef::<str>::as_ref(&$name).into(),
-            $crate::swc_core::common::DUMMY_SP,
-        )
-    };
-    ($fmt:expr, $($args:expr),+ $(,)?) => {
-        $crate::swc_core::ecma::ast::Ident::new_no_ctxt(
-            format!($fmt, $($args),+).into(),
-            $crate::swc_core::common::DUMMY_SP,
-        )
-    };
-}
-
-#[cfg(all(feature = "oxc", not(feature = "swc")))]
-#[macro_export]
-macro_rules! ident {
-    ($name:expr) => {
-        $crate::swc_ecma_ast::Ident::new(AsRef::<str>::as_ref(&$name))
-    };
-    ($fmt:expr, $($args:expr),+ $(,)?) => {
-        $crate::swc_ecma_ast::Ident::new(format!($fmt, $($args),+))
-    };
-}
-
-/// Creates a private (marked) SWC [`Ident`](swc_core::ecma::ast::Ident).
-///
-/// Unlike [`ident!`], this macro creates an identifier with a fresh hygiene mark,
-/// making it unique and preventing name collisions with user code.
-#[cfg(feature = "swc")]
-#[macro_export]
-macro_rules! private_ident {
-    ($name:expr) => {{
-        let mark = $crate::swc_core::common::Mark::fresh($crate::swc_core::common::Mark::root());
-        $crate::swc_core::ecma::ast::Ident::new(
-            $name.into(),
-            $crate::swc_core::common::DUMMY_SP,
-            $crate::swc_core::common::SyntaxContext::empty().apply_mark(mark),
-        )
-    }};
-}
-
-#[cfg(all(feature = "oxc", not(feature = "swc")))]
-#[macro_export]
-macro_rules! private_ident {
-    ($name:expr) => {
-        $crate::swc_ecma_ast::Ident::new($name)
-    };
-}
-
-// Re-export swc_core and common modules (via ts_syn for version consistency)
-#[cfg(feature = "swc")]
-pub use macroforge_ts_syn::swc_common;
-#[cfg(feature = "swc")]
-pub use macroforge_ts_syn::swc_core;
-pub use macroforge_ts_syn::swc_ecma_ast;
+pub use macroforge_ts_syn::ast;
 
 // ============================================================================
 // Internal modules
@@ -253,11 +166,9 @@ pub mod api;
 pub mod api_types;
 mod expand_core;
 pub use expand_core::has_macro_annotations;
-#[cfg(feature = "oxc")]
 pub use expand_core::macro_imports;
 mod manifest;
 pub mod package;
-#[cfg(feature = "oxc")]
 mod source_type;
 
 #[cfg(feature = "node")]
@@ -275,7 +186,7 @@ mod position_mapper;
 pub use api_types::{
     ExpandOptions, ExpandResult, GeneratedRegionResult, ImportSourceResult, JsDiagnostic,
     LoadConfigResult, MacroDiagnostic, MappingSegmentResult, ProcessFileOptions, ScanOptions,
-    ScanResult, SourceMappingResult, SpanResult, SyntaxCheckResult, TransformResult,
+    ScanResult, SourceMappingResult, SpanResult, SyntaxCheckResult,
 };
 
 #[cfg(feature = "node")]
@@ -288,7 +199,7 @@ pub use plugin::NativePlugin;
 #[cfg(feature = "node")]
 pub use bindings_napi::{
     check_syntax, clear_config_cache, derive_decorator, expand, expand_sync, load_config,
-    parse_import_sources, scan_project_sync, transform_sync,
+    parse_import_sources, scan_project_sync,
 };
 
 // ============================================================================
@@ -360,7 +271,7 @@ pub use bindings_wasm::{
     check_syntax as wasm_check_syntax, clear_config_cache as wasm_clear_config_cache,
     derive_decorator as wasm_derive_decorator, expand_sync as wasm_expand_sync,
     load_config as wasm_load_config, parse_import_sources as wasm_parse_import_sources,
-    scan_project_sync as wasm_scan_project_sync, transform_sync as wasm_transform_sync,
+    scan_project_sync as wasm_scan_project_sync,
 };
 
 pub use manifest::{

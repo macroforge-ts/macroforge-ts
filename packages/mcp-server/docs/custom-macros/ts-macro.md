@@ -61,7 +61,7 @@ Rust
 ```
 #[ts_macro(
     sql,
-    description = "Compile-time SQL validation"
+    description = "Build-time SQL validation"
 )]
 ```
 
@@ -118,7 +118,7 @@ export { stringify as $stringify };
 ```
 
 Consumers can import the `$`-prefixed alias from the generated package and both the runtime (as a
-passthrough) and the compile-time expansion will work.
+passthrough) and the build-time expansion will work.
 
 ## Importing Call Macros in Consumer Code
 
