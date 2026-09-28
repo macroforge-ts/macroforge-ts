@@ -6,14 +6,16 @@ use crate::core::shell;
 use anyhow::{Context, Result};
 use std::path::Path;
 
-/// What a run does about formatting before the other tools.
+/// What a run changes before it reports.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub enum Formatting {
+pub enum Fixes {
+    /// Report only.
     #[default]
     Skip,
-    /// Rewrite unformatted files, for local use.
-    Fix,
-    /// Fail on unformatted files, for gates that must not edit the tree.
+    /// Format the tree and apply lint fixes, for local use.
+    Apply,
+    /// Fail on unformatted files and change nothing, for gates that must not
+    /// edit the tree.
     Check,
 }
 
@@ -24,18 +26,18 @@ pub struct DiagnosticOptions {
     pub clippy: bool,
     pub tsc: bool,
     pub svelte: bool,
-    pub formatting: Formatting,
+    pub fixes: Fixes,
 }
 
 impl DiagnosticOptions {
-    /// Enable all tools (formatting is controlled separately)
+    /// Enable all tools (fixes are controlled separately)
     pub fn all() -> Self {
         Self {
             deno_lint: true,
             clippy: true,
             tsc: true,
             svelte: true,
-            formatting: Formatting::Skip,
+            fixes: Fixes::Skip,
         }
     }
 
@@ -76,18 +78,23 @@ impl DiagnosticsRunner {
     pub fn run(&self) -> Result<DiagnosticAggregator> {
         let mut aggregator = DiagnosticAggregator::new();
 
-        match self.options.formatting {
-            Formatting::Skip => {}
-            Formatting::Fix => self.format(false)?,
-            Formatting::Check => self.format(true)?,
+        let apply = self.options.fixes == Fixes::Apply;
+        match self.options.fixes {
+            Fixes::Skip => {}
+            Fixes::Apply => self.format(false)?,
+            Fixes::Check => self.format(true)?,
         }
 
         if self.options.deno_lint {
             eprintln!("Running deno lint...");
-            aggregator.add_all(deno_lint::run(&self.root).context("deno lint failed")?);
+            aggregator.add_all(deno_lint::run(&self.root, apply).context("deno lint failed")?);
         }
 
         if self.options.clippy {
+            if apply {
+                eprintln!("Applying clippy fixes...");
+                clippy::fix(&self.root).context("cargo clippy --fix failed")?;
+            }
             eprintln!("Running clippy...");
             aggregator.add_all(clippy::run(&self.root).context("clippy failed")?);
         }

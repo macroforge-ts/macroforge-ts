@@ -181,7 +181,7 @@
 //!
 //! The CLI loads and respects `macroforge.config.ts/js` for foreign type configuration.
 //! The config is parsed natively without requiring Node.js. External macros are
-//! supported via FFI (compiled `.node`/`.dylib`/`.so` packages loaded with dlopen).
+//! supported by running the package's wasm, which `macroforge build` produces.
 
 mod atomic_fs;
 mod build;

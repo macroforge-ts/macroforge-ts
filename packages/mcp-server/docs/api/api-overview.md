@@ -1,6 +1,6 @@
 # API Reference
 
-macroforge v0.3.1 51 exported items
+macroforge v0.4.0 37 exported items
 
 Macroforge provides a programmatic API for expanding macros in TypeScript code.
 

@@ -1,11 +1,11 @@
 [package]
 name = "vtsls_macroforge"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
 publish = false
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-zed_extension_api = "0.7.0"
+zed_extension_api = { workspace = true }

@@ -581,11 +581,7 @@ fn plan<'a>(
         let Some((name, repo)) = config.repos.get_key_value(name.as_str()) else {
             continue;
         };
-        let pkg_version = config
-            .versions
-            .get_local(name)
-            .unwrap_or(version)
-            .to_string();
+        let pkg_version = version.to_string();
         // The package each selected registry publishes this repo as.
         let crate_name = match repo.repo_type {
             RepoType::Rust => repo
@@ -697,11 +693,7 @@ fn print_summary(report: &Report, dry_run: bool) {
 /// Entry point for `mf publish-local`: publishes unpublished packages in dependency order.
 pub fn run(args: &PublishLocalArgs) -> Result<()> {
     let config = Config::load()?;
-    let version = config
-        .versions
-        .get_local("core")
-        .context("No local version for 'core'")?
-        .to_string();
+    let version = manifests::current_version(&config.root)?;
 
     format::header("Publish Local");
     if args.dry_run {

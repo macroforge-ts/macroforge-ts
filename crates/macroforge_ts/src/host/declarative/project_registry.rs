@@ -8,8 +8,8 @@
 //! cross-file macro imports can resolve without a second file-tree
 //! traversal.
 //!
-//! The registry is `Serialize + Deserialize` so it can cross the NAPI /
-//! WASM boundary as JSON, mirroring how `TypeRegistry` is threaded
+//! The registry is `Serialize + Deserialize` so it can cross the WASM
+//! boundary as JSON, mirroring how `TypeRegistry` is threaded
 //! through `ExpandOptions.type_registry_json`.
 
 use std::collections::BTreeMap;
@@ -113,7 +113,7 @@ impl ProjectDeclarativeRegistry {
         None
     }
 
-    /// Serialize to JSON for crossing the NAPI/WASM boundary.
+    /// Serialize to JSON for crossing the WASM boundary.
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string(self)
     }

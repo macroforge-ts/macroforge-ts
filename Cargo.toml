@@ -8,10 +8,85 @@ members = [
     "crates/extensions/vtsls_macroforge",
     "tooling/scripts",
 ]
-# Built with its own napi/wasm toolchain and never published, so it resolves
+# Built with its own wasm toolchain and never published, so it resolves
 # on its own rather than against this lockfile.
 exclude = ["tooling/playground/macro"]
 resolver = "3"
+
+# The released crates carry the release version; mf bump writes it here and in
+# the internal requirements below.
+[workspace.package]
+version = "0.4.0"
+edition = "2024"
+authors = ["macroforge contributors"]
+license = "MIT"
+repository = "https://gitlab.com/macroforge-ts/macroforge-ts"
+homepage = "https://macroforge.dev"
+keywords = ["typescript", "macros", "codegen", "derive"]
+categories = ["development-tools::procedural-macro-helpers"]
+
+# Every dependency's version and features, for every member. One feature set
+# per crate means each is compiled once, whichever members a build selects.
+[workspace.dependencies]
+macroforge_ts_macros = { version = "0.4.0", path = "crates/macroforge_ts_macros" }
+macroforge_ts_quote = { version = "0.4.0", path = "crates/macroforge_ts_quote" }
+macroforge_ts_syn = { version = "0.4.0", path = "crates/macroforge_ts_syn" }
+
+anyhow = "1.0.104"
+assert_cmd = "2.2.2"
+boa_engine = "0.22.0"
+clap = { version = "4.6.7", features = ["derive", "env", "wrap_help"] }
+colored = "3.1.1"
+convert_case = "0.12.0"
+criterion = { version = "0.8.2", features = ["html_reports"] }
+dashmap = "6.2.1"
+dialoguer = "0.12.0"
+# Boa pulls in `getrandom` transitively. A wasm32-unknown-unknown target
+# says nothing about whether a JavaScript host exists, so the backend is
+# chosen here: `wasm_js` reaches Crypto.getRandomValues through wasm-bindgen.
+getrandom = { version = "0.4.3", features = ["wasm_js"] }
+globset = "0.4.20"
+hex = "0.4.3"
+htmd = "0.5.5"
+ignore = "0.4.33"
+indexmap = { version = "2.14.2", features = ["serde"] }
+insta = { version = "1.48.0", features = ["glob"] }
+inventory = "0.3.24"
+js-sys = "0.3.106"
+notify-debouncer-full = "0.7.0"
+oxc = { version = "0.152.0", features = ["codegen", "ast_visit", "transformer", "semantic"] }
+pathdiff = "0.2.3"
+predicates = "3.1.4"
+proc-macro2 = { version = "1.0.107", features = ["proc-macro", "span-locations"] }
+quote = "1.0.47"
+rayon = "1.12.0"
+regex = "1.13.1"
+rustc-hash = "2.1.3"
+scraper = "0.27.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde-wasm-bindgen = "0.6.5"
+# `preserve_order` keeps object keys in file order. Without it mf's manifest
+# rewrites would sort them, reordering npm export conditions and putting
+# `default` ahead of `types`, which makes the later conditions unreachable.
+serde_json = { version = "1.0.151", features = ["preserve_order"] }
+sha2 = "0.11.0"
+syn = { version = "3.0.6", features = ["full"] }
+tempfile = "3.27.0"
+thiserror = "2.0.21"
+toml = "1.1.6"
+trybuild = "1.0.121"
+unicode-ident = "1.0.26"
+ureq = { version = "3.4.2", features = ["json"] }
+url = "2.5.8"
+walkdir = "2.5.0"
+# Must match the wasm-bindgen-cli that `pixi run setup:wasm-bindgen` installs.
+wasm-bindgen = "0.2.129"
+web-time = "1.1.0"
+# `portable-dispatch`: the default tail-call dispatch pushes a native frame per
+# executed instruction unless LLVM turns each call into a jump, which a dev
+# build does not, so any real macro overflowed the stack of a debug CLI.
+wasmi = { version = "2.0.0", features = ["portable-dispatch"] }
+zed_extension_api = "0.7.0"
 
 [profile.release]
 lto = true

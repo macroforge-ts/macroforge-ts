@@ -18,5 +18,3 @@ deno-plugin = ["core", "shared"]
 
 [other]
 website = ["core"]
-zed-extensions = ["typescript-plugin", "svelte-language-server"]
-tooling = ["core", "vite-plugin", "typescript-plugin", "svelte-preprocessor"]

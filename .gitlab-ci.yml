@@ -44,10 +44,10 @@ release-check:
     variables:
         GIT_DEPTH: 0
     script:
-        - version="$(jq -r .core.local tooling/versions.json)"
+        - version="$(jq -r .version crates/macroforge_ts/package.json)"
         - |
               if [ "$CI_COMMIT_TAG" != "v$version" ]; then
-                echo "Tag $CI_COMMIT_TAG does not match version $version in tooling/versions.json."
+                echo "Tag $CI_COMMIT_TAG does not match version $version in crates/macroforge_ts/package.json."
                 exit 1
               fi
         - git fetch --quiet origin "$CI_DEFAULT_BRANCH"

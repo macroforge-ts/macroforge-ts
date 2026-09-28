@@ -1,6 +1,6 @@
 # NativePlugin
 
-macroforge v0.3.1
+macroforge v0.4.0
 
 A stateful expander for editor integrations: it caches each file's expansion by version and maps
 positions and diagnostics back to the source.

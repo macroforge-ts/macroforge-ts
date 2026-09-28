@@ -32,9 +32,9 @@ fn singleton() -> &'static std::sync::Mutex<Option<CachedScanner>> {
 
 /// Output-agnostic facade over the macro engine.
 ///
-/// Every public entry point in `bindings_napi` and `bindings_wasm` delegates
-/// to an associated function here, so this is the single place where
-/// parsing, expansion, and scanning behavior is defined for both targets.
+/// Every public entry point in `bindings_wasm`, and the CLI, delegates to an
+/// associated function here, so this is the single place where parsing,
+/// expansion, and scanning behavior is defined.
 /// On native targets, [`CoreEngine::expand_sync`] and
 /// [`CoreEngine::scan_project_sync`] run their work on a dedicated worker
 /// thread with a 32MB stack (deep AST recursion overflows the default stack)

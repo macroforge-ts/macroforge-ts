@@ -11,7 +11,7 @@ use crate::core::config::Config;
 use crate::core::deps;
 use crate::core::repos::{Repo, RepoType};
 use crate::core::shell;
-use crate::diagnostics::runner::{DiagnosticOptions, DiagnosticsRunner, Formatting};
+use crate::diagnostics::runner::{DiagnosticOptions, DiagnosticsRunner, Fixes};
 use anyhow::{Context, Result};
 use colored::Colorize;
 use std::io::{self, Write};
@@ -41,36 +41,23 @@ fn has_build_step(repo: &Repo) -> Result<bool> {
         RepoType::Rust => repo.name == "core",
         RepoType::Ts => repo.has_script("build")?,
         RepoType::Website => true,
-        RepoType::Tooling | RepoType::Extension => false,
     })
 }
 
 /// Build a single repository. Dependencies are installed once for the whole
 /// workspace beforehand, and repos build in dependency order, which the npm
 /// packages rely on: each links the built outputs of the ones it depends on.
-fn build_repo(repo: &Repo, verbose: bool) -> Result<()> {
-    match repo.repo_type {
-        RepoType::Rust => {
-            // NAPI_BUILD_SKIP_WATCHER stops build.rs from spawning another napi build.
-            shell::run(
-                "NAPI_BUILD_SKIP_WATCHER=1 deno task build",
-                &repo.abs_path,
-                verbose,
-            )?;
-        }
-        RepoType::Ts | RepoType::Website => {
-            shell::deno::task(&repo.abs_path, "build")?;
-        }
-        RepoType::Tooling | RepoType::Extension => {}
-    }
+fn build_repo(repo: &Repo) -> Result<()> {
+    shell::deno::task(&repo.abs_path, "build")?;
     Ok(())
 }
 
-/// Every diagnostic tool, with formatting checked rather than applied: a gate
-/// that rewrites files can pass on a tree nobody committed.
-fn run_diagnostics(config: &Config) -> Result<()> {
+/// Every diagnostic tool. Locally the formatting and lint fixes are applied
+/// first; with `check` nothing is changed, since a gate that rewrites files can
+/// pass on a tree nobody committed.
+fn run_diagnostics(config: &Config, check: bool) -> Result<()> {
     let options = DiagnosticOptions {
-        formatting: Formatting::Check,
+        fixes: if check { Fixes::Check } else { Fixes::Apply },
         ..DiagnosticOptions::all()
     };
     let aggregator = DiagnosticsRunner::new(&config.root, options).run()?;
@@ -112,7 +99,6 @@ fn build_extensions(config: &Config) -> Result<()> {
 /// Entry point for `mf verify`: builds, checks and tests the whole workspace.
 pub fn run(args: VerifyArgs) -> Result<()> {
     let config = Config::load()?;
-    let verbose = std::env::var("VERBOSE").is_ok() || std::env::var("DEBUG").is_ok();
 
     let repos: Vec<&Repo> = deps::topo_order(&config.deps)?
         .iter()
@@ -156,7 +142,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
             }
             print!("  {} {}... ", "Building:".bold(), repo.name.cyan());
             io::stdout().flush()?;
-            build_repo(repo, verbose).with_context(|| format!("Build failed for {}", repo.name))?;
+            build_repo(repo).with_context(|| format!("Build failed for {}", repo.name))?;
             println!("{}", "done".green());
         }
         // The playground is type-checked next, against the packages it links.
@@ -166,7 +152,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
     // After the build: the type-checks expand through the engine it just
     // produced, not whatever an earlier build left behind.
     step(4, "Running diagnostics");
-    run_diagnostics(&config)?;
+    run_diagnostics(&config, args.check)?;
 
     if args.skip_build {
         skipped(5, "JSR publish check");

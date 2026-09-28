@@ -44,7 +44,7 @@ const USE_CASES: &[(&str, &str)] = &[
     ),
     (
         "/docs/concepts/architecture",
-        "internals, rust, oxc, napi, how it works",
+        "internals, rust, oxc, wasm, how it works",
     ),
     // Built-in Macros
     (
@@ -94,7 +94,7 @@ const USE_CASES: &[(&str, &str)] = &[
     ),
     (
         "/docs/custom-macros/rust-setup",
-        "rust, cargo, napi, compilation, building",
+        "rust, cargo, wasm, compilation, building",
     ),
     (
         "/docs/custom-macros/ts-macro-derive",

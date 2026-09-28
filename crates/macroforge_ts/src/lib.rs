@@ -1,9 +1,8 @@
 //! # Macroforge TypeScript Macro Engine
 //!
 //! This crate provides a TypeScript macro expansion engine that brings Rust-like derive macros
-//! to TypeScript. It supports multiple output targets via feature flags:
-//! - `wasm`: (Default) Universal WebAssembly module via wasm-bindgen for browser and edge environments.
-//! - `node`: Optional native Node.js bindings via NAPI-RS.
+//! to TypeScript. It ships as a WebAssembly module (the default `wasm` feature, through
+//! wasm-bindgen) and as the native `macroforge` CLI.
 //!
 //! ## Overview
 //!
@@ -15,11 +14,9 @@
 //!
 //! The crate is organized into several key components:
 //!
-//! - **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade that both
-//!   bindings delegate to.
-//! - **Target Bindings**:
-//!   - `bindings_napi`: Node.js specific entry points using NAPI-RS.
-//!   - `bindings_wasm`: Universal entry points using `wasm-bindgen`.
+//! - **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade the bindings
+//!   delegate to.
+//! - **Bindings** (`bindings_wasm`): the JavaScript entry points, through `wasm-bindgen`.
 //! - **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping
 //!   for IDE integration.
 //! - **Macro Host** (`host` module): Core expansion engine with registry and dispatcher.
@@ -57,10 +54,6 @@ pub extern crate inventory;
 pub extern crate macroforge_ts_macros;
 pub extern crate macroforge_ts_quote;
 pub extern crate macroforge_ts_syn;
-#[cfg(feature = "node")]
-pub extern crate napi;
-#[cfg(feature = "node")]
-pub extern crate napi_derive;
 pub extern crate serde_json;
 #[cfg(feature = "wasm")]
 pub extern crate serde_wasm_bindgen;
@@ -91,30 +84,6 @@ pub mod macros {
 // ============================================================================
 // These macros allow generated code in dependent crates to react to the features
 // enabled in macroforge_ts without needing to define those same features themselves.
-
-#[cfg(feature = "node")]
-#[macro_export]
-macro_rules! if_node { ($($tokens:tt)*) => { $($tokens)* } }
-#[cfg(not(feature = "node"))]
-#[macro_export]
-macro_rules! if_node {
-    ($($tokens:tt)*) => {};
-}
-
-#[cfg(feature = "node")]
-#[macro_export]
-macro_rules! if_node_else {
-    ($item:expr, $else:expr) => {
-        $item
-    };
-}
-#[cfg(not(feature = "node"))]
-#[macro_export]
-macro_rules! if_node_else {
-    ($item:expr, $else:expr) => {
-        $else
-    };
-}
 
 #[cfg(feature = "wasm")]
 #[macro_export]
@@ -147,10 +116,6 @@ pub use macroforge_ts_syn::ast;
 // ============================================================================
 pub mod host;
 
-// Build script utilities (enabled with "build" feature)
-#[cfg(feature = "build")]
-pub mod build;
-
 // Re-export abi types from ts_syn
 pub use ts_syn::abi;
 
@@ -171,13 +136,9 @@ mod manifest;
 pub mod package;
 mod source_type;
 
-#[cfg(feature = "node")]
-pub mod bindings_napi;
 #[cfg(feature = "wasm")]
 pub mod bindings_wasm;
 
-#[cfg(feature = "node")]
-mod plugin;
 mod position_mapper;
 
 // ============================================================================
@@ -189,33 +150,16 @@ pub use api_types::{
     ScanResult, SourceMappingResult, SpanResult, SyntaxCheckResult,
 };
 
-#[cfg(feature = "node")]
-pub use position_mapper::NativeMapper;
 pub use position_mapper::NativePositionMapper;
-
-#[cfg(feature = "node")]
-pub use plugin::NativePlugin;
-
-#[cfg(feature = "node")]
-pub use bindings_napi::{
-    check_syntax, clear_config_cache, derive_decorator, expand, expand_sync, load_config,
-    parse_import_sources, scan_project_sync,
-};
 
 // ============================================================================
 // C-ABI support for external macro loading
 // ============================================================================
 //
-// Host-agnostic by construction: pointers and lengths only, never JS values. A
-// native host reaches these through dlopen; a wasm host instantiates the module
-// and calls the same names as ordinary wasm exports, reading results out of
-// exported linear memory.
-//
-// These two have always been ungated and so already appear in wasm builds. The
-// per-macro `__macroforge_ffi_run_*` in `macroforge_ts_macros` was gated behind
-// the `node` feature — which enables napi and therefore cannot be set for a
-// wasm target — leaving wasm packages with a manifest and a deallocator but no
-// way to actually invoke a macro. It is now emitted for every target to match.
+// Pointers and lengths only, never JS values: the CLI instantiates a macro
+// package's wasm with wasmi and calls these as ordinary exports, reading results
+// out of the module's linear memory. The per-macro `__macroforge_ffi_run_*` are
+// emitted by `macroforge_ts_macros`.
 
 /// Free a buffer allocated by an FFI function.
 /// Must be called by the host after reading the output.

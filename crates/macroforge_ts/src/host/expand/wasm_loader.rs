@@ -1,12 +1,8 @@
 //! Running wasm macro packages from the native host.
 //!
-//! `macroforge build` produces a wasm artifact, so without this the CLI could
-//! not load the packages its own build command emits — only a JS host could.
-//! This makes wasm a peer of `.node`/`.dylib` rather than a JS-only format.
-//!
-//! The contract is the same C ABI the native path uses, because that ABI was
-//! never native-specific: pointers and lengths over linear memory is exactly
-//! what a wasm export is.
+//! `macroforge build` produces a wasm artifact, and this is how the CLI runs
+//! it. The contract is a plain C ABI over pointers and lengths, which is
+//! exactly what a wasm export over linear memory is.
 //!
 //! ```text
 //! __macroforge_ffi_run_<macro>(ctx_ptr, ctx_len, out_ptr, out_len) -> i32

@@ -1,6 +1,6 @@
 {
     "name": "@macroforge/shared",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "description": "Shared utilities for Macroforge plugins",
     "exports": [
         {
@@ -19,7 +19,7 @@
             "name": "ExpandOptions",
             "kind": "interface",
             "type": null,
-            "description": "Options accepted by the native engine's `expandSync(code, filepath, options)`. Mirrors the napi `ExpandOptions` object (camelCase over the ABI boundary)."
+            "description": "Options accepted by the engine's `expandSync(code, filepath, options)`. Mirrors the engine's `ExpandOptions` (camelCase over the wasm boundary)."
         },
         {
             "name": "MacroManifest",

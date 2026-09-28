@@ -1,11 +1,7 @@
-//! Manifest manipulation core functions
-//!
-//! Handles reading/writing versions to package.json and Cargo.toml,
-//! managing versions.json cache, and swapping dependency paths.
+//! Package manifests: what the tooling reads from them, and the release
+//! version every one of them carries.
 
-use crate::core::config::Config;
 use crate::core::repos::Repo;
-use crate::core::versions::VersionsCache;
 use crate::utils::format;
 use anyhow::{Context, Result};
 use serde_json::{Value, json};
@@ -81,143 +77,117 @@ pub fn npm_depends_on(dir: &Path, package: &str) -> Result<bool> {
     }))
 }
 
-/// Write one repo's version into every manifest that carries it.
-///
-/// The single place that knows which files a version lives in. Bumping and
-/// rolling back both go through it, because when they each had their own list
-/// the rollback's was short one entry and left every `deno.json` at the version
-/// of the build that failed.
-fn write_repo_version(repo: &Repo, version: &str, versions: &VersionsCache) -> Result<()> {
-    if let Some(pkg_path) = &repo.package_json {
-        update_package_json(pkg_path, version, versions)?;
-    }
-    if let Some(cargo_path) = &repo.cargo_toml {
-        update_cargo_toml(cargo_path, version, versions)?;
-    }
-    update_jsr_json(&repo.abs_path, version)
+/// The package whose manifest holds the release version. Every package
+/// carries the same one; this is where it is read.
+const VERSION_MANIFEST: &str = "crates/macroforge_ts/package.json";
+
+#[derive(serde::Deserialize)]
+struct VersionedManifest {
+    version: String,
 }
 
-/// Set version in a repo's manifest files
-pub fn set_version(
-    config: &Config,
-    versions: &mut VersionsCache,
-    repo: &str,
-    version: &str,
-) -> Result<()> {
-    if let Some(r) = config.repos.get(repo) {
-        write_repo_version(r, version, versions)?;
-    }
-    versions.set_local(repo, version);
-    Ok(())
+/// The release version every package carries.
+pub fn current_version(root: &Path) -> Result<String> {
+    let path = root.join(VERSION_MANIFEST);
+    let content =
+        fs::read_to_string(&path).with_context(|| format!("failed to read {}", path.display()))?;
+    let manifest: VersionedManifest = serde_json::from_str(&content)
+        .with_context(|| format!("{} has no readable version", path.display()))?;
+    Ok(manifest.version)
 }
 
-/// Update JSR version in deno.json if it has a "name" field (JSR package)
-fn update_jsr_json(dir: &Path, version: &str) -> Result<()> {
+/// Writes `version` into every npm and JSR manifest of `repo`, and into its
+/// requirements on the other workspace packages.
+pub fn set_version(repo: &Repo, version: &str) -> Result<()> {
+    if let Some(path) = &repo.package_json {
+        update_package_json(path, version)?;
+    }
+    update_deno_json(&repo.abs_path, version)
+}
+
+/// Writes `version` into the workspace Cargo.toml, which every released crate
+/// inherits its version and internal requirements from.
+pub fn set_crate_version(root: &Path, version: &str) -> Result<()> {
+    update_cargo_toml(&root.join("Cargo.toml"), version)
+}
+
+/// Sets the version of a deno.json that publishes to JSR (has a `name`).
+fn update_deno_json(dir: &Path, version: &str) -> Result<()> {
     let path = dir.join("deno.json");
     if !path.exists() {
         return Ok(());
     }
-    let content = fs::read_to_string(&path)?;
-    let mut deno: Value = serde_json::from_str(&content)?;
-    // Only update version if this deno.json is a JSR package (has "name" field)
-    if deno.get("name").is_some() {
-        deno["version"] = json!(version);
-        fs::write(&path, crate::utils::json::to_string_pretty(&deno)? + "\n")?;
-        format::success(&format!("Updated {}", path.display()));
-    }
-    Ok(())
-}
-
-/// Update Zed extension files with version constants
-/// Uses registry versions since extensions download from npm
-pub fn update_zed_extensions(root: &Path, versions: &VersionsCache) -> Result<()> {
-    // Vtsls extension
-    let vtsls_lib = root.join("crates/extensions/vtsls_macroforge/src/lib.rs");
-    if vtsls_lib.exists() {
-        let mut content = fs::read_to_string(&vtsls_lib)?;
-        // Use registry version (what's published) since extensions download from npm
-        if let Some(v) = versions.get_registry("typescript-plugin") {
-            content = replace_const(&content, "TS_PLUGIN_VERSION", v);
-        }
-        fs::write(&vtsls_lib, content)?;
-        format::success("Updated crates/extensions/vtsls_macroforge/src/lib.rs");
-    }
-
-    // Svelte extension
-    let svelte_lib = root.join("crates/extensions/svelte_macroforge/src/lib.rs");
-    if svelte_lib.exists() {
-        let mut content = fs::read_to_string(&svelte_lib)?;
-        if let Some(v) = versions.get_registry("svelte-language-server") {
-            content = replace_const(&content, "SVELTE_LS_VERSION", v);
-        }
-        fs::write(&svelte_lib, content)?;
-        format::success("Updated crates/extensions/svelte_macroforge/src/lib.rs");
-    }
-
-    Ok(())
-}
-
-/// Update a package.json with new version and dependency versions
-fn update_package_json(path: &Path, version: &str, versions: &VersionsCache) -> Result<()> {
-    if !path.exists() {
+    let content =
+        fs::read_to_string(&path).with_context(|| format!("failed to read {}", path.display()))?;
+    let mut deno: Value = serde_json::from_str(&content)
+        .with_context(|| format!("failed to parse {}", path.display()))?;
+    if deno.get("name").is_none() {
         return Ok(());
     }
+    deno["version"] = json!(version);
+    fs::write(&path, crate::utils::json::to_string_pretty(&deno)? + "\n")
+        .with_context(|| format!("failed to write {}", path.display()))?;
+    format::success(&format!("Updated {}", path.display()));
+    Ok(())
+}
 
-    let content = fs::read_to_string(path).context("Failed to read package.json")?;
-    let mut pkg: Value = serde_json::from_str(&content).context("Failed to parse package.json")?;
+/// Pins the npm packages the Zed extensions download to `version`.
+pub fn update_zed_extensions(root: &Path, version: &str) -> Result<()> {
+    for (relative, constant) in [
+        (
+            "crates/extensions/vtsls_macroforge/src/lib.rs",
+            "TS_PLUGIN_VERSION",
+        ),
+        (
+            "crates/extensions/svelte_macroforge/src/lib.rs",
+            "SVELTE_LS_VERSION",
+        ),
+    ] {
+        let path = root.join(relative);
+        let content = fs::read_to_string(&path)
+            .with_context(|| format!("failed to read {}", path.display()))?;
+        fs::write(&path, replace_const(&content, constant, version))
+            .with_context(|| format!("failed to write {}", path.display()))?;
+        format::success(&format!("Updated {relative}"));
+    }
+    Ok(())
+}
+
+/// The workspace packages other package.json files depend on.
+const NPM_PACKAGES: &[&str] = &[
+    "@macroforge/core",
+    "@macroforge/shared",
+    "@macroforge/typescript-plugin",
+];
+
+/// Sets a package.json's version and its requirements on workspace packages.
+///
+/// A `file:` reference stays: it points at the local checkout on purpose.
+fn update_package_json(path: &Path, version: &str) -> Result<()> {
+    let content =
+        fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
+    let mut pkg: Value = serde_json::from_str(&content)
+        .with_context(|| format!("failed to parse {}", path.display()))?;
 
     pkg["version"] = json!(version);
-
-    // Update internal dependencies.
-    //
-    // A `file:` reference is left alone. Whether a dependency points at the
-    // local checkout or at the registry is owned by the swap functions, and
-    // overwriting it here silently converts a tree that is mid-build back to
-    // registry deps: exactly what the rollback did to every package it touched.
-    let update_dep = |deps: &mut serde_json::Map<String, Value>, key: &str, target_repo: &str| {
-        if deps
-            .get(key)
-            .and_then(Value::as_str)
-            .is_some_and(|current| current.starts_with("file:"))
-        {
-            return;
+    for section in ["dependencies", "devDependencies", "peerDependencies"] {
+        let Some(deps) = pkg.get_mut(section).and_then(Value::as_object_mut) else {
+            continue;
+        };
+        for package in NPM_PACKAGES {
+            let is_registry_dep = deps
+                .get(*package)
+                .and_then(Value::as_str)
+                .is_some_and(|current| !current.starts_with("file:"));
+            if is_registry_dep {
+                deps[*package] = json!(version);
+            }
         }
-        if deps.contains_key(key)
-            && let Some(v) = versions.get_local(target_repo)
-        {
-            deps[key] = json!(v);
-        }
-    };
-
-    if let Some(deps) = pkg.get_mut("dependencies").and_then(|v| v.as_object_mut()) {
-        update_dep(deps, "@macroforge/core", "core");
-        update_dep(deps, "@macroforge/shared", "shared");
-        update_dep(deps, "@macroforge/typescript-plugin", "typescript-plugin");
     }
 
-    // The website carries `@macroforge/core` here, and it resolves to the
-    // workspace package only while the two versions agree. Leaving it behind
-    // pins it at a release the workspace has moved past and the registry does
-    // not have yet, which fails the next install.
-    if let Some(deps) = pkg
-        .get_mut("devDependencies")
-        .and_then(|v| v.as_object_mut())
-    {
-        update_dep(deps, "@macroforge/core", "core");
-        update_dep(deps, "@macroforge/shared", "shared");
-        update_dep(deps, "@macroforge/typescript-plugin", "typescript-plugin");
-    }
-
-    if let Some(deps) = pkg
-        .get_mut("peerDependencies")
-        .and_then(|v| v.as_object_mut())
-    {
-        update_dep(deps, "@macroforge/core", "core");
-    }
-
-    fs::write(path, crate::utils::json::to_string_pretty(&pkg)? + "\n")?;
+    fs::write(path, crate::utils::json::to_string_pretty(&pkg)? + "\n")
+        .with_context(|| format!("failed to write {}", path.display()))?;
     format::success(&format!("Updated {}", path.display()));
-
     Ok(())
 }
 
@@ -246,50 +216,41 @@ fn rewrite_dep_version(line: String, crate_name: &str, target: &str) -> String {
     format!("{}{}{}", &line[..value], target, &line[value + len..])
 }
 
-/// Update a Cargo.toml with new version and dependency versions
-fn update_cargo_toml(path: &Path, version: &str, versions: &VersionsCache) -> Result<()> {
-    if !path.exists() {
-        return Ok(());
-    }
+/// The workspace crates other Cargo.toml files depend on.
+const CRATES: &[&str] = &[
+    "macroforge_ts_macros",
+    "macroforge_ts_syn",
+    "macroforge_ts_quote",
+];
 
-    let content = fs::read_to_string(path).context("Failed to read Cargo.toml")?;
-    let had_trailing_newline = content.ends_with('\n');
+/// Sets a Cargo.toml's version and its requirements on workspace crates.
+fn update_cargo_toml(path: &Path, version: &str) -> Result<()> {
+    let content =
+        fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
 
-    // Update version line
     let mut lines: Vec<String> = content
         .lines()
         .map(|line| {
             if line.starts_with("version = \"") {
-                format!("version = \"{}\"", version)
+                format!("version = \"{version}\"")
             } else {
                 line.to_string()
             }
         })
         .collect();
-
-    // Update internal crate dependencies
-    let deps = [
-        ("macroforge_ts_macros", "macros"),
-        ("macroforge_ts_syn", "syn"),
-        ("macroforge_ts_quote", "template"),
-    ];
-
-    for (crate_name, repo_name) in deps {
-        if let Some(target_v) = versions.get_local(repo_name) {
-            lines = lines
-                .into_iter()
-                .map(|line| rewrite_dep_version(line, crate_name, target_v))
-                .collect();
-        }
+    for crate_name in CRATES {
+        lines = lines
+            .into_iter()
+            .map(|line| rewrite_dep_version(line, crate_name, version))
+            .collect();
     }
 
     let mut out = lines.join("\n");
-    if had_trailing_newline {
+    if content.ends_with('\n') {
         out.push('\n');
     }
-    fs::write(path, out)?;
+    fs::write(path, out).with_context(|| format!("failed to write {}", path.display()))?;
     format::success(&format!("Updated {}", path.display()));
-
     Ok(())
 }
 
@@ -313,18 +274,4 @@ fn replace_const(content: &str, name: &str, val: &str) -> String {
         result.push('\n');
     }
     result
-}
-
-/// Apply all versions from a VersionsCache to all manifest files
-/// Used for rollback when prep fails
-pub fn apply_versions(config: &Config, versions: &VersionsCache) -> Result<()> {
-    for repo in config.repos.values() {
-        if let Some(ver) = versions.get_local(&repo.name) {
-            write_repo_version(repo, ver, versions).unwrap_or_else(|e| {
-                eprintln!("  Warning: Failed to restore {}: {}", repo.name, e);
-            });
-        }
-    }
-    update_zed_extensions(&config.root, versions)?;
-    Ok(())
 }

@@ -1,4 +1,5 @@
-use anyhow::{Context, Result, anyhow, bail};
+use anyhow::{Context, Result, bail};
+use serde::Deserialize;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -19,15 +20,14 @@ pub fn run_build(crate_dir: Option<PathBuf>, out_dir: Option<PathBuf>) -> Result
         .context("failed to resolve crate directory")?;
 
     let out_dir = out_dir.unwrap_or_else(|| crate_dir.join("pkg"));
+    let artifact = wasm_artifact(&crate_dir)?;
+    let js_stem = artifact
+        .file_stem()
+        .and_then(|stem| stem.to_str())
+        .with_context(|| format!("{} has no usable file name", artifact.display()))?
+        .to_string();
 
-    // Resolve the crate name from Cargo.toml for the WASM artifact path
-    let cargo_toml_path = crate_dir.join("Cargo.toml");
-    let cargo_toml = fs::read_to_string(&cargo_toml_path)
-        .with_context(|| format!("failed to read {}", cargo_toml_path.display()))?;
-    let crate_name = parse_crate_name(&cargo_toml)
-        .ok_or_else(|| anyhow!("could not determine crate name from Cargo.toml"))?;
-
-    eprintln!("[macroforge build] crate: {crate_name}");
+    eprintln!("[macroforge build] crate: {}", crate_dir.display());
     eprintln!("[macroforge build] out:   {}", out_dir.display());
 
     // Step 1: cargo build
@@ -40,35 +40,32 @@ pub fn run_build(crate_dir: Option<PathBuf>, out_dir: Option<PathBuf>) -> Result
     if !status.success() {
         bail!("cargo build failed");
     }
-
-    // Step 2: wasm-bindgen
-    let wasm_file = crate_dir
-        .join("target/wasm32-unknown-unknown/release")
-        .join(format!("{}.wasm", crate_name.replace('-', "_")));
-    if !wasm_file.exists() {
-        bail!("WASM artifact not found at {}", wasm_file.display());
+    if !artifact.exists() {
+        bail!("WASM artifact not found at {}", artifact.display());
     }
 
+    // Step 2: wasm-bindgen
     eprintln!("[macroforge build] running wasm-bindgen …");
     fs::create_dir_all(&out_dir).context("failed to create output directory")?;
 
-    let wasm_bindgen_bin = resolve_wasm_bindgen()?;
-    let status = Command::new(&wasm_bindgen_bin)
-        .args([
-            "--target",
-            "nodejs",
-            "--out-dir",
-            out_dir.to_str().unwrap(),
-            wasm_file.to_str().unwrap(),
-        ])
+    let wasm_bindgen = std::env::var_os("WASM_BINDGEN").unwrap_or_else(|| "wasm-bindgen".into());
+    let status = Command::new(&wasm_bindgen)
+        .args(["--target", "nodejs", "--out-dir"])
+        .arg(&out_dir)
+        .arg(&artifact)
         .status()
-        .context("failed to run wasm-bindgen")?;
+        .with_context(|| {
+            format!(
+                "failed to run {}; install wasm-bindgen-cli at the version of the \
+                 wasm-bindgen crate the macro crate builds with, or set WASM_BINDGEN",
+                wasm_bindgen.to_string_lossy()
+            )
+        })?;
     if !status.success() {
         bail!("wasm-bindgen failed");
     }
 
     // Step 3: Discover Call macros from the manifest
-    let js_stem = crate_name.replace('-', "_");
     let js_path = out_dir.join(format!("{js_stem}.js"));
     let dts_path = out_dir.join(format!("{js_stem}.d.ts"));
 
@@ -158,74 +155,67 @@ fn append_dollar_aliases_dts(dts_path: &Path, names: &[String]) -> Result<()> {
 }
 
 /// Resolve the wasm-bindgen binary from PATH or wasm-pack cache.
-fn resolve_wasm_bindgen() -> Result<String> {
-    if let Ok(from_env) = std::env::var("WASM_BINDGEN") {
-        return Ok(from_env);
-    }
-
-    // Check PATH
-    if let Ok(output) = Command::new("which").arg("wasm-bindgen").output()
-        && output.status.success()
-    {
-        let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        if !path.is_empty() {
-            return Ok(path);
-        }
-    }
-
-    // Check wasm-pack cache
-    let home = std::env::var("HOME").context("HOME not set")?;
-    let cache_dirs = [
-        format!("{home}/Library/Caches/.wasm-pack"),
-        format!("{home}/.cache/.wasm-pack"),
-    ];
-
-    for dir in &cache_dirs {
-        if let Ok(entries) = find_wasm_bindgen_recursive(Path::new(dir))
-            && let Some(path) = entries.first()
-        {
-            return Ok(path.to_string_lossy().to_string());
-        }
-    }
-
-    bail!(
-        "wasm-bindgen not found in PATH or wasm-pack cache. \
-         Install it with `cargo install wasm-bindgen-cli` or set WASM_BINDGEN env var."
-    )
+/// The fields of `cargo metadata` that locate a crate's wasm artifact.
+#[derive(Deserialize)]
+struct CargoMetadata {
+    target_directory: PathBuf,
+    packages: Vec<CargoPackage>,
 }
 
-fn find_wasm_bindgen_recursive(dir: &Path) -> Result<Vec<PathBuf>> {
-    let mut results = Vec::new();
-    if !dir.is_dir() {
-        return Ok(results);
-    }
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.is_file() && path.file_name().is_some_and(|n| n == "wasm-bindgen") {
-            results.push(path);
-        } else if path.is_dir() {
-            results.extend(find_wasm_bindgen_recursive(&path)?);
-        }
-    }
-    Ok(results)
+#[derive(Deserialize)]
+struct CargoPackage {
+    manifest_path: PathBuf,
+    targets: Vec<CargoTarget>,
 }
 
-/// Parse the crate name from a Cargo.toml string.
-fn parse_crate_name(toml_content: &str) -> Option<String> {
-    for line in toml_content.lines() {
-        let line = line.trim();
-        if line.starts_with("name")
-            && let Some(value) = line.split('=').nth(1)
-        {
-            return Some(
-                value
-                    .trim()
-                    .trim_matches('"')
-                    .trim_matches('\'')
-                    .to_string(),
-            );
-        }
+#[derive(Deserialize)]
+struct CargoTarget {
+    name: String,
+    crate_types: Vec<String>,
+}
+
+/// Where `cargo build --release --target wasm32-unknown-unknown` writes the
+/// crate's cdylib: under the workspace's target directory, named after the
+/// library target rather than the package.
+fn wasm_artifact(crate_dir: &Path) -> Result<PathBuf> {
+    let output = Command::new("cargo")
+        .args(["metadata", "--format-version", "1", "--no-deps"])
+        .current_dir(crate_dir)
+        .output()
+        .context("failed to run cargo metadata")?;
+    if !output.status.success() {
+        bail!(
+            "cargo metadata failed:\n{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
     }
-    None
+    let metadata: CargoMetadata =
+        serde_json::from_slice(&output.stdout).context("failed to parse cargo metadata")?;
+
+    let manifest = crate_dir.join("Cargo.toml");
+    let package = metadata
+        .packages
+        .iter()
+        .find(|package| {
+            package
+                .manifest_path
+                .canonicalize()
+                .is_ok_and(|path| path == manifest)
+        })
+        .with_context(|| format!("cargo metadata does not list {}", manifest.display()))?;
+    let library = package
+        .targets
+        .iter()
+        .find(|target| target.crate_types.iter().any(|kind| kind == "cdylib"))
+        .with_context(|| {
+            format!(
+                "{} has no cdylib target; set `crate-type = [\"cdylib\", \"rlib\"]` under [lib]",
+                manifest.display()
+            )
+        })?;
+
+    Ok(metadata
+        .target_directory
+        .join("wasm32-unknown-unknown/release")
+        .join(format!("{}.wasm", library.name.replace('-', "_"))))
 }

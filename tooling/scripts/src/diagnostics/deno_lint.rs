@@ -41,12 +41,13 @@ struct DenoLintError {
     message: String,
 }
 
-/// Runs deno lint once over the repository and collects its diagnostics.
+/// Runs deno lint once over the repository and collects its diagnostics,
+/// with `fix` applying the fixable ones first so only the rest are reported.
 ///
 /// The root `deno.json` governs every file beneath it, including projects that
 /// are not workspace members, so one run covers the tree.
-pub fn run(root: &Path) -> Result<Vec<UnifiedDiagnostic>> {
-    let result = shell::deno::lint_json(root)?;
+pub fn run(root: &Path, fix: bool) -> Result<Vec<UnifiedDiagnostic>> {
+    let result = shell::deno::lint_json(root, fix)?;
     let output: DenoLintOutput = serde_json::from_str(&result.stdout)
         .with_context(|| format!("deno lint did not produce JSON:\n{}", result.transcript()))?;
 

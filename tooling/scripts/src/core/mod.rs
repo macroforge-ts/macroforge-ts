@@ -6,4 +6,3 @@ pub mod manifests;
 pub mod registry;
 pub mod repos;
 pub mod shell;
-pub mod versions;

@@ -1,24 +1,24 @@
 [package]
 name = "macroforge_ts_quote"
 description = "Quote macro for generating TypeScript code at build time"
-version = "0.3.1"
-edition = "2024"
-authors = ["macroforge contributors"]
-license = "MIT"
-repository = "https://gitlab.com/macroforge-ts/macroforge-ts"
-homepage = "https://macroforge.dev"
-keywords = ["typescript", "macros", "codegen", "derive"]
-categories = ["development-tools::procedural-macro-helpers"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "README.md"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-proc-macro2 = { version = "1.0.107", features = ["proc-macro", "span-locations"] }
-quote = "1.0.47"
-syn = { version = "3.0.6", features = ["full"] }
-anyhow = "1.0"
-rustc-hash = "2.1.3"
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
+anyhow = { workspace = true }
+rustc-hash = { workspace = true }
 
-oxc = "0.150"
+oxc = { workspace = true }

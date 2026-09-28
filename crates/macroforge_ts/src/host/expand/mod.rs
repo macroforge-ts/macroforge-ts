@@ -1,8 +1,8 @@
 //! # Macro Expansion Engine
 //!
 //! This module provides the core expansion functionality for TypeScript macros.
-//! It handles classes, interfaces, enums, and type aliases, supports external
-//! macro loading via dlopen/FFI, and provides source mapping for IDE integration.
+//! It handles classes, interfaces, enums, and type aliases, runs external
+//! macro packages compiled to wasm, and provides source mapping for IDE integration.
 //!
 //! ## Architecture Overview
 //!
@@ -47,18 +47,16 @@
 //! ## External Macro Loading
 //!
 //! When a macro is not found in the built-in registry, the expander can
-//! load external macros compiled as native shared libraries. This enables:
+//! load external macros compiled to wasm. This enables:
 //!
 //! - User-defined macros written in Rust with `#[ts_macro_derive]`
 //! - Workspace-local macros in monorepos
 //! - npm-published macro packages
 //!
-//! The external loader looks for `root_dir/node_modules/<module>` and loads
-//! the first `.node`/`.dylib`/`.so` file in that package via `libloading`
-//! (dlopen), calling the package's `__macroforge_ffi_*` symbols. On WASM,
-//! where dlopen isn't available, the package is loaded with `require` from the
-//! project root and its `__macroforgeGetManifest*` and `__macroforgeRun*`
-//! exports are called instead.
+//! The CLI finds the package under `node_modules`, instantiates its wasm with
+//! wasmi and calls its `__macroforge_ffi_*` exports. The wasm engine, running
+//! in JS, loads the package with `require` from the project root and calls its
+//! `__macroforgeGetManifest*` and `__macroforgeRun*` exports instead.
 //!
 //! ## Usage Example
 //!
@@ -373,8 +371,8 @@ impl MacroExpander {
     /// Build the complete set of valid annotation names for lowering.
     ///
     /// Includes `"derive"`, all builtin decorator annotation names, any explicitly
-    /// configured external decorator modules, and — if the source imports external
-    /// macros — decorator names resolved from those packages' manifests.
+    /// configured external decorator modules, and (if the source imports external
+    /// macros) decorator names resolved from those packages' manifests.
     fn valid_annotation_names(
         &self,
         macro_imports: &HashMap<String, String>,
@@ -524,7 +522,7 @@ impl MacroExpander {
         // Phase H: post-validation. In dev builds, re-parse the
         // applied source and attribute any parse errors back to the
         // originating macro via the applicator's source mapping. In
-        // prod builds, skip the extra parse — the downstream lowering
+        // prod builds, skip the extra parse: the downstream lowering
         // parser will catch the error anyway, just with a less
         // targeted message. Tests run under Dev, so they exercise the
         // validation path without extra wiring.
@@ -1336,8 +1334,8 @@ impl MacroExpander {
                 }
 
                 // Merge imports from the MacroResult back into the registry.
-                // This is essential for external macros that run in a child process —
-                // their TsStream::add_import() calls write to that process's registry,
+                // This is essential for external macros that run in their own wasm instance:
+                // their TsStream::add_import() calls write to that instance's registry,
                 // and into_result() captures them into MacroResult.imports.
                 if !result.imports.is_empty() {
                     crate::host::import_registry::with_registry_mut(|r| {
@@ -1389,7 +1387,7 @@ impl MacroExpander {
         //
         // Run after derives so attribute macros can see derive output.
         // Each attribute macro on a target receives the original source
-        // (chaining support is deferred — overlap detector catches conflicts).
+        // (no chaining; the overlap detector catches conflicts).
 
         // Group attribute targets by target span for potential chaining.
         use std::collections::BTreeMap;

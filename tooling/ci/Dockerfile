@@ -1,10 +1,10 @@
-# The CI job image. Playwright's Ubuntu image carries Chromium and its system
-# libraries; the tag must match the @playwright/test version the playground
-# tests resolve. Everything else comes from the repo's pixi.toml at job time.
-FROM mcr.microsoft.com/playwright:v1.63.0-noble
+# The CI job image. The playground's end-to-end suite drives Chromium's
+# headless shell and nothing else, so that is the only browser the image
+# carries. Everything else comes from the repo's pixi.toml at job time.
+FROM ubuntu:noble
 
 # build-essential: the cc that rustc links through (gcc 12+ for -fuse-ld=mold).
-# jq: the release job reads the version from tooling/versions.json.
+# jq: the release job reads the version from crates/macroforge_ts/package.json.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential ca-certificates curl git jq \
     && rm -rf /var/lib/apt/lists/*
@@ -14,6 +14,14 @@ RUN apt-get update \
 RUN curl -fsSL https://pixi.sh/install.sh | bash \
     && mv /root/.pixi/bin/pixi /usr/local/bin/pixi
 ENV PATH="/root/.pixi/bin:/root/.cargo/bin:${PATH}"
+
+# Each Playwright release drives one browser revision, so this must match the
+# @playwright/test version tooling/playground/tests resolves. Node exists only
+# for the install and leaves the image with its caches in the same layer.
+ARG PLAYWRIGHT_VERSION=1.63.0
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN pixi exec --spec nodejs npx --yes "playwright@${PLAYWRIGHT_VERSION}" install --with-deps --only-shell chromium \
+    && rm -rf /root/.cache /root/.npm /var/lib/apt/lists/*
 
 # The digest of this file at build time. Jobs compare it with the checkout's
 # copy, so a pipeline never runs on an image built from an older Dockerfile.

@@ -105,8 +105,8 @@ source. The engine inlines the output verbatim — no auto-wrapping.
 
 ## No-op Exports
 
-Each `#[ts_macro]` auto-generates a no-op identity function in the WASM and NAPI builds so consumers
-can type-check their code before expansion:
+Each `#[ts_macro]` auto-generates a no-op identity function in the WASM build so consumers can
+type-check their code before expansion:
 
 TypeScript
 

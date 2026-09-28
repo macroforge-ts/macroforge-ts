@@ -1,6 +1,3 @@
-#[cfg(feature = "node")]
-use napi_derive::napi;
-
 use crate::api_types::{
     GeneratedRegionResult, MappingSegmentResult, SourceMappingResult, SpanResult,
 };
@@ -36,7 +33,6 @@ use crate::api_types::{
 ///     const macro = mapper.generatedBy(pos); // e.g., "Debug"
 /// }
 /// ```
-#[cfg_attr(feature = "node", napi(js_name = "PositionMapper"))]
 pub struct NativePositionMapper {
     /// Mapping segments sorted by position for binary search.
     segments: Vec<MappingSegmentResult>,
@@ -44,18 +40,6 @@ pub struct NativePositionMapper {
     generated_regions: Vec<GeneratedRegionResult>,
 }
 
-/// Wrapper around `NativePositionMapper` for NAPI compatibility.
-///
-/// This provides the same functionality as `NativePositionMapper` but with a
-/// different JavaScript class name. Used internally by [`NativePlugin::get_mapper`].
-#[cfg(feature = "node")]
-#[napi(js_name = "NativeMapper")]
-pub struct NativeMapper {
-    /// The underlying position mapper implementation.
-    pub(crate) inner: NativePositionMapper,
-}
-
-#[cfg_attr(feature = "node", napi)]
 impl NativePositionMapper {
     /// Creates a new position mapper from source mapping data.
     ///
@@ -66,7 +50,6 @@ impl NativePositionMapper {
     /// # Returns
     ///
     /// A new `NativePositionMapper` ready for position translation.
-    #[cfg_attr(feature = "node", napi(constructor))]
     pub fn new(mapping: SourceMappingResult) -> Self {
         Self {
             segments: mapping.segments,
@@ -82,7 +65,6 @@ impl NativePositionMapper {
     /// # Returns
     ///
     /// `true` if there are no segments and no generated regions.
-    #[cfg_attr(feature = "node", napi(js_name = "isEmpty"))]
     pub fn is_empty(&self) -> bool {
         self.segments.is_empty() && self.generated_regions.is_empty()
     }
@@ -107,7 +89,6 @@ impl NativePositionMapper {
     /// 2. If inside a segment, compute offset within segment and translate
     /// 3. If after all segments, extrapolate from the last segment
     /// 4. Otherwise, return position unchanged (gap or before first segment)
-    #[cfg_attr(feature = "node", napi)]
     pub fn original_to_expanded(&self, pos: u32) -> u32 {
         // Binary search to find the first segment where original_end > pos.
         // This gives us the segment that might contain pos, or the one after it.
@@ -149,7 +130,6 @@ impl NativePositionMapper {
     ///
     /// `Some(original_pos)` if the position maps to original code,
     /// `None` if the position is in macro-generated code.
-    #[cfg_attr(feature = "node", napi)]
     pub fn expanded_to_original(&self, pos: u32) -> Option<u32> {
         // First check if the position is in a generated region (no original mapping)
         if self.is_in_generated(pos) {
@@ -190,7 +170,6 @@ impl NativePositionMapper {
     ///
     /// `Some(macro_name)` if the position is inside generated code (e.g., "Debug"),
     /// `None` if the position is in original (non-generated) code.
-    #[cfg_attr(feature = "node", napi)]
     pub fn generated_by(&self, pos: u32) -> Option<String> {
         // Generated regions are typically small in number, so linear scan is acceptable.
         // If this becomes a bottleneck with many macros, could be optimized with binary search.
@@ -211,7 +190,6 @@ impl NativePositionMapper {
     ///
     /// `Some(SpanResult)` with the mapped span in original source,
     /// `None` if either endpoint is in generated code.
-    #[cfg_attr(feature = "node", napi)]
     pub fn map_span_to_original(&self, start: u32, length: u32) -> Option<SpanResult> {
         let end = start.saturating_add(length);
         // Both start and end must successfully map for the span to be valid
@@ -236,7 +214,6 @@ impl NativePositionMapper {
     /// # Returns
     ///
     /// A `SpanResult` with the mapped span in expanded source.
-    #[cfg_attr(feature = "node", napi)]
     pub fn map_span_to_expanded(&self, start: u32, length: u32) -> SpanResult {
         let end = start.saturating_add(length);
         let expanded_start = self.original_to_expanded(start);
@@ -257,74 +234,9 @@ impl NativePositionMapper {
     /// # Returns
     ///
     /// `true` if the position is inside a generated region, `false` otherwise.
-    #[cfg_attr(feature = "node", napi)]
     pub fn is_in_generated(&self, pos: u32) -> bool {
         self.generated_regions
             .iter()
             .any(|r| pos >= r.start && pos < r.end)
-    }
-}
-
-#[cfg(feature = "node")]
-#[napi]
-impl NativeMapper {
-    /// Creates a new mapper wrapping the given source mapping.
-    ///
-    /// # Arguments
-    ///
-    /// * `mapping` - The source mapping result from macro expansion
-    #[napi(constructor)]
-    pub fn new(mapping: SourceMappingResult) -> Self {
-        Self {
-            inner: NativePositionMapper::new(mapping),
-        }
-    }
-
-    /// Checks if this mapper has no mapping data.
-    #[napi(js_name = "isEmpty")]
-    pub fn is_empty(&self) -> bool {
-        self.inner.is_empty()
-    }
-
-    /// Converts a position in the original source to expanded source.
-    /// See [`NativePositionMapper::original_to_expanded`] for details.
-    #[napi]
-    pub fn original_to_expanded(&self, pos: u32) -> u32 {
-        self.inner.original_to_expanded(pos)
-    }
-
-    /// Converts a position in the expanded source back to original.
-    /// See [`NativePositionMapper::expanded_to_original`] for details.
-    #[napi]
-    pub fn expanded_to_original(&self, pos: u32) -> Option<u32> {
-        self.inner.expanded_to_original(pos)
-    }
-
-    /// Returns the name of the macro that generated code at the given position.
-    /// See [`NativePositionMapper::generated_by`] for details.
-    #[napi]
-    pub fn generated_by(&self, pos: u32) -> Option<String> {
-        self.inner.generated_by(pos)
-    }
-
-    /// Maps a span from expanded source to original source.
-    /// See [`NativePositionMapper::map_span_to_original`] for details.
-    #[napi]
-    pub fn map_span_to_original(&self, start: u32, length: u32) -> Option<SpanResult> {
-        self.inner.map_span_to_original(start, length)
-    }
-
-    /// Maps a span from original source to expanded source.
-    /// See [`NativePositionMapper::map_span_to_expanded`] for details.
-    #[napi]
-    pub fn map_span_to_expanded(&self, start: u32, length: u32) -> SpanResult {
-        self.inner.map_span_to_expanded(start, length)
-    }
-
-    /// Checks if a position is inside macro-generated code.
-    /// See [`NativePositionMapper::is_in_generated`] for details.
-    #[napi]
-    pub fn is_in_generated(&self, pos: u32) -> bool {
-        self.inner.is_in_generated(pos)
     }
 }

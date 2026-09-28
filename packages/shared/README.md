@@ -34,8 +34,7 @@ npm install @macroforge/shared
 - **`MacroManifestEntry`** - One macro exported by an external macro package (from
   `__macroforgeGetManifest*`).
 - **`DecoratorManifestEntry`** - One decorator exported by an external macro package.
-- **`ExpandOptions`** - Options accepted by the native engine's
-  `expandSync(code, filepath, options)`.
+- **`ExpandOptions`** - Options accepted by the engine's `expandSync(code, filepath, options)`.
 - **`MacroManifest`** - Aggregated manifest for an external macro package.
 - **`ConfigLoadResult`** - Result from parsing a config file (as returned by the native
   `loadConfig`).

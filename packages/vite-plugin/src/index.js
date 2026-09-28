@@ -647,7 +647,7 @@ export async function macroforge() {
     }
 
     /**
-     * Computes a hash over external macro package binaries (`.node`, `.wasm`)
+     * Computes a hash over external macro package artifacts (`.wasm`, `.js`)
      * so the cache invalidates when a local macro package is rebuilt.
      * @returns {string}
      */
@@ -659,12 +659,8 @@ export async function macroforge() {
         const parts = [];
 
         /**
-         * A macro package's artifacts live wherever its build put them:
-         * NAPI packages emit `index.js` + `*.node` at the package root, while
-         * `macroforge build` (wasm-bindgen) emits `pkg/<name>.js` +
-         * `pkg/<name>_bg.wasm` and the root has no `index.js` at all. Probing
-         * only the root therefore missed every wasm package, pinning this hash
-         * at 'none' so a rebuilt macro never invalidated the cache.
+         * `macroforge build` emits `pkg/<name>.js` + `pkg/<name>_bg.wasm`, and a
+         * package may put its own entry script at the root, so both are probed.
          * @param {string} pkgDir
          */
         const checkPackage = (pkgDir) => {
@@ -699,7 +695,7 @@ export async function macroforge() {
                 try {
                     for (const entry of fs.readdirSync(dir)) {
                         const ext = path.extname(entry);
-                        if (ext !== '.node' && ext !== '.wasm' && ext !== '.js') {
+                        if (ext !== '.wasm' && ext !== '.js') {
                             continue;
                         }
                         const full = path.join(dir, entry);

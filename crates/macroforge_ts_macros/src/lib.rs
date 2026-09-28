@@ -23,7 +23,7 @@
 //!
 //! This generates:
 //! - A struct implementing the [`Macroforge`] trait
-//! - A NAPI function for JavaScript interop
+//! - wasm-bindgen exports for JavaScript interop, and a C-ABI export for the CLI
 //! - Registration with the macro registry via `inventory`
 //!
 //! ## Architecture
@@ -31,7 +31,7 @@
 //! The generated code follows this pattern:
 //!
 //! 1. **Macro Struct**: A unit struct that implements the `Macroforge` trait
-//! 2. **NAPI Bridge**: A function exposed to JavaScript that handles JSON serialization
+//! 2. **Bridges**: exports that take and return the macro context as JSON
 //! 3. **Descriptor**: Static metadata about the macro for runtime discovery
 //! 4. **Registration**: Automatic registration with the `inventory` crate
 
@@ -112,8 +112,8 @@ pub fn ts_macro_attribute(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// For a function `debug_macro` with macro name `Debug`, this generates:
 ///
 /// 1. **`DebugMacro` struct**: PascalCase of the function name; implements the `Macroforge` trait
-/// 2. **`__macroforgeRunDebug` export**: NAPI/WASM function for JS interop (named after the
-///    macro name), plus a `__macroforge_ffi_run_debug` C-ABI export for dlopen-based hosts
+/// 2. **`__macroforgeRunDebug` export**: wasm-bindgen function for JS interop (named after
+///    the macro name), plus a `__macroforge_ffi_run_debug` C-ABI export the CLI calls
 /// 3. **`__TS_MACRO_DESCRIPTOR_DEBUGMACRO` static**: Metadata descriptor (uppercased struct name)
 /// 4. **Inventory registration**: Automatic discovery at runtime
 ///
@@ -223,7 +223,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
         struct_ident.to_string().trim_start_matches("r#")
     );
 
-    // Generate the runMacro NAPI function for this specific macro
+    // The macro's run function, which every export calls
     // Use the macro name (not the struct name) for consistent naming
     let run_macro_inner_ident = format_ident!(
         "__ts_macro_run_{}_inner",
@@ -262,10 +262,6 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
 
     let run_macro_wasm_mod_ident = format_ident!(
         "__ts_macro_wasm_export_{}",
-        options.name.to_string().to_case(Case::Snake)
-    );
-    let run_macro_napi_mod_ident = format_ident!(
-        "__ts_macro_napi_export_{}",
         options.name.to_string().to_case(Case::Snake)
     );
     // C-ABI FFI symbols: __macroforge_ffi_run_gigaform, __macroforge_ffi_manifest_gigaform
@@ -312,31 +308,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
         }
     };
 
-    let napi_manifest_exports = if is_macroforge_ts {
-        quote! {}
-    } else {
-        quote! {
-            /// The macros and decorators this package provides.
-            #[macroforge_ts::napi_derive::napi(js_name = #get_manifest_js_name)]
-            pub fn get_manifest() -> macroforge_ts::host::derived::MacroManifest {
-                macroforge_ts::get_macro_manifest()
-            }
-
-            /// The names of the macros this package provides.
-            #[macroforge_ts::napi_derive::napi(js_name = #get_macro_names_js_name)]
-            pub fn get_macro_names() -> Vec<String> {
-                macroforge_ts::get_macro_names()
-            }
-
-            /// Marks this package as a macroforge macro package.
-            #[macroforge_ts::napi_derive::napi(js_name = #is_macro_package_js_name)]
-            pub fn is_macro_package() -> bool {
-                true
-            }
-        }
-    };
-
-    // No-op callable exports per target
+    // No-op callable export, so the macro can be imported by name
     let wasm_noop_fn = match &options.kind {
         MacroKindOption::Call => quote! {
             #[doc = #noop_doc]
@@ -350,32 +322,6 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
         MacroKindOption::Derive | MacroKindOption::Attribute => quote! {
             #[doc = #noop_doc]
             #[macroforge_ts::wasm_bindgen::prelude::wasm_bindgen(js_name = #noop_js_name_lit)]
-            pub fn #noop_fn_ident() {}
-        },
-    };
-
-    let napi_noop_fn = match &options.kind {
-        MacroKindOption::Call => quote! {
-            #[doc = #noop_doc]
-            #[macroforge_ts::napi_derive::napi(
-                js_name = #noop_js_name_lit,
-                ts_args_type = "value?: any",
-                ts_return_type = "any"
-            )]
-            pub fn #noop_fn_ident() {}
-        },
-        MacroKindOption::Derive => quote! {
-            #[doc = #noop_doc]
-            #[macroforge_ts::napi_derive::napi(
-                js_name = #noop_js_name_lit,
-                ts_args_type = "...args: any[]",
-                ts_return_type = "void"
-            )]
-            pub fn #noop_fn_ident() {}
-        },
-        MacroKindOption::Attribute => quote! {
-            #[doc = #noop_doc]
-            #[macroforge_ts::napi_derive::napi(js_name = #noop_js_name_lit)]
             pub fn #noop_fn_ident() {}
         },
     };
@@ -419,29 +365,6 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
                 .map_err(|e| format!("Failed to serialize result: {}", e))
         }
 
-        // --- NAPI Bindings (Node.js) ---
-        macroforge_ts::if_node! {
-            mod #run_macro_napi_mod_ident {
-                use super::#run_macro_inner_ident;
-
-                #[doc = #run_macro_doc]
-                #[macroforge_ts::napi_derive::napi(js_name = #run_macro_js_name_lit)]
-                pub fn run_macro(context_json: String) -> macroforge_ts::napi::Result<String> {
-                    #run_macro_inner_ident(context_json).map_err(|message| {
-                        macroforge_ts::napi::Error::new(
-                            macroforge_ts::napi::Status::GenericFailure,
-                            message,
-                        )
-                    })
-                }
-
-                #napi_manifest_exports
-
-                #napi_noop_fn
-            }
-            pub use #run_macro_napi_mod_ident::*;
-        }
-
         // --- WASM Bindings ---
         macroforge_ts::if_wasm! {
             mod #run_macro_wasm_mod_ident {
@@ -467,18 +390,10 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
 
         // --- C-ABI Exports ---
         //
-        // Emitted for every target, not just node. This is a plain C ABI over
-        // pointers and lengths — nothing about it is native-specific, and on
-        // wasm32 each function becomes an ordinary wasm export addressing the
-        // module's linear memory. It was previously gated behind the `node`
-        // feature, which enables napi and therefore cannot be turned on for a
-        // wasm build; that left wasm packages with no host-agnostic entry point
-        // and made the native CLI unable to load them at all.
-        //
-        // Hosts:
-        //   native — dlopen + libloading
-        //   wasm32 — instantiate + call the export, read the result out of
-        //            exported memory
+        // A plain C ABI over pointers and lengths. On wasm32 each function is an
+        // ordinary wasm export addressing the module's linear memory, which is
+        // how the CLI runs a macro package: it instantiates the wasm with wasmi,
+        // calls the export and reads the result out of exported memory.
         //
         // Run protocol:
         //   Input:  ctx_ptr/ctx_len — UTF-8 JSON of MacroContextIR

@@ -687,7 +687,7 @@ test('packaging: an unexpandable source fails the build and spares dist', () => 
  * `rebuild` rewrites its entry script, which is what the CLI's external-macro
  * hash tracks. The marker export is the only thing that makes a package count
  * as one, so the contents are otherwise irrelevant: nothing loads this, it just
- * has to move the hash the way a real `napi build` would.
+ * has to move the hash the way a real `macroforge build` would.
  */
 function withMacroPackage(fn) {
     const dir = path.join(libraryRoot, 'node_modules', 'macroforge-test-macros');

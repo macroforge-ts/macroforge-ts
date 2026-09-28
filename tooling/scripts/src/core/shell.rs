@@ -3,7 +3,6 @@
 //! Provides a clean API for running external tools (cargo, deno, git).
 
 use anyhow::{Context, Result};
-use colored::Colorize;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -244,6 +243,38 @@ pub mod cargo {
     }
 
     /// Run cargo clippy with JSON output for diagnostics parsing
+    /// Apply clippy's machine-applicable fixes to the workspace at `cwd`.
+    pub fn clippy_fix_workspace(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&[
+                "clippy",
+                "--fix",
+                "--allow-dirty",
+                "--allow-staged",
+                "--workspace",
+                "--all-targets",
+                "--all-features",
+            ])
+            .dir(cwd)
+            .inherit()
+            .run_checked()
+    }
+
+    /// Apply clippy's machine-applicable fixes to the crate at `cwd`.
+    pub fn clippy_fix(cwd: &Path) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&[
+                "clippy",
+                "--fix",
+                "--allow-dirty",
+                "--allow-staged",
+                "--all-targets",
+            ])
+            .dir(cwd)
+            .inherit()
+            .run_checked()
+    }
+
     pub fn clippy_json(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
             .args(&["clippy", "--all-targets", "--message-format=json"])
@@ -251,15 +282,13 @@ pub mod cargo {
             .run()
     }
 
-    /// Rewrite Cargo.lock so it agrees with the manifests on disk.
-    ///
-    /// Workspace members are recorded in the lock by version, so restoring a
-    /// bumped `Cargo.toml` leaves the lock naming a release that was abandoned.
-    /// `cargo metadata` resolves the graph and rewrites the lock without
-    /// building or touching the network.
+    /// Rewrite Cargo.lock so it records the workspace members' versions as the
+    /// manifests on disk state them. `cargo metadata` resolves the graph and
+    /// rewrites the lock without building, downloading any locked crate the
+    /// local cache lacks.
     pub fn sync_lock(cwd: &Path) -> Result<CommandResult> {
         Shell::new("cargo")
-            .args(&["metadata", "--format-version", "1", "--offline"])
+            .args(&["metadata", "--format-version", "1"])
             .dir(cwd)
             .run_checked()
     }
@@ -396,11 +425,12 @@ pub mod deno {
     }
 
     /// Lint everything under `cwd` as JSON.
-    pub fn lint_json(cwd: &Path) -> Result<CommandResult> {
-        Shell::new("deno")
-            .args(&["lint", "--json", "."])
-            .dir(cwd)
-            .run()
+    pub fn lint_json(cwd: &Path, fix: bool) -> Result<CommandResult> {
+        let mut shell = Shell::new("deno").args(&["lint", "--json"]);
+        if fix {
+            shell = shell.arg("--fix");
+        }
+        shell.arg(".").dir(cwd).run()
     }
 
     /// Run deno task with live output
@@ -467,27 +497,6 @@ pub mod npm {
     }
 }
 
-/// Run a command with arguments
-pub fn run_args(cwd: &Path, program: &str, args: &[&str]) -> Result<CommandResult> {
-    if program == "sh" && !args.is_empty() && args[0] == "-c" {
-        // Special case for sh -c
-        run(args[1], cwd, false)
-    } else {
-        Shell::new(program).args(args).dir(cwd).run()
-    }
-}
-
-/// Spawn a binary and return the child process (for real-time output)
-pub fn spawn_binary(cwd: &Path, binary: &Path, args: &[&str]) -> Result<std::process::Child> {
-    Command::new(binary)
-        .args(args)
-        .current_dir(cwd)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|e| anyhow::anyhow!("Failed to spawn binary {}: {}", binary.display(), e))
-}
-
 // ============================================================================
 // git commands
 // ============================================================================
@@ -538,14 +547,23 @@ pub mod git {
         }
     }
 
-    /// Whether origin has the tag.
-    pub fn tag_exists_remote(cwd: &Path, tag_name: &str) -> Result<bool> {
+    /// The commit origin's tag points at, if origin has the tag.
+    pub fn remote_tag_commit(cwd: &Path, tag_name: &str) -> Result<Option<String>> {
         let reference = format!("refs/tags/{tag_name}");
         let result = Shell::new("git")
             .args(&["ls-remote", "--tags", "origin", &reference])
             .dir(cwd)
             .run_checked()?;
-        Ok(!result.stdout.trim().is_empty())
+        Ok(result.stdout.split_whitespace().next().map(str::to_string))
+    }
+
+    /// Delete a local tag.
+    pub fn delete_tag(cwd: &Path, tag_name: &str) -> Result<()> {
+        Shell::new("git")
+            .args(&["tag", "--delete", tag_name])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(())
     }
 
     /// Create a lightweight tag at HEAD; fails if the tag exists.
@@ -561,6 +579,25 @@ pub mod git {
     pub fn push_tag(cwd: &Path, tag_name: &str) -> Result<()> {
         Shell::new("git")
             .args(&["push", "origin", tag_name])
+            .dir(cwd)
+            .run_checked()?;
+        Ok(())
+    }
+}
+
+// ============================================================================
+// GitLab commands
+// ============================================================================
+
+pub mod glab {
+    use super::*;
+
+    /// Delete a tag on the GitLab project of `cwd`. Release tags are protected,
+    /// and GitLab refuses to delete a protected tag through `git push`.
+    pub fn delete_tag(cwd: &Path, tag_name: &str) -> Result<()> {
+        let endpoint = format!("projects/:id/repository/tags/{tag_name}");
+        Shell::new("glab")
+            .args(&["api", "--method", "DELETE", &endpoint])
             .dir(cwd)
             .run_checked()?;
         Ok(())
@@ -609,56 +646,5 @@ pub mod macroforge {
             .args(&["svelte-check", "--output", "machine-verbose"])
             .dir(project_dir)
             .run()
-    }
-}
-
-// ============================================================================
-// Generic shell command (for npm scripts, etc.)
-// ============================================================================
-
-/// Run a shell command string (via sh -c)
-pub fn run(cmd: &str, cwd: &Path, verbose: bool) -> Result<CommandResult> {
-    if verbose {
-        println!("  > {}", cmd.yellow());
-    }
-
-    let shell = if cfg!(target_os = "windows") {
-        Shell::new("cmd").args(&["/C", cmd]).dir(cwd)
-    } else {
-        Shell::new("sh").args(&["-c", cmd]).dir(cwd)
-    };
-
-    if verbose {
-        shell.inherit().run_checked()
-    } else {
-        let result = shell.run()?;
-        if result.success {
-            Ok(result)
-        } else {
-            // Show error details
-            eprintln!("\n{}", "─".repeat(60).dimmed());
-            eprintln!("{}: {}", "Command".red().bold(), cmd);
-            eprintln!("{}: {}", "Directory".red().bold(), cwd.display());
-            eprintln!(
-                "{}: {}",
-                "Exit code".red().bold(),
-                result
-                    .exit_code
-                    .map(|c| c.to_string())
-                    .unwrap_or("unknown".to_string())
-            );
-            eprintln!("{}", "─".repeat(60).dimmed());
-            eprintln!("{}", result.transcript());
-            eprintln!("{}", "─".repeat(60).dimmed());
-
-            anyhow::bail!(
-                "Command `{}` failed with exit code {}",
-                cmd.split_whitespace().next().unwrap_or(cmd),
-                result
-                    .exit_code
-                    .map(|c| c.to_string())
-                    .unwrap_or("unknown".to_string())
-            )
-        }
     }
 }

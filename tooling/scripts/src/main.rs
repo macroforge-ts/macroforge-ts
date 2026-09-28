@@ -1,38 +1,24 @@
-//! Macroforge Tooling - unified CLI/TUI for build, release, and diagnostics
+//! Macroforge tooling: build, verify, document and release the monorepo.
 
-use std::io;
 use std::process::ExitCode;
 
 use anyhow::Result;
 use clap::Parser;
-use crossterm::{
-    execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
-};
-use ratatui::prelude::*;
 
 mod cli;
 mod core;
 mod diagnostics;
 mod parsers;
-mod tui;
 mod utils;
 
 use cli::args::{Cli, Commands, DocsCommands};
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
-
-    // TUI mode
-    if cli.tui || matches!(cli.command, Some(Commands::Tui)) {
-        return run_tui();
-    }
-
-    // CLI mode
     match run_cli(cli) {
         Ok(()) => ExitCode::SUCCESS,
-        Err(e) => {
-            utils::format::error(&format!("{:#}", e));
+        Err(error) => {
+            utils::format::error(&format!("{error:#}"));
             ExitCode::FAILURE
         }
     }
@@ -40,16 +26,9 @@ fn main() -> ExitCode {
 
 fn run_cli(cli: Cli) -> Result<()> {
     match cli.command {
-        Some(Commands::Tui) => {
-            // Already handled above
-            unreachable!()
-        }
         Some(Commands::Verify(args)) => cli::commands::verify::run(args),
         Some(Commands::Bump(args)) => cli::commands::bump::run(args),
-        Some(Commands::Manifest(args)) => cli::commands::manifests::run(args),
-        Some(Commands::Versions(args)) => cli::commands::versions::run(args),
         Some(Commands::Diagnostics(args)) => cli::commands::diagnostics::run(args),
-        Some(Commands::Build(args)) => cli::commands::build::run(args),
         Some(Commands::Docs(args)) => {
             let config = crate::core::config::Config::load()?;
             let root = &config.root;
@@ -82,7 +61,7 @@ fn run_cli(cli: Cli) -> Result<()> {
         }
         Some(Commands::Test(args)) => cli::commands::test::run(args),
         Some(Commands::PublishLocal(args)) => cli::commands::publish_local::run(&args),
-        Some(Commands::Push(args)) => cli::commands::push::run(&args),
+        Some(Commands::Tag(args)) => cli::commands::tag::run(&args),
         None => {
             // No command: show help
             use clap::CommandFactory;
@@ -90,66 +69,4 @@ fn run_cli(cli: Cli) -> Result<()> {
             Ok(())
         }
     }
-}
-
-fn run_tui() -> ExitCode {
-    match run_tui_inner() {
-        Ok(()) => ExitCode::SUCCESS,
-        Err(e) => {
-            eprintln!("TUI error: {:#}", e);
-            ExitCode::FAILURE
-        }
-    }
-}
-
-fn run_tui_inner() -> Result<()> {
-    // Setup terminal
-    enable_raw_mode()?;
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
-
-    // Create app state
-    let mut app = tui::App::new();
-    app.init_default_tasks();
-    app.log(
-        tui::app::LogLevel::Info,
-        "Welcome to Macroforge Tooling Dashboard",
-    );
-    app.log(
-        tui::app::LogLevel::Info,
-        "Press 'q' to quit, j/k to navigate, Enter to run task",
-    );
-
-    // Event handler
-    let events = tui::event::EventHandler::new(250);
-
-    // Main loop
-    loop {
-        // Process any pending task messages
-        app.process_messages();
-
-        // Render
-        terminal.draw(|frame| tui::ui::render(frame, &app))?;
-
-        // Handle events
-        match events.next()? {
-            tui::event::AppEvent::Key(key) => {
-                tui::event::handle_key(&mut app, key);
-            }
-            tui::event::AppEvent::Tick => {}
-            tui::event::AppEvent::Resize => {}
-        }
-
-        if app.should_quit {
-            break;
-        }
-    }
-
-    // Restore terminal
-    disable_raw_mode()?;
-    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
-
-    Ok(())
 }

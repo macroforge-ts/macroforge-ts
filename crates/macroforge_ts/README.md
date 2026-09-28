@@ -8,10 +8,8 @@ TypeScript macro expansion engine - write build-time macros in Rust
 ## Overview
 
 This crate provides a TypeScript macro expansion engine that brings Rust-like derive macros to
-TypeScript. It supports multiple output targets via feature flags:
-
-- `wasm`: (Default) Universal WebAssembly module via wasm-bindgen for browser and edge environments.
-- `node`: Optional native Node.js bindings via NAPI-RS.
+TypeScript. It ships as a WebAssembly module (the default `wasm` feature, through wasm-bindgen) and
+as the native `macroforge` CLI.
 
 ## Overview
 
@@ -23,11 +21,8 @@ concrete implementations. For example, a class decorated with `@derive(Debug, Cl
 
 The crate is organized into several key components:
 
-- **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade that both bindings
-  delegate to.
-- **Target Bindings**:
-  - `bindings_napi`: Node.js specific entry points using NAPI-RS.
-  - `bindings_wasm`: Universal entry points using `wasm-bindgen`.
+- **Unified API** (`api` module): `CoreEngine`, the output-agnostic facade the bindings delegate to.
+- **Bindings** (`bindings_wasm`): the JavaScript entry points, through `wasm-bindgen`.
 - **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping for IDE
   integration.
 - **Macro Host** (`host` module): Core expansion engine with registry and dispatcher.
@@ -79,7 +74,7 @@ cargo add macroforge_ts
 - **`SyntaxCheckResult`** - Result of checking TypeScript syntax validity.
 - **`SpanResult`** - A span (range) in source code, represented as start position and length.
 - **`JsDiagnostic`** - A diagnostic from the TypeScript/JavaScript compiler or IDE.
-- ... and 10 more
+- ... and 8 more
 
 ### Functions
 
@@ -87,13 +82,15 @@ cargo add macroforge_ts
 - **`__macroforge_ffi_get_manifest`** - Returns the full MacroManifest as JSON via FFI.
 - **`has_macro_annotations`** - Whether `code` may contain anything the engine expands.
 - **`macro_imports`** - The macros `code` imports through `import macro` JSDoc comments, as macro
-- **`check_syntax`** -
-- **`parse_import_sources`** -
-- **`derive_decorator`** -
-- **`load_config`** -
-- **`clear_config_cache`** -
-- **`expand_sync`** -
-- ... and 21 more
+- **`check_syntax`** - Whether `code` parses as TypeScript, with the parse error when it does not.
+- **`parse_import_sources`** - The import declarations of `code`: each imported name with the module
+  it comes from.
+- **`derive_decorator`** - Names `@derive` so it can be imported.
+- **`load_config`** - Parses a `macroforge.config.*` file's `content` and caches it under
+  `filepath`.
+- **`clear_config_cache`** - Forgets every config `loadConfig` cached.
+- **`expand_sync`** - Expands the macros in `code`, the source of `filepath`, and returns the
+- ... and 9 more
 
 ## API Reference
 

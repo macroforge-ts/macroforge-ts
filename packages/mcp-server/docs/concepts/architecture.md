@@ -1,7 +1,7 @@
 # Architecture
 
 Macroforge is built as a modular Rust engine with multiple output targets. It parses and generates
-TypeScript with oxc, and provides both native Node.js and universal WebAssembly bindings.
+TypeScript with oxc, and compiles to WebAssembly, which runs in every JavaScript environment.
 
 ## Overview
 
@@ -15,11 +15,9 @@ Browser
 
 Edge
 
-Target Bindings
+Bindings
 
-NAPI-RS (Node)
-
-wasm-bindgen (Universal)
+wasm-bindgen
 
 Unified API
 
@@ -41,15 +39,13 @@ TypeScript parsing & codegen
 
 ### Unified API & Core Engine
 
-At the heart of Macroforge is `CoreEngine`, an output-agnostic facade that both bindings delegate
-to. This keeps the core expansion logic identical across all platforms while supporting different
-transport layers (NAPI or WASM).
+At the heart of Macroforge is `CoreEngine`, an output-agnostic facade that the WebAssembly bindings
+and the `macroforge` CLI delegate to, so the expansion logic is identical wherever it runs.
 
-### Target Bindings
+### Bindings
 
-- **NAPI-RS**: Bridges Rust and Node.js for maximum performance using native binaries.
-- **wasm-bindgen**: Compiles the engine to WebAssembly for universal compatibility across browsers
-  and edge workers.
+**wasm-bindgen** compiles the engine to WebAssembly, which runs in Node, Deno, browsers and edge
+workers.
 
 ### oxc
 
@@ -83,9 +79,9 @@ The procedural macro attribute for defining derive macros:
 - Automatic registration with the macro system
 - Error handling and span tracking
 
-### NAPI-RS Bindings
+### wasm-bindgen Bindings
 
-Bridges Rust and Node.js:
+Bridges the WebAssembly engine and JavaScript:
 
 - Exposes `expandSync`, `checkSyntax`, `scanProjectSync`, etc.
 - Provides the `NativePlugin` class for caching
@@ -97,7 +93,7 @@ Bridges Rust and Node.js:
 
 TypeScript with @derive
 
-2\. NAPI-RS
+2\. wasm-bindgen
 
 receives JavaScript string
 
@@ -127,11 +123,10 @@ to JavaScript with source mapping
 
 ## Performance Characteristics
 
-- **Isolated Execution**: In Node.js, each expansion runs in a dedicated thread with a 32MB stack to
-  prevent stack overflow during deep recursion. In WASM, execution is synchronous on the main
-  thread.
-- **Caching**: `NativePlugin` (Node) and API calls support version-based caching to skip redundant
-  work.
+- **Isolated Execution**: In the `macroforge` CLI, each expansion runs in a dedicated thread with a
+  32MB stack to prevent stack overflow during deep recursion. In WASM, execution is synchronous on
+  the main thread.
+- **Caching**: `NativePlugin` and API calls support version-based caching to skip redundant work.
 - **Binary search**: Position mapping uses optimized O(log n) lookups.
 - **Arena allocation**: oxc parses into an arena, so AST nodes borrow from one allocation rather
   than each owning their own.

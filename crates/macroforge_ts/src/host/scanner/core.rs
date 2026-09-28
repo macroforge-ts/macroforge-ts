@@ -43,7 +43,7 @@ pub struct ProjectScanner {
     /// Optional per-file scan cache. When present, [`Self::scan`]
     /// consults it before parsing and writes fresh entries back on
     /// cache misses. `RefCell` because `scan` takes `&self` and the
-    /// callers (napi / wasm bindings) want interior mutability to
+    /// callers (the wasm bindings) want interior mutability to
     /// keep the existing call signature.
     cache: Option<RefCell<ScanCache>>,
 }

@@ -3,8 +3,6 @@ use crate::host::derived;
 pub use crate::host::derived::manifest::{
     DecoratorManifestEntry, MacroManifest, MacroManifestEntry,
 };
-#[cfg(feature = "node")]
-use napi_derive::napi;
 
 // ============================================================================
 // Manifest / Debug API
@@ -26,7 +24,6 @@ use napi_derive::napi;
 /// console.log("Available macros:", manifest.macros.map(m => m.name));
 /// // ["Debug", "Clone", "PartialEq", "Hash", "Serialize", "Deserialize", ...]
 /// ```
-#[cfg_attr(feature = "node", napi(js_name = "__macroforgeGetManifest"))]
 pub fn get_macro_manifest() -> MacroManifest {
     derived::get_manifest()
 }
@@ -38,7 +35,6 @@ pub fn get_macro_manifest() -> MacroManifest {
 /// # Returns
 ///
 /// `true` if at least one macro is registered, `false` otherwise.
-#[cfg_attr(feature = "node", napi(js_name = "__macroforgeIsMacroPackage"))]
 pub fn is_macro_package() -> bool {
     !derived::macro_names().is_empty()
 }
@@ -48,7 +44,6 @@ pub fn is_macro_package() -> bool {
 /// # Returns
 ///
 /// A vector of macro names (e.g., `["Debug", "Clone", "Serialize"]`).
-#[cfg_attr(feature = "node", napi(js_name = "__macroforgeGetMacroNames"))]
 pub fn get_macro_names() -> Vec<String> {
     inventory::iter::<crate::host::derived::DerivedMacroRegistration>()
         .map(|entry| {
@@ -69,7 +64,6 @@ pub fn get_macro_names() -> Vec<String> {
 /// # Returns
 ///
 /// A vector of module names.
-#[cfg_attr(feature = "node", napi(js_name = "__macroforgeDebugGetModules"))]
 pub fn debug_get_modules() -> Vec<String> {
     crate::host::derived::modules()
         .into_iter()
@@ -89,7 +83,6 @@ pub fn debug_get_modules() -> Vec<String> {
 /// # Returns
 ///
 /// A string describing whether the macro was found or not.
-#[cfg_attr(feature = "node", napi(js_name = "__macroforgeDebugLookup"))]
 pub fn debug_lookup(module: String, name: String) -> String {
     match MacroExpander::new() {
         Ok(host) => match host.dispatcher.registry().lookup(&module, &name) {
@@ -108,7 +101,6 @@ pub fn debug_lookup(module: String, name: String) -> String {
 /// # Returns
 ///
 /// A vector of strings describing each registered macro descriptor.
-#[cfg_attr(feature = "node", napi(js_name = "__macroforgeDebugDescriptors"))]
 pub fn debug_descriptors() -> Vec<String> {
     inventory::iter::<crate::host::derived::DerivedMacroRegistration>()
         .map(|entry| {

@@ -68,7 +68,7 @@
         "category": "concepts",
         "category_title": "Core Concepts",
         "path": "concepts/architecture.md",
-        "use_cases": "internals, rust, oxc, napi, how it works"
+        "use_cases": "internals, rust, oxc, wasm, how it works"
     },
     {
         "id": "declarative-macros",
@@ -345,7 +345,7 @@
         "category": "custom-macros",
         "category_title": "Custom Macros",
         "path": "custom-macros/rust-setup.md",
-        "use_cases": "rust, cargo, napi, compilation, building"
+        "use_cases": "rust, cargo, wasm, compilation, building"
     },
     {
         "id": "ts-macro-derive/overview",

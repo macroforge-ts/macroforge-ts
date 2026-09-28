@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Isolated test runner — spawns each *.test.mjs in its own Deno subprocess
- * to prevent shared process state (NAPI module cache, CWD, config cache)
+ * to prevent shared process state (module cache, CWD, config cache)
  * from leaking between test files.
  *
  * Usage: deno run -A run-isolated.mjs [filter...]
@@ -55,9 +55,9 @@ for (const file of testFiles) {
     const stdout = decoder.decode(result.stdout);
     const stderr = decoder.decode(result.stderr);
 
-    // Check actual test results, not just exit code — NAPI modules can cause
-    // Deno to exit non-zero ("Promise resolution is still pending") even when
-    // all tests pass, because native module handles keep the event loop alive.
+    // Check the reported results, not just the exit code: Deno exits non-zero
+    // ("Promise resolution is still pending") when a test leaves the event
+    // loop busy, even though every test passed.
     const passedMatch = stdout.match(/(\d+) passed/);
     const failedMatch = stdout.match(/(\d+) failed/);
     const testsActuallyPassed = passedMatch && failedMatch &&

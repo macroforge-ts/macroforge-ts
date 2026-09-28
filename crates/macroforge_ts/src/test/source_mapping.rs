@@ -1,8 +1,7 @@
 use super::expand_test;
-#[cfg(feature = "node")]
+use crate::api::CoreEngine;
 use crate::{
     GeneratedRegionResult, MappingSegmentResult, NativePositionMapper, SourceMappingResult,
-    parse_import_sources,
 };
 
 #[test]
@@ -34,7 +33,6 @@ class User {
     );
 }
 
-#[cfg(feature = "node")]
 #[test]
 fn parse_import_sources_handles_aliases_and_defaults() {
     let code = r#"
@@ -43,8 +41,7 @@ import DefaultMacro from "@macro/default";
 import * as Everything from "@macro/all";
 "#;
 
-    let imports = parse_import_sources(code.to_string(), "test.ts".to_string())
-        .expect("should parse imports");
+    let imports = CoreEngine::parse_import_sources(code, "test.ts").expect("should parse imports");
 
     let map: std::collections::HashMap<_, _> = imports
         .into_iter()
@@ -63,7 +60,6 @@ import * as Everything from "@macro/all";
     );
 }
 
-#[cfg(feature = "node")]
 #[test]
 fn native_position_mapper_matches_js_logic() {
     let mapping = SourceMappingResult {
