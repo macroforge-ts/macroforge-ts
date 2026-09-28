@@ -93,9 +93,10 @@ fn run_diagnostics(config: &Config) -> Result<()> {
     anyhow::bail!("Diagnostics failed")
 }
 
-/// The editor extensions build for wasm32-wasip1, which the workspace clippy
-/// pass (host target) does not compile, so they get a target pass of their own.
-fn check_extensions(config: &Config) -> Result<()> {
+/// Builds the editor extensions for wasm32-wasip1, the target Zed loads them
+/// as. The workspace clippy pass lints them for the host; their own source has
+/// no target-specific code, so only the build needs the real target.
+fn build_extensions(config: &Config) -> Result<()> {
     let extensions_path = config.root.join("crates/extensions");
     for extension in ["svelte_macroforge", "vtsls_macroforge"] {
         let extension_path = extensions_path.join(extension);
@@ -103,12 +104,6 @@ fn check_extensions(config: &Config) -> Result<()> {
         io::stdout().flush()?;
         shell::cargo::build_target(&extension_path, "wasm32-wasip1")
             .with_context(|| format!("{extension} failed to build for wasm32-wasip1"))?;
-        println!("{}", "ok".green());
-
-        print!("  {} {extension} clippy... ", "→".blue());
-        io::stdout().flush()?;
-        shell::cargo::clippy_target(&extension_path, "wasm32-wasip1")
-            .with_context(|| format!("clippy failed for {extension} on wasm32-wasip1"))?;
         println!("{}", "ok".green());
     }
     Ok(())
@@ -176,7 +171,7 @@ pub fn run(args: VerifyArgs) -> Result<()> {
     if args.skip_build {
         skipped(5, "JSR publish check");
         skipped(6, "tests");
-        skipped(7, "extension checks");
+        skipped(7, "extension builds");
     } else {
         step(5, "Checking the JSR publish");
         shell::deno::publish_check(&config.root).context("deno publish --dry-run failed")?;
@@ -186,8 +181,8 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         super::test::run_package_tests(&config)?;
         super::test::run_playground_suites(&config)?;
 
-        step(7, "Checking the extensions (wasm32-wasip1)");
-        check_extensions(&config)?;
+        step(7, "Building the extensions (wasm32-wasip1)");
+        build_extensions(&config)?;
     }
 
     // Both need the website step 3 built.

@@ -153,7 +153,13 @@ impl ProjectLock {
             }
         }
 
-        record_holder(&file, command);
+        // An unlabelled lock still locks; only the waiting message loses detail.
+        if let Err(error) = record_holder(&file, command) {
+            eprintln!(
+                "[macroforge] warning: could not record the lock holder in {}: {error:#}",
+                lock.path.display()
+            );
+        }
         state.file = Some(file);
         state.holders += 1;
         drop(state);
@@ -220,56 +226,55 @@ fn lock_file_for(root: &Path) -> Result<Arc<LockFile>> {
         .clone())
 }
 
+/// Who holds a project lock, as written into the lock file.
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct HolderRecord {
+    pid: u32,
+    command: String,
+    started_at: u64,
+}
+
 /// Stamps the lock file with who holds it, so a waiting process can name it.
 ///
 /// This has to be written to the locked file itself — the lock lives on that
 /// inode, so it cannot be replaced by a rename — which means a reader can
 /// catch it mid-write. That is tolerable because the record is only ever read
 /// to build a human-readable message, and [`describe_holder`] falls back when
-/// it cannot parse. Failures are ignored for the same reason: an unlabelled
-/// lock still locks.
-fn record_holder(file: &File, command: &str) {
-    let started = std::time::SystemTime::now()
+/// it cannot parse.
+fn record_holder(file: &File, command: &str) -> Result<()> {
+    let started_at = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0);
-    let record = serde_json::json!({
-        "pid": std::process::id(),
-        "command": command,
-        "startedAt": started,
-    });
-
-    let Ok(json) = serde_json::to_string(&record) else {
-        return;
-    };
+        .context("the system clock is before the Unix epoch")?
+        .as_secs();
+    let json = serde_json::to_string(&HolderRecord {
+        pid: std::process::id(),
+        command: command.to_string(),
+        started_at,
+    })
+    .context("failed to serialize the lock holder")?;
 
     let mut file = file;
-    let _ = file.set_len(0);
-    let _ = file.seek(SeekFrom::Start(0));
-    let _ = file.write_all(json.as_bytes());
-    let _ = file.flush();
+    file.set_len(0).context("failed to truncate")?;
+    file.seek(SeekFrom::Start(0)).context("failed to rewind")?;
+    file.write_all(json.as_bytes()).context("failed to write")?;
+    file.flush().context("failed to flush")?;
+    Ok(())
 }
 
 /// Describes the current lock holder for the waiting message.
 ///
-/// Best-effort: the record may be absent (a holder that crashed before writing
-/// it, or an older macroforge) or caught mid-write, so anything unparseable
-/// degrades to a generic phrase rather than failing the wait.
+/// An empty or half-written record is expected, from a holder that crashed
+/// before writing it or one caught mid-write, and reads as a generic phrase
+/// rather than failing the wait. Failing to read the file at all is reported.
 fn describe_holder(path: &Path) -> String {
     let mut contents = String::new();
-    let parsed = File::open(path)
-        .and_then(|mut f| f.read_to_string(&mut contents))
-        .ok()
-        .and_then(|_| serde_json::from_str::<serde_json::Value>(&contents).ok());
-
-    let Some(record) = parsed else {
-        return "another macroforge process".to_string();
-    };
-
-    match (record["pid"].as_u64(), record["command"].as_str()) {
-        (Some(pid), Some(command)) => format!("pid {pid}, `macroforge {command}`"),
-        (Some(pid), None) => format!("pid {pid}"),
-        _ => "another macroforge process".to_string(),
+    if let Err(error) = File::open(path).and_then(|mut file| file.read_to_string(&mut contents)) {
+        return format!("another macroforge process; its record is unreadable: {error}");
+    }
+    match serde_json::from_str::<HolderRecord>(&contents) {
+        Ok(record) => format!("pid {}, `macroforge {}`", record.pid, record.command),
+        Err(_) => "another macroforge process".to_string(),
     }
 }
 

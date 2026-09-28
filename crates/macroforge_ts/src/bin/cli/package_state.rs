@@ -9,16 +9,19 @@
 //! Both answers are deliberately conservative. A missed change ships a stale
 //! published package, which is far worse than a rebuild that turns out to have
 //! been unnecessary, so anything this module cannot account for precisely —
-//! a config edit, a rebuilt macro binary, a shifted type surface — invalidates
-//! everything rather than guessing.
+//! a config edit, a rebuilt macro binary, a changed declarative macro —
+//! invalidates everything rather than guessing. The type surface is accounted
+//! for precisely: each expansion records the registry lookups it made, and
+//! re-expands when one of them resolves differently.
 //!
 //! State lives in `.macroforge/svelte-package/state.json` next to the expanded
 //! tree it describes, and is written through [`write_atomic`] like the rest of
 //! `.macroforge/`.
 
 use anyhow::{Context, Result};
+use macroforge_ts::ts_syn::abi::ir::type_registry::{RegistryRead, TypeRegistry};
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     fs,
     path::{Path, PathBuf},
 };
@@ -94,18 +97,31 @@ pub(crate) struct PackageInputs {
     pub(crate) output_fingerprint: String,
 }
 
+/// One type registry lookup an expansion made, and what it resolved to then.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct ReadStamp {
+    pub(crate) read: RegistryRead,
+    /// Hash of the lookup's resolution ([`TypeRegistry::resolution_of`]).
+    pub(crate) resolution: String,
+}
+
 /// What the last successful `svelte-package` run consumed and produced.
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct PackageState {
     pub(crate) inputs: PackageInputs,
     pub(crate) resolved: ResolvedPackageConfig,
-    /// Hash of the type and declarative registries the expanded tree was
-    /// produced against. Unlike the rest of `inputs` this cannot participate in
-    /// the skip decision — the registries are only rebuilt once a run is
-    /// already under way — so it reaches the build through
-    /// [`Self::expansion_stale_reason`] instead.
-    pub(crate) registry_hash: String,
+    /// Hash of the declarative macro registry the expanded tree was produced
+    /// against. Like the type registry it is only rebuilt once a run is under
+    /// way, so it cannot take part in the skip decision and reaches the build
+    /// through [`Self::expansion_stale_reason`] instead.
+    pub(crate) declarative_hash: String,
+    /// For each input path with an expanded artifact, the type registry lookups
+    /// its expansion made. A module re-expands when one of them resolves
+    /// differently, so a type change reaches exactly the expansions that read
+    /// the type.
+    pub(crate) module_reads: BTreeMap<String, Vec<ReadStamp>>,
     /// Input paths that had an expanded artifact when the run finished.
     ///
     /// Recorded so a missing artifact is noticed. Nothing else can tell a file
@@ -117,9 +133,29 @@ pub(crate) struct PackageState {
 }
 
 impl PackageState {
+    /// The recorded state, or `None` when there is none to reuse. A state file
+    /// that exists but cannot be read is reported, since it costs a full
+    /// rebuild.
     pub(crate) fn load(root: &Path) -> Option<Self> {
-        let text = fs::read_to_string(state_path(root)).ok()?;
-        serde_json::from_str(&text).ok()
+        let path = state_path(root);
+        let text = match fs::read_to_string(&path) {
+            Ok(text) => text,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return None,
+            Err(error) => {
+                eprintln!("[macroforge] ignoring {}: {error}", path.display());
+                return None;
+            }
+        };
+        match serde_json::from_str(&text) {
+            Ok(state) => Some(state),
+            Err(error) => {
+                eprintln!(
+                    "[macroforge] ignoring {}, written by another version: {error}",
+                    path.display()
+                );
+                None
+            }
+        }
     }
 
     pub(crate) fn save(&self, root: &Path) -> Result<()> {
@@ -196,7 +232,7 @@ impl PackageState {
     pub(crate) fn expansion_stale_reason(
         &self,
         current: &PackageInputs,
-        registry_hash: &str,
+        declarative_hash: &str,
     ) -> Option<&'static str> {
         let previous = &self.inputs;
 
@@ -209,11 +245,70 @@ impl PackageState {
         if previous.external_macro_hash != current.external_macro_hash {
             return Some("the external macro binary changed");
         }
-        if self.registry_hash != registry_hash {
-            return Some("the project's type surface changed");
+        if self.declarative_hash != declarative_hash {
+            return Some("the project's declarative macros changed");
         }
 
         None
+    }
+
+    /// Expanded modules whose recorded registry lookups now resolve
+    /// differently, including any with nothing recorded.
+    pub(crate) fn stale_readers(&self, resolutions: &mut Resolutions<'_>) -> Result<Vec<String>> {
+        let mut stale = Vec::new();
+        for module in &self.expanded_entries {
+            let Some(stamps) = self.module_reads.get(module) else {
+                stale.push(module.clone());
+                continue;
+            };
+            for stamp in stamps {
+                if resolutions.of(&stamp.read)? != stamp.resolution {
+                    stale.push(module.clone());
+                    break;
+                }
+            }
+        }
+        Ok(stale)
+    }
+}
+
+/// Resolves registry lookups against one registry, each distinct one once.
+pub(crate) struct Resolutions<'a> {
+    registry: &'a TypeRegistry,
+    resolved: HashMap<RegistryRead, String>,
+}
+
+impl<'a> Resolutions<'a> {
+    pub(crate) fn new(registry: &'a TypeRegistry) -> Self {
+        Self {
+            registry,
+            resolved: HashMap::new(),
+        }
+    }
+
+    /// Hash of what `read` resolves to.
+    pub(crate) fn of(&mut self, read: &RegistryRead) -> Result<String> {
+        if let Some(resolution) = self.resolved.get(read) {
+            return Ok(resolution.clone());
+        }
+        let serialized = serde_json::to_vec(&self.registry.resolution_of(read))
+            .with_context(|| format!("failed to serialize the resolution of {read:?}"))?;
+        let resolution = content_hash(&serialized);
+        self.resolved.insert(read.clone(), resolution.clone());
+        Ok(resolution)
+    }
+
+    /// Stamps each of `reads` with what it resolves to now.
+    pub(crate) fn stamps(&mut self, reads: &BTreeSet<RegistryRead>) -> Result<Vec<ReadStamp>> {
+        reads
+            .iter()
+            .map(|read| {
+                Ok(ReadStamp {
+                    read: read.clone(),
+                    resolution: self.of(read)?,
+                })
+            })
+            .collect()
     }
 }
 
@@ -445,7 +540,7 @@ pub(crate) fn output_fingerprint(output: &Path) -> Result<String> {
 /// the file being expanded: a type defined outside the input directory and
 /// derived over inside it changes the generated code without changing any input
 /// file. Tracking the sources the scanner reads closes that gap for the skip
-/// decision; [`PackageState::registry_hash`] closes it for the incremental one.
+/// decision; [`PackageState::module_reads`] closes it for the incremental one.
 ///
 /// Mirrors `ScanConfig::default()` — `.ts`/`.tsx` under the project root, minus
 /// the usual non-source directories — plus the output directory, which is
@@ -464,9 +559,8 @@ pub(crate) fn project_hash(root: &Path, output: &Path) -> Result<String> {
         if !(rel.ends_with(".ts") || rel.ends_with(".tsx")) {
             continue;
         }
-        let Ok(bytes) = fs::read(&path) else {
-            continue;
-        };
+        let bytes =
+            fs::read(&path).with_context(|| format!("failed to read {}", path.display()))?;
         // Normalized, so reformatting the project does not force every library
         // in it to repackage.
         buf.push_str(&rel);
@@ -477,72 +571,16 @@ pub(crate) fn project_hash(root: &Path, output: &Path) -> Result<String> {
     Ok(content_hash(buf.as_bytes()))
 }
 
-/// Hash of the type and declarative registries as they stand on disk.
+/// Hash of the declarative macro registry as it stands on disk.
 ///
-/// Read after the scan that writes them, and compared against the value stored
-/// with the expanded tree: if the project's type surface moved, every expansion
-/// is suspect, not just the ones whose own source changed.
-pub(crate) fn registry_hash(root: &Path) -> String {
-    let dir = root.join(".macroforge");
-    let mut buf = String::new();
-    for name in ["type-registry.json", "declarative-registry.json"] {
-        buf.push_str(&canonical_json(&dir.join(name)));
-        buf.push('\n');
-    }
-    content_hash(buf.as_bytes())
-}
-
-/// Reads a JSON file into a form whose text depends only on its content.
-///
-/// Both registries are `HashMap`-backed, so `serde_json` renders their keys in
-/// whatever order the map iterates and the raw text differs between two runs
-/// that scanned identical sources. Object keys are sorted explicitly: whether
-/// `serde_json::Value` keeps insertion order depends on a feature any crate in
-/// the build can switch on.
-fn canonical_json(path: &Path) -> String {
-    let Ok(text) = fs::read_to_string(path) else {
-        return "none".to_string();
-    };
-    match serde_json::from_str::<serde_json::Value>(&text) {
-        Ok(value) => sorted_keys(value).to_string(),
-        // Unparseable is still deterministic, and the next run will rewrite it.
-        Err(_) => text,
-    }
-}
-
-/// `value` with every object's keys in sorted order.
-fn sorted_keys(value: serde_json::Value) -> serde_json::Value {
-    match value {
-        serde_json::Value::Object(map) => {
-            let mut entries: Vec<(String, serde_json::Value)> = map
-                .into_iter()
-                .map(|(key, entry)| (key, sorted_keys(entry)))
-                .collect();
-            entries.sort_by(|left, right| left.0.cmp(&right.0));
-            serde_json::Value::Object(entries.into_iter().collect())
-        }
-        serde_json::Value::Array(items) => {
-            serde_json::Value::Array(items.into_iter().map(sorted_keys).collect())
-        }
-        other => other,
-    }
-}
-
-#[cfg(test)]
-mod canonical_json_tests {
-    use super::sorted_keys;
-
-    #[test]
-    fn key_order_does_not_change_the_canonical_text() {
-        let first: serde_json::Value =
-            serde_json::from_str(r#"{"b":{"y":1,"x":2},"a":[{"d":1,"c":2}]}"#).unwrap_or_default();
-        let second: serde_json::Value =
-            serde_json::from_str(r#"{"a":[{"c":2,"d":1}],"b":{"x":2,"y":1}}"#).unwrap_or_default();
-        assert_eq!(
-            sorted_keys(first).to_string(),
-            sorted_keys(second).to_string()
-        );
-    }
+/// Read after the scan that writes it, and compared against the value stored
+/// with the expanded tree: a declarative macro can expand anywhere in the
+/// project, so when one moves every expansion is suspect. The registry
+/// serializes deterministically, so its bytes are its content.
+pub(crate) fn declarative_hash(root: &Path) -> Result<String> {
+    let path = root.join(".macroforge").join("declarative-registry.json");
+    let bytes = fs::read(&path).with_context(|| format!("failed to read {}", path.display()))?;
+    Ok(content_hash(&bytes))
 }
 
 /// The command-line options that reach `@sveltejs/package`.
@@ -569,15 +607,15 @@ impl PackageFlags {
 /// its result is cached in the state file and reused while this hash holds.
 /// That means covering every input to it: the command line, and the two files
 /// `load_config()` reads.
-pub(crate) fn resolver_hash(root: &Path, flags: &PackageFlags) -> String {
+pub(crate) fn resolver_hash(root: &Path, flags: &PackageFlags) -> Result<String> {
     let mut buf = flags.describe();
     for name in ["svelte.config.js", "svelte.config.ts", "package.json"] {
         buf.push_str(name);
         buf.push(':');
-        buf.push_str(&file_hash(&root.join(name)));
+        buf.push_str(&file_hash(&root.join(name))?);
         buf.push('\n');
     }
-    content_hash(buf.as_bytes())
+    Ok(content_hash(buf.as_bytes()))
 }
 
 /// Content hashes and versions of the toolchain around the packager.
@@ -594,36 +632,40 @@ pub(crate) fn tool_hashes(
     root: &Path,
     input: &Path,
     tsconfig: Option<&Path>,
-) -> BTreeMap<String, String> {
+) -> Result<BTreeMap<String, String>> {
     let mut hashes = BTreeMap::new();
 
     let tsconfig = tsconfig
         .map(Path::to_path_buf)
         .or_else(|| find_tsconfig(input, root));
-    hashes.insert(
-        "tsconfig".to_string(),
-        tsconfig.map(|p| file_hash(&p)).unwrap_or_else(none),
-    );
+    let tsconfig_hash = match tsconfig {
+        Some(path) => file_hash(&path)?,
+        None => none(),
+    };
+    hashes.insert("tsconfig".to_string(), tsconfig_hash);
 
     for name in [
         "@sveltejs/package",
         macroforge_ts::package::PACKAGE,
         "@macroforge/svelte-preprocessor",
     ] {
-        hashes.insert(name.to_string(), dep_version(root, name));
+        hashes.insert(name.to_string(), dep_version(root, name)?);
     }
 
-    hashes
+    Ok(hashes)
 }
 
 fn none() -> String {
     "none".to_string()
 }
 
-fn file_hash(path: &Path) -> String {
-    fs::read(path)
-        .map(|b| content_hash(&b))
-        .unwrap_or_else(|_| none())
+/// Hash of the file at `path`, or `none()` when there is no such file.
+fn file_hash(path: &Path) -> Result<String> {
+    match fs::read(path) {
+        Ok(bytes) => Ok(content_hash(&bytes)),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(none()),
+        Err(error) => Err(error).with_context(|| format!("failed to read {}", path.display())),
+    }
 }
 
 /// Finds the tsconfig the packager would fall back to.
@@ -649,17 +691,22 @@ fn find_tsconfig(input: &Path, root: &Path) -> Option<PathBuf> {
 }
 
 /// Reads an installed package's version from `node_modules`.
-fn dep_version(root: &Path, name: &str) -> String {
+fn dep_version(root: &Path, name: &str) -> Result<String> {
     let path = root.join("node_modules").join(name).join("package.json");
-    let Ok(text) = fs::read_to_string(&path) else {
-        return none();
+    let text = match fs::read_to_string(&path) {
+        Ok(text) => text,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(none()),
+        Err(error) => {
+            return Err(error).with_context(|| format!("failed to read {}", path.display()));
+        }
     };
-    serde_json::from_str::<serde_json::Value>(&text)
-        .ok()
-        .and_then(|v| {
-            v.get("version")
-                .and_then(|s| s.as_str())
-                .map(str::to_string)
-        })
-        .unwrap_or_else(|| "unknown".to_string())
+    let manifest: InstalledPackage = serde_json::from_str(&text)
+        .with_context(|| format!("{} has no readable version", path.display()))?;
+    Ok(manifest.version)
+}
+
+/// The part of an installed package's `package.json` that names its version.
+#[derive(serde::Deserialize)]
+struct InstalledPackage {
+    version: String,
 }

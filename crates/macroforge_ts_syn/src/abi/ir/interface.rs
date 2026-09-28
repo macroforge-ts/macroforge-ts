@@ -91,6 +91,23 @@ pub struct InterfaceIR {
     pub methods: Vec<InterfaceMethodIR>,
 }
 
+impl InterfaceIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.body_span = SpanIR::default();
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+        self.fields
+            .iter_mut()
+            .for_each(InterfaceFieldIR::clear_spans);
+        self.methods
+            .iter_mut()
+            .for_each(InterfaceMethodIR::clear_spans);
+    }
+}
+
 /// Intermediate representation of an interface property.
 ///
 /// Represents a property signature within a TypeScript interface.
@@ -131,6 +148,16 @@ pub struct InterfaceFieldIR {
 
     /// Decorators applied to this property (from JSDoc).
     pub decorators: Vec<DecoratorIR>,
+}
+
+impl InterfaceFieldIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+    }
 }
 
 /// Intermediate representation of an interface method signature.
@@ -174,4 +201,14 @@ pub struct InterfaceMethodIR {
 
     /// Decorators applied to this method (from JSDoc).
     pub decorators: Vec<DecoratorIR>,
+}
+
+impl InterfaceMethodIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+    }
 }

@@ -221,14 +221,6 @@ pub mod cargo {
         }
     }
 
-    /// Run cargo clippy with a specific target
-    pub fn clippy_target(cwd: &Path, target: &str) -> Result<CommandResult> {
-        Shell::new("cargo")
-            .args(&["clippy", "--target", target, "--", "-D", "warnings"])
-            .dir(cwd)
-            .run_checked()
-    }
-
     /// Run cargo build with a specific target
     pub fn build_target(cwd: &Path, target: &str) -> Result<CommandResult> {
         Shell::new("cargo")

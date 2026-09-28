@@ -1,17 +1,20 @@
 use anyhow::{Context, Result};
 use std::{
+    collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
     sync::Mutex,
 };
 
 use crate::atomic_fs::{sibling_with_suffix, swap_dir, write_atomic};
-use crate::cache::{compute_config_hash, compute_external_macro_hash, content_hash};
+use crate::cache::{
+    cached_type_registry, compute_config_hash, compute_external_macro_hash, content_hash,
+};
 use crate::lock::ProjectLock;
 use crate::package_expand::run_expansion_pass;
 use crate::package_state::{
-    self, PackageFlags, PackageInputs, PackageState, ResolvedPackageConfig, diff_files,
-    expanded_dir, output_fingerprint, project_hash, scan_input, state_dir, tool_hashes,
+    self, PackageFlags, PackageInputs, PackageState, Resolutions, ResolvedPackageConfig,
+    diff_files, expanded_dir, output_fingerprint, project_hash, scan_input, state_dir, tool_hashes,
 };
 
 /// Cached path to the type registry JSON file (built once per process via scanProjectSync).
@@ -445,7 +448,7 @@ pub fn run_svelte_package_wrapper(
     let previous = PackageState::load(root);
 
     // Reuse the cached resolution while everything it depends on holds.
-    let resolver_hash = package_state::resolver_hash(root, &flags);
+    let resolver_hash = package_state::resolver_hash(root, &flags)?;
     let resolved = match previous
         .as_ref()
         .filter(|state| state.inputs.resolver_hash == resolver_hash)
@@ -481,7 +484,7 @@ pub fn run_svelte_package_wrapper(
             root,
             &resolved.input,
             tsconfig.as_deref().map(|p| absolutize(root, p)).as_deref(),
-        ),
+        )?,
         files: scan_input(&resolved.input, &resolved.extensions)?,
         output_fingerprint: output_fingerprint(&dest_abs)?,
     };
@@ -504,20 +507,24 @@ pub fn run_svelte_package_wrapper(
     // references, exactly as the tsc / svelte-check wrappers do. This is the
     // first expensive step, and everything above exists to avoid reaching it.
     ensure_type_registry_cache(root)?;
-    let registry_hash = package_state::registry_hash(root);
+    let declarative_hash = package_state::declarative_hash(root)?;
+    let registry = cached_type_registry()?.unwrap_or_default();
+    let mut resolutions = Resolutions::new(&registry);
 
     let expanded = expanded_dir(root);
 
     // An expansion depends on more than the file it was produced from: the
-    // engine, the config, the project's type surface. None of those leave a
-    // mark on a source file, so when one moves, comparing sources finds nothing
-    // changed and the whole tree has to be produced again regardless.
+    // engine, the config, the declarative macros in scope. None of those leave
+    // a mark on a source file, so when one moves, comparing sources finds
+    // nothing changed and the whole tree has to be produced again regardless.
     let full_reason: Option<&'static str> = match previous.as_ref() {
-        Some(state) => state.expansion_stale_reason(&current, &registry_hash),
+        Some(state) => state.expansion_stale_reason(&current, &declarative_hash),
         None => Some("no previous build to reuse"),
     };
 
-    let targets: Vec<String> = match (full_reason, previous.as_ref()) {
+    // Changed files, and separately the modules re-expanded only because a
+    // type they read changed.
+    let (targets, readers): (Vec<String>, usize) = match (full_reason, previous.as_ref()) {
         (None, Some(state)) => {
             let mut targets = diff_files(&state.inputs.files, &current.files).changed;
             // An artifact that went missing since the last run has to be
@@ -533,25 +540,39 @@ pub fn run_svelte_package_wrapper(
             );
             targets.sort();
             targets.dedup();
-            targets
+            let readers: Vec<String> = state
+                .stale_readers(&mut resolutions)?
+                .into_iter()
+                .filter(|rel| current.files.contains_key(rel) && !targets.contains(rel))
+                .collect();
+            let count = readers.len();
+            targets.extend(readers);
+            (targets, count)
         }
-        _ => current.files.keys().cloned().collect(),
+        _ => (current.files.keys().cloned().collect(), 0),
     };
 
-    let considered = targets.len();
+    let considered = targets.len() - readers;
     let outcome = run_expansion_pass(root, &resolved.input, &expanded, &targets, &current.files)?;
     let total = outcome.entries.len();
 
     // Report the work, and when it was more than the edit seemed to warrant,
-    // why. Re-expanding a whole library after a three-field change is correct —
-    // every expansion depends on the project's types — but it reads as a bug
-    // unless the reason comes with it.
+    // why: a module re-expanded without being edited reads as a bug unless the
+    // reason comes with it.
     if let Some(reason) = full_reason {
         eprintln!("[macroforge] Re-expanded all {total} macro module(s) — {reason}");
     } else if outcome.expanded > 0 {
+        let mut why = Vec::new();
+        if considered > 0 {
+            why.push(format!("{considered} changed file(s)"));
+        }
+        if readers > 0 {
+            why.push(format!("{readers} reading a changed type"));
+        }
         eprintln!(
-            "[macroforge] Re-expanded {} of {total} macro module(s) ({considered} changed file(s))",
-            outcome.expanded
+            "[macroforge] Re-expanded {} of {total} macro module(s) — {}",
+            outcome.expanded,
+            why.join(", ")
         );
     } else if considered == 0 {
         eprintln!("[macroforge] Reused all {total} expanded module(s)");
@@ -591,6 +612,17 @@ pub fn run_svelte_package_wrapper(
             .is_some_and(|fresh| fresh.normalized_hash == stamp.normalized_hash)
     });
 
+    // Reused modules keep the lookups recorded when they were expanded, which
+    // still resolve the same or they would have been re-expanded.
+    let mut module_reads = match (full_reason, previous) {
+        (None, Some(state)) => state.module_reads,
+        _ => BTreeMap::new(),
+    };
+    module_reads.retain(|rel, _| outcome.entries.contains(rel));
+    for (rel, reads) in &outcome.registry_reads {
+        module_reads.insert(rel.clone(), resolutions.stamps(reads)?);
+    }
+
     let state = PackageState {
         inputs: PackageInputs {
             files,
@@ -598,7 +630,8 @@ pub fn run_svelte_package_wrapper(
             ..current
         },
         resolved,
-        registry_hash,
+        declarative_hash,
+        module_reads,
         expanded_entries: outcome.entries,
     };
     state.save(root)?;

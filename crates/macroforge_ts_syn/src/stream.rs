@@ -488,6 +488,8 @@ impl TsStream {
             cross_module_suffixes: self.cross_module_suffixes,
             cross_module_type_suffixes: self.cross_module_type_suffixes,
             imports,
+            // The entry point a macro is loaded through fills this in.
+            registry_reads: None,
         }
     }
 
@@ -1067,11 +1069,7 @@ mod import_for_tests {
     }
 
     fn make_ctx_with_registry(file_name: &str, type_name: &str, type_path: &str) -> MacroContextIR {
-        let mut registry = TypeRegistry {
-            types: std::collections::HashMap::new(),
-            qualified_types: std::collections::HashMap::new(),
-            ambiguous_names: vec![],
-        };
+        let mut registry = TypeRegistry::new();
         registry.types.insert(
             type_name.to_string(),
             TypeRegistryEntry {
@@ -1213,19 +1211,12 @@ mod import_for_tests {
         context_registry::clear_context();
     }
 
-    /// Regression test for a dealdraft bug. When the Gigaform `@enumFieldsetController`
-    /// pipeline pre-registers a cross-file variant's source module via
-    /// `install_source_imports`, that pre-registration permanently shadows any
-    /// later `add_type_import` for the same name — `request_import` skips
-    /// because `source_imports.contains_key(local_name)` is true. The downstream
-    /// effect: the bare variant type (e.g. `LinkedUser`, `CustomerReferral`) is
-    /// referenced in the generated code but never imported.
-    ///
-    /// The bug fix removed the harmful pre-registration call. This test pins
-    /// the *root cause* — that pre-registering a variant in `source_imports`
-    /// causes the bare type import for the same name to be silently dropped
-    /// — so a future "smart caching" change can't accidentally re-introduce
-    /// the same misuse.
+    /// Pre-registering a variant's source module through
+    /// `install_source_imports` shadows any later `add_type_import` for the
+    /// same name: `request_import` skips it because `source_imports` already
+    /// holds the name, so the bare variant type is referenced in generated code
+    /// and never imported. This pins that interaction, so a macro that
+    /// pre-registers a variant is known to lose the import.
     #[test]
     fn add_helpers_for_emits_bare_variant_type_import() {
         reset_thread_locals();
@@ -1307,10 +1298,8 @@ mod import_for_tests {
         context_registry::clear_context();
     }
 
-    /// Companion to `add_helpers_for_emits_bare_variant_type_import`: shows
-    /// that without the buggy pre-registration, the bare type import is
-    /// emitted normally. This is the post-fix behavior the dealdraft
-    /// `lead_source_transitive` fixture relies on.
+    /// Companion to `add_helpers_for_emits_bare_variant_type_import`: without
+    /// the pre-registration, the bare type import is emitted normally.
     #[test]
     fn add_helpers_for_emits_bare_type_when_source_imports_clean() {
         reset_thread_locals();

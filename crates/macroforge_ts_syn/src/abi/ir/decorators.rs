@@ -80,3 +80,10 @@ pub struct DecoratorIR {
     #[serde(skip)]
     pub node: Option<swc_ast::Decorator>,
 }
+
+impl DecoratorIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+    }
+}

@@ -114,6 +114,19 @@ pub struct ClassIR {
     pub members: Vec<swc_ast::ClassMember>,
 }
 
+impl ClassIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.body_span = SpanIR::default();
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+        self.fields.iter_mut().for_each(FieldIR::clear_spans);
+        self.methods.iter_mut().for_each(MethodSigIR::clear_spans);
+    }
+}
+
 /// Intermediate representation of a class field/property.
 ///
 /// Represents a property declaration within a TypeScript class, including
@@ -169,6 +182,16 @@ pub struct FieldIR {
     #[cfg(feature = "swc")]
     #[serde(skip)]
     pub prop_ast: Option<swc_ast::ClassProp>,
+}
+
+impl FieldIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+    }
 }
 
 /// Intermediate representation of a class method signature.
@@ -239,6 +262,17 @@ pub struct MethodSigIR {
     #[cfg(feature = "swc")]
     #[serde(skip)]
     pub member_ast: Option<MethodAstIR>,
+}
+
+impl MethodSigIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.body_span = self.body_span.map(|_| SpanIR::default());
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+    }
 }
 
 /// Container for method AST variants.

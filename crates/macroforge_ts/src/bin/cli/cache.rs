@@ -1,9 +1,10 @@
 use anyhow::{Context, Result, anyhow};
 use ignore::WalkBuilder;
 use macroforge_ts::host::MacroExpander;
+use macroforge_ts::ts_syn::abi::ir::type_registry::{RegistryRead, TypeRegistry};
 use sha2::{Digest, Sha256};
 use std::{
-    collections::HashMap,
+    collections::{BTreeSet, HashMap},
     fs,
     path::{Path, PathBuf},
 };
@@ -25,7 +26,7 @@ pub(crate) struct CacheManifest {
     /// SHA-256 of the macroforge config file content (or `"none"`).
     pub(crate) config_hash: String,
     /// Hash of the external macro packages' artifacts. Invalidates the cache
-    /// when a local macro package (e.g. `@dealdraft/macros`) is rebuilt.
+    /// when a local macro package is rebuilt.
     #[serde(default)]
     pub(crate) external_macro_hash: String,
     /// One fingerprint per engine that writes here, keyed by writer: this CLI
@@ -379,15 +380,7 @@ pub(crate) fn configured_expander(root: &Path, path: &Path) -> Result<MacroExpan
         .context("failed to initialize macro expander")?;
     expander.set_project_config(config);
 
-    let registry_path = TYPE_REGISTRY_CACHE_PATH
-        .lock()
-        .map_err(|err| anyhow!("type registry path lock poisoned: {err}"))?
-        .clone();
-    if let Some(registry_path) = registry_path {
-        let json = fs::read_to_string(&registry_path)
-            .with_context(|| format!("failed to read the type registry {registry_path}"))?;
-        let registry = serde_json::from_str(&json)
-            .with_context(|| format!("failed to parse the type registry {registry_path}"))?;
+    if let Some(registry) = cached_type_registry()? {
         expander.set_type_registry(registry);
     }
 
@@ -419,6 +412,9 @@ pub(crate) struct CacheExpansion {
     pub(crate) code: String,
     /// Error-level diagnostics, already rendered for display.
     pub(crate) errors: Vec<String>,
+    /// The type registry lookups the expansion made, so a cache can tell which
+    /// registry changes affect it.
+    pub(crate) registry_reads: BTreeSet<RegistryRead>,
 }
 
 /// A thread pool for expanding files in parallel. Expansion recurses as deep
@@ -430,6 +426,22 @@ pub(crate) fn expansion_pool() -> Result<rayon::ThreadPool> {
         .stack_size(32 * 1024 * 1024)
         .build()
         .context("failed to start the expansion thread pool")
+}
+
+/// The type registry the last scan wrote, or `None` before any scan.
+pub(crate) fn cached_type_registry() -> Result<Option<TypeRegistry>> {
+    let registry_path = TYPE_REGISTRY_CACHE_PATH
+        .lock()
+        .map_err(|err| anyhow!("type registry path lock poisoned: {err}"))?
+        .clone();
+    let Some(registry_path) = registry_path else {
+        return Ok(None);
+    };
+    let json = fs::read_to_string(&registry_path)
+        .with_context(|| format!("failed to read the type registry {registry_path}"))?;
+    let registry = serde_json::from_str(&json)
+        .with_context(|| format!("failed to parse the type registry {registry_path}"))?;
+    Ok(Some(registry))
 }
 
 /// Expands one file for the build cache, or `None` when it has no macros.
@@ -444,9 +456,16 @@ pub(crate) fn expand_for_cache(
 
     let expander = configured_expander(root, path)?;
 
+    expander.type_registry().start_recording();
     let expansion = expander
         .expand_source(source, &path.display().to_string())
         .map_err(|err| anyhow!(format!("{err:?}")))?;
+    // Recording was started just above, so an empty answer cannot happen; if it
+    // somehow did, depending on everything is the answer that stays correct.
+    let registry_reads = expander
+        .type_registry()
+        .finish_recording()
+        .unwrap_or_else(|| BTreeSet::from([RegistryRead::All]));
 
     macroforge_ts::host::clear_registry();
     macroforge_ts::host::clear_foreign_types();
@@ -470,6 +489,7 @@ pub(crate) fn expand_for_cache(
     Ok(Some(CacheExpansion {
         code: expansion.code,
         errors,
+        registry_reads,
     }))
 }
 

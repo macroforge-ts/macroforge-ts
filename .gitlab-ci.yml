@@ -60,7 +60,7 @@ release-check:
 verify:
     stage: verify
     interruptible: true
-    timeout: 2h
+    timeout: 3h
     script:
         - *toolchain
         - pixi run build:cli

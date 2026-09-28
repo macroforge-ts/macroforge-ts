@@ -17,8 +17,9 @@
 //! prevent. A build that cannot expand a file has no correct output to produce.
 
 use anyhow::{Context, Result, bail};
+use macroforge_ts::ts_syn::abi::ir::type_registry::RegistryRead;
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fs,
     path::{Path, PathBuf},
 };
@@ -35,6 +36,8 @@ pub(crate) struct ExpansionOutcome {
     /// run's work: the packager has to redirect reads of files that were
     /// expanded on an earlier run too.
     pub(crate) entries: Vec<String>,
+    /// The type registry lookups each file expanded on this run made.
+    pub(crate) registry_reads: BTreeMap<String, BTreeSet<RegistryRead>>,
 }
 
 /// Whether a file is one the macro engine should see.
@@ -49,8 +52,9 @@ pub(crate) fn is_expandable(rel: &str) -> bool {
 /// Expands `targets` into `expanded_dir` and reconciles the tree with `files`.
 ///
 /// `targets` is the set of input-relative paths whose expansion may be out of
-/// date — normally the changed files, or every file when the project's type
-/// surface moved. Everything else keeps the artifact it already has.
+/// date: the changed files and the modules whose registry lookups now resolve
+/// differently, or every file when the expansions cannot be trusted at all.
+/// Everything else keeps the artifact it already has.
 pub(crate) fn run_expansion_pass(
     root: &Path,
     input: &Path,
@@ -88,6 +92,7 @@ pub(crate) fn run_expansion_pass(
     });
 
     let mut expanded = 0usize;
+    let mut registry_reads = BTreeMap::new();
     let mut failures: Vec<String> = Vec::new();
 
     for (rel, result) in results {
@@ -104,6 +109,7 @@ pub(crate) fn run_expansion_pass(
             }
             Ok(Some(expansion)) => {
                 write_entry(expanded_dir, &rel, &expansion.code)?;
+                registry_reads.insert(rel, expansion.registry_reads);
                 expanded += 1;
             }
             // No macros, or expansion left the source alone. Any artifact from
@@ -125,6 +131,7 @@ pub(crate) fn run_expansion_pass(
     Ok(ExpansionOutcome {
         expanded,
         entries: collect_entries(expanded_dir)?,
+        registry_reads,
     })
 }
 

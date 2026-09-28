@@ -182,6 +182,13 @@ impl ExternalMacroLoader {
     }
 
     pub(crate) fn run_macro(&self, ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
+        let result = self.load_and_run(ctx)?;
+        ctx.type_registry
+            .record_macro_reads(result.registry_reads.as_ref());
+        Ok(result)
+    }
+
+    fn load_and_run(&self, ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
         if let Some(result) = self.try_run_ffi(ctx)? {
             return Ok(result);
         }
@@ -471,7 +478,11 @@ impl ExternalMacroLoader {
         if let Some(message) = output.strip_prefix("Error:") {
             bail!("external macro {} failed:{message}", ctx.macro_name);
         }
-        serde_json::from_str(&output).context("failed to parse the external macro's result")
+        let result: MacroResult =
+            serde_json::from_str(&output).context("failed to parse the external macro's result")?;
+        ctx.type_registry
+            .record_macro_reads(result.registry_reads.as_ref());
+        Ok(result)
     }
 }
 

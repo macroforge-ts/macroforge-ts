@@ -88,6 +88,17 @@ pub struct TypeAliasIR {
     pub body: TypeBody,
 }
 
+impl TypeAliasIR {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.span = SpanIR::default();
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+        self.body.clear_spans();
+    }
+}
+
 /// The body/definition of a type alias, classified by structure.
 ///
 /// This enum categorizes type alias bodies into their structural form,
@@ -162,6 +173,19 @@ impl Default for TypeBody {
 }
 
 impl TypeBody {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        match self {
+            TypeBody::Union(members) | TypeBody::Intersection(members) => {
+                members.iter_mut().for_each(TypeMember::clear_spans);
+            }
+            TypeBody::Object { fields } => {
+                fields.iter_mut().for_each(InterfaceFieldIR::clear_spans);
+            }
+            TypeBody::Tuple(_) | TypeBody::Alias(_) | TypeBody::Other(_) => {}
+        }
+    }
+
     /// Returns true if this is a union type
     pub fn is_union(&self) -> bool {
         matches!(self, TypeBody::Union(_))
@@ -299,6 +323,22 @@ pub enum TypeMemberKind {
 }
 
 impl TypeMember {
+    /// Resets every source span, for comparing declarations by content.
+    pub(crate) fn clear_spans(&mut self) {
+        self.decorators
+            .iter_mut()
+            .for_each(DecoratorIR::clear_spans);
+        match &mut self.kind {
+            TypeMemberKind::Object { fields } => {
+                fields.iter_mut().for_each(InterfaceFieldIR::clear_spans);
+            }
+            TypeMemberKind::Intersection(members) => {
+                members.iter_mut().for_each(TypeMember::clear_spans);
+            }
+            TypeMemberKind::Literal(_) | TypeMemberKind::TypeRef(_) => {}
+        }
+    }
+
     /// Create a new TypeMember with no decorators
     pub fn new(kind: TypeMemberKind) -> Self {
         Self {
