@@ -1,6 +1,6 @@
 # ts\_macro\_attribute
 
-`#[ts_macro_attribute]` registers an attribute macro — the analog of Rust's
+`#[ts_macro_attribute]` registers an attribute macro, the analog of Rust's
 `#[proc_macro_attribute]`. Users invoke it with a JSDoc `@name` decorator on a declaration; the
 macro rewrites the entire declaration.
 
@@ -72,7 +72,7 @@ Warning
 
 Attribute macros must emit their rewrite as an explicit `Patch::Replace` over the target span.
 Unlike derive macros, the expander does **not** auto-convert a returned `TsStream`'s tokens into
-patches for attribute macros — your macro is responsible for describing the edit.
+patches for attribute macros: your macro is responsible for describing the edit.
 
 Minimal pattern:
 
@@ -97,16 +97,18 @@ Ok(out)
 
 ## Target Kinds
 
-Attribute macros can be applied to any top-level declaration. `ctx.target` is a `TargetIR` enum; the
-structured `IR` types give you access to names, spans, parameters, fields, etc.
+Attribute macros can be applied to any top-level declaration, and to class methods. `ctx.target` is
+a `TargetIR` enum; the structured `IR` types give you access to names, spans, parameters, fields,
+etc.
 
-| Decoration | TargetIR variant                   |
-| ---------- | ---------------------------------- |
-| Function   | `TargetIR::Function(FunctionIR)`   |
-| Class      | `TargetIR::Class(ClassIR)`         |
-| Interface  | `TargetIR::Interface(InterfaceIR)` |
-| Enum       | `TargetIR::Enum(EnumIR)`           |
-| Type alias | `TargetIR::TypeAlias(TypeAliasIR)` |
+| Decoration   | TargetIR variant                   |
+| ------------ | ---------------------------------- |
+| Function     | `TargetIR::Function(FunctionIR)`   |
+| Class method | `TargetIR::Function(FunctionIR)`   |
+| Class        | `TargetIR::Class(ClassIR)`         |
+| Interface    | `TargetIR::Interface(InterfaceIR)` |
+| Enum         | `TargetIR::Enum(EnumIR)`           |
+| Type alias   | `TargetIR::TypeAlias(TypeAliasIR)` |
 
 ## Attribute Options
 

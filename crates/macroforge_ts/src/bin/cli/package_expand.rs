@@ -1,7 +1,7 @@
 //! The expansion pass behind `macroforge svelte-package`.
 //!
 //! Expansion used to happen lazily, inside the packager, on every read of a
-//! source file — which meant twice per macro module, because `@sveltejs/package`
+//! source file, which meant twice per macro module, because `@sveltejs/package`
 //! reads each one once for the `.d.ts` emit and once for the JS emit, and both
 //! reads went through the macro engine over Node's single thread.
 //!
@@ -13,7 +13,7 @@
 //!
 //! Failures are fatal here. The lazy path swallowed them and handed the packager
 //! the unexpanded source, which publishes a library whose macro-generated
-//! runtime is silently missing — the exact defect this command exists to
+//! runtime is silently missing: the exact defect this command exists to
 //! prevent. A build that cannot expand a file has no correct output to produce.
 
 use anyhow::{Context, Result, bail};
@@ -78,7 +78,10 @@ pub(crate) fn run_expansion_pass(
             Ok(source) => source,
             // Removed between the scan and now. `prune_orphans` already dropped
             // any artifact for it, and the next run rescans.
-            Err(_) => continue,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(error) => {
+                return Err(error).with_context(|| format!("failed to read {}", path.display()));
+            }
         };
         work.push((rel.clone(), path, source));
     }
@@ -100,7 +103,7 @@ pub(crate) fn run_expansion_pass(
             // A macro that reported an error produced no output for whatever it
             // was supposed to generate. Writing the artifact anyway would
             // publish a module missing exactly that code, and nothing
-            // downstream can tell the difference — the file still parses, still
+            // downstream can tell the difference: the file still parses, still
             // type-checks against its own declarations, and simply does less.
             Ok(Some(expansion)) if !expansion.errors.is_empty() => {
                 for error in &expansion.errors {
@@ -113,7 +116,7 @@ pub(crate) fn run_expansion_pass(
                 expanded += 1;
             }
             // No macros, or expansion left the source alone. Any artifact from
-            // an earlier run is now wrong — the annotations were removed — so
+            // an earlier run is now wrong (the annotations were removed), so
             // the read must fall through to the real file.
             Ok(None) => remove_entry(expanded_dir, &rel)?,
             Err(e) => failures.push(format!("  {rel}: {e:#}")),
@@ -195,9 +198,15 @@ fn prune_empty_dirs(dir: &Path) -> Result<bool> {
     }
 
     if empty {
-        // Best-effort: losing the race with something else that removed it is
-        // the outcome we wanted anyway.
-        let _ = fs::remove_dir(dir);
+        // Losing the race with something else that removed it is the outcome
+        // we wanted anyway; any other failure only leaves an empty directory.
+        match fs::remove_dir(dir) {
+            Err(error) if error.kind() != std::io::ErrorKind::NotFound => eprintln!(
+                "[macroforge] warning: could not remove the empty directory {}: {error}",
+                dir.display()
+            ),
+            _ => {}
+        }
     }
     Ok(empty)
 }

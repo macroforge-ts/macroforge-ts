@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/vec_basic.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/vec_basic.ts
 ---
 ## Input
 
@@ -17,6 +16,10 @@ const empty = $vec();
 const xs = $vec(1, 2, 3);
 const ys = $vec(a, b);
 
+## Changed
+
+true
+
 ## Output
 
 const empty = [];
@@ -28,5 +31,21 @@ const ys = [a,b];
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

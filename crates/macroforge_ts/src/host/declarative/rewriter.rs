@@ -3,12 +3,12 @@
 //!
 //! The walker is implemented as two `oxc::ast_visit::Visit` implementors:
 //!
-//! - [`CollectVisitor`] — first pass (only when at least one `Auto`-mode
+//! - [`CollectVisitor`]: first pass (only when at least one `Auto`-mode
 //!   macro is registered AND we're building for prod or dev with
 //!   `force_share`). Records a [`ResolvedCallSite`] for every `$name(...)`
 //!   whose callee resolves to an `Auto` macro, so the megamorph analyzer
 //!   has real shapes to work with.
-//! - [`RewriteVisitor`] — main pass. A single traversal that handles
+//! - [`RewriteVisitor`]: main pass. A single traversal that handles
 //!   BOTH value-position calls (`$macro(x)`) and type-position
 //!   references (`$Macro<T>`), because the default OXC walker already
 //!   descends into both. This avoids the two-walker duplication that
@@ -60,6 +60,8 @@ pub struct RewriteOutput {
     pub patches: Vec<Patch>,
     /// Diagnostics for failed matches (non-fatal; the build continues).
     pub diagnostics: Vec<Diagnostic>,
+    /// Imports the proc call macros that ran asked for.
+    pub imports: Vec<crate::ts_syn::import_registry::GeneratedImport>,
 }
 
 /// Walk `program` for `$name(...)` call sites of macros in `registry`,
@@ -90,7 +92,7 @@ pub fn rewrite(
     }
 
     // Strip the `import { macroRules } from "@macroforge/core/rules"` statement
-    // too — after all declarations are deleted the import is dead code and
+    // too: after all declarations are deleted the import is dead code and
     // `noUnusedLocals` would flag it. This only runs when the import is
     // present; files that only consume macros via `/** import macro */`
     // JSDoc (and never import `macroRules` as a value) are untouched.
@@ -109,7 +111,7 @@ pub fn rewrite(
     // clusterer.
     //
     // In dev, or when no Auto macros are registered, we skip the first
-    // pass entirely — the rewrite pass does all the work in one go.
+    // pass entirely; the rewrite pass does all the work in one go.
     let has_auto = registry.iter().any(|(_, def)| def.mode == MacroMode::Auto);
     // Run the megamorph analyzer when we're in prod (the original
     // condition) OR when dev-mode `force_share` is set (PR 17).
@@ -118,7 +120,7 @@ pub fn rewrite(
     let megamorph_report = if run_analyzer {
         // PR 14: emit a one-time `Info` diagnostic when the analyzer runs
         // without project-wide type information. The registry is always
-        // present now, but an empty one means no scan ran — the analyzer
+        // present now, but an empty one means no scan ran, so the analyzer
         // falls back to name-prefix bucketing, which a user running in
         // prod may not realize without an explicit notice.
         if type_registry.is_empty() {
@@ -143,7 +145,7 @@ pub fn rewrite(
 
     // Emit non-fatal diagnostics for any Auto macro the analyzer
     // examined. Warnings for megamorphic cases (Cluster / ForceExpand),
-    // and — when `analyzer_telemetry` is enabled (PR 14) — an
+    // and (when `analyzer_telemetry` is enabled, PR 14) an
     // additional `Info` diagnostic for every decision so users can
     // see the full analyzer trace, not just the problem cases.
     if let Some(report) = &megamorph_report {
@@ -206,7 +208,7 @@ pub fn rewrite(
     }
 
     // Main rewrite pass. The expansion counter is per-call (not global)
-    // so snapshot output is deterministic — each `rewrite()` call starts
+    // so snapshot output is deterministic: each `rewrite()` call starts
     // numbering expansions from 1. A single visitor handles both value-
     // and type-position rewriting in one traversal; the default OXC
     // walker descends into TS type annotations, so `visit_ts_type_reference`
@@ -226,6 +228,21 @@ pub fn rewrite(
         external_loader: proc_fallback.as_ref().and_then(|f| f.external_loader),
     };
     visitor.visit_program(program);
+
+    // A call macro's imports go in with its replacement, as an import block
+    // at the top of the file, skipping names the file already imports.
+    if !out.imports.is_empty() {
+        let mut imports = crate::ts_syn::ImportRegistry::from_program(program, source);
+        imports.merge_imports(std::mem::take(&mut out.imports));
+        let block = imports.emit_generated_imports();
+        if !block.is_empty() {
+            out.patches.push(Patch::Insert {
+                at: SpanIR::new(1, 1),
+                code: block,
+                source_macro: None,
+            });
+        }
+    }
 
     out
 }
@@ -283,7 +300,7 @@ impl<'a> Visit<'a> for CollectVisitor<'_> {
     }
 }
 
-/// Main rewrite visitor — one traversal that handles both value-position
+/// Main rewrite visitor: one traversal that handles both value-position
 /// and type-position macro rewrites. Implements `oxc::ast_visit::Visit`
 /// and relies on the generated default walkers for every node it doesn't
 /// override explicitly, so new OXC AST nodes are covered automatically
@@ -310,7 +327,7 @@ pub(super) struct RewriteVisitor<'a> {
     emitted_runtimes: HashSet<(String, String)>,
     /// Optional megamorphism report from the first-pass walk. Populated
     /// only when at least one `Auto`-mode macro is registered and we're
-    /// building for prod (or dev with `force_share`) — see [`rewrite`].
+    /// building for prod (or dev with `force_share`); see [`rewrite`].
     megamorph_report: Option<&'a MegamorphReport>,
     /// Deduplication set for type-position rewrites. A `TSTypeReference`
     /// whose span has already been rewritten is skipped so the same
@@ -320,7 +337,7 @@ pub(super) struct RewriteVisitor<'a> {
     /// Project-wide type registry, when available. Threaded through
     /// so the rewrite-time cluster resolution produces the same
     /// [`super::megamorph::TypeShape`] fingerprints as the
-    /// first-pass collector did — without this, fingerprinted
+    /// first-pass collector did. Without this, fingerprinted
     /// shapes from the collector would never match the rewriter's
     /// `None`-fingerprint lookups and `resolve_cluster_id` would
     /// silently fall through to the defensive single-helper path.
@@ -346,7 +363,7 @@ impl RewriteVisitor<'_> {
 /// Peel off parenthesized / TS-cast wrappers to reach the "real"
 /// expression underneath. Used by [`RewriteVisitor::visit_expression_statement`]
 /// so constructs like `($macro(x));` or `$macro(x) as unknown;` still
-/// expand in Statement context — the wrappers preserve statement-ness,
+/// expand in Statement context: the wrappers preserve statement-ness,
 /// matching the hand-rolled walker's previous behavior.
 fn unwrap_paren_and_casts<'b, 'a>(expr: &'b Expression<'a>) -> &'b Expression<'a> {
     match expr {
@@ -361,7 +378,7 @@ fn unwrap_paren_and_casts<'b, 'a>(expr: &'b Expression<'a>) -> &'b Expression<'a
 
 impl<'a> Visit<'a> for RewriteVisitor<'_> {
     fn visit_variable_declaration(&mut self, decl: &VariableDeclaration<'a>) {
-        // Skip the declarations of the declarative macros themselves —
+        // Skip the declarations of the declarative macros themselves:
         // `rewrite()` already queued `Patch::Delete` for their full span.
         // Descending would re-parse the template-literal body as user
         // code, which is wrong.
@@ -375,7 +392,7 @@ impl<'a> Visit<'a> for RewriteVisitor<'_> {
     fn visit_expression_statement(&mut self, es: &oxc::ast::ast::ExpressionStatement<'a>) {
         // If the top-level expression of this statement is (after
         // unwrapping parens / TS casts) a direct macro call, rewrite
-        // it in Statement context and DO NOT descend — the
+        // it in Statement context and DO NOT descend: the
         // replacement text owns the whole span. Any nested macro calls
         // are part of the expanded output now.
         if let Expression::CallExpression(call) = unwrap_paren_and_casts(&es.expression)
@@ -383,8 +400,8 @@ impl<'a> Visit<'a> for RewriteVisitor<'_> {
         {
             return;
         }
-        // Otherwise let the default walker descend into the expression
-        // — any nested macro calls will reach `visit_call_expression`
+        // Otherwise let the default walker descend into the expression;
+        // any nested macro calls will reach `visit_call_expression`
         // in Expression context.
         walk::walk_expression_statement(self, es);
     }
@@ -409,9 +426,9 @@ impl<'a> Visit<'a> for RewriteVisitor<'_> {
         walk::walk_ts_type_reference(self, tr);
     }
 
-    // The overrides below are not strictly necessary — the generated
+    // The overrides below are not strictly necessary: the generated
     // default walkers already descend into JSX expression containers,
-    // decorators, and class property definitions — but spelling them
+    // decorators, and class property definitions, but spelling them
     // out makes the "yes, we cover these positions" guarantee explicit
     // to future readers and gives us a hook if we ever need per-node
     // state tracking.
@@ -502,7 +519,7 @@ fn resolve_emission_strategy<'a>(
         },
         MacroMode::ShareOnly | MacroMode::ShareAnyway => {
             // Always share regardless of build mode. Fall back to
-            // inline expand if `call_arms`/`runtime` are missing —
+            // inline expand if `call_arms`/`runtime` are missing:
             // validation in discovery prevents that, but we stay
             // defensive.
             match def.call_arms.as_deref() {
@@ -527,7 +544,7 @@ fn resolve_emission_strategy<'a>(
                     arms: def.arms.as_slice(),
                 };
             }
-            // Share path — consult the megamorphism report.
+            // Share path: consult the megamorphism report.
             //   Share       → single shared runtime + call_arms.
             //   Cluster     → one shared runtime per cluster +
             //                  call_arms, each carrying the cluster
@@ -566,7 +583,7 @@ fn resolve_emission_strategy<'a>(
 /// call site's `arg_shapes`, and return the cluster's id. If no
 /// cluster matches (e.g. the analyzer's report is out-of-date
 /// because the first pass and the rewrite pass walked slightly
-/// different fragment sets), return `None` — the caller falls back
+/// different fragment sets), return `None`, and the caller falls back
 /// to single-helper behavior with a defensive diagnostic.
 fn resolve_cluster_id<'a>(
     clusters: &'a [super::megamorph::TypeCluster],
@@ -631,7 +648,7 @@ fn specialize_helper_name(
 /// into the call's arguments normally.
 ///
 /// Lives at the module level (not as a method on [`RewriteVisitor`]) so
-/// it's accessible from the type-position walker helper module too — the
+/// it's accessible from the type-position walker helper module too: the
 /// same shared state carries both value-side and type-side rewrite
 /// bookkeeping.
 pub(super) fn try_rewrite_call(
@@ -653,12 +670,10 @@ pub(super) fn try_rewrite_call(
     // `const $foo` inside a function body shadows the outer one
     // at call sites within the same function.
     let call_pos = call.span.start + 1;
-    let def_arc = visitor.registry.lookup_at(name, call_pos);
-    if def_arc.is_none() {
-        // Not a declarative macro — try proc macro dispatch.
-        return try_dispatch_proc_call(call, callee_name, visitor, context);
-    }
-    let def_arc = def_arc.unwrap();
+    let Some(def_arc) = visitor.registry.lookup_at(name, call_pos) else {
+        // Not a declarative macro, so try proc macro dispatch.
+        return try_dispatch_proc_call(call, callee_name, visitor);
+    };
     let def = def_arc.as_ref();
 
     // Pick which arms to expand based on the macro's mode, the current
@@ -674,7 +689,7 @@ pub(super) fn try_rewrite_call(
         EmissionPlan::ShareSingle { arms } => (*arms, Some(String::new())),
         EmissionPlan::ShareClustered { arms, clusters } => {
             // Compute this call site's full shape tuple the same way
-            // the analyzer's first pass did — one shape per positional
+            // the analyzer's first pass did, one shape per positional
             // argument, in left-to-right order (PR 7 / fix D), AND
             // threading the project-wide type registry through so
             // fingerprinted shapes compare equal to what the collector
@@ -689,7 +704,7 @@ pub(super) fn try_rewrite_call(
             let resolved = resolve_cluster_id(clusters, &arg_shapes).map(|s| s.to_string());
             if resolved.is_none() {
                 // The analyzer didn't place this call's shape in any
-                // cluster — defensive fallback to the single-helper
+                // cluster, so this is a defensive fallback to the single-helper
                 // path. This can happen if the first-pass walker
                 // and the rewrite pass see different fragment sets,
                 // or if the user's code changed between analysis and
@@ -725,7 +740,7 @@ pub(super) fn try_rewrite_call(
             // Substitute `$__cluster__` in the runtime source text.
             // When we're in the non-clustered path (cluster_id_str ==
             // ""), the substitution is a no-op unless the user wrote
-            // `$__cluster__` themselves — which is allowed and
+            // `$__cluster__` themselves, which is allowed and
             // produces empty-string substitution (harmless but odd).
             //
             // For the clustered path we also compute a specialized
@@ -878,7 +893,6 @@ fn try_dispatch_proc_call(
     call: &CallExpression<'_>,
     callee_name: &str,
     visitor: &mut RewriteVisitor<'_>,
-    _context: ExpansionContext,
 ) -> bool {
     let dispatcher = match visitor.proc_dispatcher {
         Some(d) => d,
@@ -946,7 +960,21 @@ fn try_dispatch_proc_call(
         if let Some(loader) = visitor.external_loader {
             match loader.run_macro(&ctx) {
                 Ok(external_result) => result = external_result,
-                Err(_) => return false,
+                Err(error) => {
+                    // The call stays as written, and says why.
+                    visitor.output.diagnostics.push(Diagnostic {
+                        level: DiagnosticLevel::Error,
+                        message: format!(
+                            "Failed to run the external call macro `{callee_name}` from \
+                             `{}`: {error:#}",
+                            ctx.module_path
+                        ),
+                        span: Some(call_span),
+                        notes: vec![],
+                        help: None,
+                    });
+                    return false;
+                }
             }
         } else {
             return false;
@@ -970,6 +998,12 @@ fn try_dispatch_proc_call(
         visitor.output.diagnostics.push(diag);
     }
 
+    visitor.output.imports.extend(result.imports);
+
+    if let Some(debug) = result.debug {
+        crate::debug::log(&format!("${name_without_dollar}"), &debug);
+    }
+
     true
 }
 
@@ -982,7 +1016,7 @@ fn try_dispatch_proc_call(
 // `type_rewritten`, mint fresh expansion ids, and read `source` and
 // `registry`. Exposing a handful of focused accessors keeps the
 // visitor's fields private to this module while still giving the
-// sibling module everything it needs — no blanket `pub(super)` on
+// sibling module everything it needs, with no blanket `pub(super)` on
 // every field.
 
 impl<'a> RewriteVisitor<'a> {
@@ -1004,7 +1038,7 @@ impl<'a> RewriteVisitor<'a> {
 
     /// Returns `true` if the given `(start, end)` span has not been
     /// rewritten yet and records it as rewritten. Returns `false` if
-    /// the span was already recorded — the caller should skip it.
+    /// the span was already recorded, and the caller should skip it.
     pub(super) fn record_type_rewrite(&mut self, start: u32, end: u32) -> bool {
         self.type_rewritten.insert((start, end))
     }

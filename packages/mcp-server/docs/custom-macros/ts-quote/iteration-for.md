@@ -22,11 +22,11 @@ TypeScript
 
 ```
 function toJSON() {
-  const result = {};
-  result.name = this.name;
-  result.email = this.email;
-  result.age = this.age;
-  return result;
+    const result = {};
+    result.name = this.name;
+    result.email = this.email;
+    result.age = this.age;
+    return result;
 }
 ```
 

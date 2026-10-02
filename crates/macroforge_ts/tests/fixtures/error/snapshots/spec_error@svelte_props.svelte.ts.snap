@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/svelte_props.svelte.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/svelte_props.svelte.ts
 ---
 ## Input
 
@@ -12,19 +12,34 @@ interface Props {
 
 let { name, count = 0 }: Props = $props();
 
+## Changed
+
+false
+
 ## Output
 
-interface Props {
-    name: string;
-    count?: number;
-}
-
-let { name, count = 0 }: Props = $props();
+(unchanged)
 
 ## DTS
 
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..102 -> expanded 0..102
+
+## Metadata
+
+interface Props: {"body_span":{"end":58,"start":17},"decorators":[],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":36,"start":23},"ts_type":"string"},{"decorators":[],"name":"count","optional":true,"readonly":false,"span":{"end":56,"start":41},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Props","span":{"end":58,"start":1},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

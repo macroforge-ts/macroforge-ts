@@ -1,150 +1,21 @@
 use crate::ts_syn::TsStream;
 
 use super::super::{Validator, ValidatorSpec};
+use crate::builtin::derive_common::js_string;
 
-/// Generates a JavaScript boolean expression that evaluates to `true` when validation fails.
-///
-/// This function produces the *failure condition* - the expression should be used in
-/// `if (condition) { errors.push(...) }` to detect invalid values.
-///
-/// # Arguments
-///
-/// * `validator` - The validator type to generate a condition for
-/// * `value_var` - The variable name containing the value to validate
-///
-/// # Returns
-///
-/// A string containing a JavaScript boolean expression. The expression evaluates to
-/// `true` when the value is **invalid** (fails validation).
-///
-/// # Example
-///
-/// ```rust
-/// use macroforge_ts::builtin::serde::Validator;
-/// use macroforge_ts::builtin::serde::derive_deserialize::generate_validation_condition;
-///
-/// let condition = generate_validation_condition(&Validator::Email, "email");
-/// assert!(condition.contains("test(email)"));
-///
-/// let condition = generate_validation_condition(&Validator::MaxLength(100), "name");
-/// assert_eq!(condition, "name.length > 100");
-/// ```
-pub fn generate_validation_condition(validator: &Validator, value_var: &str) -> String {
-    match validator {
-        // String validators
-        Validator::Email => {
-            format!(r#"!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test({value_var})"#)
+/// `pattern` as the body of a `/.../` regex literal: each unescaped `/` is
+/// escaped, and everything already escaped is kept as written.
+fn regex_literal_body(pattern: &str) -> String {
+    let mut body = String::with_capacity(pattern.len());
+    let mut escaped = false;
+    for c in pattern.chars() {
+        if c == '/' && !escaped {
+            body.push('\\');
         }
-        Validator::Url => {
-            format!(
-                r#"(() => {{ try {{ new URL({value_var}); return false; }} catch {{ return true; }} }})()"#
-            )
-        }
-        Validator::Uuid => {
-            format!(
-                r#"!/^[0-9a-f]{{8}}-[0-9a-f]{{4}}-[1-5][0-9a-f]{{3}}-[89ab][0-9a-f]{{3}}-[0-9a-f]{{12}}$/i.test({value_var})"#
-            )
-        }
-        Validator::MaxLength(n) => format!("{value_var}.length > {n}"),
-        Validator::MinLength(n) => format!("{value_var}.length < {n}"),
-        Validator::Length(n) => format!("{value_var}.length !== {n}"),
-        Validator::LengthRange(min, max) => {
-            format!("{value_var}.length < {min} || {value_var}.length > {max}")
-        }
-        Validator::Pattern(regex) => {
-            // For regex literals (/.../), only escape the delimiter `/`
-            let escaped = regex.replace('/', "\\/");
-            format!("!/{escaped}/.test({value_var})")
-        }
-        Validator::NonEmpty => format!("{value_var} != null && {value_var}.length === 0"),
-        Validator::Trimmed => format!("{value_var} !== {value_var}.trim()"),
-        Validator::Lowercase => format!("{value_var} !== {value_var}.toLowerCase()"),
-        Validator::Uppercase => format!("{value_var} !== {value_var}.toUpperCase()"),
-        Validator::Capitalized => {
-            format!("{value_var}.length > 0 && {value_var}[0] !== {value_var}[0].toUpperCase()")
-        }
-        Validator::Uncapitalized => {
-            format!("{value_var}.length > 0 && {value_var}[0] !== {value_var}[0].toLowerCase()")
-        }
-        Validator::StartsWith(prefix) => format!(r#"!{value_var}.startsWith("{prefix}")"#),
-        Validator::EndsWith(suffix) => format!(r#"!{value_var}.endsWith("{suffix}")"#),
-        Validator::Includes(substr) => format!(r#"!{value_var}.includes("{substr}")"#),
-
-        // Number validators
-        Validator::GreaterThan(n) => format!("{value_var} <= {n}"),
-        Validator::GreaterThanOrEqualTo(n) => format!("{value_var} < {n}"),
-        Validator::LessThan(n) => format!("{value_var} >= {n}"),
-        Validator::LessThanOrEqualTo(n) => format!("{value_var} > {n}"),
-        Validator::Between(min, max) => format!("{value_var} < {min} || {value_var} > {max}"),
-        Validator::Int => format!("!Number.isInteger({value_var})"),
-        Validator::NonNaN => format!("Number.isNaN({value_var})"),
-        Validator::Finite => format!("!Number.isFinite({value_var})"),
-        Validator::Positive => format!("{value_var} <= 0"),
-        Validator::NonNegative => format!("{value_var} < 0"),
-        Validator::Negative => format!("{value_var} >= 0"),
-        Validator::NonPositive => format!("{value_var} > 0"),
-        Validator::MultipleOf(n) => format!("{value_var} % {n} !== 0"),
-        Validator::Uint8 => {
-            format!("!Number.isInteger({value_var}) || {value_var} < 0 || {value_var} > 255")
-        }
-        Validator::NonNegativeInt => {
-            format!("!Number.isInteger({value_var}) || {value_var} < 0")
-        }
-
-        // Array validators
-        Validator::MaxItems(n) => format!("{value_var}.length > {n}"),
-        Validator::MinItems(n) => format!("{value_var}.length < {n}"),
-        Validator::ItemsCount(n) => format!("{value_var}.length !== {n}"),
-
-        // Date validators. `validDate` only makes sense on a string value (a
-        // `Date`/typed field that failed to parse never reaches here), so
-        // parse with `new Date(...)` before checking — `new Date` also accepts
-        // a `Date`, so this stays correct if the value is already one.
-        Validator::ValidDate => {
-            format!("{value_var} == null || isNaN(new Date({value_var}).getTime())")
-        }
-        Validator::GreaterThanDate(date) => {
-            format!(
-                r#"{value_var} == null || {value_var}.getTime() <= new Date("{date}").getTime()"#
-            )
-        }
-        Validator::GreaterThanOrEqualToDate(date) => {
-            format!(
-                r#"{value_var} == null || {value_var}.getTime() < new Date("{date}").getTime()"#
-            )
-        }
-        Validator::LessThanDate(date) => {
-            format!(
-                r#"{value_var} == null || {value_var}.getTime() >= new Date("{date}").getTime()"#
-            )
-        }
-        Validator::LessThanOrEqualToDate(date) => {
-            format!(
-                r#"{value_var} == null || {value_var}.getTime() > new Date("{date}").getTime()"#
-            )
-        }
-        Validator::BetweenDate(min, max) => {
-            format!(
-                r#"{value_var} == null || {value_var}.getTime() < new Date("{min}").getTime() || {value_var}.getTime() > new Date("{max}").getTime()"#
-            )
-        }
-
-        // BigInt validators
-        Validator::GreaterThanBigInt(n) => format!("{value_var} <= BigInt({n})"),
-        Validator::GreaterThanOrEqualToBigInt(n) => format!("{value_var} < BigInt({n})"),
-        Validator::LessThanBigInt(n) => format!("{value_var} >= BigInt({n})"),
-        Validator::LessThanOrEqualToBigInt(n) => format!("{value_var} > BigInt({n})"),
-        Validator::BetweenBigInt(min, max) => {
-            format!("{value_var} < BigInt({min}) || {value_var} > BigInt({max})")
-        }
-        Validator::PositiveBigInt => format!("{value_var} <= 0n"),
-        Validator::NonNegativeBigInt => format!("{value_var} < 0n"),
-        Validator::NegativeBigInt => format!("{value_var} >= 0n"),
-        Validator::NonPositiveBigInt => format!("{value_var} > 0n"),
-
-        // Custom validator - handled specially
-        Validator::Custom(_) => String::new(),
+        escaped = c == '\\' && !escaped;
+        body.push(c);
     }
+    body
 }
 
 /// Generate TypeScript validation code for a field
@@ -157,6 +28,7 @@ pub fn generate_validation_condition(validator: &Validator, value_var: &str) -> 
 /// * `value_var` - Variable name containing the value to validate (e.g., "__val", "__raw")
 /// * `field_name` - JSON field name for error reporting
 /// * `context_name` - Context name for error messages (e.g., class name)
+/// * `accepts_missing` - Whether the field's type allows `null` or `undefined`
 ///
 /// # Returns
 /// A TypeScript expression that runs the validation statements.
@@ -165,6 +37,7 @@ pub(super) fn generate_field_validations(
     value_var: &str,
     field_name: &str,
     context_name: &str,
+    accepts_missing: bool,
 ) -> TsStream {
     let mut code = String::new();
 
@@ -172,7 +45,7 @@ pub(super) fn generate_field_validations(
         let condition = match &spec.validator {
             // String validators
             Validator::Email => format!("!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test({value_var})"),
-            Validator::Url => format!("!/^https?:\\/\\/.+/.test({value_var})"),
+            Validator::Url => format!("!URL.canParse({value_var})"),
             Validator::Uuid => format!(
                 "!/^[0-9a-f]{{8}}-[0-9a-f]{{4}}-[0-9a-f]{{4}}-[0-9a-f]{{4}}-[0-9a-f]{{12}}$/i.test({value_var})"
             ),
@@ -183,26 +56,23 @@ pub(super) fn generate_field_validations(
                 format!("{value_var}.length < {min} || {value_var}.length > {max}")
             }
             Validator::Pattern(pattern) => {
-                // For regex literals (/.../), only escape the delimiter `/`
-                // Backslashes like \d, \s, \+ are valid regex syntax and must NOT be double-escaped
-                let escaped = pattern.replace('/', "\\/");
-                format!("!/{escaped}/.test({value_var})")
+                format!("!/{}/.test({value_var})", regex_literal_body(pattern))
             }
-            Validator::NonEmpty => {
-                format!("{value_var} !== null && {value_var}.trim().length === 0")
-            }
+            Validator::NonEmpty => format!("{value_var}.length === 0"),
             Validator::Trimmed => format!("{value_var} !== {value_var}.trim()"),
             Validator::Lowercase => format!("{value_var} !== {value_var}.toLowerCase()"),
             Validator::Uppercase => format!("{value_var} !== {value_var}.toUpperCase()"),
-            Validator::Capitalized => format!(
-                "{value_var}.length === 0 || {value_var}[0] !== {value_var}[0].toUpperCase() || {value_var}.slice(1) !== {value_var}.slice(1).toLowerCase()"
-            ),
+            Validator::Capitalized => {
+                format!("{value_var}.length > 0 && {value_var}[0] !== {value_var}[0].toUpperCase()")
+            }
             Validator::Uncapitalized => {
                 format!("{value_var}.length > 0 && {value_var}[0] !== {value_var}[0].toLowerCase()")
             }
-            Validator::StartsWith(prefix) => format!("!{value_var}.startsWith(\"{prefix}\")"),
-            Validator::EndsWith(suffix) => format!("!{value_var}.endsWith(\"{suffix}\")"),
-            Validator::Includes(text) => format!("!{value_var}.includes(\"{text}\")"),
+            Validator::StartsWith(prefix) => {
+                format!("!{value_var}.startsWith({})", js_string(prefix))
+            }
+            Validator::EndsWith(suffix) => format!("!{value_var}.endsWith({})", js_string(suffix)),
+            Validator::Includes(text) => format!("!{value_var}.includes({})", js_string(text)),
 
             // Number validators
             Validator::GreaterThan(n) => format!("{value_var} <= {n}"),
@@ -217,7 +87,17 @@ pub(super) fn generate_field_validations(
             Validator::NonNegative => format!("{value_var} < 0"),
             Validator::Negative => format!("{value_var} >= 0"),
             Validator::NonPositive => format!("{value_var} > 0"),
-            Validator::MultipleOf(n) => format!("{value_var} % {n} !== 0"),
+            Validator::MultipleOf(n) => {
+                crate::host::import_registry::with_registry_mut(|registry| {
+                    registry.request_import(
+                        "__mf_isMultipleOf",
+                        Some("isMultipleOf"),
+                        crate::package::SERDE,
+                        false,
+                    );
+                });
+                format!("!__mf_isMultipleOf({value_var}, {})", n.abs())
+            }
             Validator::Uint8 => {
                 format!("!Number.isInteger({value_var}) || {value_var} < 0 || {value_var} > 255")
             }
@@ -234,19 +114,33 @@ pub(super) fn generate_field_validations(
             // parse it before checking (`new Date` also accepts a `Date`).
             Validator::ValidDate => format!("isNaN(new Date({value_var}).getTime())"),
             Validator::GreaterThanDate(date) => {
-                format!("{value_var}.getTime() <= new Date(\"{date}\").getTime()")
+                format!(
+                    "{value_var}.getTime() <= new Date({}).getTime()",
+                    js_string(date)
+                )
             }
             Validator::GreaterThanOrEqualToDate(date) => {
-                format!("{value_var}.getTime() < new Date(\"{date}\").getTime()")
+                format!(
+                    "{value_var}.getTime() < new Date({}).getTime()",
+                    js_string(date)
+                )
             }
             Validator::LessThanDate(date) => {
-                format!("{value_var}.getTime() >= new Date(\"{date}\").getTime()")
+                format!(
+                    "{value_var}.getTime() >= new Date({}).getTime()",
+                    js_string(date)
+                )
             }
             Validator::LessThanOrEqualToDate(date) => {
-                format!("{value_var}.getTime() > new Date(\"{date}\").getTime()")
+                format!(
+                    "{value_var}.getTime() > new Date({}).getTime()",
+                    js_string(date)
+                )
             }
             Validator::BetweenDate(min, max) => format!(
-                "{value_var}.getTime() < new Date(\"{min}\").getTime() || {value_var}.getTime() > new Date(\"{max}\").getTime()"
+                "{value_var}.getTime() < new Date({}).getTime() || {value_var}.getTime() > new Date({}).getTime()",
+                js_string(min),
+                js_string(max)
             ),
 
             // BigInt validators
@@ -262,21 +156,50 @@ pub(super) fn generate_field_validations(
             Validator::NegativeBigInt => format!("{value_var} >= 0n"),
             Validator::NonPositiveBigInt => format!("{value_var} > 0n"),
 
-            // Custom validator
-            Validator::Custom(fn_name) => format!("!{fn_name}({value_var})"),
+            // Custom validator, imported into the expanded file when it names
+            // a source
+            Validator::Custom(custom) => {
+                if let Some(source) = &custom.source {
+                    crate::host::import_registry::with_registry_mut(|registry| {
+                        registry.request_import(
+                            &custom.callee(),
+                            Some(&custom.function),
+                            source,
+                            false,
+                        );
+                    });
+                }
+                format!("!{}({value_var})", custom.callee())
+            }
         };
 
         let default_message =
             get_default_validator_message(&spec.validator, field_name, context_name);
         let message = spec.custom_message.as_ref().unwrap_or(&default_message);
-        let escaped_message = message.replace('\\', "\\\\").replace('"', "\\\"");
 
         code.push_str(&format!(
-            "                                if ({condition}) {{ errors.push({{ field: \"{field_name}\", message: \"{escaped_message}\" }}); }}\n"
+            "if ({condition}) {{ errors.push({{ field: {}, message: {} }}); }}\n",
+            js_string(field_name),
+            js_string(message)
         ));
     }
 
-    TsStream::from_string(code)
+    // Validators check the declared type's value. Where the type allows a
+    // missing value (`T | null`, `T | undefined`, an optional field) it passes
+    // unchecked; anywhere else a missing value fails as missing, rather than
+    // reaching a check that assumes a value. Either way the guard narrows the
+    // value's type for the checks inside it.
+    if code.is_empty() {
+        return TsStream::from_string(code);
+    }
+    if accepts_missing {
+        return TsStream::from_string(format!("if ({value_var} != null) {{\n{code}}}\n"));
+    }
+    let missing = js_string(&format!("{context_name}.{field_name} is required"));
+    let field = js_string(field_name);
+    TsStream::from_string(format!(
+        "if ({value_var} == null) {{ errors.push({{ field: {field}, message: {missing} }}); }} else {{\n{code}}}\n"
+    ))
 }
 
 /// Generate default error message for a validator
@@ -388,8 +311,9 @@ pub(super) fn get_default_validator_message(
         Validator::NonNegativeBigInt => format!("{context_name}.{field_name} must be non-negative"),
         Validator::NegativeBigInt => format!("{context_name}.{field_name} must be negative"),
         Validator::NonPositiveBigInt => format!("{context_name}.{field_name} must be non-positive"),
-        Validator::Custom(fn_name) => {
-            format!("{context_name}.{field_name} failed custom validation ({fn_name})")
-        }
+        Validator::Custom(custom) => format!(
+            "{context_name}.{field_name} failed custom validation ({})",
+            custom.function
+        ),
     }
 }

@@ -59,35 +59,44 @@ pixi run build
 # All Rust tests
 pixi run test:rust
 
-# Or directly with cargo
-cargo test -p macroforge_ts
+# Or directly with cargo. The snapshot suites run the test-only macros, so they
+# need the `test-macros` feature; `pixi run test:rust` passes it.
+cargo test -p macroforge_ts --features test-macros
 ```
 
 ### Snapshot tests
 
-Snapshot tests use the [insta](https://insta.rs) crate with a fixture-based system.
+The conformance suite (`crates/macroforge_ts/tests/conformance.rs`) snapshots with
+[insta](https://insta.rs). It expands every fixture and every source file of the playground projects
+the way the integrations expand them, and compares the expanded code, declarations, diagnostics,
+source mapping, metadata and registry reads against committed goldens. It also snapshots each
+playground project's registries and checks that a registry survives a JSON round trip. A change that
+only makes expansion faster moves no golden.
 
 ```bash
-# Run snapshot tests
-cargo test -p macroforge_ts --test spec_tests
+# Run the conformance suite
+pixi run test:conformance
 
-# Accept new/changed snapshots
-INSTA_UPDATE=always cargo test -p macroforge_ts --test spec_tests
+# Accept new/changed snapshots, then review them in the diff
+pixi run test:conformance:update
 
 # Or use cargo-insta for interactive review
 cargo install cargo-insta
-cargo insta test -p macroforge_ts
+cargo insta test -p macroforge_ts --features test-macros --test conformance
 cargo insta review
 ```
+
+The playground corpus resolves the playground's external macro package from each app's
+`node_modules`, so it needs the macro package built and installed. `pixi run test:rust` prepares it
+when it is missing (after `pixi run build:cli`); `MACROFORGE_CONFORMANCE_SKIP_PLAYGROUND=1` skips
+the playground corpus when that is impossible, such as offline.
 
 #### Adding a snapshot test
 
 1. Create a `.ts` file in `crates/macroforge_ts/tests/fixtures/ok/` (expected to expand
    successfully) or `tests/fixtures/error/` (edge cases, bailouts, unknown macros)
-2. Run `cargo test -p macroforge_ts --test spec_tests` -- the test will fail and create a
-   `.snap.new` file
-3. Review the snapshot, then accept:
-   `INSTA_UPDATE=always cargo test -p macroforge_ts --test spec_tests`
+2. Run `pixi run test:conformance` -- the test will fail and create a `.snap.new` file
+3. Review the snapshot, then accept: `pixi run test:conformance:update`
 4. Commit both the fixture and the `.snap` file
 
 Fixtures in `ok/` must contain `@derive` annotations and are expected to produce `changed == true`.

@@ -7,6 +7,9 @@
  */
 
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, test } from 'node:test';
 import { clearConfigCache, expandSync, loadConfig } from '@macroforge/core';
 
@@ -77,6 +80,46 @@ describe('Foreign types configuration', () => {
             'Should not have foreign types'
         );
         assert.equal(result.foreignTypeCount, 0, 'Should have 0 foreign types');
+    });
+
+    // The wasm engine reads base configs through Node's `fs`, so `extends`
+    // and imported bases resolve here exactly as they do natively.
+    test('loadConfig follows extends and imported bases from disk', () => {
+        clearConfigCache();
+        const dir = mkdtempSync(join(tmpdir(), 'macroforge-config-'));
+        try {
+            writeFileSync(
+                join(dir, 'base.config.ts'),
+                `export default {
+                    foreignTypes: {
+                        "DateTime.DateTime": { from: ["effect"] },
+                        "Duration.Duration": { from: ["effect"] },
+                    },
+                };`
+            );
+            const extended = loadConfig(
+                `export default {
+                    extends: "./base.config.ts",
+                    foreignTypes: { "Option.Option": { from: ["effect"] } },
+                };`,
+                join(dir, 'macroforge.config.ts')
+            );
+            assert.equal(extended.foreignTypeCount, 3, 'base and own foreign types merge');
+
+            const reexported = loadConfig(
+                `import base from "./base.config";\nexport default base;`,
+                join(dir, 'reexport.config.ts')
+            );
+            assert.equal(reexported.foreignTypeCount, 2, 'an imported base is the config');
+
+            assert.throws(
+                () => loadConfig(`export default makeConfig();`, join(dir, 'called.config.ts')),
+                /has 0 arguments/,
+                'a config the reader cannot follow is an error'
+            );
+        } finally {
+            rmSync(dir, { recursive: true, force: true });
+        }
     });
 });
 
@@ -167,6 +210,60 @@ describe('Foreign types in Serialize macro', () => {
             `Serialize should use the foreign type serialize function. Got: ${result.code}`
         );
         // Should NOT generate a generic helper call like dateTime.DateTimeSerializeWithContext
+        assert.ok(
+            !result.code.includes('dateTime.DateTime'),
+            `Should not generate generic helper namespace. Got: ${result.code}`
+        );
+    });
+
+    test('a near match is reported as a warning while expansion succeeds', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
+
+        const code = `
+      import type { DateTime } from 'effect';
+
+      /** @derive(Serialize) */
+      interface Event {
+        startTime: DateTime;
+      }
+    `;
+
+        const result = expandSync(code, 'test.ts', { configPath });
+
+        assert.ok(
+            !result.diagnostics.some((d) => d.level === 'error'),
+            `Expansion should succeed. Got: ${JSON.stringify(result.diagnostics)}`
+        );
+        assert.ok(
+            result.diagnostics.some(
+                (d) =>
+                    d.level === 'warning' && d.message.includes("foreign type 'DateTime.DateTime'")
+            ),
+            `The near match should be reported. Got: ${JSON.stringify(result.diagnostics)}`
+        );
+    });
+
+    test('an object type alias uses the foreign type serialize function', () => {
+        clearConfigCache();
+        loadConfig(configContent, configPath);
+
+        const code = `
+      import type { DateTime } from 'effect';
+
+      /** @derive(Serialize) */
+      type Event = {
+        name: string;
+        startTime: DateTime.DateTime;
+      };
+    `;
+
+        const result = expandSync(code, 'test.ts', { configPath });
+
+        assert.ok(
+            result.code.includes('DateTime.formatIso'),
+            `Serialize should use the foreign type serialize function. Got: ${result.code}`
+        );
         assert.ok(
             !result.code.includes('dateTime.DateTime'),
             `Should not generate generic helper namespace. Got: ${result.code}`
@@ -1231,7 +1328,7 @@ describe('Type-only import namespace generation', () => {
 });
 
 // ============================================================================
-// Foreign Type in Union Type Alias — Deserialize
+// Foreign Type in Union Type Alias: Deserialize
 // ============================================================================
 
 describe('Foreign types in union type alias deserialization', () => {

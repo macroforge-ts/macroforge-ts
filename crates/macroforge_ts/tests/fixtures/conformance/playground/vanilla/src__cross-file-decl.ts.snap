@@ -1,0 +1,53 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/cross-file-decl.ts
+sha256 39544389f5460dcdacc2b7f56af6328cea20a1c6e89e335d9b9e5246069ca17e
+
+## Changed
+
+true
+
+## Output
+
+// End-to-end cross-file declarative macro fixture.
+//
+// `$vec` and `$identity` are declared in `./decl_macros_lib.ts`. This
+// file imports them via the JSDoc `/** import macro */` directive, and
+// the macroforge build pass should rewrite every call site below using
+// the definitions from the library file — the runtime values in this
+// module should be plain arrays / numbers with no trace of any tag
+// function.
+
+/** import macro { $vec, $identity } from "./decl_macros_lib" */
+
+export const crossFileEmpty = [];
+export const crossFileThree = [1,2,3];
+export const crossFileExpr = [10 + 1,20 - 5,7 * 2];
+export const crossFileId = 42;
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

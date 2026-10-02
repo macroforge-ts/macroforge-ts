@@ -1,0 +1,5344 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/runtime-deser-test.ts
+sha256 73b66a7cec6872048f2520859d53def64d306aa9ad0cea40394166cdb290df01
+
+## Changed
+
+true
+
+## Output
+
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+/** @derive(Deserialize) */
+export interface Inner {
+    name: string;
+    createdAt: Date;
+    score: number;
+}
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function innerDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = innerDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Inner.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function innerDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Inner | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Inner.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("name" in obj)) {
+                            errors.push({ field: "name", message: "missing required field" });
+                        }if (!("createdAt" in obj)) {
+                            errors.push({ field: "createdAt", message: "missing required field" });
+                        }if (!("score" in obj)) {
+                            errors.push({ field: "score", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_createdAt = obj["createdAt"] as string | Date;{
+                                            const __dateVal = typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : __raw_createdAt as Date;
+                                            instance.createdAt = __dateVal;
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_score = obj["score"] as number;instance.score = __raw_score;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Inner;
+            }
+
+            export function innerValidateField<K extends keyof Inner>(
+                _field: K,
+                _value: Inner[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function innerValidateFields(
+                _partial: Partial<Inner>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function innerHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "name" in o && "createdAt" in o && "score" in o;
+            }
+
+            export function innerIs(obj: unknown): obj is Inner {
+                if (!innerHasShape(obj)) {
+                    return false;
+                }
+                const result = innerDeserialize(obj);
+                return result.success;
+            }
+
+export const Inner = {
+  deserialize: innerDeserialize,
+  deserializeWithContext: innerDeserializeWithContext,
+  validateFields: innerValidateFields,
+  hasShape: innerHasShape,
+  is: innerIs
+} as const;
+
+/** @derive(Deserialize) */
+export interface Container {
+    items: Inner[];
+}
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function containerDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = containerDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Container.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function containerDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Container | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Container.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("items" in obj)) {
+                            errors.push({ field: "items", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_items = obj["items"] as Inner[];if (Array.isArray(__raw_items)) {
+                                                        const __arr = __raw_items.map((item: Inner | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = innerDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "items[" + idx + "]"
+                                                                            : "items[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.items = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.items, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Container;
+            }
+
+            export function containerValidateField<K extends keyof Container>(
+                _field: K,
+                _value: Container[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function containerValidateFields(
+                _partial: Partial<Container>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function containerHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "items" in o;
+            }
+
+            export function containerIs(obj: unknown): obj is Container {
+                if (!containerHasShape(obj)) {
+                    return false;
+                }
+                const result = containerDeserialize(obj);
+                return result.success;
+            }
+
+export const Container = {
+  deserialize: containerDeserialize,
+  deserializeWithContext: containerDeserializeWithContext,
+  validateFields: containerValidateFields,
+  hasShape: containerHasShape,
+  is: containerIs
+} as const;
+
+export function testNormal() {
+    return Container.deserialize({
+        items: [
+            { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 }
+        ]
+    });
+}
+
+export function testMissingFields() {
+    return Container.deserialize({
+        items: [
+            { name: 'Bob' } // missing createdAt and score
+        ]
+    });
+}
+
+export function testNullElement() {
+    return Container.deserialize({
+        items: [null]
+    });
+}
+
+export function testMixedElements() {
+    return Container.deserialize({
+        items: [
+            { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
+            { name: 'Bob' } // missing fields
+        ]
+    });
+}
+
+type ContainerFailure = Extract<ReturnType<typeof Container.deserialize>, { success: false }>;
+
+export type RecursiveDeserResult =
+    | { success: false; errors: ContainerFailure['errors'] }
+    | {
+        success: true;
+        itemCount: number;
+        firstIsDate: boolean;
+        firstDateISO: string | undefined;
+        secondIsDate: boolean;
+        secondDateISO: string | undefined;
+    };
+
+/** The item's ISO date when deserialization produced a real `Date`. */
+function isoDate(item: Inner | undefined): string | undefined {
+    return item?.createdAt instanceof Date ? item.createdAt.toISOString() : undefined;
+}
+
+export function testRecursiveActual(): RecursiveDeserResult {
+    const result = Container.deserialize({
+        items: [
+            { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
+            { name: 'Bob', createdAt: '2024-06-20T14:00:00Z', score: 87 }
+        ]
+    });
+    if (!result.success) return { success: false, errors: result.errors };
+    const [first, second] = result.value.items;
+    return {
+        success: true,
+        itemCount: result.value.items.length,
+        firstIsDate: first?.createdAt instanceof Date,
+        firstDateISO: isoDate(first),
+        secondIsDate: second?.createdAt instanceof Date,
+        secondDateISO: isoDate(second)
+    };
+}
+
+## DTS
+
+/** @derive(Deserialize) */
+export interface Inner {
+    name: string;
+    createdAt: Date;
+    score: number;
+}
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function innerDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = innerDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Inner.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function innerDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Inner | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Inner.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("name" in obj)) {
+                            errors.push({ field: "name", message: "missing required field" });
+                        }if (!("createdAt" in obj)) {
+                            errors.push({ field: "createdAt", message: "missing required field" });
+                        }if (!("score" in obj)) {
+                            errors.push({ field: "score", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_name = obj["name"] as string;instance.name = __raw_name;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_createdAt = obj["createdAt"] as string | Date;{
+                                            const __dateVal = typeof __raw_createdAt === "string" ? new Date(__raw_createdAt) : __raw_createdAt as Date;
+                                            instance.createdAt = __dateVal;
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_score = obj["score"] as number;instance.score = __raw_score;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Inner;
+            }
+
+            export function innerValidateField<K extends keyof Inner>(
+                _field: K,
+                _value: Inner[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function innerValidateFields(
+                _partial: Partial<Inner>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function innerHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "name" in o && "createdAt" in o && "score" in o;
+            }
+
+            export function innerIs(obj: unknown): obj is Inner {
+                if (!innerHasShape(obj)) {
+                    return false;
+                }
+                const result = innerDeserialize(obj);
+                return result.success;
+            }
+
+export const Inner = {
+  deserialize: innerDeserialize,
+  deserializeWithContext: innerDeserializeWithContext,
+  validateFields: innerValidateFields,
+  hasShape: innerHasShape,
+  is: innerIs
+} as const;
+
+/** @derive(Deserialize) */
+export interface Container {
+    items: Inner[];
+}
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function containerDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = containerDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Container.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function containerDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Container | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Container.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("items" in obj)) {
+                            errors.push({ field: "items", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_items = obj["items"] as Inner[];if (Array.isArray(__raw_items)) {
+                                                        const __arr = __raw_items.map((item: Inner | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = innerDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "items[" + idx + "]"
+                                                                            : "items[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.items = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.items, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Container;
+            }
+
+            export function containerValidateField<K extends keyof Container>(
+                _field: K,
+                _value: Container[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function containerValidateFields(
+                _partial: Partial<Container>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function containerHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "items" in o;
+            }
+
+            export function containerIs(obj: unknown): obj is Container {
+                if (!containerHasShape(obj)) {
+                    return false;
+                }
+                const result = containerDeserialize(obj);
+                return result.success;
+            }
+
+export const Container = {
+  deserialize: containerDeserialize,
+  deserializeWithContext: containerDeserializeWithContext,
+  validateFields: containerValidateFields,
+  hasShape: containerHasShape,
+  is: containerIs
+} as const;
+
+export function testNormal() {
+    return Container.deserialize({
+        items: [
+            { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 }
+        ]
+    });
+}
+
+export function testMissingFields() {
+    return Container.deserialize({
+        items: [
+            { name: 'Bob' } // missing createdAt and score
+        ]
+    });
+}
+
+export function testNullElement() {
+    return Container.deserialize({
+        items: [null]
+    });
+}
+
+export function testMixedElements() {
+    return Container.deserialize({
+        items: [
+            { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
+            { name: 'Bob' } // missing fields
+        ]
+    });
+}
+
+type ContainerFailure = Extract<ReturnType<typeof Container.deserialize>, { success: false }>;
+
+export type RecursiveDeserResult =
+    | { success: false; errors: ContainerFailure['errors'] }
+    | {
+        success: true;
+        itemCount: number;
+        firstIsDate: boolean;
+        firstDateISO: string | undefined;
+        secondIsDate: boolean;
+        secondDateISO: string | undefined;
+    };
+
+/** The item's ISO date when deserialization produced a real `Date`. */
+function isoDate(item: Inner | undefined): string | undefined {
+    return item?.createdAt instanceof Date ? item.createdAt.toISOString() : undefined;
+}
+
+export function testRecursiveActual(): RecursiveDeserResult {
+    const result = Container.deserialize({
+        items: [
+            { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
+            { name: 'Bob', createdAt: '2024-06-20T14:00:00Z', score: 87 }
+        ]
+    });
+    if (!result.success) return { success: false, errors: result.errors };
+    const [first, second] = result.value.items;
+    return {
+        success: true,
+        itemCount: result.value.items.length,
+        firstIsDate: first?.createdAt instanceof Date,
+        firstDateISO: isoDate(first),
+        secondIsDate: second?.createdAt instanceof Date,
+        secondDateISO: isoDate(second)
+    };
+}
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..112 -> expanded 0..112
+original 112..192 -> expanded 6717..6797
+original 192..2206 -> expanded 14728..16742
+generated 112..6513 <- Deserialize
+generated 6513..6717 <- __convenience_const
+generated 6797..14500 <- Deserialize
+generated 14500..14728 <- __convenience_const
+
+## Metadata
+
+interface Inner: {"body_span":{"end":113,"start":52},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":28,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":71,"start":58},"ts_type":"string"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":92,"start":76},"ts_type":"Date"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":111,"start":97},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Inner","span":{"end":113,"start":36},"type_params":[]}
+interface Container: {"body_span":{"end":193,"start":170},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":142,"start":115}}],"fields":[{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":191,"start":176},"ts_type":"Inner[]"}],"heritage":[],"methods":[],"name":"Container","span":{"end":193,"start":150},"type_params":[]}
+type ContainerFailure: {"body":{"Other":"Extract<ReturnType<typeof Container.deserialize>, { success: false }>"},"decorators":[],"name":"ContainerFailure","span":{"end":977,"start":883},"type_params":[]}
+type RecursiveDeserResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1037,"start":1022},"ts_type":"false"},{"decorators":[],"name":"errors","optional":false,"readonly":false,"span":{"end":1072,"start":1038},"ts_type":"ContainerFailure['errors']"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1105,"start":1091},"ts_type":"true"},{"decorators":[],"name":"itemCount","optional":false,"readonly":false,"span":{"end":1132,"start":1114},"ts_type":"number"},{"decorators":[],"name":"firstIsDate","optional":false,"readonly":false,"span":{"end":1162,"start":1141},"ts_type":"boolean"},{"decorators":[],"name":"firstDateISO","optional":false,"readonly":false,"span":{"end":1204,"start":1171},"ts_type":"string | undefined"},{"decorators":[],"name":"secondIsDate","optional":false,"readonly":false,"span":{"end":1235,"start":1213},"ts_type":"boolean"},{"decorators":[],"name":"secondDateISO","optional":false,"readonly":false,"span":{"end":1278,"start":1244},"ts_type":"string | undefined"}]}}}]},"decorators":[],"name":"RecursiveDeserResult","span":{"end":1285,"start":986},"type_params":[]}
+
+## Registry reads
+
+Name("Inner")
+
+## Buildtime dependencies
+
+(none)

@@ -1,0 +1,4722 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/overview-settings.svelte.ts
+sha256 d8fc5e13170b69c558d9eece4ab909d27d9e7f46f34b556e83707150639dd918
+
+## Changed
+
+true
+
+## Output
+
+import { columnConfigDeserialize } from "./column-config.svelte";
+import { overviewDisplayDeserializeWithContext } from "./overview-display.svelte";
+import { rowHeightDeserializeWithContext } from "./row-height.svelte";
+import { columnConfigSerializeWithContext } from "./column-config.svelte";
+import { overviewDisplaySerializeWithContext } from "./overview-display.svelte";
+import { rowHeightSerializeWithContext } from "./row-height.svelte";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { ColumnConfig } from './column-config.svelte';
+import type { OverviewDisplay } from './overview-display.svelte';
+import type { RowHeight } from './row-height.svelte';
+
+
+export interface OverviewSettings {
+    
+    rowHeight: RowHeight;
+    
+    cardOrRow: OverviewDisplay;
+    perPage: number;
+    columnConfigs: Array<ColumnConfig>;
+}
+
+export function overviewSettingsDefaultValue(): OverviewSettings {
+                        return {
+rowHeight: "Medium",
+cardOrRow: "Table",
+perPage: 0,
+columnConfigs: [],
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function overviewSettingsSerialize(value: OverviewSettings, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = overviewSettingsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function overviewSettingsSerializeWithContext(value: OverviewSettings, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "OverviewSettings",
+                        __id,
+                    };result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);result.cardOrRow = overviewDisplaySerializeWithContext(value.cardOrRow, ctx);result.perPage = value.perPage;result.columnConfigs = value.columnConfigs.map(
+                                                            (item) => columnConfigSerializeWithContext(item, ctx)
+                                                        );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function overviewSettingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = overviewSettingsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "OverviewSettings.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function overviewSettingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): OverviewSettings | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "OverviewSettings.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("rowHeight" in obj)) {
+                            errors.push({ field: "rowHeight", message: "missing required field" });
+                        }if (!("cardOrRow" in obj)) {
+                            errors.push({ field: "cardOrRow", message: "missing required field" });
+                        }if (!("perPage" in obj)) {
+                            errors.push({ field: "perPage", message: "missing required field" });
+                        }if (!("columnConfigs" in obj)) {
+                            errors.push({ field: "columnConfigs", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_rowHeight = obj["rowHeight"] as RowHeight;ctx.pushScope("rowHeight");
+                                            try {
+                                                const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
+                                                ctx.assignOrDefer(instance, "rowHeight", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;ctx.pushScope("cardOrRow");
+                                            try {
+                                                const __result = overviewDisplayDeserializeWithContext(__raw_cardOrRow, ctx);
+                                                ctx.assignOrDefer(instance, "cardOrRow", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "cardOrRow" : "cardOrRow." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_perPage = obj["perPage"] as number;instance.perPage = __raw_perPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;if (Array.isArray(__raw_columnConfigs)) {
+                                                        const __arr = __raw_columnConfigs.map((item: ColumnConfig | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = columnConfigDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "columnConfigs[" + idx + "]"
+                                                                            : "columnConfigs[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.columnConfigs = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.columnConfigs, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as OverviewSettings;
+            }
+
+            export function overviewSettingsValidateField<K extends keyof OverviewSettings>(
+                _field: K,
+                _value: OverviewSettings[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function overviewSettingsValidateFields(
+                _partial: Partial<OverviewSettings>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function overviewSettingsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "rowHeight" in o && "cardOrRow" in o && "perPage" in o && "columnConfigs" in o;
+            }
+
+            export function overviewSettingsIs(obj: unknown): obj is OverviewSettings {
+                if (!overviewSettingsHasShape(obj)) {
+                    return false;
+                }
+                const result = overviewSettingsDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type OverviewSettingsErrors = {
+            _errors: Option.Option<Array<string>>;
+            rowHeight: Option.Option<Array<string>>;
+            cardOrRow: Option.Option<Array<string>>;
+            perPage: Option.Option<Array<string>>;
+            columnConfigs: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type OverviewSettingsTainted = {
+            rowHeight: Option.Option<boolean>;
+            cardOrRow: Option.Option<boolean>;
+            perPage: Option.Option<boolean>;
+            columnConfigs: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface OverviewSettingsFieldControllers {
+            readonly rowHeight: FieldController<RowHeight>;
+            readonly cardOrRow: FieldController<OverviewDisplay>;
+            readonly perPage: FieldController<number>;
+            
+                    readonly columnConfigs: ArrayFieldController<ColumnConfig>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface OverviewSettingsGigaform {
+            readonly data: OverviewSettings;
+            readonly errors: OverviewSettingsErrors;
+            readonly tainted: OverviewSettingsTainted;
+            readonly fields: OverviewSettingsFieldControllers;
+            validate(): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<OverviewSettings>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function overviewSettingsCreateForm(overrides?: Partial<OverviewSettings>): OverviewSettingsGigaform {
+            let data = $state({ ...overviewSettingsDefaultValue(), ...overrides });
+            let errors = $state<OverviewSettingsErrors>({
+                _errors: Option.none(),
+                rowHeight: Option.none(),
+                cardOrRow: Option.none(),
+                perPage: Option.none(),
+                columnConfigs: Option.none(),
+
+
+            });
+            let tainted = $state<OverviewSettingsTainted>({
+                rowHeight: Option.none(),
+                cardOrRow: Option.none(),
+                perPage: Option.none(),
+                columnConfigs: Option.none(),
+
+
+            });
+            const fields = {
+            
+                rowHeight: {
+            name: "rowHeight",
+            label: "rowHeight",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["rowHeight"],
+            get: () => data.rowHeight,
+            set: (value: RowHeight) => { data.rowHeight = value; },
+            getError: () => errors.rowHeight,
+            setError: (value: Option.Option<Array<string>>) => { errors.rowHeight = value; },
+            getTainted: () => tainted.rowHeight,
+            setTainted: (value: Option.Option<boolean>) => { tainted.rowHeight = value; },
+            validate: () => overviewSettingsValidateField("rowHeight", data.rowHeight).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                cardOrRow: {
+            name: "cardOrRow",
+            label: "cardOrRow",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["cardOrRow"],
+            get: () => data.cardOrRow,
+            set: (value: OverviewDisplay) => { data.cardOrRow = value; },
+            getError: () => errors.cardOrRow,
+            setError: (value: Option.Option<Array<string>>) => { errors.cardOrRow = value; },
+            getTainted: () => tainted.cardOrRow,
+            setTainted: (value: Option.Option<boolean>) => { tainted.cardOrRow = value; },
+            validate: () => overviewSettingsValidateField("cardOrRow", data.cardOrRow).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                perPage: {
+            name: "perPage",
+            label: "perPage",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["perPage"],
+            get: () => data.perPage,
+            set: (value: number) => { data.perPage = value; },
+            getError: () => errors.perPage,
+            setError: (value: Option.Option<Array<string>>) => { errors.perPage = value; },
+            getTainted: () => tainted.perPage,
+            setTainted: (value: Option.Option<boolean>) => { tainted.perPage = value; },
+            validate: () => overviewSettingsValidateField("perPage", data.perPage).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                columnConfigs: {
+            name: "columnConfigs",
+            label: "columnConfigs",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["columnConfigs"],
+            get: () => data.columnConfigs,
+            set: (value: Array<ColumnConfig>) => { data.columnConfigs = value; },
+            getError: () => errors.columnConfigs,
+            setError: (value: Option.Option<Array<string>>) => { errors.columnConfigs = value; },
+            getTainted: () => tainted.columnConfigs,
+            setTainted: (value: Option.Option<boolean>) => { tainted.columnConfigs = value; },
+            validate: () => overviewSettingsValidateField("columnConfigs", data.columnConfigs).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.columnConfigs[index],
+                set: (value: ColumnConfig) => { data.columnConfigs[index] = value; },
+                getError: () => errors.columnConfigs,
+                setError: (value: Option.Option<Array<string>>) => { errors.columnConfigs = value; },
+            }),
+            push: (item: ColumnConfig) => { data.columnConfigs.push(item); },
+            remove: (index: number) => { data.columnConfigs.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.columnConfigs[a];
+                data.columnConfigs[a] = data.columnConfigs[b];
+                data.columnConfigs[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as OverviewSettingsFieldControllers;
+
+
+            function validate(): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>> {
+                return toExit(overviewSettingsDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<OverviewSettings>): void {
+                data = { ...overviewSettingsDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            rowHeight: Option.none(),
+            cardOrRow: Option.none(),
+            perPage: Option.none(),
+            columnConfigs: Option.none(),
+
+
+        };
+                tainted = {
+            rowHeight: Option.none(),
+            cardOrRow: Option.none(),
+            perPage: Option.none(),
+            columnConfigs: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function overviewSettingsFromFormData(formData: FormData): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+
+            const rowHeightObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("rowHeight.")) {
+                    const fieldName = key.slice("rowHeight.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = rowHeightObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.rowHeight = rowHeightObj;
+        }
+            {
+
+            const cardOrRowObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("cardOrRow.")) {
+                    const fieldName = key.slice("cardOrRow.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = cardOrRowObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.cardOrRow = cardOrRowObj;
+        }
+            {
+                    const perPageStr = formData.get("perPage");
+                    obj.perPage = perPageStr ? parseFloat(perPageStr as string) : 0;
+                    if (obj.perPage !== undefined && isNaN(obj.perPage as number)) obj.perPage = 0;
+                }
+            {
+
+                    const columnConfigsItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("columnConfigs." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("columnConfigs." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("columnConfigs." + idx + ".")) {
+                                    const fieldName = key.slice("columnConfigs.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            columnConfigsItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.columnConfigs = columnConfigsItems;
+                }
+
+
+            return toExit(overviewSettingsDeserialize(obj));
+        }
+
+export const OverviewSettings = {
+  defaultValue: overviewSettingsDefaultValue,
+  serialize: overviewSettingsSerialize,
+  serializeWithContext: overviewSettingsSerializeWithContext,
+  deserialize: overviewSettingsDeserialize,
+  deserializeWithContext: overviewSettingsDeserializeWithContext,
+  validateFields: overviewSettingsValidateFields,
+  hasShape: overviewSettingsHasShape,
+  is: overviewSettingsIs,
+  createForm: overviewSettingsCreateForm,
+  fromFormData: overviewSettingsFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { ColumnConfig } from './column-config.svelte';
+import type { OverviewDisplay } from './overview-display.svelte';
+import type { RowHeight } from './row-height.svelte';
+
+
+export interface OverviewSettings {
+    
+    rowHeight: RowHeight;
+    
+    cardOrRow: OverviewDisplay;
+    perPage: number;
+    columnConfigs: Array<ColumnConfig>;
+}
+
+export function overviewSettingsDefaultValue(): OverviewSettings {
+                        return {
+rowHeight: "Medium",
+cardOrRow: "Table",
+perPage: 0,
+columnConfigs: [],
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function overviewSettingsSerialize(value: OverviewSettings, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = overviewSettingsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function overviewSettingsSerializeWithContext(value: OverviewSettings, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "OverviewSettings",
+                        __id,
+                    };result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);result.cardOrRow = overviewDisplaySerializeWithContext(value.cardOrRow, ctx);result.perPage = value.perPage;result.columnConfigs = value.columnConfigs.map(
+                                                            (item) => columnConfigSerializeWithContext(item, ctx)
+                                                        );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function overviewSettingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = overviewSettingsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "OverviewSettings.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function overviewSettingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): OverviewSettings | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "OverviewSettings.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("rowHeight" in obj)) {
+                            errors.push({ field: "rowHeight", message: "missing required field" });
+                        }if (!("cardOrRow" in obj)) {
+                            errors.push({ field: "cardOrRow", message: "missing required field" });
+                        }if (!("perPage" in obj)) {
+                            errors.push({ field: "perPage", message: "missing required field" });
+                        }if (!("columnConfigs" in obj)) {
+                            errors.push({ field: "columnConfigs", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_rowHeight = obj["rowHeight"] as RowHeight;ctx.pushScope("rowHeight");
+                                            try {
+                                                const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
+                                                ctx.assignOrDefer(instance, "rowHeight", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;ctx.pushScope("cardOrRow");
+                                            try {
+                                                const __result = overviewDisplayDeserializeWithContext(__raw_cardOrRow, ctx);
+                                                ctx.assignOrDefer(instance, "cardOrRow", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "cardOrRow" : "cardOrRow." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_perPage = obj["perPage"] as number;instance.perPage = __raw_perPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_columnConfigs = obj["columnConfigs"] as Array<ColumnConfig>;if (Array.isArray(__raw_columnConfigs)) {
+                                                        const __arr = __raw_columnConfigs.map((item: ColumnConfig | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = columnConfigDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "columnConfigs[" + idx + "]"
+                                                                            : "columnConfigs[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.columnConfigs = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.columnConfigs, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as OverviewSettings;
+            }
+
+            export function overviewSettingsValidateField<K extends keyof OverviewSettings>(
+                _field: K,
+                _value: OverviewSettings[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function overviewSettingsValidateFields(
+                _partial: Partial<OverviewSettings>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function overviewSettingsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "rowHeight" in o && "cardOrRow" in o && "perPage" in o && "columnConfigs" in o;
+            }
+
+            export function overviewSettingsIs(obj: unknown): obj is OverviewSettings {
+                if (!overviewSettingsHasShape(obj)) {
+                    return false;
+                }
+                const result = overviewSettingsDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type OverviewSettingsErrors = {
+            _errors: Option.Option<Array<string>>;
+            rowHeight: Option.Option<Array<string>>;
+            cardOrRow: Option.Option<Array<string>>;
+            perPage: Option.Option<Array<string>>;
+            columnConfigs: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type OverviewSettingsTainted = {
+            rowHeight: Option.Option<boolean>;
+            cardOrRow: Option.Option<boolean>;
+            perPage: Option.Option<boolean>;
+            columnConfigs: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface OverviewSettingsFieldControllers {
+            readonly rowHeight: FieldController<RowHeight>;
+            readonly cardOrRow: FieldController<OverviewDisplay>;
+            readonly perPage: FieldController<number>;
+            
+                    readonly columnConfigs: ArrayFieldController<ColumnConfig>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface OverviewSettingsGigaform {
+            readonly data: OverviewSettings;
+            readonly errors: OverviewSettingsErrors;
+            readonly tainted: OverviewSettingsTainted;
+            readonly fields: OverviewSettingsFieldControllers;
+            validate(): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<OverviewSettings>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function overviewSettingsCreateForm(overrides?: Partial<OverviewSettings>): OverviewSettingsGigaform {
+            let data = $state({ ...overviewSettingsDefaultValue(), ...overrides });
+            let errors = $state<OverviewSettingsErrors>({
+                _errors: Option.none(),
+                rowHeight: Option.none(),
+                cardOrRow: Option.none(),
+                perPage: Option.none(),
+                columnConfigs: Option.none(),
+
+
+            });
+            let tainted = $state<OverviewSettingsTainted>({
+                rowHeight: Option.none(),
+                cardOrRow: Option.none(),
+                perPage: Option.none(),
+                columnConfigs: Option.none(),
+
+
+            });
+            const fields = {
+            
+                rowHeight: {
+            name: "rowHeight",
+            label: "rowHeight",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["rowHeight"],
+            get: () => data.rowHeight,
+            set: (value: RowHeight) => { data.rowHeight = value; },
+            getError: () => errors.rowHeight,
+            setError: (value: Option.Option<Array<string>>) => { errors.rowHeight = value; },
+            getTainted: () => tainted.rowHeight,
+            setTainted: (value: Option.Option<boolean>) => { tainted.rowHeight = value; },
+            validate: () => overviewSettingsValidateField("rowHeight", data.rowHeight).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                cardOrRow: {
+            name: "cardOrRow",
+            label: "cardOrRow",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["cardOrRow"],
+            get: () => data.cardOrRow,
+            set: (value: OverviewDisplay) => { data.cardOrRow = value; },
+            getError: () => errors.cardOrRow,
+            setError: (value: Option.Option<Array<string>>) => { errors.cardOrRow = value; },
+            getTainted: () => tainted.cardOrRow,
+            setTainted: (value: Option.Option<boolean>) => { tainted.cardOrRow = value; },
+            validate: () => overviewSettingsValidateField("cardOrRow", data.cardOrRow).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                perPage: {
+            name: "perPage",
+            label: "perPage",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["perPage"],
+            get: () => data.perPage,
+            set: (value: number) => { data.perPage = value; },
+            getError: () => errors.perPage,
+            setError: (value: Option.Option<Array<string>>) => { errors.perPage = value; },
+            getTainted: () => tainted.perPage,
+            setTainted: (value: Option.Option<boolean>) => { tainted.perPage = value; },
+            validate: () => overviewSettingsValidateField("perPage", data.perPage).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                columnConfigs: {
+            name: "columnConfigs",
+            label: "columnConfigs",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["columnConfigs"],
+            get: () => data.columnConfigs,
+            set: (value: Array<ColumnConfig>) => { data.columnConfigs = value; },
+            getError: () => errors.columnConfigs,
+            setError: (value: Option.Option<Array<string>>) => { errors.columnConfigs = value; },
+            getTainted: () => tainted.columnConfigs,
+            setTainted: (value: Option.Option<boolean>) => { tainted.columnConfigs = value; },
+            validate: () => overviewSettingsValidateField("columnConfigs", data.columnConfigs).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.columnConfigs[index],
+                set: (value: ColumnConfig) => { data.columnConfigs[index] = value; },
+                getError: () => errors.columnConfigs,
+                setError: (value: Option.Option<Array<string>>) => { errors.columnConfigs = value; },
+            }),
+            push: (item: ColumnConfig) => { data.columnConfigs.push(item); },
+            remove: (index: number) => { data.columnConfigs.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.columnConfigs[a];
+                data.columnConfigs[a] = data.columnConfigs[b];
+                data.columnConfigs[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as OverviewSettingsFieldControllers;
+
+
+            function validate(): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>> {
+                return toExit(overviewSettingsDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<OverviewSettings>): void {
+                data = { ...overviewSettingsDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            rowHeight: Option.none(),
+            cardOrRow: Option.none(),
+            perPage: Option.none(),
+            columnConfigs: Option.none(),
+
+
+        };
+                tainted = {
+            rowHeight: Option.none(),
+            cardOrRow: Option.none(),
+            perPage: Option.none(),
+            columnConfigs: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function overviewSettingsFromFormData(formData: FormData): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+
+            const rowHeightObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("rowHeight.")) {
+                    const fieldName = key.slice("rowHeight.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = rowHeightObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.rowHeight = rowHeightObj;
+        }
+            {
+
+            const cardOrRowObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("cardOrRow.")) {
+                    const fieldName = key.slice("cardOrRow.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = cardOrRowObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.cardOrRow = cardOrRowObj;
+        }
+            {
+                    const perPageStr = formData.get("perPage");
+                    obj.perPage = perPageStr ? parseFloat(perPageStr as string) : 0;
+                    if (obj.perPage !== undefined && isNaN(obj.perPage as number)) obj.perPage = 0;
+                }
+            {
+
+                    const columnConfigsItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("columnConfigs." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("columnConfigs." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("columnConfigs." + idx + ".")) {
+                                    const fieldName = key.slice("columnConfigs.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            columnConfigsItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.columnConfigs = columnConfigsItems;
+                }
+
+
+            return toExit(overviewSettingsDeserialize(obj));
+        }
+
+export const OverviewSettings = {
+  defaultValue: overviewSettingsDefaultValue,
+  serialize: overviewSettingsSerialize,
+  serializeWithContext: overviewSettingsSerializeWithContext,
+  deserialize: overviewSettingsDeserialize,
+  deserializeWithContext: overviewSettingsDeserializeWithContext,
+  validateFields: overviewSettingsValidateFields,
+  hasShape: overviewSettingsHasShape,
+  is: overviewSettingsIs,
+  createForm: overviewSettingsCreateForm,
+  fromFormData: overviewSettingsFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..239 -> expanded 0..239
+original 296..337 -> expanded 239..280
+original 362..393 -> expanded 280..311
+original 417..512 -> expanded 311..406
+original 512..513 -> expanded 26903..26904
+generated 406..604 <- Default
+generated 604..2550 <- Serialize
+generated 2550..14721 <- Deserialize
+generated 14721..26397 <- Gigaform
+generated 26397..26903 <- __convenience_const
+
+## Metadata
+
+interface OverviewSettings: {"body_span":{"end":513,"start":332},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":297,"start":240}}],"fields":[{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":363,"start":338}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":389,"start":368},"ts_type":"RowHeight"},{"decorators":[{"args_src":"\"Table\"","name":"default","span":{"end":418,"start":394}}],"name":"cardOrRow","optional":false,"readonly":false,"span":{"end":450,"start":423},"ts_type":"OverviewDisplay"},{"decorators":[],"name":"perPage","optional":false,"readonly":false,"span":{"end":471,"start":455},"ts_type":"number"},{"decorators":[],"name":"columnConfigs","optional":false,"readonly":false,"span":{"end":511,"start":476},"ts_type":"Array<ColumnConfig>"}],"heritage":[],"methods":[],"name":"OverviewSettings","span":{"end":513,"start":305},"type_params":[]}
+
+## Registry reads
+
+Name("Array")
+Name("ColumnConfig")
+Name("OverviewDisplay")
+Name("RowHeight")
+Name("number")
+
+## Buildtime dependencies
+
+(none)

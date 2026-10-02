@@ -24,6 +24,45 @@ export default {
 };
 ```
 
+## Sharing a Base Config
+
+The config is read statically, never run, and the reader follows what a config inherits. Name a base
+with `extends`, a path or an array of them with later ones winning:
+
+apps/web/macroforge.config.ts
+
+```
+export default {
+  extends: "../../macroforge.base.ts",
+  foreignTypes: {
+    "Option.Option": { from: ["effect"] },
+  },
+};
+```
+
+Fields the config sets replace the base's, except `foreignTypes`, which merge by type name: an entry
+the config names again replaces the base's, and the rest are added.
+
+A config can also export, spread or wrap a config it imports, with JavaScript's spread semantics, so
+a field set after a spread replaces the spread one:
+
+macroforge.config.ts
+
+```
+import base from "@acme/macroforge-config";
+
+export default defineConfig({
+  ...base,
+  keepDecorators: true,
+  foreignTypes: { ...base.foreignTypes, "Option.Option": { from: ["effect"] } },
+});
+```
+
+Relative specifiers resolve against the importing file, and package specifiers from the nearest
+`node_modules`, honouring its `exports` and `main`. A reference the reader cannot follow, such as a
+config a function builds, is an error rather than an empty config. Editing a base config reaches
+every config built on it.
+
 ## Options Reference
 
 ### keepDecorators
@@ -177,7 +216,7 @@ export default {
 
 - `failOnUse`: Promote use of a deprecated symbol from an editor hint to a hard expansion error
   (default: `false`).
-- `runtimeWarn`: Reserved. Defaults to `true` but currently has no effect — no runtime warning is
+- `runtimeWarn`: Reserved. Defaults to `true` but currently has no effect: no runtime warning is
   injected.
 
 ### mustUse
@@ -223,9 +262,8 @@ export default {
     capabilities: {
       timeout: 5000,
       maxHeap: 256,
-      filesystem: { read: ["src/**"], write: [] },
-      env: ["NODE_ENV"],
-      network: false
+      filesystem: { read: ["src/**"] },
+      env: ["NODE_ENV"]
     },
     flags: { CHANNEL: "beta" }
   }
@@ -233,13 +271,12 @@ export default {
 ```
 
 - `capabilities.timeout`: Evaluation budget in milliseconds, enforced (default: `5000`).
-- `capabilities.maxHeap`: Heap ceiling in MiB. Advisory — not currently enforced (default: `256`).
+- `capabilities.maxHeap`: Heap ceiling in MiB. Advisory: not currently enforced (default: `256`).
 - `capabilities.filesystem.read`: Globs readable via `buildtime.fs` (default: `["**"]`).
-- `capabilities.filesystem.write`: Reserved; no write API is exposed (default: `[]`).
 - `capabilities.env`: Environment variable names exposed as `buildtime.env.NAME`. Deny-by-default
   (default: `[]`).
-- `capabilities.network`: Reserved; no network API is exposed (default: `false`).
 - `flags`: Values returned by `buildtime.flags.has()` / `.get()` (default: `&lbrace;&rbrace;`).
 
 Capability keys may also be written flat (`buildtime.timeout`); the nested form is canonical because
-it matches the path sandbox diagnostics point at.
+it matches the path sandbox diagnostics point at. Build-time code can never write files or reach the
+network, so `filesystem.write` and `network` are rejected.

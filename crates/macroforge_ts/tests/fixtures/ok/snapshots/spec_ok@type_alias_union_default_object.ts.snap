@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_object.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_object.ts
 ---
 ## Input
 
@@ -16,6 +15,10 @@ export type PropValue =
     | { type: 'Asset'; value: string }
     | { type: 'Page'; value: string }
     | { type: 'Expression'; value: string };
+
+## Changed
+
+true
 
 ## Output
 
@@ -808,25 +811,12 @@ export function propValueDefaultValue(): PropValue {
 
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
         export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
                                     const __typeName = (value as any)["type"];
                                     if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
                                 }return false;
-
-
-
 
 
 
@@ -1836,25 +1826,12 @@ export function propValueDefaultValue(): PropValue {
 
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
         export function propValueHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
                                     const __typeName = (value as any)["type"];
                                     if (["String", "Number", "Boolean", "Json", "Asset", "Page", "Expression"].includes(__typeName)) return true;
                                 }return false;
-
-
-
 
 
 
@@ -2080,5 +2057,26 @@ export const PropValue = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 96..418 -> expanded 0..322
+original 418..419 -> expanded 12189..12190
+generated 322..472 <- Default
+generated 472..2530 <- Serialize
+generated 2530..11660 <- Deserialize
+generated 11660..12189 <- __convenience_const
+
+## Metadata
+
+type PropValue: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":143,"start":128}}],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":161,"start":146},"ts_type":"'String'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":175,"start":162},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":201,"start":186},"ts_type":"'Number'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":215,"start":202},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":242,"start":226},"ts_type":"'Boolean'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":257,"start":243},"ts_type":"boolean"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":281,"start":268},"ts_type":"'Json'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":295,"start":282},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":320,"start":306},"ts_type":"'Asset'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":334,"start":321},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":358,"start":345},"ts_type":"'Page'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":372,"start":359},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":402,"start":383},"ts_type":"'Expression'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":416,"start":403},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"{ tag: \"type\", content: \"value\" }","name":"serde","span":{"end":97,"start":49}},{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":48,"start":1}}],"name":"PropValue","span":{"end":419,"start":105},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/type_macros.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/type_macros.ts
 ---
 ## Input
 
@@ -33,6 +32,10 @@ type StrictUser = $ReadOnly<User>;
 type Pair = $Tuple<string, number>;
 type Triple = $Tuple<string, number, boolean>;
 
+## Changed
+
+true
+
 ## Output
 
 // Type-position macro: wrap a type in a readonly mapped type.
@@ -55,5 +58,24 @@ type Triple = [string,number,boolean];
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..314 -> expanded 0..314
+
+## Metadata
+
+interface User: {"body_span":{"end":186,"start":149},"decorators":[],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":166,"start":155},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":184,"start":171},"ts_type":"string"}],"heritage":[],"methods":[],"name":"User","span":{"end":186,"start":134},"type_params":[]}
+type StrictUser: {"body":{"Other":"{ readonly [K in keyof User]: User[K] }"},"decorators":[],"name":"StrictUser","span":{"end":246,"start":188},"type_params":[]}
+type Pair: {"body":{"Tuple":["string","number"]},"decorators":[],"name":"Pair","span":{"end":275,"start":247},"type_params":[]}
+type Triple: {"body":{"Tuple":["string","number","boolean"]},"decorators":[],"name":"Triple","span":{"end":314,"start":276},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

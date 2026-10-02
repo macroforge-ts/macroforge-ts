@@ -1,7 +1,7 @@
 //! # Import Registry
 //!
 //! Unified import registry built during IR lowering, used throughout macro expansion.
-//! All insertions are idempotent — duplicates are impossible by design.
+//! All insertions are idempotent: duplicates are impossible by design.
 //!
 //! This module lives in `macroforge_ts_syn` so that [`TsStream`](crate::TsStream) can
 //! register imports directly instead of pushing raw patches.
@@ -81,8 +81,7 @@ pub struct SourceImport {
     pub is_type_only: bool,
 }
 
-/// Serializable version of [`SourceImport`] for cross-process transfer.
-/// Used in [`MacroContextIR`] to pass source imports to external macros.
+/// A source import as a plain record, one per name the file imports.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SourceImportEntry {
     pub local_name: String,
@@ -106,11 +105,11 @@ pub struct GeneratedImport {
 
 /// Unified import registry. Built during IR lowering, used throughout expansion.
 ///
-/// All insertions are idempotent — duplicates are impossible by design.
+/// All insertions are idempotent: duplicates are impossible by design.
 /// The registry has three sections:
-/// 1. **Source imports** — pre-populated from the user's AST during lowering. Read-only after creation.
-/// 2. **Config imports** — from `macroforge.config.ts` import statements. Name → module.
-/// 3. **Generated imports** — accumulated during macro expansion via `request_*` methods.
+/// 1. **Source imports**: pre-populated from the user's AST during lowering. Read-only after creation.
+/// 2. **Config imports**: from `macroforge.config.ts` import statements. Name → module.
+/// 3. **Generated imports**: accumulated during macro expansion via `request_*` methods.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ImportRegistry {
     /// Source file imports. Key: local_name → entry.
@@ -300,7 +299,8 @@ impl ImportRegistry {
             .collect()
     }
 
-    /// Install source imports from serializable entries (for external macro processes).
+    /// Adds source imports, as if the file being expanded declared them.
+    /// Lets a test give a context the imports a real file would have.
     pub fn install_source_imports(&mut self, entries: Vec<SourceImportEntry>) {
         for entry in entries {
             self.source_imports.insert(
@@ -314,15 +314,7 @@ impl ImportRegistry {
         }
     }
 
-    /// Get type-only tracking as a flat name→bool HashMap (for backward-compat callers).
-    pub fn type_only_map(&self) -> HashMap<String, bool> {
-        self.source_imports
-            .iter()
-            .map(|(name, si)| (name.clone(), si.is_type_only))
-            .collect()
-    }
-
-    /// General-purpose import request. Idempotent — skips if `local_name` already
+    /// General-purpose import request. Idempotent: skips if `local_name` already
     /// exists in source or generated imports.
     ///
     /// This is the method TsStream import helpers delegate to.
@@ -338,12 +330,12 @@ impl ImportRegistry {
             return;
         }
 
-        // Already in source — skip
+        // Already in source: skip
         if self.source_imports.contains_key(local_name) {
             return;
         }
 
-        // Already generated — skip
+        // Already generated: skip
         if self.generated.contains_key(local_name) {
             return;
         }
@@ -451,7 +443,7 @@ impl ImportRegistry {
 }
 
 // ============================================================================
-// Thread-local registry — single source of truth for all import state
+// Thread-local registry: single source of truth for all import state
 // ============================================================================
 
 thread_local! {

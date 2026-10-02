@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_clone.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_clone.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ type Config = {
     host: string;
     port: number;
 };
+
+## Changed
+
+true
 
 ## Output
 
@@ -50,5 +54,24 @@ const Config = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..76 -> expanded 0..55
+original 76..77 -> expanded 358..359
+generated 55..307 <- Clone
+generated 307..358 <- __convenience_const
+
+## Metadata
+
+type Config: {"body":{"Object":{"fields":[{"decorators":[],"name":"host","optional":false,"readonly":false,"span":{"end":56,"start":43},"ts_type":"string"},{"decorators":[],"name":"port","optional":false,"readonly":false,"span":{"end":74,"start":61},"ts_type":"number"}]}},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":22,"start":1}}],"name":"Config","span":{"end":77,"start":23},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

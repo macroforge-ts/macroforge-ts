@@ -299,9 +299,16 @@ pub mod cargo {
     /// nextest does not run doctests, so a `cargo test --doc` pass follows,
     /// over the members whose library cargo can doctest.
     /// A crate without tests has nothing to fail, so it passes.
-    pub fn test(cwd: &Path) -> Result<CommandResult> {
+    /// `features` are enabled for the nextest pass only, since a test target
+    /// can require a feature the doctests never need.
+    pub fn test(cwd: &Path, features: &[&str]) -> Result<CommandResult> {
+        let mut nextest_args = vec!["nextest", "run", "--workspace", "--no-tests=pass"];
+        let joined = features.join(",");
+        if !features.is_empty() {
+            nextest_args.extend(["--features", joined.as_str()]);
+        }
         Shell::new("cargo")
-            .args(&["nextest", "run", "--workspace", "--no-tests=pass"])
+            .args(&nextest_args)
             .dir(cwd)
             .run_checked()?;
         let skipped = members_without_doctests(cwd)?;

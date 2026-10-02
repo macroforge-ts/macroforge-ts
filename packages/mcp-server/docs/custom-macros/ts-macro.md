@@ -1,6 +1,6 @@
 # ts\_macro
 
-`#[ts_macro]` registers a function-like macro — the TypeScript equivalent of Rust's `#[proc_macro]`.
+`#[ts_macro]` registers a function-like macro: the TypeScript equivalent of Rust's `#[proc_macro]`.
 Users invoke it as `$name(args)` in their source; the macro receives the argument text as a
 `TsStream` and emits a replacement `TsStream` that takes over the call site.
 
@@ -36,8 +36,7 @@ export const quoted = "1 + 2 * 3";
 Info
 
 The `$` prefix at call sites distinguishes macro invocations from regular function calls. The prefix
-is purely syntactic — the macro name itself (as declared in `#[ts_macro(name)]`) does not contain
-it.
+is purely syntactic: the macro name itself (as declared in `#[ts_macro(name)]`) does not contain it.
 
 ## Attribute Options
 
@@ -101,7 +100,17 @@ pub fn concat_names_macro(input: TsStream) -> Result<TsStream, MacroforgeE
 ```
 
 Call-macro expansion works by replacing the entire `$name(...)` span with the returned stream's
-source. The engine inlines the output verbatim — no auto-wrapping.
+source. The engine inlines the output verbatim, with no auto-wrapping.
+
+## What a Call Macro Sees
+
+`input.source()` is the text between the parentheses. The context is minimal: its target is
+`TargetIR::Other`, and the file name, config and type registry are empty, so a call macro works from
+its arguments alone.
+
+Imports the macro adds with `add_import` and its siblings are written at the top of the file, like a
+derive's; see [Output and Imports](../../docs/custom-macros/output#imports). Its warnings and errors
+are reported at the call.
 
 ## No-op Exports
 
@@ -141,7 +150,7 @@ WebAssembly. Publish the crate with `macroforge build` so the `$` aliases are e
 
 ## Complete Examples
 
-### $stringify — quote source text
+### $stringify: quote source text
 
 Rust
 
@@ -156,7 +165,7 @@ pub fn stringify_macro(input: TsStream) -> Result<TsStream, MacroforgeErro
 }
 ```
 
-### $state — Svelte-runes-style reactive signal
+### $state: Svelte-runes-style reactive signal
 
 Rust
 

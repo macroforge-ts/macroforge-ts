@@ -12,7 +12,7 @@
 <h1>Custom Macros</h1>
 
 <p class="lead">
-	Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the class AST and can generate any TypeScript code.
+	Macroforge allows you to create custom macros in Rust: derive macros, attribute macros and call macros. Your macros see the declaration they are attached to, can look up any type in the project, and can generate any TypeScript code.
 </p>
 
 <h2 id="overview">Overview</h2>
@@ -23,7 +23,7 @@
 
 <ol>
 	<li>Creating a Rust crate that builds to WebAssembly</li>
-	<li>Defining macro functions with <code>#[ts_macro_derive]</code></li>
+	<li>Defining macro functions with <code>#[ts_macro_derive]</code>, <code>#[ts_macro_attribute]</code> or <code>#[ts_macro]</code></li>
 	<li>Using <code>macroforge_ts_quote</code> to generate TypeScript code</li>
 	<li>Building and publishing as an npm package</li>
 </ol>
@@ -53,7 +53,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
             }))
         }
         _ => Err(MacroforgeError::new(
-            input.decorator_span(),
+            input.error_span(),
             "@derive(JSON) only works on classes",
         )),
     }
@@ -95,4 +95,15 @@ console.log(user.toJSON()); // { name: "Alice", age: 30 }`} lang="typescript" />
 	<li><a href={resolve('/docs/custom-macros/rust-setup')}>Set up a Rust macro crate</a></li>
 	<li><a href={resolve('/docs/custom-macros/ts-macro-derive')}>Learn the #[ts_macro_derive] attribute</a></li>
 	<li><a href={resolve('/docs/custom-macros/ts-quote')}>Learn the template syntax</a></li>
+</ul>
+
+<h2 id="reference">Reference</h2>
+
+<ul>
+	<li><a href={resolve('/docs/custom-macros/ts-macro')}><code>#[ts_macro]</code></a> and <a href={resolve('/docs/custom-macros/ts-macro-attribute')}><code>#[ts_macro_attribute]</code></a>: call and attribute macros</li>
+	<li><a href={resolve('/docs/custom-macros/output')}>Output and Imports</a>: where generated code goes, imports, patches and warnings</li>
+	<li><a href={resolve('/docs/custom-macros/context-and-ir')}>Context and IR</a>: everything a macro can read about its target</li>
+	<li><a href={resolve('/docs/custom-macros/type-aware')}>Type-Aware Macros</a>: looking up other types and reading the project's config</li>
+	<li><a href={resolve('/docs/custom-macros/diagnostics')}>Errors and Diagnostics</a>: failing with errors, reporting warnings</li>
+	<li><a href={resolve('/docs/custom-macros/testing-and-debugging')}>Testing and Debugging</a>: unit tests, debug logging, registering macros by hand</li>
 </ul>

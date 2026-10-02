@@ -1,0 +1,71 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/differential/vec_expand_only.ts
+---
+## Input
+
+// Differential fixture: $vec used in ExpandOnly mode.
+//
+// Dev and prod both expand inline. This is the trivial case — the two
+// outputs should be byte-identical, but the harness runs them both
+// through Deno anyway as a regression guard.
+
+import { macroRules } from '@macroforge/core/rules';
+
+const $vec = macroRules`
+  () => []
+  ($($x:Expr),+) => [$($x),+]
+`;
+
+const empty = $vec();
+const nums = $vec(1, 2, 3);
+const exprs = $vec(10 + 1, 20 - 5, 7 * 2);
+
+console.log(JSON.stringify({ empty, nums, exprs }));
+
+## Changed
+
+true
+
+## Output
+
+// Differential fixture: $vec used in ExpandOnly mode.
+//
+// Dev and prod both expand inline. This is the trivial case — the two
+// outputs should be byte-identical, but the harness runs them both
+// through Deno anyway as a regression guard.
+
+
+
+
+
+const empty = [];
+const nums = [1,2,3];
+const exprs = [10 + 1,20 - 5,7 * 2];
+
+console.log(JSON.stringify({ empty, nums, exprs }));
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

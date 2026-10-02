@@ -1,0 +1,745 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/status.svelte.ts
+sha256 cbe6a6e139f87cf31562f42f24abad4e1128591c19453b950da7fd155f5adb4a
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type Status = /** @default */ 'Scheduled' | 'OnDeck' | 'Waiting';
+
+export function statusDefaultValue(): Status {
+                            return "Scheduled";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function statusSerialize(value: Status, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = statusSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function statusSerializeWithContext(value: Status, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function statusDeserialize(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Scheduled':
+                    case 'OnDeck':
+                    case 'Waiting':
+
+
+                        return { success: true, value: input as Status };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function statusDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Status | __mf_PendingRef {
+                switch (value) {
+                    case 'Scheduled':
+                    case 'OnDeck':
+                    case 'Waiting':
+
+
+                        return value as Status;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function statusHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Scheduled':
+                    case 'OnDeck':
+                    case 'Waiting':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function statusIs(value: unknown): value is Status {
+                return statusHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type StatusScheduledErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type StatusOnDeckErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type StatusWaitingErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type StatusScheduledTainted = {
+
+
+            };
+            export type StatusOnDeckTainted = {
+
+
+            };
+            export type StatusWaitingTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type StatusErrors = ({ _value: "Scheduled" } & StatusScheduledErrors) | ({ _value: "OnDeck" } & StatusOnDeckErrors) | ({ _value: "Waiting" } & StatusWaitingErrors);
+
+        /** Union tainted type  */
+        export type StatusTainted = ({ _value: "Scheduled" } & StatusScheduledTainted) | ({ _value: "OnDeck" } & StatusOnDeckTainted) | ({ _value: "Waiting" } & StatusWaitingTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface StatusScheduledFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface StatusOnDeckFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface StatusWaitingFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface StatusGigaform {
+            readonly currentVariant: "Scheduled" | "OnDeck" | "Waiting";
+            readonly data: Status;
+            readonly errors: StatusErrors;
+            readonly tainted: StatusTainted;
+            readonly variants: StatusVariantFields;
+            switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void;
+            validate(): Exit.Exit<Status, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Status>): void;
+        }
+
+        /** Variant fields container  */
+        export interface StatusVariantFields {
+            
+                readonly Scheduled: { readonly fields: StatusScheduledFieldControllers };
+            
+                readonly OnDeck: { readonly fields: StatusOnDeckFieldControllers };
+            
+                readonly Waiting: { readonly fields: StatusWaitingFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function statusGetDefaultForVariant(variant: string): Status {
+            if (variant === "Scheduled") { return "Scheduled" as Status; }
+if (variant === "OnDeck") { return "OnDeck" as Status; }
+if (variant === "Waiting") { return "Waiting" as Status; }
+            return "Scheduled" as Status;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function statusCreateForm(initial?: Status): StatusGigaform {
+
+            const initialVariant: "Scheduled" | "OnDeck" | "Waiting" = (initial as "Scheduled" | "OnDeck" | "Waiting") ?? "Scheduled";
+
+
+            let currentVariant = $state<"Scheduled" | "OnDeck" | "Waiting">(initialVariant);
+            let data = $state<Status>(initial ?? statusGetDefaultForVariant(initialVariant));
+            let errors = $state<StatusErrors>({} as StatusErrors);
+            let tainted = $state<StatusTainted>({} as StatusTainted);
+
+            const variants = {
+            
+                "Scheduled": { fields: {  } as unknown as StatusScheduledFieldControllers },
+            
+                "OnDeck": { fields: {  } as unknown as StatusOnDeckFieldControllers },
+            
+                "Waiting": { fields: {  } as unknown as StatusWaitingFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as StatusVariantFields;
+
+
+            function switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void {
+                currentVariant = variant;
+                data = statusGetDefaultForVariant(variant);
+                errors = {} as StatusErrors;
+                tainted = {} as StatusTainted;
+            }
+
+
+            function validate(): Exit.Exit<Status, Array<{ field: string; message: string }>> {
+                return toExit(statusDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<Status>): void {
+                data = overrides ? overrides as typeof data : statusGetDefaultForVariant(currentVariant);
+                errors = {} as StatusErrors;
+                tainted = {} as StatusTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function statusFromFormData(formData: FormData): Exit.Exit<Status, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Scheduled" | "OnDeck" | "Waiting" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Scheduled") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "OnDeck") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Waiting") {
+                        
+                    }
+                }
+
+
+            return toExit(statusDeserialize(obj));
+        }
+
+export const Status = {
+  defaultValue: statusDefaultValue,
+  serialize: statusSerialize,
+  serializeWithContext: statusSerializeWithContext,
+  deserialize: statusDeserialize,
+  deserializeWithContext: statusDeserializeWithContext,
+  hasShape: statusHasShape,
+  is: statusIs,
+  createForm: statusCreateForm,
+  fromFormData: statusFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type Status = /** @default */ 'Scheduled' | 'OnDeck' | 'Waiting';
+
+export function statusDefaultValue(): Status {
+                            return "Scheduled";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function statusSerialize(value: Status, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = statusSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function statusSerializeWithContext(value: Status, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function statusDeserialize(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Scheduled':
+                    case 'OnDeck':
+                    case 'Waiting':
+
+
+                        return { success: true, value: input as Status };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function statusDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Status | __mf_PendingRef {
+                switch (value) {
+                    case 'Scheduled':
+                    case 'OnDeck':
+                    case 'Waiting':
+
+
+                        return value as Status;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function statusHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Scheduled':
+                    case 'OnDeck':
+                    case 'Waiting':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function statusIs(value: unknown): value is Status {
+                return statusHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type StatusScheduledErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type StatusOnDeckErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type StatusWaitingErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type StatusScheduledTainted = {
+
+
+            };
+            export type StatusOnDeckTainted = {
+
+
+            };
+            export type StatusWaitingTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type StatusErrors = ({ _value: "Scheduled" } & StatusScheduledErrors) | ({ _value: "OnDeck" } & StatusOnDeckErrors) | ({ _value: "Waiting" } & StatusWaitingErrors);
+
+        /** Union tainted type  */
+        export type StatusTainted = ({ _value: "Scheduled" } & StatusScheduledTainted) | ({ _value: "OnDeck" } & StatusOnDeckTainted) | ({ _value: "Waiting" } & StatusWaitingTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface StatusScheduledFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface StatusOnDeckFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface StatusWaitingFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface StatusGigaform {
+            readonly currentVariant: "Scheduled" | "OnDeck" | "Waiting";
+            readonly data: Status;
+            readonly errors: StatusErrors;
+            readonly tainted: StatusTainted;
+            readonly variants: StatusVariantFields;
+            switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void;
+            validate(): Exit.Exit<Status, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Status>): void;
+        }
+
+        /** Variant fields container  */
+        export interface StatusVariantFields {
+            
+                readonly Scheduled: { readonly fields: StatusScheduledFieldControllers };
+            
+                readonly OnDeck: { readonly fields: StatusOnDeckFieldControllers };
+            
+                readonly Waiting: { readonly fields: StatusWaitingFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function statusGetDefaultForVariant(variant: string): Status {
+            if (variant === "Scheduled") { return "Scheduled" as Status; }
+if (variant === "OnDeck") { return "OnDeck" as Status; }
+if (variant === "Waiting") { return "Waiting" as Status; }
+            return "Scheduled" as Status;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function statusCreateForm(initial?: Status): StatusGigaform {
+
+            const initialVariant: "Scheduled" | "OnDeck" | "Waiting" = (initial as "Scheduled" | "OnDeck" | "Waiting") ?? "Scheduled";
+
+
+            let currentVariant = $state<"Scheduled" | "OnDeck" | "Waiting">(initialVariant);
+            let data = $state<Status>(initial ?? statusGetDefaultForVariant(initialVariant));
+            let errors = $state<StatusErrors>({} as StatusErrors);
+            let tainted = $state<StatusTainted>({} as StatusTainted);
+
+            const variants = {
+            
+                "Scheduled": { fields: {  } as unknown as StatusScheduledFieldControllers },
+            
+                "OnDeck": { fields: {  } as unknown as StatusOnDeckFieldControllers },
+            
+                "Waiting": { fields: {  } as unknown as StatusWaitingFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as StatusVariantFields;
+
+
+            function switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void {
+                currentVariant = variant;
+                data = statusGetDefaultForVariant(variant);
+                errors = {} as StatusErrors;
+                tainted = {} as StatusTainted;
+            }
+
+
+            function validate(): Exit.Exit<Status, Array<{ field: string; message: string }>> {
+                return toExit(statusDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<Status>): void {
+                data = overrides ? overrides as typeof data : statusGetDefaultForVariant(currentVariant);
+                errors = {} as StatusErrors;
+                tainted = {} as StatusTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function statusFromFormData(formData: FormData): Exit.Exit<Status, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Scheduled" | "OnDeck" | "Waiting" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Scheduled") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "OnDeck") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Waiting") {
+                        
+                    }
+                }
+
+
+            return toExit(statusDeserialize(obj));
+        }
+
+export const Status = {
+  defaultValue: statusDefaultValue,
+  serialize: statusSerialize,
+  serializeWithContext: statusSerializeWithContext,
+  deserialize: statusDeserialize,
+  deserializeWithContext: statusDeserializeWithContext,
+  hasShape: statusHasShape,
+  is: statusIs,
+  createForm: statusCreateForm,
+  fromFormData: statusFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..188 -> expanded 58..131
+original 188..189 -> expanded 10723..10724
+generated 131..253 <- Default
+generated 253..2189 <- Serialize
+generated 2189..4343 <- Deserialize
+generated 4343..10367 <- Gigaform
+generated 10367..10723 <- __convenience_const
+
+## Metadata
+
+type Status: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":153,"start":138}}],"kind":{"Literal":"'Scheduled'"}},{"decorators":[],"kind":{"Literal":"'OnDeck'"}},{"decorators":[],"kind":{"Literal":"'Waiting'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Status","span":{"end":189,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("Status")
+
+## Buildtime dependencies
+
+(none)

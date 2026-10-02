@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/enum_clone_numeric.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_clone_numeric.ts
 ---
 ## Input
 
@@ -11,6 +11,10 @@ enum Priority {
     Medium = 2,
     High = 3
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -45,5 +49,24 @@ namespace Priority {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..81 -> expanded 0..60
+original 81..82 -> expanded 234..235
+generated 60..172 <- Clone
+generated 172..234 <- __convenience_const
+
+## Metadata
+
+enum Priority: {"body_span":{"end":82,"start":37},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":22,"start":1}}],"is_const":false,"name":"Priority","span":{"end":82,"start":23},"variants":[{"decorators":[],"name":"Low","span":{"end":50,"start":43},"value":{"Number":1.0}},{"decorators":[],"name":"Medium","span":{"end":66,"start":56},"value":{"Number":2.0}},{"decorators":[],"name":"High","span":{"end":80,"start":72},"value":{"Number":3.0}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

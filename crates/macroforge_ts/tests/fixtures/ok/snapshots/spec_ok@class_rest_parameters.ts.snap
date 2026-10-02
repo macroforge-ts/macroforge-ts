@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_rest_parameters.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_rest_parameters.ts
 ---
 ## Input
 
@@ -26,6 +25,10 @@ class EventEmitter {
         callbacks.forEach((cb) => cb(...args));
     }
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -86,5 +89,26 @@ export function eventEmitterClone(value: EventEmitter): EventEmitter {
                 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 62..555 -> expanded 41..534
+original 555..556 -> expanded 655..656
+original 556..557 -> expanded 927..928
+generated 534..655 <- Clone
+generated 656..927 <- Clone
+
+## Metadata
+
+class EventEmitter: {"body_span":{"end":557,"start":83},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"listeners","optional":false,"readonly":false,"span":{"end":124,"start":89},"ts_type":"Map<string, Function[]>","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":187,"start":144},"body_src":"\n        this.listeners = new Map();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"","return_type_src":"","span":{"end":187,"start":130},"type_params_src":"","visibility":"Public"},{"body_span":{"end":393,"start":264},"body_src":"\n        const existing = this.listeners.get(event) || [];\n        this.listeners.set(event, [...existing, ...callbacks]);\n    ","decorators":[],"is_async":false,"is_static":false,"name":"on","params_src":"event: string, ...callbacks: Array<(...args: any[]) => void>","return_type_src":"void","span":{"end":393,"start":193},"type_params_src":"","visibility":"Public"},{"body_span":{"end":555,"start":441},"body_src":"\n        const callbacks = this.listeners.get(event) || [];\n        callbacks.forEach((cb) => cb(...args));\n    ","decorators":[],"is_async":false,"is_static":false,"name":"emit","params_src":"event: string, ...args: any[]","return_type_src":"void","span":{"end":555,"start":399},"type_params_src":"","visibility":"Public"}],"name":"EventEmitter","span":{"end":557,"start":64},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

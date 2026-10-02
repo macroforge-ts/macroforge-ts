@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_deserialize_data.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_deserialize_data.ts
 ---
 ## Input
 
@@ -12,6 +11,10 @@ import { Derive } from '@macro/derive';
 class Data {
     val: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -118,9 +121,6 @@ constructor(props: { val: number }) {
 
             ctx.trackForFreeze(instance);{
                             const __raw_val = obj["val"] as number;instance.val = __raw_val;
-
-
-
 
 
 
@@ -841,9 +841,6 @@ constructor(props: { val: number }) {
 
 
 
-
-
-
                         }
 
 
@@ -944,5 +941,26 @@ constructor(props: { val: number }) {
         }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 68..99 -> expanded 41..72
+original 99..100 -> expanded 4379..4380
+original 100..101 -> expanded 5561..5562
+generated 72..4379 <- Deserialize
+generated 4380..5561 <- Deserialize
+
+## Metadata
+
+class Data: {"body_span":{"end":101,"start":81},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":69,"start":42}}],"fields":[{"decorators":[],"name":"val","optional":false,"readonly":false,"span":{"end":99,"start":87},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":101,"start":70},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

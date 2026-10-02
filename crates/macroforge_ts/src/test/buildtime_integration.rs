@@ -19,7 +19,10 @@ fn default_options() -> ExpandOptions {
         config_path: None,
         type_registry_json: None,
         declarative_registry_json: None,
+        type_registry_id: None,
+        declarative_registry_id: None,
         build_mode: None,
+        emit_metadata: None,
     }
 }
 
@@ -51,7 +54,7 @@ fn pipeline_passes_through_when_no_buildtime() {
 const Y = 2;
 "#;
     let result = expand(src);
-    // No @buildtime, no @derive, no macros — should round-trip untouched
+    // No @buildtime, no @derive, no macros, so it should round-trip untouched
     // via the early bailout path.
     assert_eq!(result.code, src);
     assert!(result.buildtime_dependencies.is_empty());

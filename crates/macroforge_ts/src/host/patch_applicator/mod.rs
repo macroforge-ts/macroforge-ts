@@ -18,7 +18,7 @@
 //!
 //! ## Application Strategy
 //!
-//! Patches are sorted by position and validated first — two patches
+//! Patches are sorted by position and validated first: two patches
 //! covering overlapping spans are a hard error. `PatchApplicator::apply`
 //! then applies them in *reverse* order (end of file toward the start) so
 //! earlier offsets stay valid, while `apply_with_mapping` walks forward,
@@ -86,7 +86,7 @@
 //!     collector.add_runtime_patches(vec![debug_patch]);
 //!
 //!     // Apply all collected patches
-//!     let runtime_result = collector.apply_runtime_patches_with_mapping(source, None)?;
+//!     let (runtime_result, _type_output) = collector.apply(source, None)?;
 //!     Ok(())
 //! }
 //! ```

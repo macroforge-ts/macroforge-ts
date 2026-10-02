@@ -1,22 +1,24 @@
 <script lang="ts">
     import CodeBlock from "$lib/components/ui/CodeBlock.svelte";
+    import Alert from "$lib/components/ui/Alert.svelte";
+    import { resolve } from "$app/paths";
 </script>
 
 <svelte:head>
     <title>Template Syntax - Macroforge Documentation</title>
     <meta
         name="description"
-        content="Learn the ts_template syntax for generating TypeScript code in macros."
+        content="Learn the ts_template syntax for generating TypeScript code in macros, and ts_quote for building AST nodes."
     />
 </svelte:head>
 
 <h1>Template Syntax</h1>
 
 <p class="lead">
-    The <code>macroforge_ts_quote</code> crate provides template-based code
-    generation for TypeScript. The <code>ts_template!</code> macro uses Svelte + Rust-inspired
-    syntax for control flow and interpolation, making it easy to generate complex
-    TypeScript code.
+    The <code>macroforge_ts_quote</code> crate provides two macros for generating TypeScript.
+    <code>ts_template!</code> writes TypeScript as text, with Svelte-like control flow and
+    Rust interpolation; it is what most macros use. <code>ts_quote!</code> builds a single
+    AST node and checks its syntax when your crate compiles.
 </p>
 
 <h2 id="macros">Available Macros</h2>
@@ -32,13 +34,23 @@
     <tbody>
         <tr>
             <td><code>ts_template!</code></td>
-            <td>Any TypeScript code</td>
-            <td>General code generation</td>
+            <td>A <code>TsStream</code> of TypeScript source</td>
+            <td>Generating code: methods, functions, declarations</td>
         </tr>
         <tr>
             <td><code>ts_template!(Within &lbrace; … &rbrace;)</code></td>
-            <td>Class body members</td>
-            <td>Methods and properties</td>
+            <td>The same, placed in the class body</td>
+            <td>Methods and properties; see <a href="#positions">Positions</a></td>
+        </tr>
+        <tr>
+            <td><code>ts_quote!</code></td>
+            <td>One oxc AST node</td>
+            <td>Building or inspecting syntax trees; see <a href="#ts-quote">ts_quote!</a></td>
+        </tr>
+        <tr>
+            <td><code>ts_ident!</code></td>
+            <td>An identifier</td>
+            <td>Names built from strings; see <a href="#ts-ident">ts_ident!</a></td>
         </tr>
     </tbody>
 </table>
@@ -55,37 +67,7 @@
     <tbody>
         <tr>
             <td><code>@&#123;expr&#125;</code></td>
-            <td>Interpolate a Rust expression (adds space after)</td>
-        </tr>
-        <tr>
-            <td><code>&#123;| content |&#125;</code></td>
-            <td
-                >Ident block: concatenates without spaces (e.g., <code
-                    >&#123;|get@&#123;name&#125;|&#125;</code
-                >
-                → <code>getUser</code>)</td
-            >
-        </tr>
-        <tr>
-            <td><code>&#123;&gt; "comment" &lt;&#125;</code></td>
-            <td
-                >Line comment: outputs <code>// comment</code> (string preserves
-                whitespace)</td
-            >
-        </tr>
-        <tr>
-            <td><code>&#123;&gt;&gt; "doc" &lt;&lt;&#125;</code></td>
-            <td
-                >Block comment: outputs <code>/* comment */</code> (string preserves whitespace)</td
-            >
-        </tr>
-        <tr>
-            <td><code>@@&#123;</code></td>
-            <td
-                >Escape for literal <code>@&#123;</code> (e.g.,
-                <code>"@@&#123;foo&#125;"</code>
-                → <code>@&#123;foo&#125;</code>)</td
-            >
+            <td>Interpolate a Rust expression</td>
         </tr>
         <tr>
             <td><code>"text @&#123;expr&#125;"</code></td>
@@ -93,55 +75,46 @@
         </tr>
         <tr>
             <td><code>"'^template $&#123;js&#125;^'"</code></td>
-            <td
-                >JS backtick template literal (outputs <code
-                    >`template $&#123;js&#125;`</code
-                >)</td
-            >
+            <td>JS backtick template literal (outputs <code>`template $&#123;js&#125;`</code>)</td>
+        </tr>
+        <tr>
+            <td><code>@@&#123;</code></td>
+            <td>Escape for literal <code>@&#123;</code> (e.g., <code>"@@&#123;foo&#125;"</code> → <code>@&#123;foo&#125;</code>)</td>
+        </tr>
+        <tr>
+            <td><code>&#123;&gt; "comment" &lt;&#125;</code></td>
+            <td>Line comment: outputs <code>// comment</code></td>
+        </tr>
+        <tr>
+            <td><code>&#123;&gt;&gt; "comment" &lt;&lt;&#125;</code></td>
+            <td>Block comment: outputs <code>/* comment */</code></td>
+        </tr>
+        <tr>
+            <td><code>/// text</code> or <code>/** text */</code></td>
+            <td>JSDoc comment: outputs <code>/** text */</code></td>
         </tr>
         <tr>
             <td><code>&#123;#if cond&#125;...&#123;/if&#125;</code></td>
             <td>Conditional block</td>
         </tr>
         <tr>
-            <td
-                ><code
-                    >&#123;#if cond&#125;...&#123;:else&#125;...&#123;/if&#125;</code
-                ></td
-            >
+            <td><code>&#123;#if cond&#125;...&#123;:else&#125;...&#123;/if&#125;</code></td>
             <td>Conditional with else</td>
         </tr>
         <tr>
-            <td
-                ><code
-                    >&#123;#if a&#125;...&#123;:else if
-                    b&#125;...&#123;:else&#125;...&#123;/if&#125;</code
-                ></td
-            >
+            <td><code>&#123;#if a&#125;...&#123;:else if b&#125;...&#123;:else&#125;...&#123;/if&#125;</code></td>
             <td>Full if/else-if/else chain</td>
         </tr>
         <tr>
-            <td
-                ><code
-                    >&#123;#if let pattern = expr&#125;...&#123;/if&#125;</code
-                ></td
-            >
+            <td><code>&#123;#if let pattern = expr&#125;...&#123;/if&#125;</code></td>
             <td>Pattern matching if-let</td>
         </tr>
         <tr>
-            <td
-                ><code
-                    >&#123;#match expr&#125;&#123;:case
-                    pattern&#125;...&#123;/match&#125;</code
-                ></td
-            >
+            <td><code>&#123;#match expr&#125;&#123;:case pattern&#125;...&#123;/match&#125;</code></td>
             <td>Match expression with case arms</td>
         </tr>
         <tr>
-            <td
-                ><code>&#123;#for item in list&#125;...&#123;/for&#125;</code
-                ></td
-            >
+            <td><code>&#123;#for item in list&#125;...&#123;/for&#125;</code></td>
             <td>Iterate over a collection</td>
         </tr>
         <tr>
@@ -149,24 +122,16 @@
             <td>While loop</td>
         </tr>
         <tr>
-            <td
-                ><code
-                    >&#123;#while let pattern = expr&#125;...&#123;/while&#125;</code
-                ></td
-            >
+            <td><code>&#123;#while let pattern = expr&#125;...&#123;/while&#125;</code></td>
             <td>While-let pattern matching loop</td>
         </tr>
         <tr>
             <td><code>&#123;$let name = expr&#125;</code></td>
-            <td>Define a local constant</td>
+            <td>Define a local constant (<code>&#123;%let&#125;</code> is the same)</td>
         </tr>
         <tr>
             <td><code>&#123;$let mut name = expr&#125;</code></td>
             <td>Define a mutable local variable</td>
-        </tr>
-        <tr>
-            <td><code>&#123;%let name = expr&#125;</code></td>
-            <td>Bind a Rust variable (alternate syntax for <code>&#123;$let&#125;</code>)</td>
         </tr>
         <tr>
             <td><code>&#123;$do expr&#125;</code></td>
@@ -174,18 +139,39 @@
         </tr>
         <tr>
             <td><code>&#123;$typescript stream&#125;</code></td>
-            <td
-                >Inject a TsStream, preserving its source and runtime_patches
-                (imports)</td
-            >
+            <td>Inject a <code>TsStream</code>, with its patches, imports and warnings</td>
         </tr>
     </tbody>
 </table>
 
 <p>
-    <strong>Note:</strong> A single <code>@</code> not followed by
-    <code>&#123;</code>
-    passes through unchanged (e.g., <code>email@domain.com</code> works as expected).
+    <strong>Note:</strong> A single <code>@</code> not followed by <code>&#123;</code> passes
+    through unchanged (e.g., <code>email@domain.com</code> works as expected).
+</p>
+
+<h2 id="positions">Positions</h2>
+
+<p>
+    A template's first word can say where a derive's code goes: <code>Top</code> or
+    <code>Bottom</code> of the file, <code>Above</code> or <code>Below</code> the target, or
+    <code>Within</code> the class body. Without one, the code goes <code>Below</code>.
+</p>
+
+<CodeBlock
+    code={`let members = ts_template!(Within {
+    toString(): string { return "User"; }
+});
+
+let setup = ts_template!(Top {
+    const registry = new Map<string, unknown>();
+});`}
+    lang="rust"
+/>
+
+<p>
+    A template with a position marks its code with it, so the position holds when the stream is
+    injected into another template. See
+    <a href={resolve('/docs/custom-macros/output#insert-positions')}>Insert Positions</a>.
 </p>
 
 <h2 id="interpolation">Interpolation: <code>@&#123;expr&#125;</code></h2>
@@ -207,156 +193,47 @@ let code = ts_template! {
 <p><strong>Generates:</strong></p>
 
 <CodeBlock
-    code={`User.prototype.toString = function () {
-  return "User instance";
+    code={`User.prototype.toString = function() {
+    return "User instance";
 };`}
     lang="typescript"
 />
 
-<h2 id="ident-blocks">
-    Identifier Concatenation: <code>&#123;| content |&#125;</code>
-</h2>
+<p>
+    <code>@&#123;expr&#125;</code> accepts any value that implements <code>ToTsString</code>:
+    strings, numbers, booleans and <code>char</code>, the identifiers <code>ts_ident!</code>
+    makes, a <code>TsStream</code>, and references or smart pointers to any of them.
+</p>
+
+<h3 id="spacing">Spacing</h3>
 
 <p>
-    When you need to build identifiers dynamically (like <code>getUser</code>,
-    <code>setName</code>), use the ident block syntax. Everything inside
-    <code>&#123;| |&#125;</code> is concatenated without spaces:
+    The output keeps the spacing of the template as written. Tokens written next to each other
+    stay joined, and tokens with space between them stay apart, so building identifiers needs no
+    special syntax:
 </p>
 
 <CodeBlock
-    code={`let field_name = "User";
+    code={`let name = "User";
 
 let code = ts_template! {
-    function get@{field_name}() {
-        return this.@{field_name.to_lowercase()};
-    }
+    function get@{name}(): @{name} { ... }   // function getUser(): User { ... }
+    const @{name.to_lowercase()}_id = 1;     // const user_id = 1;
 };`}
     lang="rust"
-/>
-
-<p><strong>Generates:</strong></p>
-
-<CodeBlock
-    code={`function getUser() {
-  return this.user;
-}`}
-    lang="typescript"
 />
 
 <p>
-    Without ident blocks, <code>@&#123;&#125;</code> always adds a space after
-    for readability. Use <code>&#123;| |&#125;</code> when you explicitly want concatenation:
+    Line breaks and indentation follow the template too, so the generated code is laid out the
+    way the template is.
 </p>
-
-<CodeBlock
-    code={`let name = "Status";
-
-// With space (default behavior)
-ts_template! { namespace @{name} }  // → "namespace Status"
-
-// Without space (ident block)
-ts_template! { namespace@{name} }  // → "namespaceStatus"`}
-    lang="rust"
-/>
-
-<p>Multiple interpolations can be combined:</p>
-
-<CodeBlock
-    code={`let entity = "user";
-let action = "create";
-
-ts_template! { @{entity}_@{action} }  // → "user_create"`}
-    lang="rust"
-/>
-
-<h2 id="comments">
-    Comments: <code>&#123;&gt; "..." &lt;&#125;</code> and
-    <code>&#123;&gt;&gt; "..." &lt;&lt;&#125;</code>
-</h2>
-
-<p>
-    Since Rust's tokenizer strips whitespace before macros see them, use string
-    literals to preserve exact spacing in comments:
-</p>
-
-<h3>Block Comments</h3>
-
-<p>Use <code>&#123;&gt; "comment" &lt;&#125;</code> for block comments:</p>
-
-<CodeBlock
-    code={`let code = ts_template! {
-    {> "This is a block comment" <}
-    const x = 42;
-};`}
-    lang="rust"
-/>
-
-<p><strong>Generates:</strong></p>
-
-<CodeBlock
-    code={`/* This is a block comment */
-const x = 42;`}
-    lang="typescript"
-/>
-
-<h3>Doc Comments (JSDoc)</h3>
-
-<p>Use <code>&#123;&gt;&gt; "doc" &lt;&lt;&#125;</code> for JSDoc comments:</p>
-
-<CodeBlock
-    code={`let code = ts_template! {
-    {>> "@param {string} name - The user's name" <<}
-    {>> "@returns {string} A greeting message" <<}
-    function greet(name: string): string {
-        return "Hello, " + name;
-    }
-};`}
-    lang="rust"
-/>
-
-<p><strong>Generates:</strong></p>
-
-<CodeBlock
-    code={`/** @param {string} name - The user's name */
-/** @returns {string} A greeting message */
-function greet(name: string): string {
-    return "Hello, " + name;
-}`}
-    lang="typescript"
-/>
-
-<h3>Comments with Interpolation</h3>
-
-<p>Use <code>format!()</code> or similar to build dynamic comment strings:</p>
-
-<CodeBlock
-    code={`let param_name = "userId";
-let param_type = "number";
-let comment = format!("@param {{{}}} {} - The user ID", param_type, param_name);
-
-let code = ts_template! {
-    {>> @{comment} <<}
-    function getUser(userId: number) {}
-};`}
-    lang="rust"
-/>
-
-<p><strong>Generates:</strong></p>
-
-<CodeBlock
-    code={`/** @param {number} userId - The user ID */
-function getUser(userId: number) {}`}
-    lang="typescript"
-/>
 
 <h2 id="string-interpolation">
     String Interpolation: <code>"text @&#123;expr&#125;"</code>
 </h2>
 
 <p>
-    Interpolation works automatically inside string literals - no <code
-        >format!()</code
-    > needed:
+    Interpolation works automatically inside string literals - no <code>format!()</code> needed:
 </p>
 
 <CodeBlock
@@ -389,16 +266,17 @@ let code = ts_template! {
     lang="rust"
 />
 
+<p>
+    Text inside <code>@&#123;...&#125;</code> that is not a Rust expression is a compile error.
+</p>
+
 <h2 id="backtick-templates">
     Backtick Template Literals: <code>"'^...^'"</code>
 </h2>
 
 <p>
-    For JavaScript template literals (backtick strings), use the <code
-        >'^...^'</code
-    >
-    syntax. This outputs actual backticks and passes through
-    <code>${"${}"}</code> for JS interpolation:
+    For JavaScript template literals (backtick strings), use the <code>'^...^'</code> syntax.
+    This outputs actual backticks and passes through <code>${"${}"}</code> for JS interpolation:
 </p>
 
 <CodeBlock
@@ -415,9 +293,8 @@ let code = ts_template! {
 <CodeBlock code={"const html = `<div>${content}</div>`;"} lang="typescript" />
 
 <p>
-    You can mix Rust <code>@&#123;&#125;</code> interpolation (evaluated at
-    macro expansion time) with JS <code>${"${}"}</code> interpolation (evaluated at
-    runtime):
+    You can mix Rust <code>@&#123;&#125;</code> interpolation (evaluated at macro expansion
+    time) with JS <code>${"${}"}</code> interpolation (evaluated at runtime):
 </p>
 
 <CodeBlock
@@ -432,6 +309,64 @@ let code = ts_template! {
 <p><strong>Generates:</strong></p>
 
 <CodeBlock code={"`Hello ${this.name}, you are a User`"} lang="typescript" />
+
+<h2 id="comments">Comments</h2>
+
+<p>
+    Rust's tokenizer drops ordinary comments before a macro sees them, so a template marks the
+    comments it wants to emit. Write the comment as a string literal; <code>@&#123;&#125;</code>
+    is interpolated in it:
+</p>
+
+<CodeBlock
+    code={`let name = "User";
+
+let code = ts_template! {
+    {> "Generated for @{name}" <}
+    {>> "Do not edit" <<}
+    const version = 1;
+};`}
+    lang="rust"
+/>
+
+<p><strong>Generates:</strong></p>
+
+<CodeBlock
+    code={`// Generated for User
+/* Do not edit */
+const version = 1;`}
+    lang="typescript"
+/>
+
+<p>
+    A line comment whose text has several lines gets <code>//</code> on each, and a
+    <code>*/</code> in a block comment's text is broken up, so the comment never ends early.
+</p>
+
+<h3 id="doc-comments">Doc Comments (JSDoc)</h3>
+
+<p>
+    A Rust doc comment inside a template, <code>///</code> or <code>/** ... */</code>, becomes a
+    JSDoc comment, with <code>@&#123;&#125;</code> interpolated:
+</p>
+
+<CodeBlock
+    code={`let field = "email";
+
+let code = ts_template! {
+    /// Returns the @{field} field.
+    get@{field}(): string { return this.@{field}; }
+};`}
+    lang="rust"
+/>
+
+<p><strong>Generates:</strong></p>
+
+<CodeBlock
+    code={`/** Returns the email field. */
+getemail(): string { return this.email; }`}
+    lang="typescript"
+/>
 
 <h2 id="conditionals">
     Conditionals: <code>&#123;#if&#125;...&#123;/if&#125;</code>
@@ -490,8 +425,8 @@ let code = ts_template! {
 </h2>
 
 <p>
-    Use <code>if let</code> for pattern matching on <code>Option</code>,
-    <code>Result</code>, or other Rust enums:
+    Use <code>if let</code> for pattern matching on <code>Option</code>, <code>Result</code>, or
+    other Rust enums:
 </p>
 
 <CodeBlock
@@ -515,11 +450,11 @@ let code = ts_template! {
 
 <CodeBlock
     code={`let code = ts_template! {
-    {#if let Some(default_val) = field.default_value}
-        this.@{field.name} = @{default_val};
-    {:else}
-        this.@{field.name} = undefined;
-    {/if}
+    {#for variant in enum_.variants()}
+        {#if let Some(text) = variant.value.as_string()}
+            case "@{text}": return "@{variant.name}";
+        {/if}
+    {/for}
 };`}
     lang="rust"
 />
@@ -531,11 +466,10 @@ let code = ts_template! {
 <p>Use <code>match</code> for exhaustive pattern matching:</p>
 
 <CodeBlock
-    code={`enum Visibility { Public, Private, Protected }
-let visibility = Visibility::Public;
+    code={`use macroforge_ts::ts_syn::Visibility;
 
 let code = ts_template! {
-    {#match visibility}
+    {#match field.visibility}
         {:case Visibility::Public}
             public
         {:case Visibility::Private}
@@ -543,14 +477,10 @@ let code = ts_template! {
         {:case Visibility::Protected}
             protected
     {/match}
-    field: string;
+    @{field.name}: string;
 };`}
     lang="rust"
 />
-
-<p><strong>Generates:</strong></p>
-
-<CodeBlock code={`public field: string;`} lang="typescript" />
 
 <h3>Match with Value Extraction</h3>
 
@@ -607,11 +537,11 @@ let code = ts_template! {
 
 <CodeBlock
     code={`function toJSON() {
-  const result = {};
-  result.name = this.name;
-  result.email = this.email;
-  result.age = this.age;
-  return result;
+    const result = {};
+    result.name = this.name;
+    result.email = this.email;
+    result.age = this.age;
+    return result;
 }`}
     lang="typescript"
 />
@@ -653,13 +583,10 @@ ts_template! {
 
 <h2 id="while-loops">While Loops: <code>&#123;#while&#125;</code></h2>
 
-<p>
-    Use <code>while</code> for loops that need to continue until a condition is false:
-</p>
+<p>Use <code>while</code> for loops that need to continue until a condition is false:</p>
 
 <CodeBlock
-    code={`let items = get_items();
-let mut idx = 0;
+    code={`let items = vec!["a", "b", "c"];
 
 let code = ts_template! {
     {$let mut i = 0}
@@ -674,8 +601,7 @@ let code = ts_template! {
 <h3>While-Let Pattern Matching</h3>
 
 <p>
-    Use <code>while let</code> for iterating with pattern matching, similar to
-    <code>if let</code>:
+    Use <code>while let</code> for iterating with pattern matching, similar to <code>if let</code>:
 </p>
 
 <CodeBlock
@@ -698,20 +624,6 @@ console.log("c");`}
     lang="typescript"
 />
 
-<p>
-    This is especially useful when working with iterators or consuming optional
-    values:
-</p>
-
-<CodeBlock
-    code={`let code = ts_template! {
-    {#while let Some(next_field) = remaining_fields.pop()}
-        result.@{next_field.name} = this.@{next_field.name};
-    {/while}
-};`}
-    lang="rust"
-/>
-
 <h2 id="local-variables">Local Constants: <code>&#123;$let&#125;</code></h2>
 
 <p>Define local variables within the template scope:</p>
@@ -730,8 +642,7 @@ let code = ts_template! {
 />
 
 <p>
-    This is useful for computing derived values inside loops without cluttering
-    the Rust code.
+    This is useful for computing derived values inside loops without cluttering the Rust code.
 </p>
 
 <h2 id="mutable-variables">
@@ -739,10 +650,8 @@ let code = ts_template! {
 </h2>
 
 <p>
-    When you need to modify a variable within the template (e.g., in a <code
-        >while</code
-    >
-    loop), use <code>&#123;$let mut&#125;</code>:
+    When you need to modify a variable within the template (e.g., in a <code>while</code> loop),
+    use <code>&#123;$let mut&#125;</code>:
 </p>
 
 <CodeBlock
@@ -760,8 +669,8 @@ let code = ts_template! {
 <h2 id="side-effects">Side Effects: <code>&#123;$do&#125;</code></h2>
 
 <p>
-    Execute an expression for its side effects without producing output. This is
-    commonly used with mutable variables:
+    Execute an expression for its side effects without producing output. This is commonly used
+    with mutable variables:
 </p>
 
 <CodeBlock
@@ -789,18 +698,20 @@ let code = ts_template! {
 </h2>
 
 <p>
-    Inject another TsStream into your template, preserving both its source code
-    and runtime patches (like imports added via <code>add_import()</code>):
+    Inject another <code>TsStream</code> into your template. Its source joins the output, and
+    everything else it carries comes along: patches, cross-module suffixes and warnings.
+    Imports requested with <code>add_import()</code> apply to the whole expansion whichever
+    stream asked for them.
 </p>
 
 <CodeBlock
     code={`// Create a helper method with its own import
 let mut helper = ts_template!(Within {
     validateEmail(email: string): boolean {
-        return Result.ok(true);
+        return isEmail(email);
     }
 });
-helper.add_import("Result", "@macroforge/core/utils");
+helper.add_import("isEmail", "my-validation-lib");
 
 // Inject the helper into the main template
 let result = ts_template!(Within {
@@ -809,14 +720,13 @@ let result = ts_template!(Within {
     process(data: Record<string, unknown>): void {
         // ...
     }
-});
-// result now includes helper's source AND its Result import`}
+});`}
     lang="rust"
 />
 
 <p>
-    This is essential for composing multiple macro outputs while preserving
-    imports and patches:
+    The injected value must be a <code>TsStream</code> you own; injection moves it. This is how
+    optional parts of a macro's output are composed:
 </p>
 
 <CodeBlock
@@ -841,13 +751,12 @@ ts_template!(Within {
 <h2 id="escape-syntax">Escape Syntax</h2>
 
 <p>
-    If you need a literal <code>@&#123;</code> in your output (not
-    interpolation), use <code>@@&#123;</code>:
+    If you need a literal <code>@&#123;</code> in your output (not interpolation), use
+    <code>@@&#123;</code>:
 </p>
 
 <CodeBlock
     code={`ts_template! {
-    // This outputs a literal @{foo}
     const example = "Use @@{foo} for templates";
 }`}
     lang="rust"
@@ -855,123 +764,19 @@ ts_template!(Within {
 
 <p><strong>Generates:</strong></p>
 
-<CodeBlock
-    code={`// This outputs a literal @{foo}
-const example = "Use @{foo} for templates";`}
-    lang="typescript"
-/>
-
-<h2 id="complete-example">Complete Example: JSON Derive Macro</h2>
-
-<p>
-    Here's a comparison showing how <code>ts_template!</code> simplifies code generation:
-</p>
-
-<h3>Before (Manual String Building)</h3>
-
-<CodeBlock
-    code={`pub fn derive_json_macro(input: TsStream) -> MacroResult {
-    let input = parse_ts_macro_input!(input as DeriveInput);
-
-    match &input.data {
-        Data::Class(class) => {
-            let class_name = input.name();
-
-            let mut body = String::from("const result = {};\\n");
-            for field_name in class.field_names() {
-                body.push_str(&format!("result.{field_name} = this.{field_name};\\n"));
-            }
-            body.push_str("return result;");
-
-            let runtime_code = TsStream::from_string(format!(
-                "{class_name}.prototype.toJSON = function() {{\\n{body}\\n}};"
-            ));
-
-            // ...
-        }
-    }
-}`}
-    lang="rust"
-/>
-
-<h3>After (With ts_template!)</h3>
-
-<CodeBlock
-    code={`pub fn derive_json_macro(input: TsStream) -> MacroResult {
-    let input = parse_ts_macro_input!(input as DeriveInput);
-
-    match &input.data {
-        Data::Class(class) => {
-            let class_name = input.name();
-            let fields = class.field_names();
-
-            let runtime_code = ts_template! {
-                @{class_name}.prototype.toJSON = function() {
-                    const result = {};
-                    {#for field in fields}
-                        result.@{field} = this.@{field};
-                    {/for}
-                    return result;
-                };
-            };
-
-            // ...
-        }
-    }
-}`}
-    lang="rust"
-/>
-
-<h2 id="how-it-works">How It Works</h2>
-
-<ol>
-    <li>
-        <strong>Rust Compile Time:</strong> The template is parsed during macro expansion
-    </li>
-    <li>
-        <strong>String Building:</strong> Generates Rust code that builds a TypeScript
-        string at runtime
-    </li>
-    <li>
-        <strong>Parsing:</strong> The generated string is parsed with oxc to produce a
-        typed AST.
-    </li>
-    <li>
-        <strong>Result:</strong> Returns a <code>TsStream</code> that can be returned
-        directly as macro output
-    </li>
-</ol>
-
-<h2 id="return-type">Return Type</h2>
-
-<p>
-    <code>ts_template!</code> returns a <code>TsStream</code>, which is what a macro
-    function returns as its output. If the generated source fails to parse, the macro
-    reports an error showing the generated TypeScript:
-</p>
-
-<CodeBlock
-    code={`Failed to parse generated TypeScript:
-User.prototype.toJSON = function( {
-    return {};
-}`}
-    lang="text"
-/>
-
-<p>This shows you exactly what was generated, making debugging easy!</p>
+<CodeBlock code={`const example = "Use @{foo} for templates";`} lang="typescript" />
 
 <h2 id="nesting">Nesting and Regular TypeScript</h2>
 
 <p>
-    You can mix template syntax with regular TypeScript. Braces <code
-        >&#123;&#125;</code
-    > are recognized as either:
+    You can mix template syntax with regular TypeScript. Braces <code>&#123;&#125;</code> are
+    recognized as either:
 </p>
 
 <ul>
     <li>
-        <strong>Template tags</strong> if they start with <code>#</code>,
-        <code>$</code>, <code>:</code>, or <code>/</code>
+        <strong>Template tags</strong> if they start with <code>#</code>, <code>:</code>,
+        <code>/</code>, <code>$</code>, <code>%</code> or <code>&gt;</code>
     </li>
     <li><strong>Regular TypeScript blocks</strong> otherwise</li>
 </ul>
@@ -990,42 +795,179 @@ User.prototype.toJSON = function( {
     lang="rust"
 />
 
-<h2 id="comparison">Comparison with Alternatives</h2>
+<h2 id="ts-ident">Identifiers: <code>ts_ident!</code></h2>
+
+<p>
+    <code>ts_ident!</code> makes an identifier from a string or a format string. It is handy for
+    names a macro passes around before interpolating them:
+</p>
+
+<CodeBlock
+    code={`use macroforge_ts::ts_syn::ts_ident;
+
+let type_name = input.name();
+let serialize_fn = ts_ident!("{}Serialize", type_name.to_lowercase()); // userSerialize
+
+let code = ts_template! {
+    export function @{serialize_fn}(value: @{type_name}): string { ... }
+};`}
+    lang="rust"
+/>
+
+<Alert type="note">
+    <span>
+        <code>DeriveInput</code>'s <code>ident</code> field is a different identifier type, one
+        that records where the name is. To write a type's name, use <code>input.name()</code>.
+    </span>
+</Alert>
+
+<h2 id="ts-quote">AST Nodes: <code>ts_quote!</code></h2>
+
+<p>
+    <code>ts_quote!</code> parses a TypeScript snippet when your crate compiles, so a syntax
+    error is a compile error, and builds it as an oxc AST node at run time. <code>$name</code>
+    placeholders are filled from the variables after the snippet:
+</p>
+
+<CodeBlock
+    code={`use macroforge_ts::macros::ts_quote;
+use macroforge_ts::ts_syn::oxc::allocator::Allocator;
+use macroforge_ts::ts_syn::{expr_to_string, parse_expr};
+
+let arena = Allocator::default();
+let rhs = parse_expr(&arena, "1 + 2").expect("a valid expression");
+
+// $name takes an identifier (the default); $rhs an expression
+let assignment = ts_quote!("$name = $rhs" as Expr, name = "count", rhs: Expr = rhs);
+assert_eq!(expr_to_string(&assignment), "count = 1 + 2");`}
+    lang="rust"
+/>
+
+<p>
+    The node lives in an oxc arena: the <code>arena</code> variable in scope, or one passed first,
+    as in <code>ts_quote!(&amp;other_arena, "a + b" as Expr)</code>.
+</p>
 
 <table>
     <thead>
         <tr>
-            <th>Approach</th>
-            <th>Pros</th>
-            <th>Cons</th>
+            <th><code>as</code></th>
+            <th>Builds</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td><code>ts_quote!</code></td>
-            <td>Rust compile-time validation, type-safe</td>
-            <td>Can't handle Vec&lt;Stmt&gt;, verbose</td>
-        </tr>
-        <tr>
-            <td><code>parse_expr()</code>, <code>parse_statement()</code></td>
-            <td>Maximum flexibility</td>
-            <td>Runtime parsing, less readable</td>
-        </tr>
-        <tr>
-            <td><code>ts_template!</code></td>
-            <td>Readable, handles loops/conditions</td>
-            <td>Small runtime parsing overhead</td>
-        </tr>
+        <tr><td><code>Expr</code></td><td>An expression</td></tr>
+        <tr><td><code>Stmt</code></td><td>A statement</td></tr>
+        <tr><td><code>ModuleItem</code></td><td>A top-level item, such as a declaration or import</td></tr>
+        <tr><td><code>Program</code></td><td>A whole program</td></tr>
+        <tr><td><code>Pat</code></td><td>A binding pattern</td></tr>
+        <tr><td><code>AssignTarget</code></td><td>The left side of an assignment</td></tr>
+        <tr><td><code>TsType</code></td><td>A type</td></tr>
+        <tr><td><code>PropOrSpread</code></td><td>An object property or spread</td></tr>
     </tbody>
 </table>
 
-<h2 id="best-practices">Best Practices</h2>
+<p>
+    A variable's type says what its placeholder holds: <code>Ident</code> (the default, from a
+    string), <code>Expr</code>, <code>Pat</code>, <code>Str</code> (a string literal's text),
+    <code>AssignTarget</code> or <code>TsType</code>.
+</p>
+
+<p>
+    <code>parse_expr</code>, <code>parse_statement</code>, <code>parse_module_item</code>,
+    <code>parse_program</code>, <code>parse_type</code>, <code>parse_binding_pattern</code>,
+    <code>parse_assignment_target</code> and <code>parse_prop_or_spread</code> parse text into
+    the same nodes, and <code>expr_to_string</code>, <code>stmt_to_string</code>,
+    <code>type_to_string</code>, <code>binding_pattern_to_string</code>,
+    <code>assignment_target_to_string</code> and <code>string_literal_to_string</code> print them
+    back, for example to interpolate into a <code>ts_template!</code>.
+</p>
+
+<h2 id="complete-example">Complete Example: JSON Derive Macro</h2>
+
+<p>
+    Here's a comparison showing how <code>ts_template!</code> simplifies code generation:
+</p>
+
+<h3>Before (Manual String Building)</h3>
+
+<CodeBlock
+    code={`#[ts_macro_derive(JSON)]
+pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
+    let input = parse_ts_macro_input!(input as DeriveInput);
+    let Some(class) = input.as_class() else {
+        return Err(MacroforgeError::new(input.error_span(), "@derive(JSON) needs a class"));
+    };
+
+    let mut body = String::from("const result = {};\\n");
+    for field_name in class.field_names() {
+        body.push_str(&format!("result.{field_name} = this.{field_name};\\n"));
+    }
+    body.push_str("return result;");
+
+    Ok(TsStream::from_string(format!(
+        "{}.prototype.toJSON = function() {{\\n{body}\\n}};",
+        input.name()
+    )))
+}`}
+    lang="rust"
+/>
+
+<h3>After (With ts_template!)</h3>
+
+<CodeBlock
+    code={`#[ts_macro_derive(JSON)]
+pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
+    let input = parse_ts_macro_input!(input as DeriveInput);
+    let Some(class) = input.as_class() else {
+        return Err(MacroforgeError::new(input.error_span(), "@derive(JSON) needs a class"));
+    };
+    let class_name = input.name();
+
+    Ok(ts_template! {
+        @{class_name}.prototype.toJSON = function() {
+            const result = {};
+            {#for field in class.field_names()}
+                result.@{field} = this.@{field};
+            {/for}
+            return result;
+        };
+    })
+}`}
+    lang="rust"
+/>
+
+<h2 id="how-it-works">How It Works</h2>
 
 <ol>
     <li>
-        Use <code>ts_template!</code> for complex code generation with loops/conditions
+        <strong>Rust compile time:</strong> the template is turned into Rust code that writes
+        TypeScript text, with the control flow as ordinary Rust <code>if</code>,
+        <code>for</code> and <code>match</code>.
     </li>
-    <li>Use <code>ts_quote!</code> for simple, static statements</li>
-    <li>Keep templates readable - extract complex logic into variables</li>
-    <li>Don't nest templates too deeply - split into helper functions</li>
+    <li>
+        <strong>Macro run time:</strong> that code runs and builds the text, interpolating your
+        values.
+    </li>
+    <li>
+        <strong>Result:</strong> a <code>TsStream</code> that can be returned directly as macro
+        output. The text is not checked here, so a syntax error in it shows up when the expanded
+        file is compiled; <a href={resolve('/docs/custom-macros/testing-and-debugging#expand-a-file')}><code>macroforge expand</code></a>
+        shows exactly what was generated.
+    </li>
 </ol>
+
+<h2 id="choosing">Choosing a Macro</h2>
+
+<ul>
+    <li>Use <code>ts_template!</code> to generate code, especially with loops and conditions.</li>
+    <li>
+        Use <code>ts_quote!</code> when you need an AST node: to analyse or transform syntax, or
+        to have a fixed snippet checked when your crate compiles.
+    </li>
+    <li>Keep templates readable: compute values in Rust before the template.</li>
+    <li>
+        Split large outputs into several templates and combine them with
+        <code>&#123;$typescript&#125;</code>.
+    </li>
+</ul>

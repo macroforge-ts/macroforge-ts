@@ -1,12 +1,16 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_object_fallback.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_object_fallback.ts
 ---
 ## Input
 
 /** @derive(Default) */
 export type Status = { kind: 'Active'; data: string } | { kind: 'Inactive'; reason: string };
+
+## Changed
+
+true
 
 ## Output
 
@@ -39,5 +43,24 @@ export const Status = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 23..117 -> expanded 0..94
+original 117..118 -> expanded 309..310
+generated 94..237 <- Default
+generated 237..309 <- __convenience_const
+
+## Metadata
+
+type Status: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":63,"start":48},"ts_type":"'Active'"},{"decorators":[],"name":"data","optional":false,"readonly":false,"span":{"end":76,"start":64},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":100,"start":83},"ts_type":"'Inactive'"},{"decorators":[],"name":"reason","optional":false,"readonly":false,"span":{"end":115,"start":101},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"name":"Status","span":{"end":118,"start":32},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

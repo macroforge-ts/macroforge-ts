@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_default_parameters.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_default_parameters.ts
 ---
 ## Input
 
@@ -37,6 +36,10 @@ class ServerConfig {
         return new ServerConfig();
     }
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -116,5 +119,26 @@ parts.push("port: " + value.port);
                     }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 62..690 -> expanded 41..669
+original 690..691 -> expanded 790..791
+original 691..692 -> expanded 1105..1106
+generated 669..790 <- Debug
+generated 791..1105 <- Debug
+
+## Metadata
+
+class ServerConfig: {"body_span":{"end":692,"start":83},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"host","optional":false,"readonly":false,"span":{"end":102,"start":89},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"port","optional":false,"readonly":false,"span":{"end":120,"start":107},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":301,"start":242},"body_src":"\n        this.host = host;\n        this.port = port;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"host: string = 'localhost',\n        port: number = 8080,\n        secure: boolean = false","return_type_src":"","span":{"end":301,"start":126},"type_params_src":"","visibility":"Public"},{"body_span":{"end":478,"start":437},"body_src":"\n        return Promise.resolve();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"connect","params_src":"timeout: number = 5000,\n        retries: number = 3,\n        onError?: (err: Error) => void","return_type_src":"Promise<void>","span":{"end":478,"start":307},"type_params_src":"","visibility":"Public"},{"body_span":{"end":690,"start":648},"body_src":"\n        return new ServerConfig();\n    ","decorators":[],"is_async":false,"is_static":true,"name":"create","params_src":"config: Partial<ServerConfig> = {},\n        defaults: { host?: string; port?: number } = { host: '0.0.0.0', port: 3000 }","return_type_src":"ServerConfig","span":{"end":690,"start":484},"type_params_src":"","visibility":"Public"}],"name":"ServerConfig","span":{"end":692,"start":64},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

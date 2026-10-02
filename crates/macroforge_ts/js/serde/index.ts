@@ -442,3 +442,50 @@ export class DeserializeError extends Error {
     this.errors = errors;
   }
 }
+
+/**
+ * Whether `value` is a multiple of `divisor`, the `multipleOf(n)` validator's
+ * check. Decimal operands are compared exactly, so `0.3` is a multiple of
+ * `0.1`; a value that is not finite is never a multiple. Matches Effect's
+ * `Schema.isMultipleOf`.
+ */
+export function isMultipleOf(value: number, divisor: number): boolean {
+  return remainder(value, divisor) === 0;
+}
+
+/**
+ * The remainder of `dividend / divisor`, signed like the dividend and exact
+ * for decimal operands. `NaN` when either operand is not finite or the
+ * divisor is zero. A port of Effect's `Number.remainder`.
+ */
+export function remainder(dividend: number, divisor: number): number {
+  if (!Number.isFinite(dividend) || !Number.isFinite(divisor) || divisor === 0) {
+    return NaN;
+  }
+  if (Number.isInteger(dividend) && Number.isInteger(divisor)) {
+    return dividend % divisor;
+  }
+  const [dividendCoefficient, dividendExponent] = toScientificInteger(dividend);
+  const [divisorCoefficient, divisorExponent] = toScientificInteger(divisor);
+  const exponent = Math.min(dividendExponent, divisorExponent);
+  const dividendInteger = dividendCoefficient * 10n ** BigInt(dividendExponent - exponent);
+  const divisorInteger = divisorCoefficient * 10n ** BigInt(divisorExponent - exponent);
+  const out = dividendInteger % divisorInteger;
+  if (out === 0n) {
+    return dividend < 0 || Object.is(dividend, -0) ? -0 : 0;
+  }
+  const rest = Number(`${out}e${exponent}`);
+  return rest === 0 ? Math.sign(dividend) * Number.MIN_VALUE : rest;
+}
+
+/** `n` as an integer coefficient and a power of ten: `n = coefficient * 10^exponent`. */
+function toScientificInteger(n: number): readonly [bigint, number] {
+  if (Number.isInteger(n)) {
+    return [BigInt(n), 0];
+  }
+  const scientific = Math.abs(n).toExponential();
+  const eIndex = scientific.indexOf("e");
+  const digits = scientific.slice(0, eIndex).replace(".", "");
+  const coefficient = BigInt(digits) * (n < 0 ? -1n : 1n);
+  return [coefficient, Number(scientific.slice(eIndex + 1)) - digits.length + 1];
+}

@@ -1,0 +1,3251 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/data-path.svelte.ts
+sha256 c784a4159e813885bcb0236bc2ff24206d654f52dd42cd73d03e191b33c7f998
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface DataPath {
+    path: Array<string>;
+    formatter: string | null;
+}
+
+export function dataPathDefaultValue(): DataPath {
+                        return {
+path: [],
+formatter: null,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function dataPathSerialize(value: DataPath, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = dataPathSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function dataPathSerializeWithContext(value: DataPath, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "DataPath",
+                        __id,
+                    };result.path = value.path;result.formatter = value.formatter;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function dataPathDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = dataPathDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DataPath.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function dataPathDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): DataPath | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "DataPath.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("path" in obj)) {
+                            errors.push({ field: "path", message: "missing required field" });
+                        }if (!("formatter" in obj)) {
+                            errors.push({ field: "formatter", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_path = obj["path"] as Array<string>;if (Array.isArray(__raw_path)) {instance.path = __raw_path as string[];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_formatter = obj["formatter"] as string | null;
+                                                instance.formatter = __raw_formatter;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as DataPath;
+            }
+
+            export function dataPathValidateField<K extends keyof DataPath>(
+                _field: K,
+                _value: DataPath[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function dataPathValidateFields(
+                _partial: Partial<DataPath>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function dataPathHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "path" in o && "formatter" in o;
+            }
+
+            export function dataPathIs(obj: unknown): obj is DataPath {
+                if (!dataPathHasShape(obj)) {
+                    return false;
+                }
+                const result = dataPathDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type DataPathErrors = {
+            _errors: Option.Option<Array<string>>;
+            path: Option.Option<Array<string>>;
+            formatter: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type DataPathTainted = {
+            path: Option.Option<boolean>;
+            formatter: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface DataPathFieldControllers {
+            
+                    readonly path: ArrayFieldController<string>;
+            readonly formatter: FieldController<string | null>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface DataPathGigaform {
+            readonly data: DataPath;
+            readonly errors: DataPathErrors;
+            readonly tainted: DataPathTainted;
+            readonly fields: DataPathFieldControllers;
+            validate(): Exit.Exit<DataPath, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<DataPath>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaform {
+            let data = $state({ ...dataPathDefaultValue(), ...overrides });
+            let errors = $state<DataPathErrors>({
+                _errors: Option.none(),
+                path: Option.none(),
+                formatter: Option.none(),
+
+
+            });
+            let tainted = $state<DataPathTainted>({
+                path: Option.none(),
+                formatter: Option.none(),
+
+
+            });
+            const fields = {
+            
+                path: {
+            name: "path",
+            label: "path",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["path"],
+            get: () => data.path,
+            set: (value: Array<string>) => { data.path = value; },
+            getError: () => errors.path,
+            setError: (value: Option.Option<Array<string>>) => { errors.path = value; },
+            getTainted: () => tainted.path,
+            setTainted: (value: Option.Option<boolean>) => { tainted.path = value; },
+            validate: () => dataPathValidateField("path", data.path).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.path[index],
+                set: (value: string) => { data.path[index] = value; },
+                getError: () => errors.path,
+                setError: (value: Option.Option<Array<string>>) => { errors.path = value; },
+            }),
+            push: (item: string) => { data.path.push(item); },
+            remove: (index: number) => { data.path.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.path[a];
+                data.path[a] = data.path[b];
+                data.path[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                formatter: {
+            name: "formatter",
+            label: "formatter",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["formatter"],
+            get: () => data.formatter,
+            set: (value: string | null) => { data.formatter = value; },
+            getError: () => errors.formatter,
+            setError: (value: Option.Option<Array<string>>) => { errors.formatter = value; },
+            getTainted: () => tainted.formatter,
+            setTainted: (value: Option.Option<boolean>) => { tainted.formatter = value; },
+            validate: () => dataPathValidateField("formatter", data.formatter).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as DataPathFieldControllers;
+
+
+            function validate(): Exit.Exit<DataPath, Array<{ field: string; message: string }>> {
+                return toExit(dataPathDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<DataPath>): void {
+                data = { ...dataPathDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            path: Option.none(),
+            formatter: Option.none(),
+
+
+        };
+                tainted = {
+            path: Option.none(),
+            formatter: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function dataPathFromFormData(formData: FormData): Exit.Exit<DataPath, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.path = formData.getAll("path") as Array<string>;
+            obj.formatter = formData.get("formatter") ?? "";
+
+
+            return toExit(dataPathDeserialize(obj));
+        }
+
+export const DataPath = {
+  defaultValue: dataPathDefaultValue,
+  serialize: dataPathSerialize,
+  serializeWithContext: dataPathSerializeWithContext,
+  deserialize: dataPathDeserialize,
+  deserializeWithContext: dataPathDeserializeWithContext,
+  validateFields: dataPathValidateFields,
+  hasShape: dataPathHasShape,
+  is: dataPathIs,
+  createForm: dataPathCreateForm,
+  fromFormData: dataPathFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface DataPath {
+    path: Array<string>;
+    formatter: string | null;
+}
+
+export function dataPathDefaultValue(): DataPath {
+                        return {
+path: [],
+formatter: null,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function dataPathSerialize(value: DataPath, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = dataPathSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function dataPathSerializeWithContext(value: DataPath, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "DataPath",
+                        __id,
+                    };result.path = value.path;result.formatter = value.formatter;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function dataPathDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = dataPathDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DataPath.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function dataPathDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): DataPath | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "DataPath.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("path" in obj)) {
+                            errors.push({ field: "path", message: "missing required field" });
+                        }if (!("formatter" in obj)) {
+                            errors.push({ field: "formatter", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_path = obj["path"] as Array<string>;if (Array.isArray(__raw_path)) {instance.path = __raw_path as string[];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_formatter = obj["formatter"] as string | null;
+                                                instance.formatter = __raw_formatter;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as DataPath;
+            }
+
+            export function dataPathValidateField<K extends keyof DataPath>(
+                _field: K,
+                _value: DataPath[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function dataPathValidateFields(
+                _partial: Partial<DataPath>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function dataPathHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "path" in o && "formatter" in o;
+            }
+
+            export function dataPathIs(obj: unknown): obj is DataPath {
+                if (!dataPathHasShape(obj)) {
+                    return false;
+                }
+                const result = dataPathDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type DataPathErrors = {
+            _errors: Option.Option<Array<string>>;
+            path: Option.Option<Array<string>>;
+            formatter: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type DataPathTainted = {
+            path: Option.Option<boolean>;
+            formatter: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface DataPathFieldControllers {
+            
+                    readonly path: ArrayFieldController<string>;
+            readonly formatter: FieldController<string | null>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface DataPathGigaform {
+            readonly data: DataPath;
+            readonly errors: DataPathErrors;
+            readonly tainted: DataPathTainted;
+            readonly fields: DataPathFieldControllers;
+            validate(): Exit.Exit<DataPath, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<DataPath>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function dataPathCreateForm(overrides?: Partial<DataPath>): DataPathGigaform {
+            let data = $state({ ...dataPathDefaultValue(), ...overrides });
+            let errors = $state<DataPathErrors>({
+                _errors: Option.none(),
+                path: Option.none(),
+                formatter: Option.none(),
+
+
+            });
+            let tainted = $state<DataPathTainted>({
+                path: Option.none(),
+                formatter: Option.none(),
+
+
+            });
+            const fields = {
+            
+                path: {
+            name: "path",
+            label: "path",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["path"],
+            get: () => data.path,
+            set: (value: Array<string>) => { data.path = value; },
+            getError: () => errors.path,
+            setError: (value: Option.Option<Array<string>>) => { errors.path = value; },
+            getTainted: () => tainted.path,
+            setTainted: (value: Option.Option<boolean>) => { tainted.path = value; },
+            validate: () => dataPathValidateField("path", data.path).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.path[index],
+                set: (value: string) => { data.path[index] = value; },
+                getError: () => errors.path,
+                setError: (value: Option.Option<Array<string>>) => { errors.path = value; },
+            }),
+            push: (item: string) => { data.path.push(item); },
+            remove: (index: number) => { data.path.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.path[a];
+                data.path[a] = data.path[b];
+                data.path[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                formatter: {
+            name: "formatter",
+            label: "formatter",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["formatter"],
+            get: () => data.formatter,
+            set: (value: string | null) => { data.formatter = value; },
+            getError: () => errors.formatter,
+            setError: (value: Option.Option<Array<string>>) => { errors.formatter = value; },
+            getTainted: () => tainted.formatter,
+            setTainted: (value: Option.Option<boolean>) => { tainted.formatter = value; },
+            validate: () => dataPathValidateField("formatter", data.formatter).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as DataPathFieldControllers;
+
+
+            function validate(): Exit.Exit<DataPath, Array<{ field: string; message: string }>> {
+                return toExit(dataPathDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<DataPath>): void {
+                data = { ...dataPathDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            path: Option.none(),
+            formatter: Option.none(),
+
+
+        };
+                tainted = {
+            path: Option.none(),
+            formatter: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function dataPathFromFormData(formData: FormData): Exit.Exit<DataPath, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.path = formData.getAll("path") as Array<string>;
+            obj.formatter = formData.get("formatter") ?? "";
+
+
+            return toExit(dataPathDeserialize(obj));
+        }
+
+export const DataPath = {
+  defaultValue: dataPathDefaultValue,
+  serialize: dataPathSerialize,
+  serializeWithContext: dataPathSerializeWithContext,
+  deserialize: dataPathDeserialize,
+  deserializeWithContext: dataPathDeserializeWithContext,
+  validateFields: dataPathValidateFields,
+  hasShape: dataPathHasShape,
+  is: dataPathIs,
+  createForm: dataPathCreateForm,
+  fromFormData: dataPathFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..200 -> expanded 58..143
+original 200..201 -> expanded 13863..13864
+generated 143..280 <- Default
+generated 280..1839 <- Serialize
+generated 1839..7698 <- Deserialize
+generated 7698..13445 <- Gigaform
+generated 13445..13863 <- __convenience_const
+
+## Metadata
+
+interface DataPath: {"body_span":{"end":201,"start":143},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"path","optional":false,"readonly":false,"span":{"end":169,"start":149},"ts_type":"Array<string>"},{"decorators":[],"name":"formatter","optional":false,"readonly":false,"span":{"end":199,"start":174},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"DataPath","span":{"end":201,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("Array")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

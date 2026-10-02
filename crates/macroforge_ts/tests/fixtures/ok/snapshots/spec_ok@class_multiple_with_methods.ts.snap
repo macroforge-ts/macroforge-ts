@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_multiple_with_methods.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_multiple_with_methods.ts
 ---
 ## Input
 
@@ -30,6 +29,10 @@ class Product {
         return new Product(json.id, json.name, json.price, json.secret);
     }
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -169,5 +172,32 @@ export function productHashCode(value: Product): number {
                 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 86..580 -> expanded 41..535
+original 580..581 -> expanded 978..979
+original 581..582 -> expanded 2535..2536
+generated 535..646 <- Debug
+generated 646..752 <- Clone
+generated 752..867 <- PartialEq
+generated 867..978 <- Hash
+generated 979..1350 <- Debug
+generated 1350..1667 <- Clone
+generated 1667..1908 <- PartialEq
+generated 1908..2535 <- Hash
+
+## Metadata
+
+class Product: {"body_span":{"end":582,"start":102},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":87,"start":42}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":119,"start":108},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":137,"start":124},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"price","optional":false,"readonly":false,"span":{"end":156,"start":142},"ts_type":"number","visibility":"Public"},{"decorators":[],"name":"secret","optional":false,"readonly":false,"span":{"end":184,"start":161},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":372,"start":259},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.price = price;\n        this.secret = secret;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, price: number, secret: string","return_type_src":"","span":{"end":372,"start":190},"type_params_src":"","visibility":"Public"},{"body_span":{"end":458,"start":403},"body_src":"\n        return `${this.name} - $${this.price}`;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"getDisplayName","params_src":"","return_type_src":"string","span":{"end":458,"start":378},"type_params_src":"","visibility":"Public"},{"body_span":{"end":580,"start":500},"body_src":"\n        return new Product(json.id, json.name, json.price, json.secret);\n    ","decorators":[],"is_async":false,"is_static":true,"name":"fromJSON","params_src":"json: any","return_type_src":"Product","span":{"end":580,"start":464},"type_params_src":"","visibility":"Public"}],"name":"Product","span":{"end":582,"start":88},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

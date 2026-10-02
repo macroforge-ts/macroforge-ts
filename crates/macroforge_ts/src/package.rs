@@ -14,9 +14,3 @@ pub const SERDE: &str = "@macroforge/core/serde";
 
 /// Declarative macro definitions (`macroRules`) and the `import macro` form.
 pub const RULES: &str = "@macroforge/core/rules";
-
-/// Build-time evaluation helpers.
-pub const BUILDTIME: &str = "@macroforge/core/buildtime";
-
-/// Trait definitions the derive macros implement against.
-pub const TRAITS: &str = "@macroforge/core/traits";

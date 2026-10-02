@@ -1,0 +1,681 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/sector.svelte.ts
+sha256 1b3bc473d651eb60d3173ee8853cf42cf50e222d98a496c19b4ad5c7e128bad1
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type Sector = /** @default */ 'Residential' | 'Commercial';
+
+export function sectorDefaultValue(): Sector {
+                            return "Residential";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function sectorSerialize(value: Sector, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = sectorSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function sectorSerializeWithContext(value: Sector, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function sectorDeserialize(input: unknown): { success: true; value: Sector } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Residential':
+                    case 'Commercial':
+
+
+                        return { success: true, value: input as Sector };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for Sector: expected one of " + ['Residential', 'Commercial'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function sectorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Sector | __mf_PendingRef {
+                switch (value) {
+                    case 'Residential':
+                    case 'Commercial':
+
+
+                        return value as Sector;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for Sector: expected one of " + ['Residential', 'Commercial'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function sectorHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Residential':
+                    case 'Commercial':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function sectorIs(value: unknown): value is Sector {
+                return sectorHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type SectorResidentialErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type SectorCommercialErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type SectorResidentialTainted = {
+
+
+            };
+            export type SectorCommercialTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type SectorErrors = ({ _value: "Residential" } & SectorResidentialErrors) | ({ _value: "Commercial" } & SectorCommercialErrors);
+
+        /** Union tainted type  */
+        export type SectorTainted = ({ _value: "Residential" } & SectorResidentialTainted) | ({ _value: "Commercial" } & SectorCommercialTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface SectorResidentialFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface SectorCommercialFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface SectorGigaform {
+            readonly currentVariant: "Residential" | "Commercial";
+            readonly data: Sector;
+            readonly errors: SectorErrors;
+            readonly tainted: SectorTainted;
+            readonly variants: SectorVariantFields;
+            switchVariant(variant: "Residential" | "Commercial"): void;
+            validate(): Exit.Exit<Sector, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Sector>): void;
+        }
+
+        /** Variant fields container  */
+        export interface SectorVariantFields {
+            
+                readonly Residential: { readonly fields: SectorResidentialFieldControllers };
+            
+                readonly Commercial: { readonly fields: SectorCommercialFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function sectorGetDefaultForVariant(variant: string): Sector {
+            if (variant === "Residential") { return "Residential" as Sector; }
+if (variant === "Commercial") { return "Commercial" as Sector; }
+            return "Residential" as Sector;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function sectorCreateForm(initial?: Sector): SectorGigaform {
+
+            const initialVariant: "Residential" | "Commercial" = (initial as "Residential" | "Commercial") ?? "Residential";
+
+
+            let currentVariant = $state<"Residential" | "Commercial">(initialVariant);
+            let data = $state<Sector>(initial ?? sectorGetDefaultForVariant(initialVariant));
+            let errors = $state<SectorErrors>({} as SectorErrors);
+            let tainted = $state<SectorTainted>({} as SectorTainted);
+
+            const variants = {
+            
+                "Residential": { fields: {  } as unknown as SectorResidentialFieldControllers },
+            
+                "Commercial": { fields: {  } as unknown as SectorCommercialFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as SectorVariantFields;
+
+
+            function switchVariant(variant: "Residential" | "Commercial"): void {
+                currentVariant = variant;
+                data = sectorGetDefaultForVariant(variant);
+                errors = {} as SectorErrors;
+                tainted = {} as SectorTainted;
+            }
+
+
+            function validate(): Exit.Exit<Sector, Array<{ field: string; message: string }>> {
+                return toExit(sectorDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<Sector>): void {
+                data = overrides ? overrides as typeof data : sectorGetDefaultForVariant(currentVariant);
+                errors = {} as SectorErrors;
+                tainted = {} as SectorTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function sectorFromFormData(formData: FormData): Exit.Exit<Sector, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Residential" | "Commercial" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Residential") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Commercial") {
+                        
+                    }
+                }
+
+
+            return toExit(sectorDeserialize(obj));
+        }
+
+export const Sector = {
+  defaultValue: sectorDefaultValue,
+  serialize: sectorSerialize,
+  serializeWithContext: sectorSerializeWithContext,
+  deserialize: sectorDeserialize,
+  deserializeWithContext: sectorDeserializeWithContext,
+  hasShape: sectorHasShape,
+  is: sectorIs,
+  createForm: sectorCreateForm,
+  fromFormData: sectorFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type Sector = /** @default */ 'Residential' | 'Commercial';
+
+export function sectorDefaultValue(): Sector {
+                            return "Residential";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function sectorSerialize(value: Sector, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = sectorSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function sectorSerializeWithContext(value: Sector, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function sectorDeserialize(input: unknown): { success: true; value: Sector } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Residential':
+                    case 'Commercial':
+
+
+                        return { success: true, value: input as Sector };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for Sector: expected one of " + ['Residential', 'Commercial'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function sectorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Sector | __mf_PendingRef {
+                switch (value) {
+                    case 'Residential':
+                    case 'Commercial':
+
+
+                        return value as Sector;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for Sector: expected one of " + ['Residential', 'Commercial'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function sectorHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Residential':
+                    case 'Commercial':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function sectorIs(value: unknown): value is Sector {
+                return sectorHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type SectorResidentialErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type SectorCommercialErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type SectorResidentialTainted = {
+
+
+            };
+            export type SectorCommercialTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type SectorErrors = ({ _value: "Residential" } & SectorResidentialErrors) | ({ _value: "Commercial" } & SectorCommercialErrors);
+
+        /** Union tainted type  */
+        export type SectorTainted = ({ _value: "Residential" } & SectorResidentialTainted) | ({ _value: "Commercial" } & SectorCommercialTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface SectorResidentialFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface SectorCommercialFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface SectorGigaform {
+            readonly currentVariant: "Residential" | "Commercial";
+            readonly data: Sector;
+            readonly errors: SectorErrors;
+            readonly tainted: SectorTainted;
+            readonly variants: SectorVariantFields;
+            switchVariant(variant: "Residential" | "Commercial"): void;
+            validate(): Exit.Exit<Sector, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Sector>): void;
+        }
+
+        /** Variant fields container  */
+        export interface SectorVariantFields {
+            
+                readonly Residential: { readonly fields: SectorResidentialFieldControllers };
+            
+                readonly Commercial: { readonly fields: SectorCommercialFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function sectorGetDefaultForVariant(variant: string): Sector {
+            if (variant === "Residential") { return "Residential" as Sector; }
+if (variant === "Commercial") { return "Commercial" as Sector; }
+            return "Residential" as Sector;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function sectorCreateForm(initial?: Sector): SectorGigaform {
+
+            const initialVariant: "Residential" | "Commercial" = (initial as "Residential" | "Commercial") ?? "Residential";
+
+
+            let currentVariant = $state<"Residential" | "Commercial">(initialVariant);
+            let data = $state<Sector>(initial ?? sectorGetDefaultForVariant(initialVariant));
+            let errors = $state<SectorErrors>({} as SectorErrors);
+            let tainted = $state<SectorTainted>({} as SectorTainted);
+
+            const variants = {
+            
+                "Residential": { fields: {  } as unknown as SectorResidentialFieldControllers },
+            
+                "Commercial": { fields: {  } as unknown as SectorCommercialFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as SectorVariantFields;
+
+
+            function switchVariant(variant: "Residential" | "Commercial"): void {
+                currentVariant = variant;
+                data = sectorGetDefaultForVariant(variant);
+                errors = {} as SectorErrors;
+                tainted = {} as SectorTainted;
+            }
+
+
+            function validate(): Exit.Exit<Sector, Array<{ field: string; message: string }>> {
+                return toExit(sectorDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<Sector>): void {
+                data = overrides ? overrides as typeof data : sectorGetDefaultForVariant(currentVariant);
+                errors = {} as SectorErrors;
+                tainted = {} as SectorTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function sectorFromFormData(formData: FormData): Exit.Exit<Sector, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Residential" | "Commercial" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Residential") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Commercial") {
+                        
+                    }
+                }
+
+
+            return toExit(sectorDeserialize(obj));
+        }
+
+export const Sector = {
+  defaultValue: sectorDefaultValue,
+  serialize: sectorSerialize,
+  serializeWithContext: sectorSerializeWithContext,
+  deserialize: sectorDeserialize,
+  deserializeWithContext: sectorDeserializeWithContext,
+  hasShape: sectorHasShape,
+  is: sectorIs,
+  createForm: sectorCreateForm,
+  fromFormData: sectorFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..182 -> expanded 58..125
+original 182..183 -> expanded 9918..9919
+generated 125..249 <- Default
+generated 249..2185 <- Serialize
+generated 2185..4239 <- Deserialize
+generated 4239..9562 <- Gigaform
+generated 9562..9918 <- __convenience_const
+
+## Metadata
+
+type Sector: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":153,"start":138}}],"kind":{"Literal":"'Residential'"}},{"decorators":[],"kind":{"Literal":"'Commercial'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Sector","span":{"end":183,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("Sector")
+
+## Buildtime dependencies
+
+(none)

@@ -454,7 +454,7 @@
         "category": "custom-macros",
         "category_title": "Custom Macros",
         "path": "custom-macros/ts-macro.md",
-        "use_cases": "#[ts_macro]"
+        "use_cases": "call macro, ts_macro, $name, function-like macro"
     },
     {
         "id": "ts-macro-attribute",
@@ -462,7 +462,7 @@
         "category": "custom-macros",
         "category_title": "Custom Macros",
         "path": "custom-macros/ts-macro-attribute.md",
-        "use_cases": "#[ts_macro_attribute]"
+        "use_cases": "attribute macro, ts_macro_attribute, decorator, rewrite declaration"
     },
     {
         "id": "ts-quote/overview",
@@ -470,7 +470,7 @@
         "category": "custom-macros",
         "category_title": "Custom Macros",
         "path": "custom-macros/ts-quote/overview.md",
-        "use_cases": "ts_quote, template, macroforge_ts_quote, ts_template!",
+        "use_cases": "ts_quote, template, macroforge_ts_quote, ts_template!, ts_quote!, ts_template!",
         "parent_id": "ts-quote"
     },
     {
@@ -479,25 +479,25 @@
         "category": "custom-macros",
         "category_title": "Custom Macros",
         "path": "custom-macros/ts-quote/quick-reference.md",
-        "use_cases": "ts_quote, template, @{expr}, {&#124; content &#124;}, {&#124;get@{name}&#124;}, getuser",
+        "use_cases": "ts_quote, template, @{expr}, \"text @{expr}\", \"'^template ${js}^'\"",
         "parent_id": "ts-quote"
     },
     {
-        "id": "ts-quote/identifier-concatenation-content",
-        "title": "Template Syntax: Identifier Concatenation: `{| content |}`",
+        "id": "ts-quote/positions",
+        "title": "Template Syntax: Positions",
         "category": "custom-macros",
         "category_title": "Custom Macros",
-        "path": "custom-macros/ts-quote/identifier-concatenation-content.md",
-        "use_cases": "ts_quote, template, {| content |}, getuser, setname, {| |}",
+        "path": "custom-macros/ts-quote/positions.md",
+        "use_cases": "ts_quote, template, top, bottom, above, below",
         "parent_id": "ts-quote"
     },
     {
-        "id": "ts-quote/comments-and",
-        "title": "Template Syntax: Comments: `{> \"...\" <}` and `{>> \"...\" <<}`",
+        "id": "ts-quote/interpolation-expr",
+        "title": "Template Syntax: Interpolation: `@{expr}`",
         "category": "custom-macros",
         "category_title": "Custom Macros",
-        "path": "custom-macros/ts-quote/comments-and.md",
-        "use_cases": "ts_quote, template, {> \"...\" <}, {>> \"...\" <<}, {> \"comment\" <}",
+        "path": "custom-macros/ts-quote/interpolation-expr.md",
+        "use_cases": "ts_quote, template, @{expr}",
         "parent_id": "ts-quote"
     },
     {
@@ -516,6 +516,15 @@
         "category_title": "Custom Macros",
         "path": "custom-macros/ts-quote/backtick-template-literals.md",
         "use_cases": "ts_quote, template, \"'^...^'\", '^...^', ${\"${}\"}",
+        "parent_id": "ts-quote"
+    },
+    {
+        "id": "ts-quote/comments",
+        "title": "Template Syntax: Comments",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/ts-quote/comments.md",
+        "use_cases": "ts_quote, template, @{}",
         "parent_id": "ts-quote"
     },
     {
@@ -542,7 +551,7 @@
         "category": "custom-macros",
         "category_title": "Custom Macros",
         "path": "custom-macros/ts-quote/match-expressions-match.md",
-        "use_cases": "ts_quote, template, {#match}, match, \npublic field: string;\n",
+        "use_cases": "ts_quote, template, {#match}, match",
         "parent_id": "ts-quote"
     },
     {
@@ -587,7 +596,34 @@
         "category": "custom-macros",
         "category_title": "Custom Macros",
         "path": "custom-macros/ts-quote/tsstream-injection-typescript.md",
-        "use_cases": "ts_quote, template, {$typescript}, add_import()",
+        "use_cases": "ts_quote, template, {$typescript}, tsstream, add_import()",
+        "parent_id": "ts-quote"
+    },
+    {
+        "id": "ts-quote/nesting-and-regular-typescript",
+        "title": "Template Syntax: Nesting and Regular TypeScript",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/ts-quote/nesting-and-regular-typescript.md",
+        "use_cases": "ts_quote, template",
+        "parent_id": "ts-quote"
+    },
+    {
+        "id": "ts-quote/identifiers-tsident",
+        "title": "Template Syntax: Identifiers: `ts_ident!`",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/ts-quote/identifiers-tsident.md",
+        "use_cases": "ts_quote, template, ts_ident!, \n\nnote\n\n",
+        "parent_id": "ts-quote"
+    },
+    {
+        "id": "ts-quote/ast-nodes-tsquote",
+        "title": "Template Syntax: AST Nodes: `ts_quote!`",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/ts-quote/ast-nodes-tsquote.md",
+        "use_cases": "ts_quote, template, ts_quote!, $name",
         "parent_id": "ts-quote"
     },
     {
@@ -600,12 +636,12 @@
         "parent_id": "ts-quote"
     },
     {
-        "id": "ts-quote/comparison-with-alternatives",
-        "title": "Template Syntax: Comparison with Alternatives",
+        "id": "ts-quote/how-it-works",
+        "title": "Template Syntax: How It Works",
         "category": "custom-macros",
         "category_title": "Custom Macros",
-        "path": "custom-macros/ts-quote/comparison-with-alternatives.md",
-        "use_cases": "ts_quote, template, ts_quote!, parse_expr(), parse_statement(), ts_template!",
+        "path": "custom-macros/ts-quote/how-it-works.md",
+        "use_cases": "ts_quote, template, for, match, tsstream, macroforge expand",
         "parent_id": "ts-quote"
     },
     {
@@ -619,10 +655,11 @@
         "chunk_ids": [
             "ts-quote/overview",
             "ts-quote/quick-reference",
-            "ts-quote/identifier-concatenation-content",
-            "ts-quote/comments-and",
+            "ts-quote/positions",
+            "ts-quote/interpolation-expr",
             "ts-quote/string-interpolation-textexpr",
             "ts-quote/backtick-template-literals",
+            "ts-quote/comments",
             "ts-quote/conditionals-ifif",
             "ts-quote/pattern-matching-iflet",
             "ts-quote/match-expressions-match",
@@ -631,9 +668,201 @@
             "ts-quote/local-constants-let",
             "ts-quote/side-effects-do",
             "ts-quote/tsstream-injection-typescript",
+            "ts-quote/nesting-and-regular-typescript",
+            "ts-quote/identifiers-tsident",
+            "ts-quote/ast-nodes-tsquote",
             "ts-quote/complete-example-json-derive-macro",
-            "ts-quote/comparison-with-alternatives"
+            "ts-quote/how-it-works"
         ]
+    },
+    {
+        "id": "output/overview",
+        "title": "Output and Imports: Overview",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/output/overview.md",
+        "use_cases": "output, insert position, tsstream, #[ts_macro_derive], #[ts_macro_attribute], #[ts_macro]",
+        "parent_id": "output"
+    },
+    {
+        "id": "output/insert-positions",
+        "title": "Output and Imports: Insert Positions",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/output/insert-positions.md",
+        "use_cases": "output, insert position, insertpos",
+        "parent_id": "output"
+    },
+    {
+        "id": "output/imports",
+        "title": "Output and Imports: Imports",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/output/imports.md",
+        "use_cases": "output, insert position, tsstream",
+        "parent_id": "output"
+    },
+    {
+        "id": "output/patches",
+        "title": "Output and Imports: Patches",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/output/patches.md",
+        "use_cases": "output, insert position, runtime_patches",
+        "parent_id": "output"
+    },
+    {
+        "id": "output/warnings",
+        "title": "Output and Imports: Warnings",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/output/warnings.md",
+        "use_cases": "output, insert position, add_diagnostic",
+        "parent_id": "output"
+    },
+    {
+        "id": "output",
+        "title": "Output and Imports",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/output.md",
+        "use_cases": "output, insert position, imports, add_import, patches, spans, cross-module suffix",
+        "is_chunked": true,
+        "chunk_ids": [
+            "output/overview",
+            "output/insert-positions",
+            "output/imports",
+            "output/patches",
+            "output/warnings"
+        ]
+    },
+    {
+        "id": "context-and-ir/overview",
+        "title": "Context and IR: Overview",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir/overview.md",
+        "use_cases": "context, MacroContextIR, macrocontextir, deriveinput, input.context(), deriveinput",
+        "parent_id": "context-and-ir"
+    },
+    {
+        "id": "context-and-ir/classes",
+        "title": "Context and IR: Classes",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir/classes.md",
+        "use_cases": "context, MacroContextIR",
+        "parent_id": "context-and-ir"
+    },
+    {
+        "id": "context-and-ir/interfaces",
+        "title": "Context and IR: Interfaces",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir/interfaces.md",
+        "use_cases": "context, MacroContextIR",
+        "parent_id": "context-and-ir"
+    },
+    {
+        "id": "context-and-ir/enums",
+        "title": "Context and IR: Enums",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir/enums.md",
+        "use_cases": "context, MacroContextIR",
+        "parent_id": "context-and-ir"
+    },
+    {
+        "id": "context-and-ir/type-aliases",
+        "title": "Context and IR: Type Aliases",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir/type-aliases.md",
+        "use_cases": "context, MacroContextIR",
+        "parent_id": "context-and-ir"
+    },
+    {
+        "id": "context-and-ir/functions",
+        "title": "Context and IR: Functions",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir/functions.md",
+        "use_cases": "context, MacroContextIR, functionir",
+        "parent_id": "context-and-ir"
+    },
+    {
+        "id": "context-and-ir/decorators",
+        "title": "Context and IR: Decorators",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir/decorators.md",
+        "use_cases": "context, MacroContextIR",
+        "parent_id": "context-and-ir"
+    },
+    {
+        "id": "context-and-ir",
+        "title": "Context and IR",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/context-and-ir.md",
+        "use_cases": "context, MacroContextIR, IR, ClassIR, FieldIR, TargetIR, EnumValue, TypeBody, FunctionIR",
+        "is_chunked": true,
+        "chunk_ids": [
+            "context-and-ir/overview",
+            "context-and-ir/classes",
+            "context-and-ir/interfaces",
+            "context-and-ir/enums",
+            "context-and-ir/type-aliases",
+            "context-and-ir/functions",
+            "context-and-ir/decorators"
+        ]
+    },
+    {
+        "id": "type-aware/overview",
+        "title": "Type-Aware Macros: Overview",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/type-aware/overview.md",
+        "use_cases": "type registry, resolve, type_registry",
+        "parent_id": "type-aware"
+    },
+    {
+        "id": "type-aware/the-projects-config",
+        "title": "Type-Aware Macros: The Project's Config",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/type-aware/the-projects-config.md",
+        "use_cases": "type registry, resolve, ctx.config, macroforge.config",
+        "parent_id": "type-aware"
+    },
+    {
+        "id": "type-aware",
+        "title": "Type-Aware Macros",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/type-aware.md",
+        "use_cases": "type registry, resolve, resolved fields, foreign types, config, cross-file types",
+        "is_chunked": true,
+        "chunk_ids": [
+            "type-aware/overview",
+            "type-aware/the-projects-config"
+        ]
+    },
+    {
+        "id": "diagnostics",
+        "title": "Errors and Diagnostics",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/diagnostics.md",
+        "use_cases": "errors, MacroforgeError, MacroforgeErrors, DiagnosticCollector, warnings, diagnostics"
+    },
+    {
+        "id": "testing-and-debugging",
+        "title": "Testing and Debugging",
+        "category": "custom-macros",
+        "category_title": "Custom Macros",
+        "path": "custom-macros/testing-and-debugging.md",
+        "use_cases": "testing, unit test, debug log, debug_log, Macroforge trait, register_macro_package"
     },
     {
         "id": "integration-overview",
@@ -744,6 +973,15 @@
         "parent_id": "configuration"
     },
     {
+        "id": "configuration/sharing-a-base-config",
+        "title": "Configuration: Sharing a Base Config",
+        "category": "integration",
+        "category_title": "Integration",
+        "path": "integration/configuration/sharing-a-base-config.md",
+        "use_cases": "macroforge.config.ts, config, extends",
+        "parent_id": "configuration"
+    },
+    {
         "id": "configuration/options-reference",
         "title": "Configuration: Options Reference",
         "category": "integration",
@@ -762,6 +1000,7 @@
         "is_chunked": true,
         "chunk_ids": [
             "configuration/overview",
+            "configuration/sharing-a-base-config",
             "configuration/options-reference"
         ]
     },

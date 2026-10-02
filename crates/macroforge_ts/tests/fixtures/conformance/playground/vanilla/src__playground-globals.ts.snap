@@ -1,0 +1,44 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/playground-globals.ts
+sha256 450c59f4a5d38bd1432dd9a3f644eda7dbf9333b18e8e00896d874ae4c4ae10e
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..2674 -> expanded 0..2674
+
+## Metadata
+
+interface MacroTestResults: {"body_span":{"end":713,"start":551},"decorators":[],"fields":[{"decorators":[],"name":"debug","optional":true,"readonly":false,"span":{"end":572,"start":557},"ts_type":"string"},{"decorators":[],"name":"clone","optional":true,"readonly":false,"span":{"end":604,"start":577},"ts_type":"AllMacrosTestClass"},{"decorators":[],"name":"equals","optional":true,"readonly":false,"span":{"end":626,"start":609},"ts_type":"boolean"},{"decorators":[],"name":"hashCode","optional":true,"readonly":false,"span":{"end":649,"start":631},"ts_type":"number"},{"decorators":[],"name":"serialize","optional":true,"readonly":false,"span":{"end":673,"start":654},"ts_type":"string"},{"decorators":[],"name":"deserialize","optional":true,"readonly":false,"span":{"end":711,"start":678},"ts_type":"AllMacrosTestClass"}],"heritage":[],"methods":[],"name":"MacroTestResults","span":{"end":713,"start":524},"type_params":[]}
+interface AttributesResults: {"body_span":{"end":1084,"start":879},"decorators":[],"fields":[{"decorators":[],"name":"keptByFeature","optional":false,"readonly":false,"span":{"end":914,"start":885},"ts_type":"string | null"},{"decorators":[],"name":"strippedByFeature","optional":false,"readonly":false,"span":{"end":952,"start":919},"ts_type":"string | null"},{"decorators":[],"name":"keptByTarget","optional":false,"readonly":false,"span":{"end":985,"start":957},"ts_type":"string | null"},{"decorators":[],"name":"strippedByTarget","optional":false,"readonly":false,"span":{"end":1022,"start":990},"ts_type":"string | null"},{"decorators":[],"name":"deprecatedCall","optional":false,"readonly":false,"span":{"end":1050,"start":1027},"ts_type":"string"},{"decorators":[],"name":"nonExhaustiveValue","optional":false,"readonly":false,"span":{"end":1082,"start":1055},"ts_type":"string"}],"heritage":[],"methods":[],"name":"AttributesResults","span":{"end":1084,"start":851},"type_params":[]}
+interface RunesTestResults: {"body_span":{"end":1186,"start":1120},"decorators":[],"fields":[{"decorators":[],"name":"passed","optional":false,"readonly":false,"span":{"end":1141,"start":1126},"ts_type":"number"},{"decorators":[],"name":"failed","optional":false,"readonly":false,"span":{"end":1161,"start":1146},"ts_type":"number"},{"decorators":[],"name":"details","optional":false,"readonly":false,"span":{"end":1184,"start":1166},"ts_type":"string[]"}],"heritage":[],"methods":[],"name":"RunesTestResults","span":{"end":1186,"start":1093},"type_params":[]}
+interface BuildtimeDemoResult: {"body_span":{"end":1835,"start":1296},"decorators":[],"fields":[{"decorators":[],"name":"answer","optional":false,"readonly":false,"span":{"end":1317,"start":1302},"ts_type":"number"},{"decorators":[],"name":"schemaHash","optional":false,"readonly":false,"span":{"end":1341,"start":1322},"ts_type":"string"},{"decorators":[],"name":"appName","optional":false,"readonly":false,"span":{"end":1362,"start":1346},"ts_type":"string"},{"decorators":[],"name":"appVersion","optional":false,"readonly":false,"span":{"end":1386,"start":1367},"ts_type":"string"},{"decorators":[],"name":"routes","optional":false,"readonly":false,"span":{"end":1408,"start":1391},"ts_type":"string[]"},{"decorators":[],"name":"constantObject","optional":false,"readonly":false,"span":{"end":1482,"start":1413},"ts_type":"{ thirteen: number; label: string; items: number[] }"},{"decorators":[],"name":"derivedSummary","optional":false,"readonly":false,"span":{"end":1510,"start":1487},"ts_type":"string"},{"decorators":[],"name":"greetingAlice","optional":false,"readonly":false,"span":{"end":1537,"start":1515},"ts_type":"string"},{"decorators":[],"name":"greetingBob","optional":false,"readonly":false,"span":{"end":1562,"start":1542},"ts_type":"string"},{"decorators":[],"name":"greetingKeys","optional":false,"readonly":false,"span":{"end":1590,"start":1567},"ts_type":"string[]"},{"decorators":[],"name":"runtimeStubThrows","optional":false,"readonly":false,"span":{"end":1833,"start":1806},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BuildtimeDemoResult","span":{"end":1835,"start":1266},"type_params":[]}
+interface ValidatorFormResults: {"body_span":{"end":2027,"start":1875},"decorators":[],"fields":[{"decorators":[],"name":"userRegistration","optional":true,"readonly":false,"span":{"end":1939,"start":1881},"ts_type":"ValidationResult<UserRegistrationForm>"},{"decorators":[],"name":"product","optional":true,"readonly":false,"span":{"end":1984,"start":1944},"ts_type":"ValidationResult<ProductForm>"},{"decorators":[],"name":"event","optional":true,"readonly":false,"span":{"end":2025,"start":1989},"ts_type":"ValidationResult<EventForm>"}],"heritage":[],"methods":[],"name":"ValidatorFormResults","span":{"end":2027,"start":1844},"type_params":[]}
+interface VanillaPlayground: {"body_span":{"end":2392,"start":2187},"decorators":[],"fields":[{"decorators":[],"name":"macroTests","optional":true,"readonly":false,"span":{"end":2223,"start":2193},"ts_type":"MacroTestResults"},{"decorators":[],"name":"runes","optional":true,"readonly":false,"span":{"end":2253,"start":2228},"ts_type":"RunesTestResults"},{"decorators":[],"name":"e2e","optional":true,"readonly":false,"span":{"end":2275,"start":2258},"ts_type":"E2eResults"},{"decorators":[],"name":"buildtime","optional":true,"readonly":false,"span":{"end":2312,"start":2280},"ts_type":"BuildtimeDemoResult"},{"decorators":[],"name":"attributes","optional":true,"readonly":false,"span":{"end":2348,"start":2317},"ts_type":"AttributesResults"},{"decorators":[],"name":"validatorForm","optional":true,"readonly":false,"span":{"end":2390,"start":2353},"ts_type":"ValidatorFormResults"}],"heritage":[],"methods":[],"name":"VanillaPlayground","span":{"end":2392,"start":2159},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

@@ -207,9 +207,7 @@ fn authorized_read_succeeds_and_records_dependency() {
     let mut opts = SandboxOptions::new(PathBuf::from("/tmp/macroforge_test.ts"));
     opts.capabilities = CapabilitySet {
         fs_read: vec![PathPattern::new("**").unwrap()],
-        fs_write: vec![],
         env_allow: vec![],
-        network: false,
     };
     opts.timeout = Duration::from_secs(5);
 
@@ -239,9 +237,7 @@ fn read_json_returns_parsed_value() {
     let mut opts = SandboxOptions::new(PathBuf::from("/tmp/macroforge_test.ts"));
     opts.capabilities = CapabilitySet {
         fs_read: vec![PathPattern::new("**").unwrap()],
-        fs_write: vec![],
         env_allow: vec![],
-        network: false,
     };
     opts.timeout = Duration::from_secs(5);
 
@@ -314,8 +310,8 @@ fn async_await_inside_script_works() {
         &default_options(),
     );
     // PR 1 does not implement the async-boundary; PR 10 does. Either a
-    // Promise (unserializable) or the resolved value is acceptable here
-    // — what we DON'T want is a hang or a hard panic.
+    // Promise (unserializable) or the resolved value is acceptable here.
+    // What we DON'T want is a hang or a hard panic.
     match result {
         Ok(eval) => {
             // Fine if the backend resolved the promise synchronously.
@@ -342,9 +338,7 @@ fn env_allowlist_exposes_approved_vars() {
     let mut opts = SandboxOptions::new(PathBuf::from("/tmp/macroforge_test.ts"));
     opts.capabilities = CapabilitySet {
         fs_read: vec![],
-        fs_write: vec![],
         env_allow: vec!["MACROFORGE_TEST_ENV".to_string()],
-        network: false,
     };
     opts.timeout = Duration::from_secs(5);
 
@@ -404,9 +398,6 @@ fn location_matches_options() {
 fn capability_default_allows_nothing() {
     let caps = CapabilitySet::default();
     assert!(caps.check_read(&PathBuf::from("/tmp/any")).is_err());
-    assert!(caps.check_write(&PathBuf::from("/tmp/any")).is_err());
-    assert!(caps.check_env("NODE_ENV").is_err());
-    assert!(caps.check_network("https://example.com").is_err());
 }
 
 #[test]
@@ -836,7 +827,7 @@ export function collectBuildtimeDemo(): BuildtimeDemoResult {
 fn prepass_same_file_prelude_warns_on_impure_top_level() {
     // An impure top-level call disables the prelude and emits a warning
     // diagnostic. Evaluation still proceeds (the @buildtime can use
-    // only what's in-scope inside its own body) — but in this case the
+    // only what's in-scope inside its own body), but in this case the
     // body also references the would-be prelude symbol, so it fails
     // with a reference error.
     let src = r#"console.log("side-effect at module load");
@@ -953,7 +944,7 @@ export type Level = "number";
 
 #[test]
 fn prepass_tier3_non_string_errors() {
-    // Non-string TS types — e.g., the type `number` itself — can't be
+    // Non-string TS types (e.g., the type `number` itself) can't be
     // evaluated as a JS expression. So this intentionally fails at
     // build time with a diagnostic on the user's decl.
     let src = r#"/** @buildtime */

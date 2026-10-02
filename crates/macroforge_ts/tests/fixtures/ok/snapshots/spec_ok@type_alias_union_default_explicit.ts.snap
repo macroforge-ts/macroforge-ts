@@ -1,12 +1,16 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_explicit.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_explicit.ts
 ---
 ## Input
 
 /** @derive(Default) @default(VariantA.defaultValue()) */
 export type UnionType = VariantA | VariantB;
+
+## Changed
+
+true
 
 ## Output
 
@@ -33,5 +37,24 @@ export const UnionType = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 57..102 -> expanded 0..45
+original 102..103 -> expanded 263..264
+generated 45..185 <- Default
+generated 185..263 <- __convenience_const
+
+## Metadata
+
+type UnionType: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantA"}},{"decorators":[],"kind":{"TypeRef":"VariantB"}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":58,"start":1}},{"args_src":"VariantA.defaultValue()","name":"default","span":{"end":58,"start":1}}],"name":"UnionType","span":{"end":103,"start":66},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

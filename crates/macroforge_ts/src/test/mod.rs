@@ -62,6 +62,7 @@ mod enum_tests;
 mod foreign_types;
 mod interface_tests;
 mod jsdoc_tests;
+mod resident_registries;
 mod serde_tests;
 mod source_mapping;
 mod type_alias_tests;

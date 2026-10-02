@@ -100,6 +100,24 @@ pub enum MacroError {
     #[error("Invalid macro configuration: {0}")]
     InvalidConfig(String),
 
+    /// The source does not parse, so no macro can run on it. The message
+    /// says which pass parsed it.
+    #[error("{0}")]
+    Parse(String),
+
+    /// A declarative macro could not be discovered, registered or imported,
+    /// or its consumed `import macro` comments could not be removed.
+    #[error("Declarative macro error: {0}")]
+    Declarative(String),
+
+    /// The parsed source could not be lowered to the IR macros receive.
+    #[error("Lower error: {0}")]
+    Lower(String),
+
+    /// The patches the macros produced could not be applied.
+    #[error("{0}")]
+    Patch(String),
+
     /// A macro failed during execution.
     ///
     /// This occurs when:

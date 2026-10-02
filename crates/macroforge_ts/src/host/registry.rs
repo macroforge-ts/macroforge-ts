@@ -102,17 +102,21 @@ impl MacroKey {
 /// let macro_impl = registry.lookup_by_name("MyMacro").unwrap();
 /// assert_eq!(macro_impl.name(), "MyMacro");
 /// ```
+///
+/// Clones share one map, so a registry built once serves every expander
+/// cloned from the one that built it.
+#[derive(Clone)]
 pub struct MacroRegistry {
     /// Map from (module, name) to macro implementation.
     /// Uses DashMap for concurrent access without external locking.
-    macros: DashMap<MacroKey, Arc<dyn Macroforge>>,
+    macros: Arc<DashMap<MacroKey, Arc<dyn Macroforge>>>,
 }
 
 impl MacroRegistry {
     /// Creates a new empty registry.
     pub fn new() -> Self {
         Self {
-            macros: DashMap::new(),
+            macros: Arc::new(DashMap::new()),
         }
     }
 

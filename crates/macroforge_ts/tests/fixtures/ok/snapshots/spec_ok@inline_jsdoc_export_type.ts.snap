@@ -1,12 +1,15 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_type.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_type.ts
 ---
 ## Input
 
 /** @derive(Debug) */ export type Point = { x: number; y: number };
+
+## Changed
+
+true
 
 ## Output
 
@@ -41,5 +44,24 @@ export const Point = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..67 -> expanded 0..46
+original 67..68 -> expanded 405..406
+generated 46..343 <- Debug
+generated 343..405 <- __convenience_const
+
+## Metadata
+
+type Point: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":55,"start":45},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":65,"start":56},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"name":"Point","span":{"end":68,"start":30},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

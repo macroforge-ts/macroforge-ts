@@ -1,0 +1,3207 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/email.svelte.ts
+sha256 f2974d86412d6a67ad4eed4f3f7067f577f577dcce8440144e4d9a7a4085aecf
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface Email {
+    
+    canEmail: boolean;
+    
+    
+    emailString: string;
+}
+
+export function emailDefaultValue(): Email {
+                        return {
+canEmail: false,
+emailString: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function emailSerialize(value: Email, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = emailSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function emailSerializeWithContext(value: Email, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Email",
+                        __id,
+                    };result.canEmail = value.canEmail;result.emailString = value.emailString;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function emailDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Email } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = emailDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Email.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function emailDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Email | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Email.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("canEmail" in obj)) {
+                            errors.push({ field: "canEmail", message: "missing required field" });
+                        }if (!("emailString" in obj)) {
+                            errors.push({ field: "emailString", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_canEmail = obj["canEmail"] as boolean;instance.canEmail = __raw_canEmail;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_emailString = obj["emailString"] as string;
+                                            if (__raw_emailString == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+if (__raw_emailString.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_emailString)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
+}
+instance.emailString = __raw_emailString;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Email;
+            }
+
+            export function emailValidateField<K extends keyof Email>(
+                _field: K,
+                _value: Email[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "emailString") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function emailValidateFields(
+                _partial: Partial<Email>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("emailString" in _partial && _partial.emailString !== undefined) {
+                    const __val = _partial.emailString as string;
+                    if (__val == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function emailHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "canEmail" in o && "emailString" in o;
+            }
+
+            export function emailIs(obj: unknown): obj is Email {
+                if (!emailHasShape(obj)) {
+                    return false;
+                }
+                const result = emailDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type EmailErrors = {
+            _errors: Option.Option<Array<string>>;
+            canEmail: Option.Option<Array<string>>;
+            emailString: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type EmailTainted = {
+            canEmail: Option.Option<boolean>;
+            emailString: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface EmailFieldControllers {
+            readonly canEmail: FieldController<boolean>;
+            readonly emailString: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface EmailGigaform {
+            readonly data: Email;
+            readonly errors: EmailErrors;
+            readonly tainted: EmailTainted;
+            readonly fields: EmailFieldControllers;
+            validate(): Exit.Exit<Email, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Email>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function emailCreateForm(overrides?: Partial<Email>): EmailGigaform {
+            let data = $state({ ...emailDefaultValue(), ...overrides });
+            let errors = $state<EmailErrors>({
+                _errors: Option.none(),
+                canEmail: Option.none(),
+                emailString: Option.none(),
+
+
+            });
+            let tainted = $state<EmailTainted>({
+                canEmail: Option.none(),
+                emailString: Option.none(),
+
+
+            });
+            const fields = {
+            
+                canEmail: {
+            name: "canEmail",
+            label: "Can Email",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["canEmail"],
+            get: () => data.canEmail,
+            set: (value: boolean) => { data.canEmail = value; },
+            getError: () => errors.canEmail,
+            setError: (value: Option.Option<Array<string>>) => { errors.canEmail = value; },
+            getTainted: () => tainted.canEmail,
+            setTainted: (value: Option.Option<boolean>) => { tainted.canEmail = value; },
+            validate: () => emailValidateField("canEmail", data.canEmail).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                emailString: {
+            name: "emailString",
+            label: "Email",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["emailString"],
+            get: () => data.emailString,
+            set: (value: string) => { data.emailString = value; },
+            getError: () => errors.emailString,
+            setError: (value: Option.Option<Array<string>>) => { errors.emailString = value; },
+            getTainted: () => tainted.emailString,
+            setTainted: (value: Option.Option<boolean>) => { tainted.emailString = value; },
+            validate: () => emailValidateField("emailString", data.emailString).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: { type: "email" },
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as EmailFieldControllers;
+
+
+            function validate(): Exit.Exit<Email, Array<{ field: string; message: string }>> {
+                return toExit(emailDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Email>): void {
+                data = { ...emailDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            canEmail: Option.none(),
+            emailString: Option.none(),
+
+
+        };
+                tainted = {
+            canEmail: Option.none(),
+            emailString: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function emailFromFormData(formData: FormData): Exit.Exit<Email, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const canEmailVal = formData.get("canEmail");
+                    obj.canEmail = canEmailVal === "true" || canEmailVal === "on" || canEmailVal === "1";
+                }
+            obj.emailString = formData.get("emailString") ?? "";
+
+
+            return toExit(emailDeserialize(obj));
+        }
+
+export const Email = {
+  defaultValue: emailDefaultValue,
+  serialize: emailSerialize,
+  serializeWithContext: emailSerializeWithContext,
+  deserialize: emailDeserialize,
+  deserializeWithContext: emailDeserializeWithContext,
+  validateFields: emailValidateFields,
+  hasShape: emailHasShape,
+  is: emailIs,
+  createForm: emailCreateForm,
+  fromFormData: emailFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface Email {
+    
+    canEmail: boolean;
+    
+    
+    emailString: string;
+}
+
+export function emailDefaultValue(): Email {
+                        return {
+canEmail: false,
+emailString: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function emailSerialize(value: Email, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = emailSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function emailSerializeWithContext(value: Email, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Email",
+                        __id,
+                    };result.canEmail = value.canEmail;result.emailString = value.emailString;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function emailDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Email } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = emailDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Email.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function emailDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Email | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Email.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("canEmail" in obj)) {
+                            errors.push({ field: "canEmail", message: "missing required field" });
+                        }if (!("emailString" in obj)) {
+                            errors.push({ field: "emailString", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_canEmail = obj["canEmail"] as boolean;instance.canEmail = __raw_canEmail;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_emailString = obj["emailString"] as string;
+                                            if (__raw_emailString == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+if (__raw_emailString.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_emailString)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
+}
+instance.emailString = __raw_emailString;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Email;
+            }
+
+            export function emailValidateField<K extends keyof Email>(
+                _field: K,
+                _value: Email[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "emailString") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function emailValidateFields(
+                _partial: Partial<Email>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("emailString" in _partial && _partial.emailString !== undefined) {
+                    const __val = _partial.emailString as string;
+                    if (__val == null) { errors.push({ field: "emailString", message: "Email.emailString is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "emailString", message: "Email.emailString must not be empty" }); }
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "emailString", message: "Email.emailString must be a valid email" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function emailHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "canEmail" in o && "emailString" in o;
+            }
+
+            export function emailIs(obj: unknown): obj is Email {
+                if (!emailHasShape(obj)) {
+                    return false;
+                }
+                const result = emailDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type EmailErrors = {
+            _errors: Option.Option<Array<string>>;
+            canEmail: Option.Option<Array<string>>;
+            emailString: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type EmailTainted = {
+            canEmail: Option.Option<boolean>;
+            emailString: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface EmailFieldControllers {
+            readonly canEmail: FieldController<boolean>;
+            readonly emailString: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface EmailGigaform {
+            readonly data: Email;
+            readonly errors: EmailErrors;
+            readonly tainted: EmailTainted;
+            readonly fields: EmailFieldControllers;
+            validate(): Exit.Exit<Email, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Email>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function emailCreateForm(overrides?: Partial<Email>): EmailGigaform {
+            let data = $state({ ...emailDefaultValue(), ...overrides });
+            let errors = $state<EmailErrors>({
+                _errors: Option.none(),
+                canEmail: Option.none(),
+                emailString: Option.none(),
+
+
+            });
+            let tainted = $state<EmailTainted>({
+                canEmail: Option.none(),
+                emailString: Option.none(),
+
+
+            });
+            const fields = {
+            
+                canEmail: {
+            name: "canEmail",
+            label: "Can Email",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["canEmail"],
+            get: () => data.canEmail,
+            set: (value: boolean) => { data.canEmail = value; },
+            getError: () => errors.canEmail,
+            setError: (value: Option.Option<Array<string>>) => { errors.canEmail = value; },
+            getTainted: () => tainted.canEmail,
+            setTainted: (value: Option.Option<boolean>) => { tainted.canEmail = value; },
+            validate: () => emailValidateField("canEmail", data.canEmail).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                emailString: {
+            name: "emailString",
+            label: "Email",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["emailString"],
+            get: () => data.emailString,
+            set: (value: string) => { data.emailString = value; },
+            getError: () => errors.emailString,
+            setError: (value: Option.Option<Array<string>>) => { errors.emailString = value; },
+            getTainted: () => tainted.emailString,
+            setTainted: (value: Option.Option<boolean>) => { tainted.emailString = value; },
+            validate: () => emailValidateField("emailString", data.emailString).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: { type: "email" },
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as EmailFieldControllers;
+
+
+            function validate(): Exit.Exit<Email, Array<{ field: string; message: string }>> {
+                return toExit(emailDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Email>): void {
+                data = { ...emailDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            canEmail: Option.none(),
+            emailString: Option.none(),
+
+
+        };
+                tainted = {
+            canEmail: Option.none(),
+            emailString: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function emailFromFormData(formData: FormData): Exit.Exit<Email, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const canEmailVal = formData.get("canEmail");
+                    obj.canEmail = canEmailVal === "true" || canEmailVal === "on" || canEmailVal === "1";
+                }
+            obj.emailString = formData.get("emailString") ?? "";
+
+
+            return toExit(emailDeserialize(obj));
+        }
+
+export const Email = {
+  defaultValue: emailDefaultValue,
+  serialize: emailSerialize,
+  serializeWithContext: emailSerializeWithContext,
+  deserialize: emailDeserialize,
+  deserializeWithContext: emailDeserializeWithContext,
+  validateFields: emailValidateFields,
+  hasShape: emailHasShape,
+  is: emailIs,
+  createForm: emailCreateForm,
+  fromFormData: emailFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..145 -> expanded 58..88
+original 193..221 -> expanded 88..116
+original 263..268 -> expanded 116..121
+original 318..345 -> expanded 121..148
+original 345..346 -> expanded 14852..14853
+generated 148..286 <- Default
+generated 286..1839 <- Serialize
+generated 1839..9187 <- Deserialize
+generated 9187..14467 <- Gigaform
+generated 14467..14852 <- __convenience_const
+
+## Metadata
+
+interface Email: {"body_span":{"end":346,"start":140},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Can Email\" }","name":"switchController","span":{"end":194,"start":146}}],"name":"canEmail","optional":false,"readonly":false,"span":{"end":217,"start":199},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"email\"] }","name":"serde","span":{"end":319,"start":269}},{"args_src":"{ label: \"Email\" }","name":"textController","span":{"end":264,"start":222}}],"name":"emailString","optional":false,"readonly":false,"span":{"end":344,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Email","span":{"end":346,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("boolean")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

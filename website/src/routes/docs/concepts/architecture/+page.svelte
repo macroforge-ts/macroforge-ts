@@ -70,10 +70,12 @@
 
 <h3>macroforge_ts_macros</h3>
 <p>
-	The procedural macro attribute for defining derive macros:
+	The procedural macro attributes for defining custom macros:
 </p>
 <ul>
-	<li><code>#[ts_macro_derive(Name)]</code> attribute</li>
+	<li><code>#[ts_macro_derive(Name)]</code> for derive macros</li>
+	<li><code>#[ts_macro_attribute(name)]</code> for attribute macros</li>
+	<li><code>#[ts_macro(name)]</code> for call macros</li>
 	<li>Automatic registration with the macro system</li>
 	<li>Error handling and span tracking</li>
 </ul>
@@ -117,7 +119,7 @@
 </p>
 
 <CodeBlock code={`// Convenient re-exports for macro development
-use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
+use macroforge_ts::macros::{ts_macro, ts_macro_attribute, ts_macro_derive, ts_quote, ts_template};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 // Also available: the AST crate itself

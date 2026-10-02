@@ -14,6 +14,7 @@
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
@@ -23,14 +24,18 @@ use crate::ts_syn::declarative::MacroDef;
 ///
 /// Ordered maps, so two scans of the same sources serialize identically and
 /// the written registry can be compared by its bytes.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ProjectDeclarativeRegistry {
     /// Map of `absolute_file_path` → (`$name` sans `$` → parsed `MacroDef`).
     ///
     /// File paths are stored as `String` for JSON friendliness; convert to
     /// `PathBuf` on lookup if needed.
-    by_file: BTreeMap<String, BTreeMap<String, MacroDef>>,
+    by_file: BTreeMap<String, Arc<FileMacros>>,
 }
+
+/// One file's macros by `$name` sans `$`, shared by every registry and scan
+/// that holds them.
+pub type FileMacros = BTreeMap<String, MacroDef>;
 
 impl ProjectDeclarativeRegistry {
     pub fn new() -> Self {
@@ -38,22 +43,20 @@ impl ProjectDeclarativeRegistry {
     }
 
     /// Insert all macros discovered in a single file. The `file_path` must be
-    /// an absolute path — the Vite plugin and CLI both hand absolute paths
-    /// to `expand_sync`, so lookups from the host will match this key.
-    pub fn insert_file(&mut self, file_path: impl Into<String>, macros: Vec<MacroDef>) {
-        if macros.is_empty() {
-            return;
+    /// an absolute path: the Vite plugin and CLI both hand absolute paths
+    /// to `expand_sync`, so lookups from the host will match this key. The
+    /// macros are shared with the scan that found them, not copied.
+    pub fn insert_file(&mut self, file_path: impl Into<String>, macros: Arc<FileMacros>) {
+        if !macros.is_empty() {
+            self.by_file.insert(file_path.into(), macros);
         }
-        let entry: BTreeMap<String, MacroDef> = macros
-            .into_iter()
-            .map(|def| (def.name.clone(), def))
-            .collect();
-        self.by_file.insert(file_path.into(), entry);
     }
 
     /// Look up the macros declared in a given file.
-    pub fn file_macros(&self, file_path: &Path) -> Option<&BTreeMap<String, MacroDef>> {
-        self.by_file.get(file_path.to_string_lossy().as_ref())
+    pub fn file_macros(&self, file_path: &Path) -> Option<&FileMacros> {
+        self.by_file
+            .get(file_path.to_string_lossy().as_ref())
+            .map(Arc::as_ref)
     }
 
     /// Look up a specific macro by (file, name).
@@ -77,8 +80,10 @@ impl ProjectDeclarativeRegistry {
     }
 
     /// Iterate over (file_path, name → MacroDef) entries.
-    pub fn iter(&self) -> impl Iterator<Item = (&String, &BTreeMap<String, MacroDef>)> {
-        self.by_file.iter()
+    pub fn iter(&self) -> impl Iterator<Item = (&String, &FileMacros)> {
+        self.by_file
+            .iter()
+            .map(|(file, macros)| (file, macros.as_ref()))
     }
 
     /// Resolve an import specifier (`"./foo"`, `"../bar/baz"`) relative to an
@@ -128,10 +133,18 @@ impl ProjectDeclarativeRegistry {
 /// possible without touching the filesystem. Used so that registry key
 /// comparisons match regardless of whether the importer used `./` or not.
 ///
-/// This is deliberately filesystem-free — `std::fs::canonicalize` would
+/// This is deliberately filesystem-free: `std::fs::canonicalize` would
 /// require the file to exist, which it doesn't during unit tests (and may
 /// not during scanning if the user deleted a file between buildStart and
 /// transform).
+/// `macros` keyed by name.
+pub fn by_name(macros: Vec<MacroDef>) -> FileMacros {
+    macros
+        .into_iter()
+        .map(|def| (def.name.clone(), def))
+        .collect()
+}
+
 fn normalize_path(path: &Path) -> PathBuf {
     use std::path::Component;
 

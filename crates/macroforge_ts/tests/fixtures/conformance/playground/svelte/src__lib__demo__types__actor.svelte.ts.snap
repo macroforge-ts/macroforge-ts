@@ -1,0 +1,2451 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/actor.svelte.ts
+sha256 0e2fca858a3dd3271adc20420ac43f7757b8df5aa08f36d1a9ffd719e2ea56e1
+
+## Changed
+
+true
+
+## Output
+
+import { accountDeserializeWithContext } from "./account.svelte";
+import { accountHasShape } from "./account.svelte";
+import { employeeDeserializeWithContext } from "./employee.svelte";
+import { employeeHasShape } from "./employee.svelte";
+import { userDeserializeWithContext } from "./user.svelte";
+import { userHasShape } from "./user.svelte";
+import { userDefaultValue } from "./user.svelte";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { accountDefaultValue } from "./account.svelte";
+import { employeeDefaultValue } from "./employee.svelte";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { Account } from './account.svelte';
+import type { Employee } from './employee.svelte';
+import type { User } from './user.svelte';
+
+
+export type Actor = /** @default */ User | Employee | Account;
+
+export function actorDefaultValue(): Actor {
+                            return userDefaultValue();
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function actorSerialize(value: Actor, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = actorSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function actorSerializeWithContext(value: Actor, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+        export function actorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = actorDeserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Actor.deserialize: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function actorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Actor | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as Actor | __mf_PendingRef;
+                        }if (typeof value === "object" && value !== null) {
+                                    const __typeName = (value as any)["__type"];
+                                    if (typeof __typeName === "string") {
+                                        
+                                            if (__typeName === "User") {
+                                                return userDeserializeWithContext(value, ctx) as Actor;
+                                            }
+                                        
+                                            if (__typeName === "Employee") {
+                                                return employeeDeserializeWithContext(value, ctx) as Actor;
+                                            }
+                                        
+                                            if (__typeName === "Account") {
+                                                return accountDeserializeWithContext(value, ctx) as Actor;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+                                        throw new __mf_DeserializeError([{
+                                            field: "_root",
+                                            message: "Actor.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account"
+                                        }]);
+                                    }
+                                }
+
+
+                                const __shapeMatches: Array<string> = [];
+                                
+                                    if (userHasShape(value)) __shapeMatches.push("User");
+                                
+                                    if (employeeHasShape(value)) __shapeMatches.push("Employee");
+                                
+                                    if (accountHasShape(value)) __shapeMatches.push("Account");
+
+
+
+
+
+
+                                if (__shapeMatches.length === 1) {
+                                    
+                                        if (__shapeMatches[0] === "User") {
+                                            return userDeserializeWithContext(value, ctx) as Actor;
+                                        }
+                                    
+                                        if (__shapeMatches[0] === "Employee") {
+                                            return employeeDeserializeWithContext(value, ctx) as Actor;
+                                        }
+                                    
+                                        if (__shapeMatches[0] === "Account") {
+                                            return accountDeserializeWithContext(value, ctx) as Actor;
+                                        }
+
+
+
+
+
+
+
+                                }
+
+                                if (__shapeMatches.length > 1) {
+
+                                    
+                                        if (__shapeMatches.includes("User")) {
+                                            try {
+                                                return userDeserializeWithContext(value, ctx) as Actor;
+                                            } catch {                        }
+                                        }
+
+                                    
+                                        if (__shapeMatches.includes("Employee")) {
+                                            try {
+                                                return employeeDeserializeWithContext(value, ctx) as Actor;
+                                            } catch {                        }
+                                        }
+
+                                    
+                                        if (__shapeMatches.includes("Account")) {
+                                            try {
+                                                return accountDeserializeWithContext(value, ctx) as Actor;
+                                            } catch {                        }
+                                        }
+
+
+
+
+
+
+
+
+
+
+                                    throw new __mf_DeserializeError([{
+                                        field: "_root",
+                                        message: "Actor.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                    }]);
+                                }
+
+                                throw new __mf_DeserializeError([{
+                                    field: "_root",
+                                    message: "Actor.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: User, Employee, Account"
+                                }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function actorHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
+                                    const __typeName = (value as any)["__type"];
+                                    if (typeof __typeName === "string") {
+                                        return __typeName === "User" || __typeName === "Employee" || __typeName === "Account";
+                                    }
+                                }
+
+
+                                let __matchCount = 0;
+                                
+                                    if (userHasShape(value)) __matchCount++;
+                                
+                                    if (employeeHasShape(value)) __matchCount++;
+                                
+                                    if (accountHasShape(value)) __matchCount++;
+
+
+
+                                return __matchCount >= 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function actorIs(value: unknown): value is Actor {
+            return actorHasShape(value);
+        }
+
+/** Per-variant error types  */
+        
+            export type ActorUserErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type ActorEmployeeErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type ActorAccountErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type ActorUserTainted = {
+
+
+            };
+            export type ActorEmployeeTainted = {
+
+
+            };
+            export type ActorAccountTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type ActorErrors = ({ _type: "User" } & ActorUserErrors) | ({ _type: "Employee" } & ActorEmployeeErrors) | ({ _type: "Account" } & ActorAccountErrors);
+
+        /** Union tainted type  */
+        export type ActorTainted = ({ _type: "User" } & ActorUserTainted) | ({ _type: "Employee" } & ActorEmployeeTainted) | ({ _type: "Account" } & ActorAccountTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface ActorUserFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface ActorEmployeeFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface ActorAccountFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface ActorGigaform {
+            readonly currentVariant: "User" | "Employee" | "Account";
+            readonly data: Actor;
+            readonly errors: ActorErrors;
+            readonly tainted: ActorTainted;
+            readonly variants: ActorVariantFields;
+            switchVariant(variant: "User" | "Employee" | "Account"): void;
+            validate(): Exit.Exit<Actor, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Actor>): void;
+        }
+
+        /** Variant fields container  */
+        export interface ActorVariantFields {
+            
+                readonly User: { readonly fields: ActorUserFieldControllers };
+            
+                readonly Employee: { readonly fields: ActorEmployeeFieldControllers };
+            
+                readonly Account: { readonly fields: ActorAccountFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function actorGetDefaultForVariant(variant: string): Actor {
+            if (variant === "User") { return userDefaultValue() as Actor; }
+if (variant === "Employee") { return employeeDefaultValue() as Actor; }
+if (variant === "Account") { return accountDefaultValue() as Actor; }
+            return userDefaultValue() as Actor;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function actorCreateForm(initial?: Actor): ActorGigaform {
+
+            const initialVariant: "User" | "Employee" | "Account" = "User";
+
+
+            let currentVariant = $state<"User" | "Employee" | "Account">(initialVariant);
+            let data = $state<Actor>(initial ?? actorGetDefaultForVariant(initialVariant));
+            let errors = $state<ActorErrors>({} as ActorErrors);
+            let tainted = $state<ActorTainted>({} as ActorTainted);
+
+            const variants = {
+            
+                "User": { fields: {  } as unknown as ActorUserFieldControllers },
+            
+                "Employee": { fields: {  } as unknown as ActorEmployeeFieldControllers },
+            
+                "Account": { fields: {  } as unknown as ActorAccountFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as ActorVariantFields;
+
+
+            function switchVariant(variant: "User" | "Employee" | "Account"): void {
+                currentVariant = variant;
+                data = actorGetDefaultForVariant(variant);
+                errors = {} as ActorErrors;
+                tainted = {} as ActorTainted;
+            }
+
+
+            function validate(): Exit.Exit<Actor, Array<{ field: string; message: string }>> {
+                return toExit(actorDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<Actor>): void {
+                data = overrides ? overrides as typeof data : actorGetDefaultForVariant(currentVariant);
+                errors = {} as ActorErrors;
+                tainted = {} as ActorTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function actorFromFormData(formData: FormData): Exit.Exit<Actor, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_type") as "User" | "Employee" | "Account" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_type", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._type = discriminant;
+
+            {
+
+                    if (discriminant === "User") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Employee") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Account") {
+                        
+                    }
+                }
+
+
+            return toExit(actorDeserialize(obj));
+        }
+
+export const Actor = {
+  defaultValue: actorDefaultValue,
+  serialize: actorSerialize,
+  serializeWithContext: actorSerializeWithContext,
+  deserialize: actorDeserialize,
+  deserializeWithContext: actorDeserializeWithContext,
+  hasShape: actorHasShape,
+  is: actorIs,
+  createForm: actorCreateForm,
+  fromFormData: actorFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { Account } from './account.svelte';
+import type { Employee } from './employee.svelte';
+import type { User } from './user.svelte';
+
+
+export type Actor = /** @default */ User | Employee | Account;
+
+export function actorDefaultValue(): Actor {
+                            return userDefaultValue();
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function actorSerialize(value: Actor, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = actorSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function actorSerializeWithContext(value: Actor, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+        export function actorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = actorDeserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Actor.deserialize: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function actorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Actor | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as Actor | __mf_PendingRef;
+                        }if (typeof value === "object" && value !== null) {
+                                    const __typeName = (value as any)["__type"];
+                                    if (typeof __typeName === "string") {
+                                        
+                                            if (__typeName === "User") {
+                                                return userDeserializeWithContext(value, ctx) as Actor;
+                                            }
+                                        
+                                            if (__typeName === "Employee") {
+                                                return employeeDeserializeWithContext(value, ctx) as Actor;
+                                            }
+                                        
+                                            if (__typeName === "Account") {
+                                                return accountDeserializeWithContext(value, ctx) as Actor;
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+                                        throw new __mf_DeserializeError([{
+                                            field: "_root",
+                                            message: "Actor.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account"
+                                        }]);
+                                    }
+                                }
+
+
+                                const __shapeMatches: Array<string> = [];
+                                
+                                    if (userHasShape(value)) __shapeMatches.push("User");
+                                
+                                    if (employeeHasShape(value)) __shapeMatches.push("Employee");
+                                
+                                    if (accountHasShape(value)) __shapeMatches.push("Account");
+
+
+
+
+
+
+                                if (__shapeMatches.length === 1) {
+                                    
+                                        if (__shapeMatches[0] === "User") {
+                                            return userDeserializeWithContext(value, ctx) as Actor;
+                                        }
+                                    
+                                        if (__shapeMatches[0] === "Employee") {
+                                            return employeeDeserializeWithContext(value, ctx) as Actor;
+                                        }
+                                    
+                                        if (__shapeMatches[0] === "Account") {
+                                            return accountDeserializeWithContext(value, ctx) as Actor;
+                                        }
+
+
+
+
+
+
+
+                                }
+
+                                if (__shapeMatches.length > 1) {
+
+                                    
+                                        if (__shapeMatches.includes("User")) {
+                                            try {
+                                                return userDeserializeWithContext(value, ctx) as Actor;
+                                            } catch {                        }
+                                        }
+
+                                    
+                                        if (__shapeMatches.includes("Employee")) {
+                                            try {
+                                                return employeeDeserializeWithContext(value, ctx) as Actor;
+                                            } catch {                        }
+                                        }
+
+                                    
+                                        if (__shapeMatches.includes("Account")) {
+                                            try {
+                                                return accountDeserializeWithContext(value, ctx) as Actor;
+                                            } catch {                        }
+                                        }
+
+
+
+
+
+
+
+
+
+
+                                    throw new __mf_DeserializeError([{
+                                        field: "_root",
+                                        message: "Actor.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                    }]);
+                                }
+
+                                throw new __mf_DeserializeError([{
+                                    field: "_root",
+                                    message: "Actor.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: User, Employee, Account"
+                                }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function actorHasShape(value: unknown): boolean {if (typeof value === "object" && value !== null) {
+                                    const __typeName = (value as any)["__type"];
+                                    if (typeof __typeName === "string") {
+                                        return __typeName === "User" || __typeName === "Employee" || __typeName === "Account";
+                                    }
+                                }
+
+
+                                let __matchCount = 0;
+                                
+                                    if (userHasShape(value)) __matchCount++;
+                                
+                                    if (employeeHasShape(value)) __matchCount++;
+                                
+                                    if (accountHasShape(value)) __matchCount++;
+
+
+
+                                return __matchCount >= 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function actorIs(value: unknown): value is Actor {
+            return actorHasShape(value);
+        }
+
+/** Per-variant error types  */
+        
+            export type ActorUserErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type ActorEmployeeErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type ActorAccountErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type ActorUserTainted = {
+
+
+            };
+            export type ActorEmployeeTainted = {
+
+
+            };
+            export type ActorAccountTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type ActorErrors = ({ _type: "User" } & ActorUserErrors) | ({ _type: "Employee" } & ActorEmployeeErrors) | ({ _type: "Account" } & ActorAccountErrors);
+
+        /** Union tainted type  */
+        export type ActorTainted = ({ _type: "User" } & ActorUserTainted) | ({ _type: "Employee" } & ActorEmployeeTainted) | ({ _type: "Account" } & ActorAccountTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface ActorUserFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface ActorEmployeeFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface ActorAccountFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface ActorGigaform {
+            readonly currentVariant: "User" | "Employee" | "Account";
+            readonly data: Actor;
+            readonly errors: ActorErrors;
+            readonly tainted: ActorTainted;
+            readonly variants: ActorVariantFields;
+            switchVariant(variant: "User" | "Employee" | "Account"): void;
+            validate(): Exit.Exit<Actor, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Actor>): void;
+        }
+
+        /** Variant fields container  */
+        export interface ActorVariantFields {
+            
+                readonly User: { readonly fields: ActorUserFieldControllers };
+            
+                readonly Employee: { readonly fields: ActorEmployeeFieldControllers };
+            
+                readonly Account: { readonly fields: ActorAccountFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function actorGetDefaultForVariant(variant: string): Actor {
+            if (variant === "User") { return userDefaultValue() as Actor; }
+if (variant === "Employee") { return employeeDefaultValue() as Actor; }
+if (variant === "Account") { return accountDefaultValue() as Actor; }
+            return userDefaultValue() as Actor;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function actorCreateForm(initial?: Actor): ActorGigaform {
+
+            const initialVariant: "User" | "Employee" | "Account" = "User";
+
+
+            let currentVariant = $state<"User" | "Employee" | "Account">(initialVariant);
+            let data = $state<Actor>(initial ?? actorGetDefaultForVariant(initialVariant));
+            let errors = $state<ActorErrors>({} as ActorErrors);
+            let tainted = $state<ActorTainted>({} as ActorTainted);
+
+            const variants = {
+            
+                "User": { fields: {  } as unknown as ActorUserFieldControllers },
+            
+                "Employee": { fields: {  } as unknown as ActorEmployeeFieldControllers },
+            
+                "Account": { fields: {  } as unknown as ActorAccountFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as ActorVariantFields;
+
+
+            function switchVariant(variant: "User" | "Employee" | "Account"): void {
+                currentVariant = variant;
+                data = actorGetDefaultForVariant(variant);
+                errors = {} as ActorErrors;
+                tainted = {} as ActorTainted;
+            }
+
+
+            function validate(): Exit.Exit<Actor, Array<{ field: string; message: string }>> {
+                return toExit(actorDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<Actor>): void {
+                data = overrides ? overrides as typeof data : actorGetDefaultForVariant(currentVariant);
+                errors = {} as ActorErrors;
+                tainted = {} as ActorTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function actorFromFormData(formData: FormData): Exit.Exit<Actor, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_type") as "User" | "Employee" | "Account" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_type", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._type = discriminant;
+
+            {
+
+                    if (discriminant === "User") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Employee") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Account") {
+                        
+                    }
+                }
+
+
+            return toExit(actorDeserialize(obj));
+        }
+
+export const Actor = {
+  defaultValue: actorDefaultValue,
+  serialize: actorSerialize,
+  serializeWithContext: actorSerializeWithContext,
+  deserialize: actorDeserialize,
+  deserializeWithContext: actorDeserializeWithContext,
+  hasShape: actorHasShape,
+  is: actorIs,
+  createForm: actorCreateForm,
+  fromFormData: actorFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..202 -> expanded 0..202
+original 259..322 -> expanded 202..265
+original 322..323 -> expanded 17183..17184
+generated 265..392 <- Default
+generated 392..2323 <- Serialize
+generated 2323..10954 <- Deserialize
+generated 10954..16837 <- Gigaform
+generated 16837..17183 <- __convenience_const
+
+## Metadata
+
+type Actor: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":296,"start":281}}],"kind":{"TypeRef":"User"}},{"decorators":[],"kind":{"TypeRef":"Employee"}},{"decorators":[],"kind":{"TypeRef":"Account"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":260,"start":203}}],"name":"Actor","span":{"end":323,"start":268},"type_params":[]}
+
+## Registry reads
+
+Name("Account")
+Name("Actor")
+Name("Employee")
+Name("User")
+
+## Buildtime dependencies
+
+(none)

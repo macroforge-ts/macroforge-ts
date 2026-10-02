@@ -72,7 +72,10 @@ export interface Foo {
             config_path: Some(config_path.to_string()),
             type_registry_json: None,
             declarative_registry_json: None,
+            type_registry_id: None,
+            declarative_registry_id: None,
             build_mode: None,
+            emit_metadata: None,
         };
         let result = crate::api::CoreEngine::expand_sync(
             source.to_string(),
@@ -113,7 +116,7 @@ export interface Foo {
             result.code
         );
 
-        // DateTime is already a value import in the target — should NOT be
+        // DateTime is already a value import in the target, so it should NOT be
         // re-imported under an __mf_ alias, and the body should reference it
         // directly.
         assert!(
@@ -143,7 +146,7 @@ fn test_default_inlines_foreign_expression_when_namespace_only_in_ft_from() {
     // Pre-fix this skips silently and the inlined IIFE references undefined
     // `Option`. After the fix, the alias and import are emitted.
     let config_source = r#"
-// Note: NO top-level `Option` import in the config — the namespace is
+// Note: NO top-level `Option` import in the config: the namespace is
 // only known to the engine via the `Option` foreign type's `from` list.
 import { DateTime } from 'effect';
 
@@ -192,7 +195,10 @@ export interface Foo {
             config_path: Some(config_path.to_string()),
             type_registry_json: None,
             declarative_registry_json: None,
+            type_registry_id: None,
+            declarative_registry_id: None,
             build_mode: None,
+            emit_metadata: None,
         };
         let result = crate::api::CoreEngine::expand_sync(
             source.to_string(),
@@ -286,7 +292,10 @@ export interface Foo {
             config_path: Some(config_path.to_string()),
             type_registry_json: None,
             declarative_registry_json: None,
+            type_registry_id: None,
+            declarative_registry_id: None,
             build_mode: None,
+            emit_metadata: None,
         };
         let result = crate::api::CoreEngine::expand_sync(
             source.to_string(),

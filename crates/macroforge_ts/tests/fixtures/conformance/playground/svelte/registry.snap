@@ -1,0 +1,443 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Types (130)
+
+Account ddbd22bd4a9cc9b3
+AccountBase e743f951ee7d686f
+AccountForm 2226cb4083a4d22b
+AccountName afcd302144dbf24f
+ActivityType 39f10e7eacb11e0f
+Actor 08f9c982f96d96fb
+Address 5ed44ae1f2433a91
+AppPermissions 31aa12678b15e200
+Applications 836a29bf3fd4d19c
+Appointment 790e83940310c820
+AppointmentForm 5f795b12939adc1d
+AppointmentNotifications dff52c125e24a61b
+AttributesDemoResults 8e1114da66b72d67
+BilledItem b54aaf33253e4452
+Budget 33e4aae676de02a1
+Cardinal e86be37b841ea91e
+CheckingAccount 716f73e3c6e76f65
+Color 889bdfc30467beca
+Colors 7456e4ea617c119d
+ColorsConfig 916b5f72c6b3433d
+ColumnConfig c6fcb6c584b9bc6e
+Commented b27d5b39ae8b548d
+Commissions 77511be15e1f3c6e
+Company e3c4bbedf72098c1
+CompanyName 5f23b6a4c25f529f
+ComparableItem f5b78620f6011ead
+Coordinates 6709042169fad05a
+CoordinatesForm 1433911ef044ceb3
+Created 4686156a750b418b
+Custom d5a84335ff6171f9
+DailyRecurrenceRule fed6fa010a514aeb
+DataPath e174b0ae07813266
+Department 90c6b5d3e9f091f6
+Did f440918ebee9e4db
+DirectionHue a28365b7347de8a5
+Edited 4568a34ac0980cb9
+Email fd1cc26c848f4dbc
+EmailParts 619e5d2a303e6592
+Employee e4ffbfee34012a7c
+EmployeeForm 307525640e511682
+EventForm 62821cb962a5e9cd
+Feature 1386887fe0cf96c1
+FirstName 449e5a31e36aa3f0
+FullFeaturedType e2e60ae3a94dc357
+GigaformResults 8ae880e1ca5ff9b1
+Gradient 395bedd364f5ff43
+GradientForm f571d134f163a4e6
+Interval b71467c553462593
+IntervalUnit d2bffc88cf8f85c6
+Item 83ebd2079f0c0d39
+JobTitle 77ec5fe12ea9b0a5
+LastName 79d16fc377360592
+Lead a7a4fdb02eda9deb
+LeadForm 3e8028a2abfdcf7a
+LeadStage 86a138496facc7ad
+Limit ce6b530be7e293c6
+MacroUser 4fad1697af3e6f16
+Metadata dd3a5d01f2fd8792
+MetadataValue bf9e8e2fac57bd0d
+Milestone cbba45be2f4cc785
+MonthlyRecurrenceRule fbb3aea9f1cc2e07
+NextStep 4d7621362927e296
+Number d83868ece76185ed
+Order beec70c8bbbdab7f
+OrderForm 739cda911b2a15f6
+OrderStage 49e8f837e5422d06
+Ordered 8c7ceddc4b3f7062
+Ordinal 805708c146f0a34b
+OrgConfig 9609fb15de4f8d35
+Organization d2f16433239beeeb
+OutcomeOf 62bdea716b88493d
+OverviewDisplay 7cba9df1bab10ced
+OverviewSettings d1368570a7875b38
+Package d6570d93b08c438a
+Page e0a71079840a9b1c
+Paid 73fd4dd4c7e17ca1
+Password 9b94462ad387f935
+Payment bbd43e794e24c2d1
+PersonName 6fe25102ede21b77
+PhoneNumber ff81225f742c4c76
+PhoneNumberForm 86ef1647ca25403f
+Priority 21c85b6ce9f9a407
+Product 73ccbd9137ad9ee8
+ProductDefaults 9ca2d951ebea119a
+ProductForm ddf2221f319f91ac
+Project 4fc9bbf2eb3af473
+Promotion 1422cdf4f3cb5b96
+RecordLink c3c492b95775ccfb
+RecurrenceEnd f937fd53fd5e0483
+RecurrenceRule 4f1e42cdb47c0252
+Represents 27b05d0228e257bf
+Route f9a9f0aa88424c0b
+RouteId c9a18a86fe0b4d1e
+RowHeight e57083528306648f
+SavingsAccount d75185596affc566
+ScheduleSettings 81947a83b48adecd
+Sector c746e951e16dacd0
+Sent 324820bfe0aec620
+ServerStatus 4e4ec1902f406a26
+Service 548581a5bf1fff96
+ServiceDefaults b43a6aeb8d850fb5
+Settings d76c7dec8de5e001
+SignUpCredentials 90ac7a61a48dd333
+Site d3cdf542b3c57206
+Skill c965d4323024ccdf
+Status 3a116ddc7c54f137
+SvelteAllMacrosTest 51d8bd7849818e77
+SvelteBuildtimeResult 676981be2dbdda1d
+SveltePlayground 18775445f4ea4959
+Table 71aad7bac3f38c67
+Tag b428d5ed59d35701
+Target ec43b00f2c8d1c20
+TaxRate d1c247f85a0eb0f3
+TaxRateForm 332b293d849e1afd
+TypeA a0536e3dbbe34208
+TypeB 12809118f58e2a3b
+TypeC 53438f720a0bf67b
+User 8e7debc6b9ffd0ea
+UserForm 22936755a6ecd9fb
+UserRegistrationForm 5197e72bf93c59a5
+UserRole 83b46c8d9ebf4350
+UserWithDeserialize 3fa810ac1584e038
+ValidationOutcome 2da7bd2b74b0e775
+ValidationResult 284119bc3f9d3685
+ValidatorFormResults 920588a6fef8a2be
+Viewed cea344767238187c
+WeekOfMonth 69495fa5926ba4ec
+Weekday c9e527e8e4ab58dd
+WeeklyRecurrenceRule b177153dc6784966
+YearlyRecurrenceRule 99764773e5c0c886
+
+## Qualified types (217)
+
+src/lib/demo/all-macros-test.ts::SvelteAllMacrosTest 51d8bd7849818e77
+src/lib/demo/all-types.svelte.ts::Account ddbd22bd4a9cc9b3
+src/lib/demo/all-types.svelte.ts::AccountName afcd302144dbf24f
+src/lib/demo/all-types.svelte.ts::ActivityType 39f10e7eacb11e0f
+src/lib/demo/all-types.svelte.ts::Actor 08f9c982f96d96fb
+src/lib/demo/all-types.svelte.ts::Address 5ed44ae1f2433a91
+src/lib/demo/all-types.svelte.ts::AppPermissions 31aa12678b15e200
+src/lib/demo/all-types.svelte.ts::Applications 836a29bf3fd4d19c
+src/lib/demo/all-types.svelte.ts::Appointment 790e83940310c820
+src/lib/demo/all-types.svelte.ts::AppointmentNotifications dff52c125e24a61b
+src/lib/demo/all-types.svelte.ts::BilledItem b54aaf33253e4452
+src/lib/demo/all-types.svelte.ts::Cardinal e86be37b841ea91e
+src/lib/demo/all-types.svelte.ts::Color 889bdfc30467beca
+src/lib/demo/all-types.svelte.ts::Colors 7456e4ea617c119d
+src/lib/demo/all-types.svelte.ts::ColorsConfig 916b5f72c6b3433d
+src/lib/demo/all-types.svelte.ts::ColumnConfig c6fcb6c584b9bc6e
+src/lib/demo/all-types.svelte.ts::Commented b27d5b39ae8b548d
+src/lib/demo/all-types.svelte.ts::Commissions 77511be15e1f3c6e
+src/lib/demo/all-types.svelte.ts::Company e3c4bbedf72098c1
+src/lib/demo/all-types.svelte.ts::CompanyName 5f23b6a4c25f529f
+src/lib/demo/all-types.svelte.ts::Coordinates 6709042169fad05a
+src/lib/demo/all-types.svelte.ts::Created 4686156a750b418b
+src/lib/demo/all-types.svelte.ts::Custom d5a84335ff6171f9
+src/lib/demo/all-types.svelte.ts::DailyRecurrenceRule fed6fa010a514aeb
+src/lib/demo/all-types.svelte.ts::DataPath e174b0ae07813266
+src/lib/demo/all-types.svelte.ts::Did f440918ebee9e4db
+src/lib/demo/all-types.svelte.ts::DirectionHue a28365b7347de8a5
+src/lib/demo/all-types.svelte.ts::Edited 4568a34ac0980cb9
+src/lib/demo/all-types.svelte.ts::Email fd1cc26c848f4dbc
+src/lib/demo/all-types.svelte.ts::EmailParts 619e5d2a303e6592
+src/lib/demo/all-types.svelte.ts::Employee e4ffbfee34012a7c
+src/lib/demo/all-types.svelte.ts::FirstName 449e5a31e36aa3f0
+src/lib/demo/all-types.svelte.ts::Gradient 395bedd364f5ff43
+src/lib/demo/all-types.svelte.ts::Interval b71467c553462593
+src/lib/demo/all-types.svelte.ts::IntervalUnit d2bffc88cf8f85c6
+src/lib/demo/all-types.svelte.ts::Item 83ebd2079f0c0d39
+src/lib/demo/all-types.svelte.ts::JobTitle 77ec5fe12ea9b0a5
+src/lib/demo/all-types.svelte.ts::LastName 79d16fc377360592
+src/lib/demo/all-types.svelte.ts::Lead a7a4fdb02eda9deb
+src/lib/demo/all-types.svelte.ts::LeadStage 86a138496facc7ad
+src/lib/demo/all-types.svelte.ts::Metadata dd3a5d01f2fd8792
+src/lib/demo/all-types.svelte.ts::MonthlyRecurrenceRule fbb3aea9f1cc2e07
+src/lib/demo/all-types.svelte.ts::NextStep 4d7621362927e296
+src/lib/demo/all-types.svelte.ts::Number d83868ece76185ed
+src/lib/demo/all-types.svelte.ts::Order beec70c8bbbdab7f
+src/lib/demo/all-types.svelte.ts::OrderStage 49e8f837e5422d06
+src/lib/demo/all-types.svelte.ts::Ordered 8c7ceddc4b3f7062
+src/lib/demo/all-types.svelte.ts::Ordinal 805708c146f0a34b
+src/lib/demo/all-types.svelte.ts::OverviewDisplay 7cba9df1bab10ced
+src/lib/demo/all-types.svelte.ts::OverviewSettings d1368570a7875b38
+src/lib/demo/all-types.svelte.ts::Package d6570d93b08c438a
+src/lib/demo/all-types.svelte.ts::Page e0a71079840a9b1c
+src/lib/demo/all-types.svelte.ts::Paid 73fd4dd4c7e17ca1
+src/lib/demo/all-types.svelte.ts::Password 9b94462ad387f935
+src/lib/demo/all-types.svelte.ts::Payment bbd43e794e24c2d1
+src/lib/demo/all-types.svelte.ts::PersonName 6fe25102ede21b77
+src/lib/demo/all-types.svelte.ts::PhoneNumber ff81225f742c4c76
+src/lib/demo/all-types.svelte.ts::Priority 21c85b6ce9f9a407
+src/lib/demo/all-types.svelte.ts::Product 73ccbd9137ad9ee8
+src/lib/demo/all-types.svelte.ts::ProductDefaults 9ca2d951ebea119a
+src/lib/demo/all-types.svelte.ts::Promotion 1422cdf4f3cb5b96
+src/lib/demo/all-types.svelte.ts::RecordLink c3c492b95775ccfb
+src/lib/demo/all-types.svelte.ts::RecurrenceEnd f937fd53fd5e0483
+src/lib/demo/all-types.svelte.ts::RecurrenceRule 4f1e42cdb47c0252
+src/lib/demo/all-types.svelte.ts::Represents 27b05d0228e257bf
+src/lib/demo/all-types.svelte.ts::Route f9a9f0aa88424c0b
+src/lib/demo/all-types.svelte.ts::RowHeight e57083528306648f
+src/lib/demo/all-types.svelte.ts::ScheduleSettings 81947a83b48adecd
+src/lib/demo/all-types.svelte.ts::Sector c746e951e16dacd0
+src/lib/demo/all-types.svelte.ts::Sent 324820bfe0aec620
+src/lib/demo/all-types.svelte.ts::Service 548581a5bf1fff96
+src/lib/demo/all-types.svelte.ts::ServiceDefaults b43a6aeb8d850fb5
+src/lib/demo/all-types.svelte.ts::Settings d76c7dec8de5e001
+src/lib/demo/all-types.svelte.ts::SignUpCredentials 90ac7a61a48dd333
+src/lib/demo/all-types.svelte.ts::Site d3cdf542b3c57206
+src/lib/demo/all-types.svelte.ts::Status 3a116ddc7c54f137
+src/lib/demo/all-types.svelte.ts::Table 71aad7bac3f38c67
+src/lib/demo/all-types.svelte.ts::Target ec43b00f2c8d1c20
+src/lib/demo/all-types.svelte.ts::TaxRate d1c247f85a0eb0f3
+src/lib/demo/all-types.svelte.ts::User 8e7debc6b9ffd0ea
+src/lib/demo/all-types.svelte.ts::UserRole 83b46c8d9ebf4350
+src/lib/demo/all-types.svelte.ts::Viewed cea344767238187c
+src/lib/demo/all-types.svelte.ts::WeekOfMonth 69495fa5926ba4ec
+src/lib/demo/all-types.svelte.ts::Weekday c9e527e8e4ab58dd
+src/lib/demo/all-types.svelte.ts::WeeklyRecurrenceRule b177153dc6784966
+src/lib/demo/all-types.svelte.ts::YearlyRecurrenceRule 99764773e5c0c886
+src/lib/demo/attributes-demo-consumer.ts::AttributesDemoResults 8e1114da66b72d67
+src/lib/demo/attributes-demo.ts::ServerStatus 4e4ec1902f406a26
+src/lib/demo/buildtime-demo.ts::RouteId c9a18a86fe0b4d1e
+src/lib/demo/buildtime-demo.ts::SvelteBuildtimeResult 676981be2dbdda1d
+src/lib/demo/macro-user.ts::MacroUser 4fad1697af3e6f16
+src/lib/demo/types/account-name.svelte.ts::AccountName 13c1003726417956
+src/lib/demo/types/account.svelte.ts::Account 6ddfc7860dcb878f
+src/lib/demo/types/activity-type.svelte.ts::ActivityType 11735e8a72780f39
+src/lib/demo/types/actor.svelte.ts::Actor 158850426b8e9254
+src/lib/demo/types/address.svelte.ts::Address 98d262c691b23cc3
+src/lib/demo/types/app-permissions.svelte.ts::AppPermissions 96b44d0a748ec461
+src/lib/demo/types/applications.svelte.ts::Applications 95d65518c941795a
+src/lib/demo/types/appointment-notifications.svelte.ts::AppointmentNotifications 3fd1cf005d18a0ef
+src/lib/demo/types/appointment.svelte.ts::Appointment 222df9bb200c7e6a
+src/lib/demo/types/billed-item.svelte.ts::BilledItem 755bf814dd3a6a4c
+src/lib/demo/types/cardinal.svelte.ts::Cardinal 3e106ec34bdcf5f4
+src/lib/demo/types/color.svelte.ts::Color ea454fc1486d2603
+src/lib/demo/types/colors-config.svelte.ts::ColorsConfig 52efc62008acbc55
+src/lib/demo/types/colors.svelte.ts::Colors 950a824a89548e97
+src/lib/demo/types/column-config.svelte.ts::ColumnConfig ce61bce8cd4a3cc8
+src/lib/demo/types/commented.svelte.ts::Commented d31470793dce82da
+src/lib/demo/types/commissions.svelte.ts::Commissions bce4d8a31e536242
+src/lib/demo/types/company-name.svelte.ts::CompanyName 3dc8a2b0ed291944
+src/lib/demo/types/company.svelte.ts::Company 0ba5b826b0003c37
+src/lib/demo/types/coordinates.svelte.ts::Coordinates 34395faa2d0c4a3d
+src/lib/demo/types/created.svelte.ts::Created 5263a1d63eccb9b3
+src/lib/demo/types/custom.svelte.ts::Custom aec3fbd0228404f7
+src/lib/demo/types/daily-recurrence-rule.svelte.ts::DailyRecurrenceRule ac2b5ef30781b7fe
+src/lib/demo/types/data-path.svelte.ts::DataPath 7a1acfc2d6203cdf
+src/lib/demo/types/did.svelte.ts::Did b67869b7bdaeeb6e
+src/lib/demo/types/direction-hue.svelte.ts::DirectionHue 2186d06615313eb0
+src/lib/demo/types/edited.svelte.ts::Edited 5bbb37493133b71f
+src/lib/demo/types/email-parts.svelte.ts::EmailParts f0a5441a48cf90fe
+src/lib/demo/types/email.svelte.ts::Email 721f8f232abdf8c9
+src/lib/demo/types/employee.svelte.ts::Employee bd35e54346f72089
+src/lib/demo/types/first-name.svelte.ts::FirstName 8870669340006382
+src/lib/demo/types/gradient.svelte.ts::Gradient b1bca555e92769d8
+src/lib/demo/types/import-dedup-test.svelte.ts::ComparableItem f5b78620f6011ead
+src/lib/demo/types/import-dedup-test.svelte.ts::FullFeaturedType e2e60ae3a94dc357
+src/lib/demo/types/import-dedup-test.svelte.ts::TypeA a0536e3dbbe34208
+src/lib/demo/types/import-dedup-test.svelte.ts::TypeB 12809118f58e2a3b
+src/lib/demo/types/import-dedup-test.svelte.ts::TypeC 53438f720a0bf67b
+src/lib/demo/types/import-dedup-test.svelte.ts::UserWithDeserialize 3fa810ac1584e038
+src/lib/demo/types/interval-unit.svelte.ts::IntervalUnit 6fca76ca645c406d
+src/lib/demo/types/interval.svelte.ts::Interval ebc643205d77225b
+src/lib/demo/types/item.svelte.ts::Item 5945ab847a8acd47
+src/lib/demo/types/job-title.svelte.ts::JobTitle 20aafb93e8f636a3
+src/lib/demo/types/last-name.svelte.ts::LastName 926f3c6407edccad
+src/lib/demo/types/lead-stage.svelte.ts::LeadStage a4d5b064990f0bc5
+src/lib/demo/types/lead.svelte.ts::Lead c252da0e1feb48f2
+src/lib/demo/types/metadata.svelte.ts::Metadata 64211a8aca1d861f
+src/lib/demo/types/monthly-recurrence-rule.svelte.ts::MonthlyRecurrenceRule d44f2cc75afa779d
+src/lib/demo/types/next-step.svelte.ts::NextStep c61a3f104f93a27a
+src/lib/demo/types/number.svelte.ts::Number a4ac5323cebaae19
+src/lib/demo/types/order-stage.svelte.ts::OrderStage 240f96530526ba06
+src/lib/demo/types/order.svelte.ts::Order 7c112f29db80be28
+src/lib/demo/types/ordered.svelte.ts::Ordered e9bc64330d8919b0
+src/lib/demo/types/ordinal.svelte.ts::Ordinal 162f0b7cd3a7c8db
+src/lib/demo/types/overview-display.svelte.ts::OverviewDisplay d557f38ac1f18716
+src/lib/demo/types/overview-settings.svelte.ts::OverviewSettings d1f57b40b9cf38d3
+src/lib/demo/types/package.svelte.ts::Package acd3c835e1e0f9c4
+src/lib/demo/types/page.svelte.ts::Page d01bda7c87472cee
+src/lib/demo/types/paid.svelte.ts::Paid 9d661157c4eeb817
+src/lib/demo/types/password.svelte.ts::Password a5c79e8df69a0a50
+src/lib/demo/types/payment.svelte.ts::Payment 98912aed6de8a59b
+src/lib/demo/types/person-name.svelte.ts::PersonName 714bbf950f895e44
+src/lib/demo/types/phone-number.svelte.ts::PhoneNumber 9e1e6db3c240f384
+src/lib/demo/types/priority.svelte.ts::Priority 06f19ce4c643abf0
+src/lib/demo/types/product-defaults.svelte.ts::ProductDefaults 4eb990dcf5583283
+src/lib/demo/types/product.svelte.ts::Product 67968287b0c0ad32
+src/lib/demo/types/promotion.svelte.ts::Promotion f7cf1ad3156909e5
+src/lib/demo/types/record-link.svelte.ts::RecordLink 647a86b6b09b0349
+src/lib/demo/types/recurrence-end.svelte.ts::RecurrenceEnd eafacbae8321a49d
+src/lib/demo/types/recurrence-rule.svelte.ts::RecurrenceRule 88f0186252527962
+src/lib/demo/types/represents.svelte.ts::Represents 6fd0378ae7cb0cbe
+src/lib/demo/types/route.svelte.ts::Route 5a9f0a65c9048037
+src/lib/demo/types/row-height.svelte.ts::RowHeight 4927f3b858da54db
+src/lib/demo/types/schedule-settings.svelte.ts::ScheduleSettings f6eead8322cf36df
+src/lib/demo/types/sector.svelte.ts::Sector 95f81c42b6438d3a
+src/lib/demo/types/sent.svelte.ts::Sent cac0b53cf1d4356f
+src/lib/demo/types/service-defaults.svelte.ts::ServiceDefaults 8abfc4dcac30727b
+src/lib/demo/types/service.svelte.ts::Service 8aa30b78e8ccbe60
+src/lib/demo/types/settings.svelte.ts::Settings 97633be2fccb54ee
+src/lib/demo/types/sign-up-credentials.svelte.ts::SignUpCredentials 7b438228bd25c976
+src/lib/demo/types/site.svelte.ts::Site 5f2958f31474816d
+src/lib/demo/types/status.svelte.ts::Status 0622d6a9bd7930d2
+src/lib/demo/types/table.svelte.ts::Table a1057b7c962778a1
+src/lib/demo/types/target.svelte.ts::Target 031d1af6b702475a
+src/lib/demo/types/tax-rate.svelte.ts::TaxRate 561171f6f709f894
+src/lib/demo/types/user-role.svelte.ts::UserRole f97fd86296a6a55b
+src/lib/demo/types/user.svelte.ts::User 12730cd052c2dc85
+src/lib/demo/types/viewed.svelte.ts::Viewed 6373b12c319dbec1
+src/lib/demo/types/week-of-month.svelte.ts::WeekOfMonth 7824004bbf855d3e
+src/lib/demo/types/weekday.svelte.ts::Weekday 3fe0281069a83801
+src/lib/demo/types/weekly-recurrence-rule.svelte.ts::WeeklyRecurrenceRule 945279b0ec210177
+src/lib/demo/types/yearly-recurrence-rule.svelte.ts::YearlyRecurrenceRule c33baadd7747eb75
+src/lib/demo/validator-form.ts::EventForm 62821cb962a5e9cd
+src/lib/demo/validator-form.ts::ProductForm ddf2221f319f91ac
+src/lib/demo/validator-form.ts::UserRegistrationForm 5197e72bf93c59a5
+src/lib/demo/validator-form.ts::ValidationResult 284119bc3f9d3685
+src/lib/e2e/types.svelte.ts::AccountBase e743f951ee7d686f
+src/lib/e2e/types.svelte.ts::Address 664e5ef9814d0725
+src/lib/e2e/types.svelte.ts::Budget 33e4aae676de02a1
+src/lib/e2e/types.svelte.ts::CheckingAccount 716f73e3c6e76f65
+src/lib/e2e/types.svelte.ts::Department 90c6b5d3e9f091f6
+src/lib/e2e/types.svelte.ts::Employee 8f10b8e6014a5bb6
+src/lib/e2e/types.svelte.ts::Feature 1386887fe0cf96c1
+src/lib/e2e/types.svelte.ts::Limit ce6b530be7e293c6
+src/lib/e2e/types.svelte.ts::MetadataValue bf9e8e2fac57bd0d
+src/lib/e2e/types.svelte.ts::Milestone cbba45be2f4cc785
+src/lib/e2e/types.svelte.ts::OrgConfig 9609fb15de4f8d35
+src/lib/e2e/types.svelte.ts::Organization d2f16433239beeeb
+src/lib/e2e/types.svelte.ts::Project 4fc9bbf2eb3af473
+src/lib/e2e/types.svelte.ts::SavingsAccount d75185596affc566
+src/lib/e2e/types.svelte.ts::Skill c965d4323024ccdf
+src/lib/e2e/types.svelte.ts::Tag b428d5ed59d35701
+src/lib/playground-globals.ts::AccountForm 2226cb4083a4d22b
+src/lib/playground-globals.ts::AppointmentForm 5f795b12939adc1d
+src/lib/playground-globals.ts::CoordinatesForm 1433911ef044ceb3
+src/lib/playground-globals.ts::EmployeeForm 307525640e511682
+src/lib/playground-globals.ts::GigaformResults 8ae880e1ca5ff9b1
+src/lib/playground-globals.ts::GradientForm f571d134f163a4e6
+src/lib/playground-globals.ts::LeadForm 3e8028a2abfdcf7a
+src/lib/playground-globals.ts::OrderForm 739cda911b2a15f6
+src/lib/playground-globals.ts::PhoneNumberForm 86ef1647ca25403f
+src/lib/playground-globals.ts::SveltePlayground 18775445f4ea4959
+src/lib/playground-globals.ts::TaxRateForm 332b293d849e1afd
+src/lib/playground-globals.ts::UserForm 22936755a6ecd9fb
+src/lib/playground-globals.ts::ValidatorFormResults 920588a6fef8a2be
+src/lib/validation-outcome.ts::OutcomeOf 62bdea716b88493d
+src/lib/validation-outcome.ts::ValidationOutcome 2da7bd2b74b0e775
+
+## Ambiguous names
+
+Account
+AccountName
+ActivityType
+Actor
+Address
+AppPermissions
+Applications
+Appointment
+AppointmentNotifications
+BilledItem
+Cardinal
+Color
+Colors
+ColorsConfig
+ColumnConfig
+Commented
+Commissions
+Company
+CompanyName
+Coordinates
+Created
+Custom
+DailyRecurrenceRule
+DataPath
+Did
+DirectionHue
+Edited
+Email
+EmailParts
+Employee
+FirstName
+Gradient
+Interval
+IntervalUnit
+Item
+JobTitle
+LastName
+Lead
+LeadStage
+Metadata
+MonthlyRecurrenceRule
+NextStep
+Number
+Order
+OrderStage
+Ordered
+Ordinal
+OverviewDisplay
+OverviewSettings
+Package
+Page
+Paid
+Password
+Payment
+PersonName
+PhoneNumber
+Priority
+Product
+ProductDefaults
+Promotion
+RecordLink
+RecurrenceEnd
+RecurrenceRule
+Represents
+Route
+RowHeight
+ScheduleSettings
+Sector
+Sent
+Service
+ServiceDefaults
+Settings
+SignUpCredentials
+Site
+Status
+Table
+Target
+TaxRate
+User
+UserRole
+Viewed
+WeekOfMonth
+Weekday
+WeeklyRecurrenceRule
+YearlyRecurrenceRule

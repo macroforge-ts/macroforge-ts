@@ -5,11 +5,10 @@ Use `match` for exhaustive pattern matching:
 Rust
 
 ```
-enum Visibility { Public, Private, Protected }
-let visibility = Visibility::Public;
+use macroforge_ts::ts_syn::Visibility;
 
 let code = ts_template! {
-    {#match visibility}
+    {#match field.visibility}
         {:case Visibility::Public}
             public
         {:case Visibility::Private}
@@ -17,16 +16,8 @@ let code = ts_template! {
         {:case Visibility::Protected}
             protected
     {/match}
-    field: string;
+    @{field.name}: string;
 };
-```
-
-**Generates:**
-
-TypeScript
-
-```
-public field: string;
 ```
 
 ### Match with Value Extraction

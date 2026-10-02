@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_partial_eq_hash.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_partial_eq_hash.ts
 ---
 ## Input
 
@@ -12,6 +11,10 @@ import { Derive } from '@macro/derive';
 class User {
     name: string;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -72,5 +75,28 @@ export function userHashCode(value: User): number {
                 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 72..104 -> expanded 41..73
+original 104..105 -> expanded 284..285
+original 105..106 -> expanded 701..702
+generated 73..179 <- PartialEq
+generated 179..284 <- Hash
+generated 285..452 <- PartialEq
+generated 452..701 <- Hash
+
+## Metadata
+
+class User: {"body_span":{"end":106,"start":85},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":73,"start":42}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":104,"start":91},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":106,"start":74},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

@@ -64,6 +64,7 @@ use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResul
 ///     }
 /// }
 /// ```
+#[derive(Clone)]
 pub struct MacroDispatcher {
     /// The registry to look up macros in.
     registry: MacroRegistry,
@@ -106,6 +107,12 @@ impl MacroDispatcher {
     /// - ABI mismatch → Error diagnostic with versions
     /// - Execution panic → Error diagnostic with panic message
     pub fn dispatch(&self, ctx: MacroContextIR) -> MacroResult {
+        self.dispatch_ref(&ctx)
+    }
+
+    /// Like [`Self::dispatch`], for a context the caller keeps. The macro's
+    /// input stream takes the one copy of it a macro needs.
+    pub fn dispatch_ref(&self, ctx: &MacroContextIR) -> MacroResult {
         // Look up the macro in the registry, with fallback to name-only lookup.
         // This supports both exact module paths and dynamic module resolution
         // where the import path might not exactly match the registration path.

@@ -1,0 +1,104 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/store.svelte.ts
+sha256 e04a7d7fa5a31ece7dafbf71e52ad4281fe33f5d9a40a5143f6f8ec224d11cd8
+
+## Changed
+
+true
+
+## Output
+
+/** @derive(Debug, Clone) */
+export class Store {
+    items: string[];
+    count: number;
+
+    constructor(items: string[], count: number) {
+        this.items = items;
+        this.count = count;
+    }
+
+static toString(value: Store): string {
+                    return storeToString(value);
+                }
+static clone(value: Store): Store {
+                    return storeClone(value);
+                }}
+
+export function storeToString(value: Store): string {
+                        const parts: string[] = [];
+                        parts.push("items: " + value.items);
+parts.push("count: " + value.count);
+
+                        return "Store { " + parts.join(", ") + " }";
+                    }
+
+export function storeClone(value: Store): Store {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.items = [...value.items];
+cloned.count = value.count;
+
+                    return cloned;
+                }
+
+## DTS
+
+/** @derive(Debug, Clone) */
+export class Store {
+    items: string[];
+    count: number;
+
+    constructor(items: string[], count: number);
+
+static toString(value: Store): string {
+                    return storeToString(value);
+                }
+static clone(value: Store): Store {
+                    return storeClone(value);
+                }}
+
+export function storeToString(value: Store): string {
+                        const parts: string[] = [];
+                        parts.push("items: " + value.items);
+parts.push("count: " + value.count);
+
+                        return "Store { " + parts.join(", ") + " }";
+                    }
+
+export function storeClone(value: Store): Store {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.items = [...value.items];
+cloned.count = value.count;
+
+                    return cloned;
+                }
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..203 -> expanded 0..203
+original 203..204 -> expanded 410..411
+original 204..205 -> expanded 974..975
+generated 203..310 <- Debug
+generated 310..410 <- Clone
+generated 411..708 <- Debug
+generated 708..974 <- Clone
+
+## Metadata
+
+class Store: {"body_span":{"end":205,"start":49},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":71,"start":55},"ts_type":"string[]","visibility":"Public"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":90,"start":76},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":203,"start":140},"body_src":"\n        this.items = items;\n        this.count = count;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"items: string[], count: number","return_type_src":"","span":{"end":203,"start":96},"type_params_src":"","visibility":"Public"}],"name":"Store","span":{"end":205,"start":37},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

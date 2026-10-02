@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/interface_external_type_imports.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_external_type_imports.ts
 ---
 ## Input
 
@@ -12,6 +11,10 @@ import { Metadata } from './metadata.svelte';
 export interface User {
     metadata: Metadata;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -515,16 +518,7 @@ metadata: metadataDefaultValue(),
 
 
 
-
-
-
                             }
-
-
-
-
-
-
 
 
 
@@ -1656,16 +1650,7 @@ metadata: metadataDefaultValue(),
 
 
 
-
-
-
                             }
-
-
-
-
-
-
 
 
 
@@ -2304,5 +2289,27 @@ export const User = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..47 -> expanded 0..47
+original 94..144 -> expanded 47..97
+original 144..145 -> expanded 8349..8350
+generated 97..233 <- Default
+generated 233..1776 <- Serialize
+generated 1776..8039 <- Deserialize
+generated 8039..8349 <- __convenience_const
+
+## Metadata
+
+interface User: {"body_span":{"end":145,"start":118},"decorators":[{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":95,"start":48}}],"fields":[{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":143,"start":124},"ts_type":"Metadata"}],"heritage":[],"methods":[],"name":"User","span":{"end":145,"start":103},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

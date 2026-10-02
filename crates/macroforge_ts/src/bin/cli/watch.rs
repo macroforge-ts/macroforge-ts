@@ -10,8 +10,8 @@ use std::{
 
 use crate::cache::{
     CONFIG_FILE_NAMES, CacheEntry, collect_watch_files, compute_config_hash, content_hash,
-    expand_for_cache, init_cache, is_watchable_ts_file, normalized_content_hash, warm_cache,
-    write_cache_file,
+    expand_for_cache, expansion_pool, init_cache, is_watchable_ts_file, normalized_content_hash,
+    warm_cache, write_cache_file,
 };
 use crate::lock::ProjectLock;
 use crate::wrappers::refresh_type_registry;
@@ -321,14 +321,14 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
         match result {
             Ok(events) => {
                 // Kernel event-queue overflow makes the backend synthesize
-                // events for every tracked file (rescan flag) — none of
+                // events for every tracked file (rescan flag); none of
                 // them describe real changes. Resync against content
                 // hashes once (sub-second when nothing changed) instead of
                 // processing thousands of phantom "changes".
                 if events.iter().any(|event| event.need_rescan()) {
                     eprintln!(
                         "[macroforge watch] Watch backend requested a rescan \
-                         (event queue overflow) — resyncing against content hashes"
+                         (event queue overflow); resyncing against content hashes"
                     );
                     let lock = ProjectLock::acquire(root, "watch", false)?;
                     warm_cache("watch", root, &cache_dir, &mut manifest)?;
@@ -370,7 +370,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                 for event in &events {
                     // Reads are not changes. Reacting to access events feeds
                     // back: the config hash guard below reads the config to
-                    // compare it, which emits the next access event — an
+                    // compare it, which emits the next access event, an
                     // endless read→event→read loop on an untouched file.
                     if event.kind.is_access() || event.kind.is_other() {
                         continue;
@@ -414,7 +414,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                     let new_config_hash = compute_config_hash(root);
                     if new_config_hash == manifest.config_hash {
                         eprintln!(
-                            "[macroforge watch] Config file event with unchanged content — \
+                            "[macroforge watch] Config file event with unchanged content; \
                              ignoring ({})",
                             config_event_path
                                 .as_deref()
@@ -476,7 +476,13 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                                 .unwrap_or(file_path)
                                 .to_string_lossy()
                                 .to_string();
-                            let source = fs::read_to_string(file_path).ok()?;
+                            let source = match fs::read_to_string(file_path) {
+                                Ok(source) => source,
+                                Err(error) => {
+                                    eprintln!("  [!] {rel_path}: could not read it: {error}");
+                                    return None;
+                                }
+                            };
                             let source_hash = content_hash(source.as_bytes());
                             let norm_hash = normalized_content_hash(&source);
                             Some((file_path.clone(), rel_path, source, source_hash, norm_hash))
@@ -484,18 +490,20 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                         .collect();
 
                     // Expand in parallel
-                    let results: Vec<_> = files_with_source
-                        .par_iter()
-                        .map(|(file_path, rel_path, source, source_hash, norm_hash)| {
-                            let result = expand_for_cache(root, file_path, source);
-                            (
-                                rel_path.clone(),
-                                source_hash.clone(),
-                                norm_hash.clone(),
-                                result,
-                            )
-                        })
-                        .collect();
+                    let results: Vec<_> = expansion_pool()?.install(|| {
+                        files_with_source
+                            .par_iter()
+                            .map(|(file_path, rel_path, source, source_hash, norm_hash)| {
+                                let result = expand_for_cache(root, file_path, source);
+                                (
+                                    rel_path.clone(),
+                                    source_hash.clone(),
+                                    norm_hash.clone(),
+                                    result,
+                                )
+                            })
+                            .collect()
+                    });
 
                     // Apply results (sequential)
                     let mut count = 0u32;
@@ -503,9 +511,16 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                         match result {
                             Ok(Some(expansion)) => {
                                 for error in &expansion.errors {
-                                    eprintln!("  [!] {rel_path} — {error}");
+                                    eprintln!("  [!] {rel_path}: {error}");
                                 }
-                                let _ = write_cache_file(&cache_dir, &rel_path, &expansion.code);
+                                // An entry is recorded only for an expansion
+                                // that reached the cache.
+                                if let Err(error) =
+                                    write_cache_file(&cache_dir, &rel_path, &expansion.code)
+                                {
+                                    eprintln!("  [!] {rel_path}: {error:#}");
+                                    continue;
+                                }
                                 manifest.entries.insert(
                                     rel_path.clone(),
                                     CacheEntry {
@@ -527,7 +542,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                                     },
                                 );
                             }
-                            Err(e) => eprintln!("  [!] {} — {}", rel_path, e),
+                            Err(e) => eprintln!("  [!] {}: {}", rel_path, e),
                         }
                     }
                     manifest.save(&cache_dir)?;
@@ -603,9 +618,16 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                                 // on the first bad edit is worse than one that
                                 // says what is wrong and waits for the fix.
                                 for error in &expansion.errors {
-                                    eprintln!("  [!] {rel_path} — {error}");
+                                    eprintln!("  [!] {rel_path}: {error}");
                                 }
-                                let _ = write_cache_file(&cache_dir, &rel_path, &expansion.code);
+                                // An entry is recorded only for an expansion
+                                // that reached the cache.
+                                if let Err(error) =
+                                    write_cache_file(&cache_dir, &rel_path, &expansion.code)
+                                {
+                                    eprintln!("  [!] {rel_path}: {error:#}");
+                                    continue;
+                                }
                                 manifest.entries.insert(
                                     rel_path.clone(),
                                     CacheEntry {
@@ -629,7 +651,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                                 eprintln!("  [.] {} (no macros)", rel_path);
                             }
                             Err(e) => {
-                                eprintln!("  [!] {} — {}", rel_path, e);
+                                eprintln!("  [!] {}: {}", rel_path, e);
                             }
                         }
                     }

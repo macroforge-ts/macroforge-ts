@@ -1,0 +1,2141 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/recurrence-end.svelte.ts
+sha256 e79ba909bda3510321f8e9e835af7569c6437920e14bed06fb35164b81cc41b1
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type RecurrenceEnd = /** @default(0) */ number | string;
+
+export function recurrenceEndDefaultValue(): RecurrenceEnd {
+                            return 0;
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function recurrenceEndSerialize(value: RecurrenceEnd, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = recurrenceEndSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function recurrenceEndSerializeWithContext(value: RecurrenceEnd, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+        export function recurrenceEndDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = recurrenceEndDeserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "RecurrenceEnd.deserialize: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function recurrenceEndDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): RecurrenceEnd | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as RecurrenceEnd | __mf_PendingRef;
+                        }if (typeof value === "number") {
+                                    return value as RecurrenceEnd;
+                                }if (typeof value === "string") {
+                                    return value as RecurrenceEnd;
+                                }
+
+
+
+
+
+                            throw new __mf_DeserializeError([{
+                                field: "_root",
+                                message: "RecurrenceEnd.deserializeWithContext: expected number, string, got " + typeof value
+                            }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function recurrenceEndHasShape(value: unknown): boolean {return typeof value === "number" || typeof value === "string";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
+            return recurrenceEndHasShape(value);
+        }
+
+/** Per-variant error types  */
+        
+            export type RecurrenceEndNumberErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type RecurrenceEndStringErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type RecurrenceEndNumberTainted = {
+
+
+            };
+            export type RecurrenceEndStringTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type RecurrenceEndErrors = ({ _type: "number" } & RecurrenceEndNumberErrors) | ({ _type: "string" } & RecurrenceEndStringErrors);
+
+        /** Union tainted type  */
+        export type RecurrenceEndTainted = ({ _type: "number" } & RecurrenceEndNumberTainted) | ({ _type: "string" } & RecurrenceEndStringTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface RecurrenceEndNumberFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface RecurrenceEndStringFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface RecurrenceEndGigaform {
+            readonly currentVariant: "number" | "string";
+            readonly data: RecurrenceEnd;
+            readonly errors: RecurrenceEndErrors;
+            readonly tainted: RecurrenceEndTainted;
+            readonly variants: RecurrenceEndVariantFields;
+            switchVariant(variant: "number" | "string"): void;
+            validate(): Exit.Exit<RecurrenceEnd, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<RecurrenceEnd>): void;
+        }
+
+        /** Variant fields container  */
+        export interface RecurrenceEndVariantFields {
+            
+                readonly number: { readonly fields: RecurrenceEndNumberFieldControllers };
+            
+                readonly string: { readonly fields: RecurrenceEndStringFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function recurrenceEndGetDefaultForVariant(variant: string): RecurrenceEnd {
+            if (variant === "number") { return 0 as RecurrenceEnd; }
+if (variant === "string") { return "" as RecurrenceEnd; }
+            return 0 as RecurrenceEnd;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function recurrenceEndCreateForm(initial?: RecurrenceEnd): RecurrenceEndGigaform {
+
+            const initialVariant: "number" | "string" = "number";
+
+
+            let currentVariant = $state<"number" | "string">(initialVariant);
+            let data = $state<RecurrenceEnd>(initial ?? recurrenceEndGetDefaultForVariant(initialVariant));
+            let errors = $state<RecurrenceEndErrors>({} as RecurrenceEndErrors);
+            let tainted = $state<RecurrenceEndTainted>({} as RecurrenceEndTainted);
+
+            const variants = {
+            
+                "number": { fields: {  } as unknown as RecurrenceEndNumberFieldControllers },
+            
+                "string": { fields: {  } as unknown as RecurrenceEndStringFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as RecurrenceEndVariantFields;
+
+
+            function switchVariant(variant: "number" | "string"): void {
+                currentVariant = variant;
+                data = recurrenceEndGetDefaultForVariant(variant);
+                errors = {} as RecurrenceEndErrors;
+                tainted = {} as RecurrenceEndTainted;
+            }
+
+
+            function validate(): Exit.Exit<RecurrenceEnd, Array<{ field: string; message: string }>> {
+                return toExit(recurrenceEndDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<RecurrenceEnd>): void {
+                data = overrides ? overrides as typeof data : recurrenceEndGetDefaultForVariant(currentVariant);
+                errors = {} as RecurrenceEndErrors;
+                tainted = {} as RecurrenceEndTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function recurrenceEndFromFormData(formData: FormData): Exit.Exit<RecurrenceEnd, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_type") as "number" | "string" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_type", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._type = discriminant;
+
+            {
+
+                    if (discriminant === "number") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "string") {
+                        
+                    }
+                }
+
+
+            return toExit(recurrenceEndDeserialize(obj));
+        }
+
+export const RecurrenceEnd = {
+  defaultValue: recurrenceEndDefaultValue,
+  serialize: recurrenceEndSerialize,
+  serializeWithContext: recurrenceEndSerializeWithContext,
+  deserialize: recurrenceEndDeserialize,
+  deserializeWithContext: recurrenceEndDeserializeWithContext,
+  hasShape: recurrenceEndHasShape,
+  is: recurrenceEndIs,
+  createForm: recurrenceEndCreateForm,
+  fromFormData: recurrenceEndFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type RecurrenceEnd = /** @default(0) */ number | string;
+
+export function recurrenceEndDefaultValue(): RecurrenceEnd {
+                            return 0;
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function recurrenceEndSerialize(value: RecurrenceEnd, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = recurrenceEndSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function recurrenceEndSerializeWithContext(value: RecurrenceEnd, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+        export function recurrenceEndDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = recurrenceEndDeserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "RecurrenceEnd.deserialize: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function recurrenceEndDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): RecurrenceEnd | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as RecurrenceEnd | __mf_PendingRef;
+                        }if (typeof value === "number") {
+                                    return value as RecurrenceEnd;
+                                }if (typeof value === "string") {
+                                    return value as RecurrenceEnd;
+                                }
+
+
+
+
+
+                            throw new __mf_DeserializeError([{
+                                field: "_root",
+                                message: "RecurrenceEnd.deserializeWithContext: expected number, string, got " + typeof value
+                            }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function recurrenceEndHasShape(value: unknown): boolean {return typeof value === "number" || typeof value === "string";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function recurrenceEndIs(value: unknown): value is RecurrenceEnd {
+            return recurrenceEndHasShape(value);
+        }
+
+/** Per-variant error types  */
+        
+            export type RecurrenceEndNumberErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type RecurrenceEndStringErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type RecurrenceEndNumberTainted = {
+
+
+            };
+            export type RecurrenceEndStringTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type RecurrenceEndErrors = ({ _type: "number" } & RecurrenceEndNumberErrors) | ({ _type: "string" } & RecurrenceEndStringErrors);
+
+        /** Union tainted type  */
+        export type RecurrenceEndTainted = ({ _type: "number" } & RecurrenceEndNumberTainted) | ({ _type: "string" } & RecurrenceEndStringTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface RecurrenceEndNumberFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface RecurrenceEndStringFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface RecurrenceEndGigaform {
+            readonly currentVariant: "number" | "string";
+            readonly data: RecurrenceEnd;
+            readonly errors: RecurrenceEndErrors;
+            readonly tainted: RecurrenceEndTainted;
+            readonly variants: RecurrenceEndVariantFields;
+            switchVariant(variant: "number" | "string"): void;
+            validate(): Exit.Exit<RecurrenceEnd, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<RecurrenceEnd>): void;
+        }
+
+        /** Variant fields container  */
+        export interface RecurrenceEndVariantFields {
+            
+                readonly number: { readonly fields: RecurrenceEndNumberFieldControllers };
+            
+                readonly string: { readonly fields: RecurrenceEndStringFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function recurrenceEndGetDefaultForVariant(variant: string): RecurrenceEnd {
+            if (variant === "number") { return 0 as RecurrenceEnd; }
+if (variant === "string") { return "" as RecurrenceEnd; }
+            return 0 as RecurrenceEnd;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function recurrenceEndCreateForm(initial?: RecurrenceEnd): RecurrenceEndGigaform {
+
+            const initialVariant: "number" | "string" = "number";
+
+
+            let currentVariant = $state<"number" | "string">(initialVariant);
+            let data = $state<RecurrenceEnd>(initial ?? recurrenceEndGetDefaultForVariant(initialVariant));
+            let errors = $state<RecurrenceEndErrors>({} as RecurrenceEndErrors);
+            let tainted = $state<RecurrenceEndTainted>({} as RecurrenceEndTainted);
+
+            const variants = {
+            
+                "number": { fields: {  } as unknown as RecurrenceEndNumberFieldControllers },
+            
+                "string": { fields: {  } as unknown as RecurrenceEndStringFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as RecurrenceEndVariantFields;
+
+
+            function switchVariant(variant: "number" | "string"): void {
+                currentVariant = variant;
+                data = recurrenceEndGetDefaultForVariant(variant);
+                errors = {} as RecurrenceEndErrors;
+                tainted = {} as RecurrenceEndTainted;
+            }
+
+
+            function validate(): Exit.Exit<RecurrenceEnd, Array<{ field: string; message: string }>> {
+                return toExit(recurrenceEndDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<RecurrenceEnd>): void {
+                data = overrides ? overrides as typeof data : recurrenceEndGetDefaultForVariant(currentVariant);
+                errors = {} as RecurrenceEndErrors;
+                tainted = {} as RecurrenceEndTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function recurrenceEndFromFormData(formData: FormData): Exit.Exit<RecurrenceEnd, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_type") as "number" | "string" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_type", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._type = discriminant;
+
+            {
+
+                    if (discriminant === "number") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "string") {
+                        
+                    }
+                }
+
+
+            return toExit(recurrenceEndDeserialize(obj));
+        }
+
+export const RecurrenceEnd = {
+  defaultValue: recurrenceEndDefaultValue,
+  serialize: recurrenceEndSerialize,
+  serializeWithContext: recurrenceEndSerializeWithContext,
+  deserialize: recurrenceEndDeserialize,
+  deserializeWithContext: recurrenceEndDeserializeWithContext,
+  hasShape: recurrenceEndHasShape,
+  is: recurrenceEndIs,
+  createForm: recurrenceEndCreateForm,
+  fromFormData: recurrenceEndFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..179 -> expanded 58..122
+original 179..180 -> expanded 11671..11672
+generated 122..248 <- Default
+generated 248..2219 <- Serialize
+generated 2219..5827 <- Deserialize
+generated 5827..11245 <- Gigaform
+generated 11245..11671 <- __convenience_const
+
+## Metadata
+
+type RecurrenceEnd: {"body":{"Union":[{"decorators":[{"args_src":"0","name":"default","span":{"end":163,"start":145}}],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"RecurrenceEnd","span":{"end":180,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("RecurrenceEnd")
+
+## Buildtime dependencies
+
+(none)

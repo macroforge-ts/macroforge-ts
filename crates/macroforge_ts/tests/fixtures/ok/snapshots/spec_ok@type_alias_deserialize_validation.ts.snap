@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_deserialize_validation.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_deserialize_validation.ts
 ---
 ## Input
 
@@ -13,6 +13,10 @@ type ContactInfo = {
     /** @serde(minLength(1), maxLength(100)) */
     address: string;
 };
+
+## Changed
+
+true
 
 ## Output
 
@@ -114,11 +118,10 @@ type ContactInfo = {
 
                 ctx.trackForFreeze(instance);{
                                 const __raw_primaryEmail = obj["primaryEmail"] as string;
-                                                                            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+                                            if (__raw_primaryEmail == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+}
 instance.primaryEmail = __raw_primaryEmail;
-
-
-
 
 
 
@@ -307,12 +310,11 @@ instance.primaryEmail = __raw_primaryEmail;
 
                             }{
                                 const __raw_address = obj["address"] as string;
-                                                                            if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
-                                if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+                                            if (__raw_address == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+}
 instance.address = __raw_address;
-
-
-
 
 
 
@@ -924,12 +926,6 @@ instance.address = __raw_address;
 
 
 
-
-
-
-
-
-
                 ctx.pushErrors(errors);
 
                 return instance as ContactInfo;
@@ -941,14 +937,18 @@ instance.address = __raw_address;
             ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
                 if (_field === "primaryEmail") {
                     const __val = _value as string;
-                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+                    if (__val == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+}
 
 
                 }
                 if (_field === "address") {
                     const __val = _value as string;
-                                                    if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
-                                if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+                    if (__val == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+}
 
 
                 }
@@ -980,14 +980,18 @@ instance.address = __raw_address;
             ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
                 if ("primaryEmail" in _partial && _partial.primaryEmail !== undefined) {
                     const __val = _partial.primaryEmail as string;
-                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+                    if (__val == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+}
 
 
                 }
                 if ("address" in _partial && _partial.address !== undefined) {
                     const __val = _partial.address as string;
-                                                    if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
-                                if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+                    if (__val == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+}
 
 
                 }
@@ -1133,11 +1137,10 @@ type ContactInfo = {
 
                 ctx.trackForFreeze(instance);{
                                 const __raw_primaryEmail = obj["primaryEmail"] as string;
-                                                                            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+                                            if (__raw_primaryEmail == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_primaryEmail)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+}
 instance.primaryEmail = __raw_primaryEmail;
-
-
-
 
 
 
@@ -1326,12 +1329,11 @@ instance.primaryEmail = __raw_primaryEmail;
 
                             }{
                                 const __raw_address = obj["address"] as string;
-                                                                            if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
-                                if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+                                            if (__raw_address == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+if (__raw_address.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+if (__raw_address.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+}
 instance.address = __raw_address;
-
-
-
 
 
 
@@ -1943,12 +1945,6 @@ instance.address = __raw_address;
 
 
 
-
-
-
-
-
-
                 ctx.pushErrors(errors);
 
                 return instance as ContactInfo;
@@ -1960,14 +1956,18 @@ instance.address = __raw_address;
             ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
                 if (_field === "primaryEmail") {
                     const __val = _value as string;
-                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+                    if (__val == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+}
 
 
                 }
                 if (_field === "address") {
                     const __val = _value as string;
-                                                    if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
-                                if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+                    if (__val == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+}
 
 
                 }
@@ -1999,14 +1999,18 @@ instance.address = __raw_address;
             ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
                 if ("primaryEmail" in _partial && _partial.primaryEmail !== undefined) {
                     const __val = _partial.primaryEmail as string;
-                                                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+                    if (__val == null) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "primaryEmail", message: "ContactInfo.primaryEmail must be a valid email" }); }
+}
 
 
                 }
                 if ("address" in _partial && _partial.address !== undefined) {
                     const __val = _partial.address as string;
-                                                    if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
-                                if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+                    if (__val == null) { errors.push({ field: "address", message: "ContactInfo.address is required" }); } else {
+if (__val.length < 1) { errors.push({ field: "address", message: "ContactInfo.address must have at least 1 characters" }); }
+if (__val.length > 100) { errors.push({ field: "address", message: "ContactInfo.address must have at most 100 characters" }); }
+}
 
 
                 }
@@ -2058,5 +2062,24 @@ const ContactInfo = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 27..172 -> expanded 0..145
+original 172..173 -> expanded 8587..8588
+generated 145..8354 <- Deserialize
+generated 8354..8587 <- __convenience_const
+
+## Metadata
+
+type ContactInfo: {"body":{"Object":{"fields":[{"decorators":[{"args_src":"email","name":"serde","span":{"end":74,"start":54}}],"name":"primaryEmail","optional":false,"readonly":false,"span":{"end":100,"start":79},"ts_type":"string"},{"decorators":[{"args_src":"minLength(1), maxLength(100)","name":"serde","span":{"end":149,"start":106}}],"name":"address","optional":false,"readonly":false,"span":{"end":170,"start":154},"ts_type":"string"}]}},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":28,"start":1}}],"name":"ContactInfo","span":{"end":173,"start":29},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

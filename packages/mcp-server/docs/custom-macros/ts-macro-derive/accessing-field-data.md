@@ -40,7 +40,7 @@ Rust
 struct EnumVariantIR {
     pub name: String,
     pub span: SpanIR,
-    pub value: EnumValue,  // Auto, String(String), or Number(f64)
+    pub value: EnumValue,  // String(String), Number(f64), Auto or Expr(String)
     pub decorators: Vec<DecoratorIR>,
 }
 ```
@@ -59,5 +59,6 @@ struct DecoratorIR {
 
 Note
 
-To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing
-options, you can write helper functions like the built-in macros do.
+To check for decorators, iterate through `field.decorators` and check `decorator.name`. `has_flag`
+and `extract_named_string` in `macroforge_ts::builtin::derive_common` read options out of
+`args_src`; see [Decorators](../../docs/custom-macros/context-and-ir#decorators).

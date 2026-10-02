@@ -108,57 +108,24 @@ pub(super) fn generate_convenience_export(
 /// Checks if the source already has a namespace or const declaration with the given name.
 /// This prevents generating a convenience const that would conflict with existing declarations.
 pub(super) fn has_existing_namespace_or_const(source: &str, type_name: &str) -> bool {
-    // Check for `namespace TypeName` or `const TypeName`
-    // Look for common patterns with various whitespace
-    let namespace_patterns = [
-        format!("namespace {}", type_name),
-        format!("namespace  {}", type_name),
-        format!("namespace\t{}", type_name),
-        format!("namespace\n{}", type_name),
-    ];
-
-    let const_patterns = [
-        format!("const {}", type_name),
-        format!("const  {}", type_name),
-        format!("const\t{}", type_name),
-        format!("const\n{}", type_name),
-    ];
-
-    for pattern in &namespace_patterns {
-        if let Some(pos) = source.find(pattern.as_str()) {
-            // Check that this is followed by whitespace, { or end of string
-            let after_pos = pos + pattern.len();
-            if after_pos >= source.len() {
-                return true;
-            }
-            let next_char = source[after_pos..].chars().next();
-            if matches!(
-                next_char,
-                Some('{') | Some(' ') | Some('\t') | Some('\n') | Some('<')
-            ) {
-                return true;
-            }
-        }
+    if type_name.is_empty() {
+        return false;
     }
-
-    for pattern in &const_patterns {
-        if let Some(pos) = source.find(pattern.as_str()) {
-            // Check that this is followed by whitespace, = or end of string
-            let after_pos = pos + pattern.len();
-            if after_pos >= source.len() {
-                return true;
-            }
-            let next_char = source[after_pos..].chars().next();
-            if matches!(
-                next_char,
-                Some('=') | Some(' ') | Some('\t') | Some('\n') | Some(':') | Some('<')
-            ) {
-                return true;
-            }
+    source.match_indices(type_name).any(|(at, _)| {
+        let before = source[..at].trim_end_matches([' ', '\t', '\n']);
+        if before.len() == at {
+            return false;
         }
-    }
-
-    false
+        let next = source[at + type_name.len()..].chars().next();
+        let declares = |keyword: &str, followers: &[char]| {
+            before
+                .strip_suffix(keyword)
+                .is_some_and(|head| !head.chars().next_back().is_some_and(is_ident_char))
+                && next.is_none_or(|c| followers.contains(&c))
+        };
+        declares("namespace", &['{', ' ', '\t', '\n', '<'])
+            || declares("const", &['=', ' ', '\t', '\n', ':', '<'])
+    })
 }
 
 /// Gets the type name from a DeriveTargetIR.
@@ -231,7 +198,7 @@ pub(super) fn is_ident_char(c: char) -> bool {
     c.is_ascii_alphanumeric() || c == '_' || c == '$'
 }
 
-pub(super) fn contains_identifier(haystack: &str, ident: &str) -> bool {
+fn contains_identifier(haystack: &str, ident: &str) -> bool {
     if ident.is_empty() {
         return false;
     }
@@ -257,6 +224,35 @@ pub(super) fn contains_identifier(haystack: &str, ident: &str) -> bool {
     }
 
     false
+}
+
+/// The identifiers of one text, for checking many names against it without
+/// rescanning it for each.
+pub(super) struct Identifiers<'text> {
+    text: &'text str,
+    words: std::collections::HashSet<&'text str>,
+}
+
+impl<'text> Identifiers<'text> {
+    pub(super) fn of(text: &'text str) -> Self {
+        Self {
+            text,
+            words: text
+                .split(|c: char| !is_ident_char(c))
+                .filter(|word| !word.is_empty())
+                .collect(),
+        }
+    }
+
+    /// Whether `ident` occurs in the text as a whole identifier, exactly as
+    /// [`contains_identifier`] answers.
+    pub(super) fn contains(&self, ident: &str) -> bool {
+        if ident.chars().all(is_ident_char) {
+            self.words.contains(ident)
+        } else {
+            contains_identifier(self.text, ident)
+        }
+    }
 }
 
 pub(super) fn derive_insert_pos(class_ir: &ClassIR, source: &str) -> u32 {
@@ -295,8 +291,6 @@ pub(super) fn split_by_markers(
         ("below", "/* @macroforge:below */"),
         ("body", "/* @macroforge:body */"),
         ("bottom", "/* @macroforge:bottom */"),
-        // Legacy markers for backward compatibility
-        ("body", "/* @macroforge:signature */"),
     ];
 
     let mut occurrences = Vec::new();

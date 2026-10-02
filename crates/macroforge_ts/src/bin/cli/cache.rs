@@ -1,15 +1,19 @@
 use anyhow::{Context, Result, anyhow};
 use ignore::WalkBuilder;
-use macroforge_ts::host::MacroExpander;
+use macroforge_ts::host::declarative::ProjectDeclarativeRegistry;
+use macroforge_ts::host::file_stamp::FileStamp;
+use macroforge_ts::host::project::{ProjectRegistries, expand_project_file};
 use macroforge_ts::ts_syn::abi::ir::type_registry::{RegistryRead, TypeRegistry};
 use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeSet, HashMap},
     fs,
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
 };
 
 use crate::atomic_fs::write_atomic;
+use crate::hash_cache::HashCache;
 use crate::wrappers::{
     DECLARATIVE_REGISTRY_CACHE_PATH, TYPE_REGISTRY_CACHE_PATH, ensure_type_registry_cache,
 };
@@ -21,7 +25,7 @@ use crate::wrappers::{
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CacheManifest {
-    /// Macroforge crate version — full invalidation on upgrade.
+    /// Macroforge crate version. An upgrade invalidates everything.
     pub(crate) version: String,
     /// SHA-256 of the macroforge config file content (or `"none"`).
     pub(crate) config_hash: String,
@@ -55,12 +59,7 @@ pub(crate) struct CacheEntry {
 pub(crate) fn content_hash(content: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(content);
-    let result = hasher.finalize();
-    result.iter().fold(String::with_capacity(64), |mut s, b| {
-        use std::fmt::Write;
-        let _ = write!(s, "{b:02x}");
-        s
-    })
+    hex::encode(hasher.finalize())
 }
 
 /// Computes SHA-256 of whitespace-normalized content.
@@ -160,7 +159,7 @@ fn compute_cli_engine_hash() -> String {
 /// Must stay byte-for-byte equivalent to `getExternalMacroHash` in
 /// `packages/vite-plugin/src/index.js`. The two writers share one manifest, so
 /// any disagreement makes each invalidate the other's entries on every run.
-pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
+pub(crate) fn compute_external_macro_hash(root: &Path, hashes: &mut HashCache) -> String {
     // Collect path:size:content parts, sort for deterministic ordering
     // (readdir order varies across platforms and runtimes), then hash.
     let mut parts: Vec<String> = Vec::new();
@@ -177,12 +176,8 @@ pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
                 .map(|entries| {
                     entries.flatten().any(|entry| {
                         let path = entry.path();
-                        if path.extension().and_then(|e| e.to_str()) != Some("js") {
-                            return false;
-                        }
-                        fs::read_to_string(&path)
-                            .map(|content| content.contains("__macroforgeRun"))
-                            .unwrap_or(false)
+                        path.extension().and_then(|e| e.to_str()) == Some("js")
+                            && hashes.has_macro_exports(&path)
                     })
                 })
                 .unwrap_or(false)
@@ -208,13 +203,8 @@ pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
                 if !tracked {
                     continue;
                 }
-                if let Ok(bytes) = fs::read(&path) {
-                    parts.push(format!(
-                        "{}:{}:{}",
-                        path.display(),
-                        bytes.len(),
-                        content_hash(&bytes)
-                    ));
+                if let Some((len, hash)) = hashes.sized_hash(&path) {
+                    parts.push(format!("{}:{}:{}", path.display(), len, hash));
                 }
             }
         }
@@ -259,12 +249,7 @@ pub(crate) fn compute_external_macro_hash(root: &Path) -> String {
         hasher.update(part.as_bytes());
     }
 
-    let result = hasher.finalize();
-    result.iter().fold(String::with_capacity(64), |mut s, b| {
-        use std::fmt::Write;
-        let _ = write!(s, "{b:02x}");
-        s
-    })
+    hex::encode(hasher.finalize())
 }
 
 impl CacheManifest {
@@ -292,10 +277,10 @@ impl CacheManifest {
     /// Atomically saves the manifest via write-to-tmp + rename.
     ///
     /// The Vite plugin writes this same file, so the temporary name has to be
-    /// unique per writer — a fixed `.manifest.json.tmp` would have two writers
+    /// unique per writer: a fixed `.manifest.json.tmp` would have two writers
     /// filling one buffer.
     pub(crate) fn save(&self, cache_dir: &Path) -> Result<()> {
-        let json = serde_json::to_string_pretty(self)?;
+        let json = serde_json::to_string(self)?;
         write_atomic(&cache_dir.join("manifest.json"), json.as_bytes())
     }
 }
@@ -352,53 +337,14 @@ pub(crate) fn collect_watch_files(root: &Path) -> Vec<PathBuf> {
     files
 }
 
-/// An expander for `path`: its project's macroforge config, plus the
-/// project-wide type and declarative registries from the `.macroforge/` cache
-/// when they have been built. Without the registries, generic aliases and
+/// The project-wide type and declarative registries from the `.macroforge/`
+/// cache, where a scan has built them. Without them, generic aliases and
 /// cross-file `/** import macro */` comments cannot resolve.
-///
-/// `root` is the project the command runs on. The file's own macroforge config
-/// takes precedence, since external macros resolve from its `node_modules`
-/// whatever the working directory is.
-pub(crate) fn configured_expander(root: &Path, path: &Path) -> Result<MacroExpander> {
-    use macroforge_ts::host::{MacroConfig, MacroforgeConfig, MacroforgeConfigLoader};
-
-    let discovered = MacroforgeConfigLoader::find_with_root_from_path(path).with_context(|| {
-        format!(
-            "failed to load the macroforge config for {}",
-            path.display()
-        )
-    })?;
-    let (config, project_root) = match discovered {
-        Some((config, config_root)) => (config, config_root),
-        None => (MacroforgeConfig::default(), root.to_path_buf()),
-    };
-    macroforge_ts::host::set_foreign_types(config.foreign_types.clone());
-
-    let mut expander = MacroExpander::with_config(MacroConfig::from(config.clone()), project_root)
-        .context("failed to initialize macro expander")?;
-    expander.set_project_config(config);
-
-    if let Some(registry) = cached_type_registry()? {
-        expander.set_type_registry(registry);
-    }
-
-    let declarative_registry_path = DECLARATIVE_REGISTRY_CACHE_PATH
-        .lock()
-        .map_err(|err| anyhow!("declarative registry path lock poisoned: {err}"))?
-        .clone();
-    if let Some(registry_path) = declarative_registry_path {
-        let json = fs::read_to_string(&registry_path)
-            .with_context(|| format!("failed to read the declarative registry {registry_path}"))?;
-        let registry =
-            macroforge_ts::host::declarative::ProjectDeclarativeRegistry::from_json(&json)
-                .with_context(|| {
-                    format!("failed to parse the declarative registry {registry_path}")
-                })?;
-        expander.set_declarative_registry(Some(registry));
-    }
-
-    Ok(expander)
+pub(crate) fn project_registries() -> Result<ProjectRegistries> {
+    Ok(ProjectRegistries {
+        type_registry: cached_type_registry()?,
+        declarative_registry: cached_declarative_registry()?,
+    })
 }
 
 /// One file's expansion, together with anything the macros reported as an error.
@@ -416,31 +362,85 @@ pub(crate) struct CacheExpansion {
     pub(crate) registry_reads: BTreeSet<RegistryRead>,
 }
 
-/// A thread pool for expanding files in parallel. Expansion recurses as deep
-/// as the types it walks, and a deeply nested type overflows rayon's default
-/// 2 MB worker stack as a crash rather than a diagnostic, so the workers get
-/// the 32 MB the single-file paths use.
-pub(crate) fn expansion_pool() -> Result<rayon::ThreadPool> {
-    rayon::ThreadPoolBuilder::new()
-        .stack_size(32 * 1024 * 1024)
-        .build()
-        .context("failed to start the expansion thread pool")
+/// The pool files are expanded on in parallel: the engine's own workers.
+pub(crate) fn expansion_pool() -> Result<&'static rayon::ThreadPool> {
+    macroforge_ts::workers::worker_pool().map_err(anyhow::Error::msg)
 }
 
-/// The type registry the last scan wrote, or `None` before any scan.
-pub(crate) fn cached_type_registry() -> Result<Option<TypeRegistry>> {
-    let registry_path = TYPE_REGISTRY_CACHE_PATH
+/// A registry file as last parsed, kept while the file is unchanged.
+struct ParsedRegistry<T> {
+    path: String,
+    stamp: FileStamp,
+    registry: T,
+}
+
+/// The registry at the path in `path_slot`, parsed once for as long as the
+/// file is unchanged, or `None` before any scan wrote one. The slot's lock is
+/// held while parsing, so workers that ask at once wait for one parse rather
+/// than each doing their own.
+fn parsed_registry<T: Clone>(
+    path_slot: &Mutex<Option<String>>,
+    parsed_slot: &Mutex<Option<ParsedRegistry<T>>>,
+    kind: &str,
+    parse: impl FnOnce(&str) -> Result<T>,
+) -> Result<Option<T>> {
+    let registry_path = path_slot
         .lock()
-        .map_err(|err| anyhow!("type registry path lock poisoned: {err}"))?
+        .map_err(|err| anyhow!("{kind} path lock poisoned: {err}"))?
         .clone();
     let Some(registry_path) = registry_path else {
         return Ok(None);
     };
+    let stamp = FileStamp::of(Path::new(&registry_path))
+        .with_context(|| format!("failed to stat the {kind} {registry_path}"))?;
+    let mut parsed = parsed_slot
+        .lock()
+        .map_err(|err| anyhow!("{kind} cache lock poisoned: {err}"))?;
+    if let Some(cached) = parsed.as_ref()
+        && cached.path == registry_path
+        && cached.stamp == stamp
+    {
+        return Ok(Some(cached.registry.clone()));
+    }
     let json = fs::read_to_string(&registry_path)
-        .with_context(|| format!("failed to read the type registry {registry_path}"))?;
-    let registry = serde_json::from_str(&json)
-        .with_context(|| format!("failed to parse the type registry {registry_path}"))?;
+        .with_context(|| format!("failed to read the {kind} {registry_path}"))?;
+    let registry =
+        parse(&json).with_context(|| format!("failed to parse the {kind} {registry_path}"))?;
+    *parsed = Some(ParsedRegistry {
+        path: registry_path,
+        stamp,
+        registry: registry.clone(),
+    });
     Ok(Some(registry))
+}
+
+static PARSED_TYPE_REGISTRY: Mutex<Option<ParsedRegistry<TypeRegistry>>> = Mutex::new(None);
+
+static PARSED_DECLARATIVE_REGISTRY: Mutex<Option<ParsedRegistry<Arc<ProjectDeclarativeRegistry>>>> =
+    Mutex::new(None);
+
+/// The type registry the last scan wrote, or `None` before any scan.
+pub(crate) fn cached_type_registry() -> Result<Option<TypeRegistry>> {
+    parsed_registry(
+        &TYPE_REGISTRY_CACHE_PATH,
+        &PARSED_TYPE_REGISTRY,
+        "type registry",
+        |json| serde_json::from_str(json).map_err(anyhow::Error::from),
+    )
+}
+
+/// The declarative registry the last scan wrote, or `None` before any scan.
+pub(crate) fn cached_declarative_registry() -> Result<Option<Arc<ProjectDeclarativeRegistry>>> {
+    parsed_registry(
+        &DECLARATIVE_REGISTRY_CACHE_PATH,
+        &PARSED_DECLARATIVE_REGISTRY,
+        "declarative registry",
+        |json| {
+            ProjectDeclarativeRegistry::from_json(json)
+                .map(Arc::new)
+                .map_err(anyhow::Error::from)
+        },
+    )
 }
 
 /// Expands one file for the build cache, or `None` when it has no macros.
@@ -449,25 +449,17 @@ pub(crate) fn expand_for_cache(
     path: &Path,
     source: &str,
 ) -> Result<Option<CacheExpansion>> {
-    if !macroforge_ts::has_macro_annotations(source) {
+    if !macroforge_ts::has_macro_annotations(source, &path.to_string_lossy()) {
         return Ok(None);
     }
 
-    let expander = configured_expander(root, path)?;
-
-    expander.type_registry().start_recording();
-    let expansion = expander
-        .expand_source(source, &path.display().to_string())
-        .map_err(|err| anyhow!(format!("{err:?}")))?;
-    // Recording was started just above, so an empty answer cannot happen; if it
-    // somehow did, depending on everything is the answer that stays correct.
-    let registry_reads = expander
-        .type_registry()
-        .finish_recording()
+    let mut expansion = expand_project_file(root, path, source, &project_registries()?)?;
+    // `expand_project_file` always records; were it not to, depending on
+    // everything is the answer that stays correct.
+    let registry_reads = expansion
+        .registry_reads
+        .take()
         .unwrap_or_else(|| BTreeSet::from([RegistryRead::All]));
-
-    macroforge_ts::host::clear_registry();
-    macroforge_ts::host::clear_foreign_types();
 
     let errors: Vec<String> = expansion
         .diagnostics
@@ -478,7 +470,7 @@ pub(crate) fn expand_for_cache(
 
     // Errors are reported even when nothing was rewritten. A macro that fails
     // to load contributes no output at all, so `changed` stays false and the
-    // file is otherwise indistinguishable from one that simply has no macros —
+    // file is otherwise indistinguishable from one that simply has no macros,
     // which is exactly how a broken macro package disappears from a build
     // without anyone noticing.
     if !expansion.changed && errors.is_empty() {
@@ -571,10 +563,10 @@ pub(crate) fn warm_cache(
         match result {
             Ok(Some(expansion)) => {
                 for error in &expansion.errors {
-                    eprintln!("  [!] {rel_path} — {error}");
+                    eprintln!("  [!] {rel_path}: {error}");
                 }
                 if let Err(e) = write_cache_file(cache_dir, &rel_path, &expansion.code) {
-                    eprintln!("  [!] {} — write failed: {}", rel_path, e);
+                    eprintln!("  [!] {}: write failed: {}", rel_path, e);
                     continue;
                 }
                 manifest.entries.insert(
@@ -599,7 +591,7 @@ pub(crate) fn warm_cache(
                 );
             }
             Err(e) => {
-                eprintln!("  [!] {} — {}", rel_path, e);
+                eprintln!("  [!] {}: {}", rel_path, e);
             }
         }
     }
@@ -617,13 +609,15 @@ pub(crate) fn warm_cache(
 
 /// Derives the cache directory for `root` and loads (or creates) its manifest.
 ///
-/// `root` is the resolved project root — the same path the project lock is
-/// keyed on — so every subcommand agrees on which `.macroforge/` it is using.
+/// `root` is the resolved project root, the same path the project lock is
+/// keyed on, so every subcommand agrees on which `.macroforge/` it is using.
 pub(crate) fn init_cache(root: &Path, label: &str) -> Result<(PathBuf, CacheManifest)> {
     let cache_dir = root.join(".macroforge").join("cache");
     let version = env!("CARGO_PKG_VERSION").to_string();
     let config_hash = compute_config_hash(root);
-    let external_macro_hash = compute_external_macro_hash(root);
+    let mut hashes = HashCache::load(root);
+    let external_macro_hash = compute_external_macro_hash(root, &mut hashes);
+    hashes.save(root);
     let engine_hash = compute_cli_engine_hash();
 
     let mut manifest = CacheManifest::load(&cache_dir)

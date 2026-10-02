@@ -1,0 +1,1776 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/foreign_types/js_globals_in_body/input.ts
+---
+## Input
+
+import { DateTime } from 'effect';
+
+/** @derive(Default, Serialize, Deserialize) */
+export interface Event {
+    at: DateTime.Utc;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { DateTime } from 'effect';
+
+
+export interface Event {
+    at: DateTime.Utc;
+}
+
+export function eventDefaultValue(): Event {
+                        return {
+at: (() => {
+	const now = Math.floor(Date.now() / 1e3);
+	return DateTime.make(now);
+})(),
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function eventSerialize(value: Event, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = eventSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function eventSerializeWithContext(value: Event, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Event",
+                        __id,
+                    };result.at = ((v: DateTime.Utc) => DateTime.formatIso(v))(value.at);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function eventDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = eventDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Event.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function eventDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Event | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Event.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("at" in obj)) {
+                            errors.push({ field: "at", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);instance.at = ((raw: unknown) => {
+	if (!Array.isArray(raw) && typeof raw !== "string") {
+		console.error("bad DateTime.Utc payload", raw);
+		return DateTime.make(0);
+	}
+	return DateTime.make(raw as string);
+})(obj["at"]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Event;
+            }
+
+            export function eventValidateField<K extends keyof Event>(
+                _field: K,
+                _value: Event[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function eventValidateFields(
+                _partial: Partial<Event>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function eventHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "at" in o;
+            }
+
+            export function eventIs(obj: unknown): obj is Event {
+                if (!eventHasShape(obj)) {
+                    return false;
+                }
+                const result = eventDeserialize(obj);
+                return result.success;
+            }
+
+export const Event = {
+  defaultValue: eventDefaultValue,
+  serialize: eventSerialize,
+  serializeWithContext: eventSerializeWithContext,
+  deserialize: eventDeserialize,
+  deserializeWithContext: eventDeserializeWithContext,
+  validateFields: eventValidateFields,
+  hasShape: eventHasShape,
+  is: eventIs
+} as const;
+
+## DTS
+
+import { DateTime } from 'effect';
+
+
+export interface Event {
+    at: DateTime.Utc;
+}
+
+export function eventDefaultValue(): Event {
+                        return {
+at: (() => {
+	const now = Math.floor(Date.now() / 1e3);
+	return DateTime.make(now);
+})(),
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function eventSerialize(value: Event, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = eventSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function eventSerializeWithContext(value: Event, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Event",
+                        __id,
+                    };result.at = ((v: DateTime.Utc) => DateTime.formatIso(v))(value.at);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function eventDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = eventDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Event.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function eventDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Event | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Event.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("at" in obj)) {
+                            errors.push({ field: "at", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);instance.at = ((raw: unknown) => {
+	if (!Array.isArray(raw) && typeof raw !== "string") {
+		console.error("bad DateTime.Utc payload", raw);
+		return DateTime.make(0);
+	}
+	return DateTime.make(raw as string);
+})(obj["at"]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Event;
+            }
+
+            export function eventValidateField<K extends keyof Event>(
+                _field: K,
+                _value: Event[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function eventValidateFields(
+                _partial: Partial<Event>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function eventHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "at" in o;
+            }
+
+            export function eventIs(obj: unknown): obj is Event {
+                if (!eventHasShape(obj)) {
+                    return false;
+                }
+                const result = eventDeserialize(obj);
+                return result.success;
+            }
+
+export const Event = {
+  defaultValue: eventDefaultValue,
+  serialize: eventSerialize,
+  serializeWithContext: eventSerializeWithContext,
+  deserialize: eventDeserialize,
+  deserializeWithContext: eventDeserializeWithContext,
+  validateFields: eventValidateFields,
+  hasShape: eventHasShape,
+  is: eventIs
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..36 -> expanded 0..36
+original 83..132 -> expanded 36..85
+original 132..133 -> expanded 6991..6992
+generated 85..279 <- Default
+generated 279..1827 <- Serialize
+generated 1827..6672 <- Deserialize
+generated 6672..6991 <- __convenience_const
+
+## Metadata
+
+interface Event: {"body_span":{"end":133,"start":108},"decorators":[{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":84,"start":37}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":131,"start":114},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Event","span":{"end":133,"start":92},"type_params":[]}
+
+## Registry reads
+
+Name("DateTime.Utc")
+
+## Buildtime dependencies
+
+(none)

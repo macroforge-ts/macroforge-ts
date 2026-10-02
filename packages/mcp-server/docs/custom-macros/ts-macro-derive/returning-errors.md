@@ -15,9 +15,12 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             Ok(ts_template!(Within { /* ... */ }))
         }
         _ => Err(MacroforgeError::new(
-            input.decorator_span(),
+            input.error_span(),
             "@derive(ClassOnly) can only be used on classes",
         )),
     }
 }
 ```
+
+Reporting several problems at once, and warnings on success, are covered in
+[Errors and Diagnostics](../../docs/custom-macros/diagnostics).

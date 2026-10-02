@@ -57,6 +57,21 @@ function assertMethodsGenerated(
     }
 }
 
+test("vanilla: a macro package's debug lines reach the console", () => {
+    const logged = [];
+    const consoleError = console.error;
+    console.error = (line) => logged.push(String(line));
+    try {
+        expandFile('playground/vanilla/src/user.ts');
+    } finally {
+        console.error = consoleError;
+    }
+    assert.ok(
+        logged.some((line) => line.includes('[JSON] toJSON for User')),
+        `got: ${JSON.stringify(logged)}`
+    );
+});
+
 test('vanilla: decorators stripped and methods generated', () => {
     const { code } = expandFile('playground/vanilla/src/user.ts');
     assertDecoratorsStripped(code, 'vanilla/user.ts');
@@ -73,7 +88,7 @@ test('vanilla: decorators stripped and methods generated', () => {
 // ---------------------------------------------------------------------------
 
 // Walk up from `start` until a macroforge.config.* lands in the directory,
-// stopping at the repo root. Returns null when no config is found — that's
+// stopping at the repo root. Returns null when no config is found: that's
 // fine, the engine then uses defaults.
 function findMacroforgeConfigPath(start) {
     let dir = path.dirname(start);
@@ -119,7 +134,7 @@ function assertAttributeFixtureExpanded(output, fileLabel) {
     );
 
     // @cfg strips `strippedByMissingFeature` and `strippedByNodeTarget`
-    // entirely — the function declarations must be gone from the output.
+    // entirely: the function declarations must be gone from the output.
     assert.ok(
         !/export function strippedByMissingFeature\b/.test(output),
         `${fileLabel}: strippedByMissingFeature should be stripped by @cfg`
@@ -140,7 +155,7 @@ function assertAttributeFixtureExpanded(output, fileLabel) {
         `${fileLabel}: macroforge-style @deprecated annotation should be gone`
     );
 
-    // @mustUse strips its JSDoc — the diagnostic is the action, not the markup.
+    // @mustUse strips its JSDoc: the diagnostic is the action, not the markup.
     // Only match the annotation form `@mustUse(` or a JSDoc-style `/** @mustUse`
     // so narrative comments mentioning the feature survive.
     assert.ok(
@@ -157,7 +172,7 @@ function assertAttributeFixtureExpanded(output, fileLabel) {
         /readonly __nonExhaustive: unique symbol/.test(output),
         `${fileLabel}: @nonExhaustive brand intersection missing`
     );
-    // Variants must survive — check each independently since the formatter
+    // Variants must survive: check each independently since the formatter
     // may change quote style (single vs double) between fixtures.
     for (const variant of ['green', 'yellow', 'red']) {
         assert.ok(
@@ -167,7 +182,7 @@ function assertAttributeFixtureExpanded(output, fileLabel) {
     }
 
     // No annotation tags should leak into the output. Match the JSDoc tag
-    // form (`/** @cfg(`, `/** @nonExhaustive`) — narrative `//` comments
+    // form (`/** @cfg(`, `/** @nonExhaustive`): narrative `//` comments
     // that happen to mention `@cfg(...)` are prose and must survive.
     assert.ok(
         !/\/\*\*\s*@cfg\s*\(/.test(output),
@@ -274,8 +289,8 @@ const result = $withTemp(10);
 // Both declarative cross-file tests read the pre-built registry file
 // written by `macroforge watch` (or the CLI `tsc`/`svelte-check` wrappers
 // that run `ensure_type_registry_cache`). The WASM `scanProjectSync` can't
-// walk the filesystem from inside the WASM sandbox — that path only works
-// from the native CLI — so the tests pick up the on-disk registry
+// walk the filesystem from inside the WASM sandbox (that path only works
+// from the native CLI), so the tests pick up the on-disk registry
 // directly, matching how the Vite plugin reads it in `buildStart`.
 function loadDeclarativeRegistry(vanillaRoot) {
     const registryPath = path.join(
@@ -341,7 +356,7 @@ test('declarative macros: cross-file imports resolve at expand time', () => {
         declarativeRegistryJson
     });
 
-    // No error diagnostics — imports resolved cleanly.
+    // No error diagnostics: imports resolved cleanly.
     const errors = (diagnostics ?? []).filter((d) => d.level === 'error');
     assert.equal(
         errors.length,

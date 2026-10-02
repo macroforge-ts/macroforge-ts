@@ -20,11 +20,11 @@ use super::registry::DeclarativeMacroRegistry;
 /// Whether the expansion slot is expression, statement, or type position.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExpansionContext {
-    /// Expression position — a block body needs an IIFE wrap.
+    /// Expression position: a block body needs an IIFE wrap.
     Expression,
-    /// Statement position — block bodies are spliced in directly.
+    /// Statement position: block bodies are spliced in directly.
     Statement,
-    /// Type position — used by the Phase 13 type-position walker. The
+    /// Type position: used by the Phase 13 type-position walker. The
     /// body is spliced as a type, so no IIFE wrapping and no JS-level
     /// block handling apply.
     Type,
@@ -40,7 +40,7 @@ pub enum ExpandError {
     WrongBindingShape(String),
     /// Two sequence bindings inside the same repetition have different lengths.
     InconsistentSequenceLength(usize, usize),
-    /// A repetition mentioned no sequence bindings — we can't know how
+    /// A repetition mentioned no sequence bindings: we can't know how
     /// many times to iterate.
     UnanchoredRepetition,
     /// Expansion recursed past the depth limit. Fires when a macro
@@ -79,12 +79,12 @@ impl std::fmt::Display for ExpandError {
             ),
             ExpandError::RecursionLimit(limit) => write!(
                 f,
-                "macro expansion exceeded the recursion limit of {} levels — did a macro call itself?",
+                "macro expansion exceeded the recursion limit of {} levels: did a macro call itself?",
                 limit
             ),
             ExpandError::UnknownMacroCall(name) => write!(
                 f,
-                "macro body calls unknown macro `${}` — not registered or out of scope",
+                "macro body calls unknown macro `${}`: not registered or out of scope",
                 name
             ),
             ExpandError::MalformedMacroCallArgs { callee, reason } => write!(
@@ -110,27 +110,6 @@ impl std::error::Error for ExpandError {}
 /// realistic hand-written macro composition will hit it.
 pub const MAX_EXPANSION_DEPTH: u32 = 256;
 
-/// Expand `body` into a source string, given captured fragment bindings.
-///
-/// `depth` is the current recursion depth; top-level callers pass `0`.
-/// Phase 12's inter-macro composition bumps it on each nested expansion.
-/// Exceeding [`MAX_EXPANSION_DEPTH`] returns [`ExpandError::RecursionLimit`]
-/// instead of growing the stack.
-///
-/// When the body contains no `BodyToken::MacroCall` tokens, the
-/// `registry` argument is unused — you can pass `None` to skip the
-/// inter-macro composition path. Phase 12 call sites that want
-/// composition supply the registry.
-pub fn expand_body(
-    body: &Body,
-    bindings: &HashMap<String, Binding>,
-    expansion_id: u32,
-    context: ExpansionContext,
-    depth: u32,
-) -> Result<String, ExpandError> {
-    expand_body_with_registry(body, bindings, expansion_id, context, depth, None, None)
-}
-
 /// Expand `body` with a registry reference (for inter-macro
 /// composition) and an optional cluster id (for the Phase E
 /// cluster-aware runtime-name template feature).
@@ -144,8 +123,7 @@ pub fn expand_body(
 /// Literal + Substitution + Literal and expands to
 /// `__helper_<id>(<args-expansion>)` at the call site.
 ///
-/// `cluster_id == None` leaves the bindings untouched — behaviour
-/// matches the old API exactly. A body that references `$__cluster__`
+/// `cluster_id == None` leaves the bindings untouched. A body that references `$__cluster__`
 /// without a cluster id in scope produces `ExpandError::UnboundName`.
 pub fn expand_body_with_registry(
     body: &Body,
@@ -161,7 +139,7 @@ pub fn expand_body_with_registry(
     }
     // If a cluster id was provided, splice in a synthetic `__cluster__`
     // binding so Substitution tokens with name="__cluster__" resolve.
-    // We take a local clone to avoid mutating the caller's map — the
+    // We take a local clone to avoid mutating the caller's map: the
     // cluster binding is scope-local to this single expansion.
     let mut effective_bindings;
     let bindings_ref: &HashMap<String, Binding> = if let Some(id) = cluster_id {
@@ -266,9 +244,8 @@ fn expand_macro_call(
     registry: Option<&DeclarativeMacroRegistry>,
     out: &mut String,
 ) -> Result<(), ExpandError> {
-    // Resolve the callee. If no registry was provided (the
-    // `expand_body` overload without a registry), we can't dispatch —
-    // emit a clear error rather than blindly pasting literals.
+    // Resolve the callee. Without a registry there is nothing to dispatch
+    // to, so report the call rather than pasting its literals.
     let Some(registry) = registry else {
         return Err(ExpandError::UnknownMacroCall(callee_name.to_string()));
     };
@@ -539,12 +516,12 @@ fn expand_repetition(
                         scope.insert(name.clone(), Binding::Single(frags[i].clone()));
                     }
                     // Sequence bindings not referenced in this repetition
-                    // stay out of scope — they belong to outer repetitions.
+                    // stay out of scope: they belong to outer repetitions.
                 }
             }
         }
-        // Repetitions are "horizontal" — they don't add a level of
-        // recursion conceptually — so we pass depth through unchanged.
+        // Repetitions are "horizontal": they don't add a level of
+        // recursion conceptually, so we pass depth through unchanged.
         // Only macro-to-macro composition (Phase 12) bumps depth.
         render_tokens(inner, &scope, expansion_id, depth, registry, out)?;
     }
@@ -558,7 +535,7 @@ fn collect_substitutions(tokens: &[BodyToken]) -> Vec<&String> {
             BodyToken::Substitution(name) => names.push(name),
             BodyToken::MacroCall { args, .. } => {
                 // Repetition length is determined by substitutions in
-                // the arg list — e.g. `$($double($x)),+` should iterate
+                // the arg list, e.g. `$($double($x)),+` should iterate
                 // over `$x`, not over `$double` (which is a callee name,
                 // not a binding).
                 names.extend(collect_substitutions(args));
@@ -576,7 +553,7 @@ fn collect_substitutions(tokens: &[BodyToken]) -> Vec<&String> {
 /// get a unique per-expansion suffix.
 ///
 /// Only identifiers that are *declared* within the macro body get
-/// renamed — i.e., names on the left of `const __x`, `let __x`, or
+/// renamed, i.e., names on the left of `const __x`, `let __x`, or
 /// `var __x`. Pure references to externally-declared `__`-prefixed
 /// names (such as a shared runtime helper emitted by a share-mode
 /// macro) are left untouched, because renaming them would break the
@@ -585,12 +562,12 @@ fn collect_substitutions(tokens: &[BodyToken]) -> Vec<&String> {
 /// Delegates to [`hygiene::collect_declared_underscore_names`] and
 /// [`hygiene::rewrite_identifiers`], which use a lexical cursor that
 /// respects JS/TS string literals, comments, regex literals, and
-/// template-literal text portions — so an expansion that mentions
+/// template-literal text portions, so an expansion that mentions
 /// `__v` inside a `console.log("__v")` or `/* __v note */` comment is
 /// no longer corrupted.
 fn rewrite_hygiene(source: String, expansion_id: u32) -> String {
     let declared = hygiene::collect_declared_underscore_names(&source);
-    // Restrict renames to `__`-prefixed names — the cursor returns
+    // Restrict renames to `__`-prefixed names: the cursor returns
     // every declared identifier; we only rename the ones the hygiene
     // policy targets.
     let declared: std::collections::HashSet<String> = declared
@@ -617,8 +594,8 @@ fn maybe_wrap_iife(source: String, context: ExpansionContext) -> String {
             // block-as-expression semantics) or something else (object
             // literal, labeled statement, etc.). Only block statements
             // get the IIFE + return treatment; anything else is emitted
-            // verbatim. If parsing fails for any reason — which would
-            // indicate the template itself is malformed — fall back to
+            // verbatim. If parsing fails for any reason (which would
+            // indicate the template itself is malformed), fall back to
             // the pre-PR behavior (wrap without return injection) so the
             // downstream parser surfaces the real error.
             match rewrite_block_with_return(trimmed) {
@@ -638,7 +615,7 @@ fn maybe_wrap_iife(source: String, context: ExpansionContext) -> String {
 ///
 /// Uses OXC so every JavaScript lexical surface (template literals with
 /// interpolation, regex literals, comments, nested blocks, object
-/// literals, etc.) is handled correctly — no hand-rolled scanning.
+/// literals, etc.) is handled correctly: no hand-rolled scanning.
 fn rewrite_block_with_return(block_source: &str) -> Option<String> {
     use oxc::allocator::Allocator;
     use oxc::ast::ast::Statement;
@@ -646,7 +623,7 @@ fn rewrite_block_with_return(block_source: &str) -> Option<String> {
     use oxc::span::SourceType;
 
     let allocator = Allocator::default();
-    // TS and TSX aren't strict supersets of each other — `<T>expr` casts
+    // TS and TSX aren't strict supersets of each other: `<T>expr` casts
     // parse under TS but not TSX, and JSX parses under TSX but not TS.
     // Try TS first (more permissive for macro-body-style code that tends
     // to use `as`-casts) and fall back to TSX if it fails so JSX-producing
@@ -674,7 +651,7 @@ fn rewrite_block_with_return(block_source: &str) -> Option<String> {
     let expr_stmt = match last {
         Statement::ExpressionStatement(es) => es,
         // Any other trailing statement form (return, if, throw, let,
-        // loop, etc.) already has its own completion semantics — don't
+        // loop, etc.) already has its own completion semantics: don't
         // touch it.
         _ => return None,
     };
@@ -730,13 +707,13 @@ mod iife_wrap_tests {
 
     #[test]
     fn trailing_expression_with_semicolon_is_untouched() {
-        // Explicit `;` — user signaled "discard this expression".
+        // Explicit `;`: user signaled "discard this expression".
         assert!(rewrite_block_with_return("{ const __a = 10; __a + 1; }").is_none());
     }
 
     #[test]
     fn trailing_return_statement_is_untouched() {
-        // Already a return — don't double-inject.
+        // Already a return: don't double-inject.
         assert!(rewrite_block_with_return("{ const __a = 10; return __a + 1 }").is_none());
     }
 
@@ -758,7 +735,7 @@ mod iife_wrap_tests {
     #[test]
     fn template_literal_with_semicolon_does_not_split_wrongly() {
         // The `;` inside the template literal's interpolation must NOT be
-        // treated as a statement boundary — the whole `const s = ...` is
+        // treated as a statement boundary: the whole `const s = ...` is
         // the first statement, and `s.length` is the trailing expression.
         let src = "{ const s = `a;${1};b`; s.length }";
         let rewritten = rewrite_block_with_return(src).unwrap();
@@ -817,7 +794,7 @@ mod iife_wrap_tests {
 
     #[test]
     fn malformed_block_falls_back_to_verbatim_wrap() {
-        // Syntax error — both TS and TSX fail. `rewrite_block_with_return`
+        // Syntax error: both TS and TSX fail. `rewrite_block_with_return`
         // returns None; `maybe_wrap_iife` wraps the source as-is so the
         // downstream parser surfaces the real error instead of us silently
         // swallowing it.

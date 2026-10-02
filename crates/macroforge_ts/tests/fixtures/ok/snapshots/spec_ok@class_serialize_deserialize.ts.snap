@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_serialize_deserialize.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_serialize_deserialize.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ class Config {
     host: string;
     port: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -388,14 +392,8 @@ constructor(props: { host: string; port: number }) {
 
 
 
-
-
-
                         }{
                             const __raw_port = obj["port"] as number;instance.port = __raw_port;
-
-
-
 
 
 
@@ -1239,14 +1237,8 @@ constructor(props: { host: string; port: number }) {
 
 
 
-
-
-
                         }{
                             const __raw_port = obj["port"] as number;instance.port = __raw_port;
-
-
-
 
 
 
@@ -1720,5 +1712,27 @@ constructor(props: { host: string; port: number }) {
         }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 38..90 -> expanded 0..52
+original 90..91 -> expanded 5724..5725
+original 91..92 -> expanded 8463..8464
+generated 52..794 <- Serialize
+generated 794..5724 <- Deserialize
+generated 5725..7264 <- Serialize
+generated 7264..8463 <- Deserialize
+
+## Metadata
+
+class Config: {"body_span":{"end":92,"start":53},"decorators":[{"args_src":"Serialize, Deserialize","name":"Derive","span":{"end":39,"start":1}}],"fields":[{"decorators":[],"name":"host","optional":false,"readonly":false,"span":{"end":72,"start":59},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"port","optional":false,"readonly":false,"span":{"end":90,"start":77},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Config","span":{"end":92,"start":40},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

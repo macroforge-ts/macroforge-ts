@@ -14,7 +14,7 @@ use crate::ts_syn::abi::ir::type_registry::{
 /// Returns false if the type is not in the registry or has no such derive.
 ///
 /// When a name is ambiguous (same type name in multiple files), checks ALL
-/// qualified entries — returns true if ANY entry with that name has the derive.
+/// qualified entries: returns true if ANY entry with that name has the derive.
 pub fn type_has_derive(registry: &TypeRegistry, type_name: &str, derive_name: &str) -> bool {
     let has_derive = |entry: &TypeRegistryEntry| {
         let decorators = match &entry.definition {
@@ -67,16 +67,6 @@ pub fn collection_element_type(resolved: &ResolvedTypeRef) -> Option<&ResolvedTy
     match resolved.base_type_name.as_str() {
         "Map" if resolved.type_args.len() >= 2 => Some(&resolved.type_args[1]),
         _ => Some(&resolved.type_args[0]), // Array, Set, etc.
-    }
-}
-
-/// Get the Map key type for `Map<K, V>` collections.
-#[allow(dead_code)]
-pub fn map_key_type(resolved: &ResolvedTypeRef) -> Option<&ResolvedTypeRef> {
-    if resolved.base_type_name == "Map" && resolved.type_args.len() >= 2 {
-        Some(&resolved.type_args[0])
-    } else {
-        None
     }
 }
 
@@ -134,7 +124,7 @@ fn fields_from_definition_visiting(
 /// Flatten an intersection type's members into a single field list.
 ///
 /// Returns `None` if any `TypeRef` member cannot be resolved (incomplete
-/// knowledge — the named type is missing from the registry), or if the
+/// knowledge: the named type is missing from the registry), or if the
 /// references form a cycle, which the expander reports at the derive.
 /// Returns `Some(fields)` with deduplicated fields (first-seen-wins) on
 /// success. Literal members are skipped (they contribute no fields).

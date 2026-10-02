@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_intersection_fallback.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_intersection_fallback.ts
 ---
 ## Input
 
@@ -17,6 +16,10 @@ interface InactiveData {
 export type Status =
     | ({ kind: 'Active' } & ActiveData)
     | ({ kind: 'Inactive' } & InactiveData);
+
+## Changed
+
+true
 
 ## Output
 
@@ -69,5 +72,27 @@ export const Status = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..92 -> expanded 0..92
+original 115..221 -> expanded 92..198
+original 221..222 -> expanded 432..433
+generated 198..360 <- Default
+generated 360..432 <- __convenience_const
+
+## Metadata
+
+interface ActiveData: {"body_span":{"end":44,"start":22},"decorators":[],"fields":[{"decorators":[],"name":"since","optional":false,"readonly":false,"span":{"end":42,"start":28},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ActiveData","span":{"end":44,"start":1},"type_params":[]}
+interface InactiveData: {"body_span":{"end":91,"start":68},"decorators":[],"fields":[{"decorators":[],"name":"reason","optional":false,"readonly":false,"span":{"end":89,"start":74},"ts_type":"string"}],"heritage":[],"methods":[],"name":"InactiveData","span":{"end":91,"start":45},"type_params":[]}
+type Status: {"body":{"Union":[{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":161,"start":147},"ts_type":"'Active'"}]}}},{"decorators":[],"kind":{"TypeRef":"ActiveData"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"kind","optional":false,"readonly":false,"span":{"end":203,"start":187},"ts_type":"'Inactive'"}]}}},{"decorators":[],"kind":{"TypeRef":"InactiveData"}}]}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":116,"start":93}}],"name":"Status","span":{"end":222,"start":124},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

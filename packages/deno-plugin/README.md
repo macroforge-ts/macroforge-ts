@@ -16,6 +16,8 @@ deno add jsr:@macroforge/deno-plugin
 
 ### Functions
 
+- **`residentRegistries`** - `options` with any registry it carries as JSON kept by the engine and
+  named by id instead, so expanding many files sends each registry once.
 - **`expand`** - Expand a single in-memory TypeScript source string.
 - **`expandFile`** - Read a file from disk and expand it.
 

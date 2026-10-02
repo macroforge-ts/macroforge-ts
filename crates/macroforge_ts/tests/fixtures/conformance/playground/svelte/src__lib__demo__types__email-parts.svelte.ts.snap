@@ -1,0 +1,3862 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/email-parts.svelte.ts
+sha256 166ea22fce80a7544095ea385bbb57befaad3ed939e87248e438cf10fbcd68a8
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface EmailParts {
+    
+    local: string;
+    
+    domainName: string;
+    
+    topLevelDomain: string;
+}
+
+export function emailPartsDefaultValue(): EmailParts {
+                        return {
+local: "",
+domainName: "",
+topLevelDomain: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function emailPartsSerialize(value: EmailParts, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = emailPartsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function emailPartsSerializeWithContext(value: EmailParts, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "EmailParts",
+                        __id,
+                    };result.local = value.local;result.domainName = value.domainName;result.topLevelDomain = value.topLevelDomain;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function emailPartsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = emailPartsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "EmailParts.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function emailPartsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): EmailParts | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "EmailParts.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("local" in obj)) {
+                            errors.push({ field: "local", message: "missing required field" });
+                        }if (!("domainName" in obj)) {
+                            errors.push({ field: "domainName", message: "missing required field" });
+                        }if (!("topLevelDomain" in obj)) {
+                            errors.push({ field: "topLevelDomain", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_local = obj["local"] as string;
+                                            if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+if (__raw_local.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+}
+instance.local = __raw_local;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_domainName = obj["domainName"] as string;
+                                            if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+if (__raw_domainName.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+}
+instance.domainName = __raw_domainName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_topLevelDomain = obj["topLevelDomain"] as string;
+                                            if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+if (__raw_topLevelDomain.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+}
+instance.topLevelDomain = __raw_topLevelDomain;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as EmailParts;
+            }
+
+            export function emailPartsValidateField<K extends keyof EmailParts>(
+                _field: K,
+                _value: EmailParts[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "local") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+}
+
+
+                }
+                if (_field === "domainName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+}
+
+
+                }
+                if (_field === "topLevelDomain") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function emailPartsValidateFields(
+                _partial: Partial<EmailParts>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("local" in _partial && _partial.local !== undefined) {
+                    const __val = _partial.local as string;
+                    if (__val == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+}
+
+
+                }
+                if ("domainName" in _partial && _partial.domainName !== undefined) {
+                    const __val = _partial.domainName as string;
+                    if (__val == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+}
+
+
+                }
+                if ("topLevelDomain" in _partial && _partial.topLevelDomain !== undefined) {
+                    const __val = _partial.topLevelDomain as string;
+                    if (__val == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function emailPartsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "local" in o && "domainName" in o && "topLevelDomain" in o;
+            }
+
+            export function emailPartsIs(obj: unknown): obj is EmailParts {
+                if (!emailPartsHasShape(obj)) {
+                    return false;
+                }
+                const result = emailPartsDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type EmailPartsErrors = {
+            _errors: Option.Option<Array<string>>;
+            local: Option.Option<Array<string>>;
+            domainName: Option.Option<Array<string>>;
+            topLevelDomain: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type EmailPartsTainted = {
+            local: Option.Option<boolean>;
+            domainName: Option.Option<boolean>;
+            topLevelDomain: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface EmailPartsFieldControllers {
+            readonly local: FieldController<string>;
+            readonly domainName: FieldController<string>;
+            readonly topLevelDomain: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface EmailPartsGigaform {
+            readonly data: EmailParts;
+            readonly errors: EmailPartsErrors;
+            readonly tainted: EmailPartsTainted;
+            readonly fields: EmailPartsFieldControllers;
+            validate(): Exit.Exit<EmailParts, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<EmailParts>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPartsGigaform {
+            let data = $state({ ...emailPartsDefaultValue(), ...overrides });
+            let errors = $state<EmailPartsErrors>({
+                _errors: Option.none(),
+                local: Option.none(),
+                domainName: Option.none(),
+                topLevelDomain: Option.none(),
+
+
+            });
+            let tainted = $state<EmailPartsTainted>({
+                local: Option.none(),
+                domainName: Option.none(),
+                topLevelDomain: Option.none(),
+
+
+            });
+            const fields = {
+            
+                local: {
+            name: "local",
+            label: "local",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["local"],
+            get: () => data.local,
+            set: (value: string) => { data.local = value; },
+            getError: () => errors.local,
+            setError: (value: Option.Option<Array<string>>) => { errors.local = value; },
+            getTainted: () => tainted.local,
+            setTainted: (value: Option.Option<boolean>) => { tainted.local = value; },
+            validate: () => emailPartsValidateField("local", data.local).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                domainName: {
+            name: "domainName",
+            label: "domainName",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["domainName"],
+            get: () => data.domainName,
+            set: (value: string) => { data.domainName = value; },
+            getError: () => errors.domainName,
+            setError: (value: Option.Option<Array<string>>) => { errors.domainName = value; },
+            getTainted: () => tainted.domainName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.domainName = value; },
+            validate: () => emailPartsValidateField("domainName", data.domainName).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                topLevelDomain: {
+            name: "topLevelDomain",
+            label: "topLevelDomain",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["topLevelDomain"],
+            get: () => data.topLevelDomain,
+            set: (value: string) => { data.topLevelDomain = value; },
+            getError: () => errors.topLevelDomain,
+            setError: (value: Option.Option<Array<string>>) => { errors.topLevelDomain = value; },
+            getTainted: () => tainted.topLevelDomain,
+            setTainted: (value: Option.Option<boolean>) => { tainted.topLevelDomain = value; },
+            validate: () => emailPartsValidateField("topLevelDomain", data.topLevelDomain).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as EmailPartsFieldControllers;
+
+
+            function validate(): Exit.Exit<EmailParts, Array<{ field: string; message: string }>> {
+                return toExit(emailPartsDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<EmailParts>): void {
+                data = { ...emailPartsDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            local: Option.none(),
+            domainName: Option.none(),
+            topLevelDomain: Option.none(),
+
+
+        };
+                tainted = {
+            local: Option.none(),
+            domainName: Option.none(),
+            topLevelDomain: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function emailPartsFromFormData(formData: FormData): Exit.Exit<EmailParts, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.local = formData.get("local") ?? "";
+            obj.domainName = formData.get("domainName") ?? "";
+            obj.topLevelDomain = formData.get("topLevelDomain") ?? "";
+
+
+            return toExit(emailPartsDeserialize(obj));
+        }
+
+export const EmailParts = {
+  defaultValue: emailPartsDefaultValue,
+  serialize: emailPartsSerialize,
+  serializeWithContext: emailPartsSerializeWithContext,
+  deserialize: emailPartsDeserialize,
+  deserializeWithContext: emailPartsDeserializeWithContext,
+  validateFields: emailPartsValidateFields,
+  hasShape: emailPartsHasShape,
+  is: emailPartsIs,
+  createForm: emailPartsCreateForm,
+  fromFormData: emailPartsFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface EmailParts {
+    
+    local: string;
+    
+    domainName: string;
+    
+    topLevelDomain: string;
+}
+
+export function emailPartsDefaultValue(): EmailParts {
+                        return {
+local: "",
+domainName: "",
+topLevelDomain: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function emailPartsSerialize(value: EmailParts, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = emailPartsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function emailPartsSerializeWithContext(value: EmailParts, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "EmailParts",
+                        __id,
+                    };result.local = value.local;result.domainName = value.domainName;result.topLevelDomain = value.topLevelDomain;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function emailPartsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = emailPartsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "EmailParts.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function emailPartsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): EmailParts | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "EmailParts.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("local" in obj)) {
+                            errors.push({ field: "local", message: "missing required field" });
+                        }if (!("domainName" in obj)) {
+                            errors.push({ field: "domainName", message: "missing required field" });
+                        }if (!("topLevelDomain" in obj)) {
+                            errors.push({ field: "topLevelDomain", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_local = obj["local"] as string;
+                                            if (__raw_local == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+if (__raw_local.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+}
+instance.local = __raw_local;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_domainName = obj["domainName"] as string;
+                                            if (__raw_domainName == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+if (__raw_domainName.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+}
+instance.domainName = __raw_domainName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_topLevelDomain = obj["topLevelDomain"] as string;
+                                            if (__raw_topLevelDomain == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+if (__raw_topLevelDomain.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+}
+instance.topLevelDomain = __raw_topLevelDomain;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as EmailParts;
+            }
+
+            export function emailPartsValidateField<K extends keyof EmailParts>(
+                _field: K,
+                _value: EmailParts[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "local") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+}
+
+
+                }
+                if (_field === "domainName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+}
+
+
+                }
+                if (_field === "topLevelDomain") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function emailPartsValidateFields(
+                _partial: Partial<EmailParts>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("local" in _partial && _partial.local !== undefined) {
+                    const __val = _partial.local as string;
+                    if (__val == null) { errors.push({ field: "local", message: "EmailParts.local is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "local", message: "EmailParts.local must not be empty" }); }
+}
+
+
+                }
+                if ("domainName" in _partial && _partial.domainName !== undefined) {
+                    const __val = _partial.domainName as string;
+                    if (__val == null) { errors.push({ field: "domainName", message: "EmailParts.domainName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "domainName", message: "EmailParts.domainName must not be empty" }); }
+}
+
+
+                }
+                if ("topLevelDomain" in _partial && _partial.topLevelDomain !== undefined) {
+                    const __val = _partial.topLevelDomain as string;
+                    if (__val == null) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "EmailParts.topLevelDomain must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function emailPartsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "local" in o && "domainName" in o && "topLevelDomain" in o;
+            }
+
+            export function emailPartsIs(obj: unknown): obj is EmailParts {
+                if (!emailPartsHasShape(obj)) {
+                    return false;
+                }
+                const result = emailPartsDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type EmailPartsErrors = {
+            _errors: Option.Option<Array<string>>;
+            local: Option.Option<Array<string>>;
+            domainName: Option.Option<Array<string>>;
+            topLevelDomain: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type EmailPartsTainted = {
+            local: Option.Option<boolean>;
+            domainName: Option.Option<boolean>;
+            topLevelDomain: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface EmailPartsFieldControllers {
+            readonly local: FieldController<string>;
+            readonly domainName: FieldController<string>;
+            readonly topLevelDomain: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface EmailPartsGigaform {
+            readonly data: EmailParts;
+            readonly errors: EmailPartsErrors;
+            readonly tainted: EmailPartsTainted;
+            readonly fields: EmailPartsFieldControllers;
+            validate(): Exit.Exit<EmailParts, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<EmailParts>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function emailPartsCreateForm(overrides?: Partial<EmailParts>): EmailPartsGigaform {
+            let data = $state({ ...emailPartsDefaultValue(), ...overrides });
+            let errors = $state<EmailPartsErrors>({
+                _errors: Option.none(),
+                local: Option.none(),
+                domainName: Option.none(),
+                topLevelDomain: Option.none(),
+
+
+            });
+            let tainted = $state<EmailPartsTainted>({
+                local: Option.none(),
+                domainName: Option.none(),
+                topLevelDomain: Option.none(),
+
+
+            });
+            const fields = {
+            
+                local: {
+            name: "local",
+            label: "local",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["local"],
+            get: () => data.local,
+            set: (value: string) => { data.local = value; },
+            getError: () => errors.local,
+            setError: (value: Option.Option<Array<string>>) => { errors.local = value; },
+            getTainted: () => tainted.local,
+            setTainted: (value: Option.Option<boolean>) => { tainted.local = value; },
+            validate: () => emailPartsValidateField("local", data.local).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                domainName: {
+            name: "domainName",
+            label: "domainName",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["domainName"],
+            get: () => data.domainName,
+            set: (value: string) => { data.domainName = value; },
+            getError: () => errors.domainName,
+            setError: (value: Option.Option<Array<string>>) => { errors.domainName = value; },
+            getTainted: () => tainted.domainName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.domainName = value; },
+            validate: () => emailPartsValidateField("domainName", data.domainName).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                topLevelDomain: {
+            name: "topLevelDomain",
+            label: "topLevelDomain",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["topLevelDomain"],
+            get: () => data.topLevelDomain,
+            set: (value: string) => { data.topLevelDomain = value; },
+            getError: () => errors.topLevelDomain,
+            setError: (value: Option.Option<Array<string>>) => { errors.topLevelDomain = value; },
+            getTainted: () => tainted.topLevelDomain,
+            setTainted: (value: Option.Option<boolean>) => { tainted.topLevelDomain = value; },
+            validate: () => emailPartsValidateField("topLevelDomain", data.topLevelDomain).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as EmailPartsFieldControllers;
+
+
+            function validate(): Exit.Exit<EmailParts, Array<{ field: string; message: string }>> {
+                return toExit(emailPartsDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<EmailParts>): void {
+                data = { ...emailPartsDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            local: Option.none(),
+            domainName: Option.none(),
+            topLevelDomain: Option.none(),
+
+
+        };
+                tainted = {
+            local: Option.none(),
+            domainName: Option.none(),
+            topLevelDomain: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function emailPartsFromFormData(formData: FormData): Exit.Exit<EmailParts, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.local = formData.get("local") ?? "";
+            obj.domainName = formData.get("domainName") ?? "";
+            obj.topLevelDomain = formData.get("topLevelDomain") ?? "";
+
+
+            return toExit(emailPartsDeserialize(obj));
+        }
+
+export const EmailParts = {
+  defaultValue: emailPartsDefaultValue,
+  serialize: emailPartsSerialize,
+  serializeWithContext: emailPartsSerializeWithContext,
+  deserialize: emailPartsDeserialize,
+  deserializeWithContext: emailPartsDeserializeWithContext,
+  validateFields: emailPartsValidateFields,
+  hasShape: emailPartsHasShape,
+  is: emailPartsIs,
+  createForm: emailPartsCreateForm,
+  fromFormData: emailPartsFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..150 -> expanded 58..93
+original 191..215 -> expanded 93..117
+original 256..285 -> expanded 117..146
+original 326..356 -> expanded 146..176
+original 356..357 -> expanded 18705..18706
+generated 176..337 <- Default
+generated 337..1957 <- Serialize
+generated 1957..11737 <- Deserialize
+generated 11737..18265 <- Gigaform
+generated 18265..18705 <- __convenience_const
+
+## Metadata
+
+interface EmailParts: {"body_span":{"end":357,"start":145},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":192,"start":151}}],"name":"local","optional":false,"readonly":false,"span":{"end":211,"start":197},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":257,"start":216}}],"name":"domainName","optional":false,"readonly":false,"span":{"end":281,"start":262},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":327,"start":286}}],"name":"topLevelDomain","optional":false,"readonly":false,"span":{"end":355,"start":332},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EmailParts","span":{"end":357,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

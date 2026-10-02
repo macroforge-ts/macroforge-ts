@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_enum.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_enum.ts
 ---
 ## Input
 
@@ -10,6 +9,10 @@ input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_enum.ts
     Active,
     Inactive
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -64,5 +67,24 @@ export namespace Status {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..69 -> expanded 0..48
+original 69..70 -> expanded 453..454
+generated 48..382 <- Debug
+generated 382..453 <- __convenience_const
+
+## Metadata
+
+enum Status: {"body_span":{"end":70,"start":42},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"is_const":false,"name":"Status","span":{"end":70,"start":30},"variants":[{"decorators":[],"name":"Active","span":{"end":54,"start":48},"value":{"Number":0.0}},{"decorators":[],"name":"Inactive","span":{"end":68,"start":60},"value":{"Number":1.0}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

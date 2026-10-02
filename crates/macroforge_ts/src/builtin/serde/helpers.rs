@@ -1,67 +1,13 @@
 //! Helper functions for parsing decorator arguments.
 
-/// Check if a flag is present in decorator arguments (case-insensitive).
-/// Returns false if the flag is explicitly set to `false`.
-pub fn has_flag(args: &str, flag: &str) -> bool {
-    if flag_explicit_false(args, flag) {
-        return false;
-    }
+use crate::builtin::derive_common::{find_named_value, parse_string_literal};
 
-    args.split(|c: char| !c.is_alphanumeric() && c != '_')
-        .any(|token| token.eq_ignore_ascii_case(flag))
-}
-
-pub(crate) fn flag_explicit_false(args: &str, flag: &str) -> bool {
-    let lower = args.to_ascii_lowercase();
-    let condensed: String = lower.chars().filter(|c| !c.is_whitespace()).collect();
-    condensed.contains(&format!("{flag}:false")) || condensed.contains(&format!("{flag}=false"))
-}
-
-pub fn extract_named_string(args: &str, name: &str) -> Option<String> {
-    let lower = args.to_ascii_lowercase();
-    let name_lower = name.to_ascii_lowercase();
-
-    // Find all occurrences and check for whole-word match
-    let mut search_start = 0;
-    while let Some(relative_idx) = lower[search_start..].find(&name_lower) {
-        let idx = search_start + relative_idx;
-
-        // Check that we're at a word boundary (not part of a larger identifier)
-        // The character before must be non-alphanumeric (or we're at the start)
-        let at_word_start = idx == 0 || {
-            let prev_char = lower.chars().nth(idx - 1).unwrap_or(' ');
-            !prev_char.is_alphanumeric() && prev_char != '_'
-        };
-
-        if at_word_start {
-            let remainder = &args[idx + name.len()..];
-            let remainder = remainder.trim_start();
-
-            if remainder.starts_with(':') || remainder.starts_with('=') {
-                let value = remainder[1..].trim_start();
-                // Try string literal first, then expression value
-                if let Some(s) = parse_string_literal(value) {
-                    return Some(s);
-                }
-                return extract_expression_value(value);
-            }
-
-            if remainder.starts_with('(')
-                && let Some(close) = remainder.rfind(')')
-            {
-                let inner = remainder[1..close].trim();
-                if let Some(s) = parse_string_literal(inner) {
-                    return Some(s);
-                }
-                return extract_expression_value(inner);
-            }
-        }
-
-        // Continue searching from after this match
-        search_start = idx + 1;
-    }
-
-    None
+/// The value of the option `name` in a decorator's argument text: a string
+/// literal's decoded value, or else the expression written there, up to the
+/// next top-level `,` or closing bracket.
+pub(crate) fn extract_named_value(args: &str, name: &str) -> Option<String> {
+    let value = find_named_value(args, name)?;
+    parse_string_literal(value).or_else(|| extract_expression_value(value))
 }
 
 /// Extract an expression value up to the next `,` or `}` at the same nesting level.
@@ -117,34 +63,6 @@ fn extract_expression_value(input: &str) -> Option<String> {
     } else {
         Some(result.to_string())
     }
-}
-
-pub(crate) fn parse_string_literal(input: &str) -> Option<String> {
-    let trimmed = input.trim();
-    let mut chars = trimmed.chars();
-    let quote = chars.next()?;
-    if quote != '"' && quote != '\'' {
-        return None;
-    }
-
-    let mut escaped = false;
-    let mut buf = String::new();
-    for c in chars {
-        if escaped {
-            buf.push(c);
-            escaped = false;
-            continue;
-        }
-        if c == '\\' {
-            escaped = true;
-            continue;
-        }
-        if c == quote {
-            return Some(buf);
-        }
-        buf.push(c);
-    }
-    None
 }
 
 /// Find the position of a comma at the top level (not inside <> brackets)

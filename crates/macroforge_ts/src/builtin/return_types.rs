@@ -108,35 +108,6 @@ pub fn partial_ord_return_type() -> &'static str {
     "number | null"
 }
 
-/// Returns an expression that wraps a "some" value.
-///
-/// # Arguments
-///
-/// * `expr` - The expression to wrap (e.g., "0" or "cmp")
-///
-/// # Returns
-///
-/// The vanilla "some" value: `<expr>` (no wrapper needed)
-pub fn wrap_some(expr: &str) -> String {
-    expr.to_string()
-}
-
-/// Returns the "none" expression for PartialOrd.
-///
-/// # Returns
-///
-/// The vanilla "none" value: `null`
-pub fn wrap_none() -> String {
-    "null".to_string()
-}
-
-/// Returns true if Option type checking is required.
-///
-/// Since null is used directly, this always returns false.
-pub fn uses_option_type() -> bool {
-    false
-}
-
 /// Returns the expression to check if an Option value is None.
 ///
 /// # Arguments
@@ -148,19 +119,6 @@ pub fn uses_option_type() -> bool {
 /// The vanilla null check: `<expr> === null`
 pub fn is_none_check(expr: &str) -> String {
     format!("{} === null", expr)
-}
-
-/// Returns the expression to unwrap an Option value.
-///
-/// # Arguments
-///
-/// * `expr` - The Option expression to unwrap
-///
-/// # Returns
-///
-/// The vanilla value: `<expr>` (no unwrap needed, value is already the number)
-pub fn unwrap_option(expr: &str) -> String {
-    expr.to_string()
 }
 
 /// Returns the expression to extract a value from an Option, or null if None.
@@ -211,23 +169,8 @@ mod tests {
     }
 
     #[test]
-    fn test_wrap_some() {
-        assert_eq!(wrap_some("0"), "0");
-    }
-
-    #[test]
-    fn test_wrap_none() {
-        assert_eq!(wrap_none(), "null");
-    }
-
-    #[test]
     fn test_is_none_check() {
         assert_eq!(is_none_check("opt"), "opt === null");
-    }
-
-    #[test]
-    fn test_unwrap_option() {
-        assert_eq!(unwrap_option("opt"), "opt");
     }
 
     #[test]

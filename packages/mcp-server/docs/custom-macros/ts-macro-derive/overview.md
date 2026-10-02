@@ -16,3 +16,8 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
     // Macro implementation
 }
 ```
+
+Note
+
+The generated code refers to `macroforge_ts` by name, so depend on it under that name, without
+renaming it in `Cargo.toml`.

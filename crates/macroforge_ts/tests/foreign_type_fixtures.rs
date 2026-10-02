@@ -2,15 +2,15 @@
 //!
 //! Each fixture under `tests/fixtures/foreign_types/<name>/` is a triple:
 //!
-//! - `macroforge.config.ts` — config to load (gives us `config_imports`,
+//! - `macroforge.config.ts`: config to load (gives us `config_imports`,
 //!   `expression_namespaces`, and the foreign-type registry).
-//! - `input.ts` — source file to expand against that config.
-//! - `snapshots/` — insta-managed expected output.
+//! - `input.ts`: source file to expand against that config.
+//! - `snapshots/`: insta-managed expected output.
 //!
 //! The snapshot captures what users actually see in their generated cache:
 //! the emitted imports (top of the file), the rewritten body, and any
-//! diagnostics. That covers the bug class we keep tripping on — a missing
-//! `__mf_<ns>` alias OR a synthetic import for a JS global — without us
+//! diagnostics. That covers the bug class we keep tripping on (a missing
+//! `__mf_<ns>` alias OR a synthetic import for a JS global) without us
 //! having to write per-symbol assertions.
 //!
 //! ## Running / updating
@@ -38,18 +38,18 @@ use macroforge_ts::{
 
 /// Narrow the noisy raw output to just the bug-class signal:
 ///
-/// - **Config-declared namespaces** — the names the config file pulls in via
+/// - **Config-declared namespaces**: the names the config file pulls in via
 ///   `import { … } from "…"`. These are the *only* identifiers the engine is
 ///   allowed to register as `__mf_*` aliases. Anything else is implicitly
 ///   global.
-/// - **Generated imports** — the `__mf_*` lines the engine emitted. Each
+/// - **Generated imports**: the `__mf_*` lines the engine emitted. Each
 ///   `__mf_X` here MUST correspond to an entry in the config-declared list.
 ///   If a JS global like `Math` ever shows up here, the test breaks loudly.
-/// - **Body references** — every `<Identifier>.` (and every `__mf_*`) that
+/// - **Body references**: every `<Identifier>.` (and every `__mf_*`) that
 ///   appears in the rewritten body, partitioned into "config-declared" and
 ///   "treated as global". A config-declared namespace appearing in the body
 ///   *without* an `__mf_` prefix is a regression of the missing-import bug.
-/// - **Default function** — the IIFE'd default body, narrow enough that
+/// - **Default function**: the IIFE'd default body, narrow enough that
 ///   unrelated codegen churn doesn't flap these snapshots.
 fn format_snapshot(
     config: &str,
@@ -84,7 +84,7 @@ fn format_snapshot(
                     break;
                 }
             }
-            // We want identifiers that are followed by `.` — i.e. the root of
+            // We want identifiers that are followed by `.`, i.e. the root of
             // a member expression like `Math.floor` or `__mf_Option.match`.
             let next_is_dot = bytes.get(i).copied() == Some(b'.');
             // Filter out cases where the identifier is itself a *property* of
@@ -161,7 +161,7 @@ fn format_snapshot(
         }
     }
 
-    out.push_str("\n\n## Body references — config-declared (must be aliased)\n\n");
+    out.push_str("\n\n## Body references: config-declared (must be aliased)\n\n");
     if config_declared_in_body.is_empty() {
         out.push_str("(none)");
     } else {
@@ -174,7 +174,7 @@ fn format_snapshot(
         }
     }
 
-    out.push_str("\n\n## Body references — treated as global (must NOT be aliased)\n\n");
+    out.push_str("\n\n## Body references: treated as global (must NOT be aliased)\n\n");
     if treated_as_global.is_empty() {
         out.push_str("(none)");
     } else {
@@ -213,7 +213,7 @@ fn format_snapshot(
 /// Best-effort extract of the local names from `import { … } from "…"` lines
 /// at the top of the config file. Covers named (`{ A, B as C }`), default
 /// (`import D from "…"`), and namespace (`import * as N from "…"`) forms.
-/// Doesn't try to handle everything — the config files are small and
+/// Doesn't try to handle everything: the config files are small and
 /// well-formed so a regex-style scan is enough.
 fn config_imports(config: &str) -> std::collections::HashSet<&str> {
     let mut out = std::collections::HashSet::new();
@@ -235,7 +235,7 @@ fn config_imports(config: &str) -> std::collections::HashSet<&str> {
                 if part.is_empty() {
                     continue;
                 }
-                // `Foo as Bar` — the local name is `Bar`.
+                // `Foo as Bar`: the local name is `Bar`.
                 let local = part.rsplit(" as ").next().unwrap_or(part).trim();
                 let local = local.trim_start_matches("type ").trim();
                 if !local.is_empty() {
@@ -279,7 +279,7 @@ fn is_keyword(s: &str) -> bool {
     )
 }
 
-/// True for identifiers that *could* plausibly be a namespace — anything
+/// True for identifiers that *could* plausibly be a namespace: anything
 /// PascalCase, plus a couple of well-known lowercase globals. This filters
 /// out local-variable property access (`obj.id`, `ctx.register`, …) so the
 /// "treated as global" snapshot section stays focused on the bug class.
@@ -349,7 +349,10 @@ fn foreign_type_fixtures() {
                 config_path: Some(cache_key),
                 type_registry_json: None,
                 declarative_registry_json: None,
+                type_registry_id: None,
+                declarative_registry_id: None,
                 build_mode: None,
+                emit_metadata: None,
             };
             let result =
                 CoreEngine::expand_sync(input.clone(), "input.ts".to_string(), Some(options))

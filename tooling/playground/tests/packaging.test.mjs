@@ -418,7 +418,7 @@ test('packaging: a changed type re-expands exactly the modules that read it', ()
             assert.ok(!wasSkipped(output), `a real edit must rebuild.\n${output}`);
             assert.match(
                 output,
-                /Re-expanded 2 of 3 macro module\(s\) — 1 changed file\(s\), 1 reading a changed type/
+                /Re-expanded 2 of 3 macro module\(s\): 1 changed file\(s\), 1 reading a changed type/
             );
             assert.deepEqual(reexpandedSince(before), [
                 'types/customer.svelte.ts',
@@ -453,7 +453,7 @@ test('packaging: an annotation-only change re-expands only the modules that read
 
             assert.match(
                 output,
-                /Re-expanded 2 of 3 macro module\(s\) — 1 changed file\(s\), 1 reading a changed type/
+                /Re-expanded 2 of 3 macro module\(s\): 1 changed file\(s\), 1 reading a changed type/
             );
             assert.deepEqual(reexpandedSince(before), [
                 'types/customer.svelte.ts',
@@ -476,7 +476,7 @@ test('packaging: a comment-only edit re-expands only the edited module', () => {
         () => {
             const output = packageOk();
 
-            assert.match(output, /Re-expanded 1 of 3 macro module\(s\) — 1 changed file\(s\)\n/);
+            assert.match(output, /Re-expanded 1 of 3 macro module\(s\): 1 changed file\(s\)\n/);
             assert.deepEqual(reexpandedSince(before), ['types/person-name.ts']);
         }
     );
@@ -493,7 +493,7 @@ test('packaging: a change to a type nothing else reads re-expands only its own m
         () => {
             const output = packageOk();
 
-            assert.match(output, /Re-expanded 1 of 3 macro module\(s\) — 1 changed file\(s\)\n/);
+            assert.match(output, /Re-expanded 1 of 3 macro module\(s\): 1 changed file\(s\)\n/);
             assert.deepEqual(reexpandedSince(before), ['types/order.svelte.ts']);
         }
     );
@@ -514,7 +514,7 @@ test('packaging: an edit that leaves the type surface alone re-expands nothing',
             assert.ok(!wasSkipped(output), `a real edit must rebuild.\n${output}`);
             assert.match(
                 output,
-                /Reused all 3 expanded module\(s\) — none of the 1 changed file\(s\) carry macros/
+                /Reused all 3 expanded module\(s\): none of the 1 changed file\(s\) carry macros/
             );
             assert.match(
                 readFileSync(path.join(distDir, 'index.js'), 'utf8'),
@@ -548,7 +548,7 @@ test('packaging: --full-rebuild repackages an unchanged project', () => {
         !wasSkipped(output),
         `--full-rebuild must ignore the previous build.\n${output}`
     );
-    assert.match(output, /Re-expanded all 3 macro module\(s\) — no previous build to reuse/);
+    assert.match(output, /Re-expanded all 3 macro module\(s\): no previous build to reuse/);
 });
 
 test('packaging: an added source is packaged and its removal is propagated', () => {
@@ -592,8 +592,8 @@ test('packaging: a missing expanded artifact is rebuilt, not silently skipped', 
     ensureInstalled();
     packageOk();
 
-    // The artifact for an unchanged file is reused by path. If it disappears —
-    // an interrupted write, a stray `rm` — nothing about the *source* looks
+    // The artifact for an unchanged file is reused by path. If it disappears
+    // (an interrupted write, a stray `rm`), nothing about the *source* looks
     // different, so without an explicit check the packager would read the raw
     // module and publish it with its generated runtime missing.
     rmSync(
@@ -733,7 +733,7 @@ test('packaging: a rebuilt macro binary re-expands rather than replaying the tre
 
         assert.match(
             output,
-            /Re-expanded all 3 macro module\(s\) — the external macro binary changed/,
+            /Re-expanded all 3 macro module\(s\): the external macro binary changed/,
             `a rebuilt macro binary must re-expand every module.\n${output}`
         );
         assert.ok(

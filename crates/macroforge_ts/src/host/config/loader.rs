@@ -3,106 +3,42 @@ use super::{CONFIG_CACHE, CONFIG_FILES, CachedConfig, MacroforgeConfig};
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
+use crate::host::file_stamp::FileStamp;
+
 use macroforge_ts_syn::config::{ForeignTypeAlias, ForeignTypeConfig, ImportInfo};
 use oxc::span::GetSpan;
 
 /// Loader/parser for MacroforgeConfig files.
 pub struct MacroforgeConfigLoader;
 
+/// A config file as last parsed, with the stamps it and its bases had then.
+struct ParsedConfigFile {
+    stamp: FileStamp,
+    dependencies: Vec<(std::path::PathBuf, FileStamp)>,
+    config: MacroforgeConfig,
+}
+
+/// The current stamp of each of `paths`, which were just read.
+fn stamp_all(paths: Vec<std::path::PathBuf>) -> Result<Vec<(std::path::PathBuf, FileStamp)>> {
+    paths
+        .into_iter()
+        .map(|path| {
+            let stamp = FileStamp::of(&path)?;
+            Ok((path, stamp))
+        })
+        .collect()
+}
+
 impl MacroforgeConfigLoader {
-    /// Parse a macroforge.config.js/ts file and extract configuration.
-    pub fn from_config_file(content: &str, filepath: &str) -> Result<MacroforgeConfig> {
-        use oxc::ast::ast::{
-            Argument, ExportDefaultDeclarationKind, ImportDeclarationSpecifier, Statement,
-        };
-        use oxc::parser::Parser;
-        use oxc::span::SourceType;
-
-        let source_type = if filepath.ends_with(".ts") || filepath.ends_with(".mts") {
-            SourceType::ts()
-        } else {
-            SourceType::unambiguous()
-        };
-
-        let allocator = oxc::allocator::Allocator::default();
-        let parsed = Parser::new(&allocator, content, source_type).parse();
-        if !parsed.diagnostics.is_empty() {
-            return Err(super::super::MacroError::InvalidConfig(format!(
-                "Parse error: {}",
-                parsed
-                    .diagnostics
-                    .into_iter()
-                    .map(|diagnostic| diagnostic.to_string())
-                    .collect::<Vec<_>>()
-                    .join("; ")
-            )));
-        }
-
-        let imports = {
-            let mut imports = HashMap::new();
-            for stmt in &parsed.program.body {
-                if let Statement::ImportDeclaration(import) = stmt
-                    && let Some(specifiers) = &import.specifiers
-                {
-                    let source = import.source.value.to_string();
-                    for specifier in specifiers {
-                        match specifier {
-                            ImportDeclarationSpecifier::ImportSpecifier(named) => {
-                                imports.insert(
-                                    named.local.name.to_string(),
-                                    ImportInfo {
-                                        name: named.imported.name().to_string(),
-                                        source: source.clone(),
-                                    },
-                                );
-                            }
-                            ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
-                                imports.insert(
-                                    default.local.name.to_string(),
-                                    ImportInfo {
-                                        name: "default".to_string(),
-                                        source: source.clone(),
-                                    },
-                                );
-                            }
-                            ImportDeclarationSpecifier::ImportNamespaceSpecifier(ns) => {
-                                imports.insert(
-                                    ns.local.name.to_string(),
-                                    ImportInfo {
-                                        name: "*".to_string(),
-                                        source: source.clone(),
-                                    },
-                                );
-                            }
-                        }
-                    }
-                }
-            }
-            imports
-        };
-
-        for stmt in &parsed.program.body {
-            if let Statement::ExportDefaultDeclaration(export) = stmt {
-                let config = match &export.declaration {
-                    ExportDefaultDeclarationKind::ObjectExpression(obj) => {
-                        parse_config_object(obj, &imports, content)?
-                    }
-                    ExportDefaultDeclarationKind::CallExpression(call) => {
-                        let first = call.arguments.first();
-                        match first {
-                            Some(Argument::ObjectExpression(obj)) => {
-                                parse_config_object(obj, &imports, content)?
-                            }
-                            _ => MacroforgeConfig::default(),
-                        }
-                    }
-                    _ => MacroforgeConfig::default(),
-                };
-                return Ok(config);
-            }
-        }
-
-        Ok(MacroforgeConfig::default())
+    /// Parse a macroforge.config.js/ts file, following any base config it
+    /// extends, spreads or re-exports. Also returns the files besides
+    /// `filepath` it was built from, so a cache can tell when a base changes.
+    pub(crate) fn from_config_file_with_dependencies(
+        content: &str,
+        filepath: &str,
+    ) -> Result<(MacroforgeConfig, Vec<std::path::PathBuf>)> {
+        super::resolve::resolve_config(content, filepath)
+            .map(|resolved| (resolved.config, resolved.dependencies))
     }
 
     /// Load configuration from cache or parse from file content.
@@ -114,26 +50,22 @@ impl MacroforgeConfigLoader {
         let content_hash = hasher.finish();
         if let Some(cached) = CONFIG_CACHE.get(filepath)
             && cached.content_hash == content_hash
+            && cached.dependencies_unchanged()
         {
-            return Ok(cached.config.clone());
+            return Ok(MacroforgeConfig::clone(&cached.config));
         }
 
-        let config = Self::from_config_file(content, filepath)?;
+        let (config, dependencies) = Self::from_config_file_with_dependencies(content, filepath)?;
         CONFIG_CACHE.insert(
             filepath.to_string(),
             CachedConfig {
                 content_hash,
-                config: config.clone(),
+                config: std::sync::Arc::new(config.clone()),
+                dependencies: stamp_all(dependencies)?,
             },
         );
 
         Ok(config)
-    }
-
-    pub fn get_cached(filepath: &str) -> Option<MacroforgeConfig> {
-        CONFIG_CACHE
-            .get(filepath)
-            .map(|cached| cached.config.clone())
     }
 
     pub fn find_with_root() -> Result<Option<(MacroforgeConfig, std::path::PathBuf)>> {
@@ -155,8 +87,50 @@ impl MacroforgeConfigLoader {
         Self::find_config_in_ancestors(&start_dir)
     }
 
-    pub fn find_from_path(start_path: &Path) -> Result<Option<MacroforgeConfig>> {
-        Ok(Self::find_with_root_from_path(start_path)?.map(|(cfg, _)| cfg))
+    /// The config file at `config_path`, parsed once for as long as it and
+    /// every base config it builds on are unchanged. A file that cannot be
+    /// stamped is parsed on every call; reading it reports why it is
+    /// unreadable, if it is.
+    fn load_config_file(config_path: &Path) -> Result<MacroforgeConfig> {
+        static PARSED: std::sync::LazyLock<
+            std::sync::Mutex<HashMap<std::path::PathBuf, ParsedConfigFile>>,
+        > = std::sync::LazyLock::new(std::sync::Mutex::default);
+
+        let stamp = FileStamp::of(config_path).ok();
+        if let Some(stamp) = stamp {
+            // Entries are inserted whole, so a poisoned map is still consistent.
+            let parsed = PARSED
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            if let Some(cached) = parsed.get(config_path)
+                && cached.stamp == stamp
+                && cached.dependencies.iter().all(|(path, dependency)| {
+                    FileStamp::of(path).is_ok_and(|current| current == *dependency)
+                })
+            {
+                return Ok(cached.config.clone());
+            }
+        }
+        let content = std::fs::read_to_string(config_path)?;
+        let (config, dependencies) = Self::from_config_file_with_dependencies(
+            &content,
+            config_path.to_string_lossy().as_ref(),
+        )?;
+        if let Some(stamp) = stamp {
+            let dependencies = stamp_all(dependencies)?;
+            PARSED
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .insert(
+                    config_path.to_path_buf(),
+                    ParsedConfigFile {
+                        stamp,
+                        dependencies,
+                        config: config.clone(),
+                    },
+                );
+        }
+        Ok(config)
     }
 
     fn find_config_in_ancestors(
@@ -168,9 +142,7 @@ impl MacroforgeConfigLoader {
             for config_name in CONFIG_FILES {
                 let config_path = current.join(config_name);
                 if config_path.exists() {
-                    let content = std::fs::read_to_string(&config_path)?;
-                    let config =
-                        Self::from_config_file(&content, config_path.to_string_lossy().as_ref())?;
+                    let config = Self::load_config_file(&config_path)?;
                     return Ok(Some((config, current.clone())));
                 }
             }
@@ -186,72 +158,89 @@ impl MacroforgeConfigLoader {
 
         Ok(None)
     }
-
-    pub fn find_and_load() -> Result<Option<MacroforgeConfig>> {
-        Ok(Self::find_with_root()?.map(|(cfg, _)| cfg))
-    }
 }
 
-fn parse_config_object(
-    obj: &oxc::ast::ast::ObjectExpression<'_>,
-    imports: &HashMap<String, ImportInfo>,
-    source: &str,
-) -> Result<MacroforgeConfig> {
-    let mut config = MacroforgeConfig::default();
+/// Every import `program` declares, by local name.
+pub(super) fn collect_imports(program: &oxc::ast::ast::Program<'_>) -> HashMap<String, ImportInfo> {
+    use oxc::ast::ast::{ImportDeclarationSpecifier, Statement};
 
-    for prop in &obj.properties {
-        let oxc::ast::ast::ObjectPropertyKind::ObjectProperty(prop) = prop else {
+    let mut imports = HashMap::new();
+    for stmt in &program.body {
+        let Statement::ImportDeclaration(import) = stmt else {
             continue;
         };
-        if prop.kind != oxc::ast::ast::PropertyKind::Init {
+        let Some(specifiers) = &import.specifiers else {
             continue;
-        }
-
-        let key = get_prop_key(&prop.key, source);
-        match key.as_str() {
-            "keepDecorators" => {
-                config.keep_decorators = get_bool_value(&prop.value).unwrap_or(false);
-            }
-            "generateConvenienceConst" => {
-                config.generate_convenience_const = get_bool_value(&prop.value).unwrap_or(true);
-            }
-            "foreignTypes" => {
-                if let oxc::ast::ast::Expression::ObjectExpression(ft_obj) = &prop.value {
-                    config.foreign_types = parse_foreign_types(ft_obj, imports, source)?;
+        };
+        let source = import.source.value.to_string();
+        for specifier in specifiers {
+            let (local, name) = match specifier {
+                ImportDeclarationSpecifier::ImportSpecifier(named) => (
+                    named.local.name.to_string(),
+                    named.imported.name().to_string(),
+                ),
+                ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
+                    (default.local.name.to_string(), "default".to_string())
                 }
-            }
-            "cfg" => {
-                if let Some(map) = object_to_json_map(&prop.value) {
-                    config.cfg = super::attribute_blocks::parse_cfg_flags(&map);
+                ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
+                    (namespace.local.name.to_string(), "*".to_string())
                 }
-            }
-            "deprecated" => {
-                if let Some(map) = object_to_json_map(&prop.value) {
-                    config.deprecated = super::attribute_blocks::parse_deprecated_config(&map);
-                }
-            }
-            "mustUse" => {
-                if let Some(map) = object_to_json_map(&prop.value) {
-                    config.must_use = super::attribute_blocks::parse_must_use_config(&map);
-                }
-            }
-            "nonExhaustive" => {
-                if let Some(map) = object_to_json_map(&prop.value) {
-                    config.non_exhaustive =
-                        super::attribute_blocks::parse_non_exhaustive_config(&map);
-                }
-            }
-            "buildtime" => {
-                if let Some(map) = object_to_json_map(&prop.value) {
-                    config.buildtime = super::attribute_blocks::parse_buildtime_config(&map);
-                }
-            }
-            _ => {}
+            };
+            imports.insert(
+                local,
+                ImportInfo {
+                    name,
+                    source: source.clone(),
+                },
+            );
         }
     }
+    imports
+}
 
-    config.config_imports = imports.clone();
-    Ok(config)
+/// Sets on `layer` the config field `key` names, from `value`. Keys the
+/// config does not know are ignored.
+pub(super) fn parse_block_property(
+    layer: &mut super::resolve::ConfigLayer,
+    key: &str,
+    value: &oxc::ast::ast::Expression<'_>,
+) -> Result<()> {
+    match key {
+        "keepDecorators" => {
+            layer.keep_decorators = Some(get_bool_value(value).unwrap_or(false));
+        }
+        "generateConvenienceConst" => {
+            layer.generate_convenience_const = Some(get_bool_value(value).unwrap_or(true));
+        }
+        "cfg" => {
+            if let Some(map) = object_to_json_map(value) {
+                layer.cfg = Some(super::attribute_blocks::parse_cfg_flags(&map));
+            }
+        }
+        "deprecated" => {
+            if let Some(map) = object_to_json_map(value) {
+                layer.deprecated = Some(super::attribute_blocks::parse_deprecated_config(&map));
+            }
+        }
+        "mustUse" => {
+            if let Some(map) = object_to_json_map(value) {
+                layer.must_use = Some(super::attribute_blocks::parse_must_use_config(&map));
+            }
+        }
+        "nonExhaustive" => {
+            if let Some(map) = object_to_json_map(value) {
+                layer.non_exhaustive =
+                    Some(super::attribute_blocks::parse_non_exhaustive_config(&map));
+            }
+        }
+        "buildtime" => {
+            if let Some(map) = object_to_json_map(value) {
+                layer.buildtime = Some(super::attribute_blocks::parse_buildtime_config(&map)?);
+            }
+        }
+        _ => {}
+    }
+    Ok(())
 }
 
 /// Convert an OXC object-expression node into a `serde_json::Map` so the
@@ -308,33 +297,7 @@ fn expr_to_json(expr: &oxc::ast::ast::Expression<'_>) -> Option<serde_json::Valu
     }
 }
 
-fn parse_foreign_types(
-    obj: &oxc::ast::ast::ObjectExpression<'_>,
-    imports: &HashMap<String, ImportInfo>,
-    source: &str,
-) -> Result<Vec<ForeignTypeConfig>> {
-    let mut foreign_types = Vec::new();
-
-    for prop in &obj.properties {
-        let oxc::ast::ast::ObjectPropertyKind::ObjectProperty(prop) = prop else {
-            continue;
-        };
-        if prop.kind != oxc::ast::ast::PropertyKind::Init {
-            continue;
-        }
-
-        let type_name = get_prop_key(&prop.key, source);
-        if let oxc::ast::ast::Expression::ObjectExpression(type_obj) = &prop.value {
-            foreign_types.push(parse_single_foreign_type(
-                &type_name, type_obj, imports, source,
-            )?);
-        }
-    }
-
-    Ok(foreign_types)
-}
-
-fn parse_single_foreign_type(
+pub(super) fn parse_single_foreign_type(
     name: &str,
     obj: &oxc::ast::ast::ObjectExpression<'_>,
     imports: &HashMap<String, ImportInfo>,
@@ -481,7 +444,7 @@ fn get_string_value(expr: &oxc::ast::ast::Expression<'_>) -> Option<String> {
     }
 }
 
-fn get_prop_key(key: &oxc::ast::ast::PropertyKey<'_>, source: &str) -> String {
+pub(super) fn get_prop_key(key: &oxc::ast::ast::PropertyKey<'_>, source: &str) -> String {
     match key {
         oxc::ast::ast::PropertyKey::StaticIdentifier(ident) => ident.name.to_string(),
         oxc::ast::ast::PropertyKey::StringLiteral(string) => string.value.to_string(),
@@ -636,7 +599,7 @@ fn extract_expression_namespaces(expr_str: &str) -> Vec<String> {
     namespaces.into_iter().collect()
 }
 
-fn source_slice(source: &str, span: oxc::span::Span) -> String {
+pub(super) fn source_slice(source: &str, span: oxc::span::Span) -> String {
     source
         .get(span.start as usize..span.end as usize)
         .unwrap_or("")

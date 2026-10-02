@@ -1,7 +1,7 @@
 //! Test-only proc macros registered under the `test-macros` feature.
 //!
 //! These are gated behind a dedicated feature so production builds of
-//! `macroforge_ts` never ship them. The `spec_tests` integration test
+//! `macroforge_ts` never ship them. The `conformance` integration test
 //! enables the feature (via `required-features` in Cargo.toml) so
 //! snapshot fixtures under `tests/fixtures/ok/{attribute,call}/` can
 //! exercise the attribute-macro and call-macro pipelines without
@@ -9,19 +9,25 @@
 //!
 //! # Macros
 //!
-//! - `@traced` — attribute macro: wrap a function declaration with a
+//! - `@traced`, attribute macro: wrap a function declaration with a
 //!   counter increment so each invocation is observable via a global
 //!   `__traced[fnName]` map.
-//! - `$stringify` — call macro: quote its argument source as a string
+//! - `$stringify`, call macro: quote its argument source as a string
 //!   literal. `$stringify(a + b)` → `"a + b"`.
-//! - `$concat_names` — call macro: join two identifier-shaped arguments
+//! - `$concat_names`, call macro: join two identifier-shaped arguments
 //!   with an underscore, emitted as a string literal.
 //!   `$concat_names(foo, bar)` → `"foo_bar"`.
+//! - `$now`, call macro: expand to a call of a runtime helper, imported
+//!   by the macro. `$now()` → `currentTime()`, plus its import.
+//! - `@derive(Placed)`, derive macro: one stream per insert position,
+//!   combined into one, so each part's placement can be checked.
 
-use crate::macros::{ts_macro, ts_macro_attribute};
-use crate::ts_syn::{MacroforgeError, Patch, TargetIR, TsStream};
+use crate::macros::{ts_macro, ts_macro_attribute, ts_macro_derive, ts_template};
+use crate::ts_syn::{
+    DeriveInput, MacroforgeError, Patch, TargetIR, TsStream, parse_ts_macro_input,
+};
 
-/// `@traced` — wrap a function so every call increments a counter on
+/// `@traced`: wrap a function so every call increments a counter on
 /// `globalThis.__traced[fnName]`.
 ///
 /// Emits a `Patch::Replace` spanning the decorated function. The
@@ -112,4 +118,41 @@ pub fn concat_names_macro(input: TsStream) -> Result<TsStream, MacroforgeError> 
         ));
     }
     Ok(TsStream::from_string(format!("\"{left}_{right}\"")))
+}
+
+/// `$now()` → `currentTime()`, importing `currentTime` from the test runtime
+/// module.
+///
+/// A call-macro fixture whose output needs an import, so the import has to
+/// reach the expanded file along with the replacement.
+#[ts_macro(now, description = "Call the imported currentTime() helper")]
+pub fn now_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+    if !input.source().trim().is_empty() {
+        return Err(MacroforgeError::new_global("$now takes no arguments"));
+    }
+    let mut out = TsStream::from_string("currentTime()".to_string());
+    out.add_import("currentTime", "@macroforge/test-runtime");
+    Ok(out)
+}
+
+/// `@derive(Placed)`: code for the top of the file, the class body and below
+/// the class, combined into one stream.
+#[ts_macro_derive(Placed, description = "Place code at several insert positions")]
+pub fn placed_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
+    let input = parse_ts_macro_input!(input as DeriveInput);
+    let name = input.name();
+    let below = ts_template! {
+        export const placedBelow = "@{name}";
+    };
+    let top = ts_template!(Top {
+        const placedTop = "@{name}";
+    });
+    let body = ts_template!(Within {
+        placedWithin(): string { return "@{name}"; }
+    });
+    Ok(ts_template! {
+        {$typescript below}
+        {$typescript top}
+        {$typescript body}
+    })
 }

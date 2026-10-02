@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 101
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/regular_typescript.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/regular_typescript.ts
 ---
 ## Input
 
@@ -32,38 +31,36 @@ const users: Map<string, User> = new Map();
 
 export { createUser, Role, Status, User, users };
 
+## Changed
+
+false
+
 ## Output
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-}
-
-type Role = 'admin' | 'user' | 'guest';
-
-enum Status {
-    Active,
-    Inactive,
-    Pending
-}
-
-function createUser(name: string): User {
-    return {
-        id: crypto.randomUUID(),
-        name,
-        email: `${name}@example.com`
-    };
-}
-
-const users: Map<string, User> = new Map();
-
-export { createUser, Role, Status, User, users };
+(unchanged)
 
 ## DTS
 
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..413 -> expanded 0..413
+
+## Metadata
+
+interface User: {"body_span":{"end":72,"start":16},"decorators":[],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":33,"start":22},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":51,"start":38},"ts_type":"string"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":70,"start":56},"ts_type":"string"}],"heritage":[],"methods":[],"name":"User","span":{"end":72,"start":1},"type_params":[]}
+enum Status: {"body_span":{"end":168,"start":127},"decorators":[],"is_const":false,"name":"Status","span":{"end":168,"start":115},"variants":[{"decorators":[],"name":"Active","span":{"end":139,"start":133},"value":{"Number":0.0}},{"decorators":[],"name":"Inactive","span":{"end":153,"start":145},"value":{"Number":1.0}},{"decorators":[],"name":"Pending","span":{"end":166,"start":159},"value":{"Number":2.0}}]}
+type Role: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'admin'"}},{"decorators":[],"kind":{"Literal":"'user'"}},{"decorators":[],"kind":{"Literal":"'guest'"}}]},"decorators":[],"name":"Role","span":{"end":113,"start":74},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

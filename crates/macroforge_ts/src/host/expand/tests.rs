@@ -193,7 +193,7 @@ mod external_type_function_import_tests {
     /// Snapshot the registry's generated imports as `(local_name, module, is_type_only)`
     /// tuples so tests can assert against the registered set instead of inspecting
     /// patch text. The function under test now routes everything through the
-    /// registry — its return value is intentionally always empty.
+    /// registry: its return value is intentionally always empty.
     fn snapshot_generated() -> Vec<(String, String, bool)> {
         with_registry(|r| {
             r.generated_imports()
@@ -398,5 +398,36 @@ mod external_type_function_import_tests {
             generated.iter().any(|(n, _, t)| n == "ColorsErrors" && *t),
             "PascalCase identifier should be a type-only import",
         );
+    }
+}
+
+mod existing_declaration_tests {
+    use super::super::helpers::has_existing_namespace_or_const;
+
+    #[test]
+    fn a_longer_name_first_does_not_hide_the_declaration() {
+        let source = "export const FooBar = 1;\nexport const Foo = { a: 1 };\n";
+        assert!(has_existing_namespace_or_const(source, "Foo"));
+    }
+
+    #[test]
+    fn namespaces_and_typed_consts_count() {
+        assert!(has_existing_namespace_or_const("namespace Foo {}", "Foo"));
+        assert!(has_existing_namespace_or_const(
+            "const Foo: Bar = x;",
+            "Foo"
+        ));
+        assert!(has_existing_namespace_or_const(
+            "export const\n  Foo = 1;",
+            "Foo"
+        ));
+    }
+
+    #[test]
+    fn other_uses_of_the_name_do_not() {
+        assert!(!has_existing_namespace_or_const("interface Foo {}", "Foo"));
+        assert!(!has_existing_namespace_or_const("let x: Foo = y;", "Foo"));
+        assert!(!has_existing_namespace_or_const("myconst Foo = 1;", "Foo"));
+        assert!(!has_existing_namespace_or_const("const FooBar = 1;", "Foo"));
     }
 }

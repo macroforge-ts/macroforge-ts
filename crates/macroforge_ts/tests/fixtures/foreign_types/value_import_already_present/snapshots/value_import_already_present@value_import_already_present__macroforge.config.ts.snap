@@ -1,9 +1,8 @@
 ---
-source: macroforge_ts/tests/foreign_type_fixtures.rs
-assertion_line: 369
+source: crates/macroforge_ts/tests/foreign_type_fixtures.rs
 description: value_import_already_present
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/foreign_types/value_import_already_present/macroforge.config.ts
+input_file: crates/macroforge_ts/tests/fixtures/foreign_types/value_import_already_present/macroforge.config.ts
 ---
 ## Config
 
@@ -51,11 +50,11 @@ __mf_DeserializeContext
 __mf_PendingRef
 __mf_SerializeContext
 
-## Body references — config-declared (must be aliased)
+## Body references: config-declared (must be aliased)
 
 DateTime
 
-## Body references — treated as global (must NOT be aliased)
+## Body references: treated as global (must NOT be aliased)
 
 Array
 JSON

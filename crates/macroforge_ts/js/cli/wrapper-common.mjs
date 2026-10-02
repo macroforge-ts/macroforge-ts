@@ -60,7 +60,7 @@ function readRegistry(variable) {
 
 /** Loads the project's macro config and builds the options for `processFile`. */
 export function createExpandOptions(macros) {
-  const options = {};
+  const options = { emitMetadata: false };
   const configPath = findMacroConfig();
   if (configPath) {
     try {
@@ -72,13 +72,25 @@ export function createExpandOptions(macros) {
     }
     options.configPath = configPath;
   }
-  const typeRegistryJson = readRegistry("MACROFORGE_TYPE_REGISTRY_PATH");
-  if (typeRegistryJson) options.typeRegistryJson = typeRegistryJson;
-  const declarativeRegistryJson = readRegistry(
-    "MACROFORGE_DECLARATIVE_REGISTRY_PATH",
-  );
-  if (declarativeRegistryJson) {
-    options.declarativeRegistryJson = declarativeRegistryJson;
+  // The engine keeps each registry for the process, so every file names it
+  // by id rather than sending its JSON again.
+  try {
+    const typeRegistryJson = readRegistry("MACROFORGE_TYPE_REGISTRY_PATH");
+    if (typeRegistryJson) {
+      options.typeRegistryId = macros.setTypeRegistry(typeRegistryJson);
+    }
+    const declarativeRegistryJson = readRegistry(
+      "MACROFORGE_DECLARATIVE_REGISTRY_PATH",
+    );
+    if (declarativeRegistryJson) {
+      options.declarativeRegistryId = macros.setDeclarativeRegistry(
+        declarativeRegistryJson,
+      );
+    }
+  } catch (error) {
+    console.error("[macroforge] error: could not load the project registries");
+    console.error(error);
+    process.exit(1);
   }
   return options;
 }

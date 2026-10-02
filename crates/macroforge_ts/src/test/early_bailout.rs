@@ -553,14 +553,14 @@ export interface NullableControllers<_T> {
     // The quick-check used by expand_inner/expand_for_cache must reject this file
     // so it never reaches the expansion engine at all.
     assert!(
-        !crate::expand_core::has_macro_annotations(source),
+        !crate::expand_core::has_macro_annotations(source, "prose.ts"),
         "has_macro_annotations should return false for a file with @derive only in prose JSDoc"
     );
 
     {
         let result = expand_test(source);
 
-        // File should NOT be changed — no actual macro annotations
+        // File should NOT be changed: no actual macro annotations
         assert!(
             !result.changed,
             "File with @derive in prose JSDoc should NOT trigger expansion. Got changed=true with code:\n{}",
@@ -612,10 +612,26 @@ fn has_macro_annotations_recognises_every_kind_of_macro() {
             "import macro comment",
             "/** import macro { $vec } from \"./vec\"; */\nconst v = $vec(1);",
         ),
+        (
+            "import macro comment in another case",
+            "/** Import Macro { $vec } from \"./vec\"; */\nconst v = $vec(1);",
+        ),
+        (
+            "call inside a template expression",
+            "const s = `${$vec(1)}`;",
+        ),
+        (
+            "call after a division",
+            "const half = total / 2; $vec(half);",
+        ),
+        (
+            "call after a regular expression",
+            "const re = /'/; $vec(re);",
+        ),
     ];
     for (kind, source) in expanding {
         assert!(
-            has_macro_annotations(source),
+            has_macro_annotations(source, "file.ts"),
             "{kind} must reach the engine"
         );
     }
@@ -631,10 +647,54 @@ fn has_macro_annotations_recognises_every_kind_of_macro() {
             "/**\n * @example\n * ```typescript\n * // @derive(Debug)\n * class Foo {}\n * ```\n */\nexport class Bar {}",
         ),
         ("template literal", "const label = `${count} items`;"),
+        (
+            "$ in a module specifier",
+            "import Card from '$lib/card.svelte';",
+        ),
+        (
+            "$ in a string",
+            "const schema = { \"$ref\": \"#/defs/user\" };",
+        ),
+        ("$ in template text", "const price = `$total due`;"),
+        (
+            "$ in a comment",
+            "// $vec(1) is how you would call it\nconst x = 1;",
+        ),
+        ("$$ name", "const rest = $$props;"),
+        ("$ inside an identifier", "const a$b = 1;"),
+        ("derive in a line comment", "// @derive(Debug)\nclass X {}"),
     ];
     for (kind, source) in skipped {
-        assert!(!has_macro_annotations(source), "{kind} must be skipped");
+        assert!(
+            !has_macro_annotations(source, "file.ts"),
+            "{kind} must be skipped"
+        );
     }
+}
+
+#[test]
+fn runes_are_not_macro_calls_in_svelte_modules() {
+    use crate::expand_core::has_macro_annotations;
+
+    let runes = "let count = $state(0);\nconst doubled = $derived(count * 2);\nlet items = $state.raw([]);\n$effect(() => {});\nlet { a } = $props();";
+    for file in ["counter.svelte.ts", "counter.svelte.js", "Counter.svelte"] {
+        assert!(
+            !has_macro_annotations(runes, file),
+            "runes in {file} are not macros"
+        );
+    }
+    assert!(
+        has_macro_annotations(runes, "counter.ts"),
+        "outside Svelte, `$state(...)` may be a call macro"
+    );
+    assert!(
+        has_macro_annotations("let s = $stateful(0);", "counter.svelte.ts"),
+        "a longer name is not a rune"
+    );
+    assert!(
+        has_macro_annotations("let v = $state(0);\nconst x = $vec(1);", "list.svelte.ts"),
+        "a call macro beside runes still counts"
+    );
 }
 
 #[test]

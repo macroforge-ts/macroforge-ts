@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 101
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/svelte_complex.svelte.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/svelte_complex.svelte.ts
 ---
 ## Input
 
@@ -31,37 +30,34 @@ $effect(() => {
     console.log('Count changed:', count);
 });
 
+## Changed
+
+false
+
 ## Output
 
-interface Props {
-    items: string[];
-    selected?: string;
-}
-
-let { items, selected = '' }: Props = $props();
-
-let filteredItems = $derived(
-    items.filter((item) => item.includes(selected))
-);
-
-let count = $state(0);
-let message = $derived.by(() => {
-    if (count === 0) return 'No items';
-    return `${count} items`;
-});
-
-function handleClick() {
-    count++;
-}
-
-$effect(() => {
-    console.log('Count changed:', count);
-});
+(unchanged)
 
 ## DTS
 
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..434 -> expanded 0..434
+
+## Metadata
+
+interface Props: {"body_span":{"end":64,"start":17},"decorators":[],"fields":[{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":39,"start":23},"ts_type":"string[]"},{"decorators":[],"name":"selected","optional":true,"readonly":false,"span":{"end":62,"start":44},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Props","span":{"end":64,"start":1},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

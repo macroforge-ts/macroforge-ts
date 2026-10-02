@@ -25,7 +25,7 @@ const tmpDir = path.join(
 // Cache directory within the temp project
 const cacheDir = path.join(tmpDir, '.macroforge', 'cache');
 
-// Setup helper — creates a minimal project root so `macroforge cache` works
+// Setup helper: creates a minimal project root so `macroforge cache` works
 function setupTmpDir() {
     if (existsSync(tmpDir)) {
         fs.rmSync(tmpDir, { recursive: true });
@@ -197,7 +197,7 @@ interface User { name: string; }`
 
         const firstContent = readCacheFile('user.ts');
 
-        // Second cache — should produce identical output
+        // Second cache: should produce identical output
         const result = runCli(['cache', tmpDir]);
 
         assertEquals(result.success, true);
@@ -393,6 +393,19 @@ interface Data {
 // ============================================================================
 // Expand-Specific Tests (features with no cache equivalent)
 // ============================================================================
+
+Deno.test("CLI expand: a macro package's debug lines reach the project's debug log", () => {
+    const vanillaRoot = path.join(repoRoot, 'tooling', 'playground', 'vanilla');
+    const debugLog = path.join(vanillaRoot, '.macroforge', 'debug.log');
+    fs.rmSync(debugLog, { force: true });
+
+    const result = runCli(['expand', 'src/user.ts'], { cwd: vanillaRoot });
+
+    assertEquals(result.success, true, result.stderr);
+    assert(existsSync(debugLog), 'the expansion should write the debug log');
+    const logged = fs.readFileSync(debugLog, 'utf8');
+    assert(logged.includes('[JSON] toJSON for User'), `got:\n${logged}`);
+});
 
 Deno.test('CLI expand: exits with code 2 when no macros found', () => {
     setupTmpDir();

@@ -39,6 +39,26 @@
 //! };
 //! ```
 //!
+//! ## Inheriting Configuration
+//!
+//! The config is read statically, never run, and the reader follows what it
+//! inherits:
+//!
+//! - `extends: "./base.config.ts"` (or an array of them, later ones winning)
+//!   builds on a base config. Fields the config sets replace the base's,
+//!   except `foreignTypes`, which merge by type name.
+//! - `export default base`, `export default { ...base, keepDecorators: true }`
+//!   and `defineConfig(base)` use a config imported from another module or
+//!   declared in the file, with JavaScript's spread semantics: a field set
+//!   after a spread replaces the spread one.
+//! - `foreignTypes: { ...base.foreignTypes, … }` spreads another config's
+//!   foreign types.
+//!
+//! Relative specifiers resolve against the importing file, and package
+//! specifiers from the nearest `node_modules`, honouring `exports` and
+//! `main`. A reference the reader cannot follow, such as a config built by a
+//! function call, is an error.
+//!
 //! ## Configuration Caching
 //!
 //! Configurations are parsed once and cached globally by file path. When using
@@ -70,14 +90,17 @@
 
 mod attribute_blocks;
 mod loader;
+mod resolve;
 
 #[cfg(test)]
 mod tests;
 
+#[cfg(test)]
+mod resolve_tests;
+
 pub use loader::MacroforgeConfigLoader;
 
 use dashmap::DashMap;
-use serde::{Deserialize, Serialize};
 use std::sync::LazyLock;
 
 // Re-export config types from macroforge_ts_syn so they're available in MacroContextIR
@@ -86,11 +109,23 @@ pub use macroforge_ts_syn::config::{
     ForeignTypeAlias, ForeignTypeConfig, ImportInfo, MacroforgeConfig,
 };
 
-/// A parsed configuration and a fingerprint of the file content it came from.
+/// A parsed configuration, a fingerprint of the file content it came from,
+/// and the stamps of the base configs it was built from.
 #[derive(Debug, Clone)]
 pub struct CachedConfig {
     pub content_hash: u64,
-    pub config: MacroforgeConfig,
+    /// Shared with every expansion that uses it.
+    pub config: std::sync::Arc<MacroforgeConfig>,
+    pub dependencies: Vec<(std::path::PathBuf, crate::host::file_stamp::FileStamp)>,
+}
+
+impl CachedConfig {
+    /// Whether every base config is still the file this was built from.
+    pub fn dependencies_unchanged(&self) -> bool {
+        self.dependencies.iter().all(|(path, stamp)| {
+            crate::host::file_stamp::FileStamp::of(path).is_ok_and(|current| current == *stamp)
+        })
+    }
 }
 
 /// Global cache for parsed configurations, keyed by config file path. An entry
@@ -115,51 +150,27 @@ pub(crate) const CONFIG_FILES: &[&str] = &[
     "macroforge.config.cjs",
 ];
 
-// ============================================================================
-// Legacy MacroConfig for backwards compatibility during transition
-// ============================================================================
-
-/// Legacy configuration struct for backwards compatibility.
-///
-/// This is used internally when the MacroExpander needs a simpler config format.
-/// New code should use [`MacroforgeConfig`] instead.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+/// The expansion settings a [`MacroExpander`](crate::host::MacroExpander) reads,
+/// taken from a [`MacroforgeConfig`].
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MacroConfig {
-    /// List of macro packages to load.
-    #[serde(default)]
-    pub macro_packages: Vec<String>,
-
-    /// Whether to allow native (non-WASM) macros.
-    #[serde(default)]
-    pub allow_native_macros: bool,
-
-    /// Per-package runtime mode overrides.
-    #[serde(default)]
-    pub macro_runtime_overrides: std::collections::HashMap<String, RuntimeMode>,
-
-    /// Resource limits for macro execution.
-    #[serde(default)]
-    pub limits: ResourceLimits,
-
     /// Whether to preserve `@derive` decorators in the output code.
-    #[serde(default)]
     pub keep_decorators: bool,
 
     /// Whether to generate a convenience const for non-class types.
-    #[serde(default = "macroforge_ts_syn::config::default_generate_convenience_const")]
     pub generate_convenience_const: bool,
+
+    /// Maximum number of diagnostics one expansion reports.
+    pub max_diagnostics: usize,
 }
 
 impl Default for MacroConfig {
     fn default() -> Self {
         Self {
-            macro_packages: Vec::new(),
-            allow_native_macros: false,
-            macro_runtime_overrides: Default::default(),
-            limits: Default::default(),
             keep_decorators: false,
-            generate_convenience_const: true,
+            generate_convenience_const:
+                macroforge_ts_syn::config::default_generate_convenience_const(),
+            max_diagnostics: 100,
         }
     }
 }
@@ -182,67 +193,4 @@ impl MacroConfig {
             None => Ok(None),
         }
     }
-
-    /// Finds and loads a configuration file, returning just the config.
-    pub fn find_and_load() -> super::error::Result<Option<Self>> {
-        Ok(Self::find_with_root()?.map(|(cfg, _)| cfg))
-    }
-}
-
-/// Runtime mode for macro execution.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum RuntimeMode {
-    /// Execute in a WebAssembly sandbox.
-    Wasm,
-    /// Execute as native Rust code.
-    Native,
-}
-
-/// Resource limits for macro execution.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ResourceLimits {
-    /// Maximum execution time per macro invocation in milliseconds.
-    #[serde(default = "default_max_execution_time")]
-    pub max_execution_time_ms: u64,
-
-    /// Maximum memory usage in bytes.
-    #[serde(default = "default_max_memory")]
-    pub max_memory_bytes: usize,
-
-    /// Maximum size of generated output in bytes.
-    #[serde(default = "default_max_output_size")]
-    pub max_output_size: usize,
-
-    /// Maximum number of diagnostics a single macro can emit.
-    #[serde(default = "default_max_diagnostics")]
-    pub max_diagnostics: usize,
-}
-
-impl Default for ResourceLimits {
-    fn default() -> Self {
-        Self {
-            max_execution_time_ms: default_max_execution_time(),
-            max_memory_bytes: default_max_memory(),
-            max_output_size: default_max_output_size(),
-            max_diagnostics: default_max_diagnostics(),
-        }
-    }
-}
-
-fn default_max_execution_time() -> u64 {
-    5000
-}
-
-fn default_max_memory() -> usize {
-    100 * 1024 * 1024
-}
-
-fn default_max_output_size() -> usize {
-    10 * 1024 * 1024
-}
-
-fn default_max_diagnostics() -> usize {
-    100
 }

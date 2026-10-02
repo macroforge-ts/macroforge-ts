@@ -66,7 +66,7 @@ function createPluginEnvironment(source, fileName = '/virtual/MacroUser.ts') {
         project: {
             getCurrentDirectory: () => '/virtual',
             projectService: {
-                logger: { info: () => {} }
+                logger: { info: () => {}, msg: () => {}, hasLevel: () => false }
             }
         }
     };

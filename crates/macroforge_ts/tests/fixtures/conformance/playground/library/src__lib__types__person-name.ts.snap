@@ -1,0 +1,2912 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/types/person-name.ts
+sha256 d406dae7c91c44ae3d88535a4265fb04a8d49b382a7ab97b6a979e3a93557bf6
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+
+export interface PersonName {
+    
+    firstName: string;
+    
+    lastName: string;
+}
+
+export function personNameDefaultValue(): PersonName {
+                        return {
+firstName: "",
+lastName: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function personNameSerialize(value: PersonName, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = personNameSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function personNameSerializeWithContext(value: PersonName, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "PersonName",
+                        __id,
+                    };result.firstName = value.firstName;result.lastName = value.lastName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function personNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = personNameDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PersonName.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function personNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PersonName | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "PersonName.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("firstName" in obj)) {
+                            errors.push({ field: "firstName", message: "missing required field" });
+                        }if (!("lastName" in obj)) {
+                            errors.push({ field: "lastName", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_firstName = obj["firstName"] as string;
+                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+instance.firstName = __raw_firstName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_lastName = obj["lastName"] as string;
+                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+instance.lastName = __raw_lastName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as PersonName;
+            }
+
+            export function personNameValidateField<K extends keyof PersonName>(
+                _field: K,
+                _value: PersonName[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "firstName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+
+
+                }
+                if (_field === "lastName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function personNameValidateFields(
+                _partial: Partial<PersonName>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("firstName" in _partial && _partial.firstName !== undefined) {
+                    const __val = _partial.firstName as string;
+                    if (__val == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+
+
+                }
+                if ("lastName" in _partial && _partial.lastName !== undefined) {
+                    const __val = _partial.lastName as string;
+                    if (__val == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function personNameHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "firstName" in o && "lastName" in o;
+            }
+
+            export function personNameIs(obj: unknown): obj is PersonName {
+                if (!personNameHasShape(obj)) {
+                    return false;
+                }
+                const result = personNameDeserialize(obj);
+                return result.success;
+            }
+
+export const PersonName = {
+  defaultValue: personNameDefaultValue,
+  serialize: personNameSerialize,
+  serializeWithContext: personNameSerializeWithContext,
+  deserialize: personNameDeserialize,
+  deserializeWithContext: personNameDeserializeWithContext,
+  validateFields: personNameValidateFields,
+  hasShape: personNameHasShape,
+  is: personNameIs
+} as const;
+
+## DTS
+
+export interface PersonName {
+    
+    firstName: string;
+    
+    lastName: string;
+}
+
+export function personNameDefaultValue(): PersonName {
+                        return {
+firstName: "",
+lastName: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function personNameSerialize(value: PersonName, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = personNameSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function personNameSerializeWithContext(value: PersonName, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "PersonName",
+                        __id,
+                    };result.firstName = value.firstName;result.lastName = value.lastName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function personNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = personNameDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PersonName.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function personNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PersonName | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "PersonName.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("firstName" in obj)) {
+                            errors.push({ field: "firstName", message: "missing required field" });
+                        }if (!("lastName" in obj)) {
+                            errors.push({ field: "lastName", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_firstName = obj["firstName"] as string;
+                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+instance.firstName = __raw_firstName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_lastName = obj["lastName"] as string;
+                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+instance.lastName = __raw_lastName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as PersonName;
+            }
+
+            export function personNameValidateField<K extends keyof PersonName>(
+                _field: K,
+                _value: PersonName[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "firstName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+
+
+                }
+                if (_field === "lastName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function personNameValidateFields(
+                _partial: Partial<PersonName>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("firstName" in _partial && _partial.firstName !== undefined) {
+                    const __val = _partial.firstName as string;
+                    if (__val == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+
+
+                }
+                if ("lastName" in _partial && _partial.lastName !== undefined) {
+                    const __val = _partial.lastName as string;
+                    if (__val == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function personNameHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "firstName" in o && "lastName" in o;
+            }
+
+            export function personNameIs(obj: unknown): obj is PersonName {
+                if (!personNameHasShape(obj)) {
+                    return false;
+                }
+                const result = personNameDeserialize(obj);
+                return result.success;
+            }
+
+export const PersonName = {
+  defaultValue: personNameDefaultValue,
+  serialize: personNameSerialize,
+  serializeWithContext: personNameSerializeWithContext,
+  deserialize: personNameDeserialize,
+  deserializeWithContext: personNameDeserializeWithContext,
+  validateFields: personNameValidateFields,
+  hasShape: personNameHasShape,
+  is: personNameIs
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 47..82 -> expanded 0..35
+original 123..151 -> expanded 35..63
+original 192..216 -> expanded 63..87
+original 216..217 -> expanded 10214..10215
+generated 87..230 <- Default
+generated 230..1809 <- Serialize
+generated 1809..9850 <- Deserialize
+generated 9850..10214 <- __convenience_const
+
+## Metadata
+
+interface PersonName: {"body_span":{"end":217,"start":77},"decorators":[{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":48,"start":1}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":124,"start":83}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":147,"start":129},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":193,"start":152}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":215,"start":198},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":217,"start":56},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

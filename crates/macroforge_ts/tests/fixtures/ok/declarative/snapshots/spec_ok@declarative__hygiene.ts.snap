@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/hygiene.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/hygiene.ts
 ---
 ## Input
 
@@ -16,6 +16,10 @@ const $withTemp = macroRules`
 
 const result = $withTemp(10);
 
+## Changed
+
+true
+
 ## Output
 
 const result = (() => {
@@ -28,5 +32,21 @@ const result = (() => {
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

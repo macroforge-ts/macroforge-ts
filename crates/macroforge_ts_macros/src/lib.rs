@@ -219,8 +219,11 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
         struct_ident.to_string().to_uppercase()
     );
     let ctor_ident = format_ident!(
-        "__ts_macro_ctor_{}",
-        struct_ident.to_string().trim_start_matches("r#")
+        "__TS_MACRO_CTOR_{}",
+        struct_ident
+            .to_string()
+            .trim_start_matches("r#")
+            .to_uppercase()
     );
 
     // The macro's run function, which every export calls
@@ -392,16 +395,16 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
         //
         // A plain C ABI over pointers and lengths. On wasm32 each function is an
         // ordinary wasm export addressing the module's linear memory, which is
-        // how the CLI runs a macro package: it instantiates the wasm with wasmi,
+        // how the CLI runs a macro package: it instantiates the wasm with wasmtime,
         // calls the export and reads the result out of exported memory.
         //
         // Run protocol:
-        //   Input:  ctx_ptr/ctx_len — UTF-8 JSON of MacroContextIR
-        //   Output: out_ptr/out_len — heap-allocated UTF-8 JSON of MacroResult
+        //   Input:  ctx_ptr/ctx_len: UTF-8 JSON of MacroContextIR
+        //   Output: out_ptr/out_len: heap-allocated UTF-8 JSON of MacroResult
         //   Return: 0 = success, 1 = error (error message in out_ptr/out_len)
         //
         // Manifest protocol:
-        //   Output: out_ptr/out_len — heap-allocated UTF-8 JSON of MacroManifest
+        //   Output: out_ptr/out_len: heap-allocated UTF-8 JSON of MacroManifest
         //   Return: 0 = success
         //
         // Caller must free output buffers via `__macroforge_ffi_free`.
@@ -464,10 +467,12 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             /// This method delegates to the user-defined function and converts
             /// the result into a [`MacroResult`] for the runtime.
             fn run(&self, input: macroforge_ts::ts_syn::TsStream) -> macroforge_ts::ts_syn::MacroResult {
-                match #fn_ident(input) {
+                let mut result = match #fn_ident(input) {
                     Ok(stream) => macroforge_ts::ts_syn::TsStream::into_result(stream),
                     Err(err) => err.into(),
-                }
+                };
+                macroforge_ts::debug::attach_pending(&mut result);
+                result
             }
 
             /// Returns a human-readable description of what this macro does.
@@ -476,17 +481,14 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             }
         }
 
-        #[allow(non_upper_case_globals)]
         const #ctor_ident: fn() -> std::sync::Arc<dyn macroforge_ts::host::Macroforge> = || {
             std::sync::Arc::new(#struct_ident)
         };
 
-        #[allow(non_upper_case_globals)]
         static #decorator_array_ident: &[macroforge_ts::host::derived::DecoratorDescriptor] = &[
             #(#decorator_exprs),*
         ];
 
-        #[allow(non_upper_case_globals)]
         static #descriptor_ident: macroforge_ts::host::derived::DerivedMacroDescriptor =
             macroforge_ts::host::derived::DerivedMacroDescriptor {
                 package: #package_expr,

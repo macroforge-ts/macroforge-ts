@@ -1,0 +1,883 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/week-of-month.svelte.ts
+sha256 09720d99a6b681b1c73be45428b41bb828946357cb5a2aacbedc70a565ae26c5
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type WeekOfMonth =
+    | /** @default */ 'First'
+    | 'Second'
+    | 'Third'
+    | 'Fourth'
+    | 'Last';
+
+export function weekOfMonthDefaultValue(): WeekOfMonth {
+                            return "First";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function weekOfMonthSerialize(value: WeekOfMonth, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = weekOfMonthSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function weekOfMonthSerializeWithContext(value: WeekOfMonth, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function weekOfMonthDeserialize(input: unknown): { success: true; value: WeekOfMonth } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'First':
+                    case 'Second':
+                    case 'Third':
+                    case 'Fourth':
+                    case 'Last':
+
+
+                        return { success: true, value: input as WeekOfMonth };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for WeekOfMonth: expected one of " + ['First', 'Second', 'Third', 'Fourth', 'Last'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function weekOfMonthDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): WeekOfMonth | __mf_PendingRef {
+                switch (value) {
+                    case 'First':
+                    case 'Second':
+                    case 'Third':
+                    case 'Fourth':
+                    case 'Last':
+
+
+                        return value as WeekOfMonth;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for WeekOfMonth: expected one of " + ['First', 'Second', 'Third', 'Fourth', 'Last'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function weekOfMonthHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'First':
+                    case 'Second':
+                    case 'Third':
+                    case 'Fourth':
+                    case 'Last':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function weekOfMonthIs(value: unknown): value is WeekOfMonth {
+                return weekOfMonthHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type WeekOfMonthFirstErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type WeekOfMonthSecondErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type WeekOfMonthThirdErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type WeekOfMonthFourthErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type WeekOfMonthLastErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type WeekOfMonthFirstTainted = {
+
+
+            };
+            export type WeekOfMonthSecondTainted = {
+
+
+            };
+            export type WeekOfMonthThirdTainted = {
+
+
+            };
+            export type WeekOfMonthFourthTainted = {
+
+
+            };
+            export type WeekOfMonthLastTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type WeekOfMonthErrors = ({ _value: "First" } & WeekOfMonthFirstErrors) | ({ _value: "Second" } & WeekOfMonthSecondErrors) | ({ _value: "Third" } & WeekOfMonthThirdErrors) | ({ _value: "Fourth" } & WeekOfMonthFourthErrors) | ({ _value: "Last" } & WeekOfMonthLastErrors);
+
+        /** Union tainted type  */
+        export type WeekOfMonthTainted = ({ _value: "First" } & WeekOfMonthFirstTainted) | ({ _value: "Second" } & WeekOfMonthSecondTainted) | ({ _value: "Third" } & WeekOfMonthThirdTainted) | ({ _value: "Fourth" } & WeekOfMonthFourthTainted) | ({ _value: "Last" } & WeekOfMonthLastTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface WeekOfMonthFirstFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface WeekOfMonthSecondFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface WeekOfMonthThirdFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface WeekOfMonthFourthFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface WeekOfMonthLastFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface WeekOfMonthGigaform {
+            readonly currentVariant: "First" | "Second" | "Third" | "Fourth" | "Last";
+            readonly data: WeekOfMonth;
+            readonly errors: WeekOfMonthErrors;
+            readonly tainted: WeekOfMonthTainted;
+            readonly variants: WeekOfMonthVariantFields;
+            switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void;
+            validate(): Exit.Exit<WeekOfMonth, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<WeekOfMonth>): void;
+        }
+
+        /** Variant fields container  */
+        export interface WeekOfMonthVariantFields {
+            
+                readonly First: { readonly fields: WeekOfMonthFirstFieldControllers };
+            
+                readonly Second: { readonly fields: WeekOfMonthSecondFieldControllers };
+            
+                readonly Third: { readonly fields: WeekOfMonthThirdFieldControllers };
+            
+                readonly Fourth: { readonly fields: WeekOfMonthFourthFieldControllers };
+            
+                readonly Last: { readonly fields: WeekOfMonthLastFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function weekOfMonthGetDefaultForVariant(variant: string): WeekOfMonth {
+            if (variant === "First") { return "First" as WeekOfMonth; }
+if (variant === "Second") { return "Second" as WeekOfMonth; }
+if (variant === "Third") { return "Third" as WeekOfMonth; }
+if (variant === "Fourth") { return "Fourth" as WeekOfMonth; }
+if (variant === "Last") { return "Last" as WeekOfMonth; }
+            return "First" as WeekOfMonth;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function weekOfMonthCreateForm(initial?: WeekOfMonth): WeekOfMonthGigaform {
+
+            const initialVariant: "First" | "Second" | "Third" | "Fourth" | "Last" = (initial as "First" | "Second" | "Third" | "Fourth" | "Last") ?? "First";
+
+
+            let currentVariant = $state<"First" | "Second" | "Third" | "Fourth" | "Last">(initialVariant);
+            let data = $state<WeekOfMonth>(initial ?? weekOfMonthGetDefaultForVariant(initialVariant));
+            let errors = $state<WeekOfMonthErrors>({} as WeekOfMonthErrors);
+            let tainted = $state<WeekOfMonthTainted>({} as WeekOfMonthTainted);
+
+            const variants = {
+            
+                "First": { fields: {  } as unknown as WeekOfMonthFirstFieldControllers },
+            
+                "Second": { fields: {  } as unknown as WeekOfMonthSecondFieldControllers },
+            
+                "Third": { fields: {  } as unknown as WeekOfMonthThirdFieldControllers },
+            
+                "Fourth": { fields: {  } as unknown as WeekOfMonthFourthFieldControllers },
+            
+                "Last": { fields: {  } as unknown as WeekOfMonthLastFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as WeekOfMonthVariantFields;
+
+
+            function switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void {
+                currentVariant = variant;
+                data = weekOfMonthGetDefaultForVariant(variant);
+                errors = {} as WeekOfMonthErrors;
+                tainted = {} as WeekOfMonthTainted;
+            }
+
+
+            function validate(): Exit.Exit<WeekOfMonth, Array<{ field: string; message: string }>> {
+                return toExit(weekOfMonthDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<WeekOfMonth>): void {
+                data = overrides ? overrides as typeof data : weekOfMonthGetDefaultForVariant(currentVariant);
+                errors = {} as WeekOfMonthErrors;
+                tainted = {} as WeekOfMonthTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function weekOfMonthFromFormData(formData: FormData): Exit.Exit<WeekOfMonth, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "First" | "Second" | "Third" | "Fourth" | "Last" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "First") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Second") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Third") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Fourth") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Last") {
+                        
+                    }
+                }
+
+
+            return toExit(weekOfMonthDeserialize(obj));
+        }
+
+export const WeekOfMonth = {
+  defaultValue: weekOfMonthDefaultValue,
+  serialize: weekOfMonthSerialize,
+  serializeWithContext: weekOfMonthSerializeWithContext,
+  deserialize: weekOfMonthDeserialize,
+  deserializeWithContext: weekOfMonthDeserializeWithContext,
+  hasShape: weekOfMonthHasShape,
+  is: weekOfMonthIs,
+  createForm: weekOfMonthCreateForm,
+  fromFormData: weekOfMonthFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type WeekOfMonth =
+    | /** @default */ 'First'
+    | 'Second'
+    | 'Third'
+    | 'Fourth'
+    | 'Last';
+
+export function weekOfMonthDefaultValue(): WeekOfMonth {
+                            return "First";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function weekOfMonthSerialize(value: WeekOfMonth, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = weekOfMonthSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function weekOfMonthSerializeWithContext(value: WeekOfMonth, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function weekOfMonthDeserialize(input: unknown): { success: true; value: WeekOfMonth } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'First':
+                    case 'Second':
+                    case 'Third':
+                    case 'Fourth':
+                    case 'Last':
+
+
+                        return { success: true, value: input as WeekOfMonth };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for WeekOfMonth: expected one of " + ['First', 'Second', 'Third', 'Fourth', 'Last'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function weekOfMonthDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): WeekOfMonth | __mf_PendingRef {
+                switch (value) {
+                    case 'First':
+                    case 'Second':
+                    case 'Third':
+                    case 'Fourth':
+                    case 'Last':
+
+
+                        return value as WeekOfMonth;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for WeekOfMonth: expected one of " + ['First', 'Second', 'Third', 'Fourth', 'Last'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function weekOfMonthHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'First':
+                    case 'Second':
+                    case 'Third':
+                    case 'Fourth':
+                    case 'Last':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function weekOfMonthIs(value: unknown): value is WeekOfMonth {
+                return weekOfMonthHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type WeekOfMonthFirstErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type WeekOfMonthSecondErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type WeekOfMonthThirdErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type WeekOfMonthFourthErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type WeekOfMonthLastErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type WeekOfMonthFirstTainted = {
+
+
+            };
+            export type WeekOfMonthSecondTainted = {
+
+
+            };
+            export type WeekOfMonthThirdTainted = {
+
+
+            };
+            export type WeekOfMonthFourthTainted = {
+
+
+            };
+            export type WeekOfMonthLastTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type WeekOfMonthErrors = ({ _value: "First" } & WeekOfMonthFirstErrors) | ({ _value: "Second" } & WeekOfMonthSecondErrors) | ({ _value: "Third" } & WeekOfMonthThirdErrors) | ({ _value: "Fourth" } & WeekOfMonthFourthErrors) | ({ _value: "Last" } & WeekOfMonthLastErrors);
+
+        /** Union tainted type  */
+        export type WeekOfMonthTainted = ({ _value: "First" } & WeekOfMonthFirstTainted) | ({ _value: "Second" } & WeekOfMonthSecondTainted) | ({ _value: "Third" } & WeekOfMonthThirdTainted) | ({ _value: "Fourth" } & WeekOfMonthFourthTainted) | ({ _value: "Last" } & WeekOfMonthLastTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface WeekOfMonthFirstFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface WeekOfMonthSecondFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface WeekOfMonthThirdFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface WeekOfMonthFourthFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface WeekOfMonthLastFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface WeekOfMonthGigaform {
+            readonly currentVariant: "First" | "Second" | "Third" | "Fourth" | "Last";
+            readonly data: WeekOfMonth;
+            readonly errors: WeekOfMonthErrors;
+            readonly tainted: WeekOfMonthTainted;
+            readonly variants: WeekOfMonthVariantFields;
+            switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void;
+            validate(): Exit.Exit<WeekOfMonth, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<WeekOfMonth>): void;
+        }
+
+        /** Variant fields container  */
+        export interface WeekOfMonthVariantFields {
+            
+                readonly First: { readonly fields: WeekOfMonthFirstFieldControllers };
+            
+                readonly Second: { readonly fields: WeekOfMonthSecondFieldControllers };
+            
+                readonly Third: { readonly fields: WeekOfMonthThirdFieldControllers };
+            
+                readonly Fourth: { readonly fields: WeekOfMonthFourthFieldControllers };
+            
+                readonly Last: { readonly fields: WeekOfMonthLastFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function weekOfMonthGetDefaultForVariant(variant: string): WeekOfMonth {
+            if (variant === "First") { return "First" as WeekOfMonth; }
+if (variant === "Second") { return "Second" as WeekOfMonth; }
+if (variant === "Third") { return "Third" as WeekOfMonth; }
+if (variant === "Fourth") { return "Fourth" as WeekOfMonth; }
+if (variant === "Last") { return "Last" as WeekOfMonth; }
+            return "First" as WeekOfMonth;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function weekOfMonthCreateForm(initial?: WeekOfMonth): WeekOfMonthGigaform {
+
+            const initialVariant: "First" | "Second" | "Third" | "Fourth" | "Last" = (initial as "First" | "Second" | "Third" | "Fourth" | "Last") ?? "First";
+
+
+            let currentVariant = $state<"First" | "Second" | "Third" | "Fourth" | "Last">(initialVariant);
+            let data = $state<WeekOfMonth>(initial ?? weekOfMonthGetDefaultForVariant(initialVariant));
+            let errors = $state<WeekOfMonthErrors>({} as WeekOfMonthErrors);
+            let tainted = $state<WeekOfMonthTainted>({} as WeekOfMonthTainted);
+
+            const variants = {
+            
+                "First": { fields: {  } as unknown as WeekOfMonthFirstFieldControllers },
+            
+                "Second": { fields: {  } as unknown as WeekOfMonthSecondFieldControllers },
+            
+                "Third": { fields: {  } as unknown as WeekOfMonthThirdFieldControllers },
+            
+                "Fourth": { fields: {  } as unknown as WeekOfMonthFourthFieldControllers },
+            
+                "Last": { fields: {  } as unknown as WeekOfMonthLastFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as WeekOfMonthVariantFields;
+
+
+            function switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void {
+                currentVariant = variant;
+                data = weekOfMonthGetDefaultForVariant(variant);
+                errors = {} as WeekOfMonthErrors;
+                tainted = {} as WeekOfMonthTainted;
+            }
+
+
+            function validate(): Exit.Exit<WeekOfMonth, Array<{ field: string; message: string }>> {
+                return toExit(weekOfMonthDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<WeekOfMonth>): void {
+                data = overrides ? overrides as typeof data : weekOfMonthGetDefaultForVariant(currentVariant);
+                errors = {} as WeekOfMonthErrors;
+                tainted = {} as WeekOfMonthTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function weekOfMonthFromFormData(formData: FormData): Exit.Exit<WeekOfMonth, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "First" | "Second" | "Third" | "Fourth" | "Last" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "First") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Second") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Third") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Fourth") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Last") {
+                        
+                    }
+                }
+
+
+            return toExit(weekOfMonthDeserialize(obj));
+        }
+
+export const WeekOfMonth = {
+  defaultValue: weekOfMonthDefaultValue,
+  serialize: weekOfMonthSerialize,
+  serializeWithContext: weekOfMonthSerializeWithContext,
+  deserialize: weekOfMonthDeserialize,
+  deserializeWithContext: weekOfMonthDeserializeWithContext,
+  hasShape: weekOfMonthHasShape,
+  is: weekOfMonthIs,
+  createForm: weekOfMonthCreateForm,
+  fromFormData: weekOfMonthFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..229 -> expanded 58..172
+original 229..230 -> expanded 12934..12935
+generated 172..300 <- Default
+generated 300..2261 <- Serialize
+generated 2261..4685 <- Deserialize
+generated 4685..12528 <- Gigaform
+generated 12528..12934 <- __convenience_const
+
+## Metadata
+
+type WeekOfMonth: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":164,"start":149}}],"kind":{"Literal":"'First'"}},{"decorators":[],"kind":{"Literal":"'Second'"}},{"decorators":[],"kind":{"Literal":"'Third'"}},{"decorators":[],"kind":{"Literal":"'Fourth'"}},{"decorators":[],"kind":{"Literal":"'Last'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"WeekOfMonth","span":{"end":230,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("WeekOfMonth")
+
+## Buildtime dependencies
+
+(none)

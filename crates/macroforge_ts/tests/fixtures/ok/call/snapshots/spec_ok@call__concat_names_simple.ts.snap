@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/call/concat_names_simple.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/call/concat_names_simple.ts
 ---
 ## Input
 
@@ -9,6 +9,10 @@ input_file: macroforge_ts/tests/fixtures/ok/call/concat_names_simple.ts
 
 export const fooBar = $concat_names(foo, bar);
 export const userName = $concat_names(user, name);
+
+## Changed
+
+true
 
 ## Output
 
@@ -22,5 +26,21 @@ export const userName = "user_name";
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

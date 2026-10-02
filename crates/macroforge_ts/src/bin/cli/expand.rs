@@ -1,6 +1,7 @@
 use anyhow::{Context, Result, anyhow};
 use ignore::WalkBuilder;
 use macroforge_ts::host::MacroExpansion;
+use macroforge_ts::host::project::expand_project_file;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -11,13 +12,13 @@ use crate::atomic_fs::write_atomic;
 /// Output routing for a directory scan.
 ///
 /// A scan can emit into one or more destinations, each independent:
-/// - `out_dir` — a **mirrored tree** of the scanned sources: every macro file
+/// - `out_dir`: a **mirrored tree** of the scanned sources: every macro file
 ///   is written expanded at `<out_dir>/<relative-path>` (same filename), and
 ///   every other file (`.svelte`, `.css`, `.d.ts`, macro-free `.ts`, assets)
 ///   is copied verbatim. This produces a packager-ready staging tree.
-/// - `types_out_dir` — mirrored `.d.ts` type surfaces for each macro file that
+/// - `types_out_dir`: mirrored `.d.ts` type surfaces for each macro file that
 ///   produces one (`foo.ts` → `foo.d.ts`, `foo.svelte.ts` → `foo.svelte.d.ts`).
-/// - `emit_expanded` — legacy behavior: write a `<name>.expanded.<ext>` debug
+/// - `emit_expanded`: legacy behavior, write a `<name>.expanded.<ext>` debug
 ///   sibling next to each expanded source file. Default off.
 ///
 /// With none of these set, the scan is a diagnostics/check pass that writes
@@ -51,7 +52,7 @@ pub struct ScanOptions {
 ///
 /// # Returns
 ///
-/// Returns `Ok(())` on success. Returns an error if any file fails to expand —
+/// Returns `Ok(())` on success. Returns an error if any file fails to expand:
 /// a partially-populated staging tree must never silently feed a packager.
 pub fn scan_and_expand(project_root: &Path, root: PathBuf, opts: ScanOptions) -> Result<()> {
     use rayon::prelude::*;
@@ -59,12 +60,12 @@ pub fn scan_and_expand(project_root: &Path, root: PathBuf, opts: ScanOptions) ->
     let root = root.canonicalize().unwrap_or(root);
     eprintln!("[macroforge] scanning {}", root.display());
 
-    // Output directories commonly live inside the scanned tree — the canonical
-    // form is `expand --scan . --types-out dist/types`. That is fine: we prune
-    // the output directories from the walk (below) so their contents are never
-    // re-scanned, re-expanded, or recursively copied on a later run. What is not
-    // fine is an output directory that *is* the scan root or an ancestor of it —
-    // that would overwrite the sources in place — so reject only that case.
+    // Output directories commonly live inside the scanned tree: the canonical
+    // form is `expand --scan . --types-out dist/types`. That is fine, since the
+    // walk below prunes the output directories, so their contents are never
+    // re-scanned, re-expanded, or recursively copied on a later run. An output
+    // directory that *is* the scan root or an ancestor of it would overwrite
+    // the sources in place, so only that case is rejected.
     let output_dirs: Vec<PathBuf> = [
         ("--out", opts.out_dir.as_ref()),
         ("--types-out", opts.types_out_dir.as_ref()),
@@ -98,6 +99,7 @@ pub fn scan_and_expand(project_root: &Path, root: PathBuf, opts: ScanOptions) ->
             let path = entry.path();
             !output_dirs.iter().any(|dir| path.starts_with(dir))
         })
+        .sort_by_file_path(|left, right| left.cmp(right))
         .build();
 
     for entry in walker.flatten() {
@@ -278,9 +280,9 @@ pub(crate) struct FileExpansion {
 /// core used by both single-file expansion and directory scans; keeping it
 /// write-free lets scans expand in parallel and emit sequentially.
 ///
-/// The expander comes from [`super::cache::configured_expander`], so the
-/// file's macroforge config and the project registries apply exactly as they
-/// do in a build.
+/// The expansion goes through [`expand_project_file`], so the file's
+/// macroforge config and the project registries apply exactly as they do in a
+/// build.
 ///
 /// # Returns
 ///
@@ -296,19 +298,16 @@ pub(crate) fn expand_file_in_memory(
 
     // The registry scan logs to stderr, so skip it for files without macros:
     // `--quiet` callers rely on a clean stderr.
-    if !macroforge_ts::has_macro_annotations(&source) {
+    if !macroforge_ts::has_macro_annotations(&source, &input.to_string_lossy()) {
         return Ok(None);
     }
     super::wrappers::ensure_type_registry_cache(project_root)?;
-    let expander = super::cache::configured_expander(project_root, input)?;
-
-    let expansion = expander
-        .expand_source(&source, &input.display().to_string())
-        .map_err(|err| anyhow!(format!("{err:?}")))?;
-
-    // Single cleanup
-    macroforge_ts::host::clear_registry();
-    macroforge_ts::host::clear_foreign_types();
+    let expansion = expand_project_file(
+        project_root,
+        input,
+        &source,
+        &super::cache::project_registries()?,
+    )?;
 
     if !expansion.changed {
         return Ok(None);
@@ -435,10 +434,11 @@ pub(crate) fn emit_diagnostics(expansion: &MacroExpansion, source: &str, input: 
         return;
     }
 
+    let lines = macroforge_ts::line_index::LineIndex::new(source);
     for diag in &expansion.diagnostics {
         let (line, col) = diag
             .span
-            .map(|s| offset_to_line_col(source, s.start as usize))
+            .map(|s| lines.line_col(source, s.start))
             .unwrap_or((1, 1));
         eprintln!(
             "[macroforge] {} at {}:{}:{}: {}",
@@ -448,27 +448,13 @@ pub(crate) fn emit_diagnostics(expansion: &MacroExpansion, source: &str, input: 
             col,
             diag.message
         );
-    }
-}
-
-/// Converts a byte offset in source code to a (line, column) position.
-///
-/// Lines and columns are 1-indexed for user-friendly display.
-pub(crate) fn offset_to_line_col(source: &str, offset: usize) -> (usize, usize) {
-    let mut line = 1;
-    let mut col = 1;
-    for (idx, ch) in source.char_indices() {
-        if idx >= offset {
-            break;
+        for note in &diag.notes {
+            eprintln!("[macroforge]   note: {note}");
         }
-        if ch == '\n' {
-            line += 1;
-            col = 1;
-        } else {
-            col += 1;
+        if let Some(help) = &diag.help {
+            eprintln!("[macroforge]   help: {help}");
         }
     }
-    (line, col)
 }
 
 /// Generate an expanded output path, inserting `.expanded` as the first extension.

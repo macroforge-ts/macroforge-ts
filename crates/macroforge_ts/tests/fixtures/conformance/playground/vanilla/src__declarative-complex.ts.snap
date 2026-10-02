@@ -1,0 +1,161 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/declarative-complex.ts
+sha256 3a3973ef40a9bf717306849e46c2c01be5ba0fc25c6da1753378131c4d7f5a78
+
+## Changed
+
+true
+
+## Output
+
+// More complex declarative macros.
+//
+// Exercises patterns beyond the basic `$vec` / `$id` / `$withTemp` set:
+// - Multi-arm dispatch by arity
+// - Nested repetition (macro-in-a-macro output)
+// - Macro composition (one macro calls another)
+// - Value/default plumbing
+// - Nested block scopes with hygiene-local temporaries
+// - Type-position macros via the `macroRules({...})` object form
+
+
+
+// ──────────────────────────────────────────────────────────────────
+// 1. Multi-arm dispatch by arity.
+//    $min with 1 arg is the identity; with 2 args compares; with 3+
+//    recurses by folding the tail through the 2-arg arm.
+// ──────────────────────────────────────────────────────────────────
+
+
+
+export const minOne = 42;
+export const minTwo = (7 < 3 ? 7 : 3);
+// Nested calls work at this level because `$pow4` calls `$square` from
+// within its own template body — recursion happens during expansion of
+// the OUTER macro, not when the inner call is passed as a runtime arg.
+// For that case use a non-macro intermediate.
+export const minOfTwo = (7 < 3 ? 7 : 3);
+export const minNegative = (-5 < -100 ? -5 : -100);
+
+// ──────────────────────────────────────────────────────────────────
+// 2. Value/default plumbing. One arm handles the 1-arg case, another
+//    folds in a default for the 2-arg case.
+// ──────────────────────────────────────────────────────────────────
+
+
+
+export const orElseNoDefault = 100;
+const maybeMissing: number | null = null as number | null;
+export const orElseWithDefault = (maybeMissing ?? 99);
+
+// ──────────────────────────────────────────────────────────────────
+// 3. Macro composition. `$square` uses `$double`-style replication in
+//    its body; `$pow4` squares a square. Exercises the rewriter's
+//    ability to re-visit already-rewritten output.
+// ──────────────────────────────────────────────────────────────────
+
+
+
+
+
+export const squaredFive = (5 * 5);
+export const pow4Two = ((2 * 2) * (2 * 2));
+
+// ──────────────────────────────────────────────────────────────────
+// 4. Repetition with a non-comma emission separator. `$sumAll`
+//    expands to an array literal; its numeric sum is computed at
+//    runtime. Exercises the same `,`-separated repetition shape as
+//    `$vec` but in a consuming context.
+// ──────────────────────────────────────────────────────────────────
+
+
+
+export const sumTriple = [1,2,3].reduce((a, b) => a + b, 0);
+export const sumFive = [10,20,30,40,50].reduce((a, b) => a + b, 0);
+
+// ──────────────────────────────────────────────────────────────────
+// 5. Hygiene stress: the macro's body introduces a local `__temp`
+//    whose name must not collide with any caller-scope binding of
+//    the same name. The test verifies the caller's `__temp` is
+//    preserved after the macro call site.
+// ──────────────────────────────────────────────────────────────────
+
+
+
+export function hygieneCheck(): { callerTemp: number; macroResult: number } {
+    // Caller's `__temp` should remain 999 after the macro expands,
+    // because the macro's expansion introduces its own `__temp` inside
+    // an IIFE — it must not escape or shadow the outer binding.
+    const __temp = 999;
+    const macroResult = (() => {
+    const __temp$11 = 3;
+    return __temp$11 * __temp$11 + 1;
+  })();
+    return { callerTemp: __temp, macroResult };
+}
+
+// Value-position use at module scope.
+export const sqPlus1 = (() => {
+    const __temp$12 = 4;
+    return __temp$12 * __temp$12 + 1;
+  })();
+
+// ──────────────────────────────────────────────────────────────────
+// 6. Type-position macros via the object form.
+//    `$PartialDeep<T>` marks every top-level key optional. Useful for
+//    patches / merge types.
+// ──────────────────────────────────────────────────────────────────
+
+// `export`-ed so Deno's no-unused-vars lint doesn't flag the binding
+// as unused — the only usages are type references (`$PartialShallow<T>`)
+// which the JS-side linter doesn't follow across domains.
+
+
+
+
+export interface Address {
+    street: string;
+    city: string;
+    zip: string;
+}
+
+export type AddressPatch = { [K in keyof Address]?: Address[K] };
+export type DefinitelyString = Exclude<string | null | undefined, null | undefined>;
+
+// Values that exercise the types at runtime.
+export const samplePatch: AddressPatch = { city: 'Berlin' };
+export const definitelyHello: DefinitelyString = 'hello';
+
+// The test harness uses this sentinel to confirm the declarative
+// macros were all erased from the source at build time.
+export const declarativeComplexErased = true;
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..6107 -> expanded 0..6107
+
+## Metadata
+
+interface Address: {"body_span":{"end":5619,"start":5561},"decorators":[],"fields":[{"decorators":[],"name":"street","optional":false,"readonly":false,"span":{"end":5582,"start":5567},"ts_type":"string"},{"decorators":[],"name":"city","optional":false,"readonly":false,"span":{"end":5600,"start":5587},"ts_type":"string"},{"decorators":[],"name":"zip","optional":false,"readonly":false,"span":{"end":5617,"start":5605},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Address","span":{"end":5619,"start":5543},"type_params":[]}
+type AddressPatch: {"body":{"Other":"{ [K in keyof Address]?: Address[K] }"},"decorators":[],"name":"AddressPatch","span":{"end":5686,"start":5628},"type_params":[]}
+type DefinitelyString: {"body":{"Other":"Exclude<string | null | undefined, null | undefined>"},"decorators":[],"name":"DefinitelyString","span":{"end":5771,"start":5694},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

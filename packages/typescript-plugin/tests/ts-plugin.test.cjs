@@ -71,7 +71,11 @@ function createPluginEnvironment(source, fileName = '/virtual/MacroUser.ts') {
         languageService,
         languageServiceHost: host,
         serverHost: {},
-        project: {}
+        project: {
+            projectService: {
+                logger: { info: () => {}, msg: () => {}, hasLevel: () => false }
+            }
+        }
     };
 
     const plugin = initPlugin({ typescript: ts });

@@ -1,0 +1,18 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Types (3)
+
+Customer 4772675bc862616b
+Order b89a41494b5acf78
+PersonName 84ca0e78dd823aff
+
+## Qualified types (3)
+
+src/lib/types/customer.svelte.ts::Customer 4772675bc862616b
+src/lib/types/order.svelte.ts::Order b89a41494b5acf78
+src/lib/types/person-name.ts::PersonName 84ca0e78dd823aff
+
+## Ambiguous names
+
+(none)

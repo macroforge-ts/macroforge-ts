@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use ignore::WalkBuilder;
 
@@ -11,7 +12,7 @@ use crate::ts_syn::{
     lower_type_aliases,
 };
 
-use super::cache::{CacheEntry, ScanCache, file_stamp, splice_declarative};
+use super::cache::{CacheEntry, FileStamp, ScanCache, file_stamp, splice_declarative};
 use super::config::ScanConfig;
 
 /// Result of scanning a project.
@@ -29,12 +30,16 @@ pub struct ScanOutput {
     pub macro_files: u32,
     /// Warnings from files that failed to parse.
     pub warnings: Vec<String>,
+    /// Whether anything may differ from the previous scan by this scanner:
+    /// a file was lowered afresh or left the project. Always true without a
+    /// cache.
+    pub changed: bool,
 }
 
 /// Scans a TypeScript project and builds a [`TypeRegistry`].
 ///
 /// The optional [`ScanCache`] turns repeated scans of unchanged files
-/// into O(1) lookups — HMR and LSP hosts keep a long-lived
+/// into O(1) lookups. HMR and LSP hosts keep a long-lived
 /// `ProjectScanner` and avoid re-parsing on every edit. The single-
 /// shot CLI path passes no cache and runs the original walker
 /// unchanged.
@@ -76,13 +81,6 @@ impl ProjectScanner {
         self
     }
 
-    /// Enable caching starting from an empty cache.
-    pub fn enable_cache(&mut self) {
-        if self.cache.is_none() {
-            self.cache = Some(RefCell::new(ScanCache::new()));
-        }
-    }
-
     /// Remove a single cache entry. Used by the HMR bridge to tell
     /// the scanner that a file just changed on disk; the next
     /// [`Self::scan`] will re-parse it. No-op when the cache isn't
@@ -103,302 +101,265 @@ impl ProjectScanner {
         }
     }
 
-    /// Cache size in entries. `None` when the cache isn't installed.
-    pub fn cache_len(&self) -> Option<usize> {
-        self.cache.as_ref().map(|c| c.borrow().len())
+    /// Persists the cache at `path`, when one is installed.
+    pub fn save_cache(&self, path: &Path) -> anyhow::Result<()> {
+        match self.cache.as_ref() {
+            Some(cache) => cache.borrow().save(path),
+            None => Ok(()),
+        }
     }
 
     /// Perform the full project scan and return a populated [`TypeRegistry`].
+    ///
+    /// Files are registered in path order, whatever order they were lowered
+    /// in, because `TypeRegistry::insert` keeps the first declaration of a
+    /// name.
     pub fn scan(&self) -> anyhow::Result<ScanOutput> {
+        let (paths, mut warnings) = self.source_files();
+
+        // Cached entries first, then every miss lowered in parallel.
+        let mut misses = Vec::new();
+        let mut entries: Vec<Option<anyhow::Result<Arc<CacheEntry>>>> = paths
+            .iter()
+            .enumerate()
+            .map(|(index, path)| {
+                let stamp = file_stamp(path);
+                let cached = self
+                    .cache
+                    .as_ref()
+                    .and_then(|cache| cache.borrow().get(path, stamp));
+                if cached.is_none() {
+                    misses.push((index, stamp));
+                }
+                cached.map(Ok)
+            })
+            .collect();
+        let changed = self.cache.is_none() || !misses.is_empty();
+
+        for (index, stamp, lowered) in lower_files(&paths, misses)? {
+            let lowered = lowered.map(Arc::new);
+            if let (Some(cache), Some(_), Ok(entry)) = (self.cache.as_ref(), stamp, &lowered) {
+                cache
+                    .borrow_mut()
+                    .insert(paths[index].clone(), Arc::clone(entry));
+            }
+            entries[index] = Some(lowered);
+        }
+
+        let mut removed = false;
+        if let Some(cache) = self.cache.as_ref() {
+            let mut cache = cache.borrow_mut();
+            let before = cache.len();
+            cache.retain_paths(&paths.iter().map(PathBuf::as_path).collect());
+            removed = cache.len() != before;
+        }
+
         let mut registry = TypeRegistry::new();
         let mut declarative_registry = ProjectDeclarativeRegistry::new();
         let root_str = self.config.root_dir.to_string_lossy().to_string();
-        let mut files_scanned: u32 = 0;
         let mut macro_files: u32 = 0;
-        let mut warnings = Vec::new();
-
-        let walker = WalkBuilder::new(&self.config.root_dir)
-            .hidden(true) // Skip hidden files by default
-            .git_ignore(true) // Respect .gitignore
-            .git_global(false)
-            .git_exclude(false)
-            .build();
-
-        for entry in walker {
-            let entry = match entry {
-                Ok(e) => e,
-                Err(_) => continue,
-            };
-
-            let path = entry.path();
-
-            if path.is_dir() {
-                continue;
-            }
-
-            if self.is_in_skip_dir(path) {
-                continue;
-            }
-
-            let has_matching_ext = path
-                .extension()
-                .and_then(|e| e.to_str())
-                .map(|ext| {
-                    let dotted = format!(".{}", ext);
-                    self.config.extensions.contains(&dotted)
-                })
-                .unwrap_or(false);
-
-            if !has_matching_ext {
-                continue;
-            }
-
-            files_scanned += 1;
-            if files_scanned > self.config.max_files as u32 {
-                warnings.push(format!(
-                    "Reached max file limit ({}). Some types may be missing.",
-                    self.config.max_files
-                ));
-                break;
-            }
-
-            match self.scan_file(path, &mut registry, &mut declarative_registry, &root_str) {
-                Ok(uses_macros) => macro_files += u32::from(uses_macros),
-                Err(e) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
+        for (path, entry) in paths.iter().zip(entries) {
+            match entry {
+                Some(Ok(entry)) => {
+                    let file_name = path.to_string_lossy().to_string();
+                    splice_declarative(&mut declarative_registry, &file_name, &entry);
+                    macro_files += u32::from(entry.uses_macros);
+                    self.register_items(&mut registry, &root_str, &file_name, &entry);
+                }
+                Some(Err(e)) => warnings.push(format!("Failed to scan {:?}: {}", path, e)),
+                None => warnings.push(format!("{} was not scanned", path.display())),
             }
         }
 
         Ok(ScanOutput {
             registry,
             declarative_registry,
-            files_scanned,
+            files_scanned: paths.len() as u32,
             macro_files,
             warnings,
+            changed: changed || removed,
         })
     }
 
-    pub(crate) fn is_in_skip_dir(&self, path: &Path) -> bool {
-        for component in path.components() {
-            if let std::path::Component::Normal(name) = component
-                && let Some(name_str) = name.to_str()
-                && self.config.skip_dirs.contains(name_str)
-            {
-                return true;
-            }
-        }
-        false
-    }
+    /// The source files under the root, in path order, and warnings for
+    /// entries the walk could not read or files past the limit.
+    fn source_files(&self) -> (Vec<PathBuf>, Vec<String>) {
+        let root = self.config.root_dir.clone();
+        let skip_dirs = self.config.skip_dirs.clone();
+        // Sorted, so registration order does not depend on the filesystem.
+        // Skipped directories are pruned below the root; the root's own path
+        // may contain any name.
+        let walker = WalkBuilder::new(&self.config.root_dir)
+            .hidden(true) // Skip hidden files by default
+            .git_ignore(true) // Respect .gitignore
+            .git_global(false)
+            .git_exclude(false)
+            .sort_by_file_path(|left, right| left.cmp(right))
+            .filter_entry(move |entry| {
+                entry.path() == root
+                    || !entry.file_type().is_some_and(|kind| kind.is_dir())
+                    || !entry
+                        .file_name()
+                        .to_str()
+                        .is_some_and(|name| skip_dirs.contains(name))
+            })
+            .build();
 
-    fn scan_file(
-        &self,
-        path: &Path,
-        registry: &mut TypeRegistry,
-        declarative_registry: &mut ProjectDeclarativeRegistry,
-        project_root: &str,
-    ) -> anyhow::Result<bool> {
-        let file_name = path.to_string_lossy().to_string();
-
-        // Cache fast path. Before reading the file, stat it for
-        // `(mtime, size)` and check the cache. On a hit, replay the
-        // cached entry into the current scan's outputs and skip the
-        // parse entirely. On a miss, fall through and re-parse.
-        if let Some(cache_cell) = self.cache.as_ref()
-            && let Some((mtime_ns, size)) = file_stamp(path)
-            && let Some(entry) = cache_cell.borrow().get(path, mtime_ns, size).cloned()
-        {
-            // Replay.
-            splice_declarative(declarative_registry, &file_name, &entry);
-            let uses_macros = entry.uses_macros;
-            if entry.classes.is_empty()
-                && entry.interfaces.is_empty()
-                && entry.enums.is_empty()
-                && entry.type_aliases.is_empty()
-            {
-                return Ok(uses_macros);
-            }
-            self.register_items(
-                registry,
-                project_root,
-                &file_name,
-                entry.classes,
-                entry.interfaces,
-                entry.enums,
-                entry.type_aliases,
-                entry.file_imports,
-                entry.exported_names,
-            );
-            return Ok(uses_macros);
-        }
-
-        let source = std::fs::read_to_string(path)?;
-        let uses_macros = crate::has_macro_annotations(&source);
-
-        use oxc::allocator::Allocator;
-        use oxc::parser::Parser;
-        use oxc::span::SourceType;
-
-        let allocator = Allocator::default();
-        let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
-        let ret = Parser::new(&allocator, &source, source_type).parse();
-
-        if !ret.diagnostics.is_empty() {
-            return Err(anyhow::anyhow!("parse errors: {:?}", ret.diagnostics));
-        }
-
-        // Declarative macro discovery shares the same parse. Fast path:
-        // the discovery helper bails out on files that don't import
-        // `macroRules` from `"@macroforge/core/rules"`, so the cost on files
-        // without declarative macros is a single import-statement scan.
-        let declarative_macros: Vec<_> =
-            match crate::host::declarative::discover(&ret.program, &source) {
-                Ok(discovered) => discovered.into_iter().map(|dm| dm.def).collect(),
-                Err(e) => {
-                    return Err(anyhow::anyhow!("Declarative macro discovery failed: {}", e));
+        let mut paths = Vec::new();
+        let mut warnings = Vec::new();
+        for entry in walker {
+            let entry = match entry {
+                Ok(entry) => entry,
+                Err(error) => {
+                    warnings.push(format!("Skipped an unreadable entry: {error}"));
+                    continue;
                 }
             };
-        if !declarative_macros.is_empty() {
-            declarative_registry.insert_file(file_name.clone(), declarative_macros.clone());
+            if entry.file_type().is_some_and(|kind| kind.is_dir()) {
+                continue;
+            }
+            let path = entry.path();
+            let has_matching_ext = path
+                .extension()
+                .and_then(|e| e.to_str())
+                .is_some_and(|ext| self.config.extensions.contains(&format!(".{ext}")));
+            if !has_matching_ext {
+                continue;
+            }
+            if paths.len() == self.config.max_files {
+                warnings.push(format!(
+                    "Reached max file limit ({}). Some types may be missing.",
+                    self.config.max_files
+                ));
+                break;
+            }
+            paths.push(path.to_path_buf());
         }
-
-        let lower_error = |kind: &str, error: crate::ts_syn::TsSynError| {
-            anyhow::anyhow!("failed to lower {kind}: {error}")
-        };
-        let classes = lower_classes(&ret.program, &source, None)
-            .map_err(|error| lower_error("classes", error))?;
-        let interfaces = lower_interfaces(&ret.program, &source, None)
-            .map_err(|error| lower_error("interfaces", error))?;
-        let enums = lower_enums(&ret.program, &source, None)
-            .map_err(|error| lower_error("enums", error))?;
-        let type_aliases = lower_type_aliases(&ret.program, &source, None)
-            .map_err(|error| lower_error("type aliases", error))?;
-
-        let file_imports = collect_file_imports(&ret.program);
-        let exported_names = collect_exported_names(&ret.program);
-
-        // Write to the cache *before* the early-return on empty
-        // files, so re-scans of files that declare nothing don't
-        // re-parse every time.
-        if let Some(cache_cell) = self.cache.as_ref()
-            && let Some((mtime_ns, size)) = file_stamp(path)
-        {
-            cache_cell.borrow_mut().insert(
-                path.to_path_buf(),
-                CacheEntry {
-                    mtime_ns,
-                    size,
-                    classes: classes.clone(),
-                    interfaces: interfaces.clone(),
-                    enums: enums.clone(),
-                    type_aliases: type_aliases.clone(),
-                    declarative_macros,
-                    file_imports: file_imports.clone(),
-                    exported_names: exported_names.clone(),
-                    uses_macros,
-                },
-            );
-        }
-
-        if classes.is_empty()
-            && interfaces.is_empty()
-            && enums.is_empty()
-            && type_aliases.is_empty()
-        {
-            return Ok(uses_macros);
-        }
-
-        self.register_items(
-            registry,
-            project_root,
-            &file_name,
-            classes,
-            interfaces,
-            enums,
-            type_aliases,
-            file_imports,
-            exported_names,
-        );
-        Ok(uses_macros)
+        (paths, warnings)
     }
 
-    #[allow(clippy::too_many_arguments)]
     fn register_items(
         &self,
         registry: &mut TypeRegistry,
         project_root: &str,
         file_name: &str,
-        classes: Vec<crate::ts_syn::abi::ir::ClassIR>,
-        interfaces: Vec<crate::ts_syn::abi::ir::InterfaceIR>,
-        enums: Vec<crate::ts_syn::abi::ir::EnumIR>,
-        type_aliases: Vec<crate::ts_syn::abi::ir::TypeAliasIR>,
-        file_imports: Vec<crate::ts_syn::abi::ir::type_registry::FileImportEntry>,
-        exported_names: std::collections::HashSet<String>,
+        entry: &CacheEntry,
     ) {
-        for class in classes {
-            let is_exported = exported_names.contains(&class.name);
-            if self.config.exported_only && !is_exported {
-                continue;
-            }
-            registry.insert(
-                TypeRegistryEntry {
-                    name: class.name.clone(),
-                    file_path: file_name.to_string(),
-                    is_exported,
-                    definition: TypeDefinitionIR::Class(class),
-                    file_imports: file_imports.clone(),
-                },
-                project_root,
+        let definitions = entry
+            .classes
+            .iter()
+            .map(|class| (&class.name, TypeDefinitionIR::Class(class.clone())))
+            .chain(
+                entry
+                    .interfaces
+                    .iter()
+                    .map(|iface| (&iface.name, TypeDefinitionIR::Interface(iface.clone()))),
+            )
+            .chain(
+                entry
+                    .enums
+                    .iter()
+                    .map(|enum_ir| (&enum_ir.name, TypeDefinitionIR::Enum(enum_ir.clone()))),
+            )
+            .chain(
+                entry
+                    .type_aliases
+                    .iter()
+                    .map(|alias| (&alias.name, TypeDefinitionIR::TypeAlias(alias.clone()))),
             );
-        }
-
-        for iface in interfaces {
-            let is_exported = exported_names.contains(&iface.name);
+        for (name, definition) in definitions {
+            let is_exported = entry.exported_names.contains(name);
             if self.config.exported_only && !is_exported {
                 continue;
             }
             registry.insert(
                 TypeRegistryEntry {
-                    name: iface.name.clone(),
+                    name: name.clone(),
                     file_path: file_name.to_string(),
                     is_exported,
-                    definition: TypeDefinitionIR::Interface(iface),
-                    file_imports: file_imports.clone(),
-                },
-                project_root,
-            );
-        }
-
-        for enum_ir in enums {
-            let is_exported = exported_names.contains(&enum_ir.name);
-            if self.config.exported_only && !is_exported {
-                continue;
-            }
-            registry.insert(
-                TypeRegistryEntry {
-                    name: enum_ir.name.clone(),
-                    file_path: file_name.to_string(),
-                    is_exported,
-                    definition: TypeDefinitionIR::Enum(enum_ir),
-                    file_imports: file_imports.clone(),
-                },
-                project_root,
-            );
-        }
-
-        for alias in type_aliases {
-            let is_exported = exported_names.contains(&alias.name);
-            if self.config.exported_only && !is_exported {
-                continue;
-            }
-            registry.insert(
-                TypeRegistryEntry {
-                    name: alias.name.clone(),
-                    file_path: file_name.to_string(),
-                    is_exported,
-                    definition: TypeDefinitionIR::TypeAlias(alias),
-                    file_imports: file_imports.clone(),
+                    definition,
+                    file_imports: entry.file_imports.clone(),
                 },
                 project_root,
             );
         }
     }
+}
+
+/// A lowered file, by its index among the scanned paths, with the stamp it
+/// was read at.
+type Lowered = (usize, Option<FileStamp>, anyhow::Result<CacheEntry>);
+
+/// Lowers each of `misses`, the indices of `paths` the cache did not answer,
+/// in parallel on the engine's workers where there are threads.
+fn lower_files(
+    paths: &[PathBuf],
+    misses: Vec<(usize, Option<FileStamp>)>,
+) -> anyhow::Result<Vec<Lowered>> {
+    let lower = |(index, stamp): (usize, Option<FileStamp>)| {
+        (index, stamp, lower_file(&paths[index], stamp))
+    };
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use rayon::prelude::*;
+        Ok(crate::workers::worker_pool()
+            .map_err(anyhow::Error::msg)?
+            .install(|| misses.into_par_iter().map(lower).collect()))
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        Ok(misses.into_iter().map(lower).collect())
+    }
+}
+
+/// Parses and lowers one file. `stamp` is its metadata as read before the
+/// file was, so an edit in between only makes the entry look stale.
+fn lower_file(path: &Path, stamp: Option<FileStamp>) -> anyhow::Result<CacheEntry> {
+    use oxc::allocator::Allocator;
+    use oxc::parser::Parser;
+    use oxc::span::SourceType;
+
+    let file_name = path.to_string_lossy();
+    let source = std::fs::read_to_string(path)?;
+    let uses_macros = crate::has_macro_annotations(&source, &file_name);
+
+    let allocator = Allocator::default();
+    let source_type = SourceType::ts().with_jsx(file_name.ends_with(".tsx"));
+    let ret = Parser::new(&allocator, &source, source_type).parse();
+
+    if !ret.diagnostics.is_empty() {
+        return Err(anyhow::anyhow!("parse errors: {:?}", ret.diagnostics));
+    }
+
+    // Declarative macro discovery shares the same parse. The discovery
+    // helper bails out on files that don't import `macroRules` from
+    // `"@macroforge/core/rules"`, so on other files it costs one
+    // import-statement scan.
+    let declarative_macros = Arc::new(crate::host::declarative::project_registry::by_name(
+        crate::host::declarative::discover(&ret.program, &source)
+            .map_err(|e| anyhow::anyhow!("Declarative macro discovery failed: {}", e))?
+            .into_iter()
+            .map(|dm| dm.def)
+            .collect(),
+    ));
+
+    let lower_error = |kind: &str, error: crate::ts_syn::TsSynError| {
+        anyhow::anyhow!("failed to lower {kind}: {error}")
+    };
+    Ok(CacheEntry {
+        mtime_ns: stamp.map_or(0, |stamp| stamp.mtime_ns),
+        size: stamp.map_or(0, |stamp| stamp.size),
+        classes: lower_classes(&ret.program, &source, None)
+            .map_err(|error| lower_error("classes", error))?,
+        interfaces: lower_interfaces(&ret.program, &source, None)
+            .map_err(|error| lower_error("interfaces", error))?,
+        enums: lower_enums(&ret.program, &source, None)
+            .map_err(|error| lower_error("enums", error))?,
+        type_aliases: lower_type_aliases(&ret.program, &source, None)
+            .map_err(|error| lower_error("type aliases", error))?,
+        declarative_macros,
+        file_imports: collect_file_imports(&ret.program),
+        exported_names: collect_exported_names(&ret.program),
+        uses_macros,
+    })
 }

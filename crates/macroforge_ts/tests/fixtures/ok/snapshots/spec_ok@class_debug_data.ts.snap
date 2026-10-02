@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_debug_data.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_debug_data.ts
 ---
 ## Input
 
@@ -12,6 +11,10 @@ import { Derive } from '@macro/derive';
 class Data {
     val: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -52,5 +55,26 @@ export function dataToString(value: Data): string {
                     }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 62..93 -> expanded 41..72
+original 93..94 -> expanded 177..178
+original 94..95 -> expanded 431..432
+generated 72..177 <- Debug
+generated 178..431 <- Debug
+
+## Metadata
+
+class Data: {"body_span":{"end":95,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"val","optional":false,"readonly":false,"span":{"end":93,"start":81},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Data","span":{"end":95,"start":64},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

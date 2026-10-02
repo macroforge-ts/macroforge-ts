@@ -59,20 +59,14 @@ pub struct AttributePrepassOutput {
     pub diagnostics: Vec<Diagnostic>,
 }
 
-impl AttributePrepassOutput {
-    pub fn is_identity(&self) -> bool {
-        self.rewritten.is_none() && self.diagnostics.is_empty()
-    }
-}
-
 /// Run the attribute pre-pass against `source`.
 ///
-/// * `program` — parsed OXC AST.
-/// * `source` — the original text (used for span-to-text lookups and JSDoc
+/// * `program`: parsed OXC AST.
+/// * `source`: the original text (used for span-to-text lookups and JSDoc
 ///   parsing).
-/// * `_origin_path` — currently unused but plumbed through so diagnostics
+/// * `_origin_path`: currently unused but plumbed through so diagnostics
 ///   can grow a path field later without breaking the signature.
-/// * `config` — resolved `MacroforgeConfig`. Determines what `@cfg`
+/// * `config`: resolved `MacroforgeConfig`. Determines what `@cfg`
 ///   predicates pass, what `@deprecated` emits, and what brand
 ///   `@nonExhaustive` injects.
 pub fn run_prepass(

@@ -384,7 +384,7 @@ fn find_leading_derive_comment(source: &str, target_start: u32) -> Option<(SpanI
 // Attribute macro targets
 // ============================================================================
 
-/// The IR for an attribute target — any declaration type including functions.
+/// The IR for an attribute target: any declaration type including functions.
 #[derive(Clone)]
 pub(crate) enum AttributeTargetIR {
     Function(FunctionIR),
@@ -470,7 +470,7 @@ pub(crate) fn collect_attribute_targets(
     // --- Class methods ---
     for class_ir in class_map.values() {
         for method in &class_ir.methods {
-            collect_attribute_from_method(method, class_ir, source, import_sources, &mut targets);
+            collect_attribute_from_method(method, source, import_sources, &mut targets);
         }
     }
 
@@ -478,7 +478,7 @@ pub(crate) fn collect_attribute_targets(
     for class_ir in class_map.values() {
         collect_attribute_from_decorators(
             &class_ir.decorators,
-            AttributeTargetIR::Class(class_ir.clone()),
+            || AttributeTargetIR::Class(class_ir.clone()),
             source,
             import_sources,
             &mut targets,
@@ -489,7 +489,7 @@ pub(crate) fn collect_attribute_targets(
     for iface_ir in interface_map.values() {
         collect_attribute_from_decorators(
             &iface_ir.decorators,
-            AttributeTargetIR::Interface(iface_ir.clone()),
+            || AttributeTargetIR::Interface(iface_ir.clone()),
             source,
             import_sources,
             &mut targets,
@@ -500,7 +500,7 @@ pub(crate) fn collect_attribute_targets(
     for enum_ir in enum_map.values() {
         collect_attribute_from_decorators(
             &enum_ir.decorators,
-            AttributeTargetIR::Enum(enum_ir.clone()),
+            || AttributeTargetIR::Enum(enum_ir.clone()),
             source,
             import_sources,
             &mut targets,
@@ -511,7 +511,7 @@ pub(crate) fn collect_attribute_targets(
     for ta_ir in type_alias_map.values() {
         collect_attribute_from_decorators(
             &ta_ir.decorators,
-            AttributeTargetIR::TypeAlias(ta_ir.clone()),
+            || AttributeTargetIR::TypeAlias(ta_ir.clone()),
             source,
             import_sources,
             &mut targets,
@@ -526,9 +526,10 @@ pub(crate) fn collect_attribute_targets(
 }
 
 /// Check non-derive decorators on a type-like declaration for attribute macros.
+/// `target_ir` builds the declaration's IR, only for a decorator that names one.
 fn collect_attribute_from_decorators(
     decorators: &[crate::ts_syn::abi::DecoratorIR],
-    target_ir: AttributeTargetIR,
+    target_ir: impl Fn() -> AttributeTargetIR,
     source: &str,
     import_sources: &HashMap<String, String>,
     out: &mut Vec<AttributeTarget>,
@@ -542,7 +543,7 @@ fn collect_attribute_from_decorators(
                 macro_name: decorator.name.clone(),
                 module_path,
                 decorator_span: span_ir_with_at(decorator.span, source),
-                target_ir: target_ir.clone(),
+                target_ir: target_ir(),
             });
         }
     }
@@ -555,7 +556,6 @@ fn collect_attribute_from_decorators(
 /// gives the attribute macro a function-like token stream.
 fn collect_attribute_from_method(
     method: &MethodSigIR,
-    _class: &ClassIR,
     source: &str,
     import_sources: &HashMap<String, String>,
     out: &mut Vec<AttributeTarget>,

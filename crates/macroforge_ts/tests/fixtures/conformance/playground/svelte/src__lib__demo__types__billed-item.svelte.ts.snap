@@ -1,0 +1,4406 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/billed-item.svelte.ts
+sha256 02b6d66e862e2f22e512499d28163f93030807953453b46527cdcf7d23994c70
+
+## Changed
+
+true
+
+## Output
+
+import { itemDeserializeWithContext } from "./item.svelte";
+import { itemSerializeWithContext } from "./item.svelte";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { Item } from './item.svelte';
+
+
+export interface BilledItem {
+    
+    
+    item: Item;
+    
+    quantity: number;
+    
+    taxed: boolean;
+    
+    upsale: boolean;
+}
+
+export function billedItemDefaultValue(): BilledItem {
+                        return {
+item: "",
+quantity: 0,
+taxed: false,
+upsale: false,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function billedItemSerialize(value: BilledItem, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = billedItemSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function billedItemSerializeWithContext(value: BilledItem, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "BilledItem",
+                        __id,
+                    };result.item = itemSerializeWithContext(value.item, ctx);result.quantity = value.quantity;result.taxed = value.taxed;result.upsale = value.upsale;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function billedItemDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = billedItemDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "BilledItem.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function billedItemDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): BilledItem | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "BilledItem.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("item" in obj)) {
+                            errors.push({ field: "item", message: "missing required field" });
+                        }if (!("quantity" in obj)) {
+                            errors.push({ field: "quantity", message: "missing required field" });
+                        }if (!("taxed" in obj)) {
+                            errors.push({ field: "taxed", message: "missing required field" });
+                        }if (!("upsale" in obj)) {
+                            errors.push({ field: "upsale", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_item = obj["item"] as Item;ctx.pushScope("item");
+                                            try {
+                                                const __result = itemDeserializeWithContext(__raw_item, ctx);
+                                                ctx.assignOrDefer(instance, "item", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_quantity = obj["quantity"] as number;instance.quantity = __raw_quantity;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_taxed = obj["taxed"] as boolean;instance.taxed = __raw_taxed;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_upsale = obj["upsale"] as boolean;instance.upsale = __raw_upsale;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as BilledItem;
+            }
+
+            export function billedItemValidateField<K extends keyof BilledItem>(
+                _field: K,
+                _value: BilledItem[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function billedItemValidateFields(
+                _partial: Partial<BilledItem>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function billedItemHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "item" in o && "quantity" in o && "taxed" in o && "upsale" in o;
+            }
+
+            export function billedItemIs(obj: unknown): obj is BilledItem {
+                if (!billedItemHasShape(obj)) {
+                    return false;
+                }
+                const result = billedItemDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type BilledItemErrors = {
+            _errors: Option.Option<Array<string>>;
+            item: Option.Option<Array<string>>;
+            quantity: Option.Option<Array<string>>;
+            taxed: Option.Option<Array<string>>;
+            upsale: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type BilledItemTainted = {
+            item: Option.Option<boolean>;
+            quantity: Option.Option<boolean>;
+            taxed: Option.Option<boolean>;
+            upsale: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface BilledItemFieldControllers {
+            readonly item: FieldController<Item>;
+            readonly quantity: FieldController<number>;
+            readonly taxed: FieldController<boolean>;
+            readonly upsale: FieldController<boolean>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface BilledItemGigaform {
+            readonly data: BilledItem;
+            readonly errors: BilledItemErrors;
+            readonly tainted: BilledItemTainted;
+            readonly fields: BilledItemFieldControllers;
+            validate(): Exit.Exit<BilledItem, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<BilledItem>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledItemGigaform {
+            let data = $state({ ...billedItemDefaultValue(), ...overrides });
+            let errors = $state<BilledItemErrors>({
+                _errors: Option.none(),
+                item: Option.none(),
+                quantity: Option.none(),
+                taxed: Option.none(),
+                upsale: Option.none(),
+
+
+            });
+            let tainted = $state<BilledItemTainted>({
+                item: Option.none(),
+                quantity: Option.none(),
+                taxed: Option.none(),
+                upsale: Option.none(),
+
+
+            });
+            const fields = {
+            
+                item: {
+            name: "item",
+            label: "Item",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["item"],
+            get: () => data.item,
+            set: (value: Item) => { data.item = value; },
+            getError: () => errors.item,
+            setError: (value: Option.Option<Array<string>>) => { errors.item = value; },
+            getTainted: () => tainted.item,
+            setTainted: (value: Option.Option<boolean>) => { tainted.item = value; },
+            validate: () => billedItemValidateField("item", data.item).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                quantity: {
+            name: "quantity",
+            label: "Quantity",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["quantity"],
+            get: () => data.quantity,
+            set: (value: number) => { data.quantity = value; },
+            getError: () => errors.quantity,
+            setError: (value: Option.Option<Array<string>>) => { errors.quantity = value; },
+            getTainted: () => tainted.quantity,
+            setTainted: (value: Option.Option<boolean>) => { tainted.quantity = value; },
+            validate: () => billedItemValidateField("quantity", data.quantity).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                taxed: {
+            name: "taxed",
+            label: "Taxed",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["taxed"],
+            get: () => data.taxed,
+            set: (value: boolean) => { data.taxed = value; },
+            getError: () => errors.taxed,
+            setError: (value: Option.Option<Array<string>>) => { errors.taxed = value; },
+            getTainted: () => tainted.taxed,
+            setTainted: (value: Option.Option<boolean>) => { tainted.taxed = value; },
+            validate: () => billedItemValidateField("taxed", data.taxed).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                upsale: {
+            name: "upsale",
+            label: "Upsale",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["upsale"],
+            get: () => data.upsale,
+            set: (value: boolean) => { data.upsale = value; },
+            getError: () => errors.upsale,
+            setError: (value: Option.Option<Array<string>>) => { errors.upsale = value; },
+            getTainted: () => tainted.upsale,
+            setTainted: (value: Option.Option<boolean>) => { tainted.upsale = value; },
+            validate: () => billedItemValidateField("upsale", data.upsale).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as BilledItemFieldControllers;
+
+
+            function validate(): Exit.Exit<BilledItem, Array<{ field: string; message: string }>> {
+                return toExit(billedItemDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<BilledItem>): void {
+                data = { ...billedItemDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            item: Option.none(),
+            quantity: Option.none(),
+            taxed: Option.none(),
+            upsale: Option.none(),
+
+
+        };
+                tainted = {
+            item: Option.none(),
+            quantity: Option.none(),
+            taxed: Option.none(),
+            upsale: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function billedItemFromFormData(formData: FormData): Exit.Exit<BilledItem, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+
+            const itemObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("item.")) {
+                    const fieldName = key.slice("item.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = itemObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.item = itemObj;
+        }
+            {
+                    const quantityStr = formData.get("quantity");
+                    obj.quantity = quantityStr ? parseFloat(quantityStr as string) : 0;
+                    if (obj.quantity !== undefined && isNaN(obj.quantity as number)) obj.quantity = 0;
+                }
+            {
+                    const taxedVal = formData.get("taxed");
+                    obj.taxed = taxedVal === "true" || taxedVal === "on" || taxedVal === "1";
+                }
+            {
+                    const upsaleVal = formData.get("upsale");
+                    obj.upsale = upsaleVal === "true" || upsaleVal === "on" || upsaleVal === "1";
+                }
+
+
+            return toExit(billedItemDeserialize(obj));
+        }
+
+export const BilledItem = {
+  defaultValue: billedItemDefaultValue,
+  serialize: billedItemSerialize,
+  serializeWithContext: billedItemSerializeWithContext,
+  deserialize: billedItemDeserialize,
+  deserializeWithContext: billedItemDeserializeWithContext,
+  validateFields: billedItemValidateFields,
+  hasShape: billedItemHasShape,
+  is: billedItemIs,
+  createForm: billedItemCreateForm,
+  fromFormData: billedItemFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { Item } from './item.svelte';
+
+
+export interface BilledItem {
+    
+    
+    item: Item;
+    
+    quantity: number;
+    
+    taxed: boolean;
+    
+    upsale: boolean;
+}
+
+export function billedItemDefaultValue(): BilledItem {
+                        return {
+item: "",
+quantity: 0,
+taxed: false,
+upsale: false,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function billedItemSerialize(value: BilledItem, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = billedItemSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function billedItemSerializeWithContext(value: BilledItem, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "BilledItem",
+                        __id,
+                    };result.item = itemSerializeWithContext(value.item, ctx);result.quantity = value.quantity;result.taxed = value.taxed;result.upsale = value.upsale;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function billedItemDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = billedItemDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "BilledItem.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function billedItemDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): BilledItem | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "BilledItem.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("item" in obj)) {
+                            errors.push({ field: "item", message: "missing required field" });
+                        }if (!("quantity" in obj)) {
+                            errors.push({ field: "quantity", message: "missing required field" });
+                        }if (!("taxed" in obj)) {
+                            errors.push({ field: "taxed", message: "missing required field" });
+                        }if (!("upsale" in obj)) {
+                            errors.push({ field: "upsale", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_item = obj["item"] as Item;ctx.pushScope("item");
+                                            try {
+                                                const __result = itemDeserializeWithContext(__raw_item, ctx);
+                                                ctx.assignOrDefer(instance, "item", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "item" : "item." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_quantity = obj["quantity"] as number;instance.quantity = __raw_quantity;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_taxed = obj["taxed"] as boolean;instance.taxed = __raw_taxed;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_upsale = obj["upsale"] as boolean;instance.upsale = __raw_upsale;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as BilledItem;
+            }
+
+            export function billedItemValidateField<K extends keyof BilledItem>(
+                _field: K,
+                _value: BilledItem[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function billedItemValidateFields(
+                _partial: Partial<BilledItem>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function billedItemHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "item" in o && "quantity" in o && "taxed" in o && "upsale" in o;
+            }
+
+            export function billedItemIs(obj: unknown): obj is BilledItem {
+                if (!billedItemHasShape(obj)) {
+                    return false;
+                }
+                const result = billedItemDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type BilledItemErrors = {
+            _errors: Option.Option<Array<string>>;
+            item: Option.Option<Array<string>>;
+            quantity: Option.Option<Array<string>>;
+            taxed: Option.Option<Array<string>>;
+            upsale: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type BilledItemTainted = {
+            item: Option.Option<boolean>;
+            quantity: Option.Option<boolean>;
+            taxed: Option.Option<boolean>;
+            upsale: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface BilledItemFieldControllers {
+            readonly item: FieldController<Item>;
+            readonly quantity: FieldController<number>;
+            readonly taxed: FieldController<boolean>;
+            readonly upsale: FieldController<boolean>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface BilledItemGigaform {
+            readonly data: BilledItem;
+            readonly errors: BilledItemErrors;
+            readonly tainted: BilledItemTainted;
+            readonly fields: BilledItemFieldControllers;
+            validate(): Exit.Exit<BilledItem, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<BilledItem>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function billedItemCreateForm(overrides?: Partial<BilledItem>): BilledItemGigaform {
+            let data = $state({ ...billedItemDefaultValue(), ...overrides });
+            let errors = $state<BilledItemErrors>({
+                _errors: Option.none(),
+                item: Option.none(),
+                quantity: Option.none(),
+                taxed: Option.none(),
+                upsale: Option.none(),
+
+
+            });
+            let tainted = $state<BilledItemTainted>({
+                item: Option.none(),
+                quantity: Option.none(),
+                taxed: Option.none(),
+                upsale: Option.none(),
+
+
+            });
+            const fields = {
+            
+                item: {
+            name: "item",
+            label: "Item",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["item"],
+            get: () => data.item,
+            set: (value: Item) => { data.item = value; },
+            getError: () => errors.item,
+            setError: (value: Option.Option<Array<string>>) => { errors.item = value; },
+            getTainted: () => tainted.item,
+            setTainted: (value: Option.Option<boolean>) => { tainted.item = value; },
+            validate: () => billedItemValidateField("item", data.item).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                quantity: {
+            name: "quantity",
+            label: "Quantity",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["quantity"],
+            get: () => data.quantity,
+            set: (value: number) => { data.quantity = value; },
+            getError: () => errors.quantity,
+            setError: (value: Option.Option<Array<string>>) => { errors.quantity = value; },
+            getTainted: () => tainted.quantity,
+            setTainted: (value: Option.Option<boolean>) => { tainted.quantity = value; },
+            validate: () => billedItemValidateField("quantity", data.quantity).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                taxed: {
+            name: "taxed",
+            label: "Taxed",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["taxed"],
+            get: () => data.taxed,
+            set: (value: boolean) => { data.taxed = value; },
+            getError: () => errors.taxed,
+            setError: (value: Option.Option<Array<string>>) => { errors.taxed = value; },
+            getTainted: () => tainted.taxed,
+            setTainted: (value: Option.Option<boolean>) => { tainted.taxed = value; },
+            validate: () => billedItemValidateField("taxed", data.taxed).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                upsale: {
+            name: "upsale",
+            label: "Upsale",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["upsale"],
+            get: () => data.upsale,
+            set: (value: boolean) => { data.upsale = value; },
+            getError: () => errors.upsale,
+            setError: (value: Option.Option<Array<string>>) => { errors.upsale = value; },
+            getTainted: () => tainted.upsale,
+            setTainted: (value: Option.Option<boolean>) => { tainted.upsale = value; },
+            validate: () => billedItemValidateField("upsale", data.upsale).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as BilledItemFieldControllers;
+
+
+            function validate(): Exit.Exit<BilledItem, Array<{ field: string; message: string }>> {
+                return toExit(billedItemDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<BilledItem>): void {
+                data = { ...billedItemDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            item: Option.none(),
+            quantity: Option.none(),
+            taxed: Option.none(),
+            upsale: Option.none(),
+
+
+        };
+                tainted = {
+            item: Option.none(),
+            quantity: Option.none(),
+            taxed: Option.none(),
+            upsale: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function billedItemFromFormData(formData: FormData): Exit.Exit<BilledItem, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+
+            const itemObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("item.")) {
+                    const fieldName = key.slice("item.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = itemObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.item = itemObj;
+        }
+            {
+                    const quantityStr = formData.get("quantity");
+                    obj.quantity = quantityStr ? parseFloat(quantityStr as string) : 0;
+                    if (obj.quantity !== undefined && isNaN(obj.quantity as number)) obj.quantity = 0;
+                }
+            {
+                    const taxedVal = formData.get("taxed");
+                    obj.taxed = taxedVal === "true" || taxedVal === "on" || taxedVal === "1";
+                }
+            {
+                    const upsaleVal = formData.get("upsale");
+                    obj.upsale = upsaleVal === "true" || upsaleVal === "on" || upsaleVal === "1";
+                }
+
+
+            return toExit(billedItemDeserialize(obj));
+        }
+
+export const BilledItem = {
+  defaultValue: billedItemDefaultValue,
+  serialize: billedItemSerialize,
+  serializeWithContext: billedItemSerializeWithContext,
+  deserialize: billedItemDeserialize,
+  deserializeWithContext: billedItemDeserializeWithContext,
+  validateFields: billedItemValidateFields,
+  hasShape: billedItemHasShape,
+  is: billedItemIs,
+  createForm: billedItemCreateForm,
+  fromFormData: billedItemFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..102 -> expanded 0..102
+original 159..194 -> expanded 102..137
+original 305..310 -> expanded 137..142
+original 329..350 -> expanded 142..163
+original 414..441 -> expanded 163..190
+original 485..510 -> expanded 190..215
+original 555..578 -> expanded 215..238
+original 578..579 -> expanded 19280..19281
+generated 238..404 <- Default
+generated 404..2060 <- Serialize
+generated 2060..10081 <- Deserialize
+generated 10081..18840 <- Gigaform
+generated 18840..19280 <- __convenience_const
+
+## Metadata
+
+interface BilledItem: {"body_span":{"end":579,"start":189},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":160,"start":103}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":330,"start":311}},{"args_src":"{ label: \"Item\", allowCustom: true, fetchUrls: [\"/api/products\", \"/api/services\"] }","name":"comboboxController","span":{"end":306,"start":195}}],"name":"item","optional":false,"readonly":false,"span":{"end":346,"start":335},"ts_type":"Item"},{"decorators":[{"args_src":"{ label: \"Quantity\", min: 0, step: 1 }","name":"numberController","span":{"end":415,"start":351}}],"name":"quantity","optional":false,"readonly":false,"span":{"end":437,"start":420},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Taxed\" }","name":"switchController","span":{"end":486,"start":442}}],"name":"taxed","optional":false,"readonly":false,"span":{"end":506,"start":491},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Upsale\" }","name":"switchController","span":{"end":556,"start":511}}],"name":"upsale","optional":false,"readonly":false,"span":{"end":577,"start":561},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BilledItem","span":{"end":579,"start":168},"type_params":[]}
+
+## Registry reads
+
+Name("Item")
+Name("boolean")
+Name("number")
+
+## Buildtime dependencies
+
+(none)

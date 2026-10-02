@@ -10,6 +10,20 @@
             "description": "Options for {@link expand} and {@link expandFile}."
         },
         {
+            "name": "residentRegistries",
+            "kind": "function",
+            "type": "(options: T) => { options: T; release: () => void }",
+            "description": "`options` with any registry it carries as JSON kept by the engine and named by id instead, so expanding many files sends each registry once. Call `release` when the files are expanded.",
+            "params": [
+                {
+                    "name": "options",
+                    "type": "T",
+                    "description": ""
+                }
+            ],
+            "returns": "{ options: T; release: () => void }"
+        },
+        {
             "name": "ExpandResult",
             "kind": "interface",
             "type": null,
@@ -19,7 +33,7 @@
             "name": "expand",
             "kind": "function",
             "type": "(code: string, filepath: string, options?: ExpandOptions) => ExpandResult",
-            "description": "Expand a single in-memory TypeScript source string. Looks up and parses `macroforge.config.*` from `projectRoot` (or `Deno.cwd()`) on every call — the config is not cached — and forwards every other concern to the Rust engine.",
+            "description": "Expand a single in-memory TypeScript source string. Looks up and parses `macroforge.config.*` from `projectRoot` (or `Deno.cwd()`) on every call (the config is not cached) and forwards every other concern to the Rust engine.",
             "params": [
                 {
                     "name": "code",

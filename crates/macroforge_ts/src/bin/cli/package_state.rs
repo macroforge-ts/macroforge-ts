@@ -8,8 +8,8 @@
 //!
 //! Both answers are deliberately conservative. A missed change ships a stale
 //! published package, which is far worse than a rebuild that turns out to have
-//! been unnecessary, so anything this module cannot account for precisely —
-//! a config edit, a rebuilt macro binary, a changed declarative macro —
+//! been unnecessary, so anything this module cannot account for precisely (
+//! a config edit, a rebuilt macro binary, a changed declarative macro)
 //! invalidates everything rather than guessing. The type surface is accounted
 //! for precisely: each expansion records the registry lookups it made, and
 //! re-expands when one of them resolves differently.
@@ -28,6 +28,7 @@ use std::{
 
 use crate::atomic_fs::write_atomic;
 use crate::cache::{content_hash, normalized_content_hash};
+use crate::hash_cache::HashCache;
 
 /// Directory owning every `svelte-package` artifact for a project.
 pub(crate) fn state_dir(root: &Path) -> PathBuf {
@@ -47,7 +48,7 @@ fn state_path(root: &Path) -> PathBuf {
 ///
 /// Deliberately just these two. Everything else the packager takes is a direct
 /// reading of the command line, which the CLI already has and which
-/// [`PackageInputs::resolver_hash`] already covers — storing a second copy here
+/// [`PackageInputs::resolver_hash`] already covers; storing a second copy here
 /// would be one more thing that can disagree with itself. These two require
 /// evaluating a JavaScript module, so they are filled by the wrapper's
 /// `--macroforge-resolve-config` probe and cached for as long as that hash holds.
@@ -70,6 +71,44 @@ pub(crate) struct FileStamp {
     /// `source_hash` for everything else. This is what change detection
     /// compares, so reformatting a file is not a rebuild.
     pub(crate) normalized_hash: String,
+    /// The file's modification time and length when it was hashed. A later
+    /// scan that finds them unchanged reuses the hashes instead of reading
+    /// the file. Absent when the file had just been written, since another
+    /// write in the same instant would leave both unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) stat: Option<StatStamp>,
+}
+
+/// A file's modification time and length.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct StatStamp {
+    pub(crate) modified_nanos: u128,
+    pub(crate) len: u64,
+}
+
+/// How recently written a file may be before its stat is not trusted: an
+/// edit within the filesystem's timestamp resolution could keep both.
+const RACY_WINDOW: std::time::Duration = std::time::Duration::from_secs(2);
+
+impl StatStamp {
+    /// The stamp of `meta`, or `None` when the file was written too recently
+    /// for its stat to tell a later edit apart.
+    pub(crate) fn of(meta: &fs::Metadata) -> Option<Self> {
+        let modified = meta.modified().ok()?;
+        let age = std::time::SystemTime::now().duration_since(modified).ok()?;
+        if age < RACY_WINDOW {
+            return None;
+        }
+        let modified_nanos = modified
+            .duration_since(std::time::UNIX_EPOCH)
+            .ok()?
+            .as_nanos();
+        Some(Self {
+            modified_nanos,
+            len: meta.len(),
+        })
+    }
 }
 
 /// Everything a run's output depends on, other than the resolved config.
@@ -85,7 +124,7 @@ pub(crate) struct PackageInputs {
     pub(crate) external_macro_hash: String,
     /// Hash of everything the config probe's answer depends on.
     pub(crate) resolver_hash: String,
-    /// Aggregate hash of the project's TypeScript sources — the files that
+    /// Aggregate hash of the project's TypeScript sources: the files that
     /// feed the type registry, which expansion output depends on.
     pub(crate) project_hash: String,
     /// Content hashes / versions of the surrounding toolchain.
@@ -125,7 +164,7 @@ pub(crate) struct PackageState {
     /// Input paths that had an expanded artifact when the run finished.
     ///
     /// Recorded so a missing artifact is noticed. Nothing else can tell a file
-    /// that legitimately has none — no macros — from one whose artifact was
+    /// that legitimately has none (no macros) from one whose artifact was
     /// deleted, and the second case would hand the packager raw source and
     /// publish a module with its generated runtime missing.
     #[serde(default)]
@@ -159,7 +198,7 @@ impl PackageState {
     }
 
     pub(crate) fn save(&self, root: &Path) -> Result<()> {
-        let json = serde_json::to_string_pretty(self)?;
+        let json = serde_json::to_string(self)?;
         write_atomic(&state_path(root), json.as_bytes())
     }
 
@@ -477,8 +516,8 @@ fn compares_normalized(rel: &str, extensions: &[String]) -> bool {
         || extensions.iter().any(|ext| rel.ends_with(ext.as_str()))
 }
 
-/// Stamps one file's bytes.
-fn stamp_bytes(bytes: &[u8], normalized: bool) -> FileStamp {
+/// Stamps one file's bytes; `stat` is what the file's metadata said.
+pub(crate) fn stamp_bytes(bytes: &[u8], normalized: bool, stat: Option<StatStamp>) -> FileStamp {
     let source_hash = content_hash(bytes);
     let normalized_hash = match normalized.then(|| std::str::from_utf8(bytes)) {
         Some(Ok(text)) => normalized_content_hash(text),
@@ -488,25 +527,42 @@ fn stamp_bytes(bytes: &[u8], normalized: bool) -> FileStamp {
     FileStamp {
         source_hash,
         normalized_hash,
+        stat,
     }
 }
 
-/// Stamps every file under the input directory.
+/// Stamps every file under the input directory. A file whose stat matches
+/// its stamp in `previous` keeps that stamp unread; the rest are hashed in
+/// parallel.
 pub(crate) fn scan_input(
     input: &Path,
     extensions: &[String],
+    previous: Option<&BTreeMap<String, FileStamp>>,
 ) -> Result<BTreeMap<String, FileStamp>> {
+    use rayon::prelude::*;
+
     let files = walk_files(input, &SkipRules::default())
         .with_context(|| format!("failed to scan {}", input.display()))?;
 
-    let mut stamps = BTreeMap::new();
-    for (rel, path) in files {
-        let bytes =
-            fs::read(&path).with_context(|| format!("failed to read {}", path.display()))?;
-        let normalized = compares_normalized(&rel, extensions);
-        stamps.insert(rel, stamp_bytes(&bytes, normalized));
-    }
-    Ok(stamps)
+    files
+        .into_par_iter()
+        .map(|(rel, path)| {
+            let meta = fs::metadata(&path)
+                .with_context(|| format!("failed to stat {}", path.display()))?;
+            let stat = StatStamp::of(&meta);
+            if let Some(known) = previous.and_then(|stamps| stamps.get(&rel))
+                && stat.is_some()
+                && known.stat == stat
+            {
+                return Ok((rel, known.clone()));
+            }
+            let bytes =
+                fs::read(&path).with_context(|| format!("failed to read {}", path.display()))?;
+            let normalized = compares_normalized(&rel, extensions);
+            let stamp = stamp_bytes(&bytes, normalized, stat);
+            Ok((rel, stamp))
+        })
+        .collect()
 }
 
 /// Fingerprints the output directory from paths and sizes alone.
@@ -542,10 +598,10 @@ pub(crate) fn output_fingerprint(output: &Path) -> Result<String> {
 /// file. Tracking the sources the scanner reads closes that gap for the skip
 /// decision; [`PackageState::module_reads`] closes it for the incremental one.
 ///
-/// Mirrors `ScanConfig::default()` — `.ts`/`.tsx` under the project root, minus
-/// the usual non-source directories — plus the output directory, which is
+/// Mirrors `ScanConfig::default()`: `.ts`/`.tsx` under the project root, minus
+/// the usual non-source directories, plus the output directory, which is
 /// otherwise a build's own product feeding back into its next input.
-pub(crate) fn project_hash(root: &Path, output: &Path) -> Result<String> {
+pub(crate) fn project_hash(root: &Path, output: &Path, hashes: &mut HashCache) -> Result<String> {
     let skip = SkipRules {
         names: PROJECT_SKIP_DIRS.iter().map(|s| s.to_string()).collect(),
         paths: vec![output.to_path_buf()],
@@ -559,13 +615,11 @@ pub(crate) fn project_hash(root: &Path, output: &Path) -> Result<String> {
         if !(rel.ends_with(".ts") || rel.ends_with(".tsx")) {
             continue;
         }
-        let bytes =
-            fs::read(&path).with_context(|| format!("failed to read {}", path.display()))?;
         // Normalized, so reformatting the project does not force every library
         // in it to repackage.
         buf.push_str(&rel);
         buf.push(':');
-        buf.push_str(&stamp_bytes(&bytes, true).normalized_hash);
+        buf.push_str(&hashes.normalized_hash(&path)?);
         buf.push('\n');
     }
     Ok(content_hash(buf.as_bytes()))
@@ -626,7 +680,7 @@ pub(crate) fn resolver_hash(root: &Path, flags: &PackageFlags) -> Result<String>
 ///
 /// Versions rather than content: a package's own files are too many to hash on
 /// every invocation. A locally rebuilt link whose version did not change is the
-/// gap this leaves, and `--full-rebuild` is its escape hatch — except for macro
+/// gap this leaves, and `--full-rebuild` is its escape hatch, except for macro
 /// packages, which `external_macro_hash` already covers by binary metadata.
 pub(crate) fn tool_hashes(
     root: &Path,
@@ -670,8 +724,8 @@ fn file_hash(path: &Path) -> Result<String> {
 
 /// Finds the tsconfig the packager would fall back to.
 ///
-/// Mirrors `load_tsconfig`'s hand-rolled search (`typescript.js:157-181`) —
-/// nearest `tsconfig.json` or `jsconfig.json` walking up — starting from the
+/// Mirrors `load_tsconfig`'s hand-rolled search (`typescript.js:157-181`):
+/// nearest `tsconfig.json` or `jsconfig.json` walking up, starting from the
 /// input directory. Configs *inside* the input directory need no special
 /// handling: they are input files, and already stamped as such.
 fn find_tsconfig(input: &Path, root: &Path) -> Option<PathBuf> {

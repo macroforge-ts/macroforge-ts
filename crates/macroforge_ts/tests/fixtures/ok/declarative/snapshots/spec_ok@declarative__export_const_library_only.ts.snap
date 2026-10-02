@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/export_const_library_only.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_library_only.ts
 ---
 ## Input
 
@@ -23,6 +23,10 @@ export const $identity = macroRules`
   ($x:Expr) => $x
 `;
 
+## Changed
+
+true
+
 ## Output
 
 // Library-only file: declares `export const` macros with no call sites.
@@ -38,5 +42,21 @@ export const $identity = macroRules`
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

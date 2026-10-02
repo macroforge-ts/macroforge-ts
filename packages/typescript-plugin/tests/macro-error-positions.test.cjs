@@ -66,7 +66,7 @@ function createEnv(files) {
         project: {
             getCompilerOptions: () => host.getCompilationSettings(),
             projectService: {
-                logger: { info: () => {} }
+                logger: { info: () => {}, msg: () => {}, hasLevel: () => false }
             }
         }
     };

@@ -1,0 +1,4525 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/schedule-settings.svelte.ts
+sha256 35a23f7e028a4a06896187796d4359e9a4c7467e62d741a50d67f3f37b3e3708
+
+## Changed
+
+true
+
+## Output
+
+import { rowHeightDeserializeWithContext } from "./row-height.svelte";
+import { rowHeightSerializeWithContext } from "./row-height.svelte";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { RowHeight } from './row-height.svelte';
+
+
+export interface ScheduleSettings {
+    daysPerWeek: number;
+    
+    rowHeight: RowHeight;
+    visibleRoutes: Array<string>;
+    detailedCards: boolean;
+}
+
+export function scheduleSettingsDefaultValue(): ScheduleSettings {
+                        return {
+daysPerWeek: 0,
+rowHeight: "Medium",
+visibleRoutes: [],
+detailedCards: false,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function scheduleSettingsSerialize(value: ScheduleSettings, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = scheduleSettingsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function scheduleSettingsSerializeWithContext(value: ScheduleSettings, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "ScheduleSettings",
+                        __id,
+                    };result.daysPerWeek = value.daysPerWeek;result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);result.visibleRoutes = value.visibleRoutes;result.detailedCards = value.detailedCards;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function scheduleSettingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = scheduleSettingsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ScheduleSettings.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function scheduleSettingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ScheduleSettings | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "ScheduleSettings.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("daysPerWeek" in obj)) {
+                            errors.push({ field: "daysPerWeek", message: "missing required field" });
+                        }if (!("rowHeight" in obj)) {
+                            errors.push({ field: "rowHeight", message: "missing required field" });
+                        }if (!("visibleRoutes" in obj)) {
+                            errors.push({ field: "visibleRoutes", message: "missing required field" });
+                        }if (!("detailedCards" in obj)) {
+                            errors.push({ field: "detailedCards", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_daysPerWeek = obj["daysPerWeek"] as number;instance.daysPerWeek = __raw_daysPerWeek;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_rowHeight = obj["rowHeight"] as RowHeight;ctx.pushScope("rowHeight");
+                                            try {
+                                                const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
+                                                ctx.assignOrDefer(instance, "rowHeight", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_visibleRoutes = obj["visibleRoutes"] as Array<string>;if (Array.isArray(__raw_visibleRoutes)) {instance.visibleRoutes = __raw_visibleRoutes as string[];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_detailedCards = obj["detailedCards"] as boolean;instance.detailedCards = __raw_detailedCards;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as ScheduleSettings;
+            }
+
+            export function scheduleSettingsValidateField<K extends keyof ScheduleSettings>(
+                _field: K,
+                _value: ScheduleSettings[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function scheduleSettingsValidateFields(
+                _partial: Partial<ScheduleSettings>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function scheduleSettingsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "daysPerWeek" in o && "rowHeight" in o && "visibleRoutes" in o && "detailedCards" in o;
+            }
+
+            export function scheduleSettingsIs(obj: unknown): obj is ScheduleSettings {
+                if (!scheduleSettingsHasShape(obj)) {
+                    return false;
+                }
+                const result = scheduleSettingsDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type ScheduleSettingsErrors = {
+            _errors: Option.Option<Array<string>>;
+            daysPerWeek: Option.Option<Array<string>>;
+            rowHeight: Option.Option<Array<string>>;
+            visibleRoutes: Option.Option<Array<string>>;
+            detailedCards: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type ScheduleSettingsTainted = {
+            daysPerWeek: Option.Option<boolean>;
+            rowHeight: Option.Option<boolean>;
+            visibleRoutes: Option.Option<boolean>;
+            detailedCards: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface ScheduleSettingsFieldControllers {
+            readonly daysPerWeek: FieldController<number>;
+            readonly rowHeight: FieldController<RowHeight>;
+            
+                    readonly visibleRoutes: ArrayFieldController<string>;
+            readonly detailedCards: FieldController<boolean>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface ScheduleSettingsGigaform {
+            readonly data: ScheduleSettings;
+            readonly errors: ScheduleSettingsErrors;
+            readonly tainted: ScheduleSettingsTainted;
+            readonly fields: ScheduleSettingsFieldControllers;
+            validate(): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<ScheduleSettings>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function scheduleSettingsCreateForm(overrides?: Partial<ScheduleSettings>): ScheduleSettingsGigaform {
+            let data = $state({ ...scheduleSettingsDefaultValue(), ...overrides });
+            let errors = $state<ScheduleSettingsErrors>({
+                _errors: Option.none(),
+                daysPerWeek: Option.none(),
+                rowHeight: Option.none(),
+                visibleRoutes: Option.none(),
+                detailedCards: Option.none(),
+
+
+            });
+            let tainted = $state<ScheduleSettingsTainted>({
+                daysPerWeek: Option.none(),
+                rowHeight: Option.none(),
+                visibleRoutes: Option.none(),
+                detailedCards: Option.none(),
+
+
+            });
+            const fields = {
+            
+                daysPerWeek: {
+            name: "daysPerWeek",
+            label: "daysPerWeek",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["daysPerWeek"],
+            get: () => data.daysPerWeek,
+            set: (value: number) => { data.daysPerWeek = value; },
+            getError: () => errors.daysPerWeek,
+            setError: (value: Option.Option<Array<string>>) => { errors.daysPerWeek = value; },
+            getTainted: () => tainted.daysPerWeek,
+            setTainted: (value: Option.Option<boolean>) => { tainted.daysPerWeek = value; },
+            validate: () => scheduleSettingsValidateField("daysPerWeek", data.daysPerWeek).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                rowHeight: {
+            name: "rowHeight",
+            label: "rowHeight",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["rowHeight"],
+            get: () => data.rowHeight,
+            set: (value: RowHeight) => { data.rowHeight = value; },
+            getError: () => errors.rowHeight,
+            setError: (value: Option.Option<Array<string>>) => { errors.rowHeight = value; },
+            getTainted: () => tainted.rowHeight,
+            setTainted: (value: Option.Option<boolean>) => { tainted.rowHeight = value; },
+            validate: () => scheduleSettingsValidateField("rowHeight", data.rowHeight).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                visibleRoutes: {
+            name: "visibleRoutes",
+            label: "visibleRoutes",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["visibleRoutes"],
+            get: () => data.visibleRoutes,
+            set: (value: Array<string>) => { data.visibleRoutes = value; },
+            getError: () => errors.visibleRoutes,
+            setError: (value: Option.Option<Array<string>>) => { errors.visibleRoutes = value; },
+            getTainted: () => tainted.visibleRoutes,
+            setTainted: (value: Option.Option<boolean>) => { tainted.visibleRoutes = value; },
+            validate: () => scheduleSettingsValidateField("visibleRoutes", data.visibleRoutes).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.visibleRoutes[index],
+                set: (value: string) => { data.visibleRoutes[index] = value; },
+                getError: () => errors.visibleRoutes,
+                setError: (value: Option.Option<Array<string>>) => { errors.visibleRoutes = value; },
+            }),
+            push: (item: string) => { data.visibleRoutes.push(item); },
+            remove: (index: number) => { data.visibleRoutes.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.visibleRoutes[a];
+                data.visibleRoutes[a] = data.visibleRoutes[b];
+                data.visibleRoutes[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                detailedCards: {
+            name: "detailedCards",
+            label: "detailedCards",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["detailedCards"],
+            get: () => data.detailedCards,
+            set: (value: boolean) => { data.detailedCards = value; },
+            getError: () => errors.detailedCards,
+            setError: (value: Option.Option<Array<string>>) => { errors.detailedCards = value; },
+            getTainted: () => tainted.detailedCards,
+            setTainted: (value: Option.Option<boolean>) => { tainted.detailedCards = value; },
+            validate: () => scheduleSettingsValidateField("detailedCards", data.detailedCards).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as ScheduleSettingsFieldControllers;
+
+
+            function validate(): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
+                return toExit(scheduleSettingsDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<ScheduleSettings>): void {
+                data = { ...scheduleSettingsDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            daysPerWeek: Option.none(),
+            rowHeight: Option.none(),
+            visibleRoutes: Option.none(),
+            detailedCards: Option.none(),
+
+
+        };
+                tainted = {
+            daysPerWeek: Option.none(),
+            rowHeight: Option.none(),
+            visibleRoutes: Option.none(),
+            detailedCards: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function scheduleSettingsFromFormData(formData: FormData): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const daysPerWeekStr = formData.get("daysPerWeek");
+                    obj.daysPerWeek = daysPerWeekStr ? parseFloat(daysPerWeekStr as string) : 0;
+                    if (obj.daysPerWeek !== undefined && isNaN(obj.daysPerWeek as number)) obj.daysPerWeek = 0;
+                }
+            {
+
+            const rowHeightObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("rowHeight.")) {
+                    const fieldName = key.slice("rowHeight.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = rowHeightObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.rowHeight = rowHeightObj;
+        }
+            obj.visibleRoutes = formData.getAll("visibleRoutes") as Array<string>;
+            {
+                    const detailedCardsVal = formData.get("detailedCards");
+                    obj.detailedCards = detailedCardsVal === "true" || detailedCardsVal === "on" || detailedCardsVal === "1";
+                }
+
+
+            return toExit(scheduleSettingsDeserialize(obj));
+        }
+
+export const ScheduleSettings = {
+  defaultValue: scheduleSettingsDefaultValue,
+  serialize: scheduleSettingsSerialize,
+  serializeWithContext: scheduleSettingsSerializeWithContext,
+  deserialize: scheduleSettingsDeserialize,
+  deserializeWithContext: scheduleSettingsDeserializeWithContext,
+  validateFields: scheduleSettingsValidateFields,
+  hasShape: scheduleSettingsHasShape,
+  is: scheduleSettingsIs,
+  createForm: scheduleSettingsCreateForm,
+  fromFormData: scheduleSettingsFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { RowHeight } from './row-height.svelte';
+
+
+export interface ScheduleSettings {
+    daysPerWeek: number;
+    
+    rowHeight: RowHeight;
+    visibleRoutes: Array<string>;
+    detailedCards: boolean;
+}
+
+export function scheduleSettingsDefaultValue(): ScheduleSettings {
+                        return {
+daysPerWeek: 0,
+rowHeight: "Medium",
+visibleRoutes: [],
+detailedCards: false,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function scheduleSettingsSerialize(value: ScheduleSettings, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = scheduleSettingsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function scheduleSettingsSerializeWithContext(value: ScheduleSettings, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "ScheduleSettings",
+                        __id,
+                    };result.daysPerWeek = value.daysPerWeek;result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);result.visibleRoutes = value.visibleRoutes;result.detailedCards = value.detailedCards;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function scheduleSettingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = scheduleSettingsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ScheduleSettings.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function scheduleSettingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ScheduleSettings | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "ScheduleSettings.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("daysPerWeek" in obj)) {
+                            errors.push({ field: "daysPerWeek", message: "missing required field" });
+                        }if (!("rowHeight" in obj)) {
+                            errors.push({ field: "rowHeight", message: "missing required field" });
+                        }if (!("visibleRoutes" in obj)) {
+                            errors.push({ field: "visibleRoutes", message: "missing required field" });
+                        }if (!("detailedCards" in obj)) {
+                            errors.push({ field: "detailedCards", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_daysPerWeek = obj["daysPerWeek"] as number;instance.daysPerWeek = __raw_daysPerWeek;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_rowHeight = obj["rowHeight"] as RowHeight;ctx.pushScope("rowHeight");
+                                            try {
+                                                const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
+                                                ctx.assignOrDefer(instance, "rowHeight", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_visibleRoutes = obj["visibleRoutes"] as Array<string>;if (Array.isArray(__raw_visibleRoutes)) {instance.visibleRoutes = __raw_visibleRoutes as string[];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_detailedCards = obj["detailedCards"] as boolean;instance.detailedCards = __raw_detailedCards;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as ScheduleSettings;
+            }
+
+            export function scheduleSettingsValidateField<K extends keyof ScheduleSettings>(
+                _field: K,
+                _value: ScheduleSettings[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function scheduleSettingsValidateFields(
+                _partial: Partial<ScheduleSettings>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function scheduleSettingsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "daysPerWeek" in o && "rowHeight" in o && "visibleRoutes" in o && "detailedCards" in o;
+            }
+
+            export function scheduleSettingsIs(obj: unknown): obj is ScheduleSettings {
+                if (!scheduleSettingsHasShape(obj)) {
+                    return false;
+                }
+                const result = scheduleSettingsDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type ScheduleSettingsErrors = {
+            _errors: Option.Option<Array<string>>;
+            daysPerWeek: Option.Option<Array<string>>;
+            rowHeight: Option.Option<Array<string>>;
+            visibleRoutes: Option.Option<Array<string>>;
+            detailedCards: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type ScheduleSettingsTainted = {
+            daysPerWeek: Option.Option<boolean>;
+            rowHeight: Option.Option<boolean>;
+            visibleRoutes: Option.Option<boolean>;
+            detailedCards: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface ScheduleSettingsFieldControllers {
+            readonly daysPerWeek: FieldController<number>;
+            readonly rowHeight: FieldController<RowHeight>;
+            
+                    readonly visibleRoutes: ArrayFieldController<string>;
+            readonly detailedCards: FieldController<boolean>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface ScheduleSettingsGigaform {
+            readonly data: ScheduleSettings;
+            readonly errors: ScheduleSettingsErrors;
+            readonly tainted: ScheduleSettingsTainted;
+            readonly fields: ScheduleSettingsFieldControllers;
+            validate(): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<ScheduleSettings>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function scheduleSettingsCreateForm(overrides?: Partial<ScheduleSettings>): ScheduleSettingsGigaform {
+            let data = $state({ ...scheduleSettingsDefaultValue(), ...overrides });
+            let errors = $state<ScheduleSettingsErrors>({
+                _errors: Option.none(),
+                daysPerWeek: Option.none(),
+                rowHeight: Option.none(),
+                visibleRoutes: Option.none(),
+                detailedCards: Option.none(),
+
+
+            });
+            let tainted = $state<ScheduleSettingsTainted>({
+                daysPerWeek: Option.none(),
+                rowHeight: Option.none(),
+                visibleRoutes: Option.none(),
+                detailedCards: Option.none(),
+
+
+            });
+            const fields = {
+            
+                daysPerWeek: {
+            name: "daysPerWeek",
+            label: "daysPerWeek",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["daysPerWeek"],
+            get: () => data.daysPerWeek,
+            set: (value: number) => { data.daysPerWeek = value; },
+            getError: () => errors.daysPerWeek,
+            setError: (value: Option.Option<Array<string>>) => { errors.daysPerWeek = value; },
+            getTainted: () => tainted.daysPerWeek,
+            setTainted: (value: Option.Option<boolean>) => { tainted.daysPerWeek = value; },
+            validate: () => scheduleSettingsValidateField("daysPerWeek", data.daysPerWeek).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                rowHeight: {
+            name: "rowHeight",
+            label: "rowHeight",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["rowHeight"],
+            get: () => data.rowHeight,
+            set: (value: RowHeight) => { data.rowHeight = value; },
+            getError: () => errors.rowHeight,
+            setError: (value: Option.Option<Array<string>>) => { errors.rowHeight = value; },
+            getTainted: () => tainted.rowHeight,
+            setTainted: (value: Option.Option<boolean>) => { tainted.rowHeight = value; },
+            validate: () => scheduleSettingsValidateField("rowHeight", data.rowHeight).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                visibleRoutes: {
+            name: "visibleRoutes",
+            label: "visibleRoutes",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["visibleRoutes"],
+            get: () => data.visibleRoutes,
+            set: (value: Array<string>) => { data.visibleRoutes = value; },
+            getError: () => errors.visibleRoutes,
+            setError: (value: Option.Option<Array<string>>) => { errors.visibleRoutes = value; },
+            getTainted: () => tainted.visibleRoutes,
+            setTainted: (value: Option.Option<boolean>) => { tainted.visibleRoutes = value; },
+            validate: () => scheduleSettingsValidateField("visibleRoutes", data.visibleRoutes).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.visibleRoutes[index],
+                set: (value: string) => { data.visibleRoutes[index] = value; },
+                getError: () => errors.visibleRoutes,
+                setError: (value: Option.Option<Array<string>>) => { errors.visibleRoutes = value; },
+            }),
+            push: (item: string) => { data.visibleRoutes.push(item); },
+            remove: (index: number) => { data.visibleRoutes.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.visibleRoutes[a];
+                data.visibleRoutes[a] = data.visibleRoutes[b];
+                data.visibleRoutes[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                detailedCards: {
+            name: "detailedCards",
+            label: "detailedCards",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["detailedCards"],
+            get: () => data.detailedCards,
+            set: (value: boolean) => { data.detailedCards = value; },
+            getError: () => errors.detailedCards,
+            setError: (value: Option.Option<Array<string>>) => { errors.detailedCards = value; },
+            getTainted: () => tainted.detailedCards,
+            setTainted: (value: Option.Option<boolean>) => { tainted.detailedCards = value; },
+            validate: () => scheduleSettingsValidateField("detailedCards", data.detailedCards).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as ScheduleSettingsFieldControllers;
+
+
+            function validate(): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
+                return toExit(scheduleSettingsDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<ScheduleSettings>): void {
+                data = { ...scheduleSettingsDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            daysPerWeek: Option.none(),
+            rowHeight: Option.none(),
+            visibleRoutes: Option.none(),
+            detailedCards: Option.none(),
+
+
+        };
+                tainted = {
+            daysPerWeek: Option.none(),
+            rowHeight: Option.none(),
+            visibleRoutes: Option.none(),
+            detailedCards: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function scheduleSettingsFromFormData(formData: FormData): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const daysPerWeekStr = formData.get("daysPerWeek");
+                    obj.daysPerWeek = daysPerWeekStr ? parseFloat(daysPerWeekStr as string) : 0;
+                    if (obj.daysPerWeek !== undefined && isNaN(obj.daysPerWeek as number)) obj.daysPerWeek = 0;
+                }
+            {
+
+            const rowHeightObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("rowHeight.")) {
+                    const fieldName = key.slice("rowHeight.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = rowHeightObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.rowHeight = rowHeightObj;
+        }
+            obj.visibleRoutes = formData.getAll("visibleRoutes") as Array<string>;
+            {
+                    const detailedCardsVal = formData.get("detailedCards");
+                    obj.detailedCards = detailedCardsVal === "true" || detailedCardsVal === "on" || detailedCardsVal === "1";
+                }
+
+
+            return toExit(scheduleSettingsDeserialize(obj));
+        }
+
+export const ScheduleSettings = {
+  defaultValue: scheduleSettingsDefaultValue,
+  serialize: scheduleSettingsSerialize,
+  serializeWithContext: scheduleSettingsSerializeWithContext,
+  deserialize: scheduleSettingsDeserialize,
+  deserializeWithContext: scheduleSettingsDeserializeWithContext,
+  validateFields: scheduleSettingsValidateFields,
+  hasShape: scheduleSettingsHasShape,
+  is: scheduleSettingsIs,
+  createForm: scheduleSettingsCreateForm,
+  fromFormData: scheduleSettingsFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..113 -> expanded 0..113
+original 170..236 -> expanded 113..179
+original 261..351 -> expanded 179..269
+original 351..352 -> expanded 21290..21291
+generated 269..473 <- Default
+generated 473..2216 <- Serialize
+generated 2216..10685 <- Deserialize
+generated 10685..20784 <- Gigaform
+generated 20784..21290 <- __convenience_const
+
+## Metadata
+
+interface ScheduleSettings: {"body_span":{"end":352,"start":206},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":171,"start":114}}],"fields":[{"decorators":[],"name":"daysPerWeek","optional":false,"readonly":false,"span":{"end":232,"start":212},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":262,"start":237}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":288,"start":267},"ts_type":"RowHeight"},{"decorators":[],"name":"visibleRoutes","optional":false,"readonly":false,"span":{"end":322,"start":293},"ts_type":"Array<string>"},{"decorators":[],"name":"detailedCards","optional":false,"readonly":false,"span":{"end":350,"start":327},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"ScheduleSettings","span":{"end":352,"start":179},"type_params":[]}
+
+## Registry reads
+
+Name("Array")
+Name("RowHeight")
+Name("boolean")
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

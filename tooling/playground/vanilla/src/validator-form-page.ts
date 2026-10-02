@@ -301,12 +301,13 @@ export function initValidatorFormPage() {
     wireForm(
         'event-form',
         'event-result',
-        // The validator checks real dates, so the text fields become `Date`s.
+        // Dates go in as typed: deserialization parses them, and `validDate`
+        // reports text that is not a date.
         (form) =>
             validateEvent({
                 title: formText(form, 'title'),
-                startDate: new Date(formText(form, 'startDate')),
-                endDate: new Date(formText(form, 'endDate')),
+                startDate: formText(form, 'startDate'),
+                endDate: formText(form, 'endDate'),
                 maxAttendees: parseInt(formText(form, 'maxAttendees'), 10) || 0
             }),
         (result) => {

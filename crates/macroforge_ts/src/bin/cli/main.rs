@@ -40,7 +40,7 @@
 //!
 //! - `--out <dir>` writes each macro file expanded at `<dir>/<relative-path>`
 //!   (same filename) and copies every other file (`.svelte`, `.css`, `.d.ts`,
-//!   macro-free `.ts`, assets) verbatim — a complete, packager-ready staging
+//!   macro-free `.ts`, assets) verbatim: a complete, packager-ready staging
 //!   tree.
 //! - `--types-out <dir>` writes the generated `.d.ts` type surfaces mirrored
 //!   under `<dir>` (`foo.ts` → `foo.d.ts`, `foo.svelte.ts` → `foo.svelte.d.ts`).
@@ -87,7 +87,7 @@
 //!
 //! Run `@sveltejs/package` over macro-expanded sources, so a published library
 //! ships the generated derive runtime (and correct `.d.ts`) for its
-//! `.ts`/`.svelte.ts` type modules — no separate expand step or staging tree.
+//! `.ts`/`.svelte.ts` type modules, with no separate expand step or staging tree.
 //! Drop-in replacement for `svelte-package` in a library build:
 //!
 //! ```bash
@@ -106,8 +106,8 @@
 //! one exits without repackaging. When a rebuild is needed, only the files that
 //! changed are re-expanded; the rest keep the expanded output from last time.
 //!
-//! A file that differs only in formatting — trailing whitespace, blank-line runs
-//! — does not count as changed. `.ts` is transpiled on the way into the package
+//! A file that differs only in formatting (trailing whitespace, blank-line runs)
+//! does not count as changed. `.ts` is transpiled on the way into the package
 //! so its formatting is discarded anyway, but `.svelte` and `.js` are copied
 //! through verbatim, which means a formatting-only edit to those will not reach
 //! the package until the next real change or a `--full-rebuild`.
@@ -187,6 +187,7 @@ mod atomic_fs;
 mod build;
 mod cache;
 mod expand;
+mod hash_cache;
 mod lock;
 mod package_expand;
 mod package_state;
@@ -279,7 +280,7 @@ enum Command {
     /// Run @sveltejs/package with macro expansion baked into file reads.
     ///
     /// Emits a published library whose `.ts`/`.svelte.ts` type modules ship the
-    /// generated derive runtime and correct `.d.ts` — no separate expand step.
+    /// generated derive runtime and correct `.d.ts`, with no separate expand step.
     SveltePackage {
         /// Input directory (defaults to svelte-package's own default, src/lib)
         #[arg(long, short = 'i')]
@@ -311,7 +312,7 @@ enum Command {
     },
     /// Build the .macroforge/cache once and exit.
     ///
-    /// Same as `watch` but without the file-watching loop — expands all TypeScript
+    /// Same as `watch` but without the file-watching loop: expands all TypeScript
     /// files, writes the cache, then exits. Useful in CI or as a pre-build step.
     Cache {
         /// Root directory to cache (defaults to cwd)
@@ -417,8 +418,8 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     // One lock per project, taken here so every subcommand is covered by the
-    // same rule. `.macroforge/` — the type registry, the declarative registry,
-    // the expansion cache and its manifest — is shared mutable state, and
+    // same rule. `.macroforge/` (the type registry, the declarative registry,
+    // the expansion cache and its manifest) is shared mutable state, and
     // running two macroforge processes against one project is routine
     // (`watch` beside `vite dev`, `svelte-package` from another terminal, an
     // editor invoking `svelte-check`).

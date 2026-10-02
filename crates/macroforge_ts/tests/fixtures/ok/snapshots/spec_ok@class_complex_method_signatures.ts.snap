@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_complex_method_signatures.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_complex_method_signatures.ts
 ---
 ## Input
 
@@ -31,6 +30,10 @@ class API {
         return () => {};
     }
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -99,5 +102,26 @@ export function apiToString(value: API): string {
                     }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 62..478 -> expanded 41..457
+original 478..479 -> expanded 560..561
+original 479..480 -> expanded 821..822
+generated 457..560 <- Debug
+generated 561..821 <- Debug
+
+## Metadata
+
+class API: {"body_span":{"end":480,"start":74},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"endpoint","optional":false,"readonly":false,"span":{"end":97,"start":80},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":174,"start":133},"body_src":"\n        this.endpoint = endpoint;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"endpoint: string","return_type_src":"","span":{"end":174,"start":103},"type_params_src":"","visibility":"Public"},{"body_span":{"end":317,"start":286},"body_src":"\n        return {} as T;\n    ","decorators":[],"is_async":true,"is_static":false,"name":"fetch","params_src":"path: string,\n        options?: { method?: string; body?: any }","return_type_src":"Promise<T>","span":{"end":317,"start":180},"type_params_src":"<T>","visibility":"Public"},{"body_span":{"end":478,"start":446},"body_src":"\n        return () => {};\n    ","decorators":[],"is_async":false,"is_static":false,"name":"subscribe","params_src":"event: 'data' | 'error',\n        callback: (data: any) => void,\n        thisArg?: any","return_type_src":"() => void","span":{"end":478,"start":323},"type_params_src":"","visibility":"Public"}],"name":"API","span":{"end":480,"start":64},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

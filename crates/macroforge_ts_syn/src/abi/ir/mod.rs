@@ -23,8 +23,9 @@
 //! 1. **ABI Stability**: All types implement `Serialize` and `Deserialize` for stable
 //!    communication between the macro system and macro implementations.
 //!
-//! 2. **Ergonomic Access**: Types provide convenient accessor methods and iterators
-//!    for common operations (e.g., `class.fields()`, `enum.variants()`).
+//! 2. **Plain Data**: The IR types are structs with public fields. The
+//!    accessor methods (e.g., `class.fields()`, `enum.variants()`) live on
+//!    the [`DeriveInput`](crate::DeriveInput) wrappers built from them.
 //!
 //! 3. **Source Preservation**: Types preserve source spans for accurate error
 //!    reporting and code generation.

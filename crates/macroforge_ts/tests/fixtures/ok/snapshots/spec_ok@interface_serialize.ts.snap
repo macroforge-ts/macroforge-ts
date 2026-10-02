@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/interface_serialize.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_serialize.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ interface Point {
     x: number;
     y: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -280,5 +284,24 @@ const Point = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 25..75 -> expanded 0..50
+original 75..76 -> expanded 1677..1678
+generated 50..1569 <- Serialize
+generated 1569..1677 <- __convenience_const
+
+## Metadata
+
+interface Point: {"body_span":{"end":76,"start":43},"decorators":[{"args_src":"Serialize","name":"Derive","span":{"end":26,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":59,"start":49},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":74,"start":64},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":76,"start":27},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

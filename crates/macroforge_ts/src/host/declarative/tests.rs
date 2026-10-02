@@ -5,9 +5,9 @@ use crate::ts_syn::abi::ir::type_registry::TypeRegistry;
 
 use super::BuildMode;
 use super::discovery::{discover, resolve_cross_file_imports};
-use super::expander::{ExpansionContext, expand_body};
-use super::matcher::{Binding, BoundFragment, MatchError, match_invocation};
-use super::project_registry::ProjectDeclarativeRegistry;
+use super::expander::{ExpansionContext, expand_body_with_registry};
+use super::matcher::{Binding, BoundFragment, MatchError, match_invocation_against_arms};
+use super::project_registry::{ProjectDeclarativeRegistry, by_name};
 use super::registry::{DeclarativeMacroRegistry, RegistryError};
 use super::rewriter::rewrite;
 use crate::ts_syn::declarative::{BodyToken, FragmentKind, MacroDef, MacroMode};
@@ -83,10 +83,11 @@ $id(1 + 2);
 
     // Find the call expression `$id(1 + 2)` in the program.
     let call = find_first_call(&parsed.program).expect("call");
-    let result = match_invocation(def, &call.arguments, source).expect("match");
-    assert_eq!(result.arm_index, 0);
-    assert!(result.bindings.contains_key("x"));
-    match result.bindings.get("x").unwrap() {
+    let (arm_index, bindings) =
+        match_invocation_against_arms(&def.arms, &call.arguments, source).expect("match");
+    assert_eq!(arm_index, 0);
+    assert!(bindings.contains_key("x"));
+    match bindings.get("x").unwrap() {
         Binding::Single(frag) => assert_eq!(frag.source, "1 + 2"),
         _ => panic!("expected Single binding"),
     }
@@ -105,8 +106,9 @@ $vec(1, 2, 3);
     let discovered = discover(&parsed.program, source).unwrap();
     let def = &discovered[0].def;
     let call = find_first_call(&parsed.program).expect("call");
-    let result = match_invocation(def, &call.arguments, source).expect("match");
-    match result.bindings.get("x").unwrap() {
+    let (_, bindings) =
+        match_invocation_against_arms(&def.arms, &call.arguments, source).expect("match");
+    match bindings.get("x").unwrap() {
         Binding::Sequence(frags) => {
             assert_eq!(frags.len(), 3);
             assert_eq!(frags[0].source, "1");
@@ -130,7 +132,7 @@ $only(1, 2);
     let discovered = discover(&parsed.program, source).unwrap();
     let def = &discovered[0].def;
     let call = find_first_call(&parsed.program).expect("call");
-    let err = match_invocation(def, &call.arguments, source).unwrap_err();
+    let err = match_invocation_against_arms(&def.arms, &call.arguments, source).unwrap_err();
     assert!(matches!(err, MatchError::NoArmMatched { .. }));
 }
 
@@ -151,7 +153,16 @@ fn expander_single_substitution() {
             span: SpanIR::new(0, 0),
         }),
     );
-    let out = expand_body(&body, &bindings, 7, ExpansionContext::Statement, 0).unwrap();
+    let out = expand_body_with_registry(
+        &body,
+        &bindings,
+        7,
+        ExpansionContext::Statement,
+        0,
+        None,
+        None,
+    )
+    .unwrap();
     assert_eq!(out, "return 5 + 1");
 }
 
@@ -162,7 +173,16 @@ fn expander_hygiene_rewrites_double_underscore_idents() {
         "const __v = 1; __v + 2".to_string(),
     )]);
     let bindings = HashMap::new();
-    let out = expand_body(&body, &bindings, 7, ExpansionContext::Statement, 0).unwrap();
+    let out = expand_body_with_registry(
+        &body,
+        &bindings,
+        7,
+        ExpansionContext::Statement,
+        0,
+        None,
+        None,
+    )
+    .unwrap();
     assert!(out.contains("__v$7"), "got: {}", out);
     assert!(!out.contains(" __v "), "unrenamed __v in: {}", out);
 }
@@ -172,7 +192,16 @@ fn expander_expression_context_wraps_block_in_iife() {
     use crate::ts_syn::declarative::Body;
     let body = Body(vec![BodyToken::Literal("{ return 1; }".to_string())]);
     let bindings = HashMap::new();
-    let out = expand_body(&body, &bindings, 1, ExpansionContext::Expression, 0).unwrap();
+    let out = expand_body_with_registry(
+        &body,
+        &bindings,
+        1,
+        ExpansionContext::Expression,
+        0,
+        None,
+        None,
+    )
+    .unwrap();
     assert!(out.starts_with("(() => "), "got: {}", out);
     assert!(out.ends_with(")()"), "got: {}", out);
 }
@@ -182,7 +211,16 @@ fn expander_statement_context_no_iife() {
     use crate::ts_syn::declarative::Body;
     let body = Body(vec![BodyToken::Literal("{ return 1; }".to_string())]);
     let bindings = HashMap::new();
-    let out = expand_body(&body, &bindings, 1, ExpansionContext::Statement, 0).unwrap();
+    let out = expand_body_with_registry(
+        &body,
+        &bindings,
+        1,
+        ExpansionContext::Statement,
+        0,
+        None,
+        None,
+    )
+    .unwrap();
     assert_eq!(out, "{ return 1; }");
 }
 
@@ -219,12 +257,21 @@ fn expander_repetition_unrolls_sequence() {
             },
         ]),
     );
-    let out = expand_body(&body, &bindings, 1, ExpansionContext::Statement, 0).unwrap();
+    let out = expand_body_with_registry(
+        &body,
+        &bindings,
+        1,
+        ExpansionContext::Statement,
+        0,
+        None,
+        None,
+    )
+    .unwrap();
     assert_eq!(out, "push(1); push(2); push(3);");
 }
 
 // ---------------------------------------------------------------------------
-// Phase 12 — Inter-macro composition
+// Phase 12: Inter-macro composition
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -277,66 +324,6 @@ const result = $caller(1);
 }
 
 #[test]
-fn topological_sort_orders_callee_before_caller() {
-    use crate::host::declarative::registry::DeclarativeMacroRegistry;
-    use crate::ts_syn::declarative::parse_macro_def;
-
-    let mut registry = DeclarativeMacroRegistry::new();
-
-    // Declare caller first; callee second.
-    let mut caller = parse_macro_def("($x:Expr) => $callee($x)", SpanIR::new(0, 24)).unwrap();
-    caller.name = "caller".into();
-    registry.register(caller).unwrap();
-
-    let mut callee = parse_macro_def("($x:Expr) => ($x + 1)", SpanIR::new(0, 21)).unwrap();
-    callee.name = "callee".into();
-    registry.register(callee).unwrap();
-
-    let sorted = registry.topological_order().expect("sort should succeed");
-    assert_eq!(sorted.len(), 2);
-    // Callee must come first.
-    assert_eq!(sorted[0].name, "callee");
-    assert_eq!(sorted[1].name, "caller");
-}
-
-#[test]
-fn topological_sort_detects_cycle() {
-    use crate::host::declarative::registry::DeclarativeMacroRegistry;
-    use crate::ts_syn::declarative::parse_macro_def;
-
-    let mut registry = DeclarativeMacroRegistry::new();
-
-    let mut a = parse_macro_def("($x:Expr) => $b($x)", SpanIR::new(0, 20)).unwrap();
-    a.name = "a".into();
-    registry.register(a).unwrap();
-
-    let mut b = parse_macro_def("($x:Expr) => $a($x)", SpanIR::new(0, 20)).unwrap();
-    b.name = "b".into();
-    registry.register(b).unwrap();
-
-    let err = registry.topological_order().unwrap_err();
-    assert_eq!(err.names.len(), 2);
-}
-
-#[test]
-fn topological_sort_ignores_unknown_callees() {
-    // A macro that calls a cross-file import (not in the registry)
-    // should not block the sort. The lookup is treated as "known out
-    // of scope" and skipped.
-    use crate::host::declarative::registry::DeclarativeMacroRegistry;
-    use crate::ts_syn::declarative::parse_macro_def;
-
-    let mut registry = DeclarativeMacroRegistry::new();
-    let mut m = parse_macro_def("($x:Expr) => $cross_file_import($x)", SpanIR::new(0, 36)).unwrap();
-    m.name = "caller".into();
-    registry.register(m).unwrap();
-
-    let sorted = registry.topological_order().expect("should sort cleanly");
-    assert_eq!(sorted.len(), 1);
-    assert_eq!(sorted[0].name, "caller");
-}
-
-#[test]
 fn expander_recursion_limit_trips_at_max_depth() {
     use crate::ts_syn::declarative::Body;
     // Feeding a depth greater than MAX_EXPANSION_DEPTH should produce
@@ -344,12 +331,14 @@ fn expander_recursion_limit_trips_at_max_depth() {
     // inter-macro composition against infinite loops when it lands.
     let body = Body(vec![BodyToken::Literal("ok".to_string())]);
     let bindings = HashMap::new();
-    let err = expand_body(
+    let err = expand_body_with_registry(
         &body,
         &bindings,
         1,
         ExpansionContext::Statement,
         super::expander::MAX_EXPANSION_DEPTH + 1,
+        None,
+        None,
     )
     .unwrap_err();
     assert!(
@@ -411,7 +400,10 @@ fn library_registry() -> (ProjectDeclarativeRegistry, std::path::PathBuf) {
 
     let mut registry = ProjectDeclarativeRegistry::new();
     let lib_path = std::path::PathBuf::from("/project/src/macros.ts");
-    registry.insert_file(lib_path.to_string_lossy().to_string(), vec![def]);
+    registry.insert_file(
+        lib_path.to_string_lossy().to_string(),
+        std::sync::Arc::new(by_name(vec![def])),
+    );
     (registry, lib_path)
 }
 
@@ -472,7 +464,7 @@ fn resolve_cross_file_unresolved_bare_package_skips_silently() {
 fn resolve_cross_file_unresolved_relative_path_reports_diagnostic() {
     // Relative-path specifiers (starting with `./` or `../`) can only
     // point to a declarative library file in the same project. If the
-    // file doesn't exist it's always an error — proc macro packages
+    // file doesn't exist it's always an error: proc macro packages
     // are never addressed by relative path.
     let (registry, _) = library_registry();
 
@@ -509,7 +501,7 @@ fn resolve_cross_file_missing_macro_name_reports_diagnostic() {
 
 #[test]
 fn resolve_cross_file_ignores_bare_names() {
-    // `Debug` is a derive macro name — declarative resolver must skip it.
+    // `Debug` is a derive macro name: declarative resolver must skip it.
     let (registry, _) = library_registry();
 
     let consumer_src = r#"/** import macro { Debug, $vec } from "./macros" */"#;
@@ -542,11 +534,23 @@ fn project_registry_serializes_the_same_whatever_the_scan_order() {
         def
     };
     let mut forward = ProjectDeclarativeRegistry::new();
-    forward.insert_file("/project/src/a.ts", vec![def("first"), def("second")]);
-    forward.insert_file("/project/src/b.ts", vec![def("third")]);
+    forward.insert_file(
+        "/project/src/a.ts",
+        std::sync::Arc::new(by_name(vec![def("first"), def("second")])),
+    );
+    forward.insert_file(
+        "/project/src/b.ts",
+        std::sync::Arc::new(by_name(vec![def("third")])),
+    );
     let mut backward = ProjectDeclarativeRegistry::new();
-    backward.insert_file("/project/src/b.ts", vec![def("third")]);
-    backward.insert_file("/project/src/a.ts", vec![def("second"), def("first")]);
+    backward.insert_file(
+        "/project/src/b.ts",
+        std::sync::Arc::new(by_name(vec![def("third")])),
+    );
+    backward.insert_file(
+        "/project/src/a.ts",
+        std::sync::Arc::new(by_name(vec![def("second"), def("first")])),
+    );
 
     assert_eq!(
         forward.to_json().expect("serialize"),
@@ -747,7 +751,7 @@ const $x = macroRules({
 }
 
 // ---------------------------------------------------------------------------
-// Phase 13 — type-position macros
+// Phase 13: type-position macros
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -899,7 +903,7 @@ const x = $Foo(1);
     // `$Foo(1)` in value position isn't rewritten by the value walker
     // (because the def's arms don't match a value-position call) and
     // isn't rewritten by the type walker (because it's not a
-    // TSTypeReference). No diagnostic is needed here — the resulting
+    // TSTypeReference). No diagnostic is needed here: the resulting
     // code will fail to type-check because `$Foo` is not a real
     // runtime identifier. The important thing is that the type walker
     // doesn't panic.
@@ -917,7 +921,7 @@ const x = $Foo(1);
 }
 
 // ---------------------------------------------------------------------------
-// Phase 9b — share-only / share-anyway modes
+// Phase 9b: share-only / share-anyway modes
 // ---------------------------------------------------------------------------
 
 /// Small helper for phase 9b tests: parse, discover, register, rewrite,
@@ -1106,7 +1110,7 @@ const a = $id(42);
 #[test]
 fn auto_mode_prod_emits_megamorphism_warning_for_many_shapes() {
     // An Auto macro called with 6 distinct Named shapes starting with
-    // the same letter — clusters collapse to one bucket of size 6 > 4,
+    // the same letter: clusters collapse to one bucket of size 6 > 4,
     // so the recommendation is ForceExpand and a warning fires.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 
@@ -1187,7 +1191,7 @@ export const c = $serialize(Guest);
 #[test]
 fn auto_mode_prod_shares_by_default() {
     // Pending Phase 9c's megamorphism analyzer, Auto + Prod shares
-    // unconditionally — exercising the end-to-end share pipeline.
+    // unconditionally, exercising the end-to-end share pipeline.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $id = macroRules({
@@ -1252,7 +1256,7 @@ fn find_first_call<'a>(
 }
 
 // ---------------------------------------------------------------------------
-// Phase B — visitor migration coverage
+// Phase B: visitor migration coverage
 // ---------------------------------------------------------------------------
 //
 // Tests below exercise positions that the hand-rolled MVP walker skipped:
@@ -1460,7 +1464,7 @@ type T = [$wrap<string>, number];
 }
 
 // ---------------------------------------------------------------------------
-// Phase H — patch post-validation attribution
+// Phase H: patch post-validation attribution
 // ---------------------------------------------------------------------------
 //
 // These tests exercise `validate_expanded_source` end-to-end: they
@@ -1528,12 +1532,12 @@ fn validate_expanded_source_attributes_to_generating_macro() {
 }
 
 // ---------------------------------------------------------------------------
-// PR 17 — BuildMode::Dev { force_share } opt-in
+// PR 17: BuildMode::Dev { force_share } opt-in
 // ---------------------------------------------------------------------------
 
 #[test]
 fn dev_mode_default_still_inlines_auto_macros() {
-    // Regression guard for PR 17's default behaviour — plain
+    // Regression guard for PR 17's default behaviour: plain
     // `BuildMode::dev()` (no force_share) must continue to
     // inline-expand Auto macros, producing zero runtime helpers.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
@@ -1594,7 +1598,7 @@ const b = $h(User);
         inserts
     );
     // Both call sites should be replaced with calls to the shared
-    // helper — the call_arms template references `__h`, so the
+    // helper: the call_arms template references `__h`, so the
     // expanded text should mention it.
     let replaces: Vec<&str> = out
         .patches
@@ -1615,7 +1619,7 @@ const b = $h(User);
 }
 
 // ---------------------------------------------------------------------------
-// PR 14 — cluster id attribution + analyzer observability
+// PR 14: cluster id attribution + analyzer observability
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -1650,7 +1654,7 @@ const b2 = $serialize(Bert);
         })
         .collect();
     // Every attribution should start with `$serialize@` followed by
-    // a cluster id — we don't know the exact cluster labels but
+    // a cluster id: we don't know the exact cluster labels but
     // we can assert at least two distinct attributions exist.
     let clustered: Vec<&String> = attributions
         .iter()
@@ -1773,7 +1777,7 @@ const a = $h(User);
 }
 
 // ---------------------------------------------------------------------------
-// PR 11 — nested macro definitions with lexical shadowing
+// PR 11: nested macro definitions with lexical shadowing
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -1819,7 +1823,7 @@ function factory() {
 
 #[test]
 fn nested_macro_shadows_outer_with_same_name() {
-    // Two `$foo` declarations — one at file scope, one inside a
+    // Two `$foo` declarations: one at file scope, one inside a
     // function body. Call sites inside the function body should
     // resolve to the INNER definition; call sites outside it
     // should resolve to the OUTER definition.
@@ -1834,7 +1838,7 @@ function inner() {
 "#;
     let out = rewrite_source(source, BuildMode::dev());
     assert!(out.diagnostics.is_empty(), "diag: {:?}", out.diagnostics);
-    // Two Replace patches — one for each call site. The outer call
+    // Two Replace patches: one for each call site. The outer call
     // should contain `+ 1`; the inner call should contain `* 100`.
     let replaces: Vec<&str> = out
         .patches
@@ -1894,7 +1898,7 @@ function f() {
 
 #[test]
 fn disjoint_nested_scopes_allow_same_name() {
-    // Two functions each declaring `$helper` — the scopes are
+    // Two functions each declaring `$helper`: the scopes are
     // disjoint (neither contains the other), so BOTH registrations
     // must succeed. PR 11's scope-aware registration rule allows
     // this where the pre-PR-11 flat registry rejected it.
@@ -1911,7 +1915,7 @@ function beta() {
     let out = rewrite_source(source, BuildMode::dev());
     assert!(
         out.diagnostics.is_empty(),
-        "expected no diagnostics — disjoint scopes should not collide, got: {:?}",
+        "expected no diagnostics: disjoint scopes should not collide, got: {:?}",
         out.diagnostics
     );
     let replaces: Vec<&str> = out
@@ -1940,7 +1944,7 @@ function beta() {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 9 — bounded backtracking in the matcher
+// Phase 9: bounded backtracking in the matcher
 // ---------------------------------------------------------------------------
 //
 // Before PR 9 the matcher was strictly greedy: `$( $x:Expr ),* $last:Expr`
@@ -1949,7 +1953,7 @@ function beta() {
 // tries decreasing counts on the repetition until the tail fits. The
 // test below used to be a regression guard for the "can't back up"
 // behaviour and expected a diagnostic; after PR 9 it asserts the
-// opposite — the arm should successfully match with `$x` bound to
+// opposite: the arm should successfully match with `$x` bound to
 // all-but-the-last and `$last` bound to the final argument.
 
 #[test]
@@ -1991,7 +1995,7 @@ const out = $splitLast(1, 2, 3);
 
 #[test]
 fn repetition_plus_tail_at_minimum_count_still_matches() {
-    // `$($x:Expr),+ $last:Expr` with `(1, 2)` — the plus requires
+    // `$($x:Expr),+ $last:Expr` with `(1, 2)`: the plus requires
     // at least one `$x`, and we need one arg for `$last`. Matcher
     // tries count=2 (fails), count=1 ($x=[1], $last=2). Success.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
@@ -2006,7 +2010,7 @@ const out = $oneThenLast(1, 2);
 
 #[test]
 fn repetition_plus_tail_rejects_insufficient_args() {
-    // `$($x:Expr),+ $last:Expr` with `(1)` — plus requires ≥1 `$x`,
+    // `$($x:Expr),+ $last:Expr` with `(1)`: plus requires ≥1 `$x`,
     // tail requires one more. Only one arg → no candidate count
     // works → genuine mismatch. Should produce an error.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
@@ -2028,7 +2032,7 @@ const out = $oneThenLast(1);
 }
 
 // ---------------------------------------------------------------------------
-// Phase G — composition regression guard
+// Phase G: composition regression guard
 // ---------------------------------------------------------------------------
 //
 // A lightweight stand-in for the dedicated benchmark the plan
@@ -2059,7 +2063,7 @@ const result = $q(1);
         out.diagnostics
     );
     // 16-level composition should complete well under 500ms on any
-    // developer machine. The guard is deliberately loose — its job
+    // developer machine. The guard is deliberately loose: its job
     // is to catch orders-of-magnitude regressions, not to measure
     // throughput. Tighten if needed.
     assert!(
@@ -2070,7 +2074,7 @@ const result = $q(1);
 }
 
 // ---------------------------------------------------------------------------
-// Phase E — cluster-aware emission (runtimeName / $__cluster__)
+// Phase E: cluster-aware emission (runtimeName / $__cluster__)
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -2098,7 +2102,7 @@ const b2 = $serialize(Bert);
 "#;
     let out = rewrite_source(source, BuildMode::Prod);
     // The megamorph analyzer should produce a Cluster warning
-    // (because 5 > threshold 1). That's fine — it's a non-error
+    // (because 5 > threshold 1). That's fine: it's a non-error
     // diagnostic, so the pipeline still proceeds.
     let error_diags: Vec<_> = out
         .diagnostics
@@ -2113,7 +2117,7 @@ const b2 = $serialize(Bert);
 
     // Count Insert patches for the shared runtime. With clustering
     // on and one first-letter bucket each for `a` and `b`, there
-    // should be exactly TWO inserts — one per cluster.
+    // should be exactly TWO inserts: one per cluster.
     let inserts: Vec<&crate::ts_syn::abi::Patch> = out
         .patches
         .iter()
@@ -2230,7 +2234,7 @@ const c = $h(Guest);
 #[test]
 fn runtime_name_template_missing_cluster_placeholder_is_rejected_at_discovery() {
     // Discovery should hard-error when `runtimeName` is set but
-    // doesn't contain `$__cluster__` — the user almost certainly
+    // doesn't contain `$__cluster__`: the user almost certainly
     // meant to include a discriminator.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $broken = macroRules({
@@ -2261,7 +2265,7 @@ fn validate_expanded_source_generic_message_when_not_in_generated_region() {
     // If the error's offset lands in a segment (unchanged original
     // code) rather than a generated region, the diagnostic falls
     // back to the generic "declarative macro expansion produced
-    // invalid TypeScript" message — the invalid code came from the
+    // invalid TypeScript" message: the invalid code came from the
     // user's own input, not from any macro.
     let source = "const x = ;";
     let mut mapping = crate::ts_syn::abi::SourceMapping::new();
@@ -2283,12 +2287,12 @@ fn validate_expanded_source_generic_message_when_not_in_generated_region() {
 }
 
 // ---------------------------------------------------------------------------
-// PR 19 — test coverage expansion bundle
+// PR 19: test coverage expansion bundle
 // ---------------------------------------------------------------------------
 //
 // These tests cover feature combinations that no single per-PR test
 // hits and round out the error-path coverage. They're additions to
-// the existing per-PR fixtures, not replacements — each previous PR
+// the existing per-PR fixtures, not replacements: each previous PR
 // owns its own happy-path test, and PR 19 stitches the pieces
 // together at integration boundaries.
 
@@ -2301,7 +2305,7 @@ fn pr19_multi_arg_auto_macro_with_clustering_end_to_end() {
     // should reference the helper specialized for its tuple.
     //
     // Scenario: `$serialize(value, options)` called with three
-    // tuples — `(Alice, Cfg)`, `(Barbara, Cfg)`, `(Bert, Cfg)`. All
+    // tuples: `(Alice, Cfg)`, `(Barbara, Cfg)`, `(Bert, Cfg)`. All
     // share the same `Cfg` second arg; the first arg falls into
     // first-letter buckets `a` (1 shape) and `b` (2 shapes).
     // megamorphismThreshold=2 → 3 distinct tuples > 2 → Cluster.
@@ -2438,7 +2442,7 @@ const r = $list(1, 2, 3);
 
 #[test]
 fn pr19_nested_macro_call_inside_repetition_body() {
-    // `$( $double($x); )+` — a repetition body that contains a
+    // `$( $double($x); )+`: a repetition body that contains a
     // macro call (PR 12 inter-macro composition combined with
     // repetitions). Each iteration must invoke `$double` on its
     // bound `$x`.
@@ -2507,7 +2511,7 @@ const r = $broken(1);
 #[test]
 fn pr19_value_macro_invoked_in_type_position_emits_error() {
     // Calling a value-position macro from type position is a
-    // hard error — the type walker emits a diagnostic explaining
+    // hard error: the type walker emits a diagnostic explaining
     // the kind mismatch.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $foo = macroRules`($x:Expr) => $x`;
@@ -2534,7 +2538,7 @@ fn pr19_type_macro_invoked_in_value_position_falls_through() {
     // `$foo(args)` in expression position should NOT be rewritten
     // by the value walker (it doesn't recognize type macros for
     // call-expression rewriting). It also shouldn't crash. The
-    // call falls through and is left as-is — downstream parser
+    // call falls through and is left as-is: downstream parser
     // will catch the unresolved identifier as a normal error.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 const $T = macroRules({
@@ -2544,11 +2548,11 @@ const $T = macroRules({
 const x = $T(string);
 "#;
     let out = rewrite_source(source, BuildMode::dev());
-    // No replacement should happen for the value-position call —
+    // No replacement should happen for the value-position call:
     // the `try_rewrite_call` lookup finds a value-position macro
     // (the visitor doesn't gate on `kind`), so it would expand it
     // as a value macro. Either:
-    // (a) the value walker also rejects type-kind macros — assert
+    // (a) the value walker also rejects type-kind macros: assert
     //     an error diagnostic with a helpful message.
     // (b) the value walker silently lets it fall through.
     // Document whichever behavior holds today; this test is the
@@ -2569,7 +2573,7 @@ const x = $T(string);
 
 #[test]
 fn pr19_user_can_declare_macro_called_dollar_cluster() {
-    // PR 12 freed `$cluster` from reservation — only `$__cluster__`
+    // PR 12 freed `$cluster` from reservation: only `$__cluster__`
     // is reserved now. Verify that a user can declare a macro
     // called `$cluster`, invoke it, and have it expand as a
     // regular declarative macro.
@@ -2592,38 +2596,4 @@ const r = $cluster(5);
         "expected `(5 + 1)` expansion, got: {}",
         expansion
     );
-}
-
-#[test]
-fn pr19_topological_sort_handles_macros_with_call_chains() {
-    // Three-macro composition chain: `$leaf` → `$mid` calls
-    // `$leaf` → `$top` calls `$mid`. Topological sort should
-    // place `$leaf` first, `$mid` second, `$top` third. PR 11's
-    // scope-aware registry uses the same sort under the hood, so
-    // this is a regression guard for the topo logic surviving
-    // the entries-vs-by_name refactor.
-    use crate::host::declarative::registry::DeclarativeMacroRegistry;
-    use crate::ts_syn::declarative::parse_macro_def;
-
-    let mut registry = DeclarativeMacroRegistry::new();
-    let mut leaf = parse_macro_def("($x:Expr) => ($x + 1)", SpanIR::new(0, 22)).unwrap();
-    leaf.name = "leaf".into();
-    registry.register(leaf).unwrap();
-
-    let mut mid = parse_macro_def("($x:Expr) => $leaf($x)", SpanIR::new(0, 22)).unwrap();
-    mid.name = "mid".into();
-    registry.register(mid).unwrap();
-
-    let mut top = parse_macro_def("($x:Expr) => $mid($x)", SpanIR::new(0, 21)).unwrap();
-    top.name = "top".into();
-    registry.register(top).unwrap();
-
-    let sorted = registry.topological_order().expect("sort should succeed");
-    let names: Vec<&str> = sorted.iter().map(|d| d.name.as_str()).collect();
-    // `leaf` must come before `mid`, `mid` before `top`.
-    let leaf_idx = names.iter().position(|n| *n == "leaf").unwrap();
-    let mid_idx = names.iter().position(|n| *n == "mid").unwrap();
-    let top_idx = names.iter().position(|n| *n == "top").unwrap();
-    assert!(leaf_idx < mid_idx, "leaf must precede mid: {:?}", names);
-    assert!(mid_idx < top_idx, "mid must precede top: {:?}", names);
 }

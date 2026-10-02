@@ -11,11 +11,28 @@ use crate::manifest::{
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 
-/// Whether `code` may contain anything the engine expands. Integrations use
-/// this to skip files without paying for a full expansion.
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console, js_name = error)]
+    fn console_error(line: &str);
+}
+
+/// Runs `entry`, then prints to the JavaScript console what the engine and
+/// the macros it ran logged meanwhile: wasm has no debug log file to write.
+fn with_debug_flush<T>(entry: impl FnOnce() -> T) -> T {
+    let value = entry();
+    for line in crate::debug::take_pending() {
+        console_error(&line);
+    }
+    value
+}
+
+/// Whether `code`, the source of `filepath`, may contain anything the engine
+/// expands. Integrations use this to skip files without paying for a full
+/// expansion; in a Svelte module, the compiler's runes do not count.
 #[wasm_bindgen(js_name = "hasMacroAnnotations")]
-pub fn has_macro_annotations(code: &str) -> bool {
-    crate::has_macro_annotations(code)
+pub fn has_macro_annotations(code: &str, filepath: &str) -> bool {
+    crate::has_macro_annotations(code, filepath)
 }
 
 /// The macros `code` imports through `import macro` JSDoc comments, as macro
@@ -66,19 +83,41 @@ pub fn clear_config_cache() {
     CoreEngine::clear_config_cache();
 }
 
+/// Parses a type registry and keeps it for the process. Pass the returned id
+/// as `typeRegistryId` to expand against it without sending its JSON again.
+#[wasm_bindgen(js_name = "setTypeRegistry")]
+pub fn set_type_registry(json: &str) -> Result<u32, JsValue> {
+    CoreEngine::set_type_registry(json).map_err(|e| JsValue::from_str(&e))
+}
+
+/// Parses a declarative registry and keeps it for the process. Pass the
+/// returned id as `declarativeRegistryId`.
+#[wasm_bindgen(js_name = "setDeclarativeRegistry")]
+pub fn set_declarative_registry(json: &str) -> Result<u32, JsValue> {
+    CoreEngine::set_declarative_registry(json).map_err(|e| JsValue::from_str(&e))
+}
+
+/// Forgets a registry `setTypeRegistry` or `setDeclarativeRegistry` kept.
+#[wasm_bindgen(js_name = "releaseRegistry")]
+pub fn release_registry(id: u32) -> Result<(), JsValue> {
+    CoreEngine::release_registry(id).map_err(|e| JsValue::from_str(&e))
+}
+
 /// Expands the macros in `code`, the source of `filepath`, and returns the
 /// expanded code, its type declarations, diagnostics and source mapping.
 #[wasm_bindgen(js_name = "expandSync")]
 pub fn expand_sync(code: String, filepath: String, options: JsValue) -> Result<JsValue, JsValue> {
-    let opts: Option<ExpandOptions> = if options.is_null() || options.is_undefined() {
-        None
-    } else {
-        Some(serde_wasm_bindgen::from_value(options)?)
-    };
+    with_debug_flush(|| {
+        let opts: Option<ExpandOptions> = if options.is_null() || options.is_undefined() {
+            None
+        } else {
+            Some(serde_wasm_bindgen::from_value(options)?)
+        };
 
-    let result =
-        CoreEngine::expand_sync(code, filepath, opts).map_err(|e| JsValue::from_str(&e))?;
-    serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
+        let result =
+            CoreEngine::expand_sync(code, filepath, opts).map_err(|e| JsValue::from_str(&e))?;
+        serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
+    })
 }
 
 /// A stateful expander for editor integrations: it caches each file's
@@ -86,13 +125,68 @@ pub fn expand_sync(code: String, filepath: String, options: JsValue) -> Result<J
 #[derive(Default)]
 #[wasm_bindgen]
 pub struct NativePlugin {
-    cache: std::sync::Mutex<std::collections::HashMap<String, CachedResult>>,
+    cache: std::sync::Mutex<ExpansionCache>,
 }
 
-#[derive(Clone)]
+/// How many files' expansions a plugin keeps. An editor works in a few files
+/// at a time; the bound keeps a long session from holding every file it
+/// ever opened.
+const CACHED_FILES: usize = 1024;
+
+/// Each file's last expansion, with its position mapper built once.
+#[derive(Default)]
+struct ExpansionCache {
+    entries: std::collections::HashMap<String, CachedResult>,
+    /// Advances on every use, so the least recently used entry is evicted.
+    clock: u64,
+}
+
 struct CachedResult {
-    version: Option<String>,
+    version: String,
     result: ExpandResult,
+    mapper: Option<std::sync::Arc<NativePositionMapper>>,
+    last_used: u64,
+}
+
+impl ExpansionCache {
+    fn tick(&mut self) -> u64 {
+        self.clock += 1;
+        self.clock
+    }
+
+    fn get(&mut self, filepath: &str) -> Option<&CachedResult> {
+        let now = self.tick();
+        let entry = self.entries.get_mut(filepath)?;
+        entry.last_used = now;
+        Some(entry)
+    }
+
+    fn insert(&mut self, filepath: String, version: String, result: ExpandResult) {
+        if self.entries.len() >= CACHED_FILES
+            && !self.entries.contains_key(&filepath)
+            && let Some(oldest) = self
+                .entries
+                .iter()
+                .min_by_key(|(_, entry)| entry.last_used)
+                .map(|(path, _)| path.clone())
+        {
+            self.entries.remove(&oldest);
+        }
+        let mapper = result
+            .source_mapping
+            .clone()
+            .map(|mapping| std::sync::Arc::new(NativePositionMapper::new(mapping)));
+        let last_used = self.tick();
+        self.entries.insert(
+            filepath,
+            CachedResult {
+                version,
+                result,
+                mapper,
+                last_used,
+            },
+        );
+    }
 }
 
 #[wasm_bindgen]
@@ -100,9 +194,13 @@ impl NativePlugin {
     /// Creates a plugin with an empty cache.
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        Self {
-            cache: std::sync::Mutex::new(std::collections::HashMap::new()),
-        }
+        Self::default()
+    }
+
+    fn cache(&self) -> Result<std::sync::MutexGuard<'_, ExpansionCache>, JsValue> {
+        self.cache
+            .lock()
+            .map_err(|err| JsValue::from_str(&format!("expansion cache lock poisoned: {err}")))
     }
 
     /// Expands the macros in `code`, uncached; see the module-level `expandSync`.
@@ -125,59 +223,53 @@ impl NativePlugin {
         code: String,
         options: JsValue,
     ) -> Result<JsValue, JsValue> {
-        let opts: Option<ProcessFileOptions> = if options.is_null() || options.is_undefined() {
-            None
-        } else {
-            Some(serde_wasm_bindgen::from_value(options)?)
-        };
+        with_debug_flush(|| {
+            let opts: Option<ProcessFileOptions> = if options.is_null() || options.is_undefined() {
+                None
+            } else {
+                Some(serde_wasm_bindgen::from_value(options)?)
+            };
 
-        let version = opts.as_ref().and_then(|o| o.version.clone());
+            let version = opts.as_ref().and_then(|o| o.version.clone());
 
-        if let (Some(ver), Ok(guard)) = (version.as_ref(), self.cache.lock())
-            && let Some(cached) = guard.get(&filepath)
-            && cached.version.as_ref() == Some(ver)
-        {
-            return serde_wasm_bindgen::to_value(&cached.result).map_err(|e| e.into());
-        }
+            if let Some(version) = &version
+                && let Some(cached) = self.cache()?.get(&filepath)
+                && &cached.version == version
+            {
+                return serde_wasm_bindgen::to_value(&cached.result).map_err(|e| e.into());
+            }
 
-        let expand_opts = opts.map(|o| ExpandOptions {
-            keep_decorators: o.keep_decorators,
-            external_decorator_modules: o.external_decorator_modules,
-            config_path: o.config_path,
-            type_registry_json: o.type_registry_json,
-            declarative_registry_json: o.declarative_registry_json,
-            build_mode: o.build_mode,
-        });
+            let expand_opts = opts.map(|o| ExpandOptions {
+                keep_decorators: o.keep_decorators,
+                external_decorator_modules: o.external_decorator_modules,
+                config_path: o.config_path,
+                type_registry_json: o.type_registry_json,
+                declarative_registry_json: o.declarative_registry_json,
+                type_registry_id: o.type_registry_id,
+                declarative_registry_id: o.declarative_registry_id,
+                build_mode: o.build_mode,
+                emit_metadata: o.emit_metadata,
+            });
 
-        let result = CoreEngine::expand_sync(code, filepath.clone(), expand_opts)
-            .map_err(|e| JsValue::from_str(&e))?;
+            let result = CoreEngine::expand_sync(code, filepath.clone(), expand_opts)
+                .map_err(|e| JsValue::from_str(&e))?;
 
-        if let (Some(ver), Ok(mut guard)) = (version, self.cache.lock()) {
-            guard.insert(
-                filepath,
-                CachedResult {
-                    version: Some(ver),
-                    result: result.clone(),
-                },
-            );
-        }
-
-        serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
+            let value = serde_wasm_bindgen::to_value(&result)?;
+            if let Some(version) = version {
+                self.cache()?.insert(filepath, version, result);
+            }
+            Ok(value)
+        })
     }
 
     /// The position mapper for `filepath`'s last expansion, when it produced one.
     #[wasm_bindgen(js_name = "getMapper")]
     pub fn get_mapper(&self, filepath: String) -> Result<Option<PositionMapper>, JsValue> {
-        let cache = self
-            .cache
-            .lock()
-            .map_err(|err| JsValue::from_str(&format!("expansion cache lock poisoned: {err}")))?;
-        Ok(cache
+        Ok(self
+            .cache()?
             .get(&filepath)
-            .and_then(|cached| cached.result.source_mapping.clone())
-            .map(|mapping| PositionMapper {
-                inner: NativePositionMapper::new(mapping),
-            }))
+            .and_then(|cached| cached.mapper.clone())
+            .map(|inner| PositionMapper { inner }))
     }
 
     /// Moves `diags`, positioned in `filepath`'s expanded code, back onto its source.
@@ -208,11 +300,21 @@ impl NativePlugin {
     }
 }
 
+/// What the batch mapping methods return for a position with no original.
+const UNMAPPED_POSITION: u32 = u32::MAX;
+
+/// The value the batch mapping methods of [`PositionMapper`] return for a
+/// position that lies in generated code.
+#[wasm_bindgen(js_name = "unmappedPosition")]
+pub fn unmapped_position() -> u32 {
+    UNMAPPED_POSITION
+}
+
 /// Maps positions between a file's original source and its macro-expanded
 /// code, and tells which macro generated a span.
 #[wasm_bindgen]
 pub struct PositionMapper {
-    inner: NativePositionMapper,
+    inner: std::sync::Arc<NativePositionMapper>,
 }
 
 #[wasm_bindgen]
@@ -222,7 +324,7 @@ impl PositionMapper {
     pub fn new(mapping: JsValue) -> Result<PositionMapper, JsValue> {
         let mapping: SourceMappingResult = serde_wasm_bindgen::from_value(mapping)?;
         Ok(Self {
-            inner: NativePositionMapper::new(mapping),
+            inner: std::sync::Arc::new(NativePositionMapper::new(mapping)),
         })
     }
 
@@ -266,6 +368,37 @@ impl PositionMapper {
             .map_err(JsValue::from)
     }
 
+    /// Maps many expanded spans at once, given as flat `start, length` pairs.
+    /// Each pair comes back as its original span, or as two
+    /// [`unmapped_position`] values when it touches generated code.
+    #[wasm_bindgen(js_name = "mapSpansToOriginal")]
+    pub fn map_spans_to_original(&self, spans: Vec<u32>) -> Vec<u32> {
+        spans
+            .chunks(2)
+            .flat_map(|pair| {
+                match (pair.first(), pair.get(1)) {
+                    (Some(&start), Some(&length)) => self.inner.map_span_to_original(start, length),
+                    _ => None,
+                }
+                .map_or([UNMAPPED_POSITION; 2], |span| [span.start, span.length])
+            })
+            .collect()
+    }
+
+    /// Maps many expanded positions at once. A position in generated code
+    /// comes back as [`unmapped_position`].
+    #[wasm_bindgen(js_name = "expandedPositionsToOriginal")]
+    pub fn expanded_positions_to_original(&self, positions: Vec<u32>) -> Vec<u32> {
+        positions
+            .into_iter()
+            .map(|pos| {
+                self.inner
+                    .expanded_to_original(pos)
+                    .unwrap_or(UNMAPPED_POSITION)
+            })
+            .collect()
+    }
+
     /// Whether expanded position `pos` lies in macro-generated code.
     #[wasm_bindgen(js_name = "isInGenerated")]
     pub fn is_in_generated(&self, pos: u32) -> bool {
@@ -277,15 +410,17 @@ impl PositionMapper {
 /// declarative macro registry as JSON.
 #[wasm_bindgen(js_name = "scanProjectSync")]
 pub fn scan_project_sync(root_dir: String, options: JsValue) -> Result<JsValue, JsValue> {
-    let opts: Option<ScanOptions> = if options.is_null() || options.is_undefined() {
-        None
-    } else {
-        Some(serde_wasm_bindgen::from_value(options)?)
-    };
+    with_debug_flush(|| {
+        let opts: Option<ScanOptions> = if options.is_null() || options.is_undefined() {
+            None
+        } else {
+            Some(serde_wasm_bindgen::from_value(options)?)
+        };
 
-    let result =
-        CoreEngine::scan_project_sync(root_dir, opts).map_err(|e| JsValue::from_str(&e))?;
-    serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
+        let result =
+            CoreEngine::scan_project_sync(root_dir, opts).map_err(|e| JsValue::from_str(&e))?;
+        serde_wasm_bindgen::to_value(&result).map_err(|e| e.into())
+    })
 }
 
 /// Drops `path` from the project scan cache and returns whether it was
@@ -305,6 +440,14 @@ pub fn clear_scan_cache_wasm() {
 #[wasm_bindgen(js_name = "__macroforgeGetManifest")]
 pub fn get_macro_manifest_wasm() -> Result<JsValue, JsValue> {
     serde_wasm_bindgen::to_value(&get_macro_manifest()).map_err(|e| e.into())
+}
+
+/// Installs the type registry a host sends once, so the contexts it sends
+/// afterwards refer to it instead of carrying it on every call.
+#[wasm_bindgen(js_name = "__macroforgeSetRegistry")]
+pub fn set_resident_registry_wasm(payload_json: &str) -> Result<(), JsValue> {
+    crate::ts_syn::abi::ir::type_registry::install_resident_registry(payload_json)
+        .map_err(|message| JsValue::from_str(&message))
 }
 
 /// Marks this module as a macroforge macro package.

@@ -19,7 +19,7 @@
 //!   that share structural similarity, emit one helper per cluster, and
 //!   dispatch each call site to its cluster's helper.
 //! - **ForceExpand**: the cluster analysis degenerated (every shape is
-//!   unique). Inline expansion at every call site — no shared state to
+//!   unique). Inline expansion at every call site: no shared state to
 //!   go megamorphic.
 //!
 //! The shape extractor is deliberately heuristic. When the project-wide
@@ -53,7 +53,7 @@ pub struct ResolvedCallSite {
     ///
     /// The analyzer treats two call sites as "same polymorphism
     /// class" iff their `arg_shapes` vectors are element-wise equal
-    /// — so `(User, Order)` and `(User, Product)` count as two
+    /// so `(User, Order)` and `(User, Product)` count as two
     /// distinct classes even though the first argument matches.
     /// This closes the gap where pre-PR-7 `Auto`-mode multi-arg
     /// macros under-reported their polymorphism by ignoring every
@@ -66,9 +66,9 @@ pub struct ResolvedCallSite {
 /// `Named` captures concrete class/interface references (the author's
 /// type flowing in). When the project-wide type registry is available
 /// to the analyzer, `fields` holds a sorted list of the type's field
-/// names — used by [`cluster_shapes`] for structural Jaccard
+/// names: used by [`cluster_shapes`] for structural Jaccard
 /// clustering. `Literal` captures primitive literal calls. `Opaque` is
-/// the fallback — anonymous object literals, computed expressions,
+/// the fallback: anonymous object literals, computed expressions,
 /// function-call results, anything the heuristic can't pin down.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TypeShape {
@@ -78,14 +78,14 @@ pub enum TypeShape {
         name: String,
         /// Sorted list of field names from the type registry, if the
         /// type is known. `None` means the registry didn't have the
-        /// type (or wasn't passed to the analyzer) — clustering falls
+        /// type (or wasn't passed to the analyzer): clustering falls
         /// back to first-letter grouping in that case.
         fields: Option<Vec<String>>,
     },
-    /// A primitive literal — the string names the JS runtime type:
+    /// A primitive literal: the string names the JS runtime type:
     /// `"string"`, `"number"`, `"boolean"`, `"null"`, etc.
     Literal(String),
-    /// Anything that isn't a bare identifier or literal — the
+    /// Anything that isn't a bare identifier or literal: the
     /// heuristic can't narrow it any further.
     Opaque,
 }
@@ -130,7 +130,7 @@ pub enum Recommendation {
 /// megamorphism threshold. All call sites whose argument shapes (as a
 /// tuple) belong to this cluster dispatch to the same helper function.
 ///
-/// Each entry in [`Self::shapes`] is a `Vec<TypeShape>` — one shape
+/// Each entry in [`Self::shapes`] is a `Vec<TypeShape>`: one shape
 /// per positional argument at a call site. Single-arg `Auto` macros
 /// put one-element tuples in their clusters; multi-arg macros put
 /// multi-element tuples. Two call sites belong to the same cluster
@@ -140,7 +140,7 @@ pub enum Recommendation {
 pub struct TypeCluster {
     /// The call-site shape tuples that belong to this cluster.
     pub shapes: Vec<Vec<TypeShape>>,
-    /// Stable identifier derived from the shapes — used to suffix the
+    /// Stable identifier derived from the shapes: used to suffix the
     /// generated helper name, e.g. `$serialize__a_cluster` for a
     /// cluster of shapes starting with `a`.
     pub id: String,
@@ -167,7 +167,7 @@ impl MegamorphReport {
 /// explicitly). `ExpandOnly` macros don't care about shape count.
 ///
 /// `threshold` is the maximum number of distinct shapes allowed to share
-/// a single helper — typically 4 (V8's IC cap).
+/// a single helper: typically 4 (V8's IC cap).
 pub fn analyze(
     registry: &DeclarativeMacroRegistry,
     call_sites: &[ResolvedCallSite],
@@ -188,14 +188,14 @@ pub fn analyze(
 
     let mut report = MegamorphReport::default();
     for (name, sites) in per_macro {
-        // Dedupe on the full shape tuple — two call sites with
+        // Dedupe on the full shape tuple: two call sites with
         // identical `arg_shapes` are the same polymorphism class.
-        let mut shape_set: Vec<Vec<TypeShape>> = Vec::new();
-        for site in &sites {
-            if !shape_set.contains(&site.arg_shapes) {
-                shape_set.push(site.arg_shapes.clone());
-            }
-        }
+        let mut seen: std::collections::HashSet<&Vec<TypeShape>> = std::collections::HashSet::new();
+        let shape_set: Vec<Vec<TypeShape>> = sites
+            .iter()
+            .filter(|site| seen.insert(&site.arg_shapes))
+            .map(|site| site.arg_shapes.clone())
+            .collect();
         let distinct_shapes = shape_set.len();
 
         let per_macro_threshold = registry
@@ -206,7 +206,7 @@ pub fn analyze(
         let recommendation = if distinct_shapes <= per_macro_threshold {
             Recommendation::Share
         } else {
-            let clusters = cluster_shapes(&shape_set, per_macro_threshold);
+            let clusters = cluster_shapes(&shape_set);
             // A cluster is "still megamorphic" only if it contains more
             // distinct *structural fingerprints* than the threshold.
             // Two tuples with identical per-position fingerprints look
@@ -241,7 +241,7 @@ pub fn analyze(
 /// fingerprints to land in the same cluster. Chosen empirically:
 /// - 1.00: identical field sets (clearly the "same shape").
 /// - 0.80: one type has a small extension like `PendingUser` ⊇ `User`.
-/// - 0.60: genuine structural overlap even when names diverge — the
+/// - 0.60: genuine structural overlap even when names diverge: the
 ///   lower bound we accept for "these should share a helper".
 /// - <0.60: the types are structurally different enough that V8 would
 ///   still see them as distinct shapes; splitting helps cache locality.
@@ -252,18 +252,18 @@ const JACCARD_THRESHOLD: f64 = 0.60;
 ///
 /// Strategy:
 ///
-/// 1. **Arity bucketing** — tuples with different argument counts
+/// 1. **Arity bucketing**: tuples with different argument counts
 ///    never cluster together. `(User)` and `(User, Order)` go into
 ///    separate buckets up front so the per-position logic below
 ///    always sees matching arities.
 ///
-/// 2. **First-argument classification within an arity** — within a
+/// 2. **First-argument classification within an arity**: within a
 ///    same-arity bucket, we classify each tuple by its first
 ///    element: structural (has fingerprint fields), name-prefix
 ///    (no fingerprint, falls back to the first letter of the
 ///    surface name), literal, or opaque.
 ///
-/// 3. **Mean pairwise Jaccard merge for fingerprinted firsts** — a
+/// 3. **Mean pairwise Jaccard merge for fingerprinted firsts**: a
 ///    tuple whose first element has a structural fingerprint may
 ///    join an existing structural cluster iff every member of the
 ///    cluster has a *mean pairwise Jaccard similarity across all
@@ -271,23 +271,23 @@ const JACCARD_THRESHOLD: f64 = 0.60;
 ///    `mean_pairwise_jaccard`: per-position Jaccard scores are
 ///    averaged over the whole tuple; mismatched arities score 0).
 ///    This keeps `(User, OrderA)` and `(User, OrderB)` together
-///    when `OrderA`/`OrderB` have a high field overlap — the tail
+///    when `OrderA`/`OrderB` have a high field overlap: the tail
 ///    doesn't need to match exactly, it just needs to keep the
 ///    tuple-wide mean above the threshold.
 ///
-/// 4. **Name-prefix fallback** — tuples whose first element has no
+/// 4. **Name-prefix fallback**: tuples whose first element has no
 ///    fingerprint bucket by the first letter of the name, matching
 ///    the MVP behavior for single-arg calls while still honoring
 ///    the arity split for multi-arg.
 ///
-/// 5. **Literal / opaque pass-through** — `Literal` and `Opaque`
+/// 5. **Literal / opaque pass-through**: `Literal` and `Opaque`
 ///    firsts go into dedicated `"lit"` and `"opaque"` clusters per
 ///    arity.
 ///
 /// Clusters that are still above the per-macro threshold after this
-/// pass are not split further — the caller detects that case and
+/// pass are not split further: the caller detects that case and
 /// falls back to `ForceExpand`.
-fn cluster_shapes(shapes: &[Vec<TypeShape>], _threshold: usize) -> Vec<TypeCluster> {
+fn cluster_shapes(shapes: &[Vec<TypeShape>]) -> Vec<TypeCluster> {
     // Keep a stable traversal order so the output is deterministic.
     let mut structural: Vec<Vec<Vec<TypeShape>>> = Vec::new();
     let mut prefix_buckets: HashMap<String, Vec<Vec<TypeShape>>> = HashMap::new();
@@ -297,7 +297,7 @@ fn cluster_shapes(shapes: &[Vec<TypeShape>], _threshold: usize) -> Vec<TypeClust
 
     for tuple in shapes {
         let Some(first) = tuple.first() else {
-            // Zero-argument calls — all cluster together trivially.
+            // Zero-argument calls: all cluster together trivially.
             empty_bucket.push(tuple.clone());
             continue;
         };
@@ -311,7 +311,7 @@ fn cluster_shapes(shapes: &[Vec<TypeShape>], _threshold: usize) -> Vec<TypeClust
                 // existing structural cluster iff every member's
                 // tuple has a mean pairwise Jaccard ≥ threshold with
                 // this one. This is strictly more permissive than
-                // the PR 7 "exact tail equality" check — tuples
+                // the PR 7 "exact tail equality" check: tuples
                 // like `(User, OrderA)` and `(User, OrderB)` where
                 // `OrderA` and `OrderB` have a high field overlap
                 // now cluster together, where previously they'd
@@ -482,7 +482,7 @@ fn jaccard(a: &[String], b: &[String]) -> f64 {
 ///   [`jaccard`] on the sorted field lists.
 /// - **Both positions `Named` without fingerprints** → `1.0` iff
 ///   names match exactly, else `0.0`. The MVP name-prefix heuristic
-///   is deliberately NOT used here — at this level we want precise
+///   is deliberately NOT used here: at this level we want precise
 ///   equality for unfingerprinted types, and first-letter bucketing
 ///   is handled as a separate fallback by the outer [`cluster_shapes`]
 ///   loop for tuples whose first element is unfingerprinted.
@@ -501,7 +501,7 @@ fn mean_pairwise_jaccard(a: &[TypeShape], b: &[TypeShape]) -> f64 {
     }
     if a.is_empty() {
         // Both are zero-arity tuples. Empty tuples are trivially
-        // "identical" — return 1.0 so they cluster together.
+        // "identical": return 1.0 so they cluster together.
         return 1.0;
     }
     let mut sum = 0.0;
@@ -523,7 +523,7 @@ fn position_jaccard(a: &TypeShape, b: &TypeShape) -> f64 {
                 fields: Some(fb),
             },
         ) if !fa.is_empty() && !fb.is_empty() => {
-            // Both sides have structural fingerprints — compute
+            // Both sides have structural fingerprints: compute
             // field-level Jaccard. We ignore names here intentionally:
             // structurally-equivalent types should cluster regardless
             // of their surface names.
@@ -531,7 +531,7 @@ fn position_jaccard(a: &TypeShape, b: &TypeShape) -> f64 {
             jaccard(fa, fb)
         }
         (TypeShape::Named { name: na, .. }, TypeShape::Named { name: nb, .. }) if na == nb => {
-            // At least one side lacks a fingerprint — fall back to
+            // At least one side lacks a fingerprint: fall back to
             // exact name equality. (First-letter bucketing happens
             // at the cluster_shapes level, not per position.)
             1.0
@@ -540,14 +540,14 @@ fn position_jaccard(a: &TypeShape, b: &TypeShape) -> f64 {
         (TypeShape::Literal(la), TypeShape::Literal(lb)) if la == lb => 1.0,
         (TypeShape::Literal(_), TypeShape::Literal(_)) => 0.0,
         (TypeShape::Opaque, TypeShape::Opaque) => 1.0,
-        // Discriminant mismatch — different kinds of values.
+        // Discriminant mismatch: different kinds of values.
         _ => 0.0,
     }
 }
 
 /// Derive a stable cluster id from its members' tuple shapes. We use
 /// the sorted, `_`-joined list of the FIRST-argument names across
-/// all tuples in the group — deterministic across runs and distinct
+/// all tuples in the group: deterministic across runs and distinct
 /// from the prefix-bucket keys (which are single letters or
 /// letter+arity). Falls back to `"struct"` when no member has a
 /// named first argument (e.g. cluster of literal-first tuples).
@@ -570,7 +570,7 @@ fn structural_cluster_id(group: &[Vec<TypeShape>]) -> String {
 
 /// Extract a coarse `TypeShape` from an OXC argument expression.
 ///
-/// The heuristic uses the argument's surface syntax only — there's no
+/// The heuristic uses the argument's surface syntax only: there's no
 /// type-checker access here, so a bare `user` identifier turns into
 /// `Named { name: "user" }` even though at the JS type level it might
 /// be `User | Admin`. That's a conscious trade-off: the analyzer
@@ -626,18 +626,18 @@ pub fn extract_type_shape(
 ///
 /// Fingerprint extraction (PR 10):
 ///
-/// - **Class / Interface** — sorted list of field names, same as PR 7.
-/// - **Enum** — sorted list of variant names. Two enums with
+/// - **Class / Interface**: sorted list of field names, same as PR 7.
+/// - **Enum**: sorted list of variant names. Two enums with
 ///   identical variant sets fingerprint-equal, so they cluster
 ///   together even under different names.
-/// - **Type alias** — if the alias body is structural (an object
+/// - **Type alias**: if the alias body is structural (an object
 ///   literal `type T = { a: number; b: string }`), the member names
 ///   become the fingerprint. If the alias body is a simple type
 ///   reference (`type T = SomeClass`), the fingerprint is pulled
-///   from the target with one level of indirection — we don't
+///   from the target with one level of indirection: we don't
 ///   follow chains of aliases to avoid unbounded recursion.
 /// - **Anything else** (union aliases, tuple aliases, intersection
-///   aliases) — no fingerprint, falls back to the name-prefix
+///   aliases): no fingerprint, falls back to the name-prefix
 ///   heuristic in `cluster_shapes`.
 fn named_with_fingerprint(name: &str, type_registry: &TypeRegistry) -> TypeShape {
     let fields = type_registry
@@ -657,7 +657,7 @@ fn named_with_fingerprint(name: &str, type_registry: &TypeRegistry) -> TypeShape
 /// chains causing unbounded recursion.
 ///
 /// Returns `None` when no meaningful structural fingerprint can be
-/// derived — the caller leaves `fields: None` on the resulting
+/// derived: the caller leaves `fields: None` on the resulting
 /// [`TypeShape::Named`] and the outer clusterer falls back to the
 /// name-prefix heuristic.
 fn extract_fingerprint_fields(
@@ -686,7 +686,7 @@ fn extract_fingerprint_fields(
             }
         }
         TypeDefinitionIR::Enum(enum_ir) => {
-            // Variant names serve as the "field set" — two enums
+            // Variant names serve as the "field set": two enums
             // with identical variant sets fingerprint-equal and so
             // cluster together even under different enum names.
             let mut variants: Vec<String> =
@@ -726,7 +726,7 @@ fn extract_fingerprint_fields(
 
 /// Non-recursive fingerprint extractor used when following a type
 /// alias's target. Matches [`extract_fingerprint_fields`] but stops
-/// at the first alias it encounters instead of chasing the chain —
+/// at the first alias it encounters instead of chasing the chain:
 /// this caps work at `O(1)` indirection and sidesteps any pathological
 /// `type A = B; type B = A` cycles the user might have written.
 fn extract_fingerprint_fields_direct(def: &TypeDefinitionIR) -> Option<Vec<String>> {
@@ -781,7 +781,7 @@ mod tests {
             SpanIR::new(0, 0),
         );
         def.runtime = Some(format!("function __{}(x) {{ return x; }}", name));
-        // call_arms can be empty for analyzer tests — the analyzer
+        // call_arms can be empty for analyzer tests: the analyzer
         // doesn't care about arm contents, only about mode + name.
         def.call_arms = Some(Vec::new());
         def
@@ -854,7 +854,7 @@ mod tests {
     #[test]
     fn analyze_above_threshold_clusters_by_first_letter_fallback() {
         // Shapes without a fingerprint fall back to the first-letter
-        // heuristic — this test intentionally uses `TypeShape::named`
+        // heuristic: this test intentionally uses `TypeShape::named`
         // (no fields) to exercise that path.
         let mut reg = DeclarativeMacroRegistry::new();
         reg.register(fake_def("serialize", MacroMode::Auto))
@@ -979,7 +979,7 @@ mod tests {
             tuple(named_with_fields("User", &["id", "name", "email"])),
             tuple(named_with_fields("Admin", &["id", "name", "email"])),
         ];
-        let clusters = cluster_shapes(&shapes, 4);
+        let clusters = cluster_shapes(&shapes);
         assert_eq!(
             clusters.len(),
             1,
@@ -1002,7 +1002,7 @@ mod tests {
                 &["id", "name", "email", "phone", "company"],
             )),
         ];
-        let clusters = cluster_shapes(&shapes, 4);
+        let clusters = cluster_shapes(&shapes);
         assert_eq!(clusters.len(), 1);
     }
 
@@ -1019,7 +1019,7 @@ mod tests {
                 &["id", "total", "status", "items", "customer"],
             )),
         ];
-        let clusters = cluster_shapes(&shapes, 4);
+        let clusters = cluster_shapes(&shapes);
         assert_eq!(clusters.len(), 2);
     }
 
@@ -1033,7 +1033,7 @@ mod tests {
             tuple(TypeShape::named("Admin")),
             tuple(TypeShape::named("Bob")),
         ];
-        let clusters = cluster_shapes(&shapes, 4);
+        let clusters = cluster_shapes(&shapes);
         assert_eq!(clusters.len(), 2);
         let a = clusters.iter().find(|c| c.id == "a").unwrap();
         assert_eq!(a.shapes.len(), 2);
@@ -1043,15 +1043,15 @@ mod tests {
 
     #[test]
     fn cluster_shapes_mixes_structural_and_prefix_paths() {
-        // Two shapes with fingerprints that match, plus one without
-        // — the fingerprinted pair forms a structural cluster and the
+        // Two shapes with fingerprints that match, plus one without:
+        // the fingerprinted pair forms a structural cluster and the
         // non-fingerprinted shape lands in a prefix bucket.
         let shapes = vec![
             tuple(named_with_fields("User", &["id", "name"])),
             tuple(named_with_fields("Person", &["id", "name"])),
             tuple(TypeShape::named("Order")),
         ];
-        let clusters = cluster_shapes(&shapes, 4);
+        let clusters = cluster_shapes(&shapes);
         assert_eq!(clusters.len(), 2);
         // One structural cluster (2 members), one prefix "o" cluster (1 member).
         let sizes: Vec<usize> = clusters.iter().map(|c| c.shapes.len()).collect();
@@ -1097,7 +1097,7 @@ mod tests {
 
     #[test]
     fn analyze_two_arg_monomorphic_shares() {
-        // All call sites have the same `(User, Order)` shape tuple —
+        // All call sites have the same `(User, Order)` shape tuple:
         // one distinct polymorphism class → Share.
         let mut reg = DeclarativeMacroRegistry::new();
         reg.register(fake_def("serialize", MacroMode::Auto))
@@ -1129,7 +1129,7 @@ mod tests {
         // distinct tuples > 1 → Cluster. The clustering falls back
         // to first-letter bucketing on the first arg (all `u`), so
         // every tuple lands in the same bucket. That bucket has 3
-        // distinct fingerprints — above the per-cluster threshold —
+        // distinct fingerprints (above the per-cluster threshold),
         // so the analyzer picks ForceExpand. Verifies that divergent
         // per-position shapes don't get silently collapsed by the
         // first-arg heuristic.
@@ -1168,7 +1168,7 @@ mod tests {
     #[test]
     fn analyze_arity_mismatch_does_not_cluster_together() {
         // `(User)` and `(User, Order)` share the same first argument
-        // but have different arity — they must never end up in the
+        // but have different arity: they must never end up in the
         // same cluster, because the helper function's parameter
         // count differs.
         let mut reg = DeclarativeMacroRegistry::new();
@@ -1185,7 +1185,7 @@ mod tests {
         let report = analyze(&reg, &sites, 4);
         let info = report.lookup("serialize").unwrap();
         assert_eq!(info.distinct_shapes, 2);
-        // Either Cluster with two separate clusters or ForceExpand —
+        // Either Cluster with two separate clusters or ForceExpand:
         // both are acceptable; the invariant is that the two tuples
         // never land in the same cluster.
         match &info.recommendation {
@@ -1208,7 +1208,7 @@ mod tests {
     }
 
     // -----------------------------------------------------------------
-    // PR 10 — mean_pairwise_jaccard + enum/alias fingerprints
+    // PR 10: mean_pairwise_jaccard + enum/alias fingerprints
     // -----------------------------------------------------------------
 
     #[test]
@@ -1291,7 +1291,7 @@ mod tests {
                 named_with_fields("OrderB", &["id", "total", "status", "customer", "notes"]),
             ],
         ];
-        let clusters = cluster_shapes(&shapes, 4);
+        let clusters = cluster_shapes(&shapes);
         assert_eq!(
             clusters.len(),
             1,
@@ -1315,7 +1315,7 @@ mod tests {
                 named_with_fields("OrderB", &["x", "y", "z"]),
             ],
         ];
-        let clusters = cluster_shapes(&shapes, 4);
+        let clusters = cluster_shapes(&shapes);
         assert_eq!(
             clusters.len(),
             2,

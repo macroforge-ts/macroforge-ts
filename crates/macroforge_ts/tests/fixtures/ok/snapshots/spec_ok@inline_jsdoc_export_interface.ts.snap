@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_interface.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_interface.ts
 ---
 ## Input
 
@@ -10,6 +9,10 @@ input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_interface.ts
     name: string;
     age: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -107,9 +110,6 @@ import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
 
                 ctx.trackForFreeze(instance);{
                                 const __raw_name = obj["name"] as string;instance.name = __raw_name;
-
-
-
 
 
 
@@ -628,16 +628,7 @@ import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
 
 
 
-
-
-
                             }
-
-
-
-
-
-
 
 
 
@@ -1622,14 +1613,8 @@ export interface User {
 
 
 
-
-
-
                             }{
                                 const __raw_age = obj["age"] as number;instance.age = __raw_age;
-
-
-
 
 
 
@@ -2457,12 +2442,6 @@ export interface User {
 
 
 
-
-
-
-
-
-
                 ctx.pushErrors(errors);
 
                 return instance as User;
@@ -2530,5 +2509,24 @@ export const User = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 27..88 -> expanded 0..61
+original 88..89 -> expanded 5802..5803
+generated 61..5604 <- Deserialize
+generated 5604..5802 <- __convenience_const
+
+## Metadata
+
+interface User: {"body_span":{"end":89,"start":51},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":28,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":70,"start":57},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":87,"start":75},"ts_type":"number"}],"heritage":[],"methods":[],"name":"User","span":{"end":89,"start":36},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

@@ -1,0 +1,70 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Types (29)
+
+AddressLookupFieldController 9f79b7cdaaa4b301
+ArrayFieldController 649000d6d1bd245e
+ArrayFieldsetComboboxConfig d877736a8bbb977f
+ArrayFieldsetController d67be90a345525ef
+ArrayFieldsetItem 1303dfc912248edd
+BaseGigaform ba110fd45f586e91
+CheckboxFieldController 065ae2f81aeb2b65
+ComboboxFieldController 5dd157274e02d76e
+ComboboxItem 09bb8623767e22c8
+ComboboxMultipleFieldController 877f8d1f24d01486
+DateTimeFieldController 34a092aa0e263a25
+DeserializeResult 0ef315c26066a6ae
+EmailFieldController 582fdba4da9d2a1b
+EnumFieldController ed1aed7b908ab5a1
+FieldController 4f31c9f733e25093
+HiddenFieldController 9ab1eb1600e14ffd
+NumberFieldController dd9eeb3fa255fc17
+PhoneFieldController ce52f2fd661c3ce6
+RadioGroupFieldController 9ad71396a9a24312
+RadioGroupOption b49af3bc17ec5444
+SelectFieldController 21f8d3f68a4243b2
+SiteDuplicateSearchFilters 965d19a930eee5bd
+SiteFieldsetController f415b41e817ef142
+SiteManualEntryControllers 08dc3cf4e821d7ea
+SwitchFieldController f6774ec487fa1929
+TagsFieldController 157b9b05ccff5578
+TextAreaFieldController d302a86ce8987169
+ToggleFieldController b1f98a97332bcac1
+VariantGigaform 6bc58140f3c0a621
+
+## Qualified types (29)
+
+gigaform.ts::AddressLookupFieldController 9f79b7cdaaa4b301
+gigaform.ts::ArrayFieldController 649000d6d1bd245e
+gigaform.ts::ArrayFieldsetComboboxConfig d877736a8bbb977f
+gigaform.ts::ArrayFieldsetController d67be90a345525ef
+gigaform.ts::ArrayFieldsetItem 1303dfc912248edd
+gigaform.ts::BaseGigaform ba110fd45f586e91
+gigaform.ts::CheckboxFieldController 065ae2f81aeb2b65
+gigaform.ts::ComboboxFieldController 5dd157274e02d76e
+gigaform.ts::ComboboxItem 09bb8623767e22c8
+gigaform.ts::ComboboxMultipleFieldController 877f8d1f24d01486
+gigaform.ts::DateTimeFieldController 34a092aa0e263a25
+gigaform.ts::DeserializeResult 0ef315c26066a6ae
+gigaform.ts::EmailFieldController 582fdba4da9d2a1b
+gigaform.ts::EnumFieldController ed1aed7b908ab5a1
+gigaform.ts::FieldController 4f31c9f733e25093
+gigaform.ts::HiddenFieldController 9ab1eb1600e14ffd
+gigaform.ts::NumberFieldController dd9eeb3fa255fc17
+gigaform.ts::PhoneFieldController ce52f2fd661c3ce6
+gigaform.ts::RadioGroupFieldController 9ad71396a9a24312
+gigaform.ts::RadioGroupOption b49af3bc17ec5444
+gigaform.ts::SelectFieldController 21f8d3f68a4243b2
+gigaform.ts::SiteDuplicateSearchFilters 965d19a930eee5bd
+gigaform.ts::SiteFieldsetController f415b41e817ef142
+gigaform.ts::SiteManualEntryControllers 08dc3cf4e821d7ea
+gigaform.ts::SwitchFieldController f6774ec487fa1929
+gigaform.ts::TagsFieldController 157b9b05ccff5578
+gigaform.ts::TextAreaFieldController d302a86ce8987169
+gigaform.ts::ToggleFieldController b1f98a97332bcac1
+gigaform.ts::VariantGigaform 6bc58140f3c0a621
+
+## Ambiguous names
+
+(none)

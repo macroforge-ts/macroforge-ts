@@ -13,18 +13,22 @@ fn oxc_span_ir(span: oxc::span::Span) -> SpanIR {
 }
 
 /// Collect JSDoc field-level decorators (e.g. `/** @serde({ rename: "user_id" }) */`)
-/// from the source text preceding a given 0-based byte offset.
+/// from the source text preceding a given 0-based byte offset. `floor` is
+/// where the previous sibling ends: no comment of this declaration's starts
+/// before it, so the search stops there instead of scanning the file.
 fn collect_leading_decorators(
     source: &str,
+    floor: usize,
     target_start_0: usize,
     valid_annotations: Option<&HashSet<String>>,
 ) -> Vec<DecoratorIR> {
     use crate::jsdoc::{
-        adjacent_jsdoc, is_macro_import_comment, parse_all_macro_directives, stacked_jsdoc_above,
+        adjacent_jsdoc_after, is_macro_import_comment, parse_all_macro_directives,
+        stacked_jsdoc_above,
     };
 
     let mut all_directives = Vec::new();
-    let mut block = adjacent_jsdoc(source, target_start_0);
+    let mut block = adjacent_jsdoc_after(source, floor, target_start_0);
 
     // Walk back over every JSDoc block stacked directly above the target.
     while let Some(current) = block {
@@ -39,7 +43,7 @@ fn collect_leading_decorators(
                 });
             }
         }
-        block = stacked_jsdoc_above(source, current);
+        block = stacked_jsdoc_above(source, floor, current);
     }
 
     all_directives
@@ -107,17 +111,19 @@ fn lower_class(
     }
 
     // JSDoc class-level decorators (e.g. @serde({ denyUnknownFields: true }))
-    let decorators = collect_leading_decorators(source, decl.span.start as usize, filter);
+    let decorators = collect_leading_decorators(source, 0, decl.span.start as usize, filter);
 
     let mut fields = Vec::new();
     let mut methods = Vec::new();
 
+    let mut previous_end = decl.body.span.start as usize + 1;
     for element in &decl.body.body {
+        let floor = std::mem::replace(&mut previous_end, element.span().end as usize);
         match element {
             ClassElement::PropertyDefinition(prop) => {
                 if let PropertyKey::StaticIdentifier(ident) = &prop.key {
                     let field_decorators =
-                        collect_leading_decorators(source, prop.span.start as usize, filter);
+                        collect_leading_decorators(source, floor, prop.span.start as usize, filter);
                     fields.push(FieldIR {
                         name: ident.name.to_string(),
                         span: oxc_span_ir(prop.span),
@@ -169,8 +175,12 @@ fn lower_class(
                         })
                         .unwrap_or_default();
 
-                    let method_decorators =
-                        collect_leading_decorators(source, method.span.start as usize, filter);
+                    let method_decorators = collect_leading_decorators(
+                        source,
+                        floor,
+                        method.span.start as usize,
+                        filter,
+                    );
 
                     let (method_body_span, method_body_src) = if let Some(body) = &func.body {
                         let bspan = oxc_span_ir(body.span);
@@ -262,10 +272,11 @@ fn lower_interface(
         }
     }
 
-    let (fields, methods) = lower_interface_members(&decl.body.body, source, filter);
+    let (fields, methods) =
+        lower_interface_members(&decl.body.body, decl.body.span.start, source, filter);
 
     // JSDoc interface-level decorators
-    let decorators = collect_leading_decorators(source, decl.span.start as usize, filter);
+    let decorators = collect_leading_decorators(source, 0, decl.span.start as usize, filter);
 
     InterfaceIR {
         name,
@@ -279,15 +290,20 @@ fn lower_interface(
     }
 }
 
+/// The members of an interface or type literal whose body opens with the `{`
+/// at `body_start`.
 fn lower_interface_members(
     body: &[TSSignature<'_>],
+    body_start: u32,
     source: &str,
     filter: Option<&HashSet<String>>,
 ) -> (Vec<InterfaceFieldIR>, Vec<InterfaceMethodIR>) {
     let mut fields = Vec::new();
     let mut methods = Vec::new();
 
+    let mut previous_end = body_start as usize + 1;
     for elem in body {
+        let floor = std::mem::replace(&mut previous_end, elem.span().end as usize);
         match elem {
             TSSignature::TSPropertySignature(prop) => {
                 if let PropertyKey::StaticIdentifier(ident) = &prop.key {
@@ -301,7 +317,7 @@ fn lower_interface_members(
                         .unwrap_or_else(|| "any".to_string());
 
                     let field_decorators =
-                        collect_leading_decorators(source, prop.span.start as usize, filter);
+                        collect_leading_decorators(source, floor, prop.span.start as usize, filter);
                     fields.push(InterfaceFieldIR {
                         name: ident.name.to_string(),
                         span: oxc_span_ir(prop.span),
@@ -340,7 +356,7 @@ fn lower_interface_members(
                         .unwrap_or_else(|| "void".to_string());
 
                     let meth_decorators =
-                        collect_leading_decorators(source, meth.span.start as usize, filter);
+                        collect_leading_decorators(source, floor, meth.span.start as usize, filter);
                     methods.push(InterfaceMethodIR {
                         name: ident.name.to_string(),
                         span: oxc_span_ir(meth.span),
@@ -399,7 +415,9 @@ fn lower_enum(decl: &TSEnumDeclaration<'_>, source: &str) -> EnumIR {
     let mut variants = Vec::new();
     let mut next_auto_value: f64 = 0.0;
 
+    let mut previous_end = body_span.start as usize;
     for member in &decl.body.members {
+        let floor = std::mem::replace(&mut previous_end, member.span.end as usize);
         let member_name = match &member.id {
             TSEnumMemberName::Identifier(i) => i.name.to_string(),
             TSEnumMemberName::String(s) | TSEnumMemberName::ComputedString(s) => {
@@ -446,7 +464,7 @@ fn lower_enum(decl: &TSEnumDeclaration<'_>, source: &str) -> EnumIR {
         };
 
         let variant_decorators =
-            collect_leading_decorators(source, member.span.start as usize, None);
+            collect_leading_decorators(source, floor, member.span.start as usize, None);
         variants.push(EnumVariantIR {
             name: member_name,
             span: oxc_span_ir(member.span),
@@ -455,7 +473,7 @@ fn lower_enum(decl: &TSEnumDeclaration<'_>, source: &str) -> EnumIR {
         });
     }
 
-    let decorators = collect_leading_decorators(source, decl.span.start as usize, None);
+    let decorators = collect_leading_decorators(source, 0, decl.span.start as usize, None);
 
     EnumIR {
         name,
@@ -501,7 +519,7 @@ fn lower_type_alias(decl: &TSTypeAliasDeclaration<'_>, source: &str) -> TypeAlia
 
     let body = lower_type_body(&decl.type_annotation, source);
 
-    let decorators = collect_leading_decorators(source, decl.span.start as usize, None);
+    let decorators = collect_leading_decorators(source, 0, decl.span.start as usize, None);
 
     TypeAliasIR {
         name,
@@ -512,26 +530,38 @@ fn lower_type_alias(decl: &TSTypeAliasDeclaration<'_>, source: &str) -> TypeAlia
     }
 }
 
-fn lower_union_member(t: &TSType<'_>, source: &str) -> TypeMember {
+/// Lowers each of a union's or intersection's members, bounding each one's
+/// JSDoc search at the member before it.
+fn lower_union_members(members: &[TSType<'_>], source: &str) -> Vec<TypeMember> {
+    let mut previous_end = 0;
+    members
+        .iter()
+        .map(|member| {
+            let floor = std::mem::replace(&mut previous_end, member.span().end as usize);
+            lower_union_member(member, floor, source)
+        })
+        .collect()
+}
+
+fn lower_union_member(t: &TSType<'_>, floor: usize, source: &str) -> TypeMember {
     let sp = t.span();
     let text = source[sp.start as usize..sp.end as usize].to_string();
-    let decorators = collect_leading_decorators(source, sp.start as usize, None);
+    let decorators = collect_leading_decorators(source, floor, sp.start as usize, None);
     let kind = match t {
         TSType::TSLiteralType(_) => TypeMemberKind::Literal(text),
         TSType::TSTypeLiteral(lit) => {
-            let (fields, _) = lower_interface_members(&lit.members, source, None);
+            let (fields, _) = lower_interface_members(&lit.members, lit.span.start, source, None);
             TypeMemberKind::Object { fields }
         }
         TSType::TSIntersectionType(inter) => {
-            let members = inter
-                .types
-                .iter()
-                .map(|t| lower_union_member(t, source))
-                .collect();
-            TypeMemberKind::Intersection(members)
+            TypeMemberKind::Intersection(lower_union_members(&inter.types, source))
         }
         TSType::TSParenthesizedType(paren) => {
-            let mut inner = lower_union_member(&paren.type_annotation, source);
+            let mut inner = lower_union_member(
+                &paren.type_annotation,
+                paren.span.start as usize + 1,
+                source,
+            );
             if inner.decorators.is_empty() && !decorators.is_empty() {
                 inner.decorators = decorators;
             }
@@ -544,24 +574,13 @@ fn lower_union_member(t: &TSType<'_>, source: &str) -> TypeMember {
 
 fn lower_type_body(ts_type: &TSType<'_>, source: &str) -> TypeBody {
     match ts_type {
-        TSType::TSUnionType(union) => {
-            let members = union
-                .types
-                .iter()
-                .map(|t| lower_union_member(t, source))
-                .collect();
-            TypeBody::Union(members)
-        }
+        TSType::TSUnionType(union) => TypeBody::Union(lower_union_members(&union.types, source)),
         TSType::TSIntersectionType(inter) => {
-            let members = inter
-                .types
-                .iter()
-                .map(|t| lower_union_member(t, source))
-                .collect();
-            TypeBody::Intersection(members)
+            TypeBody::Intersection(lower_union_members(&inter.types, source))
         }
         TSType::TSTypeLiteral(lit) => {
-            let (fields, _methods) = lower_interface_members(&lit.members, source, None);
+            let (fields, _methods) =
+                lower_interface_members(&lit.members, lit.span.start, source, None);
             TypeBody::Object { fields }
         }
         TSType::TSTupleType(tuple) => {
@@ -710,11 +729,11 @@ fn lower_function(
     let inner_end = body.span.end as usize - 1;
     let body_src = source.get(inner_start..inner_end).unwrap_or("").to_string();
 
-    // Collect leading JSDoc decorators (no filter — preserve all decorators).
+    // Collect leading JSDoc decorators, unfiltered: every decorator is kept.
     let decorator_start = export_span
         .map(|s| s.start as usize)
         .unwrap_or(decl.span.start as usize);
-    let decorators = collect_leading_decorators(source, decorator_start, None);
+    let decorators = collect_leading_decorators(source, 0, decorator_start, None);
 
     Some(FunctionIR {
         name,

@@ -1,0 +1,3927 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/macro-user.ts
+sha256 989bd45cad10575057024b2b6e04db643838776d39cc84a538bbba78e8bda565
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+/** import macro { JSON } from "@playground/macro"; */
+
+
+export class MacroUser {
+    
+    id: string;
+    name: string;
+    role: string;
+    favoriteMacro: 'Derive' | 'JsonNative';
+    since: string;
+    
+    apiToken: string;
+
+static toString(value: MacroUser): string {
+                    return macroUserToString(value);
+                }
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static serialize(value: MacroUser, keepMetadata?: boolean): string {
+                    return macroUserSerialize(value, keepMetadata);
+                }
+
+                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                static serializeWithContext(value: MacroUser, ctx: __mf_SerializeContext): Record<string, unknown> {
+                    return macroUserSerializeWithContext(value, ctx);
+                }
+constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Derive' | 'JsonNative'; since: string; apiToken: string }) {
+            this.id = props.id;
+            this.name = props.name;
+            this.role = props.role;
+            this.favoriteMacro = props.favoriteMacro;
+            this.since = props.since;
+            this.apiToken = props.apiToken;
+
+
+        }
+
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = MacroUser.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "MacroUser.deserialize: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MacroUser | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
+            }
+
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "MacroUser.deserializeWithContext: expected an object" }]);
+            }
+
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("id" in obj)) {
+                        errors.push({ field: "id", message: "missing required field" });
+                    }if (!("name" in obj)) {
+                        errors.push({ field: "name", message: "missing required field" });
+                    }if (!("role" in obj)) {
+                        errors.push({ field: "role", message: "missing required field" });
+                    }if (!("favoriteMacro" in obj)) {
+                        errors.push({ field: "favoriteMacro", message: "missing required field" });
+                    }if (!("since" in obj)) {
+                        errors.push({ field: "since", message: "missing required field" });
+                    }if (!("apiToken" in obj)) {
+                        errors.push({ field: "apiToken", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(MacroUser.prototype) as MacroUser;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_id = obj["id"] as string;instance.id = __raw_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_name = obj["name"] as string;instance.name = __raw_name;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_role = obj["role"] as string;instance.role = __raw_role;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_favoriteMacro = obj["favoriteMacro"] as 'Derive' | 'JsonNative';instance.favoriteMacro = __raw_favoriteMacro;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_since = obj["since"] as string;instance.since = __raw_since;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_apiToken = obj["apiToken"] as string;instance.apiToken = __raw_apiToken;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
+        }
+
+        static validateField<K extends keyof MacroUser>(
+            _field: K,
+            _value: MacroUser[K]
+        ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static validateFields(
+            _partial: Partial<MacroUser>
+        ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "id" in o && "name" in o && "role" in o && "favoriteMacro" in o && "since" in o && "apiToken" in o;
+        }
+
+        static is(obj: unknown): obj is MacroUser {
+            if (obj instanceof MacroUser) {
+                return true;
+            }
+            if (!MacroUser.hasShape(obj)) {
+                return false;
+            }
+            const result = MacroUser.deserialize(obj);
+            return result.success;
+        }}
+
+export function macroUserToString(value: MacroUser): string {
+                        const parts: string[] = [];
+                        parts.push("userId: " + value.id);
+parts.push("name: " + value.name);
+parts.push("role: " + value.role);
+parts.push("favoriteMacro: " + value.favoriteMacro);
+parts.push("since: " + value.since);
+
+                        return "MacroUser { " + parts.join(", ") + " }";
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function macroUserSerialize(value: MacroUser, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = macroUserSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function macroUserSerializeWithContext(value: MacroUser, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "MacroUser",
+                        __id,
+                    };result.id = value.id;result.name = value.name;result.role = value.role;result.favoriteMacro = value.favoriteMacro;result.since = value.since;result.apiToken = value.apiToken;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        export function macroUserDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return MacroUser.deserialize(input, opts);
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function macroUserDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MacroUser | __mf_PendingRef {
+            return MacroUser.deserializeWithContext(value, ctx);
+        }
+
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function macroUserIs(value: unknown): value is MacroUser {
+            return MacroUser.is(value);
+        }
+
+const showcaseUser = new MacroUser({
+    id: 'usr_2626',
+    name: 'Alya Vector',
+    role: 'Macro Explorer',
+    favoriteMacro: 'Derive',
+    since: '2024-09-12',
+    apiToken: 'svelte-secret-token'
+});
+
+export const showcaseUserSummary = MacroUser.toString(showcaseUser);
+export const showcaseUserJson = JSON.parse(MacroUser.serialize(showcaseUser));
+
+## DTS
+
+/** import macro { JSON } from "@playground/macro"; */
+
+
+export class MacroUser {
+    
+    id: string;
+    name: string;
+    role: string;
+    favoriteMacro: 'Derive' | 'JsonNative';
+    since: string;
+    
+    apiToken: string;
+
+static toString(value: MacroUser): string {
+                    return macroUserToString(value);
+                }
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static serialize(value: MacroUser, keepMetadata?: boolean): string {
+                    return macroUserSerialize(value, keepMetadata);
+                }
+
+                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                static serializeWithContext(value: MacroUser, ctx: __mf_SerializeContext): Record<string, unknown> {
+                    return macroUserSerializeWithContext(value, ctx);
+                }
+constructor(props: { id: string; name: string; role: string; favoriteMacro: 'Derive' | 'JsonNative'; since: string; apiToken: string }) {
+            this.id = props.id;
+            this.name = props.name;
+            this.role = props.role;
+            this.favoriteMacro = props.favoriteMacro;
+            this.since = props.since;
+            this.apiToken = props.apiToken;
+
+
+        }
+
+        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+
+                const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                const ctx = __mf_DeserializeContext.create();
+                const resultOrRef = MacroUser.deserializeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "MacroUser.deserialize: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DeserializeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MacroUser | __mf_PendingRef {
+
+            if (value?.__ref !== undefined) {
+                return ctx.getOrDefer(value.__ref);
+            }
+
+            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                throw new __mf_DeserializeError([{ field: "_root", message: "MacroUser.deserializeWithContext: expected an object" }]);
+            }
+
+            const obj = value as Record<string, unknown>;
+            const errors: Array<{ field: string; message: string }> = [];if (!("id" in obj)) {
+                        errors.push({ field: "id", message: "missing required field" });
+                    }if (!("name" in obj)) {
+                        errors.push({ field: "name", message: "missing required field" });
+                    }if (!("role" in obj)) {
+                        errors.push({ field: "role", message: "missing required field" });
+                    }if (!("favoriteMacro" in obj)) {
+                        errors.push({ field: "favoriteMacro", message: "missing required field" });
+                    }if (!("since" in obj)) {
+                        errors.push({ field: "since", message: "missing required field" });
+                    }if (!("apiToken" in obj)) {
+                        errors.push({ field: "apiToken", message: "missing required field" });
+                    }
+
+
+
+
+
+
+
+
+            const instance = Object.create(MacroUser.prototype) as MacroUser;
+
+
+            if (obj.__id !== undefined) {
+                ctx.register(obj.__id as number, instance);
+            }
+
+
+            ctx.trackForFreeze(instance);{
+                            const __raw_id = obj["id"] as string;instance.id = __raw_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_name = obj["name"] as string;instance.name = __raw_name;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_role = obj["role"] as string;instance.role = __raw_role;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_favoriteMacro = obj["favoriteMacro"] as 'Derive' | 'JsonNative';instance.favoriteMacro = __raw_favoriteMacro;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_since = obj["since"] as string;instance.since = __raw_since;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }{
+                            const __raw_apiToken = obj["apiToken"] as string;instance.apiToken = __raw_apiToken;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            ctx.pushErrors(errors);
+
+            return instance;
+        }
+
+        static validateField<K extends keyof MacroUser>(
+            _field: K,
+            _value: MacroUser[K]
+        ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static validateFields(
+            _partial: Partial<MacroUser>
+        ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        static hasShape(obj: unknown): boolean {
+            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                return false;
+            }
+            const o = obj as Record<string, unknown>;
+            return "id" in o && "name" in o && "role" in o && "favoriteMacro" in o && "since" in o && "apiToken" in o;
+        }
+
+        static is(obj: unknown): obj is MacroUser {
+            if (obj instanceof MacroUser) {
+                return true;
+            }
+            if (!MacroUser.hasShape(obj)) {
+                return false;
+            }
+            const result = MacroUser.deserialize(obj);
+            return result.success;
+        }}
+
+export function macroUserToString(value: MacroUser): string {
+                        const parts: string[] = [];
+                        parts.push("userId: " + value.id);
+parts.push("name: " + value.name);
+parts.push("role: " + value.role);
+parts.push("favoriteMacro: " + value.favoriteMacro);
+parts.push("since: " + value.since);
+
+                        return "MacroUser { " + parts.join(", ") + " }";
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function macroUserSerialize(value: MacroUser, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = macroUserSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function macroUserSerializeWithContext(value: MacroUser, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "MacroUser",
+                        __id,
+                    };result.id = value.id;result.name = value.name;result.role = value.role;result.favoriteMacro = value.favoriteMacro;result.since = value.since;result.apiToken = value.apiToken;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
+        export function macroUserDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MacroUser } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return MacroUser.deserialize(input, opts);
+        }
+
+        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+        export function macroUserDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MacroUser | __mf_PendingRef {
+            return MacroUser.deserializeWithContext(value, ctx);
+        }
+
+        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        export function macroUserIs(value: unknown): value is MacroUser {
+            return MacroUser.is(value);
+        }
+
+const showcaseUser = new MacroUser({
+    id: 'usr_2626',
+    name: 'Alya Vector',
+    role: 'Macro Explorer',
+    favoriteMacro: 'Derive',
+    since: '2024-09-12',
+    apiToken: 'svelte-secret-token'
+});
+
+export const showcaseUserSummary = MacroUser.toString(showcaseUser);
+export const showcaseUserJson = JSON.parse(MacroUser.serialize(showcaseUser));
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..56 -> expanded 0..56
+original 101..131 -> expanded 56..86
+original 166..286 -> expanded 86..206
+original 315..338 -> expanded 206..229
+original 338..339 -> expanded 8564..8565
+original 339..694 -> expanded 11902..12257
+generated 229..344 <- Debug
+generated 344..1098 <- Serialize
+generated 1098..8564 <- Deserialize
+generated 8565..8995 <- Debug
+generated 8995..10676 <- Serialize
+generated 10676..11902 <- Deserialize
+
+## Metadata
+
+class MacroUser: {"body_span":{"end":340,"start":126},"decorators":[{"args_src":"Debug, Serialize, Deserialize","name":"Derive","span":{"end":102,"start":57}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":167,"start":132}}],"name":"id","optional":false,"readonly":false,"span":{"end":183,"start":172},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":201,"start":188},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"role","optional":false,"readonly":false,"span":{"end":219,"start":206},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":263,"start":224},"ts_type":"'Derive' | 'JsonNative'","visibility":"Public"},{"decorators":[],"name":"since","optional":false,"readonly":false,"span":{"end":282,"start":268},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":316,"start":287}}],"name":"apiToken","optional":false,"readonly":false,"span":{"end":338,"start":321},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MacroUser","span":{"end":340,"start":110},"type_params":[]}
+
+## Registry reads
+
+Name("'Derive' | 'JsonNative'")
+
+## Buildtime dependencies
+
+(none)

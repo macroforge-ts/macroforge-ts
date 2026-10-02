@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use oxc::allocator::Allocator;
 use oxc::ast::ast::Program;
 use oxc::parser::Parser;
@@ -19,11 +17,45 @@ fn test_scan_config_defaults() {
 }
 
 #[test]
-fn test_is_in_skip_dir() {
-    let scanner = ProjectScanner::new(ScanConfig::default());
-    assert!(scanner.is_in_skip_dir(Path::new("/project/node_modules/foo/bar.ts")));
-    assert!(scanner.is_in_skip_dir(Path::new("/project/dist/main.ts")));
-    assert!(!scanner.is_in_skip_dir(Path::new("/project/src/models/user.ts")));
+fn skipped_directories_are_skipped_below_the_root_only() {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_nanos())
+        .unwrap_or_default();
+    // A root that itself sits under a `build` directory still scans.
+    let root = std::env::temp_dir().join(format!("macroforge_skip_{nanos}/build/project"));
+    for dir in ["src", "node_modules/dep", "dist"] {
+        std::fs::create_dir_all(root.join(dir)).expect("create fixture dir");
+    }
+    std::fs::write(
+        root.join("src/user.ts"),
+        "export interface User { id: string; }\n",
+    )
+    .expect("write source");
+    std::fs::write(
+        root.join("node_modules/dep/index.ts"),
+        "export interface Dep { id: string; }\n",
+    )
+    .expect("write dependency");
+    std::fs::write(
+        root.join("dist/out.ts"),
+        "export interface Out { id: string; }\n",
+    )
+    .expect("write output");
+
+    let output = ProjectScanner::with_root(root.clone())
+        .scan()
+        .expect("scan");
+    assert_eq!(output.files_scanned, 1);
+    assert!(output.registry.get("User").is_some());
+    assert!(output.registry.get("Dep").is_none());
+    assert!(output.registry.get("Out").is_none());
+
+    let top = root
+        .ancestors()
+        .nth(2)
+        .expect("the fixture root has a temp parent");
+    std::fs::remove_dir_all(top).expect("remove fixture");
 }
 
 fn parse<'a>(allocator: &'a Allocator, source: &'a str, file_name: &str) -> Program<'a> {

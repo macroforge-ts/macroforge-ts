@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/attribute/traced_multiple.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/attribute/traced_multiple.ts
 ---
 ## Input
 
@@ -20,6 +20,10 @@ export function second(x: number): number {
 function untouched(x: number): number {
     return x;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -62,5 +66,27 @@ function untouched(x: number): number {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..63 -> expanded 0..63
+original 77..78 -> expanded 63..64
+original 140..142 -> expanded 261..263
+original 156..157 -> expanded 263..264
+original 221..279 -> expanded 465..523
+generated 64..261 <- traced
+generated 264..465 <- traced
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

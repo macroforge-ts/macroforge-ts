@@ -99,7 +99,12 @@ function createEnv(files) {
         languageService: ls,
         languageServiceHost: host,
         serverHost: {},
-        project: { getCompilerOptions: () => host.getCompilationSettings() }
+        project: {
+            getCompilerOptions: () => host.getCompilationSettings(),
+            projectService: {
+                logger: { info: () => {}, msg: () => {}, hasLevel: () => false }
+            }
+        }
     };
 
     const plugin = initPlugin({ typescript: ts });

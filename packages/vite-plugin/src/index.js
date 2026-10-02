@@ -98,7 +98,7 @@ function offsetToLineColumn(offset, lineStarts) {
  * object suitable for return from Vite's `transform` hook.
  *
  * The engine's `SourceMapping` tracks segments of the form
- * `{ original_start, original_end, expanded_start, expanded_end }` —
+ * `{ original_start, original_end, expanded_start, expanded_end }`,
  * byte-offset ranges in the original and expanded source. Source Map
  * v3 wants `(generated_line, generated_column, source_index,
  * original_line, original_column)` per-segment tuples, VLQ-encoded.
@@ -106,7 +106,7 @@ function offsetToLineColumn(offset, lineStarts) {
  * The original offsets are in the pre-expansion source (`originalCode`),
  * the expanded offsets are in the post-expansion source (`expandedCode`).
  * Note that the engine's offsets are 0-based from a patch-applicator
- * standpoint even though `SpanIR` uses 1-based storage internally —
+ * standpoint even though `SpanIR` uses 1-based storage internally;
  * `SourceMappingResult` emits 0-based values across the ABI boundary.
  *
  * We only emit one source entry (`sources: [sourcePath]`). If other
@@ -468,20 +468,20 @@ function emitDeclarationsFromCode(code, fileName, projectRoot) {
  */
 export async function macroforge() {
     /**
-     * Cached type registry JSON from project scanning.
-     * Built during `buildStart` and passed to every `expandSync` call.
-     * @type {string | undefined}
+     * The project's type registry, kept by the engine from `buildStart` and
+     * named by this id on every `expandSync` call instead of sent as JSON.
+     * @type {number | undefined}
      */
-    let typeRegistryJson;
+    let typeRegistryId;
 
     /**
-     * Cached declarative macro registry JSON from project scanning.
-     * Enables cross-file `/** import macro { $name } from "./file" *\/`
-     * resolution. Loaded from `.macroforge/declarative-registry.json` which
-     * is written by `macroforge watch` / `ensureTypeRegistryCache`.
-     * @type {string | undefined}
+     * The project's declarative macro registry, kept the same way. Enables
+     * cross-file `/** import macro { $name } from "./file" *\/` resolution.
+     * Loaded from `.macroforge/declarative-registry.json`, which
+     * `macroforge watch` / `ensureTypeRegistryCache` writes.
+     * @type {number | undefined}
      */
-    let declarativeRegistryJson;
+    let declarativeRegistryId;
 
     // Load config upfront (the engine parses foreign types)
     const macroConfig = loadMacroConfig(process.cwd(), engine.loadConfig);
@@ -546,6 +546,14 @@ export async function macroforge() {
     let cacheDir;
     /** @type {{ version: string, configHash: string, externalMacroHash: string, engineHashes: Record<string, string>, builtinOnly?: boolean, entries: Record<string, { sourceHash: string, hasMacros: boolean }> } | null} */
     let cacheManifest = null;
+    /**
+     * The engine binary's and the external macro packages' hashes, computed
+     * once per start: each reads and hashes every artifact.
+     * @type {string | null}
+     */
+    let engineHash = null;
+    /** @type {string | null} */
+    let externalMacroHash = null;
     /** @type {string} */
     let macroforgeVersion = 'unknown';
     /** @type {boolean} */
@@ -570,7 +578,7 @@ export async function macroforge() {
      * Writes a file atomically: into a temporary sibling, then renamed over the
      * destination.
      *
-     * Everything this plugin writes has another reader — the macroforge CLI
+     * Everything this plugin writes has another reader: the macroforge CLI
      * reads back `manifest.json`, `tsc` and editors read the emitted `.d.ts`,
      * and a subsequent dev-server start reads the `.cache` entries. A plain
      * `writeFileSync` leaves those readers a window in which the file is
@@ -593,7 +601,7 @@ export async function macroforge() {
             try {
                 fs.unlinkSync(tmpPath);
             } catch {
-                // Best effort — the rename failure is what matters.
+                // Best effort: the rename failure is what matters.
             }
             throw error;
         }
@@ -642,8 +650,11 @@ export async function macroforge() {
      * @returns {string}
      */
     function getEngineHash() {
-        const wasmPath = path.join(path.dirname(engineEntryPath()), 'macroforge_ts_bg.wasm');
-        return contentHash(fs.readFileSync(wasmPath));
+        if (engineHash === null) {
+            const wasmPath = path.join(path.dirname(engineEntryPath()), 'macroforge_ts_bg.wasm');
+            engineHash = contentHash(fs.readFileSync(wasmPath));
+        }
+        return engineHash;
     }
 
     /**
@@ -652,6 +663,17 @@ export async function macroforge() {
      * @returns {string}
      */
     function getExternalMacroHash() {
+        if (externalMacroHash === null) {
+            externalMacroHash = computeExternalMacroHash();
+        }
+        return externalMacroHash;
+    }
+
+    /**
+     * Hashes the external macro packages' artifacts; see `getExternalMacroHash`.
+     * @returns {string}
+     */
+    function computeExternalMacroHash() {
         // Collect path:size:content parts, sort for deterministic ordering
         // (readdir order varies across Node/Deno/Rust), then hash. Content, not
         // mtime: an install copies these files, and copying identical bytes
@@ -710,7 +732,7 @@ export async function macroforge() {
 
         // Every ancestor's `node_modules`, not just the project's own, because
         // that is where Node finds a package and therefore where a workspace
-        // installs one — a package in `apps/web` gets its dependencies from the
+        // installs one: a package in `apps/web` gets its dependencies from the
         // repository root. Scanning only `<root>/node_modules` finds nothing
         // there and pins this hash at 'none', so a rebuilt macro package never
         // invalidates the cache and dev keeps serving the previous expansion.
@@ -802,7 +824,7 @@ export async function macroforge() {
             }
 
             // Compared unconditionally. Both writers normally emit a hash, so
-            // the truthiness guard this replaces was near-dead — but the CLI
+            // the truthiness guard this replaces was near-dead, but the CLI
             // deserializes `external_macro_hash` with `#[serde(default)]`, so a
             // manifest missing the field round-trips as `""`. That is falsy,
             // which skipped the check and let a stale cache outlive an
@@ -864,7 +886,7 @@ export async function macroforge() {
     function buildtimeDepStillValid(snap) {
         if (!snap || typeof snap.path !== 'string') return false;
         if (snap.missing) {
-            // Was missing when cached — still cache-valid only if still missing.
+            // Was missing when cached: still cache-valid only if still missing.
             try {
                 fs.statSync(snap.path);
                 return false;
@@ -893,7 +915,7 @@ export async function macroforge() {
         }
         const currentHash = createHash('sha256').update(content).digest('hex');
         if (currentHash === snap.hash) {
-            // Content unchanged — refresh the stored mtime.
+            // Content unchanged: refresh the stored mtime.
             snap.mtimeMs = stat.mtimeMs;
             return true;
         }
@@ -923,19 +945,22 @@ export async function macroforge() {
      * Reads a cached expansion result for a source file.
      * @param {string} id - Absolute file path
      * @param {string} code - Current source code content
-     * @returns {{ code: string } | null}
+     * @returns {{ code: string, hasMacros: boolean } | null}
      */
     function readCacheEntry(id, code) {
         if (!cacheManifest || !cacheDir) return null;
 
         const relPath = path.relative(projectRoot, id);
         const entry = cacheManifest.entries[relPath];
-        if (!entry || !entry.hasMacros) return null;
+        if (!entry) return null;
 
         const currentHash = contentHash(code);
         if (entry.sourceHash !== currentHash) return null;
 
-        // Buildtime dep check — if any dep changed, the cached result
+        // Nothing expanded last time, and nothing in the file has changed.
+        if (!entry.hasMacros) return { code, hasMacros: false };
+
+        // Buildtime dep check: if any dep changed, the cached result
         // is stale even though the source itself is unchanged.
         if (Array.isArray(entry.buildtimeDeps) && entry.buildtimeDeps.length) {
             for (const snap of entry.buildtimeDeps) {
@@ -949,7 +974,7 @@ export async function macroforge() {
         const cachePath = cachePathFor(relPath);
         try {
             const expandedCode = fs.readFileSync(cachePath, 'utf-8');
-            return { code: expandedCode };
+            return { code: expandedCode, hasMacros: true };
         } catch {
             return null;
         }
@@ -999,13 +1024,18 @@ export async function macroforge() {
             const depSnapshots = Array.isArray(buildtimeDeps)
                 ? buildtimeDeps.map(snapshotBuildtimeDep)
                 : [];
-            cacheManifest.entries[relPath] = {
+            const entry = {
                 sourceHash: contentHash(sourceCode),
                 hasMacros,
                 buildtimeDeps: depSnapshots
             };
+            // An entry the manifest already holds leaves it clean.
+            if (JSON.stringify(cacheManifest.entries[relPath]) === JSON.stringify(entry)) {
+                return;
+            }
+            cacheManifest.entries[relPath] = entry;
 
-            // Debounce manifest writes — don't write 59KB JSON on every file
+            // Debounce manifest writes: don't write 59KB JSON on every file
             cacheManifestDirty = true;
             if (manifestFlushTimer) clearTimeout(manifestFlushTimer);
             manifestFlushTimer = setTimeout(flushCacheManifest, 500);
@@ -1029,7 +1059,7 @@ export async function macroforge() {
             // to land as a single rename rather than a progressive overwrite.
             writeFileAtomic(
                 path.join(cacheDir, 'manifest.json'),
-                JSON.stringify(cacheManifest, null, 2)
+                JSON.stringify(cacheManifest)
             );
             cacheManifestDirty = false;
         } catch (error) {
@@ -1173,6 +1203,8 @@ export async function macroforge() {
             isDevMode = config.command === 'serve';
 
             if (isDevMode && devCacheEnabled) {
+                engineHash = null;
+                externalMacroHash = null;
                 cacheDir = path.join(projectRoot, '.macroforge', 'cache');
                 macroforgeVersion = getMacroforgeVersion();
                 cacheManifest = loadCacheManifest();
@@ -1197,22 +1229,26 @@ export async function macroforge() {
          * any type in the project.
          */
         buildStart() {
+            // A rebuild replaces the registries the previous build kept.
+            if (typeRegistryId !== undefined) {
+                engine.releaseRegistry(typeRegistryId);
+                typeRegistryId = undefined;
+            }
+            if (declarativeRegistryId !== undefined) {
+                engine.releaseRegistry(declarativeRegistryId);
+                declarativeRegistryId = undefined;
+            }
+
             const localRegistry = path.join(
                 projectRoot,
                 '.macroforge',
                 'type-registry.json'
             );
             if (fs.existsSync(localRegistry)) {
-                typeRegistryJson = fs.readFileSync(localRegistry, 'utf-8');
-                try {
-                    const parsed = JSON.parse(typeRegistryJson);
-                    const count = Object.keys(parsed.types ?? parsed).length;
-                    console.log(
-                        `[@macroforge/vite-plugin] Type registry loaded: ${count} types`
-                    );
-                } catch {
-                    // JSON is passed as-is to expandSync, no need to parse here
-                }
+                typeRegistryId = engine.setTypeRegistry(
+                    fs.readFileSync(localRegistry, 'utf-8')
+                );
+                console.log(`[@macroforge/vite-plugin] Type registry loaded`);
             } else {
                 console.warn(
                     `[@macroforge/vite-plugin] No type registry found at .macroforge/type-registry.json. Run \`macroforge watch\` to generate it.`
@@ -1229,21 +1265,9 @@ export async function macroforge() {
                 'declarative-registry.json'
             );
             if (fs.existsSync(localDeclarativeRegistry)) {
-                declarativeRegistryJson = fs.readFileSync(
-                    localDeclarativeRegistry,
-                    'utf-8'
+                declarativeRegistryId = engine.setDeclarativeRegistry(
+                    fs.readFileSync(localDeclarativeRegistry, 'utf-8')
                 );
-                try {
-                    const parsed = JSON.parse(declarativeRegistryJson);
-                    const fileCount = Object.keys(parsed.by_file ?? {}).length;
-                    if (fileCount > 0) {
-                        console.log(
-                            `[@macroforge/vite-plugin] Declarative macro registry loaded: ${fileCount} file(s)`
-                        );
-                    }
-                } catch {
-                    // JSON is passed as-is to expandSync.
-                }
             }
         },
 
@@ -1300,6 +1324,10 @@ export async function macroforge() {
                 // --- Dev cache read ---
                 if (isDevMode && devCacheEnabled && cacheManifest) {
                     const cached = readCacheEntry(id, code);
+                    // An empty expansion is no result at all.
+                    if (cached && !cached.code) {
+                        return null;
+                    }
                     if (cached) {
                         let cachedCode = cached.code;
 
@@ -1314,30 +1342,45 @@ export async function macroforge() {
                             );
                         }
 
-                        // Only files with macros are cached, and their generated
-                        // members reach tsc through these declarations.
-                        if (generateTypes && !fs.existsSync(typesPathFor(id))) {
-                            generateTypeDefinitions(id, cachedCode);
+                        // Generated members reach tsc through these declarations;
+                        // a file whose macros generated nothing has none.
+                        if (generateTypes) {
+                            if (!cached.hasMacros) {
+                                removeTypeDefinitions(id);
+                            } else if (!fs.existsSync(typesPathFor(id))) {
+                                generateTypeDefinitions(id, cachedCode);
+                            }
                         }
 
-                        return {
-                            code: cachedCode,
-                            map: null
-                        };
+                        // Unchanged code is no transform at all.
+                        return cachedCode === code ? null : { code: cachedCode, map: null };
                     }
+                }
+
+                // A file with nothing to expand is left as it is, without
+                // crossing into the engine.
+                if (!engine.hasMacroAnnotations(code, id)) {
+                    if (code && isDevMode && devCacheEnabled) {
+                        writeCacheEntry(id, code, code, false, []);
+                    }
+                    if (code && generateTypes) {
+                        removeTypeDefinitions(id);
+                    }
+                    return null;
                 }
 
                 // Perform macro expansion
                 const result = engine.expandSync(code, id, {
                     keepDecorators: macroConfig.keepDecorators,
                     configPath: macroConfig.configPath,
-                    typeRegistryJson,
-                    declarativeRegistryJson,
+                    typeRegistryId,
+                    declarativeRegistryId,
                     // Reverse-monomorphization build mode. Dev (serve) runs all
                     // declarative macros as if they were expand-only for precise
                     // diagnostics; prod (build) emits share-mode helpers for
                     // `share-only`, `share-anyway`, and `auto` macros.
-                    buildMode: isDevMode ? 'dev' : 'prod'
+                    buildMode: isDevMode ? 'dev' : 'prod',
+                    emitMetadata
                 });
 
                 // Report diagnostics from macro expansion
@@ -1370,7 +1413,7 @@ export async function macroforge() {
                     // "has macros" if derive macros emitted generated regions OR
                     // if the buildtime pre-pass rewrote the source (detected by
                     // presence of dependencies or by text difference against the
-                    // input — a `@buildtime const X = 1+1` rewrite reads no files
+                    // input; a `@buildtime const X = 1+1` rewrite reads no files
                     // but still changes the output).
                     const hasMacros = result.sourceMapping?.generatedRegions?.length > 0 ||
                         (result.buildtimeDependencies?.length ?? 0) > 0 ||
@@ -1444,17 +1487,16 @@ export async function macroforge() {
         },
 
         /**
-         * Phase 17 — HMR invalidation for the native scan cache.
+         * Phase 17: HMR invalidation for the native scan cache.
          *
          * Vite fires `handleHotUpdate` on every file that changed on
          * disk. We forward the path to the Rust scanner's singleton
-         * cache so the next call that reads `typeRegistryJson` /
-         * `declarativeRegistryJson` sees fresh IR. For configuration
+         * cache so the next scan sees fresh IR. For configuration
          * files we clear the whole cache since any cached entry may now
          * be stale.
          *
          * The hook returns `undefined` so Vite uses its default module-
-         * graph invalidation logic — we're only piggy-backing on the
+         * graph invalidation logic; we're only piggy-backing on the
          * notification, not trying to control what reloads.
          *
          * @param {{ file: string, modules: any[] }} ctx
@@ -1472,7 +1514,7 @@ export async function macroforge() {
                 engine.clearScanCache();
                 return;
             }
-            // Source file change — drop the single entry. The next
+            // Source file change: drop the single entry. The next
             // `scanProjectSync` call (either from buildStart or a future
             // HMR refresh) will re-parse it.
             engine.invalidateScanCacheEntry(file);

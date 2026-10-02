@@ -29,11 +29,7 @@ import { dirname, resolve } from 'path';
 import { URI } from 'vscode-uri';
 import { surroundWithIgnoreComments } from './features/utils.ts';
 import { configLoader } from '../../lib/documents/configLoader.ts';
-import {
-    augmentWithMacroforge,
-    type MacroDiagnostic,
-    type MacroforgeAugmentationConfig
-} from './macroforgeAugmenter.ts';
+import { augmentWithMacroforge, type MacroDiagnostic } from './macroforgeAugmenter.ts';
 
 /**
  * An error which occurred while trying to parse/preprocess the svelte file contents.
@@ -98,12 +94,10 @@ export namespace DocumentSnapshot {
      * Returns a svelte snapshot from a svelte document.
      * @param document the svelte document
      * @param options options that apply to the svelte document
-     * @param macroforgeConfig if given, macroforge macro expansion is applied to the snapshot text
      */
     export function fromDocument(
         document: Document,
-        options: SvelteSnapshotOptions,
-        macroforgeConfig?: MacroforgeAugmentationConfig
+        options: SvelteSnapshotOptions
     ) {
         const {
             tsxMap,
@@ -124,8 +118,7 @@ export namespace DocumentSnapshot {
             nrPrependedLines,
             exportedNames,
             tsxMap,
-            htmlAst,
-            macroforgeConfig
+            htmlAst
         );
     }
 
@@ -134,28 +127,24 @@ export namespace DocumentSnapshot {
      * @param filePath path to the js/ts/svelte file
      * @param createDocument function that is used to create a document in case it's a Svelte file
      * @param options options that apply in case it's a svelte file
-     * @param macroforgeConfig if given, macroforge macro expansion is applied to the snapshot text
      */
     export function fromFilePath(
         filePath: string,
         createDocument: (filePath: string, text: string) => Document,
         options: SvelteSnapshotOptions,
-        tsSystem: ts.System,
-        macroforgeConfig?: MacroforgeAugmentationConfig
+        tsSystem: ts.System
     ) {
         if (isSvelteFilePath(filePath)) {
             return DocumentSnapshot.fromSvelteFilePath(
                 filePath,
                 createDocument,
                 options,
-                tsSystem,
-                macroforgeConfig
+                tsSystem
             );
         } else {
             return DocumentSnapshot.fromNonSvelteFilePath(
                 filePath,
-                tsSystem,
-                macroforgeConfig
+                tsSystem
             );
         }
     }
@@ -163,12 +152,10 @@ export namespace DocumentSnapshot {
     /**
      * Returns a ts/js snapshot from a file path.
      * @param filePath path to the js/ts file
-     * @param macroforgeConfig if given, macroforge macro expansion is applied to the snapshot text
      */
     export function fromNonSvelteFilePath(
         filePath: string,
-        tsSystem: ts.System,
-        macroforgeConfig?: MacroforgeAugmentationConfig
+        tsSystem: ts.System
     ) {
         // The following (very hacky) code makes sure that the ambient module definitions
         // that tell TS "every import ending with .svelte is a valid module" are removed.
@@ -210,16 +197,14 @@ export namespace DocumentSnapshot {
                 INITIAL_VERSION,
                 filePath,
                 originalText,
-                tsSystem,
-                macroforgeConfig
+                tsSystem
             );
         }
 
         return new JSOrTSDocumentSnapshot(
             INITIAL_VERSION,
             filePath,
-            originalText,
-            macroforgeConfig
+            originalText
         );
     }
 
@@ -228,20 +213,17 @@ export namespace DocumentSnapshot {
      * @param filePath path to the svelte file
      * @param createDocument function that is used to create a document
      * @param options options that apply in case it's a svelte file
-     * @param macroforgeConfig if given, macroforge macro expansion is applied to the snapshot text
      */
     export function fromSvelteFilePath(
         filePath: string,
         createDocument: (filePath: string, text: string) => Document,
         options: SvelteSnapshotOptions,
-        tsSystem: ts.System,
-        macroforgeConfig?: MacroforgeAugmentationConfig
+        tsSystem: ts.System
     ) {
         const originalText = tsSystem.readFile(filePath) ?? '';
         return fromDocument(
             createDocument(filePath, originalText),
-            options,
-            macroforgeConfig
+            options
         );
     }
 }
@@ -330,7 +312,7 @@ function preprocessSvelteFile(
  * A svelte document snapshot suitable for the TS language service and the plugin.
  * It contains the generated code (Svelte->TS/JS) so the TS language service can understand it.
  *
- * If a `macroforgeConfig` is given, the svelte2tsx output is additionally run
+ * The svelte2tsx output is additionally run
  * through macroforge macro expansion in the constructor and `text` is replaced
  * with the expanded code. Note that `tsxMap` was computed from the
  * pre-expansion svelte2tsx output, so positions inside macro-generated regions
@@ -353,8 +335,7 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
         private readonly nrPrependedLines: number,
         private readonly exportedNames: IExportedNames,
         private readonly tsxMap?: EncodedSourceMap,
-        private readonly htmlAst?: TemplateNode,
-        private readonly macroforgeConfig?: MacroforgeAugmentationConfig
+        private readonly htmlAst?: TemplateNode
     ) {
         this.url = pathToUrl(this.filePath);
         this.version = this.parent.version;
@@ -378,16 +359,7 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
      * mappings for positions in generated regions are lost (see class doc).
      */
     private applyMacroforgeAugmentation() {
-        if (!this.macroforgeConfig) {
-            return;
-        }
-
-        const augmented = augmentWithMacroforge(
-            ts,
-            this.filePath,
-            this.text,
-            this.macroforgeConfig
-        );
+        const augmented = augmentWithMacroforge(this.filePath, this.text);
 
         if (augmented.code) {
             this.text = augmented.code;
@@ -565,8 +537,7 @@ export class JSOrTSDocumentSnapshot extends IdentityMapper implements DocumentSn
     constructor(
         public version: number,
         public readonly filePath: string,
-        private text: string,
-        private readonly macroforgeConfig?: MacroforgeAugmentationConfig
+        private text: string
     ) {
         super(pathToUrl(filePath));
         this.scriptKind = getScriptKindFromFileName(this.filePath);
@@ -741,16 +712,7 @@ export class JSOrTSDocumentSnapshot extends IdentityMapper implements DocumentSn
      * expansion changes the text before or inside the added ranges.
      */
     private applyMacroforgeAugmentation() {
-        if (!this.macroforgeConfig) {
-            return;
-        }
-
-        const augmented = augmentWithMacroforge(
-            ts,
-            this.filePath,
-            this.text,
-            this.macroforgeConfig
-        );
+        const augmented = augmentWithMacroforge(this.filePath, this.text);
 
         if (augmented.code) {
             this.text = augmented.code;
@@ -782,10 +744,9 @@ export class DtsDocumentSnapshot extends JSOrTSDocumentSnapshot implements Docum
         version: number,
         filePath: string,
         text: string,
-        private tsSys: ts.System,
-        macroforgeConfig?: MacroforgeAugmentationConfig
+        private tsSys: ts.System
     ) {
-        super(version, filePath, text, macroforgeConfig);
+        super(version, filePath, text);
     }
 
     getOriginalFilePosition(generatedPosition: Position): FilePosition {

@@ -1,0 +1,74 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/attr-macro-test.ts
+sha256 53cf5a5bec34b993e696e673c80fe82c9fb4d430d309307a389138086ebe75ab
+
+## Changed
+
+true
+
+## Output
+
+// End-to-end playground fixture for attribute and callable proc macros.
+//
+// `@traced`, `$stringify`, and `$concat_names` are `#[ts_macro_attribute]`
+// and `#[ts_macro]` macros in the playground crate
+// (`tooling/playground/macro/src/attrs.rs`).
+//
+// - `@traced` wraps a function so each call increments a counter on
+//   `globalThis.__traced[fnName]`.
+// - `$stringify(expr)` emits a string literal with the raw source of
+//   `expr`.
+// - `$concat_names(a, b)` emits `"a_b"` as a string literal.
+
+/** import macro { traced, $stringify, $concat_names } from "@playground/macro" */
+
+/** @traced */
+export function tracedAdd(a: number, b: number): number {
+    (globalThis as any).__traced ??= {};
+    (globalThis as any).__traced["tracedAdd"] = ((globalThis as any).__traced["tracedAdd"] || 0) + 1;
+    return a + b;
+}
+
+/** @traced */
+export function tracedGreet(name: string): string {
+    (globalThis as any).__traced ??= {};
+    (globalThis as any).__traced["tracedGreet"] = ((globalThis as any).__traced["tracedGreet"] || 0) + 1;
+    return `hello, ${name}`;
+}
+
+export const stringifiedExpr = "1 + 2 * 3";
+export const stringifiedIdent = "myVariable";
+export const concatUserName = "user_name";
+export const concatDbHost = "db_host";
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..603 -> expanded 0..603
+original 680..697 -> expanded 823..840
+original 779..953 -> expanded 1069..1243
+generated 603..823 <- traced
+generated 840..1069 <- traced
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

@@ -38,26 +38,81 @@ fn parse_manifest(json: &str, package_path: &str) -> anyhow::Result<MacroManifes
 
 pub(crate) struct ExternalMacroLoader {
     /// The project root macro packages resolve from.
-    #[cfg(any(not(target_arch = "wasm32"), feature = "wasm"))]
     root_dir: std::path::PathBuf,
-    /// Cache of instantiated wasm packages, keyed by module path.
-    ///
-    /// Instantiation parses and validates the whole module, which is far from
-    /// free, and a watch session expands thousands of files — so a package is
-    /// instantiated once and reused. Held behind a mutex because calling into a
-    /// `wasmi::Store` needs `&mut`.
-    #[cfg(not(target_arch = "wasm32"))]
-    loaded_wasm:
-        std::sync::Mutex<std::collections::HashMap<String, super::wasm_loader::WasmMacroModule>>,
+    /// For each package, the registry generation installed in it, or `None`
+    /// once it turned out not to take resident registries.
+    #[cfg(all(target_arch = "wasm32", feature = "wasm"))]
+    resident: std::sync::Mutex<
+        std::collections::HashMap<
+            String,
+            Option<crate::ts_syn::abi::ir::type_registry::RegistryGeneration>,
+        >,
+    >,
 }
+
+/// The installation payload for `registry`, serialized once per generation
+/// and shared by every guest it is sent to.
+#[cfg(any(not(target_arch = "wasm32"), feature = "wasm"))]
+fn resident_payload(
+    registry: &crate::ts_syn::abi::ir::type_registry::TypeRegistry,
+) -> anyhow::Result<std::sync::Arc<str>> {
+    use crate::ts_syn::abi::ir::type_registry::{RegistryGeneration, ResidentRegistryPayload};
+
+    static LAST: std::sync::Mutex<Option<(RegistryGeneration, std::sync::Arc<str>)>> =
+        std::sync::Mutex::new(None);
+
+    let generation = registry.generation();
+    let mut last = LAST
+        .lock()
+        .map_err(|err| anyhow!("registry payload cache lock poisoned: {err}"))?;
+    if let Some((cached, payload)) = last.as_ref()
+        && *cached == generation
+    {
+        return Ok(std::sync::Arc::clone(payload));
+    }
+    let payload: std::sync::Arc<str> = serde_json::to_string(&ResidentRegistryPayload {
+        generation,
+        registry: registry.clone(),
+    })
+    .context("failed to serialize the type registry for a macro package")?
+    .into();
+    *last = Some((generation, std::sync::Arc::clone(&payload)));
+    Ok(payload)
+}
+
+/// `ctx` as sent to a guest holding its registry: the registry named by
+/// generation instead of carried.
+#[cfg(any(not(target_arch = "wasm32"), feature = "wasm"))]
+fn resident_context_json(ctx: &MacroContextIR) -> anyhow::Result<String> {
+    let mut wire = ctx.clone();
+    wire.type_registry = ctx.type_registry.resident_reference();
+    serde_json::to_string(&wire).context("failed to serialize the macro context")
+}
+
+/// Where each package's wasm module was found, by project root and package.
+/// Only packages that were found are kept, and each is checked on use, so a
+/// package installed or removed while the process runs is noticed.
+#[cfg(not(target_arch = "wasm32"))]
+static PACKAGE_MODULES: std::sync::LazyLock<
+    std::sync::Mutex<std::collections::HashMap<(std::path::PathBuf, String), std::path::PathBuf>>,
+> = std::sync::LazyLock::new(std::sync::Mutex::default);
+
+/// Each module's annotation names, with the stamp of the file they came from.
+#[cfg(not(target_arch = "wasm32"))]
+type ModuleAnnotations = std::collections::HashMap<
+    std::path::PathBuf,
+    (crate::host::file_stamp::FileStamp, Vec<String>),
+>;
+
+/// Each module's annotation names, for as long as its file is unchanged.
+#[cfg(not(target_arch = "wasm32"))]
+static MODULE_ANNOTATIONS: std::sync::LazyLock<std::sync::Mutex<ModuleAnnotations>> =
+    std::sync::LazyLock::new(std::sync::Mutex::default);
 
 #[cfg(not(target_arch = "wasm32"))]
 impl ExternalMacroLoader {
     pub(crate) fn new(root_dir: std::path::PathBuf) -> Self {
-        Self {
-            root_dir,
-            loaded_wasm: std::sync::Mutex::new(std::collections::HashMap::new()),
-        }
+        Self { root_dir }
     }
 
     /// Resolve the annotation names an external macro package contributes,
@@ -71,28 +126,30 @@ impl ExternalMacroLoader {
         &self,
         package_path: &str,
     ) -> anyhow::Result<Vec<String>> {
-        let Some(module_path) = self.find_wasm_for(package_path) else {
+        let Some(module_path) = self.find_wasm_for(package_path)? else {
             bail!("macro package {package_path} was not found, or ships no wasm module");
         };
-
-        let mut cache = self
-            .loaded_wasm
-            .lock()
-            .map_err(|err| anyhow!("macro module cache lock poisoned: {err}"))?;
-        let module = match cache.entry(package_path.to_string()) {
-            std::collections::hash_map::Entry::Occupied(entry) => entry.into_mut(),
-            std::collections::hash_map::Entry::Vacant(entry) => {
-                entry.insert(super::wasm_loader::WasmMacroModule::load(&module_path)?)
+        let stamp = crate::host::file_stamp::FileStamp::of(&module_path)
+            .with_context(|| format!("failed to stat {}", module_path.display()))?;
+        {
+            let cached = MODULE_ANNOTATIONS
+                .lock()
+                .map_err(|err| anyhow!("macro manifest cache lock poisoned: {err}"))?;
+            if let Some((cached_stamp, names)) = cached.get(&module_path)
+                && *cached_stamp == stamp
+            {
+                return Ok(names.clone());
             }
-        };
-        let json = module
-            .manifest()
-            .with_context(|| format!("{package_path}'s wasm manifest export failed"))?;
+        }
 
-        Ok(annotation_names_from_manifest(&parse_manifest(
-            &json,
-            package_path,
-        )?))
+        let json = super::wasm_loader::with_instance(&module_path, |module| module.manifest())
+            .with_context(|| format!("{package_path}'s wasm manifest export failed"))?;
+        let names = annotation_names_from_manifest(&parse_manifest(&json, package_path)?);
+        MODULE_ANNOTATIONS
+            .lock()
+            .map_err(|err| anyhow!("macro manifest cache lock poisoned: {err}"))?
+            .insert(module_path, (stamp, names.clone()));
+        Ok(names)
     }
 
     pub(crate) fn run_macro(&self, ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
@@ -127,30 +184,30 @@ impl ExternalMacroLoader {
     fn try_run_wasm(&self, ctx: &MacroContextIR) -> anyhow::Result<Option<MacroResult>> {
         use convert_case::{Case, Casing};
 
-        let Some(module_path) = self.find_wasm_for(&ctx.module_path) else {
+        let Some(module_path) = self.find_wasm_for(&ctx.module_path)? else {
             return Ok(None);
         };
 
-        let ctx_json =
-            serde_json::to_string(ctx).map_err(|e| anyhow!("Failed to serialize context: {e}"))?;
         let symbol = format!(
             "__macroforge_ffi_run_{}",
             ctx.macro_name.to_case(Case::Snake)
         );
 
-        let mut cache = self
-            .loaded_wasm
-            .lock()
-            .map_err(|e| anyhow!("Lock poisoned: {e}"))?;
-
-        let module = match cache.entry(ctx.module_path.clone()) {
-            std::collections::hash_map::Entry::Occupied(entry) => entry.into_mut(),
-            std::collections::hash_map::Entry::Vacant(entry) => {
-                entry.insert(super::wasm_loader::WasmMacroModule::load(&module_path)?)
-            }
-        };
-
-        let Some(json) = module.run(&symbol, &ctx_json)? else {
+        // A guest that takes resident registries gets the registry once per
+        // generation and contexts that refer to it; any other gets it whole.
+        let Some(json) = super::wasm_loader::with_instance(&module_path, |module| {
+            let ctx_json = if module.accepts_resident_registry() {
+                module.ensure_resident(ctx.type_registry.generation(), || {
+                    resident_payload(&ctx.type_registry)
+                })?;
+                resident_context_json(ctx)?
+            } else {
+                serde_json::to_string(ctx)
+                    .map_err(|e| anyhow!("Failed to serialize context: {e}"))?
+            };
+            module.run(&symbol, &ctx_json)
+        })?
+        else {
             return Ok(None);
         };
 
@@ -180,9 +237,28 @@ impl ExternalMacroLoader {
     }
 
     /// Locates a package's wasm artifact under `node_modules`.
-    fn find_wasm_for(&self, module_path: &str) -> Option<std::path::PathBuf> {
-        let pkg_dir = self.find_package_dir(module_path)?;
-        super::wasm_loader::find_wasm_module(&pkg_dir)
+    fn find_wasm_for(&self, module_path: &str) -> anyhow::Result<Option<std::path::PathBuf>> {
+        let key = (self.root_dir.clone(), module_path.to_string());
+        let mut found = PACKAGE_MODULES
+            .lock()
+            .map_err(|err| anyhow!("macro package cache lock poisoned: {err}"))?;
+        if let Some(wasm) = found.get(&key)
+            && wasm.is_file()
+        {
+            return Ok(Some(wasm.clone()));
+        }
+        let wasm = self
+            .find_package_dir(module_path)
+            .and_then(|package_dir| super::wasm_loader::find_wasm_module(&package_dir));
+        match &wasm {
+            Some(path) => {
+                found.insert(key, path.clone());
+            }
+            None => {
+                found.remove(&key);
+            }
+        }
+        Ok(wasm)
     }
 }
 
@@ -212,6 +288,17 @@ export function macroPackageManifests(root, packagePath) {
             typeof value === 'function')
         .map(([, getManifest]) => JSON.stringify(getManifest()));
 }
+// Installs a type registry in the package, returning false for a package
+// built before resident registries, which takes the registry in every context.
+export function setMacroPackageRegistry(root, packagePath, payloadJson) {
+    const pkg = load(root, packagePath);
+    const install = pkg.__macroforgeSetRegistry ?? pkg.default?.__macroforgeSetRegistry;
+    if (typeof install !== 'function') {
+        return false;
+    }
+    install(payloadJson);
+    return true;
+}
 export function runMacroPackage(root, packagePath, functionName, contextJson) {
     const pkg = load(root, packagePath);
     const run = pkg[functionName] ?? pkg.default?.[functionName];
@@ -227,6 +314,12 @@ export function runMacroPackage(root, packagePath, functionName, contextJson) {
             root: &str,
             package_path: &str,
         ) -> Result<js_sys::Array, JsValue>;
+        #[wasm_bindgen(catch, js_name = setMacroPackageRegistry)]
+        pub(super) fn set_macro_package_registry(
+            root: &str,
+            package_path: &str,
+            payload_json: &str,
+        ) -> Result<bool, JsValue>;
         #[wasm_bindgen(catch, js_name = runMacroPackage)]
         pub(super) fn run_macro_package(
             root: &str,
@@ -240,7 +333,39 @@ export function runMacroPackage(root, packagePath, functionName, contextJson) {
 #[cfg(all(target_arch = "wasm32", feature = "wasm"))]
 impl ExternalMacroLoader {
     pub(crate) fn new(root_dir: std::path::PathBuf) -> Self {
-        Self { root_dir }
+        Self {
+            root_dir,
+            resident: std::sync::Mutex::new(std::collections::HashMap::new()),
+        }
+    }
+
+    /// Whether the package holds `ctx`'s registry, installing it first when
+    /// the package takes resident registries and holds another generation.
+    fn ensure_resident(&self, ctx: &MacroContextIR) -> anyhow::Result<bool> {
+        let generation = ctx.type_registry.generation();
+        let mut resident = self
+            .resident
+            .lock()
+            .map_err(|err| anyhow!("resident registry table lock poisoned: {err}"))?;
+        match resident.get(&ctx.module_path) {
+            Some(None) => return Ok(false),
+            Some(Some(installed)) if *installed == generation => return Ok(true),
+            _ => {}
+        }
+        let payload = resident_payload(&ctx.type_registry)?;
+        let installed = node_packages::set_macro_package_registry(
+            &self.root_dir.to_string_lossy(),
+            &ctx.module_path,
+            &payload,
+        )
+        .map_err(|error| {
+            anyhow!(
+                "installing the type registry in {} failed: {error:?}",
+                ctx.module_path
+            )
+        })?;
+        resident.insert(ctx.module_path.clone(), installed.then_some(generation));
+        Ok(installed)
     }
 
     pub(crate) fn resolve_decorator_names(
@@ -268,8 +393,11 @@ impl ExternalMacroLoader {
     }
 
     pub(crate) fn run_macro(&self, ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
-        let ctx_json =
-            serde_json::to_string(ctx).context("failed to serialize the macro context")?;
+        let ctx_json = if self.ensure_resident(ctx)? {
+            resident_context_json(ctx)?
+        } else {
+            serde_json::to_string(ctx).context("failed to serialize the macro context")?
+        };
         let function_name = format!("__macroforgeRun{}", ctx.macro_name);
         let output = node_packages::run_macro_package(
             &self.root_dir.to_string_lossy(),
@@ -319,19 +447,27 @@ pub(crate) fn resolve_external_decorator_names(
 
 #[cfg(all(target_arch = "wasm32", not(feature = "wasm")))]
 impl ExternalMacroLoader {
-    pub(crate) fn new(_root_dir: std::path::PathBuf) -> Self {
-        Self {}
+    pub(crate) fn new(root_dir: std::path::PathBuf) -> Self {
+        Self { root_dir }
     }
 
     pub(crate) fn resolve_decorator_names(
         &self,
         package_path: &str,
     ) -> anyhow::Result<Vec<String>> {
-        bail!("cannot load the macro package {package_path}: this WASM build has no `wasm` feature")
+        bail!(
+            "cannot load the macro package {package_path} for {}: this WASM build has no \
+             `wasm` feature",
+            self.root_dir.display()
+        )
     }
 
-    pub(crate) fn run_macro(&self, _ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
-        bail!("External macros are not supported in this WASM build (wasm feature disabled)")
+    pub(crate) fn run_macro(&self, ctx: &MacroContextIR) -> anyhow::Result<MacroResult> {
+        bail!(
+            "cannot run the external macro {} from {}: this WASM build has no `wasm` feature",
+            ctx.macro_name,
+            ctx.module_path
+        )
     }
 }
 

@@ -1,0 +1,817 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/job-title.svelte.ts
+sha256 409f43b1b90e080002d6c82787cdd438014edd2436d32bd657f63d076769f6a1
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type JobTitle =
+    | /** @default */ 'Technician'
+    | 'SalesRepresentative'
+    | 'HumanResources'
+    | 'InformationTechnology';
+
+export function jobTitleDefaultValue(): JobTitle {
+                            return "Technician";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function jobTitleSerialize(value: JobTitle, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = jobTitleSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function jobTitleSerializeWithContext(value: JobTitle, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function jobTitleDeserialize(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Technician':
+                    case 'SalesRepresentative':
+                    case 'HumanResources':
+                    case 'InformationTechnology':
+
+
+                        return { success: true, value: input as JobTitle };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for JobTitle: expected one of " + ['Technician', 'SalesRepresentative', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function jobTitleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): JobTitle | __mf_PendingRef {
+                switch (value) {
+                    case 'Technician':
+                    case 'SalesRepresentative':
+                    case 'HumanResources':
+                    case 'InformationTechnology':
+
+
+                        return value as JobTitle;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for JobTitle: expected one of " + ['Technician', 'SalesRepresentative', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function jobTitleHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Technician':
+                    case 'SalesRepresentative':
+                    case 'HumanResources':
+                    case 'InformationTechnology':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function jobTitleIs(value: unknown): value is JobTitle {
+                return jobTitleHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type JobTitleTechnicianErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type JobTitleSalesRepresentativeErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type JobTitleHumanResourcesErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type JobTitleInformationTechnologyErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type JobTitleTechnicianTainted = {
+
+
+            };
+            export type JobTitleSalesRepresentativeTainted = {
+
+
+            };
+            export type JobTitleHumanResourcesTainted = {
+
+
+            };
+            export type JobTitleInformationTechnologyTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type JobTitleErrors = ({ _value: "Technician" } & JobTitleTechnicianErrors) | ({ _value: "SalesRepresentative" } & JobTitleSalesRepresentativeErrors) | ({ _value: "HumanResources" } & JobTitleHumanResourcesErrors) | ({ _value: "InformationTechnology" } & JobTitleInformationTechnologyErrors);
+
+        /** Union tainted type  */
+        export type JobTitleTainted = ({ _value: "Technician" } & JobTitleTechnicianTainted) | ({ _value: "SalesRepresentative" } & JobTitleSalesRepresentativeTainted) | ({ _value: "HumanResources" } & JobTitleHumanResourcesTainted) | ({ _value: "InformationTechnology" } & JobTitleInformationTechnologyTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface JobTitleTechnicianFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface JobTitleSalesRepresentativeFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface JobTitleHumanResourcesFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface JobTitleInformationTechnologyFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface JobTitleGigaform {
+            readonly currentVariant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology";
+            readonly data: JobTitle;
+            readonly errors: JobTitleErrors;
+            readonly tainted: JobTitleTainted;
+            readonly variants: JobTitleVariantFields;
+            switchVariant(variant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology"): void;
+            validate(): Exit.Exit<JobTitle, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<JobTitle>): void;
+        }
+
+        /** Variant fields container  */
+        export interface JobTitleVariantFields {
+            
+                readonly Technician: { readonly fields: JobTitleTechnicianFieldControllers };
+            
+                readonly SalesRepresentative: { readonly fields: JobTitleSalesRepresentativeFieldControllers };
+            
+                readonly HumanResources: { readonly fields: JobTitleHumanResourcesFieldControllers };
+            
+                readonly InformationTechnology: { readonly fields: JobTitleInformationTechnologyFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function jobTitleGetDefaultForVariant(variant: string): JobTitle {
+            if (variant === "Technician") { return "Technician" as JobTitle; }
+if (variant === "SalesRepresentative") { return "SalesRepresentative" as JobTitle; }
+if (variant === "HumanResources") { return "HumanResources" as JobTitle; }
+if (variant === "InformationTechnology") { return "InformationTechnology" as JobTitle; }
+            return "Technician" as JobTitle;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function jobTitleCreateForm(initial?: JobTitle): JobTitleGigaform {
+
+            const initialVariant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology" = (initial as "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology") ?? "Technician";
+
+
+            let currentVariant = $state<"Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology">(initialVariant);
+            let data = $state<JobTitle>(initial ?? jobTitleGetDefaultForVariant(initialVariant));
+            let errors = $state<JobTitleErrors>({} as JobTitleErrors);
+            let tainted = $state<JobTitleTainted>({} as JobTitleTainted);
+
+            const variants = {
+            
+                "Technician": { fields: {  } as unknown as JobTitleTechnicianFieldControllers },
+            
+                "SalesRepresentative": { fields: {  } as unknown as JobTitleSalesRepresentativeFieldControllers },
+            
+                "HumanResources": { fields: {  } as unknown as JobTitleHumanResourcesFieldControllers },
+            
+                "InformationTechnology": { fields: {  } as unknown as JobTitleInformationTechnologyFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as JobTitleVariantFields;
+
+
+            function switchVariant(variant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology"): void {
+                currentVariant = variant;
+                data = jobTitleGetDefaultForVariant(variant);
+                errors = {} as JobTitleErrors;
+                tainted = {} as JobTitleTainted;
+            }
+
+
+            function validate(): Exit.Exit<JobTitle, Array<{ field: string; message: string }>> {
+                return toExit(jobTitleDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<JobTitle>): void {
+                data = overrides ? overrides as typeof data : jobTitleGetDefaultForVariant(currentVariant);
+                errors = {} as JobTitleErrors;
+                tainted = {} as JobTitleTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function jobTitleFromFormData(formData: FormData): Exit.Exit<JobTitle, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Technician") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "SalesRepresentative") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "HumanResources") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "InformationTechnology") {
+                        
+                    }
+                }
+
+
+            return toExit(jobTitleDeserialize(obj));
+        }
+
+export const JobTitle = {
+  defaultValue: jobTitleDefaultValue,
+  serialize: jobTitleSerialize,
+  serializeWithContext: jobTitleSerializeWithContext,
+  deserialize: jobTitleDeserialize,
+  deserializeWithContext: jobTitleDeserializeWithContext,
+  hasShape: jobTitleHasShape,
+  is: jobTitleIs,
+  createForm: jobTitleCreateForm,
+  fromFormData: jobTitleFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type JobTitle =
+    | /** @default */ 'Technician'
+    | 'SalesRepresentative'
+    | 'HumanResources'
+    | 'InformationTechnology';
+
+export function jobTitleDefaultValue(): JobTitle {
+                            return "Technician";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function jobTitleSerialize(value: JobTitle, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = jobTitleSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function jobTitleSerializeWithContext(value: JobTitle, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function jobTitleDeserialize(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Technician':
+                    case 'SalesRepresentative':
+                    case 'HumanResources':
+                    case 'InformationTechnology':
+
+
+                        return { success: true, value: input as JobTitle };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for JobTitle: expected one of " + ['Technician', 'SalesRepresentative', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function jobTitleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): JobTitle | __mf_PendingRef {
+                switch (value) {
+                    case 'Technician':
+                    case 'SalesRepresentative':
+                    case 'HumanResources':
+                    case 'InformationTechnology':
+
+
+                        return value as JobTitle;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for JobTitle: expected one of " + ['Technician', 'SalesRepresentative', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function jobTitleHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Technician':
+                    case 'SalesRepresentative':
+                    case 'HumanResources':
+                    case 'InformationTechnology':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function jobTitleIs(value: unknown): value is JobTitle {
+                return jobTitleHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type JobTitleTechnicianErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type JobTitleSalesRepresentativeErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type JobTitleHumanResourcesErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type JobTitleInformationTechnologyErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type JobTitleTechnicianTainted = {
+
+
+            };
+            export type JobTitleSalesRepresentativeTainted = {
+
+
+            };
+            export type JobTitleHumanResourcesTainted = {
+
+
+            };
+            export type JobTitleInformationTechnologyTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type JobTitleErrors = ({ _value: "Technician" } & JobTitleTechnicianErrors) | ({ _value: "SalesRepresentative" } & JobTitleSalesRepresentativeErrors) | ({ _value: "HumanResources" } & JobTitleHumanResourcesErrors) | ({ _value: "InformationTechnology" } & JobTitleInformationTechnologyErrors);
+
+        /** Union tainted type  */
+        export type JobTitleTainted = ({ _value: "Technician" } & JobTitleTechnicianTainted) | ({ _value: "SalesRepresentative" } & JobTitleSalesRepresentativeTainted) | ({ _value: "HumanResources" } & JobTitleHumanResourcesTainted) | ({ _value: "InformationTechnology" } & JobTitleInformationTechnologyTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface JobTitleTechnicianFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface JobTitleSalesRepresentativeFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface JobTitleHumanResourcesFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface JobTitleInformationTechnologyFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface JobTitleGigaform {
+            readonly currentVariant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology";
+            readonly data: JobTitle;
+            readonly errors: JobTitleErrors;
+            readonly tainted: JobTitleTainted;
+            readonly variants: JobTitleVariantFields;
+            switchVariant(variant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology"): void;
+            validate(): Exit.Exit<JobTitle, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<JobTitle>): void;
+        }
+
+        /** Variant fields container  */
+        export interface JobTitleVariantFields {
+            
+                readonly Technician: { readonly fields: JobTitleTechnicianFieldControllers };
+            
+                readonly SalesRepresentative: { readonly fields: JobTitleSalesRepresentativeFieldControllers };
+            
+                readonly HumanResources: { readonly fields: JobTitleHumanResourcesFieldControllers };
+            
+                readonly InformationTechnology: { readonly fields: JobTitleInformationTechnologyFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function jobTitleGetDefaultForVariant(variant: string): JobTitle {
+            if (variant === "Technician") { return "Technician" as JobTitle; }
+if (variant === "SalesRepresentative") { return "SalesRepresentative" as JobTitle; }
+if (variant === "HumanResources") { return "HumanResources" as JobTitle; }
+if (variant === "InformationTechnology") { return "InformationTechnology" as JobTitle; }
+            return "Technician" as JobTitle;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function jobTitleCreateForm(initial?: JobTitle): JobTitleGigaform {
+
+            const initialVariant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology" = (initial as "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology") ?? "Technician";
+
+
+            let currentVariant = $state<"Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology">(initialVariant);
+            let data = $state<JobTitle>(initial ?? jobTitleGetDefaultForVariant(initialVariant));
+            let errors = $state<JobTitleErrors>({} as JobTitleErrors);
+            let tainted = $state<JobTitleTainted>({} as JobTitleTainted);
+
+            const variants = {
+            
+                "Technician": { fields: {  } as unknown as JobTitleTechnicianFieldControllers },
+            
+                "SalesRepresentative": { fields: {  } as unknown as JobTitleSalesRepresentativeFieldControllers },
+            
+                "HumanResources": { fields: {  } as unknown as JobTitleHumanResourcesFieldControllers },
+            
+                "InformationTechnology": { fields: {  } as unknown as JobTitleInformationTechnologyFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as JobTitleVariantFields;
+
+
+            function switchVariant(variant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology"): void {
+                currentVariant = variant;
+                data = jobTitleGetDefaultForVariant(variant);
+                errors = {} as JobTitleErrors;
+                tainted = {} as JobTitleTainted;
+            }
+
+
+            function validate(): Exit.Exit<JobTitle, Array<{ field: string; message: string }>> {
+                return toExit(jobTitleDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<JobTitle>): void {
+                data = overrides ? overrides as typeof data : jobTitleGetDefaultForVariant(currentVariant);
+                errors = {} as JobTitleErrors;
+                tainted = {} as JobTitleTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function jobTitleFromFormData(formData: FormData): Exit.Exit<JobTitle, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Technician") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "SalesRepresentative") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "HumanResources") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "InformationTechnology") {
+                        
+                    }
+                }
+
+
+            return toExit(jobTitleDeserialize(obj));
+        }
+
+export const JobTitle = {
+  defaultValue: jobTitleDefaultValue,
+  serialize: jobTitleSerialize,
+  serializeWithContext: jobTitleSerializeWithContext,
+  deserialize: jobTitleDeserialize,
+  deserializeWithContext: jobTitleDeserializeWithContext,
+  hasShape: jobTitleHasShape,
+  is: jobTitleIs,
+  createForm: jobTitleCreateForm,
+  fromFormData: jobTitleFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..255 -> expanded 58..198
+original 255..256 -> expanded 12856..12857
+generated 198..325 <- Default
+generated 325..2271 <- Serialize
+generated 2271..4754 <- Deserialize
+generated 4754..12480 <- Gigaform
+generated 12480..12856 <- __convenience_const
+
+## Metadata
+
+type JobTitle: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":161,"start":146}}],"kind":{"Literal":"'Technician'"}},{"decorators":[],"kind":{"Literal":"'SalesRepresentative'"}},{"decorators":[],"kind":{"Literal":"'HumanResources'"}},{"decorators":[],"kind":{"Literal":"'InformationTechnology'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"JobTitle","span":{"end":256,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("JobTitle")
+
+## Buildtime dependencies
+
+(none)

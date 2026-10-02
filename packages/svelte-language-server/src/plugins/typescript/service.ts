@@ -32,10 +32,6 @@ import {
 } from './utils.ts';
 import { createProject, type ProjectService } from './serviceCache.ts';
 import { internalHelpers } from 'svelte2tsx';
-import {
-    createMacroforgeAugmentationConfig,
-    type MacroforgeAugmentationConfig
-} from './macroforgeAugmenter.ts';
 
 export interface LanguageServiceContainer {
     readonly tsconfigPath: string;
@@ -363,19 +359,7 @@ async function createLanguageService(
     const projectConfig = getParsedConfig();
     Logger.log('createLanguageService: parsed config');
     const { options: compilerOptions, raw, errors: configErrors } = projectConfig;
-    const macroforgePluginSettings = raw?.compilerOptions?.plugins?.find(
-        (plugin: { name?: string }) => plugin?.name === TS_MACROS_PLUGIN_NAME
-    ) ?? {};
-    const macroforgeConfig: MacroforgeAugmentationConfig = createMacroforgeAugmentationConfig(
-        macroforgePluginSettings &&
-            Object.keys(macroforgePluginSettings).length > 0
-            ? macroforgePluginSettings
-            : (raw as Record<string, unknown>)?.['typescript-plugin']
-    );
-    ensureMacroforgesPlugin(
-        compilerOptions,
-        tsconfigPath ? dirname(tsconfigPath) : workspacePath || process.cwd()
-    );
+    ensureMacroforgesPlugin(compilerOptions);
     const allowJs = compilerOptions.allowJs ?? !!compilerOptions.checkJs;
     const virtualDocuments = new FileMap<Document>(
         tsSystem.useCaseSensitiveFileNames
@@ -611,8 +595,7 @@ async function createLanguageService(
 
         const newSnapshot = DocumentSnapshot.fromDocument(
             document,
-            transformationConfig,
-            macroforgeConfig
+            transformationConfig
         );
 
         if (!prevSnapshot) {
@@ -685,8 +668,7 @@ async function createLanguageService(
             fileName,
             docContext.createDocument,
             transformationConfig,
-            tsSystem,
-            macroforgeConfig
+            tsSystem
         );
         snapshotManager.set(fileName, doc);
         return doc;
@@ -1380,27 +1362,13 @@ async function createLanguageService(
  * Ensures the `@macroforge/typescript-plugin` entry is present in
  * `compilerOptions.plugins`.
  *
- * Registration is unconditional: the plugin entry is pushed even if the
- * module cannot be resolved from `searchPath` (no resolution check is
- * performed), so tests and editor startup always see it registered.
- *
- * Plugin settings are picked up elsewhere (see `createLanguageService`) from
- * two sources, in order: the `compilerOptions.plugins` entry named
- * `@macroforge/typescript-plugin` in the raw tsconfig, falling back to a
- * top-level `"typescript-plugin"` key in the raw tsconfig.
+ * Registration is unconditional, with no module resolution check, so tests
+ * and editor startup always see it registered.
  */
-function ensureMacroforgesPlugin(
-    compilerOptions: ts.CompilerOptions,
-    searchPath: string
-) {
+function ensureMacroforgesPlugin(compilerOptions: ts.CompilerOptions) {
     const existing = compilerOptions.plugins;
-    const plugins: ts.PluginImport[] = Array.isArray(existing)
-        ? (existing as ts.PluginImport[])
-        : [];
-
-    if (!Array.isArray(existing)) {
-        compilerOptions.plugins = plugins;
-    }
+    const plugins = isPluginList(existing) ? existing : [];
+    compilerOptions.plugins = plugins;
 
     if (plugins.some((plugin) => plugin.name === TS_MACROS_PLUGIN_NAME)) {
         return;
@@ -1409,6 +1377,16 @@ function ensureMacroforgesPlugin(
     // Always register the plugin so tests and editor startup see it, even if the module
     // resolution check would fail in this environment.
     plugins.push({ name: TS_MACROS_PLUGIN_NAME });
+}
+
+/** Whether a compiler option value is a list of plugin entries. */
+function isPluginList(value: unknown): value is ts.PluginImport[] {
+    return (
+        Array.isArray(value) &&
+        value.every(
+            (entry) => typeof entry === 'object' && entry !== null && typeof entry.name === 'string'
+        )
+    );
 }
 
 /**

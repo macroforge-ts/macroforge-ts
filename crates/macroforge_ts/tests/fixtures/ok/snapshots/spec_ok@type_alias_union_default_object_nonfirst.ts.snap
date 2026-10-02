@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_object_nonfirst.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_object_nonfirst.ts
 ---
 ## Input
 
@@ -11,6 +10,10 @@ export type PropValue = { type: 'String'; value: string } | /** @default */ {
     type: 'Number';
     value: number;
 };
+
+## Changed
+
+true
 
 ## Output
 
@@ -49,5 +52,24 @@ export const PropValue = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 23..143 -> expanded 0..120
+original 143..144 -> expanded 347..348
+generated 120..269 <- Default
+generated 269..347 <- __convenience_const
+
+## Metadata
+
+type PropValue: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":66,"start":51},"ts_type":"'String'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":80,"start":67},"ts_type":"string"}]}}},{"decorators":[{"args_src":"","name":"default","span":{"end":100,"start":85}}],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":122,"start":107},"ts_type":"'Number'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":141,"start":127},"ts_type":"number"}]}}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"name":"PropValue","span":{"end":144,"start":32},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

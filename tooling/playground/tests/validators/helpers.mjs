@@ -52,7 +52,7 @@ export async function expandAndCompile(filePath) {
     if (existsSync(cachePath)) {
         expandedCode = fs.readFileSync(cachePath, 'utf8');
     } else {
-        // File has no macros — use the original source
+        // File has no macros: use the original source
         expandedCode = fs.readFileSync(filePath, 'utf8');
     }
 
@@ -63,6 +63,16 @@ export async function expandAndCompile(filePath) {
 
     const tempFile = path.join(tempDir, path.basename(filePath));
     fs.writeFileSync(tempFile, expandedCode);
+
+    // Sibling modules the expanded code imports, such as a `custom` validator's
+    // `source`, are compiled into the same directory so the import resolves.
+    for (const [, specifier] of expandedCode.matchAll(/from\s+["'](\.\/[^"']+)["']/g)) {
+        const sibling = path.resolve(path.dirname(filePath), specifier);
+        const siblingFile = existsSync(sibling) ? sibling : `${sibling}.ts`;
+        if (existsSync(siblingFile)) {
+            await expandAndCompile(siblingFile);
+        }
+    }
 
     try {
         const mod = await import(tempFile);

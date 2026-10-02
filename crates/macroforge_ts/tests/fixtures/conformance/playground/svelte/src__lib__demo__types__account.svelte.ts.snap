@@ -1,0 +1,16801 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/account.svelte.ts
+sha256 ea304e02671809ab025056373269a82e47d2e2b98e0c78d0ada48cb67d77a24c
+
+## Changed
+
+true
+
+## Output
+
+import { accountNameDeserializeWithContext } from "./account-name.svelte";
+import { colorsDeserializeWithContext } from "./colors.svelte";
+import { didDeserialize } from "./did.svelte";
+import { emailDeserializeWithContext } from "./email.svelte";
+import { orderedDeserialize } from "./ordered.svelte";
+import { phoneNumberDeserialize } from "./phone-number.svelte";
+import { sectorDeserializeWithContext } from "./sector.svelte";
+import { siteDeserializeWithContext } from "./site.svelte";
+import { taxRateDeserializeWithContext } from "./tax-rate.svelte";
+import { accountNameSerializeWithContext } from "./account-name.svelte";
+import { colorsSerializeWithContext } from "./colors.svelte";
+import { didSerializeWithContext } from "./did.svelte";
+import { emailSerializeWithContext } from "./email.svelte";
+import { orderedSerializeWithContext } from "./ordered.svelte";
+import { phoneNumberSerializeWithContext } from "./phone-number.svelte";
+import { sectorSerializeWithContext } from "./sector.svelte";
+import { siteSerializeWithContext } from "./site.svelte";
+import { taxRateSerializeWithContext } from "./tax-rate.svelte";
+import { accountNameDefaultValue } from "./account-name.svelte";
+import { colorsDefaultValue } from "./colors.svelte";
+import { emailDefaultValue } from "./email.svelte";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
+import type { AccountName } from './account-name.svelte';
+import type { Colors } from './colors.svelte';
+import type { Did } from './did.svelte';
+import type { Email } from './email.svelte';
+import type { Ordered } from './ordered.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Represents } from './represents.svelte';
+import type { Sector } from './sector.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface Account {
+    
+    id: string;
+    
+    
+    taxRate: string | TaxRate;
+    
+    
+    site: string | Site;
+    
+    salesRep: Array<Represents> | null;
+    
+    orders: Array<Ordered>;
+    
+    activity: Array<Did>;
+    
+    customFields: Array<[string, string]>;
+    
+    accountName: AccountName;
+    
+    
+    sector: Sector;
+    
+    memo: string | null;
+    
+    phones: Array<PhoneNumber>;
+    
+    email: Email;
+    
+    
+    leadSource: string;
+    
+    colors: Colors;
+    
+    needsReview: boolean;
+    
+    hasAlert: boolean;
+    
+    
+    accountType: string;
+    
+    
+    subtype: string;
+    
+    isTaxExempt: boolean;
+    
+    
+    paymentTerms: string;
+    
+    tags: Array<string>;
+    
+    dateAdded: string;
+}
+
+export function accountDefaultValue(): Account {
+                        return {
+id: "",
+taxRate: "",
+site: "",
+salesRep: null,
+orders: [],
+activity: [],
+customFields: [],
+accountName: accountNameDefaultValue(),
+sector: "Residential",
+memo: null,
+phones: [],
+email: emailDefaultValue(),
+leadSource: "",
+colors: colorsDefaultValue(),
+needsReview: false,
+hasAlert: false,
+accountType: "",
+subtype: "",
+isTaxExempt: false,
+paymentTerms: "",
+tags: [],
+dateAdded: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function accountSerialize(value: Account, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = accountSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function accountSerializeWithContext(value: Account, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Account",
+                        __id,
+                    };result.id = value.id;result.taxRate = typeof value.taxRate === "string"
+                                                ? value.taxRate
+                                                : taxRateSerializeWithContext(value.taxRate, ctx);result.site = typeof value.site === "string"
+                                                ? value.site
+                                                : siteSerializeWithContext(value.site, ctx);if (value.salesRep !== null) {result.salesRep = value.salesRep;
+
+
+
+
+
+                                            } else {
+                                                result.salesRep = null;
+                                            }result.orders = value.orders.map(
+                                                            (item) => orderedSerializeWithContext(item, ctx)
+                                                        );result.activity = value.activity.map(
+                                                            (item) => didSerializeWithContext(item, ctx)
+                                                        );result.customFields = value.customFields;result.accountName = accountNameSerializeWithContext(value.accountName, ctx);result.sector = sectorSerializeWithContext(value.sector, ctx);result.memo = value.memo;result.phones = value.phones.map(
+                                                            (item) => phoneNumberSerializeWithContext(item, ctx)
+                                                        );result.email = emailSerializeWithContext(value.email, ctx);result.leadSource = value.leadSource;result.colors = colorsSerializeWithContext(value.colors, ctx);result.needsReview = value.needsReview;result.hasAlert = value.hasAlert;result.accountType = value.accountType;result.subtype = value.subtype;result.isTaxExempt = value.isTaxExempt;result.paymentTerms = value.paymentTerms;result.tags = value.tags;result.dateAdded = value.dateAdded;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function accountDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = accountDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Account.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Account | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Account.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("id" in obj)) {
+                            errors.push({ field: "id", message: "missing required field" });
+                        }if (!("taxRate" in obj)) {
+                            errors.push({ field: "taxRate", message: "missing required field" });
+                        }if (!("site" in obj)) {
+                            errors.push({ field: "site", message: "missing required field" });
+                        }if (!("salesRep" in obj)) {
+                            errors.push({ field: "salesRep", message: "missing required field" });
+                        }if (!("orders" in obj)) {
+                            errors.push({ field: "orders", message: "missing required field" });
+                        }if (!("activity" in obj)) {
+                            errors.push({ field: "activity", message: "missing required field" });
+                        }if (!("customFields" in obj)) {
+                            errors.push({ field: "customFields", message: "missing required field" });
+                        }if (!("accountName" in obj)) {
+                            errors.push({ field: "accountName", message: "missing required field" });
+                        }if (!("sector" in obj)) {
+                            errors.push({ field: "sector", message: "missing required field" });
+                        }if (!("memo" in obj)) {
+                            errors.push({ field: "memo", message: "missing required field" });
+                        }if (!("phones" in obj)) {
+                            errors.push({ field: "phones", message: "missing required field" });
+                        }if (!("email" in obj)) {
+                            errors.push({ field: "email", message: "missing required field" });
+                        }if (!("leadSource" in obj)) {
+                            errors.push({ field: "leadSource", message: "missing required field" });
+                        }if (!("colors" in obj)) {
+                            errors.push({ field: "colors", message: "missing required field" });
+                        }if (!("needsReview" in obj)) {
+                            errors.push({ field: "needsReview", message: "missing required field" });
+                        }if (!("hasAlert" in obj)) {
+                            errors.push({ field: "hasAlert", message: "missing required field" });
+                        }if (!("accountType" in obj)) {
+                            errors.push({ field: "accountType", message: "missing required field" });
+                        }if (!("subtype" in obj)) {
+                            errors.push({ field: "subtype", message: "missing required field" });
+                        }if (!("isTaxExempt" in obj)) {
+                            errors.push({ field: "isTaxExempt", message: "missing required field" });
+                        }if (!("paymentTerms" in obj)) {
+                            errors.push({ field: "paymentTerms", message: "missing required field" });
+                        }if (!("tags" in obj)) {
+                            errors.push({ field: "tags", message: "missing required field" });
+                        }if (!("dateAdded" in obj)) {
+                            errors.push({ field: "dateAdded", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_taxRate = obj["taxRate"] as string | TaxRate;if (typeof __raw_taxRate === "string") {
+                                                instance.taxRate = __raw_taxRate;
+
+
+
+                                            } else {
+                                                ctx.pushScope("taxRate");
+                                                try {
+                                                    const __result = taxRateDeserializeWithContext(__raw_taxRate, ctx);
+                                                    ctx.assignOrDefer(instance, "taxRate", __result);
+                                                } catch (__e) {
+                                                    if (__e instanceof __mf_DeserializeError) {
+                                                        for (const __err of __e.errors) {
+                                                            errors.push({
+                                                                field: __err.field === "_root" ? "taxRate" : "taxRate." + __err.field,
+                                                                message: __err.message
+                                                            });
+                                                        }
+                                                    } else {
+                                                        throw __e;
+                                                    }
+                                                } finally {
+                                                    ctx.popScope();
+                                                }
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_site = obj["site"] as string | Site;if (typeof __raw_site === "string") {
+                                                instance.site = __raw_site;
+
+
+
+                                            } else {
+                                                ctx.pushScope("site");
+                                                try {
+                                                    const __result = siteDeserializeWithContext(__raw_site, ctx);
+                                                    ctx.assignOrDefer(instance, "site", __result);
+                                                } catch (__e) {
+                                                    if (__e instanceof __mf_DeserializeError) {
+                                                        for (const __err of __e.errors) {
+                                                            errors.push({
+                                                                field: __err.field === "_root" ? "site" : "site." + __err.field,
+                                                                message: __err.message
+                                                            });
+                                                        }
+                                                    } else {
+                                                        throw __e;
+                                                    }
+                                                } finally {
+                                                    ctx.popScope();
+                                                }
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;if (__raw_salesRep === null) {
+                                                    instance.salesRep = null;
+                                                } else {instance.salesRep = __raw_salesRep;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_orders = obj["orders"] as Array<Ordered>;if (Array.isArray(__raw_orders)) {
+                                                        const __arr = __raw_orders.map((item: Ordered | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = orderedDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "orders[" + idx + "]"
+                                                                            : "orders[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.orders = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.orders, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_activity = obj["activity"] as Array<Did>;if (Array.isArray(__raw_activity)) {
+                                                        const __arr = __raw_activity.map((item: Did | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = didDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "activity[" + idx + "]"
+                                                                            : "activity[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.activity = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.activity, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_customFields = obj["customFields"] as Array<[string, string]>;if (Array.isArray(__raw_customFields)) {instance.customFields = __raw_customFields as [string, string][];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_accountName = obj["accountName"] as AccountName;ctx.pushScope("accountName");
+                                            try {
+                                                const __result = accountNameDeserializeWithContext(__raw_accountName, ctx);
+                                                ctx.assignOrDefer(instance, "accountName", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "accountName" : "accountName." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_sector = obj["sector"] as Sector;ctx.pushScope("sector");
+                                            try {
+                                                const __result = sectorDeserializeWithContext(__raw_sector, ctx);
+                                                ctx.assignOrDefer(instance, "sector", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "sector" : "sector." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_memo = obj["memo"] as string | null;
+                                                instance.memo = __raw_memo;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_phones = obj["phones"] as Array<PhoneNumber>;if (Array.isArray(__raw_phones)) {
+                                                        const __arr = __raw_phones.map((item: PhoneNumber | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = phoneNumberDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "phones[" + idx + "]"
+                                                                            : "phones[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.phones = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.phones, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_email = obj["email"] as Email;ctx.pushScope("email");
+                                            try {
+                                                const __result = emailDeserializeWithContext(__raw_email, ctx);
+                                                ctx.assignOrDefer(instance, "email", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "email" : "email." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_leadSource = obj["leadSource"] as string;
+                                            if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Account.leadSource is required" }); } else {
+if (__raw_leadSource.length === 0) { errors.push({ field: "leadSource", message: "Account.leadSource must not be empty" }); }
+}
+instance.leadSource = __raw_leadSource;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_colors = obj["colors"] as Colors;ctx.pushScope("colors");
+                                            try {
+                                                const __result = colorsDeserializeWithContext(__raw_colors, ctx);
+                                                ctx.assignOrDefer(instance, "colors", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "colors" : "colors." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_needsReview = obj["needsReview"] as boolean;instance.needsReview = __raw_needsReview;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_hasAlert = obj["hasAlert"] as boolean;instance.hasAlert = __raw_hasAlert;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_accountType = obj["accountType"] as string;
+                                            if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Account.accountType is required" }); } else {
+if (__raw_accountType.length === 0) { errors.push({ field: "accountType", message: "Account.accountType must not be empty" }); }
+}
+instance.accountType = __raw_accountType;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_subtype = obj["subtype"] as string;
+                                            if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Account.subtype is required" }); } else {
+if (__raw_subtype.length === 0) { errors.push({ field: "subtype", message: "Account.subtype must not be empty" }); }
+}
+instance.subtype = __raw_subtype;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;instance.isTaxExempt = __raw_isTaxExempt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_paymentTerms = obj["paymentTerms"] as string;
+                                            if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms is required" }); } else {
+if (__raw_paymentTerms.length === 0) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms must not be empty" }); }
+}
+instance.paymentTerms = __raw_paymentTerms;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_tags = obj["tags"] as Array<string>;if (Array.isArray(__raw_tags)) {instance.tags = __raw_tags as string[];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_dateAdded = obj["dateAdded"] as string;instance.dateAdded = __raw_dateAdded;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Account;
+            }
+
+            export function accountValidateField<K extends keyof Account>(
+                _field: K,
+                _value: Account[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "leadSource") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "leadSource", message: "Account.leadSource is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "leadSource", message: "Account.leadSource must not be empty" }); }
+}
+
+
+                }
+                if (_field === "accountType") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "accountType", message: "Account.accountType is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "accountType", message: "Account.accountType must not be empty" }); }
+}
+
+
+                }
+                if (_field === "subtype") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "subtype", message: "Account.subtype is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "subtype", message: "Account.subtype must not be empty" }); }
+}
+
+
+                }
+                if (_field === "paymentTerms") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function accountValidateFields(
+                _partial: Partial<Account>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("leadSource" in _partial && _partial.leadSource !== undefined) {
+                    const __val = _partial.leadSource as string;
+                    if (__val == null) { errors.push({ field: "leadSource", message: "Account.leadSource is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "leadSource", message: "Account.leadSource must not be empty" }); }
+}
+
+
+                }
+                if ("accountType" in _partial && _partial.accountType !== undefined) {
+                    const __val = _partial.accountType as string;
+                    if (__val == null) { errors.push({ field: "accountType", message: "Account.accountType is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "accountType", message: "Account.accountType must not be empty" }); }
+}
+
+
+                }
+                if ("subtype" in _partial && _partial.subtype !== undefined) {
+                    const __val = _partial.subtype as string;
+                    if (__val == null) { errors.push({ field: "subtype", message: "Account.subtype is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "subtype", message: "Account.subtype must not be empty" }); }
+}
+
+
+                }
+                if ("paymentTerms" in _partial && _partial.paymentTerms !== undefined) {
+                    const __val = _partial.paymentTerms as string;
+                    if (__val == null) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function accountHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "id" in o && "taxRate" in o && "site" in o && "salesRep" in o && "orders" in o && "activity" in o && "customFields" in o && "accountName" in o && "sector" in o && "memo" in o && "phones" in o && "email" in o && "leadSource" in o && "colors" in o && "needsReview" in o && "hasAlert" in o && "accountType" in o && "subtype" in o && "isTaxExempt" in o && "paymentTerms" in o && "tags" in o && "dateAdded" in o;
+            }
+
+            export function accountIs(obj: unknown): obj is Account {
+                if (!accountHasShape(obj)) {
+                    return false;
+                }
+                const result = accountDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type AccountErrors = {
+            _errors: Option.Option<Array<string>>;
+            id: Option.Option<Array<string>>;
+            taxRate: Option.Option<Array<string>>;
+            site: Option.Option<Array<string>>;
+            salesRep: Option.Option<Array<string>>;
+            orders: Option.Option<Array<string>>;
+            activity: Option.Option<Array<string>>;
+            customFields: Option.Option<Array<string>>;
+            accountName: Option.Option<Array<string>>;
+            sector: Option.Option<Array<string>>;
+            memo: Option.Option<Array<string>>;
+            phones: Option.Option<Array<string>>;
+            email: Option.Option<Array<string>>;
+            leadSource: Option.Option<Array<string>>;
+            colors: Option.Option<Array<string>>;
+            needsReview: Option.Option<Array<string>>;
+            hasAlert: Option.Option<Array<string>>;
+            accountType: Option.Option<Array<string>>;
+            subtype: Option.Option<Array<string>>;
+            isTaxExempt: Option.Option<Array<string>>;
+            paymentTerms: Option.Option<Array<string>>;
+            tags: Option.Option<Array<string>>;
+            dateAdded: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type AccountTainted = {
+            id: Option.Option<boolean>;
+            taxRate: Option.Option<boolean>;
+            site: Option.Option<boolean>;
+            salesRep: Option.Option<boolean>;
+            orders: Option.Option<boolean>;
+            activity: Option.Option<boolean>;
+            customFields: Option.Option<boolean>;
+            accountName: Option.Option<boolean>;
+            sector: Option.Option<boolean>;
+            memo: Option.Option<boolean>;
+            phones: Option.Option<boolean>;
+            email: Option.Option<boolean>;
+            leadSource: Option.Option<boolean>;
+            colors: Option.Option<boolean>;
+            needsReview: Option.Option<boolean>;
+            hasAlert: Option.Option<boolean>;
+            accountType: Option.Option<boolean>;
+            subtype: Option.Option<boolean>;
+            isTaxExempt: Option.Option<boolean>;
+            paymentTerms: Option.Option<boolean>;
+            tags: Option.Option<boolean>;
+            dateAdded: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface AccountFieldControllers {
+            readonly id: FieldController<string>;
+            readonly taxRate: FieldController<string | TaxRate>;
+            readonly site: FieldController<string | Site>;
+            readonly salesRep: FieldController<Array<Represents> | null>;
+            
+                    readonly orders: ArrayFieldController<Ordered>;
+            
+                    readonly activity: ArrayFieldController<Did>;
+            
+                    readonly customFields: ArrayFieldController<[string, string]>;
+            readonly accountName: FieldController<AccountName>;
+            readonly sector: FieldController<Sector>;
+            readonly memo: FieldController<string | null>;
+            
+                    readonly phones: ArrayFieldController<PhoneNumber>;
+            readonly email: FieldController<Email>;
+            readonly leadSource: FieldController<string>;
+            readonly colors: FieldController<Colors>;
+            readonly needsReview: FieldController<boolean>;
+            readonly hasAlert: FieldController<boolean>;
+            readonly accountType: FieldController<string>;
+            readonly subtype: FieldController<string>;
+            readonly isTaxExempt: FieldController<boolean>;
+            readonly paymentTerms: FieldController<string>;
+            
+                    readonly tags: ArrayFieldController<string>;
+            readonly dateAdded: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface AccountGigaform {
+            readonly data: Account;
+            readonly errors: AccountErrors;
+            readonly tainted: AccountTainted;
+            readonly fields: AccountFieldControllers;
+            validate(): Exit.Exit<Account, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Account>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform {
+            let data = $state({ ...accountDefaultValue(), ...overrides });
+            let errors = $state<AccountErrors>({
+                _errors: Option.none(),
+                id: Option.none(),
+                taxRate: Option.none(),
+                site: Option.none(),
+                salesRep: Option.none(),
+                orders: Option.none(),
+                activity: Option.none(),
+                customFields: Option.none(),
+                accountName: Option.none(),
+                sector: Option.none(),
+                memo: Option.none(),
+                phones: Option.none(),
+                email: Option.none(),
+                leadSource: Option.none(),
+                colors: Option.none(),
+                needsReview: Option.none(),
+                hasAlert: Option.none(),
+                accountType: Option.none(),
+                subtype: Option.none(),
+                isTaxExempt: Option.none(),
+                paymentTerms: Option.none(),
+                tags: Option.none(),
+                dateAdded: Option.none(),
+
+
+            });
+            let tainted = $state<AccountTainted>({
+                id: Option.none(),
+                taxRate: Option.none(),
+                site: Option.none(),
+                salesRep: Option.none(),
+                orders: Option.none(),
+                activity: Option.none(),
+                customFields: Option.none(),
+                accountName: Option.none(),
+                sector: Option.none(),
+                memo: Option.none(),
+                phones: Option.none(),
+                email: Option.none(),
+                leadSource: Option.none(),
+                colors: Option.none(),
+                needsReview: Option.none(),
+                hasAlert: Option.none(),
+                accountType: Option.none(),
+                subtype: Option.none(),
+                isTaxExempt: Option.none(),
+                paymentTerms: Option.none(),
+                tags: Option.none(),
+                dateAdded: Option.none(),
+
+
+            });
+            const fields = {
+            
+                id: {
+            name: "id",
+            label: "id",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["id"],
+            get: () => data.id,
+            set: (value: string) => { data.id = value; },
+            getError: () => errors.id,
+            setError: (value: Option.Option<Array<string>>) => { errors.id = value; },
+            getTainted: () => tainted.id,
+            setTainted: (value: Option.Option<boolean>) => { tainted.id = value; },
+            validate: () => accountValidateField("id", data.id).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                taxRate: {
+            name: "taxRate",
+            label: "Tax Rate",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["taxRate"],
+            get: () => data.taxRate,
+            set: (value: string | TaxRate) => { data.taxRate = value; },
+            getError: () => errors.taxRate,
+            setError: (value: Option.Option<Array<string>>) => { errors.taxRate = value; },
+            getTainted: () => tainted.taxRate,
+            setTainted: (value: Option.Option<boolean>) => { tainted.taxRate = value; },
+            validate: () => accountValidateField("taxRate", data.taxRate).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                site: {
+            name: "site",
+            label: "Site",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["site"],
+            get: () => data.site,
+            set: (value: string | Site) => { data.site = value; },
+            getError: () => errors.site,
+            setError: (value: Option.Option<Array<string>>) => { errors.site = value; },
+            getTainted: () => tainted.site,
+            setTainted: (value: Option.Option<boolean>) => { tainted.site = value; },
+            validate: () => accountValidateField("site", data.site).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                salesRep: {
+            name: "salesRep",
+            label: "Sales Rep",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["salesRep"],
+            get: () => data.salesRep,
+            set: (value: Array<Represents> | null) => { data.salesRep = value; },
+            getError: () => errors.salesRep,
+            setError: (value: Option.Option<Array<string>>) => { errors.salesRep = value; },
+            getTainted: () => tainted.salesRep,
+            setTainted: (value: Option.Option<boolean>) => { tainted.salesRep = value; },
+            validate: () => accountValidateField("salesRep", data.salesRep).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                orders: {
+            name: "orders",
+            label: "orders",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["orders"],
+            get: () => data.orders,
+            set: (value: Array<Ordered>) => { data.orders = value; },
+            getError: () => errors.orders,
+            setError: (value: Option.Option<Array<string>>) => { errors.orders = value; },
+            getTainted: () => tainted.orders,
+            setTainted: (value: Option.Option<boolean>) => { tainted.orders = value; },
+            validate: () => accountValidateField("orders", data.orders).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.orders[index],
+                set: (value: Ordered) => { data.orders[index] = value; },
+                getError: () => errors.orders,
+                setError: (value: Option.Option<Array<string>>) => { errors.orders = value; },
+            }),
+            push: (item: Ordered) => { data.orders.push(item); },
+            remove: (index: number) => { data.orders.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.orders[a];
+                data.orders[a] = data.orders[b];
+                data.orders[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                activity: {
+            name: "activity",
+            label: "activity",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["activity"],
+            get: () => data.activity,
+            set: (value: Array<Did>) => { data.activity = value; },
+            getError: () => errors.activity,
+            setError: (value: Option.Option<Array<string>>) => { errors.activity = value; },
+            getTainted: () => tainted.activity,
+            setTainted: (value: Option.Option<boolean>) => { tainted.activity = value; },
+            validate: () => accountValidateField("activity", data.activity).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.activity[index],
+                set: (value: Did) => { data.activity[index] = value; },
+                getError: () => errors.activity,
+                setError: (value: Option.Option<Array<string>>) => { errors.activity = value; },
+            }),
+            push: (item: Did) => { data.activity.push(item); },
+            remove: (index: number) => { data.activity.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.activity[a];
+                data.activity[a] = data.activity[b];
+                data.activity[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                customFields: {
+            name: "customFields",
+            label: "customFields",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["customFields"],
+            get: () => data.customFields,
+            set: (value: Array<[string, string]>) => { data.customFields = value; },
+            getError: () => errors.customFields,
+            setError: (value: Option.Option<Array<string>>) => { errors.customFields = value; },
+            getTainted: () => tainted.customFields,
+            setTainted: (value: Option.Option<boolean>) => { tainted.customFields = value; },
+            validate: () => accountValidateField("customFields", data.customFields).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.customFields[index],
+                set: (value: [string, string]) => { data.customFields[index] = value; },
+                getError: () => errors.customFields,
+                setError: (value: Option.Option<Array<string>>) => { errors.customFields = value; },
+            }),
+            push: (item: [string, string]) => { data.customFields.push(item); },
+            remove: (index: number) => { data.customFields.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.customFields[a];
+                data.customFields[a] = data.customFields[b];
+                data.customFields[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                accountName: {
+            name: "accountName",
+            label: "accountName",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["accountName"],
+            get: () => data.accountName,
+            set: (value: AccountName) => { data.accountName = value; },
+            getError: () => errors.accountName,
+            setError: (value: Option.Option<Array<string>>) => { errors.accountName = value; },
+            getTainted: () => tainted.accountName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.accountName = value; },
+            validate: () => accountValidateField("accountName", data.accountName).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                sector: {
+            name: "sector",
+            label: "Sector",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["sector"],
+            get: () => data.sector,
+            set: (value: Sector) => { data.sector = value; },
+            getError: () => errors.sector,
+            setError: (value: Option.Option<Array<string>>) => { errors.sector = value; },
+            getTainted: () => tainted.sector,
+            setTainted: (value: Option.Option<boolean>) => { tainted.sector = value; },
+            validate: () => accountValidateField("sector", data.sector).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                memo: {
+            name: "memo",
+            label: "Memo",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["memo"],
+            get: () => data.memo,
+            set: (value: string | null) => { data.memo = value; },
+            getError: () => errors.memo,
+            setError: (value: Option.Option<Array<string>>) => { errors.memo = value; },
+            getTainted: () => tainted.memo,
+            setTainted: (value: Option.Option<boolean>) => { tainted.memo = value; },
+            validate: () => accountValidateField("memo", data.memo).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                phones: {
+            name: "phones",
+            label: "phones",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["phones"],
+            get: () => data.phones,
+            set: (value: Array<PhoneNumber>) => { data.phones = value; },
+            getError: () => errors.phones,
+            setError: (value: Option.Option<Array<string>>) => { errors.phones = value; },
+            getTainted: () => tainted.phones,
+            setTainted: (value: Option.Option<boolean>) => { tainted.phones = value; },
+            validate: () => accountValidateField("phones", data.phones).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.phones[index],
+                set: (value: PhoneNumber) => { data.phones[index] = value; },
+                getError: () => errors.phones,
+                setError: (value: Option.Option<Array<string>>) => { errors.phones = value; },
+            }),
+            push: (item: PhoneNumber) => { data.phones.push(item); },
+            remove: (index: number) => { data.phones.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.phones[a];
+                data.phones[a] = data.phones[b];
+                data.phones[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                email: {
+            name: "email",
+            label: "Email",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["email"],
+            get: () => data.email,
+            set: (value: Email) => { data.email = value; },
+            getError: () => errors.email,
+            setError: (value: Option.Option<Array<string>>) => { errors.email = value; },
+            getTainted: () => tainted.email,
+            setTainted: (value: Option.Option<boolean>) => { tainted.email = value; },
+            validate: () => accountValidateField("email", data.email).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                leadSource: {
+            name: "leadSource",
+            label: "Lead Source",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["leadSource"],
+            get: () => data.leadSource,
+            set: (value: string) => { data.leadSource = value; },
+            getError: () => errors.leadSource,
+            setError: (value: Option.Option<Array<string>>) => { errors.leadSource = value; },
+            getTainted: () => tainted.leadSource,
+            setTainted: (value: Option.Option<boolean>) => { tainted.leadSource = value; },
+            validate: () => accountValidateField("leadSource", data.leadSource).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                colors: {
+            name: "colors",
+            label: "colors",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["colors"],
+            get: () => data.colors,
+            set: (value: Colors) => { data.colors = value; },
+            getError: () => errors.colors,
+            setError: (value: Option.Option<Array<string>>) => { errors.colors = value; },
+            getTainted: () => tainted.colors,
+            setTainted: (value: Option.Option<boolean>) => { tainted.colors = value; },
+            validate: () => accountValidateField("colors", data.colors).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                needsReview: {
+            name: "needsReview",
+            label: "Needs Review",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["needsReview"],
+            get: () => data.needsReview,
+            set: (value: boolean) => { data.needsReview = value; },
+            getError: () => errors.needsReview,
+            setError: (value: Option.Option<Array<string>>) => { errors.needsReview = value; },
+            getTainted: () => tainted.needsReview,
+            setTainted: (value: Option.Option<boolean>) => { tainted.needsReview = value; },
+            validate: () => accountValidateField("needsReview", data.needsReview).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                hasAlert: {
+            name: "hasAlert",
+            label: "Has Alert",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["hasAlert"],
+            get: () => data.hasAlert,
+            set: (value: boolean) => { data.hasAlert = value; },
+            getError: () => errors.hasAlert,
+            setError: (value: Option.Option<Array<string>>) => { errors.hasAlert = value; },
+            getTainted: () => tainted.hasAlert,
+            setTainted: (value: Option.Option<boolean>) => { tainted.hasAlert = value; },
+            validate: () => accountValidateField("hasAlert", data.hasAlert).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                accountType: {
+            name: "accountType",
+            label: "Account Type",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["accountType"],
+            get: () => data.accountType,
+            set: (value: string) => { data.accountType = value; },
+            getError: () => errors.accountType,
+            setError: (value: Option.Option<Array<string>>) => { errors.accountType = value; },
+            getTainted: () => tainted.accountType,
+            setTainted: (value: Option.Option<boolean>) => { tainted.accountType = value; },
+            validate: () => accountValidateField("accountType", data.accountType).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                subtype: {
+            name: "subtype",
+            label: "Subtype",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["subtype"],
+            get: () => data.subtype,
+            set: (value: string) => { data.subtype = value; },
+            getError: () => errors.subtype,
+            setError: (value: Option.Option<Array<string>>) => { errors.subtype = value; },
+            getTainted: () => tainted.subtype,
+            setTainted: (value: Option.Option<boolean>) => { tainted.subtype = value; },
+            validate: () => accountValidateField("subtype", data.subtype).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                isTaxExempt: {
+            name: "isTaxExempt",
+            label: "Tax Exempt",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["isTaxExempt"],
+            get: () => data.isTaxExempt,
+            set: (value: boolean) => { data.isTaxExempt = value; },
+            getError: () => errors.isTaxExempt,
+            setError: (value: Option.Option<Array<string>>) => { errors.isTaxExempt = value; },
+            getTainted: () => tainted.isTaxExempt,
+            setTainted: (value: Option.Option<boolean>) => { tainted.isTaxExempt = value; },
+            validate: () => accountValidateField("isTaxExempt", data.isTaxExempt).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                paymentTerms: {
+            name: "paymentTerms",
+            label: "Payment Terms",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["paymentTerms"],
+            get: () => data.paymentTerms,
+            set: (value: string) => { data.paymentTerms = value; },
+            getError: () => errors.paymentTerms,
+            setError: (value: Option.Option<Array<string>>) => { errors.paymentTerms = value; },
+            getTainted: () => tainted.paymentTerms,
+            setTainted: (value: Option.Option<boolean>) => { tainted.paymentTerms = value; },
+            validate: () => accountValidateField("paymentTerms", data.paymentTerms).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                tags: {
+            name: "tags",
+            label: "Tags",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["tags"],
+            get: () => data.tags,
+            set: (value: Array<string>) => { data.tags = value; },
+            getError: () => errors.tags,
+            setError: (value: Option.Option<Array<string>>) => { errors.tags = value; },
+            getTainted: () => tainted.tags,
+            setTainted: (value: Option.Option<boolean>) => { tainted.tags = value; },
+            validate: () => accountValidateField("tags", data.tags).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.tags[index],
+                set: (value: string) => { data.tags[index] = value; },
+                getError: () => errors.tags,
+                setError: (value: Option.Option<Array<string>>) => { errors.tags = value; },
+            }),
+            push: (item: string) => { data.tags.push(item); },
+            remove: (index: number) => { data.tags.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.tags[a];
+                data.tags[a] = data.tags[b];
+                data.tags[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                dateAdded: {
+            name: "dateAdded",
+            label: "dateAdded",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["dateAdded"],
+            get: () => data.dateAdded,
+            set: (value: string) => { data.dateAdded = value; },
+            getError: () => errors.dateAdded,
+            setError: (value: Option.Option<Array<string>>) => { errors.dateAdded = value; },
+            getTainted: () => tainted.dateAdded,
+            setTainted: (value: Option.Option<boolean>) => { tainted.dateAdded = value; },
+            validate: () => accountValidateField("dateAdded", data.dateAdded).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as AccountFieldControllers;
+
+
+            function validate(): Exit.Exit<Account, Array<{ field: string; message: string }>> {
+                return toExit(accountDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Account>): void {
+                data = { ...accountDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            id: Option.none(),
+            taxRate: Option.none(),
+            site: Option.none(),
+            salesRep: Option.none(),
+            orders: Option.none(),
+            activity: Option.none(),
+            customFields: Option.none(),
+            accountName: Option.none(),
+            sector: Option.none(),
+            memo: Option.none(),
+            phones: Option.none(),
+            email: Option.none(),
+            leadSource: Option.none(),
+            colors: Option.none(),
+            needsReview: Option.none(),
+            hasAlert: Option.none(),
+            accountType: Option.none(),
+            subtype: Option.none(),
+            isTaxExempt: Option.none(),
+            paymentTerms: Option.none(),
+            tags: Option.none(),
+            dateAdded: Option.none(),
+
+
+        };
+                tainted = {
+            id: Option.none(),
+            taxRate: Option.none(),
+            site: Option.none(),
+            salesRep: Option.none(),
+            orders: Option.none(),
+            activity: Option.none(),
+            customFields: Option.none(),
+            accountName: Option.none(),
+            sector: Option.none(),
+            memo: Option.none(),
+            phones: Option.none(),
+            email: Option.none(),
+            leadSource: Option.none(),
+            colors: Option.none(),
+            needsReview: Option.none(),
+            hasAlert: Option.none(),
+            accountType: Option.none(),
+            subtype: Option.none(),
+            isTaxExempt: Option.none(),
+            paymentTerms: Option.none(),
+            tags: Option.none(),
+            dateAdded: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function accountFromFormData(formData: FormData): Exit.Exit<Account, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.id = formData.get("id") ?? "";
+            obj.taxRate = formData.get("taxRate") ?? "";
+            obj.site = formData.get("site") ?? "";
+            {
+
+            const salesRepObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("salesRep.")) {
+                    const fieldName = key.slice("salesRep.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = salesRepObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.salesRep = salesRepObj;
+        }
+            {
+
+                    const ordersItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("orders." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("orders." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("orders." + idx + ".")) {
+                                    const fieldName = key.slice("orders.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            ordersItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.orders = ordersItems;
+                }
+            {
+
+                    const activityItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("activity." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("activity." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("activity." + idx + ".")) {
+                                    const fieldName = key.slice("activity.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            activityItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.activity = activityItems;
+                }
+            {
+
+                    const customFieldsItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("customFields." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("customFields." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("customFields." + idx + ".")) {
+                                    const fieldName = key.slice("customFields.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            customFieldsItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.customFields = customFieldsItems;
+                }
+            {
+
+            const accountNameObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("accountName.")) {
+                    const fieldName = key.slice("accountName.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = accountNameObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.accountName = accountNameObj;
+        }
+            {
+
+            const sectorObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("sector.")) {
+                    const fieldName = key.slice("sector.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = sectorObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.sector = sectorObj;
+        }
+            obj.memo = formData.get("memo") ?? "";
+            {
+
+                    const phonesItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("phones." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("phones." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("phones." + idx + ".")) {
+                                    const fieldName = key.slice("phones.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            phonesItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.phones = phonesItems;
+                }
+            {
+
+            const emailObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("email.")) {
+                    const fieldName = key.slice("email.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = emailObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.email = emailObj;
+        }
+            obj.leadSource = formData.get("leadSource") ?? "";
+            {
+
+            const colorsObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("colors.")) {
+                    const fieldName = key.slice("colors.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = colorsObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.colors = colorsObj;
+        }
+            {
+                    const needsReviewVal = formData.get("needsReview");
+                    obj.needsReview = needsReviewVal === "true" || needsReviewVal === "on" || needsReviewVal === "1";
+                }
+            {
+                    const hasAlertVal = formData.get("hasAlert");
+                    obj.hasAlert = hasAlertVal === "true" || hasAlertVal === "on" || hasAlertVal === "1";
+                }
+            obj.accountType = formData.get("accountType") ?? "";
+            obj.subtype = formData.get("subtype") ?? "";
+            {
+                    const isTaxExemptVal = formData.get("isTaxExempt");
+                    obj.isTaxExempt = isTaxExemptVal === "true" || isTaxExemptVal === "on" || isTaxExemptVal === "1";
+                }
+            obj.paymentTerms = formData.get("paymentTerms") ?? "";
+            obj.tags = formData.getAll("tags") as Array<string>;
+            obj.dateAdded = formData.get("dateAdded") ?? "";
+
+
+            return toExit(accountDeserialize(obj));
+        }
+
+export const Account = {
+  defaultValue: accountDefaultValue,
+  serialize: accountSerialize,
+  serializeWithContext: accountSerializeWithContext,
+  deserialize: accountDeserialize,
+  deserializeWithContext: accountDeserializeWithContext,
+  validateFields: accountValidateFields,
+  hasShape: accountHasShape,
+  is: accountIs,
+  createForm: accountCreateForm,
+  fromFormData: accountFromFormData
+} as const;
+
+## DTS
+
+import type { AccountName } from './account-name.svelte';
+import type { Colors } from './colors.svelte';
+import type { Did } from './did.svelte';
+import type { Email } from './email.svelte';
+import type { Ordered } from './ordered.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Represents } from './represents.svelte';
+import type { Sector } from './sector.svelte';
+import type { Site } from './site.svelte';
+import type { TaxRate } from './tax-rate.svelte';
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface Account {
+    
+    id: string;
+    
+    
+    taxRate: string | TaxRate;
+    
+    
+    site: string | Site;
+    
+    salesRep: Array<Represents> | null;
+    
+    orders: Array<Ordered>;
+    
+    activity: Array<Did>;
+    
+    customFields: Array<[string, string]>;
+    
+    accountName: AccountName;
+    
+    
+    sector: Sector;
+    
+    memo: string | null;
+    
+    phones: Array<PhoneNumber>;
+    
+    email: Email;
+    
+    
+    leadSource: string;
+    
+    colors: Colors;
+    
+    needsReview: boolean;
+    
+    hasAlert: boolean;
+    
+    
+    accountType: string;
+    
+    
+    subtype: string;
+    
+    isTaxExempt: boolean;
+    
+    
+    paymentTerms: string;
+    
+    tags: Array<string>;
+    
+    dateAdded: string;
+}
+
+export function accountDefaultValue(): Account {
+                        return {
+id: "",
+taxRate: "",
+site: "",
+salesRep: null,
+orders: [],
+activity: [],
+customFields: [],
+accountName: accountNameDefaultValue(),
+sector: "Residential",
+memo: null,
+phones: [],
+email: emailDefaultValue(),
+leadSource: "",
+colors: colorsDefaultValue(),
+needsReview: false,
+hasAlert: false,
+accountType: "",
+subtype: "",
+isTaxExempt: false,
+paymentTerms: "",
+tags: [],
+dateAdded: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function accountSerialize(value: Account, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = accountSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function accountSerializeWithContext(value: Account, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Account",
+                        __id,
+                    };result.id = value.id;result.taxRate = typeof value.taxRate === "string"
+                                                ? value.taxRate
+                                                : taxRateSerializeWithContext(value.taxRate, ctx);result.site = typeof value.site === "string"
+                                                ? value.site
+                                                : siteSerializeWithContext(value.site, ctx);if (value.salesRep !== null) {result.salesRep = value.salesRep;
+
+
+
+
+
+                                            } else {
+                                                result.salesRep = null;
+                                            }result.orders = value.orders.map(
+                                                            (item) => orderedSerializeWithContext(item, ctx)
+                                                        );result.activity = value.activity.map(
+                                                            (item) => didSerializeWithContext(item, ctx)
+                                                        );result.customFields = value.customFields;result.accountName = accountNameSerializeWithContext(value.accountName, ctx);result.sector = sectorSerializeWithContext(value.sector, ctx);result.memo = value.memo;result.phones = value.phones.map(
+                                                            (item) => phoneNumberSerializeWithContext(item, ctx)
+                                                        );result.email = emailSerializeWithContext(value.email, ctx);result.leadSource = value.leadSource;result.colors = colorsSerializeWithContext(value.colors, ctx);result.needsReview = value.needsReview;result.hasAlert = value.hasAlert;result.accountType = value.accountType;result.subtype = value.subtype;result.isTaxExempt = value.isTaxExempt;result.paymentTerms = value.paymentTerms;result.tags = value.tags;result.dateAdded = value.dateAdded;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function accountDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = accountDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Account.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Account | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Account.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("id" in obj)) {
+                            errors.push({ field: "id", message: "missing required field" });
+                        }if (!("taxRate" in obj)) {
+                            errors.push({ field: "taxRate", message: "missing required field" });
+                        }if (!("site" in obj)) {
+                            errors.push({ field: "site", message: "missing required field" });
+                        }if (!("salesRep" in obj)) {
+                            errors.push({ field: "salesRep", message: "missing required field" });
+                        }if (!("orders" in obj)) {
+                            errors.push({ field: "orders", message: "missing required field" });
+                        }if (!("activity" in obj)) {
+                            errors.push({ field: "activity", message: "missing required field" });
+                        }if (!("customFields" in obj)) {
+                            errors.push({ field: "customFields", message: "missing required field" });
+                        }if (!("accountName" in obj)) {
+                            errors.push({ field: "accountName", message: "missing required field" });
+                        }if (!("sector" in obj)) {
+                            errors.push({ field: "sector", message: "missing required field" });
+                        }if (!("memo" in obj)) {
+                            errors.push({ field: "memo", message: "missing required field" });
+                        }if (!("phones" in obj)) {
+                            errors.push({ field: "phones", message: "missing required field" });
+                        }if (!("email" in obj)) {
+                            errors.push({ field: "email", message: "missing required field" });
+                        }if (!("leadSource" in obj)) {
+                            errors.push({ field: "leadSource", message: "missing required field" });
+                        }if (!("colors" in obj)) {
+                            errors.push({ field: "colors", message: "missing required field" });
+                        }if (!("needsReview" in obj)) {
+                            errors.push({ field: "needsReview", message: "missing required field" });
+                        }if (!("hasAlert" in obj)) {
+                            errors.push({ field: "hasAlert", message: "missing required field" });
+                        }if (!("accountType" in obj)) {
+                            errors.push({ field: "accountType", message: "missing required field" });
+                        }if (!("subtype" in obj)) {
+                            errors.push({ field: "subtype", message: "missing required field" });
+                        }if (!("isTaxExempt" in obj)) {
+                            errors.push({ field: "isTaxExempt", message: "missing required field" });
+                        }if (!("paymentTerms" in obj)) {
+                            errors.push({ field: "paymentTerms", message: "missing required field" });
+                        }if (!("tags" in obj)) {
+                            errors.push({ field: "tags", message: "missing required field" });
+                        }if (!("dateAdded" in obj)) {
+                            errors.push({ field: "dateAdded", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_id = obj["id"] as string;instance.id = __raw_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_taxRate = obj["taxRate"] as string | TaxRate;if (typeof __raw_taxRate === "string") {
+                                                instance.taxRate = __raw_taxRate;
+
+
+
+                                            } else {
+                                                ctx.pushScope("taxRate");
+                                                try {
+                                                    const __result = taxRateDeserializeWithContext(__raw_taxRate, ctx);
+                                                    ctx.assignOrDefer(instance, "taxRate", __result);
+                                                } catch (__e) {
+                                                    if (__e instanceof __mf_DeserializeError) {
+                                                        for (const __err of __e.errors) {
+                                                            errors.push({
+                                                                field: __err.field === "_root" ? "taxRate" : "taxRate." + __err.field,
+                                                                message: __err.message
+                                                            });
+                                                        }
+                                                    } else {
+                                                        throw __e;
+                                                    }
+                                                } finally {
+                                                    ctx.popScope();
+                                                }
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_site = obj["site"] as string | Site;if (typeof __raw_site === "string") {
+                                                instance.site = __raw_site;
+
+
+
+                                            } else {
+                                                ctx.pushScope("site");
+                                                try {
+                                                    const __result = siteDeserializeWithContext(__raw_site, ctx);
+                                                    ctx.assignOrDefer(instance, "site", __result);
+                                                } catch (__e) {
+                                                    if (__e instanceof __mf_DeserializeError) {
+                                                        for (const __err of __e.errors) {
+                                                            errors.push({
+                                                                field: __err.field === "_root" ? "site" : "site." + __err.field,
+                                                                message: __err.message
+                                                            });
+                                                        }
+                                                    } else {
+                                                        throw __e;
+                                                    }
+                                                } finally {
+                                                    ctx.popScope();
+                                                }
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_salesRep = obj["salesRep"] as Array<Represents> | null;if (__raw_salesRep === null) {
+                                                    instance.salesRep = null;
+                                                } else {instance.salesRep = __raw_salesRep;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_orders = obj["orders"] as Array<Ordered>;if (Array.isArray(__raw_orders)) {
+                                                        const __arr = __raw_orders.map((item: Ordered | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = orderedDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "orders[" + idx + "]"
+                                                                            : "orders[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.orders = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.orders, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_activity = obj["activity"] as Array<Did>;if (Array.isArray(__raw_activity)) {
+                                                        const __arr = __raw_activity.map((item: Did | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = didDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "activity[" + idx + "]"
+                                                                            : "activity[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.activity = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.activity, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_customFields = obj["customFields"] as Array<[string, string]>;if (Array.isArray(__raw_customFields)) {instance.customFields = __raw_customFields as [string, string][];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_accountName = obj["accountName"] as AccountName;ctx.pushScope("accountName");
+                                            try {
+                                                const __result = accountNameDeserializeWithContext(__raw_accountName, ctx);
+                                                ctx.assignOrDefer(instance, "accountName", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "accountName" : "accountName." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_sector = obj["sector"] as Sector;ctx.pushScope("sector");
+                                            try {
+                                                const __result = sectorDeserializeWithContext(__raw_sector, ctx);
+                                                ctx.assignOrDefer(instance, "sector", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "sector" : "sector." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_memo = obj["memo"] as string | null;
+                                                instance.memo = __raw_memo;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_phones = obj["phones"] as Array<PhoneNumber>;if (Array.isArray(__raw_phones)) {
+                                                        const __arr = __raw_phones.map((item: PhoneNumber | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = phoneNumberDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "phones[" + idx + "]"
+                                                                            : "phones[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.phones = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.phones, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_email = obj["email"] as Email;ctx.pushScope("email");
+                                            try {
+                                                const __result = emailDeserializeWithContext(__raw_email, ctx);
+                                                ctx.assignOrDefer(instance, "email", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "email" : "email." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_leadSource = obj["leadSource"] as string;
+                                            if (__raw_leadSource == null) { errors.push({ field: "leadSource", message: "Account.leadSource is required" }); } else {
+if (__raw_leadSource.length === 0) { errors.push({ field: "leadSource", message: "Account.leadSource must not be empty" }); }
+}
+instance.leadSource = __raw_leadSource;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_colors = obj["colors"] as Colors;ctx.pushScope("colors");
+                                            try {
+                                                const __result = colorsDeserializeWithContext(__raw_colors, ctx);
+                                                ctx.assignOrDefer(instance, "colors", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DeserializeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "colors" : "colors." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_needsReview = obj["needsReview"] as boolean;instance.needsReview = __raw_needsReview;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_hasAlert = obj["hasAlert"] as boolean;instance.hasAlert = __raw_hasAlert;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_accountType = obj["accountType"] as string;
+                                            if (__raw_accountType == null) { errors.push({ field: "accountType", message: "Account.accountType is required" }); } else {
+if (__raw_accountType.length === 0) { errors.push({ field: "accountType", message: "Account.accountType must not be empty" }); }
+}
+instance.accountType = __raw_accountType;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_subtype = obj["subtype"] as string;
+                                            if (__raw_subtype == null) { errors.push({ field: "subtype", message: "Account.subtype is required" }); } else {
+if (__raw_subtype.length === 0) { errors.push({ field: "subtype", message: "Account.subtype must not be empty" }); }
+}
+instance.subtype = __raw_subtype;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;instance.isTaxExempt = __raw_isTaxExempt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_paymentTerms = obj["paymentTerms"] as string;
+                                            if (__raw_paymentTerms == null) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms is required" }); } else {
+if (__raw_paymentTerms.length === 0) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms must not be empty" }); }
+}
+instance.paymentTerms = __raw_paymentTerms;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_tags = obj["tags"] as Array<string>;if (Array.isArray(__raw_tags)) {instance.tags = __raw_tags as string[];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_dateAdded = obj["dateAdded"] as string;instance.dateAdded = __raw_dateAdded;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Account;
+            }
+
+            export function accountValidateField<K extends keyof Account>(
+                _field: K,
+                _value: Account[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "leadSource") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "leadSource", message: "Account.leadSource is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "leadSource", message: "Account.leadSource must not be empty" }); }
+}
+
+
+                }
+                if (_field === "accountType") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "accountType", message: "Account.accountType is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "accountType", message: "Account.accountType must not be empty" }); }
+}
+
+
+                }
+                if (_field === "subtype") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "subtype", message: "Account.subtype is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "subtype", message: "Account.subtype must not be empty" }); }
+}
+
+
+                }
+                if (_field === "paymentTerms") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function accountValidateFields(
+                _partial: Partial<Account>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("leadSource" in _partial && _partial.leadSource !== undefined) {
+                    const __val = _partial.leadSource as string;
+                    if (__val == null) { errors.push({ field: "leadSource", message: "Account.leadSource is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "leadSource", message: "Account.leadSource must not be empty" }); }
+}
+
+
+                }
+                if ("accountType" in _partial && _partial.accountType !== undefined) {
+                    const __val = _partial.accountType as string;
+                    if (__val == null) { errors.push({ field: "accountType", message: "Account.accountType is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "accountType", message: "Account.accountType must not be empty" }); }
+}
+
+
+                }
+                if ("subtype" in _partial && _partial.subtype !== undefined) {
+                    const __val = _partial.subtype as string;
+                    if (__val == null) { errors.push({ field: "subtype", message: "Account.subtype is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "subtype", message: "Account.subtype must not be empty" }); }
+}
+
+
+                }
+                if ("paymentTerms" in _partial && _partial.paymentTerms !== undefined) {
+                    const __val = _partial.paymentTerms as string;
+                    if (__val == null) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account.paymentTerms must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function accountHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "id" in o && "taxRate" in o && "site" in o && "salesRep" in o && "orders" in o && "activity" in o && "customFields" in o && "accountName" in o && "sector" in o && "memo" in o && "phones" in o && "email" in o && "leadSource" in o && "colors" in o && "needsReview" in o && "hasAlert" in o && "accountType" in o && "subtype" in o && "isTaxExempt" in o && "paymentTerms" in o && "tags" in o && "dateAdded" in o;
+            }
+
+            export function accountIs(obj: unknown): obj is Account {
+                if (!accountHasShape(obj)) {
+                    return false;
+                }
+                const result = accountDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type AccountErrors = {
+            _errors: Option.Option<Array<string>>;
+            id: Option.Option<Array<string>>;
+            taxRate: Option.Option<Array<string>>;
+            site: Option.Option<Array<string>>;
+            salesRep: Option.Option<Array<string>>;
+            orders: Option.Option<Array<string>>;
+            activity: Option.Option<Array<string>>;
+            customFields: Option.Option<Array<string>>;
+            accountName: Option.Option<Array<string>>;
+            sector: Option.Option<Array<string>>;
+            memo: Option.Option<Array<string>>;
+            phones: Option.Option<Array<string>>;
+            email: Option.Option<Array<string>>;
+            leadSource: Option.Option<Array<string>>;
+            colors: Option.Option<Array<string>>;
+            needsReview: Option.Option<Array<string>>;
+            hasAlert: Option.Option<Array<string>>;
+            accountType: Option.Option<Array<string>>;
+            subtype: Option.Option<Array<string>>;
+            isTaxExempt: Option.Option<Array<string>>;
+            paymentTerms: Option.Option<Array<string>>;
+            tags: Option.Option<Array<string>>;
+            dateAdded: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type AccountTainted = {
+            id: Option.Option<boolean>;
+            taxRate: Option.Option<boolean>;
+            site: Option.Option<boolean>;
+            salesRep: Option.Option<boolean>;
+            orders: Option.Option<boolean>;
+            activity: Option.Option<boolean>;
+            customFields: Option.Option<boolean>;
+            accountName: Option.Option<boolean>;
+            sector: Option.Option<boolean>;
+            memo: Option.Option<boolean>;
+            phones: Option.Option<boolean>;
+            email: Option.Option<boolean>;
+            leadSource: Option.Option<boolean>;
+            colors: Option.Option<boolean>;
+            needsReview: Option.Option<boolean>;
+            hasAlert: Option.Option<boolean>;
+            accountType: Option.Option<boolean>;
+            subtype: Option.Option<boolean>;
+            isTaxExempt: Option.Option<boolean>;
+            paymentTerms: Option.Option<boolean>;
+            tags: Option.Option<boolean>;
+            dateAdded: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface AccountFieldControllers {
+            readonly id: FieldController<string>;
+            readonly taxRate: FieldController<string | TaxRate>;
+            readonly site: FieldController<string | Site>;
+            readonly salesRep: FieldController<Array<Represents> | null>;
+            
+                    readonly orders: ArrayFieldController<Ordered>;
+            
+                    readonly activity: ArrayFieldController<Did>;
+            
+                    readonly customFields: ArrayFieldController<[string, string]>;
+            readonly accountName: FieldController<AccountName>;
+            readonly sector: FieldController<Sector>;
+            readonly memo: FieldController<string | null>;
+            
+                    readonly phones: ArrayFieldController<PhoneNumber>;
+            readonly email: FieldController<Email>;
+            readonly leadSource: FieldController<string>;
+            readonly colors: FieldController<Colors>;
+            readonly needsReview: FieldController<boolean>;
+            readonly hasAlert: FieldController<boolean>;
+            readonly accountType: FieldController<string>;
+            readonly subtype: FieldController<string>;
+            readonly isTaxExempt: FieldController<boolean>;
+            readonly paymentTerms: FieldController<string>;
+            
+                    readonly tags: ArrayFieldController<string>;
+            readonly dateAdded: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface AccountGigaform {
+            readonly data: Account;
+            readonly errors: AccountErrors;
+            readonly tainted: AccountTainted;
+            readonly fields: AccountFieldControllers;
+            validate(): Exit.Exit<Account, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Account>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function accountCreateForm(overrides?: Partial<Account>): AccountGigaform {
+            let data = $state({ ...accountDefaultValue(), ...overrides });
+            let errors = $state<AccountErrors>({
+                _errors: Option.none(),
+                id: Option.none(),
+                taxRate: Option.none(),
+                site: Option.none(),
+                salesRep: Option.none(),
+                orders: Option.none(),
+                activity: Option.none(),
+                customFields: Option.none(),
+                accountName: Option.none(),
+                sector: Option.none(),
+                memo: Option.none(),
+                phones: Option.none(),
+                email: Option.none(),
+                leadSource: Option.none(),
+                colors: Option.none(),
+                needsReview: Option.none(),
+                hasAlert: Option.none(),
+                accountType: Option.none(),
+                subtype: Option.none(),
+                isTaxExempt: Option.none(),
+                paymentTerms: Option.none(),
+                tags: Option.none(),
+                dateAdded: Option.none(),
+
+
+            });
+            let tainted = $state<AccountTainted>({
+                id: Option.none(),
+                taxRate: Option.none(),
+                site: Option.none(),
+                salesRep: Option.none(),
+                orders: Option.none(),
+                activity: Option.none(),
+                customFields: Option.none(),
+                accountName: Option.none(),
+                sector: Option.none(),
+                memo: Option.none(),
+                phones: Option.none(),
+                email: Option.none(),
+                leadSource: Option.none(),
+                colors: Option.none(),
+                needsReview: Option.none(),
+                hasAlert: Option.none(),
+                accountType: Option.none(),
+                subtype: Option.none(),
+                isTaxExempt: Option.none(),
+                paymentTerms: Option.none(),
+                tags: Option.none(),
+                dateAdded: Option.none(),
+
+
+            });
+            const fields = {
+            
+                id: {
+            name: "id",
+            label: "id",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["id"],
+            get: () => data.id,
+            set: (value: string) => { data.id = value; },
+            getError: () => errors.id,
+            setError: (value: Option.Option<Array<string>>) => { errors.id = value; },
+            getTainted: () => tainted.id,
+            setTainted: (value: Option.Option<boolean>) => { tainted.id = value; },
+            validate: () => accountValidateField("id", data.id).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                taxRate: {
+            name: "taxRate",
+            label: "Tax Rate",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["taxRate"],
+            get: () => data.taxRate,
+            set: (value: string | TaxRate) => { data.taxRate = value; },
+            getError: () => errors.taxRate,
+            setError: (value: Option.Option<Array<string>>) => { errors.taxRate = value; },
+            getTainted: () => tainted.taxRate,
+            setTainted: (value: Option.Option<boolean>) => { tainted.taxRate = value; },
+            validate: () => accountValidateField("taxRate", data.taxRate).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                site: {
+            name: "site",
+            label: "Site",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["site"],
+            get: () => data.site,
+            set: (value: string | Site) => { data.site = value; },
+            getError: () => errors.site,
+            setError: (value: Option.Option<Array<string>>) => { errors.site = value; },
+            getTainted: () => tainted.site,
+            setTainted: (value: Option.Option<boolean>) => { tainted.site = value; },
+            validate: () => accountValidateField("site", data.site).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                salesRep: {
+            name: "salesRep",
+            label: "Sales Rep",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["salesRep"],
+            get: () => data.salesRep,
+            set: (value: Array<Represents> | null) => { data.salesRep = value; },
+            getError: () => errors.salesRep,
+            setError: (value: Option.Option<Array<string>>) => { errors.salesRep = value; },
+            getTainted: () => tainted.salesRep,
+            setTainted: (value: Option.Option<boolean>) => { tainted.salesRep = value; },
+            validate: () => accountValidateField("salesRep", data.salesRep).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                orders: {
+            name: "orders",
+            label: "orders",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["orders"],
+            get: () => data.orders,
+            set: (value: Array<Ordered>) => { data.orders = value; },
+            getError: () => errors.orders,
+            setError: (value: Option.Option<Array<string>>) => { errors.orders = value; },
+            getTainted: () => tainted.orders,
+            setTainted: (value: Option.Option<boolean>) => { tainted.orders = value; },
+            validate: () => accountValidateField("orders", data.orders).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.orders[index],
+                set: (value: Ordered) => { data.orders[index] = value; },
+                getError: () => errors.orders,
+                setError: (value: Option.Option<Array<string>>) => { errors.orders = value; },
+            }),
+            push: (item: Ordered) => { data.orders.push(item); },
+            remove: (index: number) => { data.orders.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.orders[a];
+                data.orders[a] = data.orders[b];
+                data.orders[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                activity: {
+            name: "activity",
+            label: "activity",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["activity"],
+            get: () => data.activity,
+            set: (value: Array<Did>) => { data.activity = value; },
+            getError: () => errors.activity,
+            setError: (value: Option.Option<Array<string>>) => { errors.activity = value; },
+            getTainted: () => tainted.activity,
+            setTainted: (value: Option.Option<boolean>) => { tainted.activity = value; },
+            validate: () => accountValidateField("activity", data.activity).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.activity[index],
+                set: (value: Did) => { data.activity[index] = value; },
+                getError: () => errors.activity,
+                setError: (value: Option.Option<Array<string>>) => { errors.activity = value; },
+            }),
+            push: (item: Did) => { data.activity.push(item); },
+            remove: (index: number) => { data.activity.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.activity[a];
+                data.activity[a] = data.activity[b];
+                data.activity[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                customFields: {
+            name: "customFields",
+            label: "customFields",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["customFields"],
+            get: () => data.customFields,
+            set: (value: Array<[string, string]>) => { data.customFields = value; },
+            getError: () => errors.customFields,
+            setError: (value: Option.Option<Array<string>>) => { errors.customFields = value; },
+            getTainted: () => tainted.customFields,
+            setTainted: (value: Option.Option<boolean>) => { tainted.customFields = value; },
+            validate: () => accountValidateField("customFields", data.customFields).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.customFields[index],
+                set: (value: [string, string]) => { data.customFields[index] = value; },
+                getError: () => errors.customFields,
+                setError: (value: Option.Option<Array<string>>) => { errors.customFields = value; },
+            }),
+            push: (item: [string, string]) => { data.customFields.push(item); },
+            remove: (index: number) => { data.customFields.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.customFields[a];
+                data.customFields[a] = data.customFields[b];
+                data.customFields[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                accountName: {
+            name: "accountName",
+            label: "accountName",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["accountName"],
+            get: () => data.accountName,
+            set: (value: AccountName) => { data.accountName = value; },
+            getError: () => errors.accountName,
+            setError: (value: Option.Option<Array<string>>) => { errors.accountName = value; },
+            getTainted: () => tainted.accountName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.accountName = value; },
+            validate: () => accountValidateField("accountName", data.accountName).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                sector: {
+            name: "sector",
+            label: "Sector",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["sector"],
+            get: () => data.sector,
+            set: (value: Sector) => { data.sector = value; },
+            getError: () => errors.sector,
+            setError: (value: Option.Option<Array<string>>) => { errors.sector = value; },
+            getTainted: () => tainted.sector,
+            setTainted: (value: Option.Option<boolean>) => { tainted.sector = value; },
+            validate: () => accountValidateField("sector", data.sector).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                memo: {
+            name: "memo",
+            label: "Memo",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["memo"],
+            get: () => data.memo,
+            set: (value: string | null) => { data.memo = value; },
+            getError: () => errors.memo,
+            setError: (value: Option.Option<Array<string>>) => { errors.memo = value; },
+            getTainted: () => tainted.memo,
+            setTainted: (value: Option.Option<boolean>) => { tainted.memo = value; },
+            validate: () => accountValidateField("memo", data.memo).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                phones: {
+            name: "phones",
+            label: "phones",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["phones"],
+            get: () => data.phones,
+            set: (value: Array<PhoneNumber>) => { data.phones = value; },
+            getError: () => errors.phones,
+            setError: (value: Option.Option<Array<string>>) => { errors.phones = value; },
+            getTainted: () => tainted.phones,
+            setTainted: (value: Option.Option<boolean>) => { tainted.phones = value; },
+            validate: () => accountValidateField("phones", data.phones).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.phones[index],
+                set: (value: PhoneNumber) => { data.phones[index] = value; },
+                getError: () => errors.phones,
+                setError: (value: Option.Option<Array<string>>) => { errors.phones = value; },
+            }),
+            push: (item: PhoneNumber) => { data.phones.push(item); },
+            remove: (index: number) => { data.phones.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.phones[a];
+                data.phones[a] = data.phones[b];
+                data.phones[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                email: {
+            name: "email",
+            label: "Email",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["email"],
+            get: () => data.email,
+            set: (value: Email) => { data.email = value; },
+            getError: () => errors.email,
+            setError: (value: Option.Option<Array<string>>) => { errors.email = value; },
+            getTainted: () => tainted.email,
+            setTainted: (value: Option.Option<boolean>) => { tainted.email = value; },
+            validate: () => accountValidateField("email", data.email).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                leadSource: {
+            name: "leadSource",
+            label: "Lead Source",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["leadSource"],
+            get: () => data.leadSource,
+            set: (value: string) => { data.leadSource = value; },
+            getError: () => errors.leadSource,
+            setError: (value: Option.Option<Array<string>>) => { errors.leadSource = value; },
+            getTainted: () => tainted.leadSource,
+            setTainted: (value: Option.Option<boolean>) => { tainted.leadSource = value; },
+            validate: () => accountValidateField("leadSource", data.leadSource).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                colors: {
+            name: "colors",
+            label: "colors",
+            type: "fieldset",
+            optional: false,
+            array: false,
+            path: ["colors"],
+            get: () => data.colors,
+            set: (value: Colors) => { data.colors = value; },
+            getError: () => errors.colors,
+            setError: (value: Option.Option<Array<string>>) => { errors.colors = value; },
+            getTainted: () => tainted.colors,
+            setTainted: (value: Option.Option<boolean>) => { tainted.colors = value; },
+            validate: () => accountValidateField("colors", data.colors).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                needsReview: {
+            name: "needsReview",
+            label: "Needs Review",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["needsReview"],
+            get: () => data.needsReview,
+            set: (value: boolean) => { data.needsReview = value; },
+            getError: () => errors.needsReview,
+            setError: (value: Option.Option<Array<string>>) => { errors.needsReview = value; },
+            getTainted: () => tainted.needsReview,
+            setTainted: (value: Option.Option<boolean>) => { tainted.needsReview = value; },
+            validate: () => accountValidateField("needsReview", data.needsReview).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                hasAlert: {
+            name: "hasAlert",
+            label: "Has Alert",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["hasAlert"],
+            get: () => data.hasAlert,
+            set: (value: boolean) => { data.hasAlert = value; },
+            getError: () => errors.hasAlert,
+            setError: (value: Option.Option<Array<string>>) => { errors.hasAlert = value; },
+            getTainted: () => tainted.hasAlert,
+            setTainted: (value: Option.Option<boolean>) => { tainted.hasAlert = value; },
+            validate: () => accountValidateField("hasAlert", data.hasAlert).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                accountType: {
+            name: "accountType",
+            label: "Account Type",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["accountType"],
+            get: () => data.accountType,
+            set: (value: string) => { data.accountType = value; },
+            getError: () => errors.accountType,
+            setError: (value: Option.Option<Array<string>>) => { errors.accountType = value; },
+            getTainted: () => tainted.accountType,
+            setTainted: (value: Option.Option<boolean>) => { tainted.accountType = value; },
+            validate: () => accountValidateField("accountType", data.accountType).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                subtype: {
+            name: "subtype",
+            label: "Subtype",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["subtype"],
+            get: () => data.subtype,
+            set: (value: string) => { data.subtype = value; },
+            getError: () => errors.subtype,
+            setError: (value: Option.Option<Array<string>>) => { errors.subtype = value; },
+            getTainted: () => tainted.subtype,
+            setTainted: (value: Option.Option<boolean>) => { tainted.subtype = value; },
+            validate: () => accountValidateField("subtype", data.subtype).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                isTaxExempt: {
+            name: "isTaxExempt",
+            label: "Tax Exempt",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["isTaxExempt"],
+            get: () => data.isTaxExempt,
+            set: (value: boolean) => { data.isTaxExempt = value; },
+            getError: () => errors.isTaxExempt,
+            setError: (value: Option.Option<Array<string>>) => { errors.isTaxExempt = value; },
+            getTainted: () => tainted.isTaxExempt,
+            setTainted: (value: Option.Option<boolean>) => { tainted.isTaxExempt = value; },
+            validate: () => accountValidateField("isTaxExempt", data.isTaxExempt).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                paymentTerms: {
+            name: "paymentTerms",
+            label: "Payment Terms",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["paymentTerms"],
+            get: () => data.paymentTerms,
+            set: (value: string) => { data.paymentTerms = value; },
+            getError: () => errors.paymentTerms,
+            setError: (value: Option.Option<Array<string>>) => { errors.paymentTerms = value; },
+            getTainted: () => tainted.paymentTerms,
+            setTainted: (value: Option.Option<boolean>) => { tainted.paymentTerms = value; },
+            validate: () => accountValidateField("paymentTerms", data.paymentTerms).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                tags: {
+            name: "tags",
+            label: "Tags",
+            type: "text",
+            optional: false,
+            array: true,
+            path: ["tags"],
+            get: () => data.tags,
+            set: (value: Array<string>) => { data.tags = value; },
+            getError: () => errors.tags,
+            setError: (value: Option.Option<Array<string>>) => { errors.tags = value; },
+            getTainted: () => tainted.tags,
+            setTainted: (value: Option.Option<boolean>) => { tainted.tags = value; },
+            validate: () => accountValidateField("tags", data.tags).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.tags[index],
+                set: (value: string) => { data.tags[index] = value; },
+                getError: () => errors.tags,
+                setError: (value: Option.Option<Array<string>>) => { errors.tags = value; },
+            }),
+            push: (item: string) => { data.tags.push(item); },
+            remove: (index: number) => { data.tags.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.tags[a];
+                data.tags[a] = data.tags[b];
+                data.tags[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                dateAdded: {
+            name: "dateAdded",
+            label: "dateAdded",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["dateAdded"],
+            get: () => data.dateAdded,
+            set: (value: string) => { data.dateAdded = value; },
+            getError: () => errors.dateAdded,
+            setError: (value: Option.Option<Array<string>>) => { errors.dateAdded = value; },
+            getTainted: () => tainted.dateAdded,
+            setTainted: (value: Option.Option<boolean>) => { tainted.dateAdded = value; },
+            validate: () => accountValidateField("dateAdded", data.dateAdded).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as AccountFieldControllers;
+
+
+            function validate(): Exit.Exit<Account, Array<{ field: string; message: string }>> {
+                return toExit(accountDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Account>): void {
+                data = { ...accountDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            id: Option.none(),
+            taxRate: Option.none(),
+            site: Option.none(),
+            salesRep: Option.none(),
+            orders: Option.none(),
+            activity: Option.none(),
+            customFields: Option.none(),
+            accountName: Option.none(),
+            sector: Option.none(),
+            memo: Option.none(),
+            phones: Option.none(),
+            email: Option.none(),
+            leadSource: Option.none(),
+            colors: Option.none(),
+            needsReview: Option.none(),
+            hasAlert: Option.none(),
+            accountType: Option.none(),
+            subtype: Option.none(),
+            isTaxExempt: Option.none(),
+            paymentTerms: Option.none(),
+            tags: Option.none(),
+            dateAdded: Option.none(),
+
+
+        };
+                tainted = {
+            id: Option.none(),
+            taxRate: Option.none(),
+            site: Option.none(),
+            salesRep: Option.none(),
+            orders: Option.none(),
+            activity: Option.none(),
+            customFields: Option.none(),
+            accountName: Option.none(),
+            sector: Option.none(),
+            memo: Option.none(),
+            phones: Option.none(),
+            email: Option.none(),
+            leadSource: Option.none(),
+            colors: Option.none(),
+            needsReview: Option.none(),
+            hasAlert: Option.none(),
+            accountType: Option.none(),
+            subtype: Option.none(),
+            isTaxExempt: Option.none(),
+            paymentTerms: Option.none(),
+            tags: Option.none(),
+            dateAdded: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function accountFromFormData(formData: FormData): Exit.Exit<Account, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.id = formData.get("id") ?? "";
+            obj.taxRate = formData.get("taxRate") ?? "";
+            obj.site = formData.get("site") ?? "";
+            {
+
+            const salesRepObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("salesRep.")) {
+                    const fieldName = key.slice("salesRep.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = salesRepObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.salesRep = salesRepObj;
+        }
+            {
+
+                    const ordersItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("orders." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("orders." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("orders." + idx + ".")) {
+                                    const fieldName = key.slice("orders.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            ordersItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.orders = ordersItems;
+                }
+            {
+
+                    const activityItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("activity." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("activity." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("activity." + idx + ".")) {
+                                    const fieldName = key.slice("activity.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            activityItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.activity = activityItems;
+                }
+            {
+
+                    const customFieldsItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("customFields." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("customFields." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("customFields." + idx + ".")) {
+                                    const fieldName = key.slice("customFields.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            customFieldsItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.customFields = customFieldsItems;
+                }
+            {
+
+            const accountNameObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("accountName.")) {
+                    const fieldName = key.slice("accountName.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = accountNameObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.accountName = accountNameObj;
+        }
+            {
+
+            const sectorObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("sector.")) {
+                    const fieldName = key.slice("sector.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = sectorObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.sector = sectorObj;
+        }
+            obj.memo = formData.get("memo") ?? "";
+            {
+
+                    const phonesItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("phones." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("phones." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("phones." + idx + ".")) {
+                                    const fieldName = key.slice("phones.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            phonesItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.phones = phonesItems;
+                }
+            {
+
+            const emailObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("email.")) {
+                    const fieldName = key.slice("email.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = emailObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.email = emailObj;
+        }
+            obj.leadSource = formData.get("leadSource") ?? "";
+            {
+
+            const colorsObj: Record<string, unknown> = {};
+            for (const [key, value] of Array.from(formData.entries())) {
+                if (key.startsWith("colors.")) {
+                    const fieldName = key.slice("colors.".length);
+
+                    const parts = fieldName.split(".");
+                    let current = colorsObj;
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i]!;
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part] as Record<string, unknown>;
+                    }
+                    current[parts[parts.length - 1]!] = value;
+                }
+            }
+            obj.colors = colorsObj;
+        }
+            {
+                    const needsReviewVal = formData.get("needsReview");
+                    obj.needsReview = needsReviewVal === "true" || needsReviewVal === "on" || needsReviewVal === "1";
+                }
+            {
+                    const hasAlertVal = formData.get("hasAlert");
+                    obj.hasAlert = hasAlertVal === "true" || hasAlertVal === "on" || hasAlertVal === "1";
+                }
+            obj.accountType = formData.get("accountType") ?? "";
+            obj.subtype = formData.get("subtype") ?? "";
+            {
+                    const isTaxExemptVal = formData.get("isTaxExempt");
+                    obj.isTaxExempt = isTaxExemptVal === "true" || isTaxExemptVal === "on" || isTaxExemptVal === "1";
+                }
+            obj.paymentTerms = formData.get("paymentTerms") ?? "";
+            obj.tags = formData.getAll("tags") as Array<string>;
+            obj.dateAdded = formData.get("dateAdded") ?? "";
+
+
+            return toExit(accountDeserialize(obj));
+        }
+
+export const Account = {
+  defaultValue: accountDefaultValue,
+  serialize: accountSerialize,
+  serializeWithContext: accountSerializeWithContext,
+  deserialize: accountDeserialize,
+  deserializeWithContext: accountDeserializeWithContext,
+  validateFields: accountValidateFields,
+  hasShape: accountHasShape,
+  is: accountIs,
+  createForm: accountCreateForm,
+  fromFormData: accountFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..551 -> expanded 0..551
+original 608..640 -> expanded 551..583
+original 668..689 -> expanded 583..604
+original 789..794 -> expanded 604..609
+original 813..849 -> expanded 609..645
+original 898..903 -> expanded 645..650
+original 922..952 -> expanded 650..680
+original 1041..1086 -> expanded 680..725
+original 1114..1147 -> expanded 725..758
+original 1175..1206 -> expanded 758..789
+original 1266..1314 -> expanded 789..837
+original 1446..1481 -> expanded 837..872
+original 1662..1667 -> expanded 872..877
+original 1697..1722 -> expanded 877..902
+original 1767..1797 -> expanded 902..932
+original 1850..1887 -> expanded 932..969
+original 1935..1958 -> expanded 969..992
+original 2029..2034 -> expanded 992..997
+original 2075..2104 -> expanded 997..1026
+original 2132..2157 -> expanded 1026..1051
+original 2208..2239 -> expanded 1051..1082
+original 2287..2315 -> expanded 1082..1110
+original 2387..2392 -> expanded 1110..1115
+original 2433..2463 -> expanded 1115..1145
+original 2530..2535 -> expanded 1145..1150
+original 2576..2602 -> expanded 1150..1176
+original 2651..2682 -> expanded 1176..1207
+original 2755..2760 -> expanded 1207..1212
+original 2801..2832 -> expanded 1212..1243
+original 2873..2903 -> expanded 1243..1273
+original 2931..2956 -> expanded 1273..1298
+original 2956..2957 -> expanded 85764..85765
+generated 1298..1788 <- Default
+generated 1788..5204 <- Serialize
+generated 5204..43398 <- Deserialize
+generated 43398..85357 <- Gigaform
+generated 85357..85764 <- __convenience_const
+
+## Metadata
+
+interface Account: {"body_span":{"end":2957,"start":635},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":609,"start":552}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":669,"start":641}}],"name":"id","optional":false,"readonly":false,"span":{"end":685,"start":674},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":814,"start":795}},{"args_src":"{ label: \"Tax Rate\", allowCustom: false, fetchUrls: [\"/api/tax_rates\"] }","name":"comboboxController","span":{"end":790,"start":690}}],"name":"taxRate","optional":false,"readonly":false,"span":{"end":845,"start":819},"ts_type":"string | TaxRate"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":923,"start":904}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":899,"start":850}}],"name":"site","optional":false,"readonly":false,"span":{"end":948,"start":928},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Sales Rep\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1042,"start":953}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":1082,"start":1047},"ts_type":"Array<Represents> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1115,"start":1087}}],"name":"orders","optional":false,"readonly":false,"span":{"end":1143,"start":1120},"ts_type":"Array<Ordered>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1176,"start":1148}}],"name":"activity","optional":false,"readonly":false,"span":{"end":1202,"start":1181},"ts_type":"Array<Did>"},{"decorators":[{"args_src":"{ legend: \"Custom Fields\" }","name":"arrayFieldsetController","span":{"end":1267,"start":1207}}],"name":"customFields","optional":false,"readonly":false,"span":{"end":1310,"start":1272},"ts_type":"Array<[string, string]>"},{"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":1447,"start":1315}}],"name":"accountName","optional":false,"readonly":false,"span":{"end":1477,"start":1452},"ts_type":"AccountName"},{"decorators":[{"args_src":"\"Residential\"","name":"default","span":{"end":1698,"start":1668}},{"args_src":"{ label: \"Sector\", options: [{ label: \"Residential\", value: \"Residential\" }, { label: \"Commercial\", value: \"Commercial\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":1663,"start":1482}}],"name":"sector","optional":false,"readonly":false,"span":{"end":1718,"start":1703},"ts_type":"Sector"},{"decorators":[{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":1768,"start":1723}}],"name":"memo","optional":false,"readonly":false,"span":{"end":1793,"start":1773},"ts_type":"string | null"},{"decorators":[{"args_src":"{ legend: \"Phones\" }","name":"arrayFieldsetController","span":{"end":1851,"start":1798}}],"name":"phones","optional":false,"readonly":false,"span":{"end":1883,"start":1856},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ label: \"Email\" }","name":"emailFieldController","span":{"end":1936,"start":1888}}],"name":"email","optional":false,"readonly":false,"span":{"end":1954,"start":1941},"ts_type":"Email"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":2076,"start":2035}},{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":2030,"start":1959}}],"name":"leadSource","optional":false,"readonly":false,"span":{"end":2100,"start":2081},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2133,"start":2105}}],"name":"colors","optional":false,"readonly":false,"span":{"end":2153,"start":2138},"ts_type":"Colors"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"toggleController","span":{"end":2209,"start":2158}}],"name":"needsReview","optional":false,"readonly":false,"span":{"end":2235,"start":2214},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Has Alert\" }","name":"toggleController","span":{"end":2288,"start":2240}}],"name":"hasAlert","optional":false,"readonly":false,"span":{"end":2311,"start":2293},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":2434,"start":2393}},{"args_src":"{ label: \"Account Type\", allowCustom: true }","name":"comboboxController","span":{"end":2388,"start":2316}}],"name":"accountType","optional":false,"readonly":false,"span":{"end":2459,"start":2439},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":2577,"start":2536}},{"args_src":"{ label: \"Subtype\", allowCustom: true }","name":"comboboxController","span":{"end":2531,"start":2464}}],"name":"subtype","optional":false,"readonly":false,"span":{"end":2598,"start":2582},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tax Exempt\" }","name":"toggleController","span":{"end":2652,"start":2603}}],"name":"isTaxExempt","optional":false,"readonly":false,"span":{"end":2678,"start":2657},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":2802,"start":2761}},{"args_src":"{ label: \"Payment Terms\", allowCustom: true }","name":"comboboxController","span":{"end":2756,"start":2683}}],"name":"paymentTerms","optional":false,"readonly":false,"span":{"end":2828,"start":2807},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tags\" }","name":"tagsController","span":{"end":2874,"start":2833}}],"name":"tags","optional":false,"readonly":false,"span":{"end":2899,"start":2879},"ts_type":"Array<string>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2932,"start":2904}}],"name":"dateAdded","optional":false,"readonly":false,"span":{"end":2955,"start":2937},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Account","span":{"end":2957,"start":617},"type_params":[]}
+
+## Registry reads
+
+Name("AccountName")
+Name("Array")
+Name("Colors")
+Name("Did")
+Name("Email")
+Name("Ordered")
+Name("PhoneNumber")
+Name("Represents")
+Name("Sector")
+Name("[string, string]")
+Name("boolean")
+Name("string")
+Name("string | Site")
+Name("string | TaxRate")
+
+## Buildtime dependencies
+
+(none)

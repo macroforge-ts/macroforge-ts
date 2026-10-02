@@ -1,12 +1,16 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/type_alias_union_default_missing.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/type_alias_union_default_missing.ts
 ---
 ## Input
 
 /** @derive(Default) */
 export type UnionType = VariantA | VariantB;
+
+## Changed
+
+true
 
 ## Output
 
@@ -18,4 +22,20 @@ export type UnionType = VariantA | VariantB;
 
 ## Diagnostics
 
-Error: @derive(Default) on union type 'UnionType' requires @default on one variant or @default(VariantName.defaultValue()) on the type.
+Error [4..20]: @derive(Default) on union type 'UnionType' requires @default on one variant or @default(VariantName.defaultValue()) on the type.
+
+## Mapping
+
+original 23..69 -> expanded 0..46
+
+## Metadata
+
+type UnionType: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"VariantA"}},{"decorators":[],"kind":{"TypeRef":"VariantB"}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"name":"UnionType","span":{"end":69,"start":32},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

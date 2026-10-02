@@ -21,16 +21,7 @@ use oxc::ast::ast::{Argument, Expression, TSType};
 use oxc::span::GetSpan;
 
 use crate::ts_syn::abi::SpanIR;
-use crate::ts_syn::declarative::{FragmentKind, MacroDef, Pattern, PatternElement, RepetitionKind};
-
-/// Result of a successful arm match.
-#[derive(Debug, Clone)]
-pub struct MatchResult {
-    /// Which arm (by index) matched.
-    pub arm_index: usize,
-    /// Bindings produced by the match.
-    pub bindings: HashMap<String, Binding>,
-}
+use crate::ts_syn::declarative::{FragmentKind, Pattern, PatternElement, RepetitionKind};
 
 /// A binding from a pattern variable to one or more captured fragments.
 #[derive(Debug, Clone)]
@@ -58,7 +49,7 @@ pub enum MatchError {
     /// An unsupported fragment kind was used in call-argument position.
     ///
     /// The `reason` field carries a concrete explanation of why the
-    /// kind is impossible in call-argument position — e.g. "`Stmt`
+    /// kind is impossible in call-argument position, e.g. "`Stmt`
     /// is a declaration or control-flow node; JavaScript doesn't
     /// allow statements as call arguments". PR 9 added this so
     /// users see a grammatical explanation rather than a bare
@@ -68,7 +59,7 @@ pub enum MatchError {
         reason: &'static str,
     },
     /// Two sequence bindings in the same body would need different lengths.
-    /// Currently never constructed by the matcher — sequence-length
+    /// Currently never constructed by the matcher: sequence-length
     /// mismatches are detected during body expansion and reported via
     /// the expander's own error type.
     InconsistentSequenceLength,
@@ -88,12 +79,12 @@ impl std::fmt::Display for MatchError {
                 // repetition-containing arm, the match genuinely
                 // failed for other reasons. We keep the hint so
                 // users understand repetition+tail patterns are
-                // expected to work — if they don't, it's likely a
+                // expected to work: if they don't, it's likely a
                 // legitimate mismatch on the tail fragment kinds.
                 if tried.iter().any(|p| p.contains("$(...)")) {
                     write!(
                         f,
-                        " (note: repetitions `$(...)*` / `$(...)+` / `$(...)?` are matched with bounded backtracking — the matcher tries decreasing counts until the tail elements fit; if you expected a match here, double-check that the fragment kinds after the repetition are compatible with the remaining call arguments)"
+                        " (note: repetitions `$(...)*` / `$(...)+` / `$(...)?` are matched with bounded backtracking: the matcher tries decreasing counts until the tail elements fit; if you expected a match here, double-check that the fragment kinds after the repetition are compatible with the remaining call arguments)"
                     )?;
                 }
                 Ok(())
@@ -116,24 +107,6 @@ impl std::fmt::Display for MatchError {
 }
 
 impl std::error::Error for MatchError {}
-
-/// Match the call's arguments against the macro's arms and return the first
-/// successful match (or [`MatchError::NoArmMatched`] if none fit).
-///
-/// Thin wrapper around [`match_invocation_against_arms`] that uses
-/// `def.arms` — the dev-form / expand-mode arms.
-pub fn match_invocation<'a>(
-    def: &MacroDef,
-    call_args: &'a OxcVec<'a, Argument<'a>>,
-    source: &str,
-) -> Result<MatchResult, MatchError> {
-    match_invocation_against_arms(&def.arms, call_args, source).map(|(arm_index, bindings)| {
-        MatchResult {
-            arm_index,
-            bindings,
-        }
-    })
-}
 
 /// Match the call's arguments against an arbitrary slice of arms, returning
 /// the matched arm index and its bindings.
@@ -211,7 +184,7 @@ fn match_elements<'a>(
                 //
                 // Returning from here unconditionally is correct
                 // because [`match_elements_with_repetition_backtrack`]
-                // handles the tail itself — control does not come
+                // handles the tail itself: control does not come
                 // back to this loop.
                 let tail = &elements[idx + 1..];
                 return match_elements_with_repetition_backtrack(
@@ -230,7 +203,7 @@ fn match_elements<'a>(
 /// the `tail` of elements that come AFTER the repetition in the
 /// outer pattern. This function:
 ///
-/// 1. Runs the greedy pass — keep matching `inner` against `args`
+/// 1. Runs the greedy pass: keep matching `inner` against `args`
 ///    until it fails or stops advancing, remembering a snapshot
 ///    `(cursor, collected_bindings)` after each successful iteration.
 /// 2. Iterates candidate counts from the greedy maximum down to the
@@ -319,7 +292,7 @@ fn match_elements_with_repetition_backtrack<'a>(
     let rep_keys: Vec<String> = collected.keys().cloned().collect();
 
     for try_count in (min_count..=count).rev() {
-        // ZeroOrOne caps at 1 — don't try counts above it.
+        // ZeroOrOne caps at 1: don't try counts above it.
         if kind == RepetitionKind::ZeroOrOne && try_count > 1 {
             continue;
         }
@@ -400,7 +373,7 @@ fn bind_fragment(
         ),
         FragmentKind::Block => matches!(expr, Expression::ArrowFunctionExpression(_)),
         // The kinds below are semantically impossible in
-        // call-argument position — JavaScript's grammar only allows
+        // call-argument position: JavaScript's grammar only allows
         // expressions as call arguments, and the rejection reasons
         // below explain the mismatch so users don't mistake it for
         // "not implemented yet".
@@ -431,7 +404,7 @@ fn bind_fragment(
         FragmentKind::Decorator => {
             return Err(MatchError::UnsupportedFragmentKind {
                 kind,
-                reason: "`Decorator` matches `@decorator(...)` annotations, which can only attach to classes, methods, and fields — not appear as call arguments. If you need a decorator-shaped expression as an argument, capture the call itself with `Expr`.",
+                reason: "`Decorator` matches `@decorator(...)` annotations, which can only attach to classes, methods, and fields, not appear as call arguments. If you need a decorator-shaped expression as an argument, capture the call itself with `Expr`.",
             });
         }
     };
@@ -452,7 +425,7 @@ fn bind_fragment(
 }
 
 // ---------------------------------------------------------------------------
-// Phase 13 — type-position matcher
+// Phase 13: type-position matcher
 // ---------------------------------------------------------------------------
 //
 // Mirrors the value-position match logic but walks `TSType` nodes
@@ -510,7 +483,7 @@ fn match_type_elements<'a>(
         match elem {
             PatternElement::Literal(_) => {
                 // Literal separators (commas) are implicit between type
-                // params — skip them just like the value-position path does.
+                // params: skip them just like the value-position path does.
             }
             PatternElement::Fragment { name, kind } => {
                 if *cursor >= args.len() {
@@ -585,7 +558,7 @@ fn bind_type_fragment(
     source: &str,
 ) -> Result<Option<BoundFragment>, MatchError> {
     // Type-position matching only accepts `Type` and `Tt` (the
-    // structural fallback) — Rust's `macro_rules!` in type position
+    // structural fallback): Rust's `macro_rules!` in type position
     // works the same way: you only bind to type tokens, not to
     // expressions or identifiers.
     match kind {

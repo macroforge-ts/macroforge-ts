@@ -1,0 +1,3862 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/number.svelte.ts
+sha256 ce13f29c60a846fd5d8747739ffe3a5644eacfa77457777147cfd620db53cae6
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface Number {
+    
+    countryCode: string;
+    
+    areaCode: string;
+    
+    localNumber: string;
+}
+
+export function numberDefaultValue(): Number {
+                        return {
+countryCode: "",
+areaCode: "",
+localNumber: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function numberSerialize(value: Number, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = numberSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function numberSerializeWithContext(value: Number, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Number",
+                        __id,
+                    };result.countryCode = value.countryCode;result.areaCode = value.areaCode;result.localNumber = value.localNumber;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function numberDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Number } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = numberDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Number.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function numberDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Number | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Number.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("countryCode" in obj)) {
+                            errors.push({ field: "countryCode", message: "missing required field" });
+                        }if (!("areaCode" in obj)) {
+                            errors.push({ field: "areaCode", message: "missing required field" });
+                        }if (!("localNumber" in obj)) {
+                            errors.push({ field: "localNumber", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_countryCode = obj["countryCode"] as string;
+                                            if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+if (__raw_countryCode.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+}
+instance.countryCode = __raw_countryCode;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_areaCode = obj["areaCode"] as string;
+                                            if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+if (__raw_areaCode.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+}
+instance.areaCode = __raw_areaCode;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_localNumber = obj["localNumber"] as string;
+                                            if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+if (__raw_localNumber.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+}
+instance.localNumber = __raw_localNumber;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Number;
+            }
+
+            export function numberValidateField<K extends keyof Number>(
+                _field: K,
+                _value: Number[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "countryCode") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+}
+
+
+                }
+                if (_field === "areaCode") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+}
+
+
+                }
+                if (_field === "localNumber") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function numberValidateFields(
+                _partial: Partial<Number>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("countryCode" in _partial && _partial.countryCode !== undefined) {
+                    const __val = _partial.countryCode as string;
+                    if (__val == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+}
+
+
+                }
+                if ("areaCode" in _partial && _partial.areaCode !== undefined) {
+                    const __val = _partial.areaCode as string;
+                    if (__val == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+}
+
+
+                }
+                if ("localNumber" in _partial && _partial.localNumber !== undefined) {
+                    const __val = _partial.localNumber as string;
+                    if (__val == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function numberHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "countryCode" in o && "areaCode" in o && "localNumber" in o;
+            }
+
+            export function numberIs(obj: unknown): obj is Number {
+                if (!numberHasShape(obj)) {
+                    return false;
+                }
+                const result = numberDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type NumberErrors = {
+            _errors: Option.Option<Array<string>>;
+            countryCode: Option.Option<Array<string>>;
+            areaCode: Option.Option<Array<string>>;
+            localNumber: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type NumberTainted = {
+            countryCode: Option.Option<boolean>;
+            areaCode: Option.Option<boolean>;
+            localNumber: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface NumberFieldControllers {
+            readonly countryCode: FieldController<string>;
+            readonly areaCode: FieldController<string>;
+            readonly localNumber: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface NumberGigaform {
+            readonly data: Number;
+            readonly errors: NumberErrors;
+            readonly tainted: NumberTainted;
+            readonly fields: NumberFieldControllers;
+            validate(): Exit.Exit<Number, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Number>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
+            let data = $state({ ...numberDefaultValue(), ...overrides });
+            let errors = $state<NumberErrors>({
+                _errors: Option.none(),
+                countryCode: Option.none(),
+                areaCode: Option.none(),
+                localNumber: Option.none(),
+
+
+            });
+            let tainted = $state<NumberTainted>({
+                countryCode: Option.none(),
+                areaCode: Option.none(),
+                localNumber: Option.none(),
+
+
+            });
+            const fields = {
+            
+                countryCode: {
+            name: "countryCode",
+            label: "countryCode",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["countryCode"],
+            get: () => data.countryCode,
+            set: (value: string) => { data.countryCode = value; },
+            getError: () => errors.countryCode,
+            setError: (value: Option.Option<Array<string>>) => { errors.countryCode = value; },
+            getTainted: () => tainted.countryCode,
+            setTainted: (value: Option.Option<boolean>) => { tainted.countryCode = value; },
+            validate: () => numberValidateField("countryCode", data.countryCode).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                areaCode: {
+            name: "areaCode",
+            label: "areaCode",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["areaCode"],
+            get: () => data.areaCode,
+            set: (value: string) => { data.areaCode = value; },
+            getError: () => errors.areaCode,
+            setError: (value: Option.Option<Array<string>>) => { errors.areaCode = value; },
+            getTainted: () => tainted.areaCode,
+            setTainted: (value: Option.Option<boolean>) => { tainted.areaCode = value; },
+            validate: () => numberValidateField("areaCode", data.areaCode).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                localNumber: {
+            name: "localNumber",
+            label: "localNumber",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["localNumber"],
+            get: () => data.localNumber,
+            set: (value: string) => { data.localNumber = value; },
+            getError: () => errors.localNumber,
+            setError: (value: Option.Option<Array<string>>) => { errors.localNumber = value; },
+            getTainted: () => tainted.localNumber,
+            setTainted: (value: Option.Option<boolean>) => { tainted.localNumber = value; },
+            validate: () => numberValidateField("localNumber", data.localNumber).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as NumberFieldControllers;
+
+
+            function validate(): Exit.Exit<Number, Array<{ field: string; message: string }>> {
+                return toExit(numberDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Number>): void {
+                data = { ...numberDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            countryCode: Option.none(),
+            areaCode: Option.none(),
+            localNumber: Option.none(),
+
+
+        };
+                tainted = {
+            countryCode: Option.none(),
+            areaCode: Option.none(),
+            localNumber: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function numberFromFormData(formData: FormData): Exit.Exit<Number, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.countryCode = formData.get("countryCode") ?? "";
+            obj.areaCode = formData.get("areaCode") ?? "";
+            obj.localNumber = formData.get("localNumber") ?? "";
+
+
+            return toExit(numberDeserialize(obj));
+        }
+
+export const Number = {
+  defaultValue: numberDefaultValue,
+  serialize: numberSerialize,
+  serializeWithContext: numberSerializeWithContext,
+  deserialize: numberDeserialize,
+  deserializeWithContext: numberDeserializeWithContext,
+  validateFields: numberValidateFields,
+  hasShape: numberHasShape,
+  is: numberIs,
+  createForm: numberCreateForm,
+  fromFormData: numberFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface Number {
+    
+    countryCode: string;
+    
+    areaCode: string;
+    
+    localNumber: string;
+}
+
+export function numberDefaultValue(): Number {
+                        return {
+countryCode: "",
+areaCode: "",
+localNumber: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function numberSerialize(value: Number, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = numberSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function numberSerializeWithContext(value: Number, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Number",
+                        __id,
+                    };result.countryCode = value.countryCode;result.areaCode = value.areaCode;result.localNumber = value.localNumber;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function numberDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Number } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = numberDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Number.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function numberDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Number | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Number.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("countryCode" in obj)) {
+                            errors.push({ field: "countryCode", message: "missing required field" });
+                        }if (!("areaCode" in obj)) {
+                            errors.push({ field: "areaCode", message: "missing required field" });
+                        }if (!("localNumber" in obj)) {
+                            errors.push({ field: "localNumber", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_countryCode = obj["countryCode"] as string;
+                                            if (__raw_countryCode == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+if (__raw_countryCode.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+}
+instance.countryCode = __raw_countryCode;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_areaCode = obj["areaCode"] as string;
+                                            if (__raw_areaCode == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+if (__raw_areaCode.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+}
+instance.areaCode = __raw_areaCode;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_localNumber = obj["localNumber"] as string;
+                                            if (__raw_localNumber == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+if (__raw_localNumber.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+}
+instance.localNumber = __raw_localNumber;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Number;
+            }
+
+            export function numberValidateField<K extends keyof Number>(
+                _field: K,
+                _value: Number[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "countryCode") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+}
+
+
+                }
+                if (_field === "areaCode") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+}
+
+
+                }
+                if (_field === "localNumber") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function numberValidateFields(
+                _partial: Partial<Number>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("countryCode" in _partial && _partial.countryCode !== undefined) {
+                    const __val = _partial.countryCode as string;
+                    if (__val == null) { errors.push({ field: "countryCode", message: "Number.countryCode is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "countryCode", message: "Number.countryCode must not be empty" }); }
+}
+
+
+                }
+                if ("areaCode" in _partial && _partial.areaCode !== undefined) {
+                    const __val = _partial.areaCode as string;
+                    if (__val == null) { errors.push({ field: "areaCode", message: "Number.areaCode is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "areaCode", message: "Number.areaCode must not be empty" }); }
+}
+
+
+                }
+                if ("localNumber" in _partial && _partial.localNumber !== undefined) {
+                    const __val = _partial.localNumber as string;
+                    if (__val == null) { errors.push({ field: "localNumber", message: "Number.localNumber is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.localNumber must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function numberHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "countryCode" in o && "areaCode" in o && "localNumber" in o;
+            }
+
+            export function numberIs(obj: unknown): obj is Number {
+                if (!numberHasShape(obj)) {
+                    return false;
+                }
+                const result = numberDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type NumberErrors = {
+            _errors: Option.Option<Array<string>>;
+            countryCode: Option.Option<Array<string>>;
+            areaCode: Option.Option<Array<string>>;
+            localNumber: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type NumberTainted = {
+            countryCode: Option.Option<boolean>;
+            areaCode: Option.Option<boolean>;
+            localNumber: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface NumberFieldControllers {
+            readonly countryCode: FieldController<string>;
+            readonly areaCode: FieldController<string>;
+            readonly localNumber: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface NumberGigaform {
+            readonly data: Number;
+            readonly errors: NumberErrors;
+            readonly tainted: NumberTainted;
+            readonly fields: NumberFieldControllers;
+            validate(): Exit.Exit<Number, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Number>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function numberCreateForm(overrides?: Partial<Number>): NumberGigaform {
+            let data = $state({ ...numberDefaultValue(), ...overrides });
+            let errors = $state<NumberErrors>({
+                _errors: Option.none(),
+                countryCode: Option.none(),
+                areaCode: Option.none(),
+                localNumber: Option.none(),
+
+
+            });
+            let tainted = $state<NumberTainted>({
+                countryCode: Option.none(),
+                areaCode: Option.none(),
+                localNumber: Option.none(),
+
+
+            });
+            const fields = {
+            
+                countryCode: {
+            name: "countryCode",
+            label: "countryCode",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["countryCode"],
+            get: () => data.countryCode,
+            set: (value: string) => { data.countryCode = value; },
+            getError: () => errors.countryCode,
+            setError: (value: Option.Option<Array<string>>) => { errors.countryCode = value; },
+            getTainted: () => tainted.countryCode,
+            setTainted: (value: Option.Option<boolean>) => { tainted.countryCode = value; },
+            validate: () => numberValidateField("countryCode", data.countryCode).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                areaCode: {
+            name: "areaCode",
+            label: "areaCode",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["areaCode"],
+            get: () => data.areaCode,
+            set: (value: string) => { data.areaCode = value; },
+            getError: () => errors.areaCode,
+            setError: (value: Option.Option<Array<string>>) => { errors.areaCode = value; },
+            getTainted: () => tainted.areaCode,
+            setTainted: (value: Option.Option<boolean>) => { tainted.areaCode = value; },
+            validate: () => numberValidateField("areaCode", data.areaCode).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                localNumber: {
+            name: "localNumber",
+            label: "localNumber",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["localNumber"],
+            get: () => data.localNumber,
+            set: (value: string) => { data.localNumber = value; },
+            getError: () => errors.localNumber,
+            setError: (value: Option.Option<Array<string>>) => { errors.localNumber = value; },
+            getTainted: () => tainted.localNumber,
+            setTainted: (value: Option.Option<boolean>) => { tainted.localNumber = value; },
+            validate: () => numberValidateField("localNumber", data.localNumber).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as NumberFieldControllers;
+
+
+            function validate(): Exit.Exit<Number, Array<{ field: string; message: string }>> {
+                return toExit(numberDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Number>): void {
+                data = { ...numberDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            countryCode: Option.none(),
+            areaCode: Option.none(),
+            localNumber: Option.none(),
+
+
+        };
+                tainted = {
+            countryCode: Option.none(),
+            areaCode: Option.none(),
+            localNumber: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function numberFromFormData(formData: FormData): Exit.Exit<Number, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.countryCode = formData.get("countryCode") ?? "";
+            obj.areaCode = formData.get("areaCode") ?? "";
+            obj.localNumber = formData.get("localNumber") ?? "";
+
+
+            return toExit(numberDeserialize(obj));
+        }
+
+export const Number = {
+  defaultValue: numberDefaultValue,
+  serialize: numberSerialize,
+  serializeWithContext: numberSerializeWithContext,
+  deserialize: numberDeserialize,
+  deserializeWithContext: numberDeserializeWithContext,
+  validateFields: numberValidateFields,
+  hasShape: numberHasShape,
+  is: numberIs,
+  createForm: numberCreateForm,
+  fromFormData: numberFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..146 -> expanded 58..89
+original 187..217 -> expanded 89..119
+original 258..285 -> expanded 119..146
+original 326..353 -> expanded 146..173
+original 353..354 -> expanded 18423..18424
+generated 173..327 <- Default
+generated 327..1925 <- Serialize
+generated 1925..11586 <- Deserialize
+generated 11586..18027 <- Gigaform
+generated 18027..18423 <- __convenience_const
+
+## Metadata
+
+interface Number: {"body_span":{"end":354,"start":141},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":188,"start":147}}],"name":"countryCode","optional":false,"readonly":false,"span":{"end":213,"start":193},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":259,"start":218}}],"name":"areaCode","optional":false,"readonly":false,"span":{"end":281,"start":264},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":327,"start":286}}],"name":"localNumber","optional":false,"readonly":false,"span":{"end":352,"start":332},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Number","span":{"end":354,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

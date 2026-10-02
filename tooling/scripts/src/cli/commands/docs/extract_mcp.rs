@@ -104,6 +104,34 @@ const USE_CASES: &[(&str, &str)] = &[
         "/docs/custom-macros/ts-quote",
         "ts_quote, template, code generation, interpolation",
     ),
+    (
+        "/docs/custom-macros/ts-macro",
+        "call macro, ts_macro, $name, function-like macro",
+    ),
+    (
+        "/docs/custom-macros/ts-macro-attribute",
+        "attribute macro, ts_macro_attribute, decorator, rewrite declaration",
+    ),
+    (
+        "/docs/custom-macros/output",
+        "output, insert position, imports, add_import, patches, spans, cross-module suffix",
+    ),
+    (
+        "/docs/custom-macros/context-and-ir",
+        "context, MacroContextIR, IR, ClassIR, FieldIR, TargetIR, EnumValue, TypeBody, FunctionIR",
+    ),
+    (
+        "/docs/custom-macros/type-aware",
+        "type registry, resolve, resolved fields, foreign types, config, cross-file types",
+    ),
+    (
+        "/docs/custom-macros/diagnostics",
+        "errors, MacroforgeError, MacroforgeErrors, DiagnosticCollector, warnings, diagnostics",
+    ),
+    (
+        "/docs/custom-macros/testing-and-debugging",
+        "testing, unit test, debug log, debug_log, Macroforge trait, register_macro_package",
+    ),
     // Integration
     ("/docs/integration", "setup, integration, tools, ecosystem"),
     (

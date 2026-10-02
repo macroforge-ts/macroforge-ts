@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/export_const_mixed.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_mixed.ts
 ---
 ## Input
 
@@ -24,6 +24,10 @@ const empty = $vec();
 const xs = $vec(1, 2, 3);
 const forty = $id(40);
 
+## Changed
+
+true
+
 ## Output
 
 // Mix of `export const` and plain `const` macro declarations.
@@ -45,5 +49,21 @@ const forty = 40;
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

@@ -396,11 +396,11 @@ describe('String Validators', () => {
             assertValidationSuccess(result, 'required');
         });
 
-        test('rejects whitespace only (nonEmpty trims before checking)', () => {
+        test('accepts whitespace only (only the empty string is empty)', () => {
             const result = mod.NonEmptyValidator.deserialize(
                 JSON.stringify({ required: '   ' })
             );
-            assertValidationError(result, 'required', 'must not be empty');
+            assertValidationSuccess(result, 'required');
         });
 
         test('rejects empty string', () => {
@@ -549,11 +549,18 @@ describe('String Validators', () => {
             assertValidationSuccess(result, 'cap');
         });
 
-        test('rejects all uppercase (capitalized means first upper, rest lower)', () => {
+        test('accepts all uppercase (only the first character is checked)', () => {
             const result = mod.CapitalizedValidator.deserialize(
                 JSON.stringify({ cap: 'HELLO' })
             );
-            assertValidationError(result, 'cap', 'must be capitalized');
+            assertValidationSuccess(result, 'cap');
+        });
+
+        test('accepts the empty string, which has no first character', () => {
+            const result = mod.CapitalizedValidator.deserialize(
+                JSON.stringify({ cap: '' })
+            );
+            assertValidationSuccess(result, 'cap');
         });
 
         test('rejects lowercase first letter', () => {

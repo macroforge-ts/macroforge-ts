@@ -40,6 +40,7 @@
 //! | `T \| null` | `null` |
 //! | `CustomType` | `customTypeDefaultValue()` |
 
+mod args;
 mod field_options;
 mod registry_helpers;
 mod type_utils;
@@ -47,11 +48,12 @@ mod type_utils;
 #[cfg(test)]
 mod tests;
 
-pub use field_options::{CompareFieldOptions, DefaultFieldOptions, extract_named_string, has_flag};
+pub(crate) use args::find_named_value;
+pub use args::{extract_named_string, has_flag, js_string, parse_string_literal};
+pub use field_options::{CompareFieldOptions, DefaultFieldOptions};
 pub use registry_helpers::{
     collection_element_type, fields_from_definition, flatten_intersection_fields,
-    get_effective_fields, map_key_type, resolved_type_has_derive, standalone_fn_name,
-    type_has_derive,
+    get_effective_fields, resolved_type_has_derive, standalone_fn_name, type_has_derive,
 };
 pub use type_utils::{
     detect_primitive_serializable_union, get_type_default, get_type_default_with_registry,

@@ -179,22 +179,28 @@ pub fn parse_fragment_with_ctx(
                     TagType::LineComment(body) => {
                         iter.next(); // Consume
                         output.extend(ctx.emit_spacing_to(span));
-                        let comment_text = body.to_string();
+                        let comment_text = comment_text(body, span);
                         output.extend(quote! {
-                            __out.push_str("// ");
-                            __out.push_str(#comment_text);
-                            __out.push_str("\n");
+                            {
+                                let __comment: String = #comment_text;
+                                __out.push_str("// ");
+                                __out.push_str(&__comment.replace('\n', "\n// "));
+                                __out.push_str("\n");
+                            }
                         });
                         ctx.advance_past(span);
                     }
                     TagType::BlockComment(body) => {
                         iter.next(); // Consume
                         output.extend(ctx.emit_spacing_to(span));
-                        let comment_text = body.to_string();
+                        let comment_text = comment_text(body, span);
                         output.extend(quote! {
-                            __out.push_str("/* ");
-                            __out.push_str(#comment_text);
-                            __out.push_str(" */");
+                            {
+                                let __comment: String = #comment_text;
+                                __out.push_str("/* ");
+                                __out.push_str(&__comment.replace("*/", "* /"));
+                                __out.push_str(" */");
+                            }
                         });
                         ctx.advance_past(span);
                     }
@@ -278,12 +284,13 @@ pub fn parse_fragment_with_ctx(
                     TagType::TypeScript(body) => {
                         iter.next(); // Consume {$typescript ...}
                         output.extend(ctx.emit_spacing_to(span));
-                        // The body is a TsStream - extract source and collect patches
+                        // The body is a TsStream: its source joins the output, and the
+                        // rest of it (patches, suffixes, diagnostics) is carried along.
                         output.extend(quote! {
                             {
-                                let __ts_stream = #body;
-                                __out.push_str(&macroforge_ts::ts_syn::ToTsString::to_ts_string(&__ts_stream));
-                                __patches.extend(__ts_stream.runtime_patches);
+                                let mut __ts_stream: macroforge_ts::ts_syn::TsStream = #body;
+                                __out.push_str(&__ts_stream.take_source());
+                                __carried = __carried.merge(__ts_stream);
                             }
                         });
                         ctx.advance_past(span);
@@ -385,74 +392,46 @@ pub fn parse_fragment_with_ctx(
             TokenTree::Punct(p) if p.as_char() == '#' => {
                 let hash_span = p.span();
                 iter.next(); // Consume '#'
+                output.extend(ctx.emit_spacing_to(hash_span));
 
-                // Check if next token is a bracket group [doc = "..."]
-                let doc_content = if let Some(TokenTree::Group(g)) = iter.peek() {
-                    if g.delimiter() == Delimiter::Bracket {
-                        let mut inner = g.stream().into_iter().peekable();
-                        // Check for `doc = "content"`
-                        if let Some(TokenTree::Ident(ident)) = inner.next() {
-                            if ident == "doc" {
-                                // Skip optional whitespace and match `=`
-                                if let Some(TokenTree::Punct(eq)) = inner.next() {
-                                    if eq.as_char() == '=' {
-                                        // Get the string content
-                                        if let Some(TokenTree::Literal(lit)) = inner.next() {
-                                            let lit_str = lit.to_string();
-                                            // Remove surrounding quotes and unescape
-                                            if lit_str.starts_with('"') && lit_str.ends_with('"') {
-                                                let content = &lit_str[1..lit_str.len() - 1];
-                                                let unescaped = content
-                                                    .replace("\\\"", "\"")
-                                                    .replace("\\\\", "\\");
-                                                Some(unescaped)
-                                            } else {
-                                                None
-                                            }
-                                        } else {
-                                            None
-                                        }
-                                    } else {
-                                        None
-                                    }
-                                } else {
-                                    None
-                                }
-                            } else {
-                                None
-                            }
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
+                let doc = match iter.peek() {
+                    Some(TokenTree::Group(group)) if group.delimiter() == Delimiter::Bracket => {
+                        doc_text(group.stream()).map(|text| (text, group.span()))
                     }
-                } else {
-                    None
+                    _ => None,
                 };
-
-                if let Some(unescaped) = doc_content {
-                    // Consume the bracket group and emit as JSDoc
-                    let g = iter.next().unwrap();
-                    let group_span = g.span();
-                    output.extend(ctx.emit_spacing_to(hash_span));
-                    output.extend(quote! {
-                        __out.push_str("/**");
-                        __out.push_str(#unescaped);
-                        __out.push_str(" */");
-                    });
-                    ctx.advance_past(group_span);
-                } else {
-                    // Not a doc attribute - just emit the '#' as-is
-                    output.extend(ctx.emit_spacing_to(hash_span));
-                    output.extend(quote! { __out.push_str("#"); });
-                    ctx.advance_past(hash_span);
+                match doc {
+                    Some((text, group_span)) => {
+                        iter.next(); // Consume the [doc = "..."] group
+                        let pushes =
+                            super::interpolation::interpolate_text(&text, group_span, false);
+                        output.extend(quote! {
+                            {
+                                let __comment: String = {
+                                    let mut __out = String::new();
+                                    #pushes
+                                    __out
+                                };
+                                __out.push_str("/**");
+                                __out.push_str(&__comment.replace("*/", "* /"));
+                                __out.push_str(" */");
+                            }
+                        });
+                        ctx.advance_past(group_span);
+                    }
+                    None => {
+                        // Not a doc attribute - just emit the '#' as-is
+                        output.extend(quote! { __out.push_str("#"); });
+                        ctx.advance_past(hash_span);
+                    }
                 }
             }
 
             // Case 6: Plain tokens (identifiers, punctuation, literals)
             _ => {
-                let t = iter.next().unwrap();
+                let Some(t) = iter.next() else {
+                    break;
+                };
                 let span = t.span();
                 let s = t.to_string();
 
@@ -470,4 +449,40 @@ pub fn parse_fragment_with_ctx(
     }
 
     Ok((output, None))
+}
+
+/// An expression building a comment's text. A body that is one string
+/// literal gives the string's value, with `@{expr}` interpolated; any other
+/// body is printed as written.
+fn comment_text(body: TokenStream2, span: Span) -> TokenStream2 {
+    let mut tokens = body.clone().into_iter();
+    if let (Some(TokenTree::Literal(lit)), None) = (tokens.next(), tokens.next())
+        && let Ok(text) = syn::parse2::<syn::LitStr>(TokenTree::Literal(lit).into())
+    {
+        let pushes = super::interpolation::interpolate_text(&text.value(), span, false);
+        return quote! {
+            {
+                let mut __out = String::new();
+                #pushes
+                __out
+            }
+        };
+    }
+    let printed = body.to_string();
+    quote! { String::from(#printed) }
+}
+
+/// The text of a `doc = "..."` attribute body, with its escapes decoded.
+fn doc_text(body: TokenStream2) -> Option<String> {
+    let doc = syn::parse2::<syn::MetaNameValue>(body).ok()?;
+    if !doc.path.is_ident("doc") {
+        return None;
+    }
+    match doc.value {
+        syn::Expr::Lit(syn::ExprLit {
+            lit: syn::Lit::Str(text),
+            ..
+        }) => Some(text.value()),
+        _ => None,
+    }
 }

@@ -413,9 +413,8 @@ fn test_patch_collector_with_mapping() {
         source_macro: Some("Debug".to_string()),
     }]);
 
-    let result = collector
-        .apply_runtime_patches_with_mapping(source, None)
-        .unwrap();
+    let (result, types) = collector.apply(source, None).unwrap();
+    assert_eq!(types, None);
 
     assert!(result.code.contains("toString()"));
     assert_eq!(result.mapping.generated_regions.len(), 1);

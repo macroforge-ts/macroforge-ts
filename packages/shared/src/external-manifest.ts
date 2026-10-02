@@ -66,12 +66,29 @@ export interface ExpandOptions {
      */
     declarativeRegistryJson?: string;
     /**
+     * A type registry the engine keeps from `setTypeRegistry`, named by the
+     * id it returned. Saves sending the registry's JSON on every call; pass
+     * this or `typeRegistryJson`, not both.
+     */
+    typeRegistryId?: number;
+    /**
+     * A declarative registry the engine keeps from `setDeclarativeRegistry`.
+     * Pass this or `declarativeRegistryJson`, not both.
+     */
+    declarativeRegistryId?: number;
+    /**
      * Build mode for declarative (reverse-monomorphization) macros.
      * `"dev"` expands everything inline for precise diagnostics; `"prod"`
      * lets share/cluster modes emit shared runtime helpers. Engine default
      * when absent: `"dev"`.
      */
     buildMode?: 'dev' | 'prod';
+    /**
+     * Whether the result carries `metadata`, the processed classes as JSON.
+     * A caller that never reads it passes `false` to skip serializing them.
+     * Engine default when absent: `true`.
+     */
+    emitMetadata?: boolean;
 }
 
 /** Aggregated manifest for an external macro package. */

@@ -47,7 +47,7 @@
 //! - [`patch_applicator`] - Applies code patches with source mapping
 //! - [`registry`] - Thread-safe macro storage (`MacroRegistry`)
 //! - [`scanner`] - Project-wide TypeScript scanner for type awareness
-//! - [`traits`] - Core traits (`Macroforge`, `MacroPackage`)
+//! - [`traits`] - The core [`Macroforge`] trait
 //! - [`type_resolver`] - Type resolution against the project registry
 //!
 //! ## Key Types
@@ -84,15 +84,15 @@
 /// Configuration loading and management.
 pub mod config;
 
-/// Attribute macros (`@cfg`, `@deprecated`, `@mustUse`, `@nonExhaustive`) —
+/// Attribute macros (`@cfg`, `@deprecated`, `@mustUse`, `@nonExhaustive`):
 /// pre-pass that runs before `@buildtime` and derive dispatch.
 pub mod attributes;
 
-/// Build-time `@buildtime` evaluation — sandboxed JS execution during
+/// Build-time `@buildtime` evaluation: sandboxed JS execution during
 /// source transformation, Zig-comptime style.
 pub mod buildtime;
 
-/// Declarative (pattern-matching) macros — the `$name(...)` macro system.
+/// Declarative (pattern-matching) macros: the `$name(...)` macro system.
 pub mod declarative;
 
 /// Inventory-based registration for built-in derive macros.
@@ -125,6 +125,15 @@ pub mod registry;
 /// Project-wide TypeScript scanner for type awareness.
 pub mod scanner;
 
+/// Expanding one file of a scanned project the way the CLI does.
+pub mod project;
+
+/// File stamps, which process-lifetime caches key on.
+pub mod file_stamp;
+
+/// File access that works from the native and the wasm build.
+pub(crate) mod file_access;
+
 /// Core traits for macro implementations.
 pub mod traits;
 
@@ -140,8 +149,9 @@ pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
 pub use expand::{MacroExpander, MacroExpansion};
 pub use import_registry::{
-    ImportRegistry, clear_foreign_types, clear_registry, install_registry, set_foreign_types,
-    with_foreign_types, with_foreign_types_mut, with_registry, with_registry_mut,
+    ImportRegistry, clear_foreign_types, clear_registry, configured_foreign_types,
+    install_registry, set_foreign_types, set_foreign_types_from, with_foreign_types, with_registry,
+    with_registry_mut,
 };
 pub use package_registry::MacroPackageRegistration;
 pub use patch_applicator::{PatchApplicator, PatchCollector};

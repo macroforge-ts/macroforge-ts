@@ -46,7 +46,7 @@
 //! | Objects | Call the type's `{name}SerializeWithContext` function |
 //!
 //! Note: which strategy applies is resolved **statically** from the field's declared
-//! TypeScript type at expansion time — there is no runtime feature detection.
+//! TypeScript type at expansion time: there is no runtime feature detection.
 //!
 //! ## Field-Level Options
 //!
@@ -141,17 +141,12 @@
 //!
 //! The generated code automatically imports `SerializeContext` from `@macroforge/core/serde`.
 
+mod field_processing;
 mod foreign_types;
 mod types;
 
-#[cfg(test)]
-mod tests;
-
-pub(crate) use foreign_types::try_composite_foreign_serialize;
-pub(crate) use types::{
-    SerdeValueKind, SerializeField, classify_serde_value_kind, get_serializable_type_name,
-    nested_serialize_fn_name,
-};
+use field_processing::to_serialize_field;
+pub(crate) use types::{SerdeValueKind, SerializeField, nested_serialize_fn_name};
 
 use crate::ast::{Expr, Ident};
 use crate::macros::{ts_macro_derive, ts_template};
@@ -163,12 +158,10 @@ use crate::ts_syn::{
 use convert_case::{Case, Casing};
 
 use super::{
-    SerdeContainerOptions, SerdeFieldOptions, TaggingMode, TypeCategory, get_foreign_types,
+    SerdeContainerOptions, TaggingMode, TypeCategory, get_foreign_types,
     rewrite_expression_namespaces,
 };
-use crate::builtin::derive_common::detect_primitive_serializable_union;
 use crate::builtin::return_types::SERIALIZE_CONTEXT;
-use crate::ts_syn::abi::ir::resolve_generic_aliases;
 
 #[ts_macro_derive(
     Serialize,
@@ -206,176 +199,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 .fields()
                 .iter()
                 .filter_map(|field| {
-                    let parse_result =
-                        SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
-                    all_diagnostics.extend(parse_result.diagnostics);
-                    let opts = parse_result.options;
-
-                    if !opts.should_serialize() {
-                        return None;
-                    }
-
-                    let json_key = opts
-                        .rename
-                        .clone()
-                        .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
-
-                    let resolved_ts_type =
-                        resolve_generic_aliases(
-                            &field.ts_type,
-                            type_registry,
-                            caller_file_path,
-                            file_imports,
-                        );
-                    let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
-                    let primitive_union_guard = if matches!(
-                        type_cat,
-                        TypeCategory::Unknown | TypeCategory::Serializable(_)
-                    ) {
-                        detect_primitive_serializable_union(&resolved_ts_type).map(|(prim, ser)| {
-                            type_cat = TypeCategory::Serializable(ser);
-                            prim
-                        })
-                    } else {
-                        None
-                    };
-
-                    let optional_inner_kind = match &type_cat {
-                        TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-                    let nullable_inner_kind = match &type_cat {
-                        TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-                    let array_elem_kind = match &type_cat {
-                        TypeCategory::Array(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-                    let set_elem_kind = match &type_cat {
-                        TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-                    let map_value_kind = match &type_cat {
-                        TypeCategory::Map(_, value) => Some(classify_serde_value_kind(value)),
-                        _ => None,
-                    };
-                    let record_value_kind = match &type_cat {
-                        TypeCategory::Record(_, value) => Some(classify_serde_value_kind(value)),
-                        _ => None,
-                    };
-                    let wrapper_inner_kind = match &type_cat {
-                        TypeCategory::Wrapper(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-
-                    // Extract serializable type names for direct function calls
-                    let optional_serializable_type = match &type_cat {
-                        TypeCategory::Optional(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
-                    let nullable_serializable_type = match &type_cat {
-                        TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
-                    let array_elem_primitive_union_guard = match &type_cat {
-                        TypeCategory::Array(inner) => {
-                            detect_primitive_serializable_union(inner).map(|(prim, _)| prim)
-                        }
-                        _ => None,
-                    };
-                    let array_elem_serializable_type = match &type_cat {
-                        TypeCategory::Array(inner) => get_serializable_type_name(inner)
-                            .or_else(|| {
-                                detect_primitive_serializable_union(inner).map(|(_, ser)| ser)
-                            }),
-                        _ => None,
-                    };
-                    let set_elem_serializable_type = match &type_cat {
-                        TypeCategory::Set(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
-                    let map_value_serializable_type = match &type_cat {
-                        TypeCategory::Map(_, value) => get_serializable_type_name(value),
-                        _ => None,
-                    };
-                    let record_value_serializable_type = match &type_cat {
-                        TypeCategory::Record(_, value) => get_serializable_type_name(value),
-                        _ => None,
-                    };
-                    let wrapper_serializable_type = match &type_cat {
-                        TypeCategory::Wrapper(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
-
-                    // Check for foreign type serializer if no explicit serialize_with
-                    let serialize_with_src = if opts.serialize_with.is_some() {
-                        opts.serialize_with.clone()
-                    } else {
-                        // Check if the field's type matches a configured foreign type
-                        let foreign_types = get_foreign_types();
-                        let ft_match =
-                            TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
-                        // Error if import source mismatch (type matches but wrong import)
-                        if let Some(error) = ft_match.error {
-                            all_diagnostics.error(field.span, error);
-                        }
-                        // Log warning for informational hints
-                        if let Some(warning) = ft_match.warning {
-                            all_diagnostics.warning(field.span, warning);
-                        }
-                        // Rewrite namespace references to use generated aliases
-                        ft_match
-                            .config
-                            .and_then(|ft| ft.serialize_expr.clone())
-                            .map(|expr| rewrite_expression_namespaces(&expr))
-                            // If no direct match, try composite patterns (e.g., DateTime.Utc[])
-                            .or_else(|| try_composite_foreign_serialize(&field.ts_type))
-                    };
-
-                    let serialize_with = serialize_with_src.as_ref().and_then(|expr_src| {
-                        match Expr::parse(expr_src) {
-                            Ok(expr) => Some(expr),
-                            Err(err) => {
-                                all_diagnostics.error(
-                                    field.span,
-                                    format!(
-                                        "@serde(serializeWith): invalid expression for '{}': {err:?}",
-                                        field.name
-                                    ),
-                                );
-                                None
-                            }
-                        }
-                    });
-
-                    Some(SerializeField {
-                        json_key_ident: ts_ident!(&json_key),
-                        json_key,
-                        field_name: field.name.clone(),
-                        field_ident: ts_ident!(field.name.as_str()),
-                        type_cat,
-                        optional: field.optional,
-                        flatten: opts.flatten,
-                        optional_inner_kind,
-                        nullable_inner_kind,
-                        array_elem_kind,
-                        set_elem_kind,
-                        map_value_kind,
-                        record_value_kind,
-                        wrapper_inner_kind,
-                        optional_serializable_type,
-                        nullable_serializable_type,
-                        array_elem_serializable_type,
-                        set_elem_serializable_type,
-                        map_value_serializable_type,
-                        record_value_serializable_type,
-                        wrapper_serializable_type,
-                        serialize_with,
-                        decimal_format: opts.format.as_deref() == Some("decimal"),
-                        primitive_union_guard,
-                        array_elem_primitive_union_guard,
-                    })
+                    to_serialize_field(
+                        field.into(),
+                        &container_opts,
+                        &mut all_diagnostics,
+                        type_registry,
+                        caller_file_path,
+                        file_imports,
+                    )
                 })
                 .collect();
 
@@ -881,6 +712,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
             // Combine standalone functions with class body
             // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+            standalone.add_diagnostics(all_diagnostics.into_vec());
             Ok(standalone.merge(class_body))
         }
         Data::Enum(_) => {
@@ -917,176 +749,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 .fields()
                 .iter()
                 .filter_map(|field| {
-                    let parse_result =
-                        SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
-                    all_diagnostics.extend(parse_result.diagnostics);
-                    let opts = parse_result.options;
-
-                    if !opts.should_serialize() {
-                        return None;
-                    }
-
-                    let json_key = opts
-                        .rename
-                        .clone()
-                        .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
-
-                    let resolved_ts_type =
-                        resolve_generic_aliases(
-                            &field.ts_type,
-                            type_registry,
-                            caller_file_path,
-                            file_imports,
-                        );
-                    let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
-                    let primitive_union_guard = if matches!(
-                        type_cat,
-                        TypeCategory::Unknown | TypeCategory::Serializable(_)
-                    ) {
-                        detect_primitive_serializable_union(&resolved_ts_type).map(|(prim, ser)| {
-                            type_cat = TypeCategory::Serializable(ser);
-                            prim
-                        })
-                    } else {
-                        None
-                    };
-
-                    let optional_inner_kind = match &type_cat {
-                        TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-                    let nullable_inner_kind = match &type_cat {
-                        TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-                    let array_elem_kind = match &type_cat {
-                        TypeCategory::Array(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-                    let set_elem_kind = match &type_cat {
-                        TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-                    let map_value_kind = match &type_cat {
-                        TypeCategory::Map(_, value) => Some(classify_serde_value_kind(value)),
-                        _ => None,
-                    };
-                    let record_value_kind = match &type_cat {
-                        TypeCategory::Record(_, value) => Some(classify_serde_value_kind(value)),
-                        _ => None,
-                    };
-                    let wrapper_inner_kind = match &type_cat {
-                        TypeCategory::Wrapper(inner) => Some(classify_serde_value_kind(inner)),
-                        _ => None,
-                    };
-
-                    // Extract serializable type names for direct function calls
-                    let optional_serializable_type = match &type_cat {
-                        TypeCategory::Optional(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
-                    let nullable_serializable_type = match &type_cat {
-                        TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
-                    let array_elem_primitive_union_guard = match &type_cat {
-                        TypeCategory::Array(inner) => {
-                            detect_primitive_serializable_union(inner).map(|(prim, _)| prim)
-                        }
-                        _ => None,
-                    };
-                    let array_elem_serializable_type = match &type_cat {
-                        TypeCategory::Array(inner) => get_serializable_type_name(inner)
-                            .or_else(|| {
-                                detect_primitive_serializable_union(inner).map(|(_, ser)| ser)
-                            }),
-                        _ => None,
-                    };
-                    let set_elem_serializable_type = match &type_cat {
-                        TypeCategory::Set(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
-                    let map_value_serializable_type = match &type_cat {
-                        TypeCategory::Map(_, value) => get_serializable_type_name(value),
-                        _ => None,
-                    };
-                    let record_value_serializable_type = match &type_cat {
-                        TypeCategory::Record(_, value) => get_serializable_type_name(value),
-                        _ => None,
-                    };
-                    let wrapper_serializable_type = match &type_cat {
-                        TypeCategory::Wrapper(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
-
-                    // Check for foreign type serializer if no explicit serialize_with
-                    let serialize_with_src = if opts.serialize_with.is_some() {
-                        opts.serialize_with.clone()
-                    } else {
-                        // Check if the field's type matches a configured foreign type
-                        let foreign_types = get_foreign_types();
-                        let ft_match =
-                            TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
-                        // Error if import source mismatch (type matches but wrong import)
-                        if let Some(error) = ft_match.error {
-                            all_diagnostics.error(field.span, error);
-                        }
-                        // Log warning for informational hints
-                        if let Some(warning) = ft_match.warning {
-                            all_diagnostics.warning(field.span, warning);
-                        }
-                        // Rewrite namespace references to use generated aliases
-                        ft_match
-                            .config
-                            .and_then(|ft| ft.serialize_expr.clone())
-                            .map(|expr| rewrite_expression_namespaces(&expr))
-                            // If no direct match, try composite patterns (e.g., DateTime.Utc[])
-                            .or_else(|| try_composite_foreign_serialize(&field.ts_type))
-                    };
-
-                    let serialize_with = serialize_with_src.as_ref().and_then(|expr_src| {
-                        match Expr::parse(expr_src) {
-                            Ok(expr) => Some(expr),
-                            Err(err) => {
-                                all_diagnostics.error(
-                                    field.span,
-                                    format!(
-                                        "@serde(serializeWith): invalid expression for '{}': {err:?}",
-                                        field.name
-                                    ),
-                                );
-                                None
-                            }
-                        }
-                    });
-
-                    Some(SerializeField {
-                        json_key_ident: ts_ident!(&json_key),
-                        json_key,
-                        field_name: field.name.clone(),
-                        field_ident: ts_ident!(field.name.as_str()),
-                        type_cat,
-                        optional: field.optional,
-                        flatten: opts.flatten,
-                        optional_inner_kind,
-                        nullable_inner_kind,
-                        array_elem_kind,
-                        set_elem_kind,
-                        map_value_kind,
-                        record_value_kind,
-                        wrapper_inner_kind,
-                        optional_serializable_type,
-                        nullable_serializable_type,
-                        array_elem_serializable_type,
-                        set_elem_serializable_type,
-                        map_value_serializable_type,
-                        record_value_serializable_type,
-                        wrapper_serializable_type,
-                        serialize_with,
-                        decimal_format: opts.format.as_deref() == Some("decimal"),
-                        primitive_union_guard,
-                        array_elem_primitive_union_guard,
-                    })
+                    to_serialize_field(
+                        field.into(),
+                        &container_opts,
+                        &mut all_diagnostics,
+                        type_registry,
+                        caller_file_path,
+                        file_imports,
+                    )
                 })
                 .collect();
 
@@ -1589,6 +1259,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 }
             };
             result.add_aliased_import("SerializeContext", crate::package::SERDE);
+            result.add_diagnostics(all_diagnostics.into_vec());
             Ok(result)
         }
         Data::TypeAlias(type_alias) => {
@@ -1631,155 +1302,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 let fields: Vec<SerializeField> = effective_ir_fields
                     .iter()
                     .filter_map(|field| {
-                        let parse_result =
-                            SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
-                        all_diagnostics.extend(parse_result.diagnostics);
-                        let opts = parse_result.options;
-
-                        if !opts.should_serialize() {
-                            return None;
-                        }
-
-                        let json_key = opts
-                            .rename
-                            .clone()
-                            .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
-
-                        let resolved_ts_type =
-                            resolve_generic_aliases(
-                            &field.ts_type,
+                        to_serialize_field(
+                            field.into(),
+                            &container_opts,
+                            &mut all_diagnostics,
                             type_registry,
                             caller_file_path,
                             file_imports,
-                        );
-                        let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
-                        let primitive_union_guard = if matches!(
-                            type_cat,
-                            TypeCategory::Unknown | TypeCategory::Serializable(_)
-                        ) {
-                            detect_primitive_serializable_union(&resolved_ts_type).map(
-                                |(prim, ser)| {
-                                    type_cat = TypeCategory::Serializable(ser);
-                                    prim
-                                },
-                            )
-                        } else {
-                            None
-                        };
-
-                        let optional_inner_kind = match &type_cat {
-                            TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
-                            _ => None,
-                        };
-                        let nullable_inner_kind = match &type_cat {
-                            TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
-                            _ => None,
-                        };
-                        let array_elem_kind = match &type_cat {
-                            TypeCategory::Array(inner) => Some(classify_serde_value_kind(inner)),
-                            _ => None,
-                        };
-                        let set_elem_kind = match &type_cat {
-                            TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
-                            _ => None,
-                        };
-                        let map_value_kind = match &type_cat {
-                            TypeCategory::Map(_, value) => Some(classify_serde_value_kind(value)),
-                            _ => None,
-                        };
-                        let record_value_kind = match &type_cat {
-                            TypeCategory::Record(_, value) => {
-                                Some(classify_serde_value_kind(value))
-                            }
-                            _ => None,
-                        };
-                        let wrapper_inner_kind = match &type_cat {
-                            TypeCategory::Wrapper(inner) => Some(classify_serde_value_kind(inner)),
-                            _ => None,
-                        };
-
-                        // Extract serializable type names for direct function calls
-                        let optional_serializable_type = match &type_cat {
-                            TypeCategory::Optional(inner) => get_serializable_type_name(inner),
-                            _ => None,
-                        };
-                        let nullable_serializable_type = match &type_cat {
-                            TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
-                            _ => None,
-                        };
-                        let array_elem_primitive_union_guard = match &type_cat {
-                            TypeCategory::Array(inner) => {
-                                detect_primitive_serializable_union(inner).map(|(prim, _)| prim)
-                            }
-                            _ => None,
-                        };
-                        let array_elem_serializable_type = match &type_cat {
-                            TypeCategory::Array(inner) => get_serializable_type_name(inner)
-                                .or_else(|| {
-                                    detect_primitive_serializable_union(inner).map(|(_, ser)| ser)
-                                }),
-                            _ => None,
-                        };
-                        let set_elem_serializable_type = match &type_cat {
-                            TypeCategory::Set(inner) => get_serializable_type_name(inner),
-                            _ => None,
-                        };
-                        let map_value_serializable_type = match &type_cat {
-                            TypeCategory::Map(_, value) => get_serializable_type_name(value),
-                            _ => None,
-                        };
-                        let record_value_serializable_type = match &type_cat {
-                            TypeCategory::Record(_, value) => get_serializable_type_name(value),
-                            _ => None,
-                        };
-                        let wrapper_serializable_type = match &type_cat {
-                            TypeCategory::Wrapper(inner) => get_serializable_type_name(inner),
-                            _ => None,
-                        };
-
-                        let serialize_with = opts.serialize_with.as_ref().and_then(|expr_src| {
-                            match Expr::parse(expr_src) {
-                                Ok(expr) => Some(expr),
-                                Err(err) => {
-                                    all_diagnostics.error(
-                                        field.span,
-                                        format!(
-                                            "@serde(serializeWith): invalid expression for '{}': {err:?}",
-                                            field.name
-                                        ),
-                                    );
-                                    None
-                                }
-                            }
-                        });
-
-                        Some(SerializeField {
-                            json_key_ident: ts_ident!(&json_key),
-                            json_key,
-                            field_name: field.name.clone(),
-                            field_ident: ts_ident!(field.name.as_str()),
-                            type_cat,
-                            optional: field.optional,
-                            flatten: opts.flatten,
-                            optional_inner_kind,
-                            nullable_inner_kind,
-                            array_elem_kind,
-                            set_elem_kind,
-                            map_value_kind,
-                            record_value_kind,
-                            wrapper_inner_kind,
-                            optional_serializable_type,
-                            nullable_serializable_type,
-                            array_elem_serializable_type,
-                            set_elem_serializable_type,
-                            map_value_serializable_type,
-                            record_value_serializable_type,
-                            wrapper_serializable_type,
-                            serialize_with,
-                            decimal_format: opts.format.as_deref() == Some("decimal"),
-                            primitive_union_guard,
-                            array_elem_primitive_union_guard,
-                        })
+                        )
                     })
                     .collect();
 
@@ -1893,6 +1423,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     }
                 };
                 result.add_aliased_import("SerializeContext", crate::package::SERDE);
+                result.add_diagnostics(all_diagnostics.into_vec());
                 Ok(result)
             } else if type_alias.as_union().is_some() {
                 // Union type: tagging-mode-aware serialization
@@ -2092,7 +1623,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 // per-variant result carries the inner struct's `__type`
                                 // (e.g. `PartialUser`), which differs from the union's
                                 // variant label (e.g. `User`) whenever the variant name and
-                                // its payload type name differ — so restore the discriminator
+                                // its payload type name differ, so restore the discriminator
                                 // from the value's own tag field, falling back to `__type`
                                 // only when the value carries no tag. A passed-through value
                                 // already carries the tag field.
@@ -2187,7 +1718,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 // per-variant result carries the inner struct's `__type`
                                 // (e.g. `PartialUser`), which differs from the union's
                                 // variant label (e.g. `User`) whenever the variant name and
-                                // its payload type name differ — so restore the discriminator
+                                // its payload type name differ, so restore the discriminator
                                 // from the value's own tag field, falling back to `__type`
                                 // only when the value carries no tag. A passed-through value
                                 // already carries the tag field.

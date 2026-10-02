@@ -35,6 +35,45 @@
   generateConvenienceConst: true,
 };`} lang="typescript" filename="macroforge.config.ts" />
 
+<h2 id="sharing">Sharing a Base Config</h2>
+
+<p>
+	The config is read statically, never run, and the reader follows what a config inherits.
+	Name a base with <code>extends</code>, a path or an array of them with later ones winning:
+</p>
+
+<CodeBlock code={`export default {
+  extends: "../../macroforge.base.ts",
+  foreignTypes: {
+    "Option.Option": { from: ["effect"] },
+  },
+};`} lang="typescript" filename="apps/web/macroforge.config.ts" />
+
+<p>
+	Fields the config sets replace the base's, except <code>foreignTypes</code>, which merge by
+	type name: an entry the config names again replaces the base's, and the rest are added.
+</p>
+
+<p>
+	A config can also export, spread or wrap a config it imports, with JavaScript's spread
+	semantics, so a field set after a spread replaces the spread one:
+</p>
+
+<CodeBlock code={`import base from "@acme/macroforge-config";
+
+export default defineConfig({
+  ...base,
+  keepDecorators: true,
+  foreignTypes: { ...base.foreignTypes, "Option.Option": { from: ["effect"] } },
+});`} lang="typescript" filename="macroforge.config.ts" />
+
+<p>
+	Relative specifiers resolve against the importing file, and package specifiers from the
+	nearest <code>node_modules</code>, honouring its <code>exports</code> and <code>main</code>.
+	A reference the reader cannot follow, such as a config a function builds, is an error rather
+	than an empty config. Editing a base config reaches every config built on it.
+</p>
+
 <h2 id="options">Options Reference</h2>
 
 <h3>keepDecorators</h3>
@@ -197,7 +236,7 @@ export default {
 
 <ul>
   <li><code>failOnUse</code>: Promote use of a deprecated symbol from an editor hint to a hard expansion error (default: <code>false</code>).</li>
-  <li><code>runtimeWarn</code>: Reserved. Defaults to <code>true</code> but currently has no effect — no runtime warning is injected.</li>
+  <li><code>runtimeWarn</code>: Reserved. Defaults to <code>true</code> but currently has no effect: no runtime warning is injected.</li>
 </ul>
 
 <h3>mustUse</h3>
@@ -236,9 +275,8 @@ export default {
     capabilities: {
       timeout: 5000,
       maxHeap: 256,
-      filesystem: { read: ["src/**"], write: [] },
-      env: ["NODE_ENV"],
-      network: false
+      filesystem: { read: ["src/**"] },
+      env: ["NODE_ENV"]
     },
     flags: { CHANNEL: "beta" }
   }
@@ -246,15 +284,15 @@ export default {
 
 <ul>
   <li><code>capabilities.timeout</code>: Evaluation budget in milliseconds, enforced (default: <code>5000</code>).</li>
-  <li><code>capabilities.maxHeap</code>: Heap ceiling in MiB. Advisory — not currently enforced (default: <code>256</code>).</li>
+  <li><code>capabilities.maxHeap</code>: Heap ceiling in MiB. Advisory: not currently enforced (default: <code>256</code>).</li>
   <li><code>capabilities.filesystem.read</code>: Globs readable via <code>buildtime.fs</code> (default: <code>["**"]</code>).</li>
-  <li><code>capabilities.filesystem.write</code>: Reserved; no write API is exposed (default: <code>[]</code>).</li>
   <li><code>capabilities.env</code>: Environment variable names exposed as <code>buildtime.env.NAME</code>. Deny-by-default (default: <code>[]</code>).</li>
-  <li><code>capabilities.network</code>: Reserved; no network API is exposed (default: <code>false</code>).</li>
   <li><code>flags</code>: Values returned by <code>buildtime.flags.has()</code> / <code>.get()</code> (default: <code>&lbrace;&rbrace;</code>).</li>
 </ul>
 
 <p>
 	Capability keys may also be written flat (<code>buildtime.timeout</code>); the nested
 	form is canonical because it matches the path sandbox diagnostics point at.
+	Build-time code can never write files or reach the network, so
+	<code>filesystem.write</code> and <code>network</code> are rejected.
 </p>

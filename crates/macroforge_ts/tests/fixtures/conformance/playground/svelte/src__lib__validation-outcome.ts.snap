@@ -1,0 +1,40 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/validation-outcome.ts
+sha256 2ef2f818d32908b47c7b8ccdfc8f081e22bf53a19e57f7e242dfaa0e6b543c81
+
+## Changed
+
+false
+
+## Output
+
+(unchanged)
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..1067 -> expanded 0..1067
+
+## Metadata
+
+type ValidationOutcome: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":190,"start":176},"ts_type":"true"},{"decorators":[],"name":"data","optional":false,"readonly":false,"span":{"end":201,"start":191},"ts_type":"Data"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":227,"start":212},"ts_type":"false"},{"decorators":[],"name":"errors","optional":false,"readonly":false,"span":{"end":243,"start":228},"ts_type":"Failure"}]}}}]},"decorators":[],"name":"ValidationOutcome","span":{"end":246,"start":128},"type_params":["Data","Failure"]}
+type OutcomeOf: {"body":{"Other":"ReturnType<Form['validate']> extends Exit.Exit<infer Data, infer Failure>\n        ? ValidationOutcome<Data, Failure>\n        : never"},"decorators":[],"name":"OutcomeOf","span":{"end":518,"start":306},"type_params":["Form"]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)
