@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_serialize.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_serialize.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ type User = {
     name: string;
     age: number;
 };
+
+## Changed
+
+true
 
 ## Output
 
@@ -128,5 +132,24 @@ const User = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 25..77 -> expanded 0..52
+original 77..78 -> expanded 1756..1757
+generated 52..1651 <- Serialize
+generated 1651..1756 <- __convenience_const
+
+## Metadata
+
+type User: {"body":{"Object":{"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":58,"start":45},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":75,"start":63},"ts_type":"number"}]}},"decorators":[{"args_src":"Serialize","name":"Derive","span":{"end":26,"start":1}}],"name":"User","span":{"end":78,"start":27},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

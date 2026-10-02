@@ -296,7 +296,7 @@ pub struct ExpandOptions {
 
     /// Pre-built project-wide declarative macro registry JSON from
     /// [`scan_project_sync`]. Built during the same file-tree walk as
-    /// `type_registry_json` — no extra I/O is needed to produce it.
+    /// `type_registry_json`, so no extra I/O is needed to produce it.
     ///
     /// When provided, the declarative macro pre-pass resolves
     /// `import macro { $vec, $sum } from "./macros"` comments by
@@ -315,7 +315,17 @@ pub struct ExpandOptions {
     /// ```
     pub declarative_registry_json: Option<String>,
 
-    /// Build mode — `"dev"` or `"prod"`. Controls how
+    /// A type registry kept for the process by `setTypeRegistry`, named by
+    /// the id it returned. Saves sending the registry's JSON on every call;
+    /// pass this or [`Self::type_registry_json`], not both.
+    pub type_registry_id: Option<u32>,
+
+    /// A declarative registry kept for the process by
+    /// `setDeclarativeRegistry`, named by the id it returned. Pass this or
+    /// [`Self::declarative_registry_json`], not both.
+    pub declarative_registry_id: Option<u32>,
+
+    /// Build mode: `"dev"` or `"prod"`. Controls how
     /// reverse-monomorphization declarative macros emit.
     ///
     /// In `dev`, all modes (including `Auto`) behave like `ExpandOnly`
@@ -325,8 +335,13 @@ pub struct ExpandOptions {
     /// cluster vs. expand.
     ///
     /// Defaults to `"dev"` when absent. The Vite plugin wires this from
-    /// `config.command` — `serve` → `"dev"`, `build` → `"prod"`.
+    /// `config.command`: `serve` → `"dev"`, `build` → `"prod"`.
     pub build_mode: Option<String>,
+
+    /// Whether the result carries `metadata`, the processed classes as JSON.
+    /// Defaults to `true`; a caller that never reads it passes `false` and
+    /// skips serializing every class.
+    pub emit_metadata: Option<bool>,
 }
 
 /// Options for processing a file through the macro system.
@@ -354,9 +369,15 @@ pub struct ProcessFileOptions {
     /// Pre-built declarative macro registry JSON from [`scan_project_sync`].
     /// See [`ExpandOptions::declarative_registry_json`] for details.
     pub declarative_registry_json: Option<String>,
+    /// See [`ExpandOptions::type_registry_id`].
+    pub type_registry_id: Option<u32>,
+    /// See [`ExpandOptions::declarative_registry_id`].
+    pub declarative_registry_id: Option<u32>,
     /// Build mode for reverse-monomorphization. See
     /// [`ExpandOptions::build_mode`] for details.
     pub build_mode: Option<String>,
+    /// See [`ExpandOptions::emit_metadata`].
+    pub emit_metadata: Option<bool>,
 }
 
 /// Options for scanning a TypeScript project for type information.

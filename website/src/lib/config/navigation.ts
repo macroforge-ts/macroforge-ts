@@ -103,6 +103,16 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/custom-macros/ts-macro-attribute');
         case '/docs/custom-macros/ts-quote':
             return resolve('/docs/custom-macros/ts-quote');
+        case '/docs/custom-macros/output':
+            return resolve('/docs/custom-macros/output');
+        case '/docs/custom-macros/context-and-ir':
+            return resolve('/docs/custom-macros/context-and-ir');
+        case '/docs/custom-macros/type-aware':
+            return resolve('/docs/custom-macros/type-aware');
+        case '/docs/custom-macros/diagnostics':
+            return resolve('/docs/custom-macros/diagnostics');
+        case '/docs/custom-macros/testing-and-debugging':
+            return resolve('/docs/custom-macros/testing-and-debugging');
 
         // Integration
         case '/docs/integration':
@@ -239,7 +249,12 @@ export const navigation: NavSection[] = [
                 title: '#[ts_macro_attribute]',
                 href: '/docs/custom-macros/ts-macro-attribute'
             },
-            { title: 'Template Syntax', href: '/docs/custom-macros/ts-quote' }
+            { title: 'Template Syntax', href: '/docs/custom-macros/ts-quote' },
+            { title: 'Output and Imports', href: '/docs/custom-macros/output' },
+            { title: 'Context and IR', href: '/docs/custom-macros/context-and-ir' },
+            { title: 'Type-Aware Macros', href: '/docs/custom-macros/type-aware' },
+            { title: 'Errors and Diagnostics', href: '/docs/custom-macros/diagnostics' },
+            { title: 'Testing and Debugging', href: '/docs/custom-macros/testing-and-debugging' }
         ]
     },
     {

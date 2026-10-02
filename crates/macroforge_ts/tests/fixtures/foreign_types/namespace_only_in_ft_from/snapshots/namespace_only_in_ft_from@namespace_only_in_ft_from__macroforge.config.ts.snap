@@ -1,9 +1,8 @@
 ---
-source: macroforge_ts/tests/foreign_type_fixtures.rs
-assertion_line: 369
+source: crates/macroforge_ts/tests/foreign_type_fixtures.rs
 description: namespace_only_in_ft_from
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/foreign_types/namespace_only_in_ft_from/macroforge.config.ts
+input_file: crates/macroforge_ts/tests/fixtures/foreign_types/namespace_only_in_ft_from/macroforge.config.ts
 ---
 ## Config
 
@@ -56,11 +55,11 @@ import { Option as __mf_Option } from "effect";
 
 __mf_Option
 
-## Body references — config-declared (must be aliased)
+## Body references: config-declared (must be aliased)
 
 DateTime
 
-## Body references — treated as global (must NOT be aliased)
+## Body references: treated as global (must NOT be aliased)
 
 (none)
 

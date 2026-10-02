@@ -1,0 +1,3129 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/coordinates.svelte.ts
+sha256 f38c32fb0720d9a8c09f7a697084fa17dc4b5692eeda6b64e869123e6d9b557d
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface Coordinates {
+    lat: number;
+    lng: number;
+}
+
+export function coordinatesDefaultValue(): Coordinates {
+                        return {
+lat: 0,
+lng: 0,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function coordinatesSerialize(value: Coordinates, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = coordinatesSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function coordinatesSerializeWithContext(value: Coordinates, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Coordinates",
+                        __id,
+                    };result.lat = value.lat;result.lng = value.lng;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function coordinatesDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Coordinates } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = coordinatesDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Coordinates.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function coordinatesDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Coordinates | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Coordinates.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("lat" in obj)) {
+                            errors.push({ field: "lat", message: "missing required field" });
+                        }if (!("lng" in obj)) {
+                            errors.push({ field: "lng", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_lat = obj["lat"] as number;instance.lat = __raw_lat;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Coordinates;
+            }
+
+            export function coordinatesValidateField<K extends keyof Coordinates>(
+                _field: K,
+                _value: Coordinates[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function coordinatesValidateFields(
+                _partial: Partial<Coordinates>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function coordinatesHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "lat" in o && "lng" in o;
+            }
+
+            export function coordinatesIs(obj: unknown): obj is Coordinates {
+                if (!coordinatesHasShape(obj)) {
+                    return false;
+                }
+                const result = coordinatesDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type CoordinatesErrors = {
+            _errors: Option.Option<Array<string>>;
+            lat: Option.Option<Array<string>>;
+            lng: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type CoordinatesTainted = {
+            lat: Option.Option<boolean>;
+            lng: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface CoordinatesFieldControllers {
+            readonly lat: FieldController<number>;
+            readonly lng: FieldController<number>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface CoordinatesGigaform {
+            readonly data: Coordinates;
+            readonly errors: CoordinatesErrors;
+            readonly tainted: CoordinatesTainted;
+            readonly fields: CoordinatesFieldControllers;
+            validate(): Exit.Exit<Coordinates, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Coordinates>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function coordinatesCreateForm(overrides?: Partial<Coordinates>): CoordinatesGigaform {
+            let data = $state({ ...coordinatesDefaultValue(), ...overrides });
+            let errors = $state<CoordinatesErrors>({
+                _errors: Option.none(),
+                lat: Option.none(),
+                lng: Option.none(),
+
+
+            });
+            let tainted = $state<CoordinatesTainted>({
+                lat: Option.none(),
+                lng: Option.none(),
+
+
+            });
+            const fields = {
+            
+                lat: {
+            name: "lat",
+            label: "lat",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["lat"],
+            get: () => data.lat,
+            set: (value: number) => { data.lat = value; },
+            getError: () => errors.lat,
+            setError: (value: Option.Option<Array<string>>) => { errors.lat = value; },
+            getTainted: () => tainted.lat,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lat = value; },
+            validate: () => coordinatesValidateField("lat", data.lat).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                lng: {
+            name: "lng",
+            label: "lng",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["lng"],
+            get: () => data.lng,
+            set: (value: number) => { data.lng = value; },
+            getError: () => errors.lng,
+            setError: (value: Option.Option<Array<string>>) => { errors.lng = value; },
+            getTainted: () => tainted.lng,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lng = value; },
+            validate: () => coordinatesValidateField("lng", data.lng).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as CoordinatesFieldControllers;
+
+
+            function validate(): Exit.Exit<Coordinates, Array<{ field: string; message: string }>> {
+                return toExit(coordinatesDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Coordinates>): void {
+                data = { ...coordinatesDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            lat: Option.none(),
+            lng: Option.none(),
+
+
+        };
+                tainted = {
+            lat: Option.none(),
+            lng: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function coordinatesFromFormData(formData: FormData): Exit.Exit<Coordinates, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const latStr = formData.get("lat");
+                    obj.lat = latStr ? parseFloat(latStr as string) : 0;
+                    if (obj.lat !== undefined && isNaN(obj.lat as number)) obj.lat = 0;
+                }
+            {
+                    const lngStr = formData.get("lng");
+                    obj.lng = lngStr ? parseFloat(lngStr as string) : 0;
+                    if (obj.lng !== undefined && isNaN(obj.lng as number)) obj.lng = 0;
+                }
+
+
+            return toExit(coordinatesDeserialize(obj));
+        }
+
+export const Coordinates = {
+  defaultValue: coordinatesDefaultValue,
+  serialize: coordinatesSerialize,
+  serializeWithContext: coordinatesSerializeWithContext,
+  deserialize: coordinatesDeserialize,
+  deserializeWithContext: coordinatesDeserializeWithContext,
+  validateFields: coordinatesValidateFields,
+  hasShape: coordinatesHasShape,
+  is: coordinatesIs,
+  createForm: coordinatesCreateForm,
+  fromFormData: coordinatesFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface Coordinates {
+    lat: number;
+    lng: number;
+}
+
+export function coordinatesDefaultValue(): Coordinates {
+                        return {
+lat: 0,
+lng: 0,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function coordinatesSerialize(value: Coordinates, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = coordinatesSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function coordinatesSerializeWithContext(value: Coordinates, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Coordinates",
+                        __id,
+                    };result.lat = value.lat;result.lng = value.lng;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function coordinatesDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Coordinates } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = coordinatesDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Coordinates.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function coordinatesDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Coordinates | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Coordinates.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("lat" in obj)) {
+                            errors.push({ field: "lat", message: "missing required field" });
+                        }if (!("lng" in obj)) {
+                            errors.push({ field: "lng", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_lat = obj["lat"] as number;instance.lat = __raw_lat;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Coordinates;
+            }
+
+            export function coordinatesValidateField<K extends keyof Coordinates>(
+                _field: K,
+                _value: Coordinates[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function coordinatesValidateFields(
+                _partial: Partial<Coordinates>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function coordinatesHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "lat" in o && "lng" in o;
+            }
+
+            export function coordinatesIs(obj: unknown): obj is Coordinates {
+                if (!coordinatesHasShape(obj)) {
+                    return false;
+                }
+                const result = coordinatesDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type CoordinatesErrors = {
+            _errors: Option.Option<Array<string>>;
+            lat: Option.Option<Array<string>>;
+            lng: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type CoordinatesTainted = {
+            lat: Option.Option<boolean>;
+            lng: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface CoordinatesFieldControllers {
+            readonly lat: FieldController<number>;
+            readonly lng: FieldController<number>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface CoordinatesGigaform {
+            readonly data: Coordinates;
+            readonly errors: CoordinatesErrors;
+            readonly tainted: CoordinatesTainted;
+            readonly fields: CoordinatesFieldControllers;
+            validate(): Exit.Exit<Coordinates, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Coordinates>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function coordinatesCreateForm(overrides?: Partial<Coordinates>): CoordinatesGigaform {
+            let data = $state({ ...coordinatesDefaultValue(), ...overrides });
+            let errors = $state<CoordinatesErrors>({
+                _errors: Option.none(),
+                lat: Option.none(),
+                lng: Option.none(),
+
+
+            });
+            let tainted = $state<CoordinatesTainted>({
+                lat: Option.none(),
+                lng: Option.none(),
+
+
+            });
+            const fields = {
+            
+                lat: {
+            name: "lat",
+            label: "lat",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["lat"],
+            get: () => data.lat,
+            set: (value: number) => { data.lat = value; },
+            getError: () => errors.lat,
+            setError: (value: Option.Option<Array<string>>) => { errors.lat = value; },
+            getTainted: () => tainted.lat,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lat = value; },
+            validate: () => coordinatesValidateField("lat", data.lat).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                lng: {
+            name: "lng",
+            label: "lng",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["lng"],
+            get: () => data.lng,
+            set: (value: number) => { data.lng = value; },
+            getError: () => errors.lng,
+            setError: (value: Option.Option<Array<string>>) => { errors.lng = value; },
+            getTainted: () => tainted.lng,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lng = value; },
+            validate: () => coordinatesValidateField("lng", data.lng).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as CoordinatesFieldControllers;
+
+
+            function validate(): Exit.Exit<Coordinates, Array<{ field: string; message: string }>> {
+                return toExit(coordinatesDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Coordinates>): void {
+                data = { ...coordinatesDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            lat: Option.none(),
+            lng: Option.none(),
+
+
+        };
+                tainted = {
+            lat: Option.none(),
+            lng: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function coordinatesFromFormData(formData: FormData): Exit.Exit<Coordinates, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const latStr = formData.get("lat");
+                    obj.lat = latStr ? parseFloat(latStr as string) : 0;
+                    if (obj.lat !== undefined && isNaN(obj.lat as number)) obj.lat = 0;
+                }
+            {
+                    const lngStr = formData.get("lng");
+                    obj.lng = lngStr ? parseFloat(lngStr as string) : 0;
+                    if (obj.lng !== undefined && isNaN(obj.lng as number)) obj.lng = 0;
+                }
+
+
+            return toExit(coordinatesDeserialize(obj));
+        }
+
+export const Coordinates = {
+  defaultValue: coordinatesDefaultValue,
+  serialize: coordinatesSerialize,
+  serializeWithContext: coordinatesSerializeWithContext,
+  deserialize: coordinatesDeserialize,
+  deserializeWithContext: coordinatesDeserializeWithContext,
+  validateFields: coordinatesValidateFields,
+  hasShape: coordinatesHasShape,
+  is: coordinatesIs,
+  createForm: coordinatesCreateForm,
+  fromFormData: coordinatesFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..182 -> expanded 58..125
+original 182..183 -> expanded 13339..13340
+generated 125..257 <- Default
+generated 257..1820 <- Serialize
+generated 1820..7482 <- Deserialize
+generated 7482..12888 <- Gigaform
+generated 12888..13339 <- __convenience_const
+
+## Metadata
+
+interface Coordinates: {"body_span":{"end":183,"start":146},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"lat","optional":false,"readonly":false,"span":{"end":164,"start":152},"ts_type":"number"},{"decorators":[],"name":"lng","optional":false,"readonly":false,"span":{"end":181,"start":169},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Coordinates","span":{"end":183,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("number")
+
+## Buildtime dependencies
+
+(none)

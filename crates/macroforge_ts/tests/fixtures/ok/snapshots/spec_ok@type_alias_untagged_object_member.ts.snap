@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_untagged_object_member.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_untagged_object_member.ts
 ---
 ## Input
 
@@ -11,6 +11,10 @@ input_file: macroforge_ts/tests/fixtures/ok/type_alias_untagged_object_member.ts
 
 /** @derive(Serialize, Deserialize) */
 export type Link = string | { id: string; label?: string };
+
+## Changed
+
+true
 
 ## Output
 
@@ -748,16 +752,6 @@ export type Link = string | { id: string; label?: string };
 
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
         export function linkHasShape(value: unknown): boolean {if (typeof value === "string") return true;
@@ -771,9 +765,6 @@ export type Link = string | { id: string; label?: string };
 
 
                             if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;return false;
-
-
-
 
 
 
@@ -1686,16 +1677,6 @@ export type Link = string | { id: string; label?: string };
 
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
         export function linkHasShape(value: unknown): boolean {if (typeof value === "string") return true;
@@ -1709,9 +1690,6 @@ export type Link = string | { id: string; label?: string };
 
 
                             if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;return false;
-
-
-
 
 
 
@@ -1894,5 +1872,26 @@ export const Link = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..185 -> expanded 0..185
+original 223..283 -> expanded 185..245
+original 283..284 -> expanded 6417..6418
+generated 245..2171 <- Serialize
+generated 2171..6179 <- Deserialize
+generated 6179..6417 <- __convenience_const
+
+## Metadata
+
+type Link: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":266,"start":255},"ts_type":"string"},{"decorators":[],"name":"label","optional":true,"readonly":false,"span":{"end":281,"start":267},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Serialize, Deserialize","name":"Derive","span":{"end":224,"start":186}}],"name":"Link","span":{"end":284,"start":232},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

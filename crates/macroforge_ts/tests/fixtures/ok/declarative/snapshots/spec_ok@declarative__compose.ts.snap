@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/compose.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/compose.ts
 ---
 ## Input
 
@@ -19,6 +18,10 @@ const $quad = macroRules`
 const a = $double(5);
 const b = $quad(3);
 
+## Changed
+
+true
+
 ## Output
 
 const a = (5 * 2);
@@ -29,5 +32,21 @@ const b = ((3 * 2) * 2);
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

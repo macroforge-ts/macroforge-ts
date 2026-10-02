@@ -2,28 +2,25 @@
 //!
 //! This module provides [`SpanIR`], a stable, serializable span type that
 //! represents byte ranges in source code. Unlike a parser's own span type,
-//! `SpanIR` is plain byte offsets and is designed for ABI stability.
+//! `SpanIR` is plain byte positions and is designed for ABI stability.
 //!
-//! ## Byte Offsets
+//! ## Positions
 //!
-//! Spans use byte offsets (not character indices or line/column pairs) for:
-//! - Precision with multi-byte UTF-8 characters
-//! - Efficient substring operations
-//! - Simple arithmetic for position calculations
+//! A position is a byte offset plus one: the first byte of the file is
+//! position 1. Byte offsets (not character indices or line/column pairs)
+//! stay exact with multi-byte UTF-8 characters. To read the spanned text,
+//! use [`SpanIR::source_range`], which gives the 0-based byte range.
 //!
 //! ## Example
 //!
-//! ```rust,no_run
+//! ```rust
 //! use macroforge_ts_syn::SpanIR;
 //!
-//! // Create a span for bytes 10-25
-//! let span = SpanIR::new(10, 25);
-//! assert_eq!(span.len(), 15);
-//! assert!(!span.is_empty());
-//!
-//! // Extract the spanned text from source
+//! // "x" in "let x = 42;" is byte 4, so its span is positions 5..6.
 //! let source = "let x = 42;";
-//! let text = &source[span.start as usize..span.end as usize];
+//! let span = SpanIR::new(5, 6);
+//! assert_eq!(span.len(), 1);
+//! assert_eq!(&source[span.source_range()], "x");
 //! ```
 
 use serde::{Deserialize, Serialize};
@@ -31,13 +28,13 @@ use serde::{Deserialize, Serialize};
 /// A stable source span using byte offsets.
 ///
 /// Represents a contiguous range in source code from `start` (inclusive)
-/// to `end` (exclusive). The host system maps between the parser's
-/// spans and `SpanIR` for macro communication.
+/// to `end` (exclusive). Positions are byte offsets plus one, as the host
+/// produces them from the parser's spans; see the [module docs](self).
 ///
 /// # Fields
 ///
-/// - `start` - The starting byte offset (inclusive)
-/// - `end` - The ending byte offset (exclusive)
+/// - `start` - The starting position (inclusive)
+/// - `end` - The ending position (exclusive)
 ///
 /// # Invariants
 ///
@@ -46,36 +43,30 @@ use serde::{Deserialize, Serialize};
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```rust
 /// use macroforge_ts_syn::SpanIR;
 ///
-/// // Span covering "hello" in "say hello world"
-/// //                    ^^^^^
-/// // byte indices:  4   5678 9
-/// let span = SpanIR::new(4, 9);
+/// // "hello" in "say hello world" is bytes 4..9, so positions 5..10.
+/// let span = SpanIR::new(5, 10);
 /// assert_eq!(span.len(), 5);
-///
-/// // Extract the text
-/// let source = "say hello world";
-/// let text = &source[span.start as usize..span.end as usize];
-/// assert_eq!(text, "hello");
+/// assert_eq!(&"say hello world"[span.source_range()], "hello");
 /// ```
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct SpanIR {
-    /// Starting byte offset (inclusive).
+    /// Starting position (inclusive): a byte offset plus one.
     pub start: u32,
 
-    /// Ending byte offset (exclusive).
+    /// Ending position (exclusive): a byte offset plus one.
     pub end: u32,
 }
 
 impl SpanIR {
-    /// Creates a new span from start and end byte offsets.
+    /// Creates a new span from start and end positions.
     ///
     /// # Arguments
     ///
-    /// - `start` - The starting byte offset (inclusive)
-    /// - `end` - The ending byte offset (exclusive)
+    /// - `start` - The starting position (inclusive)
+    /// - `end` - The ending position (exclusive)
     ///
     /// # Example
     ///
@@ -125,5 +116,19 @@ impl SpanIR {
     /// ```
     pub fn is_empty(&self) -> bool {
         self.start >= self.end
+    }
+
+    /// The span's 0-based byte range in the source, for slicing it.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use macroforge_ts_syn::SpanIR;
+    ///
+    /// let source = "let x = 42;";
+    /// assert_eq!(&source[SpanIR::new(9, 11).source_range()], "42");
+    /// ```
+    pub fn source_range(&self) -> std::ops::Range<usize> {
+        self.start.saturating_sub(1) as usize..self.end.saturating_sub(1) as usize
     }
 }

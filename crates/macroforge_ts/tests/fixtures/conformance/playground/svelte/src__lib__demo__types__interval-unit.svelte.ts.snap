@@ -1,0 +1,809 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/interval-unit.svelte.ts
+sha256 d8c514bd9151c2994ab773ab0f8a8335ffa41464cb2700856f17920b3208744c
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type IntervalUnit = /** @default */ 'Day' | 'Week' | 'Month' | 'Year';
+
+export function intervalUnitDefaultValue(): IntervalUnit {
+                            return "Day";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function intervalUnitSerialize(value: IntervalUnit, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = intervalUnitSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function intervalUnitSerializeWithContext(value: IntervalUnit, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function intervalUnitDeserialize(input: unknown): { success: true; value: IntervalUnit } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Day':
+                    case 'Week':
+                    case 'Month':
+                    case 'Year':
+
+
+                        return { success: true, value: input as IntervalUnit };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for IntervalUnit: expected one of " + ['Day', 'Week', 'Month', 'Year'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function intervalUnitDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): IntervalUnit | __mf_PendingRef {
+                switch (value) {
+                    case 'Day':
+                    case 'Week':
+                    case 'Month':
+                    case 'Year':
+
+
+                        return value as IntervalUnit;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for IntervalUnit: expected one of " + ['Day', 'Week', 'Month', 'Year'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function intervalUnitHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Day':
+                    case 'Week':
+                    case 'Month':
+                    case 'Year':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function intervalUnitIs(value: unknown): value is IntervalUnit {
+                return intervalUnitHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type IntervalUnitDayErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type IntervalUnitWeekErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type IntervalUnitMonthErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type IntervalUnitYearErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type IntervalUnitDayTainted = {
+
+
+            };
+            export type IntervalUnitWeekTainted = {
+
+
+            };
+            export type IntervalUnitMonthTainted = {
+
+
+            };
+            export type IntervalUnitYearTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type IntervalUnitErrors = ({ _value: "Day" } & IntervalUnitDayErrors) | ({ _value: "Week" } & IntervalUnitWeekErrors) | ({ _value: "Month" } & IntervalUnitMonthErrors) | ({ _value: "Year" } & IntervalUnitYearErrors);
+
+        /** Union tainted type  */
+        export type IntervalUnitTainted = ({ _value: "Day" } & IntervalUnitDayTainted) | ({ _value: "Week" } & IntervalUnitWeekTainted) | ({ _value: "Month" } & IntervalUnitMonthTainted) | ({ _value: "Year" } & IntervalUnitYearTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface IntervalUnitDayFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface IntervalUnitWeekFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface IntervalUnitMonthFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface IntervalUnitYearFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface IntervalUnitGigaform {
+            readonly currentVariant: "Day" | "Week" | "Month" | "Year";
+            readonly data: IntervalUnit;
+            readonly errors: IntervalUnitErrors;
+            readonly tainted: IntervalUnitTainted;
+            readonly variants: IntervalUnitVariantFields;
+            switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void;
+            validate(): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<IntervalUnit>): void;
+        }
+
+        /** Variant fields container  */
+        export interface IntervalUnitVariantFields {
+            
+                readonly Day: { readonly fields: IntervalUnitDayFieldControllers };
+            
+                readonly Week: { readonly fields: IntervalUnitWeekFieldControllers };
+            
+                readonly Month: { readonly fields: IntervalUnitMonthFieldControllers };
+            
+                readonly Year: { readonly fields: IntervalUnitYearFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function intervalUnitGetDefaultForVariant(variant: string): IntervalUnit {
+            if (variant === "Day") { return "Day" as IntervalUnit; }
+if (variant === "Week") { return "Week" as IntervalUnit; }
+if (variant === "Month") { return "Month" as IntervalUnit; }
+if (variant === "Year") { return "Year" as IntervalUnit; }
+            return "Day" as IntervalUnit;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function intervalUnitCreateForm(initial?: IntervalUnit): IntervalUnitGigaform {
+
+            const initialVariant: "Day" | "Week" | "Month" | "Year" = (initial as "Day" | "Week" | "Month" | "Year") ?? "Day";
+
+
+            let currentVariant = $state<"Day" | "Week" | "Month" | "Year">(initialVariant);
+            let data = $state<IntervalUnit>(initial ?? intervalUnitGetDefaultForVariant(initialVariant));
+            let errors = $state<IntervalUnitErrors>({} as IntervalUnitErrors);
+            let tainted = $state<IntervalUnitTainted>({} as IntervalUnitTainted);
+
+            const variants = {
+            
+                "Day": { fields: {  } as unknown as IntervalUnitDayFieldControllers },
+            
+                "Week": { fields: {  } as unknown as IntervalUnitWeekFieldControllers },
+            
+                "Month": { fields: {  } as unknown as IntervalUnitMonthFieldControllers },
+            
+                "Year": { fields: {  } as unknown as IntervalUnitYearFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as IntervalUnitVariantFields;
+
+
+            function switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void {
+                currentVariant = variant;
+                data = intervalUnitGetDefaultForVariant(variant);
+                errors = {} as IntervalUnitErrors;
+                tainted = {} as IntervalUnitTainted;
+            }
+
+
+            function validate(): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>> {
+                return toExit(intervalUnitDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<IntervalUnit>): void {
+                data = overrides ? overrides as typeof data : intervalUnitGetDefaultForVariant(currentVariant);
+                errors = {} as IntervalUnitErrors;
+                tainted = {} as IntervalUnitTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function intervalUnitFromFormData(formData: FormData): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Day" | "Week" | "Month" | "Year" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Day") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Week") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Month") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Year") {
+                        
+                    }
+                }
+
+
+            return toExit(intervalUnitDeserialize(obj));
+        }
+
+export const IntervalUnit = {
+  defaultValue: intervalUnitDefaultValue,
+  serialize: intervalUnitSerialize,
+  serializeWithContext: intervalUnitSerializeWithContext,
+  deserialize: intervalUnitDeserialize,
+  deserializeWithContext: intervalUnitDeserializeWithContext,
+  hasShape: intervalUnitHasShape,
+  is: intervalUnitIs,
+  createForm: intervalUnitCreateForm,
+  fromFormData: intervalUnitFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type IntervalUnit = /** @default */ 'Day' | 'Week' | 'Month' | 'Year';
+
+export function intervalUnitDefaultValue(): IntervalUnit {
+                            return "Day";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function intervalUnitSerialize(value: IntervalUnit, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = intervalUnitSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function intervalUnitSerializeWithContext(value: IntervalUnit, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function intervalUnitDeserialize(input: unknown): { success: true; value: IntervalUnit } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Day':
+                    case 'Week':
+                    case 'Month':
+                    case 'Year':
+
+
+                        return { success: true, value: input as IntervalUnit };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for IntervalUnit: expected one of " + ['Day', 'Week', 'Month', 'Year'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function intervalUnitDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): IntervalUnit | __mf_PendingRef {
+                switch (value) {
+                    case 'Day':
+                    case 'Week':
+                    case 'Month':
+                    case 'Year':
+
+
+                        return value as IntervalUnit;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for IntervalUnit: expected one of " + ['Day', 'Week', 'Month', 'Year'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function intervalUnitHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Day':
+                    case 'Week':
+                    case 'Month':
+                    case 'Year':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function intervalUnitIs(value: unknown): value is IntervalUnit {
+                return intervalUnitHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type IntervalUnitDayErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type IntervalUnitWeekErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type IntervalUnitMonthErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type IntervalUnitYearErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type IntervalUnitDayTainted = {
+
+
+            };
+            export type IntervalUnitWeekTainted = {
+
+
+            };
+            export type IntervalUnitMonthTainted = {
+
+
+            };
+            export type IntervalUnitYearTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type IntervalUnitErrors = ({ _value: "Day" } & IntervalUnitDayErrors) | ({ _value: "Week" } & IntervalUnitWeekErrors) | ({ _value: "Month" } & IntervalUnitMonthErrors) | ({ _value: "Year" } & IntervalUnitYearErrors);
+
+        /** Union tainted type  */
+        export type IntervalUnitTainted = ({ _value: "Day" } & IntervalUnitDayTainted) | ({ _value: "Week" } & IntervalUnitWeekTainted) | ({ _value: "Month" } & IntervalUnitMonthTainted) | ({ _value: "Year" } & IntervalUnitYearTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface IntervalUnitDayFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface IntervalUnitWeekFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface IntervalUnitMonthFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface IntervalUnitYearFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface IntervalUnitGigaform {
+            readonly currentVariant: "Day" | "Week" | "Month" | "Year";
+            readonly data: IntervalUnit;
+            readonly errors: IntervalUnitErrors;
+            readonly tainted: IntervalUnitTainted;
+            readonly variants: IntervalUnitVariantFields;
+            switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void;
+            validate(): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<IntervalUnit>): void;
+        }
+
+        /** Variant fields container  */
+        export interface IntervalUnitVariantFields {
+            
+                readonly Day: { readonly fields: IntervalUnitDayFieldControllers };
+            
+                readonly Week: { readonly fields: IntervalUnitWeekFieldControllers };
+            
+                readonly Month: { readonly fields: IntervalUnitMonthFieldControllers };
+            
+                readonly Year: { readonly fields: IntervalUnitYearFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function intervalUnitGetDefaultForVariant(variant: string): IntervalUnit {
+            if (variant === "Day") { return "Day" as IntervalUnit; }
+if (variant === "Week") { return "Week" as IntervalUnit; }
+if (variant === "Month") { return "Month" as IntervalUnit; }
+if (variant === "Year") { return "Year" as IntervalUnit; }
+            return "Day" as IntervalUnit;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function intervalUnitCreateForm(initial?: IntervalUnit): IntervalUnitGigaform {
+
+            const initialVariant: "Day" | "Week" | "Month" | "Year" = (initial as "Day" | "Week" | "Month" | "Year") ?? "Day";
+
+
+            let currentVariant = $state<"Day" | "Week" | "Month" | "Year">(initialVariant);
+            let data = $state<IntervalUnit>(initial ?? intervalUnitGetDefaultForVariant(initialVariant));
+            let errors = $state<IntervalUnitErrors>({} as IntervalUnitErrors);
+            let tainted = $state<IntervalUnitTainted>({} as IntervalUnitTainted);
+
+            const variants = {
+            
+                "Day": { fields: {  } as unknown as IntervalUnitDayFieldControllers },
+            
+                "Week": { fields: {  } as unknown as IntervalUnitWeekFieldControllers },
+            
+                "Month": { fields: {  } as unknown as IntervalUnitMonthFieldControllers },
+            
+                "Year": { fields: {  } as unknown as IntervalUnitYearFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as IntervalUnitVariantFields;
+
+
+            function switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void {
+                currentVariant = variant;
+                data = intervalUnitGetDefaultForVariant(variant);
+                errors = {} as IntervalUnitErrors;
+                tainted = {} as IntervalUnitTainted;
+            }
+
+
+            function validate(): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>> {
+                return toExit(intervalUnitDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<IntervalUnit>): void {
+                data = overrides ? overrides as typeof data : intervalUnitGetDefaultForVariant(currentVariant);
+                errors = {} as IntervalUnitErrors;
+                tainted = {} as IntervalUnitTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function intervalUnitFromFormData(formData: FormData): Exit.Exit<IntervalUnit, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Day" | "Week" | "Month" | "Year" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Day") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Week") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Month") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Year") {
+                        
+                    }
+                }
+
+
+            return toExit(intervalUnitDeserialize(obj));
+        }
+
+export const IntervalUnit = {
+  defaultValue: intervalUnitDefaultValue,
+  serialize: intervalUnitSerialize,
+  serializeWithContext: intervalUnitSerializeWithContext,
+  deserialize: intervalUnitDeserialize,
+  deserializeWithContext: intervalUnitDeserializeWithContext,
+  hasShape: intervalUnitHasShape,
+  is: intervalUnitIs,
+  createForm: intervalUnitCreateForm,
+  fromFormData: intervalUnitFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..193 -> expanded 58..136
+original 193..194 -> expanded 11909..11910
+generated 136..264 <- Default
+generated 264..2230 <- Serialize
+generated 2230..4521 <- Deserialize
+generated 4521..11493 <- Gigaform
+generated 11493..11909 <- __convenience_const
+
+## Metadata
+
+type IntervalUnit: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":159,"start":144}}],"kind":{"Literal":"'Day'"}},{"decorators":[],"kind":{"Literal":"'Week'"}},{"decorators":[],"kind":{"Literal":"'Month'"}},{"decorators":[],"kind":{"Literal":"'Year'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"IntervalUnit","span":{"end":194,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("IntervalUnit")
+
+## Buildtime dependencies
+
+(none)

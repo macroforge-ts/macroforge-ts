@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/unknown_macro_span.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/unknown_macro_span.ts
 ---
 ## Input
 
@@ -9,6 +9,10 @@ input_file: macroforge_ts/tests/fixtures/error/unknown_macro_span.ts
 interface Data {
     value: string;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -24,4 +28,20 @@ interface Data {
 
 ## Diagnostics
 
-Error: Macro 'NonExistent' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
+Error [4..24]: Macro 'NonExistent' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
+
+## Mapping
+
+original 27..66 -> expanded 0..39
+
+## Metadata
+
+interface Data: {"body_span":{"end":66,"start":44},"decorators":[{"args_src":"NonExistent","name":"Derive","span":{"end":28,"start":1}}],"fields":[{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":64,"start":50},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Data","span":{"end":66,"start":29},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

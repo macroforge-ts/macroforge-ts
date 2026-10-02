@@ -254,15 +254,16 @@ pub struct MustUseConfig {
 
 /// Sandbox configuration for `@buildtime` evaluation.
 ///
-/// Mirrors the `buildtime` block of `macroforge.config.*`:
+/// Mirrors the `buildtime` block of `macroforge.config.*`. Build-time code
+/// can read files and see the listed env vars and flags, and nothing more:
+/// it cannot write files or reach the network.
 ///
 /// ```js
 /// buildtime: {
-///   timeout: 5000,                                  // ms
-///   maxHeap: 256,                                   // MiB (advisory)
-///   filesystem: { read: ["**"], write: [] },
+///   timeout: 5000,                  // ms
+///   maxHeap: 256,                   // MiB (advisory)
+///   filesystem: { read: ["**"] },
 ///   env: ["HOME"],
-///   network: false,
 ///   flags: { RELEASE: "1" }
 /// }
 /// ```
@@ -273,7 +274,7 @@ pub struct BuildtimeConfig {
     #[serde(default = "default_buildtime_timeout_ms")]
     pub timeout_ms: u64,
 
-    /// JS heap ceiling in MiB. Advisory — the Boa backend exposes no
+    /// JS heap ceiling in MiB. Advisory: the Boa backend exposes no
     /// memory-limit hook, so this is carried but not enforced.
     #[serde(default = "default_buildtime_max_heap_mb")]
     pub max_heap_mb: usize,
@@ -282,19 +283,9 @@ pub struct BuildtimeConfig {
     #[serde(default = "default_buildtime_fs_read")]
     pub fs_read: Vec<String>,
 
-    /// Glob patterns writable via `buildtime.fs`. Empty by default; no
-    /// write API is currently exposed to sandboxed code.
-    #[serde(default)]
-    pub fs_write: Vec<String>,
-
     /// Environment variable names exposed as `buildtime.env.NAME`.
     #[serde(default)]
     pub env_allow: Vec<String>,
-
-    /// Whether sandboxed code may reach the network. No network API is
-    /// currently exposed, so this is carried for forward compatibility.
-    #[serde(default)]
-    pub network: bool,
 
     /// Build flags exposed as `buildtime.flags.has(name)` / `.get(name)`.
     #[serde(default)]
@@ -307,9 +298,7 @@ impl Default for BuildtimeConfig {
             timeout_ms: default_buildtime_timeout_ms(),
             max_heap_mb: default_buildtime_max_heap_mb(),
             fs_read: default_buildtime_fs_read(),
-            fs_write: Vec::new(),
             env_allow: Vec::new(),
-            network: false,
             flags: BTreeMap::new(),
         }
     }

@@ -355,16 +355,6 @@ export function mapEditToOriginal(
         : mapInsertReplaceEditToOriginal(fragment, edit);
 }
 
-export function mapDiagnosticToGenerated(
-    fragment: DocumentMapper,
-    diagnostic: Diagnostic
-): Diagnostic {
-    return {
-        ...diagnostic,
-        range: mapRangeToGenerated(fragment, diagnostic.range)
-    };
-}
-
 export function mapColorPresentationToOriginal(
     fragment: Pick<DocumentMapper, 'getOriginalPosition'>,
     presentation: ColorPresentation
@@ -396,24 +386,6 @@ export function mapSymbolInformationToOriginal(
     };
 }
 
-export function mapLocationLinkToOriginal(
-    fragment: DocumentMapper,
-    def: LocationLink
-): LocationLink {
-    return LocationLink.create(
-        def.targetUri,
-        fragment.getURL() === def.targetUri
-            ? mapRangeToOriginal(fragment, def.targetRange)
-            : def.targetRange,
-        fragment.getURL() === def.targetUri
-            ? mapRangeToOriginal(fragment, def.targetSelectionRange)
-            : def.targetSelectionRange,
-        def.originSelectionRange
-            ? mapRangeToOriginal(fragment, def.originSelectionRange)
-            : undefined
-    );
-}
-
 export function mapTextDocumentEditToOriginal(
     fragment: DocumentMapper,
     edit: TextDocumentEdit
@@ -425,21 +397,6 @@ export function mapTextDocumentEditToOriginal(
     return TextDocumentEdit.create(
         edit.textDocument,
         edit.edits.map((textEdit) => mapObjWithRangeToOriginal(fragment, textEdit))
-    );
-}
-
-export function mapCodeActionToOriginal(
-    fragment: DocumentMapper,
-    codeAction: CodeAction
-) {
-    return CodeAction.create(
-        codeAction.title,
-        {
-            documentChanges: codeAction.edit!.documentChanges!.map((edit) =>
-                mapTextDocumentEditToOriginal(fragment, edit as TextDocumentEdit)
-            )
-        },
-        codeAction.kind
     );
 }
 

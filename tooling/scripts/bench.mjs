@@ -2,11 +2,15 @@
 // Macroforge expansion benchmark.
 //
 // Usage:
-//   pixi run bench                                  — benchmark current build
+//   pixi run bench                                  benchmark the current build
 //   bench.mjs --wasm-bindgen <input.wasm> <node-out-dir> <deno-out-dir>
 //                                                   run wasm-bindgen for npm and
 //                                                   JSR (the build:wasm task)
-//   MF_BENCH_ITERATIONS=50                          — control iteration count (default: 20)
+//   MF_BENCH_ITERATIONS=50                          control iteration count (default: 20)
+//
+// Every call passes the vanilla playground's type and declarative registries,
+// as the Vite plugin does, so the numbers include what crossing them costs.
+// `target/debug/macroforge refresh tooling/playground/vanilla` writes them.
 
 import { pathToFileURL } from 'node:url';
 import * as path from 'node:path';
@@ -113,6 +117,25 @@ const benchFiles = [
     'tooling/playground/vanilla/src/validator-form.ts'
 ];
 
+const registryDir = path.join(root, 'tooling/playground/vanilla/.macroforge');
+
+function getOptions() {
+    const read = (name) => {
+        const file = path.join(registryDir, name);
+        if (!fs.existsSync(file)) {
+            console.error(
+                `No ${file}. Run: target/debug/macroforge refresh tooling/playground/vanilla`
+            );
+            Deno.exit(1);
+        }
+        return fs.readFileSync(file, 'utf8');
+    };
+    return {
+        typeRegistryJson: read('type-registry.json'),
+        declarativeRegistryJson: read('declarative-registry.json')
+    };
+}
+
 function getInputs() {
     return benchFiles
         .filter((f) => fs.existsSync(path.join(root, f)))
@@ -138,9 +161,13 @@ async function bench(label, modPath) {
         return null;
     }
 
+    const options = getOptions();
+    // External macro packages resolve from the working directory, as they do
+    // from the app root under the Vite plugin.
+    Deno.chdir(path.join(root, 'tooling/playground/vanilla'));
     for (let w = 0; w < 2; w++) {
         for (const i of inputs) {
-            m.expandSync(i.code, i.filepath);
+            m.expandSync(i.code, i.filepath, options);
         }
     }
 
@@ -149,7 +176,7 @@ async function bench(label, modPath) {
         const t = [];
         for (let n = 0; n < iterations; n++) {
             const s = performance.now();
-            m.expandSync(i.code, i.filepath);
+            m.expandSync(i.code, i.filepath, options);
             t.push(performance.now() - s);
         }
         t.sort((a, b) => a - b);
@@ -175,7 +202,7 @@ if (mode === 'wasm-bindgen') {
         console.error('No pkg/. Run: pixi run build:rust');
         Deno.exit(1);
     }
-    console.log(`\nMacroforge Benchmark — ${iterations} iterations`);
+    console.log(`\nMacroforge Benchmark: ${iterations} iterations, vanilla registries`);
     console.log('='.repeat(60));
     const r = await bench('current', entry);
     if (!r) Deno.exit(1);

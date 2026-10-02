@@ -199,11 +199,11 @@ interface ExpandResult {
 }
 
 /**
- * Cached reference to the native `expandSync` function from the macroforge package.
+ * The engine functions the preprocessor uses, from the macroforge package.
  *
  * This variable implements a lazy-loading pattern:
  * - Initially `null`, indicating the binding hasn't been loaded yet
- * - Set to the actual function after first successful load
+ * - Set to the engine after first successful load
  * - Remains `null` if loading fails, so the next call retries the import
  *
  * The lazy-loading approach avoids loading native bindings at module import time,
@@ -212,24 +212,29 @@ interface ExpandResult {
  *
  * @internal
  */
-let expandSync:
-    | ((
+let engine: Engine | null = null;
+
+/** The engine functions the preprocessor calls. */
+interface Engine {
+    expandSync: (
         /** TypeScript/JavaScript source code to process */
         code: string,
         /** File path for error reporting and context */
         filepath: string,
         /** Optional expansion configuration */
         options?: ExpandOptions | null
-    ) => ExpandResult)
-    | null = null;
+    ) => ExpandResult;
+    /** Whether `code`, the source of `filepath`, may contain anything the engine expands. */
+    hasMacroAnnotations: (code: string, filepath: string) => boolean;
+}
 
 /**
- * Lazily loads and caches the native `expandSync` function.
+ * Lazily loads and caches the engine.
  *
  * This function implements the initialization logic for native bindings:
  *
  * 1. On first call, dynamically imports the `macroforge` package
- * 2. Extracts and caches the `expandSync` function
+ * 2. Extracts and caches `expandSync` and `hasMacroAnnotations`
  * 3. On subsequent calls after a successful load, returns the cached function
  *    immediately
  *
@@ -245,25 +250,28 @@ let expandSync:
  * subsequent call. This allows the preprocessor to skip macro expansion rather
  * than crashing the build.
  *
- * @returns The cached `expandSync` function, or `null` if loading failed
+ * @returns The cached engine, or `null` if loading failed
  * @internal
  */
-async function ensureExpandSync(): Promise<typeof expandSync> {
-    if (expandSync === null) {
+async function ensureEngine(): Promise<Engine | null> {
+    if (engine === null) {
         try {
             // Dynamic import defers loading until first use
             const macroforge = await import('@macroforge/core');
-            expandSync = macroforge.expandSync;
+            engine = {
+                expandSync: macroforge.expandSync,
+                hasMacroAnnotations: macroforge.hasMacroAnnotations
+            };
         } catch (error) {
             // Log warning but don't throw - allows graceful degradation
             console.warn(
                 '[@macroforge/svelte-preprocessor] Failed to load macroforge native bindings:',
                 error
             );
-            expandSync = null;
+            engine = null;
         }
     }
-    return expandSync;
+    return engine;
 }
 
 /**
@@ -431,11 +439,16 @@ export function macroforgePreprocess(
          * The expansion engine is a native module (Rust compiled to Node addon).
          * We lazy-load it on first use to avoid startup overhead.
          */
-        const expand = await ensureExpandSync();
-        if (!expand) {
+        const loaded = await ensureEngine();
+        if (!loaded) {
             // Native bindings unavailable (missing module, architecture mismatch, etc.)
-            // ensureExpandSync already logged a warning; skip this block. The import
+            // ensureEngine already logged a warning; skip this block. The import
             // is retried on the next block, so the warning repeats per attempt.
+            return;
+        }
+
+        // A block with nothing to expand never reaches the engine.
+        if (!loaded.hasMacroAnnotations(content, filename || 'component.svelte')) {
             return;
         }
 
@@ -446,8 +459,9 @@ export function macroforgePreprocess(
              * Call the native engine to parse the TypeScript, find @derive decorators,
              * and generate the expanded code with all macro-derived methods/properties.
              */
-            const result = expand(content, filename || 'component.svelte', {
-                keepDecorators
+            const result = loaded.expandSync(content, filename || 'component.svelte', {
+                keepDecorators,
+                emitMetadata: false
             });
 
             /*

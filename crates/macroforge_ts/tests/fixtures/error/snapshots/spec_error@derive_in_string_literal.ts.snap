@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 101
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/derive_in_string_literal.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/derive_in_string_literal.ts
 ---
 ## Input
 
@@ -11,17 +10,34 @@ class User {
     name: string;
 }
 
+## Changed
+
+false
+
 ## Output
 
-const msg = 'Use @derive to add methods';
-class User {
-    name: string;
-}
+(unchanged)
 
 ## DTS
 
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..75 -> expanded 0..75
+
+## Metadata
+
+class User: {"body_span":{"end":75,"start":54},"decorators":[],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":73,"start":60},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":75,"start":43},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

@@ -1,6 +1,7 @@
 //! Validator types and parsing for field validation during deserialization.
 
-use super::helpers::{extract_named_string, parse_string_literal};
+use super::helpers::extract_named_value;
+use crate::builtin::derive_common::parse_string_literal;
 use crate::ts_syn::abi::{DiagnosticCollector, SpanIR};
 
 // ============================================================================
@@ -79,7 +80,38 @@ pub enum Validator {
     NonPositiveBigInt,
 
     // Custom validator
-    Custom(String),
+    Custom(CustomValidator),
+}
+
+/// A validator function the user supplies: `custom(isEven)` for one in scope
+/// in the file, or `custom({ function: "isEven", source: "./validators" })`
+/// for one the expansion imports itself.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CustomValidator {
+    /// The function to call, as written when it is in scope; with `source`,
+    /// the name the module exports.
+    pub function: String,
+    /// The module to import `function` from, as written in an import of the
+    /// file being expanded.
+    pub source: Option<String>,
+}
+
+impl CustomValidator {
+    /// The expression the generated check calls: `function` itself, or the
+    /// private name its import is bound to.
+    pub fn callee(&self) -> String {
+        match &self.source {
+            None => self.function.clone(),
+            Some(source) => {
+                let module: String = source
+                    .trim_start_matches(['.', '/'])
+                    .chars()
+                    .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
+                    .collect();
+                format!("__mf_{}__{module}", self.function)
+            }
+        }
+    }
 }
 
 // ============================================================================
@@ -521,10 +553,10 @@ fn parse_validator_object(input: &str) -> Result<ValidatorSpec, ValidatorParseEr
     let content = extract_bracket_content(input, '{', '}')
         .ok_or_else(|| ValidatorParseError::invalid_args("object", "malformed validator object"))?;
 
-    let validator_str = extract_named_string(&content, "validate")
+    let validator_str = extract_named_value(&content, "validate")
         .ok_or_else(|| ValidatorParseError::invalid_args("object", "missing 'validate' field"))?;
     let validator = parse_validator_string(&validator_str)?;
-    let custom_message = extract_named_string(&content, "message");
+    let custom_message = extract_named_value(&content, "message");
 
     Ok(ValidatorSpec {
         validator,
@@ -664,11 +696,16 @@ fn parse_validator_with_args(name: &str, args: &str) -> Result<Validator, Valida
                 ))
             }
         }
-        "multipleof" => args
-            .trim()
-            .parse()
-            .map(Validator::MultipleOf)
-            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a number")),
+        "multipleof" => match args.trim().parse::<f64>() {
+            Ok(divisor) if divisor.is_finite() && divisor != 0.0 => {
+                Ok(Validator::MultipleOf(divisor))
+            }
+            Ok(_) => Err(ValidatorParseError::invalid_args(
+                name,
+                "the divisor must be a finite number other than zero",
+            )),
+            Err(_) => Err(ValidatorParseError::invalid_args(name, "expected a number")),
+        },
         "maxitems" => args
             .trim()
             .parse()
@@ -735,14 +772,45 @@ fn parse_validator_with_args(name: &str, args: &str) -> Result<Validator, Valida
                 ))
             }
         }
-        "custom" => {
-            // custom(myValidator) - extract function name (can be quoted or unquoted)
-            let fn_name =
-                parse_validator_string_arg(args).unwrap_or_else(|| args.trim().to_string());
-            Ok(Validator::Custom(fn_name))
-        }
+        "custom" => parse_custom_validator(args).map(Validator::Custom),
         _ => Err(ValidatorParseError::unknown_validator(name)),
     }
+}
+
+/// `custom(myValidator)`, with the name quoted or not, or
+/// `custom({ function: "isEven", source: "./validators" })`.
+fn parse_custom_validator(args: &str) -> Result<CustomValidator, ValidatorParseError> {
+    let trimmed = args.trim();
+    if !trimmed.starts_with('{') {
+        let function = parse_validator_string_arg(trimmed).ok_or_else(|| {
+            ValidatorParseError::invalid_args("custom", "expected a function name")
+        })?;
+        return Ok(CustomValidator {
+            function,
+            source: None,
+        });
+    }
+    let function = extract_named_value(trimmed, "function").ok_or_else(|| {
+        ValidatorParseError::invalid_args(
+            "custom",
+            "the object form needs `function`, the name of the validator to call",
+        )
+    })?;
+    let source = extract_named_value(trimmed, "source");
+    let is_identifier = function
+        .chars()
+        .next()
+        .is_some_and(|c| c.is_ascii_alphabetic() || c == '_' || c == '$')
+        && function
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '$');
+    if source.is_some() && !is_identifier {
+        return Err(ValidatorParseError::invalid_args(
+            "custom",
+            "with `source`, `function` must be the plain name the module exports",
+        ));
+    }
+    Ok(CustomValidator { function, source })
 }
 
 /// Parse a string argument (handles both quoted and unquoted)

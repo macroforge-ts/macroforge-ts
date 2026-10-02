@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/attribute/traced_async.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/attribute/traced_async.ts
 ---
 ## Input
 
@@ -11,6 +11,10 @@ input_file: macroforge_ts/tests/fixtures/ok/attribute/traced_async.ts
 export async function fetchUser(id: number): Promise<string> {
     return `user-${id}`;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -33,5 +37,24 @@ export async function fetchUser(id: number): Promise<string> {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..63 -> expanded 0..63
+original 77..78 -> expanded 63..64
+original 167..168 -> expanded 296..297
+generated 64..296 <- traced
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

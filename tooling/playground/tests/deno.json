@@ -12,6 +12,7 @@
         "trailingCommas": "never",
         "useTabs": false
     },
+    "unstable": ["sloppy-imports"],
     "imports": {
         "@std/assert": "jsr:@std/assert@1",
         "typescript": "npm:typescript@^5.9.3"

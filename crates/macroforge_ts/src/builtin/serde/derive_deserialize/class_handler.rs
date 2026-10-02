@@ -5,23 +5,15 @@ use crate::ts_syn::{DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, ts
 
 use convert_case::{Case, Casing};
 
-use super::super::{
-    SerdeContainerOptions, SerdeFieldOptions, TypeCategory, get_foreign_types,
-    rewrite_expression_namespaces,
-};
-use super::helpers::{
-    alias_primitive_arm_validators, classify_serde_value_kind, get_serializable_type_name,
-    nested_deserialize_fn_name, nested_deserialize_result_fn_name, parse_default_expr,
-    try_composite_foreign_deserialize,
-};
-use super::types::{DeserializeField, SerdeValueKind, raw_cast_type};
+use super::super::{SerdeContainerOptions, TypeCategory};
+use super::field_processing::to_deserialize_field;
+use super::helpers::{nested_deserialize_fn_name, nested_deserialize_result_fn_name};
+use super::types::{DeserializeField, SerdeValueKind};
 use super::validation::generate_field_validations;
-use crate::builtin::derive_common::detect_primitive_serializable_union;
 use crate::builtin::return_types::{
     DESERIALIZE_CONTEXT, DESERIALIZE_ERROR, DESERIALIZE_OPTIONS, PENDING_REF,
     deserialize_return_type, is_ok_check, wrap_error, wrap_success,
 };
-use crate::ts_syn::abi::ir::resolve_generic_aliases;
 
 pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeError> {
     let class = match &input.data {
@@ -71,216 +63,14 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
         .fields()
         .iter()
         .filter_map(|field| {
-            let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
-            all_diagnostics.extend(parse_result.diagnostics);
-            let opts = parse_result.options;
-
-            if !opts.should_deserialize() {
-                return None;
-            }
-
-            let json_key = opts
-                .rename
-                .clone()
-                .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
-
-            let resolved_ts_type = resolve_generic_aliases(
-                &field.ts_type,
+            to_deserialize_field(
+                field.into(),
+                &container_opts,
+                &mut all_diagnostics,
                 type_registry,
                 caller_file_path,
                 file_imports,
-            );
-            let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
-            let primitive_union_guard = if matches!(
-                type_cat,
-                TypeCategory::Unknown | TypeCategory::Serializable(_)
-            ) {
-                detect_primitive_serializable_union(&resolved_ts_type).map(|(prim, ser)| {
-                    type_cat = TypeCategory::Serializable(ser);
-                    prim
-                })
-            } else {
-                None
-            };
-
-            // Pull the primitive arm's validators (e.g. `nonEmpty` on a
-            // record-link alias's `string` arm) so the primitive form of the
-            // union is validated.
-            let union_string_validators = match &primitive_union_guard {
-                Some(prim) => alias_primitive_arm_validators(
-                    &field.ts_type,
-                    prim,
-                    type_registry,
-                    caller_file_path,
-                    file_imports,
-                ),
-                None => Vec::new(),
-            };
-
-            let nullable_inner_kind = match &type_cat {
-                TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
-                _ => None,
-            };
-            let array_elem_kind = match &type_cat {
-                TypeCategory::Array(inner) => Some(classify_serde_value_kind(inner)),
-                _ => None,
-            };
-
-            // Extract serializable type names for direct function calls
-            let nullable_serializable_type = match &type_cat {
-                TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
-                _ => None,
-            };
-
-            // Collection element type tracking for recursive deserialization.
-            // For `Array<primitive | T>` elements, also fall back to
-            // `detect_primitive_serializable_union` so the per-element template
-            // can dispatch the serializable side and pass primitive items through.
-            let array_elem_primitive_union = match &type_cat {
-                TypeCategory::Array(inner) => detect_primitive_serializable_union(inner),
-                _ => None,
-            };
-            let array_elem_serializable_type = match &type_cat {
-                TypeCategory::Array(inner) => get_serializable_type_name(inner).or_else(|| {
-                    array_elem_primitive_union
-                        .as_ref()
-                        .map(|(_, ser)| ser.clone())
-                }),
-                _ => None,
-            };
-            let array_elem_primitive_union_guard = array_elem_primitive_union
-                .as_ref()
-                .map(|(prim, _)| prim.clone());
-            let set_elem_kind = match &type_cat {
-                TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
-                _ => None,
-            };
-            let set_elem_serializable_type = match &type_cat {
-                TypeCategory::Set(inner) => get_serializable_type_name(inner),
-                _ => None,
-            };
-            let map_value_kind = match &type_cat {
-                TypeCategory::Map(_, value) => Some(classify_serde_value_kind(value)),
-                _ => None,
-            };
-            let map_value_serializable_type = match &type_cat {
-                TypeCategory::Map(_, value) => get_serializable_type_name(value),
-                _ => None,
-            };
-            let record_value_kind = match &type_cat {
-                TypeCategory::Record(_, value) => Some(classify_serde_value_kind(value)),
-                _ => None,
-            };
-            let record_value_serializable_type = match &type_cat {
-                TypeCategory::Record(_, value) => get_serializable_type_name(value),
-                _ => None,
-            };
-            let wrapper_inner_kind = match &type_cat {
-                TypeCategory::Wrapper(inner) => Some(classify_serde_value_kind(inner)),
-                _ => None,
-            };
-            let wrapper_serializable_type = match &type_cat {
-                TypeCategory::Wrapper(inner) => get_serializable_type_name(inner),
-                _ => None,
-            };
-            let optional_inner_kind = match &type_cat {
-                TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
-                _ => None,
-            };
-            let optional_serializable_type = match &type_cat {
-                TypeCategory::Optional(inner) => get_serializable_type_name(inner),
-                _ => None,
-            };
-
-            // Check for foreign type deserializer if no explicit deserialize_with
-            let deserialize_with_src = if opts.deserialize_with.is_some() {
-                opts.deserialize_with.clone()
-            } else {
-                // Check if the field's type matches a configured foreign type
-                let foreign_types = get_foreign_types();
-                let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
-                // Error if import source mismatch (type matches but wrong import)
-                if let Some(error) = ft_match.error {
-                    all_diagnostics.error(field.span, error);
-                }
-                // Log warning for informational hints
-                if let Some(warning) = ft_match.warning {
-                    all_diagnostics.warning(field.span, warning);
-                }
-                // Rewrite namespace references to use generated aliases
-                ft_match
-                    .config
-                    .and_then(|ft| ft.deserialize_expr.clone())
-                    .map(|expr| rewrite_expression_namespaces(&expr))
-                    // If no direct match, try composite patterns (e.g., Utc[] | null)
-                    .or_else(|| try_composite_foreign_deserialize(&field.ts_type))
-            };
-
-            let deserialize_with =
-                deserialize_with_src
-                    .as_ref()
-                    .and_then(|expr_src| match Expr::parse(expr_src) {
-                        Ok(expr) => Some(expr),
-                        Err(err) => {
-                            all_diagnostics.error(
-                                field.span,
-                                format!(
-                                    "@serde(deserializeWith): invalid expression for '{}': {err:?}",
-                                    field.name
-                                ),
-                            );
-                            None
-                        }
-                    });
-
-            let default_expr = opts.default_expr.as_ref().and_then(|expr_src| {
-                match parse_default_expr(expr_src) {
-                    Ok(expr) => Some(expr),
-                    Err(err) => {
-                        all_diagnostics.error(
-                            field.span,
-                            format!(
-                                "@serde({{default: ...}}): invalid expression for '{}': {err:?}",
-                                field.name
-                            ),
-                        );
-                        None
-                    }
-                }
-            });
-
-            Some(DeserializeField {
-                json_key,
-                field_name: field.name.clone(),
-                field_ident: ts_ident!(field.name.as_str()),
-                raw_cast_type: raw_cast_type(&resolved_ts_type, &type_cat),
-                ts_type: resolved_ts_type,
-                type_cat,
-                optional: field.optional || opts.default || opts.default_expr.is_some(),
-                has_default: opts.default || opts.default_expr.is_some(),
-                default_expr,
-                flatten: opts.flatten,
-                validators: opts.validators.clone(),
-                nullable_inner_kind,
-                array_elem_kind,
-                nullable_serializable_type,
-                deserialize_with,
-                decimal_format: opts.format.as_deref() == Some("decimal"),
-                array_elem_serializable_type,
-                set_elem_kind,
-                set_elem_serializable_type,
-                map_value_kind,
-                map_value_serializable_type,
-                record_value_kind,
-                record_value_serializable_type,
-                wrapper_inner_kind,
-                wrapper_serializable_type,
-                optional_inner_kind,
-                optional_serializable_type,
-                primitive_union_guard,
-                array_elem_primitive_union_guard,
-                union_string_validators,
-            })
+            )
         })
         .collect();
 
@@ -459,7 +249,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                 {#if has_validators}
                                     {
                                         const __convertedVal = (@{fn_expr})(obj["@{field.json_key}"]);
-                                        {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, class_name, field.accepts_missing())}
                                         {$typescript validation_code}
                                         instance.@{field.field_ident} = __convertedVal;
                                     }
@@ -471,7 +261,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                             {#if has_validators}
                                 {
                                     const __convertedVal = (@{fn_expr})(obj["@{field.json_key}"]);
-                                    {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, class_name)}
+                                    {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, class_name, field.accepts_missing())}
                                     {$typescript validation_code}
                                     instance.@{field.field_ident} = __convertedVal;
                                 }
@@ -486,7 +276,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                             {#match &field.type_cat}
                                 {:case TypeCategory::Primitive}
                                     {#if has_validators}
-                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name, field.accepts_missing())}
                                         {$typescript validation_code}
 
                                     {/if}
@@ -506,18 +296,14 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                 {:case TypeCategory::Date}
                                     {
                                         const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
-                                        {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
-                                            {$typescript validation_code}
-
-                                        {/if}
+                                        {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name, field.accepts_missing())}{$typescript validation_code}{/if}
                                         instance.@{field.field_ident} = __dateVal;
                                     }
 
                                 {:case TypeCategory::Array(inner)}
                                     if (Array.isArray(@{raw_var_ident})) {
                                         {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
+                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name, field.accepts_missing())}
                                             {$typescript validation_code}
 
                                         {/if}
@@ -719,7 +505,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                         if (typeof @{raw_var_ident} === "@{prim}") {
                                             instance.@{field.field_ident} = @{raw_var_ident};
                                             {#if field.has_union_string_validators()}
-                                                {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, class_name)}
+                                                {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, class_name, true)}
                                                 {$typescript usv_code}
                                             {/if}
                                         } else {
@@ -766,14 +552,15 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                 {:case TypeCategory::Nullable(_)}
                                     {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                         {:case SerdeValueKind::PrimitiveLike}
+                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name, field.accepts_missing())}{$typescript validation_code}{/if}
                                             instance.@{field.field_ident} = @{raw_var_ident};
                                         {:case SerdeValueKind::Date}
                                             if (@{raw_var_ident} === null) {
                                                 instance.@{field.field_ident} = null;
                                             } else {
-                                                instance.@{field.field_ident} = typeof @{raw_var_ident} === "string"
-                                                    ? new Date(@{raw_var_ident})
-                                                    : @{raw_var_ident};
+                                                const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident};
+                                                {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                                instance.@{field.field_ident} = __dateVal;
                                             }
                                         {:case _}
                                             if (@{raw_var_ident} === null) {
@@ -820,7 +607,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                             {#match &field.type_cat}
                                 {:case TypeCategory::Primitive}
                                     {#if has_validators}
-                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name, field.accepts_missing())}
                                         {$typescript validation_code}
 
                                     {/if}
@@ -840,18 +627,14 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                 {:case TypeCategory::Date}
                                     {
                                         const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
-                                        {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
-                                            {$typescript validation_code}
-
-                                        {/if}
+                                        {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name, field.accepts_missing())}{$typescript validation_code}{/if}
                                         instance.@{field.field_ident} = __dateVal;
                                     }
 
                                 {:case TypeCategory::Array(inner)}
                                     if (Array.isArray(@{raw_var_ident})) {
                                         {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name)}
+                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name, field.accepts_missing())}
                                             {$typescript validation_code}
 
                                         {/if}
@@ -992,7 +775,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                         if (typeof @{raw_var_ident} === "@{prim}") {
                                             instance.@{field.field_ident} = @{raw_var_ident};
                                             {#if field.has_union_string_validators()}
-                                                {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, class_name)}
+                                                {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, class_name, true)}
                                                 {$typescript usv_code}
                                             {/if}
                                         } else {
@@ -1039,14 +822,15 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
                                 {:case TypeCategory::Nullable(_)}
                                     {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                         {:case SerdeValueKind::PrimitiveLike}
+                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, class_name, field.accepts_missing())}{$typescript validation_code}{/if}
                                             instance.@{field.field_ident} = @{raw_var_ident};
                                         {:case SerdeValueKind::Date}
                                             if (@{raw_var_ident} === null) {
                                                 instance.@{field.field_ident} = null;
                                             } else {
-                                                instance.@{field.field_ident} = typeof @{raw_var_ident} === "string"
-                                                    ? new Date(@{raw_var_ident})
-                                                    : @{raw_var_ident};
+                                                const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident};
+                                                {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                                instance.@{field.field_ident} = __dateVal;
                                             }
                                         {:case _}
                                             if (@{raw_var_ident} === null) {
@@ -1124,7 +908,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
             {#for field in &fields_with_validators}
             if (_field === "@{field.field_name}") {
                 const __val = _value as @{field.ts_type};
-                {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name)}
+                {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name, field.accepts_missing())}
                 {$typescript validation_code}
 
             }
@@ -1143,7 +927,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
             {#for field in &fields_with_validators}
             if ("@{field.field_name}" in _partial && _partial.@{field.field_ident} !== undefined) {
                 const __val = _partial.@{field.field_ident} as @{field.ts_type};
-                {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name)}
+                {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name, field.accepts_missing())}
                 {$typescript validation_code}
 
             }
@@ -1201,6 +985,7 @@ pub(super) fn handle_class(input: &DeriveInput) -> Result<TsStream, MacroforgeEr
 
     // Combine standalone functions with class body using {$typescript} composition
     // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+    standalone.add_diagnostics(all_diagnostics.into_vec());
     Ok(ts_template! {
         {$typescript standalone}
         {$typescript result}

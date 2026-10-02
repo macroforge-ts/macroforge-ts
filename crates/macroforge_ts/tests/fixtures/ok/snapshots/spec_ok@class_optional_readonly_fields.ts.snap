@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_optional_readonly_fields.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_optional_readonly_fields.ts
 ---
 ## Input
 
@@ -28,6 +27,10 @@ class Config {
         this.updatedAt = new Date();
     }
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -140,5 +143,30 @@ export function configHashCode(value: Config): number {
                 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 79..533 -> expanded 41..495
+original 533..534 -> expanded 825..826
+original 534..535 -> expanded 2430..2431
+generated 495..604 <- Debug
+generated 604..716 <- PartialEq
+generated 716..825 <- Hash
+generated 826..1257 <- Debug
+generated 1257..1770 <- PartialEq
+generated 1770..2430 <- Hash
+
+## Metadata
+
+class Config: {"body_span":{"end":535,"start":94},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":80,"start":42}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":true,"span":{"end":120,"start":100},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":138,"start":125},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"description","optional":true,"readonly":false,"span":{"end":164,"start":143},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"createdAt","optional":false,"readonly":true,"span":{"end":194,"start":169},"ts_type":"Date","visibility":"Public"},{"decorators":[],"name":"updatedAt","optional":true,"readonly":false,"span":{"end":216,"start":199},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":368,"start":277},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.createdAt = createdAt;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string, name: string, createdAt: Date","return_type_src":"","span":{"end":368,"start":222},"type_params_src":"","visibility":"Public"},{"body_span":{"end":533,"start":423},"body_src":"\n        this.name = name;\n        this.description = description;\n        this.updatedAt = new Date();\n    ","decorators":[],"is_async":false,"is_static":false,"name":"update","params_src":"name: string, description?: string","return_type_src":"void","span":{"end":533,"start":374},"type_params_src":"","visibility":"Public"}],"name":"Config","span":{"end":535,"start":81},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

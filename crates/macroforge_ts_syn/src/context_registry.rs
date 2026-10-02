@@ -7,19 +7,26 @@
 //! every consumer to plumb the context through their own data structures.
 //!
 //! The host is responsible for installing and clearing the context around each
-//! macro dispatch — see `host::expand`'s per-macro loop in `macroforge_ts`.
+//! macro dispatch: see `host::expand`'s per-macro loop in `macroforge_ts`.
 
 use std::cell::RefCell;
+use std::sync::Arc;
 
 use crate::abi::ir::context::MacroContextIR;
 
 thread_local! {
-    static CURRENT_CONTEXT: RefCell<Option<MacroContextIR>> = const { RefCell::new(None) };
+    static CURRENT_CONTEXT: RefCell<Option<Arc<MacroContextIR>>> = const { RefCell::new(None) };
 }
 
 /// Install the given context as the current thread's active macro context.
 /// Replaces any previously installed context.
 pub fn install_context(ctx: MacroContextIR) {
+    install_shared_context(Arc::new(ctx));
+}
+
+/// Install a context the caller also holds, so the thread-local and the macro
+/// share one copy. Replaces any previously installed context.
+pub fn install_shared_context(ctx: Arc<MacroContextIR>) {
     CURRENT_CONTEXT.with(|slot| *slot.borrow_mut() = Some(ctx));
 }
 
@@ -31,5 +38,5 @@ pub fn clear_context() {
 
 /// Borrow the current thread's active macro context, if any.
 pub fn with_context<R>(f: impl FnOnce(Option<&MacroContextIR>) -> R) -> R {
-    CURRENT_CONTEXT.with(|slot| f(slot.borrow().as_ref()))
+    CURRENT_CONTEXT.with(|slot| f(slot.borrow().as_deref()))
 }

@@ -54,7 +54,7 @@
 //! - npm-published macro packages
 //!
 //! The CLI finds the package under `node_modules`, instantiates its wasm with
-//! wasmi and calls its `__macroforge_ffi_*` exports. The wasm engine, running
+//! wasmtime and calls its `__macroforge_ffi_*` exports. The wasm engine, running
 //! in JS, loads the package with `require` from the project root and calls its
 //! `__macroforgeGetManifest*` and `__macroforgeRun*` exports instead.
 //!
@@ -100,6 +100,7 @@ mod tests;
 mod wasm_loader;
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use crate::ts_syn::abi::{
     ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionIR, InterfaceIR, MacroContextIR,
@@ -108,8 +109,6 @@ use crate::ts_syn::abi::{
 use crate::ts_syn::{
     lower_classes, lower_enums, lower_functions, lower_interfaces, lower_type_aliases,
 };
-#[cfg(not(target_arch = "wasm32"))]
-use anyhow::Context;
 
 use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
@@ -132,9 +131,6 @@ use registration::register_packages;
 
 /// Default module path for built-in derive macros
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
-
-/// Special marker for dynamic module resolution
-const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
 
 /// Result of macro expansion.
 ///
@@ -162,6 +158,10 @@ pub struct MacroExpansion {
     pub source_mapping: Option<SourceMapping>,
     /// Absolute paths of every file read by `@buildtime` declarations.
     pub buildtime_dependencies: Vec<std::path::PathBuf>,
+    /// The type registry lookups the expansion made, when it was asked to
+    /// record them. `None` means nothing recorded, not that nothing was read.
+    pub registry_reads:
+        Option<std::collections::BTreeSet<crate::ts_syn::abi::ir::type_registry::RegistryRead>>,
 }
 
 /// Core macro expansion engine
@@ -169,6 +169,11 @@ pub struct MacroExpansion {
 /// This struct provides the expansion logic that can be reused by any macro package.
 /// Each macro package creates its own instance, which will use that package's
 /// local inventory of macros.
+///
+/// A clone shares the macro registry, the loader and the project registries
+/// with the expander it came from, so cloning a built expander is cheap: see
+/// [`MacroExpander::pooled`].
+#[derive(Clone)]
 pub struct MacroExpander {
     pub dispatcher: MacroDispatcher,
     config: MacroConfig,
@@ -176,24 +181,67 @@ pub struct MacroExpander {
     keep_decorators: bool,
     /// Additional decorator module names from external macros
     external_decorator_modules: Vec<String>,
-    external_loader: Option<ExternalMacroLoader>,
+    external_loader: Option<Arc<ExternalMacroLoader>>,
     /// Project-wide type registry for build-time type awareness.
     /// When set, macros receive type information about all types in the project.
     type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry,
     /// Project-wide declarative macro registry for cross-file
     /// `/** import macro */` resolution. Built during the same project
     /// scan as `type_registry`.
-    declarative_registry: Option<crate::host::declarative::ProjectDeclarativeRegistry>,
+    declarative_registry: Option<Arc<crate::host::declarative::ProjectDeclarativeRegistry>>,
     /// Build mode for reverse-monomorphization. Defaults to `Dev`.
     /// Controls whether `ShareOnly` / `ShareAnyway` / `Auto` macros
     /// emit their shared runtime form or inline expand form.
     build_mode: crate::host::declarative::BuildMode,
     /// The project's `macroforge.config.*`, read by the attribute and
     /// `@buildtime` pre-passes.
-    project_config: crate::host::MacroforgeConfig,
+    project_config: Arc<crate::host::MacroforgeConfig>,
 }
 
+/// Expanders built once per process, by project root and configuration.
+/// Building one registers every macro package the configuration names, which
+/// is work each file of a project would otherwise repeat.
+static EXPANDER_BASES: std::sync::LazyLock<
+    std::sync::Mutex<HashMap<(std::path::PathBuf, MacroConfig), MacroExpander>>,
+> = std::sync::LazyLock::new(|| std::sync::Mutex::new(HashMap::new()));
+
+/// Expansion runs on whichever thread the host picks, including a rayon pool.
+const _: () = {
+    const fn assert_send_sync<T: Send + Sync>() {}
+    assert_send_sync::<MacroExpander>();
+};
+
 type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
+
+/// What the declarative pre-pass produced.
+struct DeclarativeOutcome<'a> {
+    /// The rewritten source, when a declarative macro fired.
+    rewritten: Option<String>,
+    diagnostics: Vec<Diagnostic>,
+    /// The parse of the unchanged source, for the main pass to reuse; `None`
+    /// when the source was rewritten or never parsed.
+    parsed: Option<oxc::parser::ParserReturn<'a>>,
+}
+
+impl<'a> DeclarativeOutcome<'a> {
+    fn unchanged(
+        diagnostics: Vec<Diagnostic>,
+        parsed: Option<oxc::parser::ParserReturn<'a>>,
+    ) -> Self {
+        Self {
+            rewritten: None,
+            diagnostics,
+            parsed,
+        }
+    }
+}
+
+/// What a pre-pass produced, with its parse of the source when it left the
+/// source unchanged, so the next pass reuses it.
+struct PrepassStage<'a, T> {
+    output: T,
+    parsed: Option<oxc::parser::ParserReturn<'a>>,
+}
 
 /// Renders an Oxc parse failure as one line.
 fn join_parse_diagnostics(diagnostics: &[oxc::diagnostics::OxcDiagnostic]) -> String {
@@ -225,6 +273,16 @@ impl LoweredItems {
     }
 }
 
+/// `derive` and every builtin decorator annotation, lowercased: the names
+/// every file's lowering recognizes, built once.
+static BUILTIN_ANNOTATIONS: std::sync::LazyLock<std::collections::HashSet<String>> =
+    std::sync::LazyLock::new(|| {
+        std::iter::once("derive")
+            .chain(derived::decorator_annotation_names())
+            .map(str::to_ascii_lowercase)
+            .collect()
+    });
+
 impl MacroExpander {
     /// Create a new expander with the local registry populated from inventory.
     ///
@@ -238,7 +296,9 @@ impl MacroExpander {
     pub fn new() -> anyhow::Result<Self> {
         #[cfg(not(target_arch = "wasm32"))]
         let (config, root_dir) = MacroConfig::find_with_root()
-            .context("failed to discover macro configuration")?
+            .map_err(|error| {
+                anyhow::Error::from(error).context("failed to discover macro configuration")
+            })?
             .unwrap_or_else(|| {
                 (
                     MacroConfig::default(),
@@ -262,7 +322,7 @@ impl MacroExpander {
     /// Returns an error if macro registration fails.
     pub fn with_config(config: MacroConfig, root_dir: std::path::PathBuf) -> anyhow::Result<Self> {
         let registry = MacroRegistry::new();
-        register_packages(&registry, &config, &root_dir)?;
+        register_packages(&registry)?;
 
         debug_assert!(
             registry.contains("@macro/derive", "Debug"),
@@ -308,12 +368,56 @@ impl MacroExpander {
             config,
             keep_decorators,
             external_decorator_modules: Vec::new(),
-            external_loader: Some(ExternalMacroLoader::new(root_dir)),
+            external_loader: Some(Arc::new(ExternalMacroLoader::new(root_dir))),
             type_registry: crate::ts_syn::abi::ir::type_registry::TypeRegistry::default(),
             declarative_registry: None,
             build_mode: crate::host::declarative::BuildMode::dev(),
-            project_config: crate::host::MacroforgeConfig::default(),
+            project_config: Arc::new(crate::host::MacroforgeConfig::default()),
         })
+    }
+
+    /// An expander for `config` at `root_dir`, cloned from one this process
+    /// built for the same pair, or built now and kept for the next call.
+    ///
+    /// The clone starts from the built expander's state; settings made on it
+    /// (registries, build mode, project config) stay on the clone.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if macro registration fails.
+    pub fn pooled(config: MacroConfig, root_dir: std::path::PathBuf) -> anyhow::Result<Self> {
+        let key = (root_dir, config);
+        let mut bases = EXPANDER_BASES
+            .lock()
+            .map_err(|err| anyhow::anyhow!("expander pool lock poisoned: {err}"))?;
+        if let Some(base) = bases.get(&key) {
+            return Ok(base.clone());
+        }
+        let base = Self::with_config(key.1.clone(), key.0.clone())?;
+        bases.insert(key, base.clone());
+        Ok(base)
+    }
+
+    /// Like [`Self::expand_source`], and records the type registry lookups
+    /// the expansion made in [`MacroExpansion::registry_reads`].
+    ///
+    /// The lookups are recorded on a copy of the registry with a log of its
+    /// own, so expansions running at once against one registry each record
+    /// only their own.
+    pub fn expand_source_recorded(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
+        let mut scoped = self.clone();
+        scoped.type_registry = self.type_registry.with_fresh_log();
+        scoped.type_registry.start_recording();
+        let mut expansion = scoped.expand_source(source, file_name)?;
+        // Recording was started just above, so an empty answer cannot happen;
+        // if it did, depending on everything is the answer that stays correct.
+        expansion.registry_reads =
+            Some(scoped.type_registry.finish_recording().unwrap_or_else(|| {
+                std::collections::BTreeSet::from([
+                    crate::ts_syn::abi::ir::type_registry::RegistryRead::All,
+                ])
+            }));
+        Ok(expansion)
     }
 
     /// Control whether decorators are preserved in the expanded output.
@@ -354,6 +458,15 @@ impl MacroExpander {
         &mut self,
         registry: Option<crate::host::declarative::ProjectDeclarativeRegistry>,
     ) {
+        self.declarative_registry = registry.map(Arc::new);
+    }
+
+    /// Set a project-wide declarative macro registry the caller shares with
+    /// other expanders.
+    pub fn set_declarative_registry_shared(
+        &mut self,
+        registry: Option<Arc<crate::host::declarative::ProjectDeclarativeRegistry>>,
+    ) {
         self.declarative_registry = registry;
     }
 
@@ -364,7 +477,7 @@ impl MacroExpander {
 
     /// Set the project configuration the attribute (`@cfg`, `@deprecated`,
     /// `@mustUse`, `@nonExhaustive`) and `@buildtime` pre-passes read.
-    pub fn set_project_config(&mut self, config: crate::host::MacroforgeConfig) {
+    pub fn set_project_config(&mut self, config: Arc<crate::host::MacroforgeConfig>) {
         self.project_config = config;
     }
 
@@ -377,23 +490,34 @@ impl MacroExpander {
         &self,
         macro_imports: &HashMap<String, String>,
     ) -> Result<std::collections::HashSet<String>> {
-        let mut set = std::collections::HashSet::new();
-        set.insert("derive".to_string());
-
-        // Add all builtin decorator annotation names
-        for name in derived::decorator_annotation_names() {
-            set.insert(name.to_ascii_lowercase());
-        }
+        let mut set = BUILTIN_ANNOTATIONS.clone();
 
         // Add explicitly configured external decorator modules
         for module in &self.external_decorator_modules {
             set.insert(module.to_ascii_lowercase());
         }
 
-        // Resolve decorator names from external macro packages imported in the source
+        // Resolve decorator names from the macros the source imports. A macro
+        // the host has in-process dispatches by name whatever package the
+        // import names, so it needs no package on disk; only the rest are
+        // external packages whose manifests say what they contribute.
         if self.external_decorator_modules.is_empty() {
+            let mut external_imports = HashMap::new();
+            for (name, module) in macro_imports {
+                // Not found is the only failure: the macro is external.
+                match self.dispatcher.registry().lookup_by_name(name).ok() {
+                    Some(in_process) => {
+                        if in_process.kind() == crate::ts_syn::abi::MacroKind::Attribute {
+                            set.insert(name.to_ascii_lowercase());
+                        }
+                    }
+                    None => {
+                        external_imports.insert(name.clone(), module.clone());
+                    }
+                }
+            }
             for name in
-                resolve_external_decorator_names(macro_imports, self.external_loader.as_ref())
+                resolve_external_decorator_names(&external_imports, self.external_loader.as_deref())
                     .map_err(|err| MacroError::InvalidConfig(format!("{err:#}")))?
             {
                 set.insert(name.to_ascii_lowercase());
@@ -410,29 +534,41 @@ impl MacroExpander {
     /// against the project-wide declarative registry (if provided), and
     /// matches `$name(...)` call sites against the merged set of arms.
     ///
-    /// Returns `Ok((None, diagnostics))` if no declarative work fires in
-    /// this file (fast path). Otherwise returns `Ok((Some(new_source),
-    /// diagnostics))` with the rewritten source.
-    fn declarative_prepass(
+    /// Leaves `rewritten` empty when no declarative work fires in this file,
+    /// and then hands back its parse of the unchanged source, in `allocator`,
+    /// for the main pass to reuse. `prior` is an earlier pass's parse of the
+    /// same `source`, used instead of parsing again.
+    fn declarative_prepass<'a>(
         &self,
-        source: &str,
+        source: &'a str,
         file_name: &str,
-    ) -> Result<(Option<String>, Vec<crate::ts_syn::abi::Diagnostic>)> {
+        allocator: &'a oxc::allocator::Allocator,
+        prior: Option<oxc::parser::ParserReturn<'a>>,
+    ) -> Result<DeclarativeOutcome<'a>> {
         use std::path::PathBuf;
 
-        use oxc::allocator::Allocator;
         use oxc::parser::Parser;
 
-        let allocator = Allocator::default();
-        let parsed =
-            Parser::new(&allocator, source, crate::source_type::for_path(file_name)).parse();
+        // The parse below finds work only through an import of the rules
+        // module, an `import macro` comment or a `$name` call, and each leaves
+        // its mark in the text; a file with none of them skips the parse.
+        if !source.contains(crate::package::RULES)
+            && !crate::ts_syn::jsdoc::may_have_macro_import(source)
+            && !crate::expand_core::has_dollar_call(source, file_name)
+        {
+            return Ok(DeclarativeOutcome::unchanged(Vec::new(), prior));
+        }
+
+        let parsed = prior.unwrap_or_else(|| {
+            Parser::new(allocator, source, crate::source_type::for_path(file_name)).parse()
+        });
         if !parsed.diagnostics.is_empty() {
             // The main parse uses the same source type and reports the error.
-            return Ok((None, Vec::new()));
+            return Ok(DeclarativeOutcome::unchanged(Vec::new(), Some(parsed)));
         }
 
         let discovered = crate::host::declarative::discover(&parsed.program, source)
-            .map_err(|e| MacroError::InvalidConfig(format!("Declarative macro error: {}", e)))?;
+            .map_err(|e| MacroError::Declarative(e.to_string()))?;
 
         // Resolve cross-file `/** import macro { $name } from "..." */`
         // comments against the project-wide registry if one was installed.
@@ -455,9 +591,12 @@ impl MacroExpander {
         // call sites (`$name(...)` patterns in the source).
         if discovered.is_empty()
             && resolved_imports.imported.is_empty()
-            && !crate::expand_core::has_dollar_call(source)
+            && !crate::expand_core::has_dollar_call(source, file_name)
         {
-            return Ok((None, resolved_imports.diagnostics));
+            return Ok(DeclarativeOutcome::unchanged(
+                resolved_imports.diagnostics,
+                Some(parsed),
+            ));
         }
 
         let mut registry = crate::host::declarative::DeclarativeMacroRegistry::new();
@@ -469,17 +608,15 @@ impl MacroExpander {
             // pre-PR-11 behaviour of flat registration.
             registry
                 .register_scoped(dm.def.clone(), dm.scope_span)
-                .map_err(|e| {
-                    MacroError::InvalidConfig(format!("Declarative macro error: {}", e))
-                })?;
+                .map_err(|e| MacroError::Declarative(e.to_string()))?;
         }
         for imported in &resolved_imports.imported {
             // Cross-file imports are always registered at the
             // file-global scope; the import mechanism has no
             // concept of nested scopes.
             registry.register(imported.def.clone()).map_err(|e| {
-                MacroError::InvalidConfig(format!(
-                    "Declarative macro error (imported from {}): {}",
+                MacroError::Declarative(format!(
+                    "imported from {}: {}",
                     imported.source_file.display(),
                     e
                 ))
@@ -505,7 +642,7 @@ impl MacroExpander {
             Some(crate::host::declarative::ProcMacroFallback {
                 dispatcher: &self.dispatcher,
                 import_sources: &macro_import_sources,
-                external_loader: self.external_loader.as_ref(),
+                external_loader: self.external_loader.as_deref(),
             }),
         );
 
@@ -513,7 +650,7 @@ impl MacroExpander {
         diagnostics.extend(output.diagnostics);
 
         if output.patches.is_empty() {
-            return Ok((None, diagnostics));
+            return Ok(DeclarativeOutcome::unchanged(diagnostics, Some(parsed)));
         }
 
         let applicator =
@@ -528,6 +665,35 @@ impl MacroExpander {
         // validation path without extra wiring.
         let validate = self.build_mode.is_dev();
         let jsx = file_name.ends_with(".tsx");
+        let file_type = crate::source_type::for_path(file_name);
+        if validate && file_type == crate::host::declarative::validation_source_type(jsx) {
+            // Validation and import stripping parse the output the same way,
+            // so they share one parse.
+            let applied = applicator.apply_with_mapping(None)?;
+            let output_allocator = oxc::allocator::Allocator::default();
+            let reparsed = Parser::new(&output_allocator, &applied.code, file_type).parse();
+            diagnostics.extend(crate::host::declarative::attribute_parse_errors(
+                reparsed.diagnostics,
+                &applied.mapping,
+            ));
+            let parses = !diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error);
+            let stripped = if parses {
+                crate::host::declarative::macro_imports::strip_consumed_macro_imports_in(
+                    &applied.code,
+                    &reparsed.program,
+                )
+                .map_err(MacroError::Declarative)?
+            } else {
+                None
+            };
+            return Ok(DeclarativeOutcome {
+                rewritten: Some(stripped.unwrap_or(applied.code)),
+                diagnostics,
+                parsed: None,
+            });
+        }
         let new_source = if validate {
             let applied = applicator.apply_with_mapping(None)?;
             let validation = crate::host::declarative::validate_expanded_source(
@@ -550,33 +716,42 @@ impl MacroExpander {
                 &new_source,
                 file_name,
             )
-            .map_err(MacroError::InvalidConfig)?
+            .map_err(MacroError::Declarative)?
             .unwrap_or(new_source)
         } else {
             new_source
         };
-        Ok((Some(new_source), diagnostics))
+        Ok(DeclarativeOutcome {
+            rewritten: Some(new_source),
+            diagnostics,
+            parsed: None,
+        })
     }
 
     /// Run the attribute-macro pre-pass (`@cfg`, `@deprecated`, `@mustUse`,
-    /// `@nonExhaustive`). Returns `None` when no tag rewrote the source.
-    fn attributes_prepass(
+    /// `@nonExhaustive`). The rewritten source is `None` when no tag rewrote
+    /// it, and then the pass hands back its parse, if it made one, for the
+    /// next pass to reuse.
+    fn attributes_prepass<'a>(
         &self,
-        source: &str,
+        source: &'a str,
         file_name: &str,
-    ) -> Result<(Option<String>, Vec<Diagnostic>)> {
+        allocator: &'a oxc::allocator::Allocator,
+    ) -> Result<PrepassStage<'a, (Option<String>, Vec<Diagnostic>)>> {
         let has_any_tag = ["@cfg", "@deprecated", "@mustUse", "@nonExhaustive"]
             .iter()
             .any(|tag| source.contains(tag));
         if !has_any_tag {
-            return Ok((None, Vec::new()));
+            return Ok(PrepassStage {
+                output: (None, Vec::new()),
+                parsed: None,
+            });
         }
-        let allocator = oxc::allocator::Allocator::default();
         let parsed =
-            oxc::parser::Parser::new(&allocator, source, crate::source_type::for_path(file_name))
+            oxc::parser::Parser::new(allocator, source, crate::source_type::for_path(file_name))
                 .parse();
         if !parsed.diagnostics.is_empty() {
-            return Err(MacroError::InvalidConfig(format!(
+            return Err(MacroError::Parse(format!(
                 "Parse error (attributes pre-pass): {}",
                 join_parse_diagnostics(&parsed.diagnostics)
             )));
@@ -587,33 +762,44 @@ impl MacroExpander {
             std::path::Path::new(file_name),
             &self.project_config,
         );
-        Ok((out.rewritten, out.diagnostics))
+        let parsed = out.rewritten.is_none().then_some(parsed);
+        Ok(PrepassStage {
+            output: (out.rewritten, out.diagnostics),
+            parsed,
+        })
     }
 
     /// Evaluate every `@buildtime` declaration in its sandbox and splice the
     /// results in as literals. Returns the rewritten source (`None` when
-    /// nothing changed), the files the evaluation read, and its diagnostics.
-    fn buildtime_prepass(
+    /// nothing changed), the files the evaluation read, and its diagnostics,
+    /// with the parse of an unchanged source for the next pass. `prior` is an
+    /// earlier pass's parse of the same `source`.
+    fn buildtime_prepass<'a>(
         &self,
-        source: &str,
+        source: &'a str,
         file_name: &str,
-    ) -> Result<crate::host::buildtime::PrepassOutput> {
+        allocator: &'a oxc::allocator::Allocator,
+        prior: Option<oxc::parser::ParserReturn<'a>>,
+    ) -> Result<PrepassStage<'a, crate::host::buildtime::PrepassOutput>> {
         use crate::host::buildtime::{CapabilitySet, PathPattern, SandboxOptions};
 
         if !source.contains("@buildtime") {
-            return Ok(crate::host::buildtime::PrepassOutput::default());
+            return Ok(PrepassStage {
+                output: crate::host::buildtime::PrepassOutput::default(),
+                parsed: prior,
+            });
         }
         let Some(sandbox) = crate::host::buildtime::default_backend() else {
             return Err(MacroError::InvalidConfig(format!(
                 "{file_name} uses @buildtime, but this macroforge build has no @buildtime sandbox (the `buildtime-boa` feature)"
             )));
         };
-        let allocator = oxc::allocator::Allocator::default();
-        let parsed =
-            oxc::parser::Parser::new(&allocator, source, crate::source_type::for_path(file_name))
-                .parse();
+        let parsed = prior.unwrap_or_else(|| {
+            oxc::parser::Parser::new(allocator, source, crate::source_type::for_path(file_name))
+                .parse()
+        });
         if !parsed.diagnostics.is_empty() {
-            return Err(MacroError::InvalidConfig(format!(
+            return Err(MacroError::Parse(format!(
                 "Parse error (@buildtime pre-pass): {}",
                 join_parse_diagnostics(&parsed.diagnostics)
             )));
@@ -636,21 +822,21 @@ impl MacroExpander {
         let mut options = SandboxOptions::new(origin_path.clone());
         options.capabilities = CapabilitySet {
             fs_read: compile_globs(&config.fs_read)?,
-            fs_write: compile_globs(&config.fs_write)?,
             env_allow: config.env_allow.clone(),
-            network: config.network,
         };
         options.timeout = std::time::Duration::from_millis(config.timeout_ms);
         options.max_heap = config.max_heap_mb.saturating_mul(1024 * 1024);
         options.flags = config.flags.clone();
 
-        Ok(crate::host::buildtime::run_prepass(
+        let output = crate::host::buildtime::run_prepass(
             &parsed.program,
             source,
             &origin_path,
             sandbox.as_ref(),
             &options,
-        ))
+        );
+        let parsed = output.rewritten.is_none().then_some(parsed);
+        Ok(PrepassStage { output, parsed })
     }
 
     /// Expand all macros in `source`.
@@ -662,26 +848,35 @@ impl MacroExpander {
         use oxc::allocator::Allocator;
         use oxc::parser::Parser;
 
-        let (attribute_rewritten, mut prepass_diagnostics) =
-            self.attributes_prepass(source, file_name)?;
+        // One allocator for every parse; a pass that leaves the source as it
+        // was hands its parse to the next instead of the next parsing again.
+        let allocator = Allocator::default();
+        let attributes = self.attributes_prepass(source, file_name, &allocator)?;
+        let (attribute_rewritten, mut prepass_diagnostics) = attributes.output;
         let source: &str = attribute_rewritten.as_deref().unwrap_or(source);
 
-        let mut buildtime = self.buildtime_prepass(source, file_name)?;
+        let buildtime_stage =
+            self.buildtime_prepass(source, file_name, &allocator, attributes.parsed)?;
+        let mut buildtime = buildtime_stage.output;
         prepass_diagnostics.append(&mut buildtime.diagnostics);
         let source: &str = buildtime.rewritten.as_deref().unwrap_or(source);
 
-        let (declarative_rewritten, decl_diagnostics) =
-            self.declarative_prepass(source, file_name)?;
-        prepass_diagnostics.extend(decl_diagnostics);
-        let source: &str = declarative_rewritten.as_deref().unwrap_or(source);
+        let declarative =
+            self.declarative_prepass(source, file_name, &allocator, buildtime_stage.parsed)?;
+        prepass_diagnostics.extend(declarative.diagnostics);
+        let source: &str = declarative.rewritten.as_deref().unwrap_or(source);
 
         let changed_by_prepass = attribute_rewritten.is_some()
             || buildtime.rewritten.is_some()
-            || declarative_rewritten.is_some();
+            || declarative.rewritten.is_some();
 
-        let allocator = Allocator::default();
-        let parsed =
-            Parser::new(&allocator, source, crate::source_type::for_path(file_name)).parse();
+        // An unchanged source was parsed already by the declarative pass.
+        let parsed = match declarative.parsed {
+            Some(parsed) => parsed,
+            None => {
+                Parser::new(&allocator, source, crate::source_type::for_path(file_name)).parse()
+            }
+        };
 
         if !parsed.diagnostics.is_empty() {
             let context = if changed_by_prepass {
@@ -689,7 +884,7 @@ impl MacroExpander {
             } else {
                 "Parse error: "
             };
-            return Err(MacroError::InvalidConfig(format!(
+            return Err(MacroError::Parse(format!(
                 "{context}{}",
                 join_parse_diagnostics(&parsed.diagnostics)
             )));
@@ -707,15 +902,15 @@ impl MacroExpander {
 
         let items = LoweredItems {
             classes: lower_classes(&parsed.program, source, filter)
-                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
             interfaces: lower_interfaces(&parsed.program, source, filter)
-                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
             enums: lower_enums(&parsed.program, source, filter)
-                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
             type_aliases: lower_type_aliases(&parsed.program, source, filter)
-                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
             functions: lower_functions(&parsed.program, source, filter)
-                .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?,
+                .map_err(|e| MacroError::Lower(format!("{e:?}")))?,
             imports: crate::host::import_registry::ImportRegistry::from_program(
                 &parsed.program,
                 source,
@@ -734,6 +929,7 @@ impl MacroExpander {
                 type_aliases: Vec::new(),
                 source_mapping: None,
                 buildtime_dependencies: buildtime.dependencies,
+                registry_reads: None,
             });
         }
 
@@ -746,13 +942,13 @@ impl MacroExpander {
             imports: crate::host::import_registry::ImportRegistry::new(),
         };
 
-        let (mut collector, mut diagnostics) = self.collect_macro_patches(items, file_name, source);
+        let (collector, mut diagnostics) = self.collect_macro_patches(items, file_name, source);
 
         prepass_diagnostics.append(&mut diagnostics);
 
         let mut result = self.apply_and_finalize_expansion(
             source,
-            &mut collector,
+            collector,
             &mut prepass_diagnostics,
             items_clone,
         )?;
@@ -797,28 +993,24 @@ impl MacroExpander {
             registry.config_imports = existing_config_imports;
         }
         let entries = registry.source_import_entries();
-        let mut trace_logs: Vec<String> = Vec::new();
+        let mut trace_logs = Trace::default();
 
-        trace_logs.push(format!(
-            "install_registry: {} source_imports for {}",
-            entries.len(),
-            file_name
-        ));
+        trace_logs.line(|| {
+            format!(
+                "install_registry: {} source_imports for {}",
+                entries.len(),
+                file_name
+            )
+        });
         for e in &entries {
-            trace_logs.push(format!(
-                "  import '{}' from '{}'",
-                e.local_name, e.source_module
-            ));
+            trace_logs.line(|| format!("  import '{}' from '{}'", e.local_name, e.source_module));
         }
         crate::host::import_registry::install_registry(registry);
 
         // Get import sources from the registry (no redundant collect_import_sources call)
         let import_sources = crate::host::import_registry::with_registry(|r| r.source_modules());
 
-        trace_logs.push(format!(
-            "import_sources for {}: {:?}",
-            file_name, import_sources
-        ));
+        trace_logs.line(|| format!("import_sources for {}: {:?}", file_name, import_sources));
 
         let mut collector = PatchCollector::new();
 
@@ -847,14 +1039,16 @@ impl MacroExpander {
             .map(|f| (SpanKey::from(f.span), f))
             .collect();
 
-        trace_logs.push(format!(
-            "lowered items: classes={}, interfaces={}, enums={}, type_aliases={}, functions={}",
-            class_map.len(),
-            interface_map.len(),
-            enum_map.len(),
-            type_alias_map.len(),
-            function_map.len()
-        ));
+        trace_logs.line(|| {
+            format!(
+                "lowered items: classes={}, interfaces={}, enums={}, type_aliases={}, functions={}",
+                class_map.len(),
+                interface_map.len(),
+                enum_map.len(),
+                type_alias_map.len(),
+                function_map.len()
+            )
+        });
 
         let derive_targets = collect_derive_targets(
             &class_map,
@@ -864,12 +1058,14 @@ impl MacroExpander {
             source,
         );
 
-        trace_logs.push(format!("derive_targets: {}", derive_targets.len()));
+        trace_logs.line(|| format!("derive_targets: {}", derive_targets.len()));
         for t in &derive_targets {
-            trace_logs.push(format!(
-                "  target: macros={:?}, decorator_span={:?}",
-                t.macro_names, t.decorator_span
-            ));
+            trace_logs.line(|| {
+                format!(
+                    "  target: macros={:?}, decorator_span={:?}",
+                    t.macro_names, t.decorator_span
+                )
+            });
         }
 
         let (attribute_targets, attr_diagnostics) = collect_attribute_targets(
@@ -882,10 +1078,10 @@ impl MacroExpander {
             &import_sources,
         );
         diagnostics.extend(attr_diagnostics);
-        trace_logs.push(format!("attribute_targets: {}", attribute_targets.len()));
+        trace_logs.line(|| format!("attribute_targets: {}", attribute_targets.len()));
 
         if derive_targets.is_empty() && attribute_targets.is_empty() {
-            trace_logs.push("no derive or attribute targets found, returning early".to_string());
+            trace_logs.line(|| "no derive or attribute targets found, returning early".to_string());
             flush_trace(file_name, &trace_logs, diagnostics);
             return (collector, std::mem::take(diagnostics));
         }
@@ -1133,11 +1329,19 @@ impl MacroExpander {
             // Capture patch count before macro processing for convenience const generation
             let patches_start = collector.runtime_patches_count();
 
+            // Every macro on the target sees the same fields resolved against
+            // the same registry and source imports, so they resolve once.
+            let mut target_fields: Option<
+                HashMap<String, crate::ts_syn::abi::ir::type_registry::ResolvedTypeRef>,
+            > = None;
+
             for (macro_name, module_path) in target.macro_names {
-                trace_logs.push(format!(
-                    "dispatching macro '{}' from module '{}'",
-                    macro_name, module_path
-                ));
+                trace_logs.line(|| {
+                    format!(
+                        "dispatching macro '{}' from module '{}'",
+                        macro_name, module_path
+                    )
+                });
                 let mut ctx = ctx_factory(macro_name.clone(), module_path.clone());
 
                 // Calculate macro_name_span
@@ -1154,41 +1358,47 @@ impl MacroExpander {
                 // The file's imports disambiguate type names that several
                 // files declare, for field resolution and for the macros.
                 ctx.import_registry = crate::host::import_registry::with_registry(|r| r.clone());
-                let file_imports = ctx.import_registry.file_import_entries();
-                let resolver = crate::host::type_resolver::TypeResolver::new(
-                    &self.type_registry,
-                    &ctx.file_name,
-                    &file_imports,
-                );
-                ctx.resolved_fields = Some(crate::host::type_resolver::resolve_target_fields(
-                    &ctx.target,
-                    &resolver,
-                ));
+                let resolved_fields = target_fields.get_or_insert_with(|| {
+                    let file_imports = ctx.import_registry.file_import_entries();
+                    let resolver = crate::host::type_resolver::TypeResolver::new(
+                        &self.type_registry,
+                        &ctx.file_name,
+                        &file_imports,
+                    );
+                    crate::host::type_resolver::resolve_target_fields(&ctx.target, &resolver)
+                });
+                ctx.resolved_fields = Some(resolved_fields.clone());
 
                 // Install the fully-enriched context as the active thread-local
                 // so TsStream import-resolution helpers can read it without
                 // every consumer plumbing the context through their own builders.
-                crate::ts_syn::context_registry::install_context(ctx.clone());
+                // The macro and the thread-local share one copy.
+                let ctx = Arc::new(ctx);
+                crate::ts_syn::context_registry::install_shared_context(Arc::clone(&ctx));
 
-                trace_logs.push(format!(
-                    "registered macros: {:?}",
-                    self.dispatcher
-                        .registry()
-                        .all_macros()
-                        .iter()
-                        .map(|(k, _)| format!("{}::{}", k.module, k.name))
-                        .collect::<Vec<_>>()
-                ));
-                let mut result = self.dispatcher.dispatch(ctx.clone());
-                trace_logs.push(format!(
-                    "dispatch result: runtime={}, type={}, tokens={:?}, diags={}",
-                    result.runtime_patches.len(),
-                    result.type_patches.len(),
-                    result.tokens.as_ref().map(|t| t.len()),
-                    result.diagnostics.len()
-                ));
+                trace_logs.line(|| {
+                    format!(
+                        "registered macros: {:?}",
+                        self.dispatcher
+                            .registry()
+                            .all_macros()
+                            .iter()
+                            .map(|(k, _)| format!("{}::{}", k.module, k.name))
+                            .collect::<Vec<_>>()
+                    )
+                });
+                let mut result = self.dispatcher.dispatch_ref(&ctx);
+                trace_logs.line(|| {
+                    format!(
+                        "dispatch result: runtime={}, type={}, tokens={:?}, diags={}",
+                        result.runtime_patches.len(),
+                        result.type_patches.len(),
+                        result.tokens.as_ref().map(|t| t.len()),
+                        result.diagnostics.len()
+                    )
+                });
                 for d in &result.diagnostics {
-                    trace_logs.push(format!("  diag: {:?} - {}", d.level, d.message));
+                    trace_logs.line(|| format!("  diag: {:?} - {}", d.level, d.message));
                 }
 
                 if is_macro_not_found(&result)
@@ -1200,7 +1410,7 @@ impl MacroExpander {
                     result = self.dispatcher.dispatch(fallback_ctx);
                 }
 
-                if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                if *DEBUG_EXPAND {
                     eprintln!("[DEBUG] Macro '{}' result:", ctx.macro_name);
                     eprintln!(
                         "[DEBUG]   runtime_patches: {}",
@@ -1217,7 +1427,7 @@ impl MacroExpander {
                             &tokens[..tokens.len().min(500)]
                         );
                         #[cfg(debug_assertions)]
-                        if std::env::var("MF_DEBUG_TOKENS").is_ok() {
+                        if *DEBUG_TOKENS {
                             eprintln!(
                                 "[MF_DEBUG_TOKENS] has_validation={}",
                                 tokens.contains("valid email")
@@ -1230,7 +1440,7 @@ impl MacroExpander {
                     && result.type_patches.is_empty()
                     && result.tokens.is_none();
 
-                if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                if *DEBUG_EXPAND {
                     eprintln!(
                         "[DEBUG] External loader check for '{}': module_path='{}', no_output={}, is_not_found={}, has_loader={}",
                         ctx.macro_name,
@@ -1241,13 +1451,13 @@ impl MacroExpander {
                     );
                 }
 
-                trace_logs.push(format!("external loader check: module_path='{}', DERIVE_MODULE_PATH='{}', is_not_found={}, no_output={}, has_loader={}", ctx.module_path, DERIVE_MODULE_PATH, is_macro_not_found(&result), no_output, self.external_loader.is_some()));
+                trace_logs.line(|| format!("external loader check: module_path='{}', DERIVE_MODULE_PATH='{}', is_not_found={}, no_output={}, has_loader={}", ctx.module_path, DERIVE_MODULE_PATH, is_macro_not_found(&result), no_output, self.external_loader.is_some()));
 
                 if ctx.module_path != DERIVE_MODULE_PATH
                     && (is_macro_not_found(&result) || no_output)
                     && let Some(loader) = &self.external_loader
                 {
-                    if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                    if *DEBUG_EXPAND {
                         eprintln!(
                             "[DEBUG] Invoking external loader for '{}' from '{}'",
                             ctx.macro_name, ctx.module_path
@@ -1255,22 +1465,22 @@ impl MacroExpander {
                     }
 
                     // Pass the full import registry so external macros have
-                    // access to source imports, config imports, and generated imports.
-                    ctx.import_registry =
+                    // access to source imports, config imports, and generated
+                    // imports, and the macroforge config for foreign types.
+                    let mut external_ctx = (*ctx).clone();
+                    external_ctx.import_registry =
                         crate::host::import_registry::with_registry(|r| r.clone());
+                    external_ctx.config =
+                        Some(crate::host::import_registry::with_foreign_types(|ft| {
+                            crate::ts_syn::config::MacroforgeConfig {
+                                foreign_types: ft.to_vec(),
+                                ..Default::default()
+                            }
+                        }));
 
-                    // Pass the full macroforge config so external macros have
-                    // access to foreign type configs, etc.
-                    ctx.config = Some(crate::host::import_registry::with_foreign_types(|ft| {
-                        crate::ts_syn::config::MacroforgeConfig {
-                            foreign_types: ft.to_vec(),
-                            ..Default::default()
-                        }
-                    }));
-
-                    match loader.run_macro(&ctx) {
+                    match loader.run_macro(&external_ctx) {
                         Ok(external_result) => {
-                            if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                            if *DEBUG_EXPAND {
                                 eprintln!(
                                     "[DEBUG] External loader success for '{}': runtime={}, type={}, tokens={:?}",
                                     ctx.macro_name,
@@ -1282,7 +1492,7 @@ impl MacroExpander {
                             result = external_result;
                         }
                         Err(err) => {
-                            if std::env::var("MF_DEBUG_EXPAND").is_ok() {
+                            if *DEBUG_EXPAND {
                                 eprintln!(
                                     "[DEBUG] External loader FAILED for '{}': {}",
                                     ctx.macro_name, err
@@ -1332,6 +1542,8 @@ impl MacroExpander {
                     }
                     diagnostics.extend(result.diagnostics.clone());
                 }
+
+                write_macro_debug(&mut result, &ctx);
 
                 // Merge imports from the MacroResult back into the registry.
                 // This is essential for external macros that run in their own wasm instance:
@@ -1539,24 +1751,27 @@ impl MacroExpander {
                     &resolver,
                 ));
 
-                crate::ts_syn::context_registry::install_context(ctx.clone());
+                let ctx = Arc::new(ctx);
+                crate::ts_syn::context_registry::install_shared_context(Arc::clone(&ctx));
 
-                let mut result = self.dispatcher.dispatch(ctx.clone());
+                let mut result = self.dispatcher.dispatch_ref(&ctx);
 
                 // External loader fallback.
                 if is_macro_not_found(&result)
                     && ctx.module_path != DERIVE_MODULE_PATH
                     && let Some(loader) = &self.external_loader
                 {
-                    ctx.import_registry =
+                    let mut external_ctx = (*ctx).clone();
+                    external_ctx.import_registry =
                         crate::host::import_registry::with_registry(|r| r.clone());
-                    ctx.config = Some(crate::host::import_registry::with_foreign_types(|ft| {
-                        crate::ts_syn::config::MacroforgeConfig {
-                            foreign_types: ft.to_vec(),
-                            ..Default::default()
-                        }
-                    }));
-                    match loader.run_macro(&ctx) {
+                    external_ctx.config =
+                        Some(crate::host::import_registry::with_foreign_types(|ft| {
+                            crate::ts_syn::config::MacroforgeConfig {
+                                foreign_types: ft.to_vec(),
+                                ..Default::default()
+                            }
+                        }));
+                    match loader.run_macro(&external_ctx) {
                         Ok(external_result) => result = external_result,
                         Err(err) => {
                             result.diagnostics.push(Diagnostic {
@@ -1591,6 +1806,8 @@ impl MacroExpander {
                     diagnostics.extend(result.diagnostics.clone());
                 }
 
+                write_macro_debug(&mut result, &ctx);
+
                 if !result.imports.is_empty() {
                     crate::host::import_registry::with_registry_mut(|r| {
                         r.merge_imports(result.imports);
@@ -1610,8 +1827,9 @@ impl MacroExpander {
     }
 
     /// Convert a macro's raw token output into positioned `(runtime, type)`
-    /// patch pairs. Splits the tokens on `above`/`below`/body insertion
-    /// markers and anchors each chunk relative to the target's span.
+    /// patch pairs. Splits the tokens on their position markers and anchors
+    /// each chunk at the top or bottom of the file, or relative to the
+    /// target's span.
     pub(crate) fn process_macro_output(
         &self,
         result: &mut MacroResult,
@@ -1625,180 +1843,58 @@ impl MacroExpander {
             && ctx.macro_kind == crate::ts_syn::abi::MacroKind::Derive
         {
             let macro_name = Some(ctx.macro_name.clone());
-
-            match &ctx.target {
-                TargetIR::Class(class_ir) => {
-                    let chunks = split_by_markers(tokens, result.insert_pos);
-
-                    for (location, code) in chunks {
-                        match location {
-                            "above" => {
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: class_ir.span.start,
-                                        end: class_ir.span.start,
-                                    },
-                                    code: code.clone(),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                            "below" => {
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: class_ir.span.end,
-                                        end: class_ir.span.end,
-                                    },
-                                    code: format!("\n\n{}", code.trim()),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                            "signature" => {
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: class_ir.body_span.start,
-                                        end: class_ir.body_span.start,
-                                    },
-                                    code: code.clone(),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                            "body" => {
-                                let insert_pos = derive_insert_pos(class_ir, source);
-                                let payload = if code.starts_with('\n') {
-                                    code.clone()
-                                } else {
-                                    format!("\n{}", code)
-                                };
-
-                                runtime_patches.push(Patch::InsertRaw {
-                                    at: SpanIR {
-                                        start: insert_pos,
-                                        end: insert_pos,
-                                    },
-                                    code: payload.clone(),
-                                    context: Some("class body".to_string()),
-                                    source_macro: macro_name.clone(),
-                                });
-                                type_patches.push(Patch::InsertRaw {
-                                    at: SpanIR {
-                                        start: insert_pos,
-                                        end: insert_pos,
-                                    },
-                                    code: payload,
-                                    context: Some("class body".to_string()),
-                                    source_macro: macro_name.clone(),
-                                });
-                            }
-                            _ => {}
-                        }
-                    }
-                }
+            let (target_start, target_end) = match &ctx.target {
+                TargetIR::Class(class_ir) => (class_ir.span.start, class_ir.span.end),
                 TargetIR::Interface(interface_ir) => {
-                    let chunks = split_by_markers(tokens, result.insert_pos);
-
-                    for (location, code) in chunks {
-                        match location {
-                            "above" => {
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: interface_ir.span.start,
-                                        end: interface_ir.span.start,
-                                    },
-                                    code: code.clone(),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                            "below" | "body" | "signature" => {
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: interface_ir.span.end,
-                                        end: interface_ir.span.end,
-                                    },
-                                    code: format!("\n\n{}", code.trim()),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                            _ => {}
-                        }
-                    }
+                    (interface_ir.span.start, interface_ir.span.end)
                 }
-                TargetIR::Enum(enum_ir) => {
-                    let chunks = split_by_markers(tokens, result.insert_pos);
-
-                    for (location, code) in chunks {
-                        match location {
-                            "above" => {
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: enum_ir.span.start,
-                                        end: enum_ir.span.start,
-                                    },
-                                    code: code.clone(),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                            _ => {
-                                // Enums get namespace code inserted after the enum declaration
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: enum_ir.span.end,
-                                        end: enum_ir.span.end,
-                                    },
-                                    code: format!("\n\n{}", code.trim()),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                        }
-                    }
-                }
+                TargetIR::Enum(enum_ir) => (enum_ir.span.start, enum_ir.span.end),
                 TargetIR::TypeAlias(type_alias_ir) => {
-                    let chunks = split_by_markers(tokens, result.insert_pos);
-
-                    for (location, code) in chunks {
-                        match location {
-                            "above" => {
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: type_alias_ir.span.start,
-                                        end: type_alias_ir.span.start,
-                                    },
-                                    code: code.clone(),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                            _ => {
-                                // Type aliases get namespace code inserted after the type declaration
-                                let patch = Patch::Insert {
-                                    at: SpanIR {
-                                        start: type_alias_ir.span.end,
-                                        end: type_alias_ir.span.end,
-                                    },
-                                    code: format!("\n\n{}", code.trim()),
-                                    source_macro: macro_name.clone(),
-                                };
-                                runtime_patches.push(patch.clone());
-                                type_patches.push(patch);
-                            }
-                        }
-                    }
+                    (type_alias_ir.span.start, type_alias_ir.span.end)
                 }
-                _ => {}
+                TargetIR::Function(_) | TargetIR::Other => {
+                    return Ok((runtime_patches, type_patches));
+                }
+            };
+            let end_of_file = source.len() as u32 + 1;
+
+            for (location, code) in split_by_markers(tokens, result.insert_pos) {
+                let (at, code, context) = match (location, &ctx.target) {
+                    ("top", _) => (1, format!("{}\n", code.trim()), None),
+                    ("above", _) => (target_start, code, None),
+                    ("bottom", _) => (end_of_file, format!("\n\n{}", code.trim()), None),
+                    // Only a class body takes members; elsewhere body code
+                    // goes below the declaration.
+                    ("body", TargetIR::Class(class_ir)) => {
+                        let payload = if code.starts_with('\n') {
+                            code
+                        } else {
+                            format!("\n{code}")
+                        };
+                        (
+                            derive_insert_pos(class_ir, source),
+                            payload,
+                            Some("class body".to_string()),
+                        )
+                    }
+                    _ => (target_end, format!("\n\n{}", code.trim()), None),
+                };
+                let at = SpanIR { start: at, end: at };
+                let patch = match context {
+                    Some(context) => Patch::InsertRaw {
+                        at,
+                        code,
+                        context: Some(context),
+                        source_macro: macro_name.clone(),
+                    },
+                    None => Patch::Insert {
+                        at,
+                        code,
+                        source_macro: macro_name.clone(),
+                    },
+                };
+                runtime_patches.push(patch.clone());
+                type_patches.push(patch);
             }
         }
         Ok((runtime_patches, type_patches))
@@ -1810,7 +1906,7 @@ impl MacroExpander {
     pub(crate) fn apply_and_finalize_expansion(
         &self,
         source: &str,
-        collector: &mut PatchCollector,
+        collector: PatchCollector,
         diagnostics: &mut Vec<Diagnostic>,
         items: LoweredItems,
     ) -> Result<MacroExpansion> {
@@ -1822,19 +1918,7 @@ impl MacroExpander {
             ..
         } = items;
         let has_patches = collector.has_patches();
-        let runtime_result = collector
-            .apply_runtime_patches_with_mapping(source, None)
-            .map_err(|e| MacroError::InvalidConfig(format!("Patch error: {:?}", e)))?;
-
-        let type_output = if collector.has_type_patches() {
-            Some(
-                collector
-                    .apply_type_patches(source)
-                    .map_err(|e| MacroError::InvalidConfig(format!("Type patch error: {:?}", e)))?,
-            )
-        } else {
-            None
-        };
+        let (runtime_result, type_output) = collector.apply(source, None)?;
 
         let source_mapping = if runtime_result.mapping.is_empty() {
             None
@@ -1862,6 +1946,7 @@ impl MacroExpander {
             type_aliases,
             source_mapping,
             buildtime_dependencies: Vec::new(),
+            registry_reads: None,
         };
 
         self.enforce_diagnostic_limit(&mut expansion.diagnostics);
@@ -1870,7 +1955,7 @@ impl MacroExpander {
     }
 
     fn enforce_diagnostic_limit(&self, diagnostics: &mut Vec<Diagnostic>) {
-        let max = self.config.limits.max_diagnostics;
+        let max = self.config.max_diagnostics;
         if max == 0 {
             diagnostics.clear();
             return;
@@ -1908,15 +1993,53 @@ static TRACE_ENABLED: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
         .is_some_and(|level| matches!(level.as_str(), "trace" | "debug" | "1" | "true"))
 });
 
+/// Whether `MF_LOG` asks for expansion traces, read once per process.
+pub(crate) fn trace_enabled() -> bool {
+    *TRACE_ENABLED
+}
+
+/// `MF_DEBUG_EXPAND`, read once rather than on every macro dispatch.
+static DEBUG_EXPAND: std::sync::LazyLock<bool> =
+    std::sync::LazyLock::new(|| std::env::var_os("MF_DEBUG_EXPAND").is_some());
+
+/// `MF_DEBUG_TOKENS`, read once.
+#[cfg(debug_assertions)]
+static DEBUG_TOKENS: std::sync::LazyLock<bool> =
+    std::sync::LazyLock::new(|| std::env::var_os("MF_DEBUG_TOKENS").is_some());
+
+/// An expansion's trace. A line is built only when tracing is on, so an
+/// expansion that is not traced formats nothing.
+#[derive(Default)]
+struct Trace {
+    lines: Vec<String>,
+}
+
+impl Trace {
+    fn line(&mut self, line: impl FnOnce() -> String) {
+        if *TRACE_ENABLED {
+            self.lines.push(line());
+        }
+    }
+}
+
 /// Records an expansion's trace in the project's debug log and as info
 /// diagnostics, only when `MF_LOG` asks for it: written on every file, the
 /// log would grow without bound.
-fn flush_trace(file_name: &str, logs: &[String], diagnostics: &mut Vec<Diagnostic>) {
+/// Writes the lines a macro logged while it ran, carried back on its result,
+/// to the debug log of the file it expanded.
+fn write_macro_debug(result: &mut crate::ts_syn::MacroResult, ctx: &crate::ts_syn::MacroContextIR) {
+    if let Some(debug) = result.debug.take() {
+        let lines: Vec<String> = debug.lines().map(str::to_string).collect();
+        crate::debug::log_for_file(&ctx.file_name, &ctx.macro_name, &lines);
+    }
+}
+
+fn flush_trace(file_name: &str, trace: &Trace, diagnostics: &mut Vec<Diagnostic>) {
     if !*TRACE_ENABLED {
         return;
     }
-    crate::debug::log_for_file(file_name, "expand", logs);
-    diagnostics.extend(logs.iter().map(|message| Diagnostic {
+    crate::debug::log_for_file(file_name, "expand", &trace.lines);
+    diagnostics.extend(trace.lines.iter().map(|message| Diagnostic {
         level: DiagnosticLevel::Info,
         message: format!("[trace] {message}"),
         span: None,

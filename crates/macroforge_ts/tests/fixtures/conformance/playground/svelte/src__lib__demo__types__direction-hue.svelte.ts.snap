@@ -1,0 +1,3129 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/direction-hue.svelte.ts
+sha256 f051ec64ba25a3a7e81e113413ce65f6b1aac29ae4ce8aeebb40f4b9611b68c7
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface DirectionHue {
+    bearing: number;
+    hue: number;
+}
+
+export function directionHueDefaultValue(): DirectionHue {
+                        return {
+bearing: 0,
+hue: 0,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function directionHueSerialize(value: DirectionHue, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = directionHueSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function directionHueSerializeWithContext(value: DirectionHue, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "DirectionHue",
+                        __id,
+                    };result.bearing = value.bearing;result.hue = value.hue;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function directionHueDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = directionHueDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DirectionHue.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function directionHueDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): DirectionHue | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "DirectionHue.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("bearing" in obj)) {
+                            errors.push({ field: "bearing", message: "missing required field" });
+                        }if (!("hue" in obj)) {
+                            errors.push({ field: "hue", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_bearing = obj["bearing"] as number;instance.bearing = __raw_bearing;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_hue = obj["hue"] as number;instance.hue = __raw_hue;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as DirectionHue;
+            }
+
+            export function directionHueValidateField<K extends keyof DirectionHue>(
+                _field: K,
+                _value: DirectionHue[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function directionHueValidateFields(
+                _partial: Partial<DirectionHue>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function directionHueHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "bearing" in o && "hue" in o;
+            }
+
+            export function directionHueIs(obj: unknown): obj is DirectionHue {
+                if (!directionHueHasShape(obj)) {
+                    return false;
+                }
+                const result = directionHueDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type DirectionHueErrors = {
+            _errors: Option.Option<Array<string>>;
+            bearing: Option.Option<Array<string>>;
+            hue: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type DirectionHueTainted = {
+            bearing: Option.Option<boolean>;
+            hue: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface DirectionHueFieldControllers {
+            readonly bearing: FieldController<number>;
+            readonly hue: FieldController<number>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface DirectionHueGigaform {
+            readonly data: DirectionHue;
+            readonly errors: DirectionHueErrors;
+            readonly tainted: DirectionHueTainted;
+            readonly fields: DirectionHueFieldControllers;
+            validate(): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<DirectionHue>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function directionHueCreateForm(overrides?: Partial<DirectionHue>): DirectionHueGigaform {
+            let data = $state({ ...directionHueDefaultValue(), ...overrides });
+            let errors = $state<DirectionHueErrors>({
+                _errors: Option.none(),
+                bearing: Option.none(),
+                hue: Option.none(),
+
+
+            });
+            let tainted = $state<DirectionHueTainted>({
+                bearing: Option.none(),
+                hue: Option.none(),
+
+
+            });
+            const fields = {
+            
+                bearing: {
+            name: "bearing",
+            label: "bearing",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["bearing"],
+            get: () => data.bearing,
+            set: (value: number) => { data.bearing = value; },
+            getError: () => errors.bearing,
+            setError: (value: Option.Option<Array<string>>) => { errors.bearing = value; },
+            getTainted: () => tainted.bearing,
+            setTainted: (value: Option.Option<boolean>) => { tainted.bearing = value; },
+            validate: () => directionHueValidateField("bearing", data.bearing).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                hue: {
+            name: "hue",
+            label: "hue",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["hue"],
+            get: () => data.hue,
+            set: (value: number) => { data.hue = value; },
+            getError: () => errors.hue,
+            setError: (value: Option.Option<Array<string>>) => { errors.hue = value; },
+            getTainted: () => tainted.hue,
+            setTainted: (value: Option.Option<boolean>) => { tainted.hue = value; },
+            validate: () => directionHueValidateField("hue", data.hue).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as DirectionHueFieldControllers;
+
+
+            function validate(): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
+                return toExit(directionHueDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<DirectionHue>): void {
+                data = { ...directionHueDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            bearing: Option.none(),
+            hue: Option.none(),
+
+
+        };
+                tainted = {
+            bearing: Option.none(),
+            hue: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function directionHueFromFormData(formData: FormData): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const bearingStr = formData.get("bearing");
+                    obj.bearing = bearingStr ? parseFloat(bearingStr as string) : 0;
+                    if (obj.bearing !== undefined && isNaN(obj.bearing as number)) obj.bearing = 0;
+                }
+            {
+                    const hueStr = formData.get("hue");
+                    obj.hue = hueStr ? parseFloat(hueStr as string) : 0;
+                    if (obj.hue !== undefined && isNaN(obj.hue as number)) obj.hue = 0;
+                }
+
+
+            return toExit(directionHueDeserialize(obj));
+        }
+
+export const DirectionHue = {
+  defaultValue: directionHueDefaultValue,
+  serialize: directionHueSerialize,
+  serializeWithContext: directionHueSerializeWithContext,
+  deserialize: directionHueDeserialize,
+  deserializeWithContext: directionHueDeserializeWithContext,
+  validateFields: directionHueValidateFields,
+  hasShape: directionHueHasShape,
+  is: directionHueIs,
+  createForm: directionHueCreateForm,
+  fromFormData: directionHueFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface DirectionHue {
+    bearing: number;
+    hue: number;
+}
+
+export function directionHueDefaultValue(): DirectionHue {
+                        return {
+bearing: 0,
+hue: 0,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function directionHueSerialize(value: DirectionHue, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = directionHueSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function directionHueSerializeWithContext(value: DirectionHue, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "DirectionHue",
+                        __id,
+                    };result.bearing = value.bearing;result.hue = value.hue;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function directionHueDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = directionHueDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "DirectionHue.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function directionHueDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): DirectionHue | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "DirectionHue.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("bearing" in obj)) {
+                            errors.push({ field: "bearing", message: "missing required field" });
+                        }if (!("hue" in obj)) {
+                            errors.push({ field: "hue", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_bearing = obj["bearing"] as number;instance.bearing = __raw_bearing;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_hue = obj["hue"] as number;instance.hue = __raw_hue;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as DirectionHue;
+            }
+
+            export function directionHueValidateField<K extends keyof DirectionHue>(
+                _field: K,
+                _value: DirectionHue[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function directionHueValidateFields(
+                _partial: Partial<DirectionHue>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function directionHueHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "bearing" in o && "hue" in o;
+            }
+
+            export function directionHueIs(obj: unknown): obj is DirectionHue {
+                if (!directionHueHasShape(obj)) {
+                    return false;
+                }
+                const result = directionHueDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type DirectionHueErrors = {
+            _errors: Option.Option<Array<string>>;
+            bearing: Option.Option<Array<string>>;
+            hue: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type DirectionHueTainted = {
+            bearing: Option.Option<boolean>;
+            hue: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface DirectionHueFieldControllers {
+            readonly bearing: FieldController<number>;
+            readonly hue: FieldController<number>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface DirectionHueGigaform {
+            readonly data: DirectionHue;
+            readonly errors: DirectionHueErrors;
+            readonly tainted: DirectionHueTainted;
+            readonly fields: DirectionHueFieldControllers;
+            validate(): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<DirectionHue>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function directionHueCreateForm(overrides?: Partial<DirectionHue>): DirectionHueGigaform {
+            let data = $state({ ...directionHueDefaultValue(), ...overrides });
+            let errors = $state<DirectionHueErrors>({
+                _errors: Option.none(),
+                bearing: Option.none(),
+                hue: Option.none(),
+
+
+            });
+            let tainted = $state<DirectionHueTainted>({
+                bearing: Option.none(),
+                hue: Option.none(),
+
+
+            });
+            const fields = {
+            
+                bearing: {
+            name: "bearing",
+            label: "bearing",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["bearing"],
+            get: () => data.bearing,
+            set: (value: number) => { data.bearing = value; },
+            getError: () => errors.bearing,
+            setError: (value: Option.Option<Array<string>>) => { errors.bearing = value; },
+            getTainted: () => tainted.bearing,
+            setTainted: (value: Option.Option<boolean>) => { tainted.bearing = value; },
+            validate: () => directionHueValidateField("bearing", data.bearing).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                hue: {
+            name: "hue",
+            label: "hue",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["hue"],
+            get: () => data.hue,
+            set: (value: number) => { data.hue = value; },
+            getError: () => errors.hue,
+            setError: (value: Option.Option<Array<string>>) => { errors.hue = value; },
+            getTainted: () => tainted.hue,
+            setTainted: (value: Option.Option<boolean>) => { tainted.hue = value; },
+            validate: () => directionHueValidateField("hue", data.hue).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as DirectionHueFieldControllers;
+
+
+            function validate(): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
+                return toExit(directionHueDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<DirectionHue>): void {
+                data = { ...directionHueDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            bearing: Option.none(),
+            hue: Option.none(),
+
+
+        };
+                tainted = {
+            bearing: Option.none(),
+            hue: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function directionHueFromFormData(formData: FormData): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const bearingStr = formData.get("bearing");
+                    obj.bearing = bearingStr ? parseFloat(bearingStr as string) : 0;
+                    if (obj.bearing !== undefined && isNaN(obj.bearing as number)) obj.bearing = 0;
+                }
+            {
+                    const hueStr = formData.get("hue");
+                    obj.hue = hueStr ? parseFloat(hueStr as string) : 0;
+                    if (obj.hue !== undefined && isNaN(obj.hue as number)) obj.hue = 0;
+                }
+
+
+            return toExit(directionHueDeserialize(obj));
+        }
+
+export const DirectionHue = {
+  defaultValue: directionHueDefaultValue,
+  serialize: directionHueSerialize,
+  serializeWithContext: directionHueSerializeWithContext,
+  deserialize: directionHueDeserialize,
+  deserializeWithContext: directionHueDeserializeWithContext,
+  validateFields: directionHueValidateFields,
+  hasShape: directionHueHasShape,
+  is: directionHueIs,
+  createForm: directionHueCreateForm,
+  fromFormData: directionHueFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..187 -> expanded 58..130
+original 187..188 -> expanded 13555..13556
+generated 130..268 <- Default
+generated 268..1845 <- Serialize
+generated 1845..7553 <- Deserialize
+generated 7553..13093 <- Gigaform
+generated 13093..13555 <- __convenience_const
+
+## Metadata
+
+interface DirectionHue: {"body_span":{"end":188,"start":147},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"bearing","optional":false,"readonly":false,"span":{"end":169,"start":153},"ts_type":"number"},{"decorators":[],"name":"hue","optional":false,"readonly":false,"span":{"end":186,"start":174},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DirectionHue","span":{"end":188,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("number")
+
+## Buildtime dependencies
+
+(none)

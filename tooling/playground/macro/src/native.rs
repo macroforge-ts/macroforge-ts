@@ -16,6 +16,7 @@ fn capitalize(s: &str) -> String {
 )]
 pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
+    macroforge_ts::debug_log!("JSON", "toJSON for {}", input.name());
 
     match &input.data {
         Data::Class(class) => {

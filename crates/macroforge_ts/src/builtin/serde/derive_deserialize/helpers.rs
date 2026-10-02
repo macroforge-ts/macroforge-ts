@@ -359,34 +359,6 @@ pub(super) fn extract_base_type(ts_type: &str) -> String {
     }
 }
 
-/// For inline object types in tagged unions, extract the tag value from the type literal.
-/// e.g. `{ variant: 'GlobalAdmin' }` with tag_field "variant" -> Some("GlobalAdmin")
-/// Returns None if the type is not an inline object or doesn't contain the tag field.
-#[allow(dead_code)]
-pub(super) fn extract_inline_tag_value(ts_type: &str, tag_field: &str) -> Option<String> {
-    let trimmed = ts_type.trim();
-    if !trimmed.starts_with('{') || !trimmed.ends_with('}') {
-        return None;
-    }
-    // Look for: variant: 'Value' or variant: "Value"
-    let pattern = format!("{}:", tag_field);
-    let pos = trimmed.find(&pattern)?;
-    let after_colon = trimmed[pos + pattern.len()..].trim();
-    // Extract the quoted value
-    let quote = after_colon.chars().next()?;
-    if quote != '\'' && quote != '"' {
-        return None;
-    }
-    let end = after_colon[1..].find(quote)?;
-    Some(after_colon[1..1 + end].to_string())
-}
-
-/// Check if a type string is an inline object literal (starts with `{`).
-#[allow(dead_code)]
-pub(super) fn is_inline_object_type(ts_type: &str) -> bool {
-    ts_type.trim().starts_with('{')
-}
-
 /// Generates the DeserializeWithContext function name for a nested deserializable type.
 /// For example: "User" -> "userDeserializeWithContext"
 pub(super) fn nested_deserialize_fn_name(type_name: &str) -> String {
@@ -419,16 +391,4 @@ pub(super) fn nested_has_shape_fn_name(type_name: &str) -> String {
         type_name
     };
     format!("{}HasShape", base.to_case(Case::Camel))
-}
-
-/// Get JavaScript typeof string for a TypeScript primitive type
-#[allow(dead_code)]
-pub(super) fn get_js_typeof(ts_type: &str) -> &'static str {
-    match ts_type.trim() {
-        "string" => "string",
-        "number" => "number",
-        "boolean" => "boolean",
-        "bigint" => "bigint",
-        _ => "object",
-    }
 }

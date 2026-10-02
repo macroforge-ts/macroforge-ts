@@ -118,7 +118,9 @@
 //! - `betweenDate("start", "end")`
 //!
 //! ### Custom Validators
-//! - `custom(functionName)` - Call custom validation function
+//! - `custom(functionName)` - Call a validation function in scope in the file
+//! - `custom({ function: "name", source: "./module" })` - Call a function the
+//!   expansion imports from `source` itself
 //!
 //! ## Example
 //!
@@ -220,6 +222,7 @@ pub mod derive_serialize;
 mod foreign_types;
 mod helpers;
 mod options;
+mod source_field;
 mod type_category;
 mod validators;
 
@@ -233,7 +236,6 @@ pub use crate::host::import_registry::{
 
 // Re-export submodule items so existing consumers (`super::*`, `crate::builtin::serde::*`) keep working.
 pub use foreign_types::{ForeignTypeMatch, get_foreign_types, rewrite_expression_namespaces};
-pub use helpers::{extract_named_string, has_flag};
 pub(crate) use helpers::{find_top_level_comma, split_top_level_union};
 pub use options::{
     RenameAll, SerdeContainerOptions, SerdeFieldOptions, SerdeFieldParseResult, TaggingMode,

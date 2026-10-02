@@ -1,20 +1,40 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/empty_file.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/empty_file.ts
 ---
 ## Input
 
+(none)
 
+## Changed
+
+false
 
 ## Output
 
-
+(unchanged)
 
 ## DTS
 
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

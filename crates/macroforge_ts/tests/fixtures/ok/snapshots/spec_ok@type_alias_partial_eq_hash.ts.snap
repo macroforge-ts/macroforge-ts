@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_partial_eq_hash.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_partial_eq_hash.ts
 ---
 ## Input
 
@@ -11,6 +11,10 @@ type Vector = {
     y: number;
     z: number;
 };
+
+## Changed
+
+true
 
 ## Output
 
@@ -67,5 +71,25 @@ const Vector = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 31..95 -> expanded 0..64
+original 95..96 -> expanded 957..958
+generated 64..273 <- PartialEq
+generated 273..876 <- Hash
+generated 876..957 <- __convenience_const
+
+## Metadata
+
+type Vector: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":63,"start":53},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":78,"start":68},"ts_type":"number"},{"decorators":[],"name":"z","optional":false,"readonly":false,"span":{"end":93,"start":83},"ts_type":"number"}]}},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":32,"start":1}}],"name":"Vector","span":{"end":96,"start":33},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

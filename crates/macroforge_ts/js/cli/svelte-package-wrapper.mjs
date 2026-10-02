@@ -1,5 +1,5 @@
 /**
- * svelte-package wrapper — spawned by the CLI's `run_svelte_package_wrapper`.
+ * svelte-package wrapper: spawned by the CLI's `run_svelte_package_wrapper`.
  *
  * Macro expansion has already happened by the time this runs. The CLI expands
  * the changed `.ts`/`.svelte.ts` modules in parallel, up front, into a tree
@@ -7,7 +7,7 @@
  * make @sveltejs/package read that tree instead of the raw sources, so the
  * published package ships the generated derive runtime and correct `.d.ts`.
  *
- * Two read paths are covered, both routed through `globalThis.__macroforgeExpand`:
+ * Two read paths are covered, both routed through `globalThis.__macroforgeExpanded`:
  *   - JS emit: svelte-package reads source via `import * as fs from 'node:fs'`.
  *     A resolve hook registered with `registerHooks` redirects `node:fs` to a
  *     shim whose `readFileSync` calls us.
@@ -16,7 +16,7 @@
  *
  * The packager still runs against the *real* input directory. Redirecting the
  * bytes rather than the path keeps `$lib` alias resolution and `.d.ts.map`
- * sources — both computed relative to the input dir — pointing at the actual
+ * sources (both computed relative to the input dir) pointing at the actual
  * sources, which packaging from a scratch directory would silently break.
  *
  * Arguments (forwarded to svelte-package): --input, --output, --tsconfig, --no-types
@@ -128,9 +128,9 @@ const served = new Set();
  * whose generated runtime is missing, and that failure is invisible until
  * someone imports the package.
  */
-globalThis.__macroforgeExpand = function (filePath, content) {
+globalThis.__macroforgeExpanded = function (filePath) {
     const rel = relativeToInput(filePath);
-    if (rel === null || !entries.has(rel)) return content;
+    if (rel === null || !entries.has(rel)) return undefined;
 
     const expandedPath = path.join(expandedDir, rel);
     let expanded;
@@ -147,7 +147,7 @@ globalThis.__macroforgeExpand = function (filePath, content) {
 };
 
 // Every `.ts` module the CLI expanded is read at least once by the packager, so
-// one that was never served means the redirect never matched its path — and the
+// one that was never served means the redirect never matched its path, and the
 // package being written right now contains its raw source. Failing here is what
 // keeps that from being discovered by whoever installs the published library.
 // `.tsx` is excluded: the packager copies those with `copyFileSync`, which never
@@ -168,11 +168,8 @@ process.on('exit', () => {
 
 // .d.ts side: svelte2tsx's emitDts reads .ts sources through ts.sys.readFile.
 const origTsRead = ts.sys.readFile.bind(ts.sys);
-ts.sys.readFile = (filePath, encoding) => {
-    const content = origTsRead(filePath, encoding);
-    if (content == null) return content;
-    return globalThis.__macroforgeExpand(filePath, content);
-};
+ts.sys.readFile = (filePath, encoding) =>
+    globalThis.__macroforgeExpanded(filePath) ?? origTsRead(filePath, encoding);
 
 // JS side: redirect node:fs to the shim before svelte-package loads. Its
 // `import * as fs from 'node:fs'` namespace cannot be patched in place; the

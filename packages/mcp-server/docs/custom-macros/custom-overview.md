@@ -1,14 +1,15 @@
 # Custom Macros
 
-Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the
-class AST and can generate any TypeScript code.
+Macroforge allows you to create custom macros in Rust: derive macros, attribute macros and call
+macros. Your macros see the declaration they are attached to, can look up any type in the project,
+and can generate any TypeScript code.
 
 ## Overview
 
 Custom macros are written in Rust and compiled to WebAssembly. The process involves:
 
 1. Creating a Rust crate that builds to WebAssembly
-2. Defining macro functions with `#[ts_macro_derive]`
+2. Defining macro functions with `#[ts_macro_derive]`, `#[ts_macro_attribute]` or `#[ts_macro]`
 3. Using `macroforge_ts_quote` to generate TypeScript code
 4. Building and publishing as an npm package
 
@@ -40,7 +41,7 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             }))
         }
         _ => Err(MacroforgeError::new(
-            input.decorator_span(),
+            input.error_span(),
             "@derive(JSON) only works on classes",
         )),
     }
@@ -82,3 +83,18 @@ Follow these guides to create your own macros:
 - [Set up a Rust macro crate](../docs/custom-macros/rust-setup)
 - [Learn the #\[ts\_macro\_derive\] attribute](../docs/custom-macros/ts-macro-derive)
 - [Learn the template syntax](../docs/custom-macros/ts-quote)
+
+## Reference
+
+- [`#[ts_macro]`](../docs/custom-macros/ts-macro) and
+  [`#[ts_macro_attribute]`](../docs/custom-macros/ts-macro-attribute): call and attribute macros
+- [Output and Imports](../docs/custom-macros/output): where generated code goes, imports, patches
+  and warnings
+- [Context and IR](../docs/custom-macros/context-and-ir): everything a macro can read about its
+  target
+- [Type-Aware Macros](../docs/custom-macros/type-aware): looking up other types and reading the
+  project's config
+- [Errors and Diagnostics](../docs/custom-macros/diagnostics): failing with errors, reporting
+  warnings
+- [Testing and Debugging](../docs/custom-macros/testing-and-debugging): unit tests, debug logging,
+  registering macros by hand

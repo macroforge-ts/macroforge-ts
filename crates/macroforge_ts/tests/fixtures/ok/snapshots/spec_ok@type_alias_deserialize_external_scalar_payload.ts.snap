@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_deserialize_external_scalar_payload.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_deserialize_external_scalar_payload.ts
 ---
 ## Input
 
@@ -16,6 +16,10 @@ export type Ref = string | { id: string };
 /** @derive(Serialize, Deserialize) */
 /** @serde({ externallyTagged: true }) */
 export type Stage = 'Active' | { Invoice: Ref };
+
+## Changed
+
+true
 
 ## Output
 
@@ -751,16 +755,6 @@ export type Ref = string | { id: string };
 
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
         export function refHasShape(value: unknown): boolean {if (typeof value === "string") return true;
@@ -774,9 +768,6 @@ export type Ref = string | { id: string };
 
 
                             if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;return false;
-
-
-
 
 
 
@@ -1697,16 +1688,6 @@ export type Stage = 'Active' | { Invoice: Ref };
 
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
         export function stageHasShape(value: unknown): boolean {const allowedLiterals = ['Active'] as const;
@@ -1717,9 +1698,6 @@ export type Stage = 'Active' | { Invoice: Ref };
                                         if (["Invoice"].includes(__variantName)) return true;
                                     }
                                 }return false;
-
-
-
 
 
 
@@ -2636,16 +2614,6 @@ export type Ref = string | { id: string };
 
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
         export function refHasShape(value: unknown): boolean {if (typeof value === "string") return true;
@@ -2659,9 +2627,6 @@ export type Ref = string | { id: string };
 
 
                             if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;return false;
-
-
-
 
 
 
@@ -3582,16 +3547,6 @@ export type Stage = 'Active' | { Invoice: Ref };
 
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
         export function stageHasShape(value: unknown): boolean {const allowedLiterals = ['Active'] as const;
@@ -3602,9 +3557,6 @@ export type Stage = 'Active' | { Invoice: Ref };
                                         if (["Invoice"].includes(__variantName)) return true;
                                     }
                                 }return false;
-
-
-
 
 
 
@@ -3793,5 +3745,32 @@ export const Stage = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..284 -> expanded 0..284
+original 322..365 -> expanded 284..327
+original 365..367 -> expanded 6368..6370
+original 447..496 -> expanded 6370..6419
+original 496..497 -> expanded 14048..14049
+generated 327..2248 <- Serialize
+generated 2248..6137 <- Deserialize
+generated 6137..6368 <- __convenience_const
+generated 6419..8918 <- Serialize
+generated 8918..13774 <- Deserialize
+generated 13774..14048 <- __convenience_const
+
+## Metadata
+
+type Ref: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":363,"start":353},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Serialize, Deserialize","name":"Derive","span":{"end":323,"start":285}}],"name":"Ref","span":{"end":366,"start":331},"type_params":[]}
+type Stage: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"Invoice","optional":false,"readonly":false,"span":{"end":494,"start":482},"ts_type":"Ref"}]}}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"serde","span":{"end":448,"start":407}},{"args_src":"Serialize, Deserialize","name":"Derive","span":{"end":406,"start":368}}],"name":"Stage","span":{"end":497,"start":456},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

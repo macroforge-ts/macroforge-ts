@@ -1,0 +1,94 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/buildtime-demo.ts
+sha256 4db426142fdbeef7a444d5ee75f107248d981f44659e9ba8f1e875bd925da0fa
+
+## Changed
+
+true
+
+## Output
+
+// Svelte-side demonstration of the `@buildtime` evaluation pipeline.
+//
+// The macroforge Vite plugin runs on this module during dev + build,
+// so every `@buildtime` declaration here is replaced with a TS literal
+// before the browser sees it. The `buildtime` import from
+// `@macroforge/core/buildtime` is a runtime stub that throws if actually
+// called — a useful sanity check for the Playwright harness.
+import { buildtime } from '@macroforge/core/buildtime';
+
+const ANSWER = 42;
+
+const SCHEMA_HASH = "536618fa8588dfee0a8a2cf728501e6402ed1cac9f70792d231091b1d5b70b74";
+
+const APP_CONFIG = {app: "macroforge-svelte", features: ["SSR", "HMR", "runes"], version: "3.0.0"};
+
+const CONSTANT_LIST = [2, 4, 6, 10, 16, 26];
+
+// A derived summary that does its own build-time I/O + hashing.
+// Each @buildtime block runs in its own sandbox and cannot see
+// names bound by sibling @buildtime blocks, so we re-read the file
+// and re-hash here rather than reference ANSWER / APP_CONFIG.
+const DERIVED_SUMMARY = "app=3.0.0, short=536618fa";
+
+export type RouteId = string;
+
+export interface SvelteBuildtimeResult {
+    answer: number;
+    schemaHash: string;
+    appName: string;
+    appVersion: string;
+    features: string[];
+    constantList: number[];
+    derivedSummary: string;
+    runtimeStubThrows: boolean;
+}
+
+export function collectSvelteBuildtime(): SvelteBuildtimeResult {
+    let runtimeStubThrows = false;
+    try {
+        buildtime.time.unix();
+    } catch {
+        runtimeStubThrows = true;
+    }
+
+    return {
+        answer: ANSWER,
+        schemaHash: SCHEMA_HASH,
+        appName: APP_CONFIG.app,
+        appVersion: APP_CONFIG.version,
+        features: APP_CONFIG.features,
+        constantList: CONSTANT_LIST,
+        derivedSummary: DERIVED_SUMMARY,
+        runtimeStubThrows
+    };
+}
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..1807 -> expanded 0..1807
+
+## Metadata
+
+interface SvelteBuildtimeResult: {"body_span":{"end":1314,"start":1110},"decorators":[],"fields":[{"decorators":[],"name":"answer","optional":false,"readonly":false,"span":{"end":1131,"start":1116},"ts_type":"number"},{"decorators":[],"name":"schemaHash","optional":false,"readonly":false,"span":{"end":1155,"start":1136},"ts_type":"string"},{"decorators":[],"name":"appName","optional":false,"readonly":false,"span":{"end":1176,"start":1160},"ts_type":"string"},{"decorators":[],"name":"appVersion","optional":false,"readonly":false,"span":{"end":1200,"start":1181},"ts_type":"string"},{"decorators":[],"name":"features","optional":false,"readonly":false,"span":{"end":1224,"start":1205},"ts_type":"string[]"},{"decorators":[],"name":"constantList","optional":false,"readonly":false,"span":{"end":1252,"start":1229},"ts_type":"number[]"},{"decorators":[],"name":"derivedSummary","optional":false,"readonly":false,"span":{"end":1280,"start":1257},"ts_type":"string"},{"decorators":[],"name":"runtimeStubThrows","optional":false,"readonly":false,"span":{"end":1312,"start":1285},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"SvelteBuildtimeResult","span":{"end":1314,"start":1078},"type_params":[]}
+type RouteId: {"body":{"Other":"string"},"decorators":[],"name":"RouteId","span":{"end":1069,"start":1047},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+<root>/src/lib/demo/buildtime-data.json

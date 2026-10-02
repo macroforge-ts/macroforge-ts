@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/svelte_runes.svelte.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/svelte_runes.svelte.ts
 ---
 ## Input
 
@@ -12,19 +12,34 @@ function increment() {
     count++;
 }
 
+## Changed
+
+false
+
 ## Output
 
-let count = $state(0);
-let double = $derived(count * 2);
-
-function increment() {
-    count++;
-}
+(unchanged)
 
 ## DTS
 
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..96 -> expanded 0..96
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

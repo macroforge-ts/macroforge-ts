@@ -36,6 +36,9 @@ build = { cmd = "pixi run build:rust && pixi run build:plugin" }
 "test:packages" = { cmd = "target/debug/mf test packages" }
 "test:playground" = { cmd = "target/debug/mf test playground" }
 "test:all" = { cmd = "target/debug/mf test all" }
+# The conformance corpus alone; `:update` records moved goldens for review.
+"test:conformance" = { cmd = "cargo test -p macroforge_ts --features test-macros --test conformance" }
+"test:conformance:update" = { cmd = "cargo test -p macroforge_ts --features test-macros --test conformance", env = { INSTA_UPDATE = "always" } }
 "test:e2e:zed" = { cmd = "./tooling/tests/e2e/run-zed-test.sh" }
 "test:e2e:zed:verbose" = { cmd = "./tooling/tests/e2e/run-zed-test.sh --verbose" }
 "test:e2e:zed:node" = { cmd = "node --test tooling/tests/e2e/zed-extension-startup.test.js" }
@@ -90,7 +93,7 @@ bench = { cmd = "deno run -A tooling/scripts/bench.mjs" }
 
 [dependencies]
 # Rust toolchain manager from brads-forge. The active rust version, components,
-# and targets are pinned in rust-toolchain.toml at the repo root — rustup
+# and targets are pinned in rust-toolchain.toml at the repo root; rustup
 # auto-installs that toolchain on first cargo invocation. RUSTUP_HOME is
 # shared with the global rustup install via [activation.env] below.
 rustup = "*"
@@ -113,10 +116,10 @@ MACROFORGE_CLI = "$PIXI_PROJECT_ROOT/target/debug/macroforge"
 # Deno and Node, a feature of their own so the `publish` environment can
 # install just these.
 [feature.js.dependencies]
-# Deno — `deno task build` across crates/macroforge_ts, packages/*, website,
+# Deno: `deno task build` across crates/macroforge_ts, packages/*, website,
 # and `deno run` for bench.mjs / concurrently. From the github-releases channel.
 deno = { version = "*", channel = "https://prefix.dev/github-releases" }
-# Node + npm — `node --test` e2e harness (tooling/tests/e2e) and npm-driven
+# Node + npm: `node --test` e2e harness (tooling/tests/e2e) and npm-driven
 # package builds shelled out from the tooling crate.
 nodejs = "*"
 
@@ -130,7 +133,7 @@ nodejs = "*"
 default = { features = ["js"], solve-group = "default" }
 publish = { features = ["js"], no-default-feature = true, solve-group = "default" }
 
-# mold linker — Linux only. `.cargo/config.toml` sets `-fuse-ld=mold` for the
+# mold linker, Linux only. `.cargo/config.toml` sets `-fuse-ld=mold` for the
 # linux target; this puts `mold` on the env PATH so cargo finds it. macOS uses
 # Apple's ld-prime and doesn't need it.
 [target.linux-64.dependencies]

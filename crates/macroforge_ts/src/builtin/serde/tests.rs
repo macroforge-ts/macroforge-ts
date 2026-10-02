@@ -362,8 +362,32 @@ fn test_parse_custom_validator() {
     use super::validators::parse_validator_string;
     assert!(matches!(
         parse_validator_string("custom(myValidator)"),
-        Ok(Validator::Custom(fn_name)) if fn_name == "myValidator"
+        Ok(Validator::Custom(custom)) if custom.function == "myValidator" && custom.source.is_none()
     ));
+}
+
+#[test]
+fn test_parse_custom_validator_with_a_source() {
+    use super::validators::parse_validator_string;
+
+    let Ok(Validator::Custom(custom)) =
+        parse_validator_string(r#"custom({ function: "isEven", source: "./validators" })"#)
+    else {
+        panic!("the object form parses");
+    };
+    assert_eq!(custom.function, "isEven");
+    assert_eq!(custom.source.as_deref(), Some("./validators"));
+    assert_eq!(custom.callee(), "__mf_isEven__validators");
+
+    assert!(
+        parse_validator_string(r#"custom({ source: "./validators" })"#).is_err(),
+        "the object form needs a function"
+    );
+    assert!(
+        parse_validator_string(r#"custom({ function: "v.isEven", source: "./validators" })"#)
+            .is_err(),
+        "an imported function is named by its export"
+    );
 }
 
 #[test]

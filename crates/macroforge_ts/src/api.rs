@@ -3,22 +3,25 @@ use crate::api_types::{
     ScanOptions, ScanResult, SyntaxCheckResult,
 };
 use crate::expand_core::expand_inner;
+use crate::host::expand::trace_enabled;
 
 // ---------------------------------------------------------------------------
-// Singleton scanner (Phase 17)
+// Singleton scanner
 // ---------------------------------------------------------------------------
 //
-// The Vite plugin and long-lived hosts want to reuse a single scanner
-// across calls so the per-file scan cache persists between HMR events.
-// We keep a process-global `Mutex<Option<CachedScanner>>` keyed on the
-// `root_dir`; on `scan_project_sync` we consult it, reusing the
-// existing scanner when the root matches and rebuilding from scratch
-// otherwise. Native-only — WASM has no filesystem access.
+// Long-lived hosts reuse one scanner across calls, so the per-file scan cache
+// carries over between scans. It is kept per root and scan options, and its
+// cache persists in the project for the next process. Native only: the wasm
+// build scans through Node's filesystem one call at a time.
 
 #[cfg(not(target_arch = "wasm32"))]
 struct CachedScanner {
     root_dir: std::path::PathBuf,
+    extensions: Vec<String>,
+    exported_only: bool,
     scanner: crate::host::scanner::ProjectScanner,
+    /// The registries' JSON from the last scan, reused while nothing changed.
+    last_json: Option<(String, String)>,
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -29,6 +32,9 @@ static SINGLETON_SCANNER: std::sync::OnceLock<std::sync::Mutex<Option<CachedScan
 fn singleton() -> &'static std::sync::Mutex<Option<CachedScanner>> {
     SINGLETON_SCANNER.get_or_init(|| std::sync::Mutex::new(None))
 }
+
+#[cfg(not(target_arch = "wasm32"))]
+use crate::workers::worker_pool;
 
 /// Output-agnostic facade over the macro engine.
 ///
@@ -104,10 +110,15 @@ impl CoreEngine {
     /// return a summary of which config blocks were provided.
     pub fn load_config(content: &str, filepath: &str) -> Result<LoadConfigResult, String> {
         use crate::host::MacroforgeConfigLoader;
-        eprintln!("[macroforge:api] load_config called for {}", filepath);
+        if trace_enabled() {
+            eprintln!("[macroforge:api] load_config called for {}", filepath);
+        }
 
+        // The caller receives the failure; the trace only records it.
         let config = MacroforgeConfigLoader::load_and_cache(content, filepath).map_err(|e| {
-            eprintln!("[macroforge:api] load_config failed: {}", e);
+            if trace_enabled() {
+                eprintln!("[macroforge:api] load_config failed: {}", e);
+            }
             format!("Failed to parse config: {}", e)
         })?;
 
@@ -131,10 +142,12 @@ impl CoreEngine {
         let has_non_exhaustive_config =
             config.non_exhaustive.brand != default_config.non_exhaustive.brand;
 
-        eprintln!(
-            "[macroforge:api] load_config success: keep_decorators={}, foreign_types={}, cfg={}",
-            config.keep_decorators, foreign_type_count, has_cfg_flags
-        );
+        if trace_enabled() {
+            eprintln!(
+                "[macroforge:api] load_config success: keep_decorators={}, foreign_types={}, cfg={}",
+                config.keep_decorators, foreign_type_count, has_cfg_flags
+            );
+        }
 
         Ok(LoadConfigResult {
             keep_decorators: config.keep_decorators,
@@ -150,44 +163,64 @@ impl CoreEngine {
 
     /// Drop the process-wide config cache populated by [`Self::load_config`].
     pub fn clear_config_cache() {
-        eprintln!("[macroforge:api] clear_config_cache called");
+        if trace_enabled() {
+            eprintln!("[macroforge:api] clear_config_cache called");
+        }
         crate::host::clear_config_cache();
     }
 
+    /// Parses a type registry and keeps it for the process, returning the id
+    /// [`ExpandOptions::type_registry_id`] names it by.
+    pub fn set_type_registry(json: &str) -> Result<u32, String> {
+        crate::expand_core::set_type_registry(json).map_err(|err| format!("{err:#}"))
+    }
+
+    /// Parses a declarative registry and keeps it for the process, returning
+    /// the id [`ExpandOptions::declarative_registry_id`] names it by.
+    pub fn set_declarative_registry(json: &str) -> Result<u32, String> {
+        crate::expand_core::set_declarative_registry(json).map_err(|err| format!("{err:#}"))
+    }
+
+    /// Forgets a registry kept by [`Self::set_type_registry`] or
+    /// [`Self::set_declarative_registry`].
+    pub fn release_registry(id: u32) -> Result<(), String> {
+        crate::expand_core::release_registry(id).map_err(|err| format!("{err:#}"))
+    }
+
     /// Expand macros in `code` and return the full result (code, diagnostics,
-    /// source mapping, metadata). On native targets the work runs on a worker
-    /// thread with a 32MB stack; panics are caught and returned as `Err`.
+    /// source mapping, metadata). On native targets the work runs on a pooled
+    /// worker thread with a 32MB stack; panics are caught and returned as
+    /// `Err`.
     pub fn expand_sync(
         code: String,
         filepath: String,
         options: Option<ExpandOptions>,
     ) -> Result<ExpandResult, String> {
-        eprintln!("[macroforge:api] expand_sync called for {}", filepath);
-        if let Some(ref opts) = options {
+        if trace_enabled() {
+            eprintln!("[macroforge:api] expand_sync called for {}", filepath);
+        }
+        if trace_enabled()
+            && let Some(ref opts) = options
+        {
             eprintln!(
                 "[macroforge:api] options: config_path={:?}, external_decorator_modules={:?}, has_type_registry={}",
                 opts.config_path,
                 opts.external_decorator_modules,
-                opts.type_registry_json.is_some()
+                opts.type_registry_json.is_some() || opts.type_registry_id.is_some()
             );
         }
 
         #[cfg(not(target_arch = "wasm32"))]
         {
-            let builder = std::thread::Builder::new().stack_size(32 * 1024 * 1024);
-            let handle = builder
-                .spawn(
-                    move || -> std::thread::Result<anyhow::Result<ExpandResult>> {
-                        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                            expand_inner(&code, &filepath, options)
-                        }))
-                    },
-                )
-                .map_err(|e| format!("Failed to spawn expand thread: {}", e))?;
-
-            handle
-                .join()
-                .map_err(|_| "Expand worker crashed".to_string())?
+            worker_pool()?
+                .install(|| {
+                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        let thread_state = crate::host::project::ThreadStateReset;
+                        let result = expand_inner(&code, &filepath, options);
+                        drop(thread_state);
+                        result
+                    }))
+                })
                 .map_err(|_| "Expand panicked".to_string())?
                 .map_err(|e| e.to_string())
         }
@@ -225,7 +258,7 @@ impl CoreEngine {
     }
 
     /// Clear the entire singleton scan cache. Called when
-    /// `macroforge.config.ts` or `tsconfig.json` changes — anything
+    /// `macroforge.config.ts` or `tsconfig.json` changes, anything
     /// that could invalidate previously-lowered IR.
     pub fn clear_scan_cache() {
         #[cfg(not(target_arch = "wasm32"))]
@@ -240,20 +273,19 @@ impl CoreEngine {
 
     /// Scan `root_dir` for exported types and declarative macros, returning
     /// the serialized registries. Reuses the process-global cached scanner
-    /// when the root matches; runs on a 32MB-stack worker thread on native.
+    /// when the root matches; runs on a pooled 32MB-stack worker on native.
     pub fn scan_project_sync(
         root_dir: String,
         options: Option<ScanOptions>,
     ) -> Result<ScanResult, String> {
         #[cfg(not(target_arch = "wasm32"))]
         {
-            let builder = std::thread::Builder::new().stack_size(32 * 1024 * 1024);
-            let handle = builder
-                .spawn(move || Self::scan_project_inner(&root_dir, options))
-                .map_err(|e| format!("Failed to spawn scan thread: {}", e))?;
-
-            handle
-                .join()
+            worker_pool()?
+                .install(|| {
+                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        Self::scan_project_inner(&root_dir, options)
+                    }))
+                })
                 .map_err(|_| "Scan worker panicked".to_string())?
         }
         #[cfg(target_arch = "wasm32")]
@@ -282,48 +314,64 @@ impl CoreEngine {
             }
         }
 
-        // Phase 17: reuse the singleton scanner when the root matches
-        // so the per-file cache carries over between scans. On a root
-        // mismatch we drop the old scanner and start fresh.
         #[cfg(not(target_arch = "wasm32"))]
-        let output = {
-            let root_path = config.root_dir.clone();
+        let (output, (registry_json, declarative_registry_json)) = {
+            use crate::host::scanner::{ScanCache, cache::persisted_path};
+
             let mut guard = singleton()
                 .lock()
                 .map_err(|_| "singleton scanner mutex poisoned".to_string())?;
-            let needs_rebuild = match guard.as_ref() {
-                Some(cs) => cs.root_dir != root_path,
-                None => true,
+            let reusable = guard.as_ref().is_some_and(|cached| {
+                cached.root_dir == config.root_dir
+                    && cached.extensions == config.extensions
+                    && cached.exported_only == config.exported_only
+            });
+            let cached = match guard.take().filter(|_| reusable) {
+                Some(cached) => cached,
+                None => {
+                    let root_dir = config.root_dir.clone();
+                    let extensions = config.extensions.clone();
+                    let exported_only = config.exported_only;
+                    let cache = ScanCache::load(&persisted_path(&root_dir));
+                    CachedScanner {
+                        root_dir,
+                        extensions,
+                        exported_only,
+                        scanner: ProjectScanner::new(config).with_cache(cache),
+                        last_json: None,
+                    }
+                }
             };
-            if needs_rebuild {
-                let mut scanner = ProjectScanner::new(config);
-                scanner.enable_cache();
-                *guard = Some(CachedScanner {
-                    root_dir: root_path,
-                    scanner,
-                });
-            }
-            let cs = guard.as_ref().unwrap();
-            cs.scanner
+            let cached = guard.insert(cached);
+            let output = cached
+                .scanner
                 .scan()
-                .map_err(|e| format!("Project scan failed: {}", e))?
+                .map_err(|e| format!("Project scan failed: {}", e))?;
+            // A project without macros never gets a `.macroforge/` directory.
+            if output.changed
+                && output.macro_files > 0
+                && let Err(error) = cached.scanner.save_cache(&persisted_path(&cached.root_dir))
+            {
+                eprintln!("[macroforge] warning: could not persist the scan cache: {error:#}");
+            }
+            let json = match cached.last_json.take().filter(|_| !output.changed) {
+                Some(json) => json,
+                None => registries_json(&output)?,
+            };
+            cached.last_json = Some(json.clone());
+            (output, json)
         };
         #[cfg(target_arch = "wasm32")]
-        let output = {
-            let scanner = ProjectScanner::new(config);
-            scanner
+        let (output, (registry_json, declarative_registry_json)) = {
+            let output = ProjectScanner::new(config)
                 .scan()
-                .map_err(|e| format!("Project scan failed: {}", e))?
+                .map_err(|e| format!("Project scan failed: {}", e))?;
+            let json = registries_json(&output)?;
+            (output, json)
         };
 
         let types_found = output.registry.len() as u32;
         let declarative_macros_found = output.declarative_registry.macro_count() as u32;
-        let registry_json = serde_json::to_string(&output.registry)
-            .map_err(|e| format!("Failed to serialize registry: {}", e))?;
-        let declarative_registry_json = output
-            .declarative_registry
-            .to_json()
-            .map_err(|e| format!("Failed to serialize declarative registry: {}", e))?;
 
         let diagnostics = output
             .warnings
@@ -345,4 +393,15 @@ impl CoreEngine {
             diagnostics,
         })
     }
+}
+
+/// The JSON of a scan's type registry and declarative registry.
+fn registries_json(output: &crate::host::scanner::ScanOutput) -> Result<(String, String), String> {
+    let registry_json = serde_json::to_string(&output.registry)
+        .map_err(|e| format!("Failed to serialize registry: {}", e))?;
+    let declarative_registry_json = output
+        .declarative_registry
+        .to_json()
+        .map_err(|e| format!("Failed to serialize declarative registry: {}", e))?;
+    Ok((registry_json, declarative_registry_json))
 }

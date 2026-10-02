@@ -27,6 +27,13 @@ export class CustomStringValidator {
 }
 
 // Custom validator with custom message
+// Custom validator imported from another module by the expansion itself
+/** @derive(Deserialize) */
+export class ImportedCustomValidator {
+    /** @serde({ validate: ['custom({ function: "isMultipleOfThree", source: "./shared-validators" })'] }) */
+    count: number;
+}
+
 /** @derive(Deserialize) */
 export class CustomWithMessageValidator {
     /** @serde({ validate: [{ validate: "custom(isEven)", message: "Number must be even" }] }) */

@@ -283,7 +283,7 @@ export function findConfigFile(startDir: string): string | null {
  * The returned `MacroConfig` is a subset: only `keepDecorators`,
  * `generateConvenienceConst`, `configPath`, and `hasForeignTypes` are ever
  * populated. The macro-behavior sections (`cfg`, `deprecated`, `mustUse`,
- * `nonExhaustive`) and the `vite` section are NOT surfaced here — the native
+ * `nonExhaustive`) and the `vite` section are NOT surfaced here: the native
  * engine consumes them itself from its cache keyed by `configPath` (pass
  * `configPath` through in `ExpandOptions`), and the Vite plugin re-imports
  * the config file to read its `vite` section.
@@ -334,9 +334,10 @@ export function loadMacroConfig(
                 configPath,
                 hasForeignTypes: result.hasForeignTypes
             };
-        } catch {
-            // console.error(`[macroforge:shared] loadMacroConfig failed for ${configPath}:`, e);
-            // Fall through to fallback
+        } catch (error) {
+            // Expansion still runs with the defaults, but a config that does
+            // not parse must not vanish silently.
+            console.error(`[macroforge] could not load ${configPath}; using defaults:`, error);
         }
     }
 

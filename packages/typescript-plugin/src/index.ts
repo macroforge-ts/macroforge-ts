@@ -54,7 +54,8 @@ import {
     hasMacroAnnotations,
     loadConfig as nativeLoadConfig,
     macroImports,
-    NativePlugin
+    NativePlugin,
+    unmappedPosition
 } from '@macroforge/core';
 
 interface MacroManifestEntry {
@@ -834,7 +835,9 @@ function init(
          *
          * TypeScript's incremental compiler relies on snapshot identity to detect changes.
          * By caching snapshots keyed by version, we ensure the same snapshot object is
-         * returned for unchanged files, preventing unnecessary recompilation.
+         * returned for unchanged files, preventing unnecessary recompilation. Files
+         * without macros are cached too, so an unchanged file is neither re-read nor
+         * re-scanned.
          *
          * @remarks
          * Key: Source file path
@@ -862,6 +865,57 @@ function init(
          * via N-API bindings.
          */
         const nativePlugin = new NativePlugin();
+
+        /**
+         * A snapshot of generated text that reports what changed since the
+         * snapshot it replaces, so TypeScript reparses only the edited stretch
+         * instead of the whole file.
+         */
+        const textSnapshot = (text: string): ts.IScriptSnapshot => ({
+            getText: (start, end) => text.substring(start, end),
+            getLength: () => text.length,
+            getChangeRange: (previous) => {
+                const old = previous.getText(0, previous.getLength());
+                const shorter = Math.min(old.length, text.length);
+                let prefix = 0;
+                while (prefix < shorter && old.charCodeAt(prefix) === text.charCodeAt(prefix)) {
+                    prefix++;
+                }
+                let suffix = 0;
+                while (
+                    suffix < shorter - prefix &&
+                    old.charCodeAt(old.length - 1 - suffix) ===
+                        text.charCodeAt(text.length - 1 - suffix)
+                ) {
+                    suffix++;
+                }
+                return tsModule.createTextChangeRange(
+                    tsModule.createTextSpan(prefix, old.length - prefix - suffix),
+                    text.length - prefix - suffix
+                );
+            }
+        });
+
+        /**
+         * Each file's position mapper, kept per script version so the hooks a
+         * single request runs share one instead of fetching a fresh one each.
+         */
+        const mapperCache = new Map<
+            string,
+            { version: string; mapper: ReturnType<NativePlugin['getMapper']> }
+        >();
+
+        /** The position mapper of `fileName`'s current expansion, if it has one. */
+        const getMapper = (fileName: string) => {
+            const version = info.languageServiceHost.getScriptVersion(fileName);
+            const cached = mapperCache.get(fileName);
+            if (cached && cached.version === version) {
+                return cached.mapper;
+            }
+            const mapper = nativePlugin.getMapper(fileName);
+            mapperCache.set(fileName, { version, mapper });
+            return mapper;
+        };
 
         /**
          * Gets the current working directory for the project.
@@ -895,21 +949,36 @@ function init(
         const keepDecorators = macroConfig.keepDecorators;
 
         /**
-         * Logs a message to TypeScript's project service logger (visible in
-         * tsserver logs) and to stderr.
+         * Traces plugin activity to the tsserver log, only when that log is
+         * verbose: the hooks run on every keystroke and the trace is for debugging.
          *
          * @param msg - The message to log, prefixed with `[macroforge]`
          */
         const log = (msg: string) => {
             try {
-                info.project.projectService.logger.info(`[macroforge] ${msg}`);
-            } catch {
-                // Ignore logging failures
+                const logger = info.project.projectService.logger;
+                if (logger.hasLevel(tsModule.server.LogLevel.verbose)) {
+                    logger.info(`[macroforge] ${msg}`);
+                }
+            } catch (e) {
+                console.error(`[macroforge] ${msg} (tsserver logger failed: ${e})`);
             }
+        };
+
+        /**
+         * Reports a failure to the tsserver log as an error and to stderr.
+         *
+         * @param msg - The message to log, prefixed with `[macroforge]`
+         */
+        const logError = (msg: string) => {
+            console.error(`[macroforge] ${msg}`);
             try {
-                console.error(`[macroforge] ${msg}`);
-            } catch {
-                // Ignore logging failures
+                info.project.projectService.logger.msg(
+                    `[macroforge] ${msg}`,
+                    tsModule.server.Msg.Err
+                );
+            } catch (e) {
+                console.error(`[macroforge] tsserver logger failed: ${e}`);
             }
         };
 
@@ -942,7 +1011,7 @@ function init(
                     scriptInfo.attachToProject(info.project);
                 }
             } catch (error) {
-                log(
+                logError(
                     `Failed to register virtual .d.ts ${fileName}: ${
                         error instanceof Error ? error.message : String(error)
                     }`
@@ -980,7 +1049,7 @@ function init(
                     projectService.deleteScriptInfo?.(scriptInfo);
                 }
             } catch (error) {
-                log(
+                logError(
                     `Failed to clean up virtual .d.ts ${fileName}: ${
                         error instanceof Error ? error.message : String(error)
                     }`
@@ -1019,7 +1088,7 @@ function init(
                     // Mirror the behavior of the original setDocument but avoid throwing when ScriptInfo is absent.
                     scriptInfo.cacheSourceFile = { key, sourceFile } as any;
                 } catch (error) {
-                    log(
+                    logError(
                         `Error in guarded setDocument for ${filePath}: ${
                             error instanceof Error ? error.message : String(error)
                         }`
@@ -1086,16 +1155,13 @@ function init(
             try {
                 log(`Processing ${fileName}`);
 
+                // The mapper cached for this version may predate this expansion.
+                mapperCache.delete(fileName);
                 const result = nativePlugin.processFile(fileName, content, {
+                    emitMetadata: false,
                     keepDecorators,
                     version,
-                    configPath: macroConfig.configPath,
-                    externalDecoratorModules: 'externalDecoratorModules' in macroConfig
-                        ? macroConfig.externalDecoratorModules
-                        : undefined,
-                    typeRegistryJson: 'typeRegistryJson' in macroConfig
-                        ? macroConfig.typeRegistryJson
-                        : undefined
+                    configPath: macroConfig.configPath
                 });
 
                 // Update virtual .d.ts files
@@ -1103,7 +1169,7 @@ function init(
                 if (result.types) {
                     virtualDtsFiles.set(
                         virtualDtsFileName,
-                        tsModule.ScriptSnapshot.fromString(result.types)
+                        textSnapshot(result.types)
                     );
                     ensureVirtualDtsRegistered(virtualDtsFileName);
                     log(`Generated virtual .d.ts for ${fileName}`);
@@ -1115,7 +1181,7 @@ function init(
                 return { result, code: result.code };
             } catch (e) {
                 const errorMessage = e instanceof Error ? e.stack || e.message : String(e);
-                log(`Plugin expansion failed for ${fileName}: ${errorMessage}`);
+                logError(`Plugin expansion failed for ${fileName}: ${errorMessage}`);
 
                 virtualDtsFiles.delete(fileName + '.macroforge.d.ts');
                 cleanupVirtualDts(fileName + '.macroforge.d.ts');
@@ -1164,7 +1230,7 @@ function init(
                 }
                 return originalGetScriptVersion(fileName);
             } catch (e) {
-                log(
+                logError(
                     `Error in getScriptVersion: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetScriptVersion(fileName);
@@ -1191,7 +1257,7 @@ function init(
                 // Append all virtual .d.ts files to the project's file list
                 return [...originalFiles, ...Array.from(virtualDtsFiles.keys())];
             } catch (e) {
-                log(
+                logError(
                     `Error in getScriptFileNames: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetScriptFileNames();
@@ -1216,7 +1282,7 @@ function init(
                 }
                 return originalFileExists(fileName);
             } catch (e) {
-                log(
+                logError(
                     `Error in fileExists: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalFileExists(fileName);
@@ -1267,6 +1333,15 @@ function init(
                     return originalGetScriptSnapshot(fileName);
                 }
 
+                // Scenario 4: Unchanged since the last request - the expanded
+                // snapshot, or the original when the file has no macros
+                const version = info.languageServiceHost.getScriptVersion(fileName);
+                const cached = snapshotCache.get(fileName);
+                if (cached && cached.version === version) {
+                    log(`  -> snapshot cache hit (version ${version})`);
+                    return cached.snapshot;
+                }
+
                 const snapshot = originalGetScriptSnapshot(fileName);
                 if (!snapshot) {
                     // Avoid tsserver crashes when a file was reported but no snapshot exists
@@ -1278,38 +1353,27 @@ function init(
 
                 const text = snapshot.getText(0, snapshot.getLength());
 
-                // Scenario 4: No macro directives - return original
-                if (!hasMacroAnnotations(text)) {
+                // Scenario 5: No macro directives - return original
+                if (!hasMacroAnnotations(text, fileName)) {
                     log(`  -> no macro directives, returning original`);
+                    snapshotCache.set(fileName, { version, snapshot });
                     return snapshot;
                 }
 
-                // Scenario 5: Has macros - expand and return
-                log(`  -> has macros, expanding...`);
+                // Scenario 6: Has macros - expand and return
+                log(`  -> has macros, expanding version ${version}...`);
                 processingFiles.add(fileName);
                 try {
-                    const version = info.languageServiceHost.getScriptVersion(fileName);
-                    log(`  -> version: ${version}`);
-
-                    // Check snapshot cache for stable identity
-                    const cached = snapshotCache.get(fileName);
-                    if (cached && cached.version === version) {
-                        log(`  -> snapshot cache hit`);
-                        return cached.snapshot;
-                    }
-
                     const { code } = processFile(fileName, text, version);
-                    log(`  -> processFile returned`);
 
                     if (code && code !== text) {
-                        log(`  -> creating expanded snapshot (${code.length} chars)`);
-                        const expandedSnapshot = tsModule.ScriptSnapshot.fromString(code);
+                        log(`  -> returning expanded snapshot (${code.length} chars)`);
+                        const expandedSnapshot = textSnapshot(code);
                         // Cache for stable identity across TS requests
                         snapshotCache.set(fileName, {
                             version,
                             snapshot: expandedSnapshot
                         });
-                        log(`  -> returning expanded snapshot`);
                         return expandedSnapshot;
                     }
 
@@ -1320,7 +1384,7 @@ function init(
                     processingFiles.delete(fileName);
                 }
             } catch (e) {
-                log(
+                logError(
                     `ERROR in getScriptSnapshot for ${fileName}: ${
                         e instanceof Error ? e.stack || e.message : String(e)
                     }`
@@ -1445,7 +1509,7 @@ function init(
                 log(`  -> got ${expandedDiagnostics.length} diagnostics`);
 
                 // Map diagnostics using mapper
-                const effectiveMapper = nativePlugin.getMapper(fileName);
+                const effectiveMapper = getMapper(fileName);
                 let mappedDiagnostics: ts.Diagnostic[];
 
                 // Collect diagnostics in generated code to report them at decorator positions
@@ -1735,7 +1799,7 @@ function init(
                     ...generatedDiagsAsMacro
                 ];
             } catch (e) {
-                log(
+                logError(
                     `Error in getSemanticDiagnostics for ${fileName}: ${
                         e instanceof Error ? e.stack || e.message : String(e)
                     }`
@@ -1763,9 +1827,6 @@ function init(
                     return originalGetSyntacticDiagnostics(fileName);
                 }
 
-                // Ensure mapper ready
-                nativePlugin.getMapper(fileName);
-
                 const expandedDiagnostics = originalGetSyntacticDiagnostics(fileName);
                 log(`  -> got ${expandedDiagnostics.length} diagnostics, mapping...`);
                 // Native plugin is guaranteed to exist after early return check
@@ -1779,7 +1840,7 @@ function init(
                 log(`  -> returning ${result.length} mapped diagnostics`);
                 return result;
             } catch (e) {
-                log(
+                logError(
                     `ERROR in getSyntacticDiagnostics: ${
                         e instanceof Error ? e.stack || e.message : String(e)
                     }`
@@ -1833,7 +1894,7 @@ function init(
                     }
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetQuickInfoAtPosition(fileName, position);
                 }
@@ -1858,7 +1919,7 @@ function init(
                     }
                 };
             } catch (e) {
-                log(
+                logError(
                     `Error in getQuickInfoAtPosition: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetQuickInfoAtPosition(fileName, position);
@@ -1891,7 +1952,7 @@ function init(
                     );
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetCompletionsAtPosition(
                         fileName,
@@ -1942,7 +2003,7 @@ function init(
                     entries: mappedEntries
                 };
             } catch (e) {
-                log(
+                logError(
                     `Error in getCompletionsAtPosition: ${
                         e instanceof Error ? e.message : String(e)
                     }`
@@ -1977,7 +2038,7 @@ function init(
                     return originalGetDefinitionAtPosition(fileName, position);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetDefinitionAtPosition(fileName, position);
                 }
@@ -1995,7 +2056,7 @@ function init(
                         acc.push(def);
                         return acc;
                     }
-                    const defMapper = nativePlugin.getMapper(def.fileName);
+                    const defMapper = getMapper(def.fileName);
                     if (!defMapper) {
                         acc.push(def);
                         return acc;
@@ -2013,7 +2074,7 @@ function init(
                     return acc;
                 }, [] as ts.DefinitionInfo[]);
             } catch (e) {
-                log(
+                logError(
                     `Error in getDefinitionAtPosition: ${
                         e instanceof Error ? e.message : String(e)
                     }`
@@ -2038,7 +2099,7 @@ function init(
                     return originalGetDefinitionAndBoundSpan(fileName, position);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetDefinitionAndBoundSpan(fileName, position);
                 }
@@ -2060,7 +2121,7 @@ function init(
                         acc.push(def);
                         return acc;
                     }
-                    const defMapper = nativePlugin.getMapper(def.fileName);
+                    const defMapper = getMapper(def.fileName);
                     if (!defMapper) {
                         acc.push(def);
                         return acc;
@@ -2086,7 +2147,7 @@ function init(
                     definitions: mappedDefinitions
                 };
             } catch (e) {
-                log(
+                logError(
                     `Error in getDefinitionAndBoundSpan: ${
                         e instanceof Error ? e.message : String(e)
                     }`
@@ -2113,7 +2174,7 @@ function init(
                     return originalGetTypeDefinitionAtPosition(fileName, position);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetTypeDefinitionAtPosition(fileName, position);
                 }
@@ -2130,7 +2191,7 @@ function init(
                         acc.push(def);
                         return acc;
                     }
-                    const defMapper = nativePlugin.getMapper(def.fileName);
+                    const defMapper = getMapper(def.fileName);
                     if (!defMapper) {
                         acc.push(def);
                         return acc;
@@ -2148,7 +2209,7 @@ function init(
                     return acc;
                 }, [] as ts.DefinitionInfo[]);
             } catch (e) {
-                log(
+                logError(
                     `Error in getTypeDefinitionAtPosition: ${
                         e instanceof Error ? e.message : String(e)
                     }`
@@ -2173,7 +2234,7 @@ function init(
                     return originalGetReferencesAtPosition(fileName, position);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetReferencesAtPosition(fileName, position);
                 }
@@ -2187,7 +2248,7 @@ function init(
                         acc.push(ref);
                         return acc;
                     }
-                    const refMapper = nativePlugin.getMapper(ref.fileName);
+                    const refMapper = getMapper(ref.fileName);
                     if (!refMapper) {
                         acc.push(ref);
                         return acc;
@@ -2205,7 +2266,7 @@ function init(
                     return acc;
                 }, [] as ts.ReferenceEntry[]);
             } catch (e) {
-                log(
+                logError(
                     `Error in getReferencesAtPosition: ${
                         e instanceof Error ? e.message : String(e)
                     }`
@@ -2230,7 +2291,7 @@ function init(
                     return originalFindReferences(fileName, position);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalFindReferences(fileName, position);
                 }
@@ -2247,7 +2308,7 @@ function init(
                                 acc.push(ref);
                                 return acc;
                             }
-                            const refMapper = nativePlugin.getMapper(ref.fileName);
+                            const refMapper = getMapper(ref.fileName);
                             if (!refMapper) {
                                 acc.push(ref);
                                 return acc;
@@ -2267,7 +2328,7 @@ function init(
                     }))
                     .filter((s) => s.references.length > 0);
             } catch (e) {
-                log(
+                logError(
                     `Error in findReferences: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalFindReferences(fileName, position);
@@ -2293,7 +2354,7 @@ function init(
                     return originalGetSignatureHelpItems(fileName, position, options);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetSignatureHelpItems(fileName, position, options);
                 }
@@ -2321,7 +2382,7 @@ function init(
                     }
                 };
             } catch (e) {
-                log(
+                logError(
                     `Error in getSignatureHelpItems: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetSignatureHelpItems(fileName, position, options);
@@ -2374,7 +2435,7 @@ function init(
                     return callGetRenameInfo(fileName, position, options as any);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return callGetRenameInfo(fileName, position, options as any);
                 }
@@ -2399,7 +2460,7 @@ function init(
                     triggerSpan: { start: mappedSpan.start, length: mappedSpan.length }
                 };
             } catch (e) {
-                log(
+                logError(
                     `Error in getRenameInfo: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetRenameInfo(fileName, position, options);
@@ -2459,7 +2520,7 @@ function init(
                     return callFindRenameLocations(fileName, position, options);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return callFindRenameLocations(fileName, position, options);
                 }
@@ -2478,7 +2539,7 @@ function init(
                             acc.push(loc);
                             return acc;
                         }
-                        const locMapper = nativePlugin.getMapper(loc.fileName);
+                        const locMapper = getMapper(loc.fileName);
                         if (!locMapper) {
                             acc.push(loc);
                             return acc;
@@ -2498,7 +2559,7 @@ function init(
                     [] as ts.RenameLocation[]
                 );
             } catch (e) {
-                log(
+                logError(
                     `Error in findRenameLocations: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return callFindRenameLocations(fileName, position, options);
@@ -2529,7 +2590,7 @@ function init(
                     );
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetDocumentHighlights(
                         fileName,
@@ -2554,7 +2615,7 @@ function init(
                                 acc.push(span);
                                 return acc;
                             }
-                            const spanMapper = nativePlugin.getMapper(docHighlight.fileName);
+                            const spanMapper = getMapper(docHighlight.fileName);
                             if (!spanMapper) {
                                 acc.push(span);
                                 return acc;
@@ -2574,7 +2635,7 @@ function init(
                     }))
                     .filter((h) => h.highlightSpans.length > 0);
             } catch (e) {
-                log(
+                logError(
                     `Error in getDocumentHighlights: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetDocumentHighlights(fileName, position, filesToSearch);
@@ -2598,7 +2659,7 @@ function init(
                     return originalGetImplementationAtPosition(fileName, position);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetImplementationAtPosition(fileName, position);
                 }
@@ -2615,7 +2676,7 @@ function init(
                         acc.push(impl);
                         return acc;
                     }
-                    const implMapper = nativePlugin.getMapper(impl.fileName);
+                    const implMapper = getMapper(impl.fileName);
                     if (!implMapper) {
                         acc.push(impl);
                         return acc;
@@ -2633,7 +2694,7 @@ function init(
                     return acc;
                 }, [] as ts.ImplementationLocation[]);
             } catch (e) {
-                log(
+                logError(
                     `Error in getImplementationAtPosition: ${
                         e instanceof Error ? e.message : String(e)
                     }`
@@ -2676,7 +2737,7 @@ function init(
                     );
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetCodeFixesAtPosition(
                         fileName,
@@ -2698,7 +2759,7 @@ function init(
                     preferences
                 );
             } catch (e) {
-                log(
+                logError(
                     `Error in getCodeFixesAtPosition: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetCodeFixesAtPosition(
@@ -2727,40 +2788,39 @@ function init(
                     return originalGetNavigationTree(fileName);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetNavigationTree(fileName);
                 }
-                const navMapper = mapper;
                 const tree = originalGetNavigationTree(fileName);
 
-                // Recursively map spans in navigation tree
-                function mapNavigationItem(item: ts.NavigationTree): ts.NavigationTree {
-                    const mappedSpans = item.spans.map((span) => {
-                        const mapped = navMapper.mapSpanToOriginal(span.start, span.length);
-                        return mapped ? { start: mapped.start, length: mapped.length } : span;
-                    });
+                // Every span in the tree, in walk order, mapped in one call.
+                const spans: number[] = [];
+                const collectSpans = (item: ts.NavigationTree) => {
+                    for (const span of item.spans) spans.push(span.start, span.length);
+                    if (item.nameSpan) spans.push(item.nameSpan.start, item.nameSpan.length);
+                    item.childItems?.forEach(collectSpans);
+                };
+                collectSpans(tree);
+                const mapped = mapper.mapSpansToOriginal(Uint32Array.from(spans));
 
-                    const mappedNameSpan = item.nameSpan
-                        ? (navMapper.mapSpanToOriginal(
-                            item.nameSpan.start,
-                            item.nameSpan.length
-                        ) ?? item.nameSpan)
-                        : undefined;
-
-                    return {
-                        ...item,
-                        spans: mappedSpans,
-                        nameSpan: mappedNameSpan
-                            ? { start: mappedNameSpan.start, length: mappedNameSpan.length }
-                            : undefined,
-                        childItems: item.childItems?.map(mapNavigationItem)
-                    };
-                }
+                let next = 0;
+                const mapSpan = (span: ts.TextSpan): ts.TextSpan => {
+                    const start = mapped[next];
+                    const length = mapped[next + 1];
+                    next += 2;
+                    return start === unmappedPosition() ? span : { start, length };
+                };
+                const mapNavigationItem = (item: ts.NavigationTree): ts.NavigationTree => ({
+                    ...item,
+                    spans: item.spans.map(mapSpan),
+                    nameSpan: item.nameSpan ? mapSpan(item.nameSpan) : undefined,
+                    childItems: item.childItems?.map(mapNavigationItem)
+                });
 
                 return mapNavigationItem(tree);
             } catch (e) {
-                log(
+                logError(
                     `Error in getNavigationTree: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetNavigationTree(fileName);
@@ -2782,38 +2842,37 @@ function init(
                     return originalGetOutliningSpans(fileName);
                 }
 
-                const mapper = nativePlugin.getMapper(fileName);
+                const mapper = getMapper(fileName);
                 if (!mapper) {
                     return originalGetOutliningSpans(fileName);
                 }
                 const spans = originalGetOutliningSpans(fileName);
+                const mapped = mapper.mapSpansToOriginal(
+                    Uint32Array.from(
+                        spans.flatMap((span) => [
+                            span.textSpan.start,
+                            span.textSpan.length,
+                            span.hintSpan.start,
+                            span.hintSpan.length
+                        ])
+                    )
+                );
 
-                return spans.map((span) => {
-                    const mappedTextSpan = mapper.mapSpanToOriginal(
-                        span.textSpan.start,
-                        span.textSpan.length
-                    );
-                    const mappedHintSpan = mapper.mapSpanToOriginal(
-                        span.hintSpan.start,
-                        span.hintSpan.length
-                    );
-
-                    if (!mappedTextSpan || !mappedHintSpan) return span;
-
+                return spans.map((span, index) => {
+                    const at = index * 4;
+                    if (
+                        mapped[at] === unmappedPosition() || mapped[at + 2] === unmappedPosition()
+                    ) {
+                        return span;
+                    }
                     return {
                         ...span,
-                        textSpan: {
-                            start: mappedTextSpan.start,
-                            length: mappedTextSpan.length
-                        },
-                        hintSpan: {
-                            start: mappedHintSpan.start,
-                            length: mappedHintSpan.length
-                        }
+                        textSpan: { start: mapped[at], length: mapped[at + 1] },
+                        hintSpan: { start: mapped[at + 2], length: mapped[at + 3] }
                     };
                 });
             } catch (e) {
-                log(
+                logError(
                     `Error in getOutliningSpans: ${e instanceof Error ? e.message : String(e)}`
                 );
                 return originalGetOutliningSpans(fileName);
@@ -2845,7 +2904,7 @@ function init(
                         return originalProvideInlayHints(fileName, span, preferences);
                     }
 
-                    const mapper = nativePlugin.getMapper(fileName);
+                    const mapper = getMapper(fileName);
                     if (!mapper) {
                         return originalProvideInlayHints(fileName, span, preferences);
                     }
@@ -2866,22 +2925,18 @@ function init(
 
                     if (!result) return result;
 
-                    // Map each hint's position back to original coordinates
-                    return result.flatMap((hint) => {
-                        const originalPos = mapper.expandedToOriginal(hint.position);
-                        if (originalPos === null || originalPos === undefined) {
-                            // Hint is in generated code, skip it
-                            return [];
-                        }
-                        return [
-                            {
-                                ...hint,
-                                position: originalPos
-                            }
-                        ];
-                    });
+                    // Map each hint's position back to original coordinates;
+                    // hints in generated code are dropped.
+                    const positions = mapper.expandedPositionsToOriginal(
+                        Uint32Array.from(result, (hint) => hint.position)
+                    );
+                    return result.flatMap((hint, index) =>
+                        positions[index] === unmappedPosition()
+                            ? []
+                            : [{ ...hint, position: positions[index] }]
+                    );
                 } catch (e) {
-                    log(
+                    logError(
                         `Error in provideInlayHints: ${e instanceof Error ? e.message : String(e)}`
                     );
                     return originalProvideInlayHints(fileName, span, preferences);

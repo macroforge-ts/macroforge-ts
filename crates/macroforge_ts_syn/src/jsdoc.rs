@@ -30,9 +30,17 @@ impl JsDocBlock {
 /// declaration modifiers separate the two. A comment that documents an
 /// earlier declaration is never returned.
 pub fn adjacent_jsdoc(source: &str, target_start: usize) -> Option<JsDocBlock> {
+    adjacent_jsdoc_after(source, 0, target_start)
+}
+
+/// [`adjacent_jsdoc`] for a declaration whose previous sibling ends at
+/// `floor`: the comment cannot start before it, so only the gap between the
+/// two is searched.
+pub fn adjacent_jsdoc_after(source: &str, floor: usize, target_start: usize) -> Option<JsDocBlock> {
     let search_area = source.get(..target_start)?;
-    let close = search_area.rfind("*/")?;
-    let start = comment_start(search_area, close)?;
+    let floor = floor.min(target_start);
+    let close = floor + search_area.get(floor..)?.rfind("*/")?;
+    let start = comment_start(search_area, floor, close)?;
     let end = close + 2;
     let only_modifiers_between = search_area[end..]
         .split_whitespace()
@@ -40,12 +48,15 @@ pub fn adjacent_jsdoc(source: &str, target_start: usize) -> Option<JsDocBlock> {
     only_modifiers_between.then_some(JsDocBlock { start, end })
 }
 
-/// Where the block comment closed by the `*/` at `close` opens. A comment
-/// cannot contain `*/`, so it is the first `/**` after the previous `*/`;
-/// the last `/**` before `close` could be text inside the comment, such as an
-/// example that itself shows a JSDoc.
-fn comment_start(source: &str, close: usize) -> Option<usize> {
-    let previous_close = source[..close].rfind("*/").map_or(0, |at| at + 2);
+/// Where the block comment closed by the `*/` at `close` opens, at or after
+/// `floor`. A comment cannot contain `*/`, so it is the first `/**` after the
+/// previous `*/`; the last `/**` before `close` could be text inside the
+/// comment, such as an example that itself shows a JSDoc.
+fn comment_start(source: &str, floor: usize, close: usize) -> Option<usize> {
+    let floor = floor.min(close);
+    let previous_close = source[floor..close]
+        .rfind("*/")
+        .map_or(floor, |at| floor + at + 2);
     source[previous_close..close]
         .find("/**")
         .map(|offset| previous_close + offset)
@@ -59,16 +70,31 @@ pub fn is_macro_import_comment(body: &str) -> bool {
     body.trim_start()
         .trim_start_matches('*')
         .trim_start()
-        .to_ascii_lowercase()
-        .starts_with("import macro")
+        .get(..MACRO_IMPORT.len())
+        .is_some_and(|head| head.eq_ignore_ascii_case(MACRO_IMPORT))
+}
+
+/// What a `/** import macro … */` directive starts with, in any case.
+pub const MACRO_IMPORT: &str = "import macro";
+
+/// Whether `source` could hold an `import macro` directive anywhere: a scan
+/// cheap enough to run before parsing for one.
+pub fn may_have_macro_import(source: &str) -> bool {
+    source
+        .as_bytes()
+        .windows(MACRO_IMPORT.len())
+        .any(|window| window.eq_ignore_ascii_case(MACRO_IMPORT.as_bytes()))
 }
 
 /// The JSDoc block stacked directly above `block`, separated from it by
-/// whitespace alone.
-pub fn stacked_jsdoc_above(source: &str, block: JsDocBlock) -> Option<JsDocBlock> {
+/// whitespace alone and starting at or after `floor`.
+pub fn stacked_jsdoc_above(source: &str, floor: usize, block: JsDocBlock) -> Option<JsDocBlock> {
     let before = source[..block.start].trim_end();
     let close = before.strip_suffix("*/")?.len();
-    let start = comment_start(before, close)?;
+    if close < floor {
+        return None;
+    }
+    let start = comment_start(before, floor, close)?;
     Some(JsDocBlock {
         start,
         end: close + 2,
@@ -262,8 +288,22 @@ mod adjacency_tests {
         let target = source.find("interface").unwrap_or_default();
         let nearest = adjacent_jsdoc(source, target);
         assert_eq!(nearest.map(|block| block.body(source)), Some(" second "));
-        let above = nearest.and_then(|block| stacked_jsdoc_above(source, block));
+        let above = nearest.and_then(|block| stacked_jsdoc_above(source, 0, block));
         assert_eq!(above.map(|block| block.body(source)), Some(" first "));
+    }
+
+    #[test]
+    fn a_floor_keeps_the_previous_siblings_comments_out() {
+        let source =
+            "class A {\n  /** @serde(skip) */\n  a: string;\n  /** b */ /** @x */\n  b: string;\n}";
+        let floor = source.find("a: string;").unwrap_or_default() + "a: string;".len();
+        let target = source.find("b: string").unwrap_or_default();
+        let nearest = adjacent_jsdoc_after(source, floor, target);
+        assert_eq!(nearest.map(|block| block.body(source)), Some(" @x "));
+        let above = nearest.and_then(|block| stacked_jsdoc_above(source, floor, block));
+        assert_eq!(above.map(|block| block.body(source)), Some(" b "));
+        let first = above.and_then(|block| stacked_jsdoc_above(source, floor, block));
+        assert_eq!(first, None);
     }
 
     #[test]

@@ -33,10 +33,27 @@ pub fn run(args: TestArgs) -> Result<()> {
     Ok(())
 }
 
+/// Features the workspace's test targets require. The snapshot suites run the
+/// test-only macros, which production builds must never register.
+const WORKSPACE_TEST_FEATURES: [&str; 1] = ["macroforge_ts/test-macros"];
+
 /// Runs every Rust test in the workspace once, then each excluded crate's.
 pub fn run_rust_tests(config: &Config) -> Result<()> {
     println!("\n{}", "Running Rust tests".bold());
     println!("{}", "─".repeat(40));
+
+    // The conformance corpus expands the playground, whose external macro
+    // resolves from each app's node_modules. It is rebuilt from this
+    // checkout every run: a package built from older guest code expands, and
+    // records registry reads, as that code did.
+    let cli = config.root.join("target/debug/macroforge");
+    anyhow::ensure!(
+        cli.is_file(),
+        "the conformance tests need the playground macro package, which is built with {}; \
+         run `pixi run build:cli` first",
+        cli.display()
+    );
+    prepare_playground_apps(config)?;
 
     let mut rust_roots = vec![config.root.clone()];
     rust_roots.extend(crate::diagnostics::clippy::excluded_crates(&config.root)?);
@@ -51,7 +68,12 @@ pub fn run_rust_tests(config: &Config) -> Result<()> {
             );
         print!("  {} {}... ", "Testing:".bold(), label.cyan());
         io::stdout().flush()?;
-        match shell::cargo::test(rust_root) {
+        let features: &[&str] = if *rust_root == config.root {
+            &WORKSPACE_TEST_FEATURES
+        } else {
+            &[]
+        };
+        match shell::cargo::test(rust_root, features) {
             Ok(_) => println!("{}", "passed".green()),
             Err(e) => {
                 println!("{}", "failed".red());

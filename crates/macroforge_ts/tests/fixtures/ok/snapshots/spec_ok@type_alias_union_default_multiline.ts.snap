@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_multiline.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_multiline.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_multiline.t
  * @default(TypeA.defaultValue())
  */
 export type MultilineUnion = TypeA | TypeB | TypeC;
+
+## Changed
+
+true
 
 ## Output
 
@@ -36,5 +40,24 @@ export const MultilineUnion = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 61..113 -> expanded 0..52
+original 113..114 -> expanded 287..288
+generated 52..199 <- Default
+generated 199..287 <- __convenience_const
+
+## Metadata
+
+type MultilineUnion: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"TypeA"}},{"decorators":[],"kind":{"TypeRef":"TypeB"}},{"decorators":[],"kind":{"TypeRef":"TypeC"}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":62,"start":1}},{"args_src":"TypeA.defaultValue()","name":"default","span":{"end":62,"start":1}}],"name":"MultilineUnion","span":{"end":114,"start":70},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

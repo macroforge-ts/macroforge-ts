@@ -1,0 +1,883 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/lead-stage.svelte.ts
+sha256 57c7de41f70078d4495465a240986144319811b25127e4b6ae927c7874626251
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type LeadStage =
+    | /** @default */ 'Open'
+    | 'InitialContact'
+    | 'Qualified'
+    | 'Estimate'
+    | 'Negotiation';
+
+export function leadStageDefaultValue(): LeadStage {
+                            return "Open";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function leadStageSerialize(value: LeadStage, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = leadStageSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function leadStageSerializeWithContext(value: LeadStage, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function leadStageDeserialize(input: unknown): { success: true; value: LeadStage } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Open':
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return { success: true, value: input as LeadStage };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for LeadStage: expected one of " + ['Open', 'InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function leadStageDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): LeadStage | __mf_PendingRef {
+                switch (value) {
+                    case 'Open':
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return value as LeadStage;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for LeadStage: expected one of " + ['Open', 'InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function leadStageHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Open':
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function leadStageIs(value: unknown): value is LeadStage {
+                return leadStageHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type LeadStageOpenErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type LeadStageInitialContactErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type LeadStageQualifiedErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type LeadStageEstimateErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type LeadStageNegotiationErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type LeadStageOpenTainted = {
+
+
+            };
+            export type LeadStageInitialContactTainted = {
+
+
+            };
+            export type LeadStageQualifiedTainted = {
+
+
+            };
+            export type LeadStageEstimateTainted = {
+
+
+            };
+            export type LeadStageNegotiationTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type LeadStageErrors = ({ _value: "Open" } & LeadStageOpenErrors) | ({ _value: "InitialContact" } & LeadStageInitialContactErrors) | ({ _value: "Qualified" } & LeadStageQualifiedErrors) | ({ _value: "Estimate" } & LeadStageEstimateErrors) | ({ _value: "Negotiation" } & LeadStageNegotiationErrors);
+
+        /** Union tainted type  */
+        export type LeadStageTainted = ({ _value: "Open" } & LeadStageOpenTainted) | ({ _value: "InitialContact" } & LeadStageInitialContactTainted) | ({ _value: "Qualified" } & LeadStageQualifiedTainted) | ({ _value: "Estimate" } & LeadStageEstimateTainted) | ({ _value: "Negotiation" } & LeadStageNegotiationTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface LeadStageOpenFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface LeadStageInitialContactFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface LeadStageQualifiedFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface LeadStageEstimateFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface LeadStageNegotiationFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface LeadStageGigaform {
+            readonly currentVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
+            readonly data: LeadStage;
+            readonly errors: LeadStageErrors;
+            readonly tainted: LeadStageTainted;
+            readonly variants: LeadStageVariantFields;
+            switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void;
+            validate(): Exit.Exit<LeadStage, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<LeadStage>): void;
+        }
+
+        /** Variant fields container  */
+        export interface LeadStageVariantFields {
+            
+                readonly Open: { readonly fields: LeadStageOpenFieldControllers };
+            
+                readonly InitialContact: { readonly fields: LeadStageInitialContactFieldControllers };
+            
+                readonly Qualified: { readonly fields: LeadStageQualifiedFieldControllers };
+            
+                readonly Estimate: { readonly fields: LeadStageEstimateFieldControllers };
+            
+                readonly Negotiation: { readonly fields: LeadStageNegotiationFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function leadStageGetDefaultForVariant(variant: string): LeadStage {
+            if (variant === "Open") { return "Open" as LeadStage; }
+if (variant === "InitialContact") { return "InitialContact" as LeadStage; }
+if (variant === "Qualified") { return "Qualified" as LeadStage; }
+if (variant === "Estimate") { return "Estimate" as LeadStage; }
+if (variant === "Negotiation") { return "Negotiation" as LeadStage; }
+            return "Open" as LeadStage;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function leadStageCreateForm(initial?: LeadStage): LeadStageGigaform {
+
+            const initialVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" = (initial as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation") ?? "Open";
+
+
+            let currentVariant = $state<"Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation">(initialVariant);
+            let data = $state<LeadStage>(initial ?? leadStageGetDefaultForVariant(initialVariant));
+            let errors = $state<LeadStageErrors>({} as LeadStageErrors);
+            let tainted = $state<LeadStageTainted>({} as LeadStageTainted);
+
+            const variants = {
+            
+                "Open": { fields: {  } as unknown as LeadStageOpenFieldControllers },
+            
+                "InitialContact": { fields: {  } as unknown as LeadStageInitialContactFieldControllers },
+            
+                "Qualified": { fields: {  } as unknown as LeadStageQualifiedFieldControllers },
+            
+                "Estimate": { fields: {  } as unknown as LeadStageEstimateFieldControllers },
+            
+                "Negotiation": { fields: {  } as unknown as LeadStageNegotiationFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as LeadStageVariantFields;
+
+
+            function switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {
+                currentVariant = variant;
+                data = leadStageGetDefaultForVariant(variant);
+                errors = {} as LeadStageErrors;
+                tainted = {} as LeadStageTainted;
+            }
+
+
+            function validate(): Exit.Exit<LeadStage, Array<{ field: string; message: string }>> {
+                return toExit(leadStageDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<LeadStage>): void {
+                data = overrides ? overrides as typeof data : leadStageGetDefaultForVariant(currentVariant);
+                errors = {} as LeadStageErrors;
+                tainted = {} as LeadStageTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function leadStageFromFormData(formData: FormData): Exit.Exit<LeadStage, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Open") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "InitialContact") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Qualified") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Estimate") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Negotiation") {
+                        
+                    }
+                }
+
+
+            return toExit(leadStageDeserialize(obj));
+        }
+
+export const LeadStage = {
+  defaultValue: leadStageDefaultValue,
+  serialize: leadStageSerialize,
+  serializeWithContext: leadStageSerializeWithContext,
+  deserialize: leadStageDeserialize,
+  deserializeWithContext: leadStageDeserializeWithContext,
+  hasShape: leadStageHasShape,
+  is: leadStageIs,
+  createForm: leadStageCreateForm,
+  fromFormData: leadStageFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type LeadStage =
+    | /** @default */ 'Open'
+    | 'InitialContact'
+    | 'Qualified'
+    | 'Estimate'
+    | 'Negotiation';
+
+export function leadStageDefaultValue(): LeadStage {
+                            return "Open";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function leadStageSerialize(value: LeadStage, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = leadStageSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function leadStageSerializeWithContext(value: LeadStage, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function leadStageDeserialize(input: unknown): { success: true; value: LeadStage } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'Open':
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return { success: true, value: input as LeadStage };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for LeadStage: expected one of " + ['Open', 'InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function leadStageDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): LeadStage | __mf_PendingRef {
+                switch (value) {
+                    case 'Open':
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return value as LeadStage;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for LeadStage: expected one of " + ['Open', 'InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function leadStageHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'Open':
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function leadStageIs(value: unknown): value is LeadStage {
+                return leadStageHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type LeadStageOpenErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type LeadStageInitialContactErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type LeadStageQualifiedErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type LeadStageEstimateErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type LeadStageNegotiationErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type LeadStageOpenTainted = {
+
+
+            };
+            export type LeadStageInitialContactTainted = {
+
+
+            };
+            export type LeadStageQualifiedTainted = {
+
+
+            };
+            export type LeadStageEstimateTainted = {
+
+
+            };
+            export type LeadStageNegotiationTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type LeadStageErrors = ({ _value: "Open" } & LeadStageOpenErrors) | ({ _value: "InitialContact" } & LeadStageInitialContactErrors) | ({ _value: "Qualified" } & LeadStageQualifiedErrors) | ({ _value: "Estimate" } & LeadStageEstimateErrors) | ({ _value: "Negotiation" } & LeadStageNegotiationErrors);
+
+        /** Union tainted type  */
+        export type LeadStageTainted = ({ _value: "Open" } & LeadStageOpenTainted) | ({ _value: "InitialContact" } & LeadStageInitialContactTainted) | ({ _value: "Qualified" } & LeadStageQualifiedTainted) | ({ _value: "Estimate" } & LeadStageEstimateTainted) | ({ _value: "Negotiation" } & LeadStageNegotiationTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface LeadStageOpenFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface LeadStageInitialContactFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface LeadStageQualifiedFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface LeadStageEstimateFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface LeadStageNegotiationFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface LeadStageGigaform {
+            readonly currentVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
+            readonly data: LeadStage;
+            readonly errors: LeadStageErrors;
+            readonly tainted: LeadStageTainted;
+            readonly variants: LeadStageVariantFields;
+            switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void;
+            validate(): Exit.Exit<LeadStage, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<LeadStage>): void;
+        }
+
+        /** Variant fields container  */
+        export interface LeadStageVariantFields {
+            
+                readonly Open: { readonly fields: LeadStageOpenFieldControllers };
+            
+                readonly InitialContact: { readonly fields: LeadStageInitialContactFieldControllers };
+            
+                readonly Qualified: { readonly fields: LeadStageQualifiedFieldControllers };
+            
+                readonly Estimate: { readonly fields: LeadStageEstimateFieldControllers };
+            
+                readonly Negotiation: { readonly fields: LeadStageNegotiationFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function leadStageGetDefaultForVariant(variant: string): LeadStage {
+            if (variant === "Open") { return "Open" as LeadStage; }
+if (variant === "InitialContact") { return "InitialContact" as LeadStage; }
+if (variant === "Qualified") { return "Qualified" as LeadStage; }
+if (variant === "Estimate") { return "Estimate" as LeadStage; }
+if (variant === "Negotiation") { return "Negotiation" as LeadStage; }
+            return "Open" as LeadStage;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function leadStageCreateForm(initial?: LeadStage): LeadStageGigaform {
+
+            const initialVariant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" = (initial as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation") ?? "Open";
+
+
+            let currentVariant = $state<"Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation">(initialVariant);
+            let data = $state<LeadStage>(initial ?? leadStageGetDefaultForVariant(initialVariant));
+            let errors = $state<LeadStageErrors>({} as LeadStageErrors);
+            let tainted = $state<LeadStageTainted>({} as LeadStageTainted);
+
+            const variants = {
+            
+                "Open": { fields: {  } as unknown as LeadStageOpenFieldControllers },
+            
+                "InitialContact": { fields: {  } as unknown as LeadStageInitialContactFieldControllers },
+            
+                "Qualified": { fields: {  } as unknown as LeadStageQualifiedFieldControllers },
+            
+                "Estimate": { fields: {  } as unknown as LeadStageEstimateFieldControllers },
+            
+                "Negotiation": { fields: {  } as unknown as LeadStageNegotiationFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as LeadStageVariantFields;
+
+
+            function switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {
+                currentVariant = variant;
+                data = leadStageGetDefaultForVariant(variant);
+                errors = {} as LeadStageErrors;
+                tainted = {} as LeadStageTainted;
+            }
+
+
+            function validate(): Exit.Exit<LeadStage, Array<{ field: string; message: string }>> {
+                return toExit(leadStageDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<LeadStage>): void {
+                data = overrides ? overrides as typeof data : leadStageGetDefaultForVariant(currentVariant);
+                errors = {} as LeadStageErrors;
+                tainted = {} as LeadStageTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function leadStageFromFormData(formData: FormData): Exit.Exit<LeadStage, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "Open") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "InitialContact") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Qualified") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Estimate") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Negotiation") {
+                        
+                    }
+                }
+
+
+            return toExit(leadStageDeserialize(obj));
+        }
+
+export const LeadStage = {
+  defaultValue: leadStageDefaultValue,
+  serialize: leadStageSerialize,
+  serializeWithContext: leadStageSerializeWithContext,
+  deserialize: leadStageDeserialize,
+  deserializeWithContext: leadStageDeserializeWithContext,
+  hasShape: leadStageHasShape,
+  is: leadStageIs,
+  createForm: leadStageCreateForm,
+  fromFormData: leadStageFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..247 -> expanded 58..190
+original 247..248 -> expanded 13261..13262
+generated 190..313 <- Default
+generated 313..2264 <- Serialize
+generated 2264..4764 <- Deserialize
+generated 4764..12875 <- Gigaform
+generated 12875..13261 <- __convenience_const
+
+## Metadata
+
+type LeadStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":162,"start":147}}],"kind":{"Literal":"'Open'"}},{"decorators":[],"kind":{"Literal":"'InitialContact'"}},{"decorators":[],"kind":{"Literal":"'Qualified'"}},{"decorators":[],"kind":{"Literal":"'Estimate'"}},{"decorators":[],"kind":{"Literal":"'Negotiation'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"LeadStage","span":{"end":248,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("LeadStage")
+
+## Buildtime dependencies
+
+(none)

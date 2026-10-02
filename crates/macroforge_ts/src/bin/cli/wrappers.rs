@@ -6,10 +6,13 @@ use std::{
     sync::Mutex,
 };
 
-use crate::atomic_fs::{sibling_with_suffix, swap_dir, write_atomic};
+use crate::atomic_fs::{
+    discard_dir, remove_dir_if_present, sibling_with_suffix, swap_dir, write_atomic,
+};
 use crate::cache::{
     cached_type_registry, compute_config_hash, compute_external_macro_hash, content_hash,
 };
+use crate::hash_cache::HashCache;
 use crate::lock::ProjectLock;
 use crate::package_expand::run_expansion_pass;
 use crate::package_state::{
@@ -33,7 +36,7 @@ pub(crate) static DECLARATIVE_REGISTRY_CACHE_PATH: Mutex<Option<String>> = Mutex
 /// so cross-file `/** import macro */` resolution works in the
 /// tsc/svelte-check wrappers and the Vite plugin.
 ///
-/// `root` is the resolved project root — the same directory the cache and the
+/// `root` is the resolved project root, the same directory the cache and the
 /// project lock are keyed on. It is passed in rather than read from the current
 /// directory so that `macroforge cache <elsewhere>` keeps the whole
 /// `.macroforge/` tree in one place instead of splitting the registry from the
@@ -44,6 +47,13 @@ pub(crate) static DECLARATIVE_REGISTRY_CACHE_PATH: Mutex<Option<String>> = Mutex
 /// `buildStart`, so a plain write would give concurrent readers a wide window
 /// in which to observe a truncated file.
 pub(crate) fn ensure_type_registry_cache(root: &Path) -> Result<()> {
+    // Held across the check and the build: the files of one run expand in
+    // parallel, and each would otherwise find the registry missing and scan
+    // the whole project itself.
+    static BUILDING: Mutex<()> = Mutex::new(());
+    let _building = BUILDING
+        .lock()
+        .map_err(|err| anyhow::anyhow!("type registry build lock poisoned: {err}"))?;
     let already_built = TYPE_REGISTRY_CACHE_PATH
         .lock()
         .map_err(|err| anyhow::anyhow!("type registry path lock poisoned: {err}"))?
@@ -79,15 +89,26 @@ pub(crate) struct RegistryPaths {
 
 /// Scans the project under `root` for its type and declarative registries.
 fn scan_project(root: &Path) -> Result<macroforge_ts::host::scanner::ScanOutput> {
-    use macroforge_ts::host::scanner::{ProjectScanner, ScanConfig};
+    use macroforge_ts::host::scanner::{
+        ProjectScanner, ScanCache, ScanConfig, cache::persisted_path,
+    };
 
+    let cache_path = persisted_path(root);
     let scanner = ProjectScanner::new(ScanConfig {
         root_dir: root.to_path_buf(),
         ..ScanConfig::default()
-    });
+    })
+    .with_cache(ScanCache::load(&cache_path));
     let output = scanner
         .scan()
         .map_err(|err| anyhow::anyhow!("type scan of {} failed: {err}", root.display()))?;
+    // A project without macros never gets a `.macroforge/` directory.
+    if output.changed
+        && output.macro_files > 0
+        && let Err(error) = scanner.save_cache(&cache_path)
+    {
+        eprintln!("[macroforge] warning: could not persist the scan cache: {error:#}");
+    }
     eprintln!(
         "[macroforge] Type scan: {} types from {} files",
         output.registry.len(),
@@ -154,8 +175,8 @@ const WRAPPER_COMMON: &str = include_str!("../../../js/cli/wrapper-common.mjs");
 /// `node` is reading them, and two *different* builds would overwrite each
 /// other outright.
 ///
-/// The directory is therefore content-addressed — `<version>-<hash>` over the
-/// scripts themselves — so identical content collides harmlessly and differing
+/// The directory is therefore content-addressed (`<version>-<hash>` over the
+/// scripts themselves), so identical content collides harmlessly and differing
 /// content never does. Each file is still written atomically, so a reader that
 /// arrives mid-write sees the complete previous copy rather than a partial one.
 ///
@@ -180,8 +201,14 @@ fn materialize_scripts(name: &str, files: &[(&str, &str)]) -> Result<PathBuf> {
     ));
     fs::create_dir_all(&dir).with_context(|| format!("failed to create {}", dir.display()))?;
 
+    // A script already there with the expected bytes is left alone; anything
+    // else, including one a crash left truncated, is replaced.
     for (filename, contents) in files {
-        write_atomic(&dir.join(filename), contents.as_bytes())?;
+        let path = dir.join(filename);
+        if fs::read(&path).is_ok_and(|existing| existing == contents.as_bytes()) {
+            continue;
+        }
+        write_atomic(&path, contents.as_bytes())?;
     }
 
     Ok(dir)
@@ -214,7 +241,7 @@ pub fn run_tsc_wrapper(root: &Path, project: Option<PathBuf>) -> Result<()> {
     let registries = registries_for_check(root, "tsc")?;
 
     // The tsc wrapper must be a JS script because it monkey-patches the TypeScript
-    // CompilerHost.getSourceFile to expand macros on the fly — that hooking can only
+    // CompilerHost.getSourceFile to expand macros on the fly; that hooking can only
     // happen in JS since it's patching the TS compiler API internals. We write it to
     // a temp file because `node` needs a file path to execute.
     let temp_dir = materialize_scripts(
@@ -387,7 +414,7 @@ fn absolutize(root: &Path, path: &Path) -> PathBuf {
 /// generated derive runtime (and correct `.d.ts`), with no separate expand step
 /// or staging tree. Expansion happens here, once per changed file and in
 /// parallel, into a tree the Node wrapper redirects the packager's reads
-/// through — the packager itself still runs against the real input directory,
+/// through: the packager itself still runs against the real input directory,
 /// so `$lib` aliases and `.d.ts.map` sources keep pointing at the real sources.
 ///
 /// The run is incremental. Build state from the previous run records what it
@@ -398,7 +425,7 @@ fn absolutize(root: &Path, path: &Path) -> PathBuf {
 /// The output directory is swapped into place rather than rebuilt in situ.
 /// `@sveltejs/package` finishes by deleting the output directory and recursively
 /// copying its own staging tree into it, which leaves anything reading the
-/// package — a watching bundler, an editor, a publish step — looking at a
+/// package (a watching bundler, an editor, a publish step) looking at a
 /// half-populated tree for the duration of the copy, and leaves it deleted
 /// outright if the build fails. Redirecting the packager at a scratch directory
 /// and renaming that into place reduces the exposure to a single `rename` and
@@ -443,7 +470,7 @@ pub fn run_svelte_package_wrapper(
 
     if full_rebuild {
         eprintln!("[macroforge] rebuilding: --full-rebuild");
-        let _ = fs::remove_dir_all(state_dir(root));
+        remove_dir_if_present(&state_dir(root))?;
     }
     let previous = PackageState::load(root);
 
@@ -458,7 +485,7 @@ pub fn run_svelte_package_wrapper(
             let probe = probe_package_config(&main_path, &flags)?;
             // Used exactly as the probe reported it. The redirect matches read
             // paths against this prefix, and the packager builds those paths
-            // with `path.resolve`, which is purely lexical — canonicalizing here
+            // with `path.resolve`, which is purely lexical; canonicalizing here
             // would stop a symlinked input directory from ever matching, and a
             // read that fails to match is served unexpanded.
             ResolvedPackageConfig {
@@ -474,26 +501,32 @@ pub fn run_svelte_package_wrapper(
         return run_packager(&main_path, &flags, &dest, None);
     }
 
+    let mut hashes = HashCache::load(root);
     let current = PackageInputs {
         version: env!("CARGO_PKG_VERSION").to_string(),
         config_hash: compute_config_hash(root),
-        external_macro_hash: compute_external_macro_hash(root),
+        external_macro_hash: compute_external_macro_hash(root, &mut hashes),
         resolver_hash,
-        project_hash: project_hash(root, &dest_abs)?,
+        project_hash: project_hash(root, &dest_abs, &mut hashes)?,
         tool_hashes: tool_hashes(
             root,
             &resolved.input,
             tsconfig.as_deref().map(|p| absolutize(root, p)).as_deref(),
         )?,
-        files: scan_input(&resolved.input, &resolved.extensions)?,
+        files: scan_input(
+            &resolved.input,
+            &resolved.extensions,
+            previous.as_ref().map(|state| &state.inputs.files),
+        )?,
         output_fingerprint: output_fingerprint(&dest_abs)?,
     };
+    hashes.save(root);
 
     if let Some(state) = previous.as_ref() {
         match state.stale_reason(&current) {
             None => {
                 eprintln!(
-                    "[macroforge] {} is up to date — {} files unchanged (--full-rebuild to force)",
+                    "[macroforge] {} is up to date: {} files unchanged (--full-rebuild to force)",
                     dest.display(),
                     current.files.len()
                 );
@@ -560,7 +593,7 @@ pub fn run_svelte_package_wrapper(
     // why: a module re-expanded without being edited reads as a bug unless the
     // reason comes with it.
     if let Some(reason) = full_reason {
-        eprintln!("[macroforge] Re-expanded all {total} macro module(s) — {reason}");
+        eprintln!("[macroforge] Re-expanded all {total} macro module(s): {reason}");
     } else if outcome.expanded > 0 {
         let mut why = Vec::new();
         if considered > 0 {
@@ -570,7 +603,7 @@ pub fn run_svelte_package_wrapper(
             why.push(format!("{readers} reading a changed type"));
         }
         eprintln!(
-            "[macroforge] Re-expanded {} of {total} macro module(s) — {}",
+            "[macroforge] Re-expanded {} of {total} macro module(s): {}",
             outcome.expanded,
             why.join(", ")
         );
@@ -578,7 +611,7 @@ pub fn run_svelte_package_wrapper(
         eprintln!("[macroforge] Reused all {total} expanded module(s)");
     } else {
         eprintln!(
-            "[macroforge] Reused all {total} expanded module(s) — none of the {considered} \
+            "[macroforge] Reused all {total} expanded module(s): none of the {considered} \
              changed file(s) carry macros"
         );
     }
@@ -605,7 +638,7 @@ pub fn run_svelte_package_wrapper(
     // leaving it out of the state makes the next run rebuild it rather than
     // recording work that may never have happened.
     let mut files = current.files;
-    let rescanned = scan_input(&resolved.input, &resolved.extensions)?;
+    let rescanned = scan_input(&resolved.input, &resolved.extensions, Some(&files))?;
     files.retain(|rel, stamp| {
         rescanned
             .get(rel)
@@ -658,7 +691,7 @@ fn run_packager(
     // directory, so packaging into a path one level deeper or shallower would
     // bake the wrong number of `../` segments into the published sourcemaps.
     let staging = sibling_with_suffix(dest, "macroforge-staging");
-    let _ = fs::remove_dir_all(&staging);
+    remove_dir_if_present(&staging)?;
 
     let mut cmd = std::process::Command::new("node");
     cmd.arg(main_path);
@@ -685,15 +718,13 @@ fn run_packager(
         .context("failed to run node svelte-package wrapper")?;
 
     if !status.success() {
-        // Leave the previous output untouched — a failed package must not be
+        // Leave the previous output untouched: a failed package must not be
         // able to destroy a working one.
-        let _ = fs::remove_dir_all(&staging);
+        discard_dir(&staging);
         std::process::exit(status.code().unwrap_or(1));
     }
 
-    swap_dir(&staging, dest).inspect_err(|_| {
-        let _ = fs::remove_dir_all(&staging);
-    })?;
+    swap_dir(&staging, dest).inspect_err(|_| discard_dir(&staging))?;
 
     eprintln!("[macroforge] packaged into {}", dest.display());
 

@@ -142,4 +142,23 @@ describe('Custom Validators', () => {
             assertValidationError(result, 'evenNumber', 'Number must be even');
         });
     });
+
+    // ============================================================================
+    // Custom validator imported by the expansion from `source`
+    // ============================================================================
+    describe('ImportedCustomValidator (isMultipleOfThree from ./shared-validators)', () => {
+        test('accepts a multiple of three', () => {
+            const result = mod.ImportedCustomValidator.deserialize(
+                JSON.stringify({ count: 9 })
+            );
+            assertValidationSuccess(result, 'count');
+        });
+
+        test('rejects anything else, naming the function', () => {
+            const result = mod.ImportedCustomValidator.deserialize(
+                JSON.stringify({ count: 10 })
+            );
+            assertValidationError(result, 'count', 'isMultipleOfThree');
+        });
+    });
 });

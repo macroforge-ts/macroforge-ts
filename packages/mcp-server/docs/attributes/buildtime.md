@@ -14,21 +14,23 @@ const BUILT_AT = buildtime.time.iso();
 const SCHEMA = buildtime.fs.readJson('./schema.json');
 ```
 
-After expansion the imports and the `buildtime` calls are gone — the output contains only literals:
+After expansion the imports and the `buildtime` calls are gone, and the output contains only
+literals:
 
 ```typescript
 const BUILT_AT = '2026-07-21T10:30:00.000Z';
 const SCHEMA = { 'version': 1, 'fields': [] };
 ```
 
-Evaluation happens in a sandboxed JavaScript engine (Boa), so build-time code can't reach the
-network or write files.
+Evaluation happens in a sandboxed JavaScript engine (Boa). Like Zig's `comptime`, build-time code is
+pure apart from what you grant it: it can read the files and environment variables you allow, and it
+can never write files or reach the network.
 
 ## The three tiers
 
 What `@buildtime` does depends on what it's attached to.
 
-### Tier 1 — `const` expression
+### Tier 1: `const` expression
 
 The expression is evaluated and its result serialized to a TypeScript literal.
 
@@ -37,10 +39,10 @@ The expression is evaluated and its result serialized to a TypeScript literal.
 const VERSION_HASH = buildtime.crypto.sha256(buildtime.fs.readText('./package.json'));
 ```
 
-### Tier 2 — function
+### Tier 2: function
 
 The function is called with no arguments. If it returns a **string**, that string is spliced into
-the output verbatim as source code — which is how you generate declarations. Any other return value
+the output verbatim as source code, which is how you generate declarations. Any other return value
 is serialized as `const NAME = <literal>`.
 
 ```typescript
@@ -55,7 +57,7 @@ function generateGuards() {
 }
 ```
 
-### Tier 3 — `type` alias
+### Tier 3: `type` alias
 
 The expression must return a **string containing TypeScript type syntax**. Returning anything else
 is an error.
@@ -100,9 +102,8 @@ export default {
         capabilities: {
             timeout: 5000, // ms
             maxHeap: 256, // MiB (advisory)
-            filesystem: { read: ['src/**'], write: [] },
-            env: ['NODE_ENV', 'CI'],
-            network: false
+            filesystem: { read: ['src/**'] },
+            env: ['NODE_ENV', 'CI']
         },
         flags: { RELEASE: '1', CHANNEL: 'beta' }
     }
@@ -112,17 +113,17 @@ export default {
 Capability keys may also be written flat (`buildtime.timeout`) if you prefer a shorter config; the
 nested form is canonical because it's the path sandbox diagnostics point you at.
 
-| Option             | Default  | Effect                                                                                            |
-| ------------------ | -------- | ------------------------------------------------------------------------------------------------- |
-| `timeout`          | `5000`   | Wall-clock budget in ms, **enforced** — an infinite loop fails the build rather than hanging it   |
-| `maxHeap`          | `256`    | Heap ceiling in MiB. Advisory: Boa exposes no memory-limit hook, so it's carried but not enforced |
-| `filesystem.read`  | `["**"]` | Globs readable via `buildtime.fs`                                                                 |
-| `filesystem.write` | `[]`     | Reserved — no write API is exposed to sandboxed code                                              |
-| `env`              | `[]`     | Names exposed as `buildtime.env.NAME`; anything not listed is `undefined`                         |
-| `network`          | `false`  | Reserved — no network API is exposed                                                              |
-| `flags`            | `{}`     | Values returned by `buildtime.flags`                                                              |
+| Option            | Default  | Effect                                                                                            |
+| ----------------- | -------- | ------------------------------------------------------------------------------------------------- |
+| `timeout`         | `5000`   | Wall-clock budget in ms, **enforced**: an infinite loop fails the build rather than hanging it    |
+| `maxHeap`         | `256`    | Heap ceiling in MiB. Advisory: Boa exposes no memory-limit hook, so it's carried but not enforced |
+| `filesystem.read` | `["**"]` | Globs readable via `buildtime.fs`                                                                 |
+| `env`             | `[]`     | Names exposed as `buildtime.env.NAME`; anything not listed is `undefined`                         |
+| `flags`           | `{}`     | Values returned by `buildtime.flags`                                                              |
 
 A partial block only overrides what it names. Omitting `buildtime` entirely keeps every default.
+There is no write or network capability to grant: a config that sets `filesystem.write` or `network`
+is rejected.
 
 ## Environment variables
 

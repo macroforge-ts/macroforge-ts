@@ -225,19 +225,6 @@ export function regexLastIndexOf(text: string, regex: RegExp, endPos?: number) {
 }
 
 /**
- * Like str.indexOf, but for regular expressions.
- */
-export function regexIndexOf(text: string, regex: RegExp, startPos?: number) {
-    if (startPos === undefined || startPos < 0) {
-        startPos = 0;
-    }
-
-    const stringToWorkWith = text.substring(startPos);
-    const result: RegExpExecArray | null = regex.exec(stringToWorkWith);
-    return result?.index ?? -1;
-}
-
-/**
  * Get all matches of a regexp.
  */
 export function getRegExpMatches(regex: RegExp, str: string) {
@@ -364,50 +351,4 @@ export function removeLineWithString(str: string, keyword: string) {
     const lines = str.split('\n');
     const filteredLines = lines.filter((line) => !line.includes(keyword));
     return filteredLines.join('\n');
-}
-
-/**
- * Traverses a string and returns the index of the end character, taking into account quotes, curlies and generic tags.
- */
-export function traverseTypeString(
-    str: string,
-    start: number,
-    endChar: string
-): number {
-    let singleQuoteOpen = false;
-    let doubleQuoteOpen = false;
-    let countCurlyBrace = 0;
-    let countAngleBracket = 0;
-
-    for (let i = start; i < str.length; i++) {
-        const char = str[i];
-
-        if (!doubleQuoteOpen && char === "'") {
-            singleQuoteOpen = !singleQuoteOpen;
-        } else if (!singleQuoteOpen && char === '"') {
-            doubleQuoteOpen = !doubleQuoteOpen;
-        } else if (!doubleQuoteOpen && !singleQuoteOpen) {
-            if (char === '{') {
-                countCurlyBrace++;
-            } else if (char === '}') {
-                countCurlyBrace--;
-            } else if (char === '<') {
-                countAngleBracket++;
-            } else if (char === '>') {
-                countAngleBracket--;
-            }
-        }
-
-        if (
-            !singleQuoteOpen &&
-            !doubleQuoteOpen &&
-            countCurlyBrace === 0 &&
-            countAngleBracket === 0 &&
-            char === endChar
-        ) {
-            return i;
-        }
-    }
-
-    return -1;
 }

@@ -1,0 +1,2785 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/custom.svelte.ts
+sha256 010edc40c50d52754fbfeed2d0afa64c1362e47fab5e18ee495be78ac2790403
+
+## Changed
+
+true
+
+## Output
+
+import { directionHueDeserialize } from "./direction-hue.svelte";
+import { directionHueSerializeWithContext } from "./direction-hue.svelte";
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { DirectionHue } from './direction-hue.svelte';
+
+
+export interface Custom {
+    mappings: Array<DirectionHue>;
+}
+
+export function customDefaultValue(): Custom {
+                        return {
+mappings: [],
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function customSerialize(value: Custom, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = customSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function customSerializeWithContext(value: Custom, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Custom",
+                        __id,
+                    };result.mappings = value.mappings.map(
+                                                            (item) => directionHueSerializeWithContext(item, ctx)
+                                                        );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function customDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = customDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Custom.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function customDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Custom | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Custom.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("mappings" in obj)) {
+                            errors.push({ field: "mappings", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_mappings = obj["mappings"] as Array<DirectionHue>;if (Array.isArray(__raw_mappings)) {
+                                                        const __arr = __raw_mappings.map((item: DirectionHue | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = directionHueDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "mappings[" + idx + "]"
+                                                                            : "mappings[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.mappings = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.mappings, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Custom;
+            }
+
+            export function customValidateField<K extends keyof Custom>(
+                _field: K,
+                _value: Custom[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function customValidateFields(
+                _partial: Partial<Custom>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function customHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "mappings" in o;
+            }
+
+            export function customIs(obj: unknown): obj is Custom {
+                if (!customHasShape(obj)) {
+                    return false;
+                }
+                const result = customDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type CustomErrors = {
+            _errors: Option.Option<Array<string>>;
+            mappings: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type CustomTainted = {
+            mappings: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface CustomFieldControllers {
+            
+                    readonly mappings: ArrayFieldController<DirectionHue>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface CustomGigaform {
+            readonly data: Custom;
+            readonly errors: CustomErrors;
+            readonly tainted: CustomTainted;
+            readonly fields: CustomFieldControllers;
+            validate(): Exit.Exit<Custom, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Custom>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function customCreateForm(overrides?: Partial<Custom>): CustomGigaform {
+            let data = $state({ ...customDefaultValue(), ...overrides });
+            let errors = $state<CustomErrors>({
+                _errors: Option.none(),
+                mappings: Option.none(),
+
+
+            });
+            let tainted = $state<CustomTainted>({
+                mappings: Option.none(),
+
+
+            });
+            const fields = {
+            
+                mappings: {
+            name: "mappings",
+            label: "mappings",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["mappings"],
+            get: () => data.mappings,
+            set: (value: Array<DirectionHue>) => { data.mappings = value; },
+            getError: () => errors.mappings,
+            setError: (value: Option.Option<Array<string>>) => { errors.mappings = value; },
+            getTainted: () => tainted.mappings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.mappings = value; },
+            validate: () => customValidateField("mappings", data.mappings).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.mappings[index],
+                set: (value: DirectionHue) => { data.mappings[index] = value; },
+                getError: () => errors.mappings,
+                setError: (value: Option.Option<Array<string>>) => { errors.mappings = value; },
+            }),
+            push: (item: DirectionHue) => { data.mappings.push(item); },
+            remove: (index: number) => { data.mappings.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.mappings[a];
+                data.mappings[a] = data.mappings[b];
+                data.mappings[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as CustomFieldControllers;
+
+
+            function validate(): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
+                return toExit(customDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Custom>): void {
+                data = { ...customDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            mappings: Option.none(),
+
+
+        };
+                tainted = {
+            mappings: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function customFromFormData(formData: FormData): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+
+                    const mappingsItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("mappings." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("mappings." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("mappings." + idx + ".")) {
+                                    const fieldName = key.slice("mappings.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            mappingsItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.mappings = mappingsItems;
+                }
+
+
+            return toExit(customDeserialize(obj));
+        }
+
+export const Custom = {
+  defaultValue: customDefaultValue,
+  serialize: customSerialize,
+  serializeWithContext: customSerializeWithContext,
+  deserialize: customDeserialize,
+  deserializeWithContext: customDeserializeWithContext,
+  validateFields: customValidateFields,
+  hasShape: customHasShape,
+  is: customIs,
+  createForm: customCreateForm,
+  fromFormData: customFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+import type { DirectionHue } from './direction-hue.svelte';
+
+
+export interface Custom {
+    mappings: Array<DirectionHue>;
+}
+
+export function customDefaultValue(): Custom {
+                        return {
+mappings: [],
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function customSerialize(value: Custom, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = customSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function customSerializeWithContext(value: Custom, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Custom",
+                        __id,
+                    };result.mappings = value.mappings.map(
+                                                            (item) => directionHueSerializeWithContext(item, ctx)
+                                                        );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function customDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = customDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Custom.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function customDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Custom | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "Custom.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("mappings" in obj)) {
+                            errors.push({ field: "mappings", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_mappings = obj["mappings"] as Array<DirectionHue>;if (Array.isArray(__raw_mappings)) {
+                                                        const __arr = __raw_mappings.map((item: DirectionHue | { __ref: number }, idx) => {
+
+
+
+
+
+
+
+
+                                                            if (typeof item === "object" && item !== null && "__ref" in item) {
+                                                                const result = ctx.getOrDefer(item.__ref);
+                                                                if (__mf_PendingRef.is(result)) {
+                                                                    return { __pendingIdx: idx, __refId: result.id };
+                                                                }
+                                                                return result;
+                                                            }
+                                                            const __elemResult = directionHueDeserialize(item);
+                                                            if (!__elemResult.success) {
+                                                                for (const __err of __elemResult.errors) {
+                                                                    errors.push({
+                                                                        field: __err.field === "_root"
+                                                                            ? "mappings[" + idx + "]"
+                                                                            : "mappings[" + idx + "]." + __err.field,
+                                                                        message: __err.message
+                                                                    });
+                                                                }
+                                                            }
+                                                            return __elemResult.success ? __elemResult.value : item;
+                                                        });
+                                                        instance.mappings = __arr;
+                                                        __arr.forEach((item, idx) => {
+                                                            if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                                ctx.addPatch(instance.mappings, idx, (item as any).__refId);
+                                                            }
+                                                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Custom;
+            }
+
+            export function customValidateField<K extends keyof Custom>(
+                _field: K,
+                _value: Custom[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function customValidateFields(
+                _partial: Partial<Custom>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function customHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "mappings" in o;
+            }
+
+            export function customIs(obj: unknown): obj is Custom {
+                if (!customHasShape(obj)) {
+                    return false;
+                }
+                const result = customDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type CustomErrors = {
+            _errors: Option.Option<Array<string>>;
+            mappings: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type CustomTainted = {
+            mappings: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface CustomFieldControllers {
+            
+                    readonly mappings: ArrayFieldController<DirectionHue>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface CustomGigaform {
+            readonly data: Custom;
+            readonly errors: CustomErrors;
+            readonly tainted: CustomTainted;
+            readonly fields: CustomFieldControllers;
+            validate(): Exit.Exit<Custom, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<Custom>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function customCreateForm(overrides?: Partial<Custom>): CustomGigaform {
+            let data = $state({ ...customDefaultValue(), ...overrides });
+            let errors = $state<CustomErrors>({
+                _errors: Option.none(),
+                mappings: Option.none(),
+
+
+            });
+            let tainted = $state<CustomTainted>({
+                mappings: Option.none(),
+
+
+            });
+            const fields = {
+            
+                mappings: {
+            name: "mappings",
+            label: "mappings",
+            type: "fieldset",
+            optional: false,
+            array: true,
+            path: ["mappings"],
+            get: () => data.mappings,
+            set: (value: Array<DirectionHue>) => { data.mappings = value; },
+            getError: () => errors.mappings,
+            setError: (value: Option.Option<Array<string>>) => { errors.mappings = value; },
+            getTainted: () => tainted.mappings,
+            setTainted: (value: Option.Option<boolean>) => { tainted.mappings = value; },
+            validate: () => customValidateField("mappings", data.mappings).map((e: { field: string; message: string }) => e.message),
+            at: (index: number) => ({
+                get: () => data.mappings[index],
+                set: (value: DirectionHue) => { data.mappings[index] = value; },
+                getError: () => errors.mappings,
+                setError: (value: Option.Option<Array<string>>) => { errors.mappings = value; },
+            }),
+            push: (item: DirectionHue) => { data.mappings.push(item); },
+            remove: (index: number) => { data.mappings.splice(index, 1); },
+            swap: (a: number, b: number) => {
+                const temp = data.mappings[a];
+                data.mappings[a] = data.mappings[b];
+                data.mappings[b] = temp;
+            },
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as CustomFieldControllers;
+
+
+            function validate(): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
+                return toExit(customDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<Custom>): void {
+                data = { ...customDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            mappings: Option.none(),
+
+
+        };
+                tainted = {
+            mappings: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function customFromFormData(formData: FormData): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+
+                    const mappingsItems: Array<Record<string, unknown>> = [];
+                    let idx = 0;
+                    while (formData.has("mappings." + idx + ".") || idx === 0) {
+
+                        const hasAny = Array.from(formData.keys()).some(k => k.startsWith("mappings." + idx + "."));
+                        if (!hasAny && idx > 0) break;
+                        if (hasAny) {
+                            const item: Record<string, unknown> = {};
+                            for (const [key, value] of Array.from(formData.entries())) {
+                                if (key.startsWith("mappings." + idx + ".")) {
+                                    const fieldName = key.slice("mappings.".length + String(idx).length + 1);
+                                    item[fieldName] = value;
+                                }
+                            }
+                            mappingsItems.push(item);
+                        }
+                        idx++;
+                        if (idx > 1000) break;
+                    }
+                    obj.mappings = mappingsItems;
+                }
+
+
+            return toExit(customDeserialize(obj));
+        }
+
+export const Custom = {
+  defaultValue: customDefaultValue,
+  serialize: customSerialize,
+  serializeWithContext: customSerializeWithContext,
+  deserialize: customDeserialize,
+  deserializeWithContext: customDeserializeWithContext,
+  validateFields: customValidateFields,
+  hasShape: customHasShape,
+  is: customIs,
+  createForm: customCreateForm,
+  fromFormData: customFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..119 -> expanded 0..119
+original 176..239 -> expanded 119..182
+original 239..240 -> expanded 15748..15749
+generated 182..302 <- Default
+generated 302..1999 <- Serialize
+generated 1999..9707 <- Deserialize
+generated 9707..15352 <- Gigaform
+generated 15352..15748 <- __convenience_const
+
+## Metadata
+
+interface Custom: {"body_span":{"end":240,"start":202},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":177,"start":120}}],"fields":[{"decorators":[],"name":"mappings","optional":false,"readonly":false,"span":{"end":238,"start":208},"ts_type":"Array<DirectionHue>"}],"heritage":[],"methods":[],"name":"Custom","span":{"end":240,"start":185},"type_params":[]}
+
+## Registry reads
+
+Name("Array")
+Name("DirectionHue")
+
+## Buildtime dependencies
+
+(none)

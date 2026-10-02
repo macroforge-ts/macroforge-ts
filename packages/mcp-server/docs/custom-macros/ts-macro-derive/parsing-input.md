@@ -11,7 +11,6 @@ use macroforge_ts::ts_syn::{Data, DeriveInput, parse_ts_macro_input};
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    // Access class data
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
@@ -30,3 +29,6 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
     }
 }
 ```
+
+When the input cannot be parsed, `parse_ts_macro_input!` returns early with a `MacroforgeError`, so
+the function's error type must accept one.

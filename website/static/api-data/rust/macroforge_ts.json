@@ -12,6 +12,12 @@
             "description": "Free a buffer allocated by an FFI function.\nMust be called by the host after reading the output."
         },
         {
+            "name": "__macroforge_ffi_set_registry",
+            "kind": "function",
+            "signature": "pub fn __macroforge_ffi_set_registry(payload_ptr : * const u8, payload_len : usize, out_ptr : * mut * mut u8, out_len : * mut usize) -> i32",
+            "description": "Installs the type registry a host sends once, so the contexts it sends\nafterwards refer to it instead of carrying it on every call.\n\nInput: `payload_ptr`/`payload_len`, UTF-8 JSON of a\n[`ts_syn::abi::ir::type_registry::ResidentRegistryPayload`]. Returns 0 on\nsuccess, with an empty `out_ptr`/`out_len`; otherwise 1, with the error\nmessage there for the host to free through `__macroforge_ffi_free`."
+        },
+        {
             "name": "__macroforge_ffi_get_manifest",
             "kind": "function",
             "signature": "pub fn __macroforge_ffi_get_manifest(out_ptr : * mut * mut u8, out_len : * mut usize) -> i32",
@@ -116,8 +122,8 @@
         {
             "name": "has_macro_annotations",
             "kind": "function",
-            "signature": "pub fn has_macro_annotations(code : & str) -> bool",
-            "description": "Whether `code` may contain anything the engine expands. Integrations use\nthis to skip files without paying for a full expansion."
+            "signature": "pub fn has_macro_annotations(code : & str, filepath : & str) -> bool",
+            "description": "Whether `code`, the source of `filepath`, may contain anything the engine\nexpands. Integrations use this to skip files without paying for a full\nexpansion; in a Svelte module, the compiler's runes do not count."
         },
         {
             "name": "macro_imports",
@@ -156,6 +162,24 @@
             "description": "Forgets every config `loadConfig` cached."
         },
         {
+            "name": "set_type_registry",
+            "kind": "function",
+            "signature": "pub fn set_type_registry(json : & str) -> Result < u32 , JsValue >",
+            "description": "Parses a type registry and keeps it for the process. Pass the returned id\nas `typeRegistryId` to expand against it without sending its JSON again."
+        },
+        {
+            "name": "set_declarative_registry",
+            "kind": "function",
+            "signature": "pub fn set_declarative_registry(json : & str) -> Result < u32 , JsValue >",
+            "description": "Parses a declarative registry and keeps it for the process. Pass the\nreturned id as `declarativeRegistryId`."
+        },
+        {
+            "name": "release_registry",
+            "kind": "function",
+            "signature": "pub fn release_registry(id : u32) -> Result < () , JsValue >",
+            "description": "Forgets a registry `setTypeRegistry` or `setDeclarativeRegistry` kept."
+        },
+        {
             "name": "expand_sync",
             "kind": "function",
             "signature": "pub fn expand_sync(code : String, filepath : String, options : JsValue) -> Result < JsValue , JsValue >",
@@ -166,6 +190,12 @@
             "kind": "struct",
             "signature": "pub struct NativePlugin",
             "description": "A stateful expander for editor integrations: it caches each file's\nexpansion by version and maps positions and diagnostics back to the source."
+        },
+        {
+            "name": "unmapped_position",
+            "kind": "function",
+            "signature": "pub fn unmapped_position() -> u32",
+            "description": "The value the batch mapping methods of [`PositionMapper`] return for a\nposition that lies in generated code."
         },
         {
             "name": "PositionMapper",
@@ -196,6 +226,12 @@
             "kind": "function",
             "signature": "pub fn get_macro_manifest_wasm() -> Result < JsValue , JsValue >",
             "description": "The built-in macros and decorators this engine provides."
+        },
+        {
+            "name": "set_resident_registry_wasm",
+            "kind": "function",
+            "signature": "pub fn set_resident_registry_wasm(payload_json : & str) -> Result < () , JsValue >",
+            "description": "Installs the type registry a host sends once, so the contexts it sends\nafterwards refer to it instead of carrying it on every call."
         },
         {
             "name": "is_macro_package_wasm",

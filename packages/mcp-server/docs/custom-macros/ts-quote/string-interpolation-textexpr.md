@@ -34,3 +34,5 @@ let code = ts_template! {
     throw new Error("Invalid @{field.to_uppercase()}");
 };
 ```
+
+Text inside `@{...}` that is not a Rust expression is a compile error.

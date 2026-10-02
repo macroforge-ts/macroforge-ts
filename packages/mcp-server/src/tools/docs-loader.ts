@@ -157,36 +157,6 @@ export function getSection(
 }
 
 /**
- * Retrieves multiple sections by their IDs or titles.
- *
- * Uses {@link getSection} for each query, deduplicating results if the same
- * section matches multiple queries.
- *
- * @param sections - Array of sections to search through
- * @param queries - Array of search queries (IDs or titles)
- * @returns Array of unique matching Sections in the order they were found
- *
- * @example
- * ```typescript
- * const docs = getSections(sections, ['debug', 'serialize', 'clone']);
- * // Returns all three sections if found
- * ```
- */
-export function getSections(sections: Section[], queries: string[]): Section[] {
-    const results: Section[] = [];
-
-    for (const query of queries) {
-        const section = getSection(sections, query);
-        // Deduplicate: only add if not already in results
-        if (section && !results.includes(section)) {
-            results.push(section);
-        }
-    }
-
-    return results;
-}
-
-/**
  * Performs a fuzzy search across sections using a weighted scoring algorithm.
  *
  * The search splits the query into keywords and scores each section based on
@@ -260,35 +230,4 @@ export function searchSections(sections: Section[], query: string): Section[] {
         .filter((s) => s.score > 0)
         .sort((a, b) => b.score - a.score)
         .map((s) => s.section);
-}
-
-/**
- * Filters sections by category slug or category title.
- *
- * Matches against both `category` (slug) and `category_title` (display name)
- * to support flexible lookups.
- *
- * @param sections - Array of sections to filter
- * @param category - Category slug or title to filter by (case-insensitive)
- * @returns Array of Sections belonging to the specified category
- *
- * @example
- * ```typescript
- * // Filter by category slug
- * const macros = getSectionsByCategory(sections, 'macros');
- *
- * // Filter by category title
- * const guides = getSectionsByCategory(sections, 'Getting Started');
- * ```
- */
-export function getSectionsByCategory(
-    sections: Section[],
-    category: string
-): Section[] {
-    const normalizedCategory = category.toLowerCase().trim();
-    return sections.filter(
-        (s) =>
-            s.category.toLowerCase() === normalizedCategory ||
-            s.category_title.toLowerCase() === normalizedCategory
-    );
 }

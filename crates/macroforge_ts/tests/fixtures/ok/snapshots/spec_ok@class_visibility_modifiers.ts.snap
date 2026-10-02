@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_visibility_modifiers.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_visibility_modifiers.ts
 ---
 ## Input
 
@@ -32,6 +31,10 @@ class Account {
         return this.apiKey;
     }
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -106,5 +109,26 @@ cloned.apiKey = value.apiKey;
                 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 62..574 -> expanded 41..553
+original 574..575 -> expanded 659..660
+original 575..576 -> expanded 969..970
+generated 553..659 <- Clone
+generated 660..969 <- Clone
+
+## Metadata
+
+class Account: {"body_span":{"end":576,"start":78},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"username","optional":false,"readonly":false,"span":{"end":108,"start":84},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"password","optional":false,"readonly":false,"span":{"end":140,"start":113},"ts_type":"string","visibility":"Protected"},{"decorators":[],"name":"apiKey","optional":false,"readonly":false,"span":{"end":168,"start":145},"ts_type":"string","visibility":"Private"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":343,"start":238},"body_src":"\n        this.username = username;\n        this.password = password;\n        this.apiKey = apiKey;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"username: string, password: string, apiKey: string","return_type_src":"","span":{"end":343,"start":174},"type_params_src":"","visibility":"Public"},{"body_span":{"end":401,"start":373},"body_src":"\n        return true;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"login","params_src":"","return_type_src":"boolean","span":{"end":401,"start":349},"type_params_src":"","visibility":"Public"},{"body_span":{"end":505,"start":458},"body_src":"\n        return this.password === input;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"validatePassword","params_src":"input: string","return_type_src":"boolean","span":{"end":505,"start":407},"type_params_src":"","visibility":"Protected"},{"body_span":{"end":574,"start":539},"body_src":"\n        return this.apiKey;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"getApiKey","params_src":"","return_type_src":"string","span":{"end":574,"start":511},"type_params_src":"","visibility":"Private"}],"name":"Account","span":{"end":576,"start":64},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

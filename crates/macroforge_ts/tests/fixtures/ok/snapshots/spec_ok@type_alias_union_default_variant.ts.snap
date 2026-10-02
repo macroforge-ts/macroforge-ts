@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_variant.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_variant.ts
 ---
 ## Input
 
@@ -11,6 +10,10 @@ export type UnionWithVariantDefault =
     | /** @default */ VariantA
     | VariantB
     | VariantC;
+
+## Changed
+
+true
 
 ## Output
 
@@ -43,5 +46,24 @@ export const UnionWithVariantDefault = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 23..123 -> expanded 0..100
+original 123..124 -> expanded 373..374
+generated 100..267 <- Default
+generated 267..373 <- __convenience_const
+
+## Metadata
+
+type UnionWithVariantDefault: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":84,"start":69}}],"kind":{"TypeRef":"VariantA"}},{"decorators":[],"kind":{"TypeRef":"VariantB"}},{"decorators":[],"kind":{"TypeRef":"VariantC"}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"name":"UnionWithVariantDefault","span":{"end":124,"start":32},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

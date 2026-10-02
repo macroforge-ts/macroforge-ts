@@ -56,6 +56,7 @@ js-sys = "0.3.106"
 notify-debouncer-full = "0.7.0"
 oxc = { version = "0.152.0", features = ["codegen", "ast_visit", "transformer", "semantic"] }
 pathdiff = "0.2.3"
+postcard = { version = "1.1.3", default-features = false, features = ["use-std"] }
 predicates = "3.1.4"
 proc-macro2 = { version = "1.0.107", features = ["proc-macro", "span-locations"] }
 quote = "1.0.47"
@@ -63,7 +64,7 @@ rayon = "1.12.0"
 regex = "1.13.1"
 rustc-hash = "2.1.3"
 scraper = "0.27.0"
-serde = { version = "1.0.229", features = ["derive"] }
+serde = { version = "1.0.229", features = ["derive", "rc"] }
 serde-wasm-bindgen = "0.6.5"
 # `preserve_order` keeps object keys in file order. Without it mf's manifest
 # rewrites would sort them, reordering npm export conditions and putting
@@ -82,10 +83,19 @@ walkdir = "2.5.0"
 # Must match the wasm-bindgen-cli that `pixi run setup:wasm-bindgen` installs.
 wasm-bindgen = "0.2.129"
 web-time = "1.1.0"
-# `portable-dispatch`: the default tail-call dispatch pushes a native frame per
-# executed instruction unless LLVM turns each call into a jump, which a dev
-# build does not, so any real macro overflowed the stack of a debug CLI.
-wasmi = { version = "2.0.0", features = ["portable-dispatch"] }
+# Only what running a wasm-bindgen macro package needs: the compiler, the
+# runtime, `gc` for wasm-bindgen's externref table, and the on-disk cache of
+# compiled modules.
+wasmtime = { version = "49.0.1", default-features = false, features = [
+    "backtrace",
+    "cache",
+    "cranelift",
+    "gc",
+    "gc-drc",
+    "parallel-compilation",
+    "runtime",
+    "std",
+] }
 zed_extension_api = "0.7.0"
 
 [profile.release]

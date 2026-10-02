@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/block_return_injection.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/block_return_injection.ts
 ---
 ## Input
 
@@ -87,6 +87,10 @@ export const withReturnResult = $withReturn(6);
 export const withSemiResult = $withSemi(8);
 export const nestedBlock = $nestedBlockInBody(11);
 
+## Changed
+
+true
+
 ## Output
 
 // Regression fixture for block-bodied declarative macros.
@@ -162,5 +166,21 @@ export const nestedBlock = (() => {
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

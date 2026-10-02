@@ -1,0 +1,3237 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/person-name.svelte.ts
+sha256 3c48b1bb128a22a77b9bafc6d85475e90354d1eb2fac676e02a25ebcbe6eba93
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface PersonName {
+    
+    
+    firstName: string;
+    
+    
+    lastName: string;
+}
+
+export function personNameDefaultValue(): PersonName {
+                        return {
+firstName: "",
+lastName: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function personNameSerialize(value: PersonName, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = personNameSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function personNameSerializeWithContext(value: PersonName, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "PersonName",
+                        __id,
+                    };result.firstName = value.firstName;result.lastName = value.lastName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function personNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = personNameDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PersonName.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function personNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PersonName | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "PersonName.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("firstName" in obj)) {
+                            errors.push({ field: "firstName", message: "missing required field" });
+                        }if (!("lastName" in obj)) {
+                            errors.push({ field: "lastName", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_firstName = obj["firstName"] as string;
+                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+instance.firstName = __raw_firstName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_lastName = obj["lastName"] as string;
+                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+instance.lastName = __raw_lastName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as PersonName;
+            }
+
+            export function personNameValidateField<K extends keyof PersonName>(
+                _field: K,
+                _value: PersonName[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "firstName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+
+
+                }
+                if (_field === "lastName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function personNameValidateFields(
+                _partial: Partial<PersonName>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("firstName" in _partial && _partial.firstName !== undefined) {
+                    const __val = _partial.firstName as string;
+                    if (__val == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+
+
+                }
+                if ("lastName" in _partial && _partial.lastName !== undefined) {
+                    const __val = _partial.lastName as string;
+                    if (__val == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function personNameHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "firstName" in o && "lastName" in o;
+            }
+
+            export function personNameIs(obj: unknown): obj is PersonName {
+                if (!personNameHasShape(obj)) {
+                    return false;
+                }
+                const result = personNameDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type PersonNameErrors = {
+            _errors: Option.Option<Array<string>>;
+            firstName: Option.Option<Array<string>>;
+            lastName: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type PersonNameTainted = {
+            firstName: Option.Option<boolean>;
+            lastName: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface PersonNameFieldControllers {
+            readonly firstName: FieldController<string>;
+            readonly lastName: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface PersonNameGigaform {
+            readonly data: PersonName;
+            readonly errors: PersonNameErrors;
+            readonly tainted: PersonNameTainted;
+            readonly fields: PersonNameFieldControllers;
+            validate(): Exit.Exit<PersonName, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<PersonName>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function personNameCreateForm(overrides?: Partial<PersonName>): PersonNameGigaform {
+            let data = $state({ ...personNameDefaultValue(), ...overrides });
+            let errors = $state<PersonNameErrors>({
+                _errors: Option.none(),
+                firstName: Option.none(),
+                lastName: Option.none(),
+
+
+            });
+            let tainted = $state<PersonNameTainted>({
+                firstName: Option.none(),
+                lastName: Option.none(),
+
+
+            });
+            const fields = {
+            
+                firstName: {
+            name: "firstName",
+            label: "First Name",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["firstName"],
+            get: () => data.firstName,
+            set: (value: string) => { data.firstName = value; },
+            getError: () => errors.firstName,
+            setError: (value: Option.Option<Array<string>>) => { errors.firstName = value; },
+            getTainted: () => tainted.firstName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.firstName = value; },
+            validate: () => personNameValidateField("firstName", data.firstName).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                lastName: {
+            name: "lastName",
+            label: "Last Name",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["lastName"],
+            get: () => data.lastName,
+            set: (value: string) => { data.lastName = value; },
+            getError: () => errors.lastName,
+            setError: (value: Option.Option<Array<string>>) => { errors.lastName = value; },
+            getTainted: () => tainted.lastName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lastName = value; },
+            validate: () => personNameValidateField("lastName", data.lastName).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as PersonNameFieldControllers;
+
+
+            function validate(): Exit.Exit<PersonName, Array<{ field: string; message: string }>> {
+                return toExit(personNameDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<PersonName>): void {
+                data = { ...personNameDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            firstName: Option.none(),
+            lastName: Option.none(),
+
+
+        };
+                tainted = {
+            firstName: Option.none(),
+            lastName: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function personNameFromFormData(formData: FormData): Exit.Exit<PersonName, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.firstName = formData.get("firstName") ?? "";
+            obj.lastName = formData.get("lastName") ?? "";
+
+
+            return toExit(personNameDeserialize(obj));
+        }
+
+export const PersonName = {
+  defaultValue: personNameDefaultValue,
+  serialize: personNameSerialize,
+  serializeWithContext: personNameSerializeWithContext,
+  deserialize: personNameDeserialize,
+  deserializeWithContext: personNameDeserializeWithContext,
+  validateFields: personNameValidateFields,
+  hasShape: personNameHasShape,
+  is: personNameIs,
+  createForm: personNameCreateForm,
+  fromFormData: personNameFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface PersonName {
+    
+    
+    firstName: string;
+    
+    
+    lastName: string;
+}
+
+export function personNameDefaultValue(): PersonName {
+                        return {
+firstName: "",
+lastName: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function personNameSerialize(value: PersonName, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = personNameSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function personNameSerializeWithContext(value: PersonName, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "PersonName",
+                        __id,
+                    };result.firstName = value.firstName;result.lastName = value.lastName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function personNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = personNameDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PersonName.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function personNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PersonName | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "PersonName.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("firstName" in obj)) {
+                            errors.push({ field: "firstName", message: "missing required field" });
+                        }if (!("lastName" in obj)) {
+                            errors.push({ field: "lastName", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_firstName = obj["firstName"] as string;
+                                            if (__raw_firstName == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__raw_firstName.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+instance.firstName = __raw_firstName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_lastName = obj["lastName"] as string;
+                                            if (__raw_lastName == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__raw_lastName.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+instance.lastName = __raw_lastName;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as PersonName;
+            }
+
+            export function personNameValidateField<K extends keyof PersonName>(
+                _field: K,
+                _value: PersonName[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "firstName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+
+
+                }
+                if (_field === "lastName") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function personNameValidateFields(
+                _partial: Partial<PersonName>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("firstName" in _partial && _partial.firstName !== undefined) {
+                    const __val = _partial.firstName as string;
+                    if (__val == null) { errors.push({ field: "firstName", message: "PersonName.firstName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "firstName", message: "PersonName.firstName must not be empty" }); }
+}
+
+
+                }
+                if ("lastName" in _partial && _partial.lastName !== undefined) {
+                    const __val = _partial.lastName as string;
+                    if (__val == null) { errors.push({ field: "lastName", message: "PersonName.lastName is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.lastName must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function personNameHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "firstName" in o && "lastName" in o;
+            }
+
+            export function personNameIs(obj: unknown): obj is PersonName {
+                if (!personNameHasShape(obj)) {
+                    return false;
+                }
+                const result = personNameDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type PersonNameErrors = {
+            _errors: Option.Option<Array<string>>;
+            firstName: Option.Option<Array<string>>;
+            lastName: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type PersonNameTainted = {
+            firstName: Option.Option<boolean>;
+            lastName: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface PersonNameFieldControllers {
+            readonly firstName: FieldController<string>;
+            readonly lastName: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface PersonNameGigaform {
+            readonly data: PersonName;
+            readonly errors: PersonNameErrors;
+            readonly tainted: PersonNameTainted;
+            readonly fields: PersonNameFieldControllers;
+            validate(): Exit.Exit<PersonName, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<PersonName>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function personNameCreateForm(overrides?: Partial<PersonName>): PersonNameGigaform {
+            let data = $state({ ...personNameDefaultValue(), ...overrides });
+            let errors = $state<PersonNameErrors>({
+                _errors: Option.none(),
+                firstName: Option.none(),
+                lastName: Option.none(),
+
+
+            });
+            let tainted = $state<PersonNameTainted>({
+                firstName: Option.none(),
+                lastName: Option.none(),
+
+
+            });
+            const fields = {
+            
+                firstName: {
+            name: "firstName",
+            label: "First Name",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["firstName"],
+            get: () => data.firstName,
+            set: (value: string) => { data.firstName = value; },
+            getError: () => errors.firstName,
+            setError: (value: Option.Option<Array<string>>) => { errors.firstName = value; },
+            getTainted: () => tainted.firstName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.firstName = value; },
+            validate: () => personNameValidateField("firstName", data.firstName).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                lastName: {
+            name: "lastName",
+            label: "Last Name",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["lastName"],
+            get: () => data.lastName,
+            set: (value: string) => { data.lastName = value; },
+            getError: () => errors.lastName,
+            setError: (value: Option.Option<Array<string>>) => { errors.lastName = value; },
+            getTainted: () => tainted.lastName,
+            setTainted: (value: Option.Option<boolean>) => { tainted.lastName = value; },
+            validate: () => personNameValidateField("lastName", data.lastName).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as PersonNameFieldControllers;
+
+
+            function validate(): Exit.Exit<PersonName, Array<{ field: string; message: string }>> {
+                return toExit(personNameDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<PersonName>): void {
+                data = { ...personNameDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            firstName: Option.none(),
+            lastName: Option.none(),
+
+
+        };
+                tainted = {
+            firstName: Option.none(),
+            lastName: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function personNameFromFormData(formData: FormData): Exit.Exit<PersonName, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            obj.firstName = formData.get("firstName") ?? "";
+            obj.lastName = formData.get("lastName") ?? "";
+
+
+            return toExit(personNameDeserialize(obj));
+        }
+
+export const PersonName = {
+  defaultValue: personNameDefaultValue,
+  serialize: personNameSerialize,
+  serializeWithContext: personNameSerializeWithContext,
+  deserialize: personNameDeserialize,
+  deserializeWithContext: personNameDeserializeWithContext,
+  validateFields: personNameValidateFields,
+  hasShape: personNameHasShape,
+  is: personNameIs,
+  createForm: personNameCreateForm,
+  fromFormData: personNameFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..150 -> expanded 58..93
+original 197..202 -> expanded 93..98
+original 243..271 -> expanded 98..126
+original 317..322 -> expanded 126..131
+original 363..387 -> expanded 131..155
+original 387..388 -> expanded 15567..15568
+generated 155..298 <- Default
+generated 298..1877 <- Serialize
+generated 1877..9918 <- Deserialize
+generated 9918..15127 <- Gigaform
+generated 15127..15567 <- __convenience_const
+
+## Metadata
+
+interface PersonName: {"body_span":{"end":388,"start":145},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":244,"start":203}},{"args_src":"{ label: \"First Name\" }","name":"textController","span":{"end":198,"start":151}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":267,"start":249},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":364,"start":323}},{"args_src":"{ label: \"Last Name\" }","name":"textController","span":{"end":318,"start":272}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":386,"start":369},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":388,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("string")
+
+## Buildtime dependencies
+
+(none)

@@ -554,10 +554,10 @@ fn is_placeholder_continue(byte: u8) -> bool {
 
 fn extract_generic<'a>(name: &str, ty: &'a Type) -> Option<&'a Type> {
     if let Type::Path(path) = ty {
-        let last = path.path.segments.last().unwrap();
+        let last = path.path.segments.last()?;
         if last.ident == name && !last.arguments.is_empty() {
             return match &last.arguments {
-                PathArguments::AngleBracketed(args) => match args.args.first().unwrap() {
+                PathArguments::AngleBracketed(args) => match args.args.first()? {
                     GenericArgument::Type(arg) => Some(arg),
                     _ => None,
                 },

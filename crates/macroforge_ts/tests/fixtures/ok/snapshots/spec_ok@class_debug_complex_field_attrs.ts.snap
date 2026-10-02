@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_debug_complex_field_attrs.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_debug_complex_field_attrs.ts
 ---
 ## Input
 
@@ -35,6 +34,10 @@ class MacroUser {
         this.apiToken = apiToken;
     }
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -118,5 +121,27 @@ parts.push("since: " + value.since);
                     }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..44 -> expanded 0..23
+original 79..201 -> expanded 23..145
+original 230..625 -> expanded 145..540
+original 625..626 -> expanded 655..656
+original 626..627 -> expanded 1086..1087
+generated 540..655 <- Debug
+generated 656..1086 <- Debug
+
+## Metadata
+
+class MacroUser: {"body_span":{"end":627,"start":39},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[{"args_src":"{ rename: \"userId\" }","name":"debug","span":{"end":80,"start":45}}],"name":"id","optional":false,"readonly":false,"span":{"end":96,"start":85},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":115,"start":102},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"role","optional":false,"readonly":false,"span":{"end":133,"start":120},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"favoriteMacro","optional":false,"readonly":false,"span":{"end":177,"start":138},"ts_type":"'Derive' | 'JsonNative'","visibility":"Public"},{"decorators":[],"name":"since","optional":false,"readonly":false,"span":{"end":196,"start":182},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":231,"start":202}}],"name":"apiToken","optional":false,"readonly":false,"span":{"end":253,"start":236},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":625,"start":438},"body_src":"\n        this.id = id;\n        this.name = name;\n        this.role = role;\n        this.favoriteMacro = favoriteMacro;\n        this.since = since;\n        this.apiToken = apiToken;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: string,\n        name: string,\n        role: string,\n        favoriteMacro: 'Derive' | 'JsonNative',\n        since: string,\n        apiToken: string","return_type_src":"","span":{"end":625,"start":259},"type_params_src":"","visibility":"Public"}],"name":"MacroUser","span":{"end":627,"start":23},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

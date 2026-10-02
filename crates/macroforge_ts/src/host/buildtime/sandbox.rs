@@ -5,7 +5,7 @@
 //! ([`crate::host::buildtime::backends::boa`]), pure Rust, works on
 //! native + wasm32.
 //!
-//! All types here are runtime-only — they never appear in user-facing
+//! All types here are runtime-only: they never appear in user-facing
 //! TypeScript. The serializer ([`crate::host::buildtime::serialize`])
 //! converts [`SandboxValue`] to TS source.
 
@@ -42,13 +42,7 @@ pub enum SandboxValue {
 }
 
 impl SandboxValue {
-    /// True if this value is `null` or `undefined`.
-    #[must_use]
-    pub fn is_nullish(&self) -> bool {
-        matches!(self, Self::Null | Self::Undefined)
-    }
-
-    /// A short human-readable description of the variant — used in
+    /// A short human-readable description of the variant, used in
     /// error messages (e.g. `"function"`, `"symbol"`).
     #[must_use]
     pub fn kind_name(&self) -> &'static str {
@@ -69,7 +63,7 @@ impl SandboxValue {
 /// Options passed to the sandbox for a single evaluation.
 ///
 /// Capabilities live on this struct rather than on the sandbox itself so
-/// each evaluation can have its own capability set — a `@buildtime`
+/// each evaluation can have its own capability set: a `@buildtime`
 /// declaration in file A can't smuggle filesystem access into file B.
 #[derive(Debug, Clone)]
 pub struct SandboxOptions {
@@ -108,7 +102,7 @@ impl SandboxOptions {
     /// Construct default options anchored at `source_file`.
     ///
     /// `capabilities` defaults to the empty set, `timeout` to 5 seconds,
-    /// and `max_heap` to 256 MB — all values matching the config defaults
+    /// and `max_heap` to 256 MB, all values matching the config defaults
     /// documented in `plans/buildtime.md`.
     #[must_use]
     pub fn new(source_file: PathBuf) -> Self {
@@ -132,7 +126,7 @@ pub struct EvalResult {
 
     /// Absolute paths of every file the sandbox read via the `buildtime.fs`
     /// API during evaluation. The host uses this list for incremental
-    /// rebuilds — if any of these files change, the declaration must be
+    /// rebuilds: if any of these files change, the declaration must be
     /// re-evaluated.
     pub dependencies: Vec<PathBuf>,
 }
@@ -145,7 +139,7 @@ pub enum SandboxError {
     Timeout { duration: Duration },
 
     /// The script allocated more than [`SandboxOptions::max_heap`] bytes.
-    /// Never produced by the Boa backend today — see [`SandboxOptions::max_heap`].
+    /// Never produced by the Boa backend today: see [`SandboxOptions::max_heap`].
     #[error("script exceeded heap limit of {limit} bytes")]
     OutOfMemory { limit: usize },
 
@@ -153,25 +147,6 @@ pub enum SandboxError {
     /// capability allowlist.
     #[error("script tried to read disallowed path {}", .path.display())]
     UnauthorizedRead { path: PathBuf },
-
-    /// A `buildtime.fs.write*` call tried to touch a path not in the
-    /// capability allowlist. Currently unreachable: the Boa backend
-    /// exposes no `buildtime.fs.write*` API.
-    #[error("script tried to write disallowed path {}", .path.display())]
-    UnauthorizedWrite { path: PathBuf },
-
-    /// The script accessed `buildtime.env[X]` for an `X` not in the
-    /// env allowlist. Currently unreachable: the Boa backend pre-injects
-    /// only allowlisted vars into `buildtime.env`, so disallowed reads
-    /// see `undefined` rather than erroring.
-    #[error("script tried to read disallowed env var {var}")]
-    UnauthorizedEnv { var: String },
-
-    /// The script attempted network access while `capabilities.network`
-    /// was false. Currently unreachable: the Boa backend exposes no
-    /// network API at all.
-    #[error("script tried to make network request to {url} (network capability is off)")]
-    UnauthorizedNetwork { url: String },
 
     /// The script returned a value that can't be expressed as a TS
     /// literal (e.g. a function, a class instance, a symbol, a value
@@ -194,7 +169,7 @@ pub enum SandboxError {
 ///
 /// Implementations must be `Send + Sync` so the pre-pass can hold a
 /// trait object alongside `MacroExpander` in thread-local state. They do
-/// **not** need to be reusable across evaluations — backends are free to
+/// **not** need to be reusable across evaluations: backends are free to
 /// create a fresh context per call, and the higher-level pool (PR 12)
 /// adds reuse where it matters.
 pub trait BuildtimeSandbox: Send + Sync {
@@ -206,7 +181,7 @@ pub trait BuildtimeSandbox: Send + Sync {
     /// `source` is the full text of a synthetic module (the pre-pass
     /// wraps user code in a try/catch that stashes the result on
     /// `globalThis.__macroforgeResult`). `origin` is the file path
-    /// displayed in stack traces — usually `<buildtime>` followed by the
+    /// displayed in stack traces, usually `<buildtime>` followed by the
     /// user's source file name.
     ///
     /// Implementations read `__macroforgeResult` from the global scope

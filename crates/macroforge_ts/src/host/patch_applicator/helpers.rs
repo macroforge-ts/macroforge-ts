@@ -13,28 +13,24 @@ pub(crate) fn dedupe_patches(patches: &mut Vec<Patch>) {
     dedupe_imports(patches);
 
     // Phase 2: Standard exact-match deduplication.
-    let mut seen: HashSet<(u8, u32, u32, Option<String>)> = HashSet::new();
-    let mut indices_to_keep = Vec::new();
-
-    for (i, patch) in patches.iter().enumerate() {
-        let key = match patch {
-            Patch::Insert { at, code, .. } => (0, at.start, at.end, Some(code.clone())),
-            Patch::InsertRaw { at, code, .. } => (3, at.start, at.end, Some(code.clone())),
-            Patch::Replace { span, code, .. } => (1, span.start, span.end, Some(code.clone())),
-            Patch::ReplaceRaw { span, code, .. } => (4, span.start, span.end, Some(code.clone())),
-            Patch::Delete { span } => (2, span.start, span.end, None),
-        };
-
-        if seen.insert(key) {
-            indices_to_keep.push(i);
-        }
-    }
-
-    let old_patches = std::mem::take(patches);
-    *patches = indices_to_keep
-        .into_iter()
-        .map(|i| old_patches[i].clone())
+    let mut seen: HashSet<(u8, u32, u32, Option<&str>)> = HashSet::new();
+    let first_seen: Vec<bool> = patches
+        .iter()
+        .map(|patch| {
+            seen.insert(match patch {
+                Patch::Insert { at, code, .. } => (0, at.start, at.end, Some(code.as_str())),
+                Patch::InsertRaw { at, code, .. } => (3, at.start, at.end, Some(code.as_str())),
+                Patch::Replace { span, code, .. } => (1, span.start, span.end, Some(code.as_str())),
+                Patch::ReplaceRaw { span, code, .. } => {
+                    (4, span.start, span.end, Some(code.as_str()))
+                }
+                Patch::Delete { span } => (2, span.start, span.end, None),
+            })
+        })
         .collect();
+
+    let mut first_seen = first_seen.into_iter();
+    patches.retain(|_| first_seen.next().unwrap_or(true));
 }
 
 /// Parses an import patch's code string into (specifier, module, is_type_only).

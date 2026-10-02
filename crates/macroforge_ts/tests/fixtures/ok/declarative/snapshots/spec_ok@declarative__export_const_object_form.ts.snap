@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/export_const_object_form.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_object_form.ts
 ---
 ## Input
 
@@ -33,6 +33,10 @@ interface User {
 type StrictUser = $ReadOnly<User>;
 type Pair = $Tuple<string, number>;
 
+## Changed
+
+true
+
 ## Output
 
 // `export const` with the object form of `macroRules({...})`.
@@ -58,5 +62,23 @@ type Pair = [string,number];
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..336 -> expanded 0..336
+
+## Metadata
+
+interface User: {"body_span":{"end":247,"start":210},"decorators":[],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":227,"start":216},"ts_type":"string"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":245,"start":232},"ts_type":"string"}],"heritage":[],"methods":[],"name":"User","span":{"end":247,"start":195},"type_params":[]}
+type StrictUser: {"body":{"Other":"{ readonly [K in keyof User]: User[K] }"},"decorators":[],"name":"StrictUser","span":{"end":307,"start":249},"type_params":[]}
+type Pair: {"body":{"Tuple":["string","number"]},"decorators":[],"name":"Pair","span":{"end":336,"start":308},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_intersection.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_intersection.ts
 ---
 ## Input
 
@@ -17,6 +16,10 @@ interface PersonRecord {
 export type EntityRecord =
     | /** @default */ ({ variant: 'Unknown' } & UnknownRecord)
     | ({ variant: 'Person' } & PersonRecord);
+
+## Changed
+
+true
 
 ## Output
 
@@ -69,5 +72,27 @@ export const EntityRecord = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..94 -> expanded 0..94
+original 117..253 -> expanded 94..230
+original 253..254 -> expanded 495..496
+generated 230..411 <- Default
+generated 411..495 <- __convenience_const
+
+## Metadata
+
+interface UnknownRecord: {"body_span":{"end":48,"start":25},"decorators":[],"fields":[{"decorators":[],"name":"source","optional":false,"readonly":false,"span":{"end":46,"start":31},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UnknownRecord","span":{"end":48,"start":1},"type_params":[]}
+interface PersonRecord: {"body_span":{"end":93,"start":72},"decorators":[],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":91,"start":78},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonRecord","span":{"end":93,"start":49},"type_params":[]}
+type EntityRecord: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":167,"start":152}}],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"variant","optional":false,"readonly":false,"span":{"end":189,"start":171},"ts_type":"'Unknown'"}]}}},{"decorators":[],"kind":{"TypeRef":"UnknownRecord"}}]}},{"decorators":[],"kind":{"Intersection":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"variant","optional":false,"readonly":false,"span":{"end":235,"start":218},"ts_type":"'Person'"}]}}},{"decorators":[],"kind":{"TypeRef":"PersonRecord"}}]}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":118,"start":95}}],"name":"EntityRecord","span":{"end":254,"start":126},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

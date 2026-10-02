@@ -9,7 +9,7 @@ use super::super::{
     SerdeContainerOptions, TaggingMode, TypeCategory, get_foreign_types,
     rewrite_expression_namespaces,
 };
-use super::field_processing::interface_field_to_deserialize_field;
+use super::field_processing::to_deserialize_field;
 use super::helpers::{
     extract_base_type, nested_deserialize_fn_name, nested_deserialize_result_fn_name,
     nested_has_shape_fn_name, type_accepts_string,
@@ -136,8 +136,8 @@ fn handle_object_type_alias(
     let fields: Vec<DeserializeField> = ir_fields
         .iter()
         .filter_map(|field| {
-            interface_field_to_deserialize_field(
-                field,
+            to_deserialize_field(
+                field.into(),
                 &container_opts,
                 &mut all_diagnostics,
                 type_registry,
@@ -325,7 +325,7 @@ fn handle_object_type_alias(
                                     {#if has_validators}
                                         {
                                             const __convertedVal = (@{fn_expr})(obj["@{field.json_key}"]);
-                                            {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, type_name)}
+                                            {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, type_name, field.accepts_missing())}
                                             {$typescript validation_code}
                                             instance.@{field.field_ident} = __convertedVal;
                                         }
@@ -337,7 +337,7 @@ fn handle_object_type_alias(
                                 {#if has_validators}
                                     {
                                         const __convertedVal = (@{fn_expr})(obj["@{field.json_key}"]);
-                                        {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, type_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, "__convertedVal", &field.json_key, type_name, field.accepts_missing())}
                                         {$typescript validation_code}
                                         instance.@{field.field_ident} = __convertedVal;
                                     }
@@ -352,7 +352,7 @@ fn handle_object_type_alias(
                                 {#match &field.type_cat}
                                     {:case TypeCategory::Primitive}
                                         {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
+                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}
                                             {$typescript validation_code}
 
                                         {/if}
@@ -372,18 +372,14 @@ fn handle_object_type_alias(
                                     {:case TypeCategory::Date}
                                         {
                                             const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
-                                            {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name)}
-                                                {$typescript validation_code}
-
-                                            {/if}
+                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
                                             instance.@{field.field_ident} = __dateVal;
                                         }
 
                                     {:case TypeCategory::Array(inner)}
                                         if (Array.isArray(@{raw_var_ident})) {
                                             {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}
                                                 {$typescript validation_code}
 
                                             {/if}
@@ -483,7 +479,7 @@ fn handle_object_type_alias(
                                             if (typeof @{raw_var_ident} === "@{prim}") {
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                                 {#if field.has_union_string_validators()}
-                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, type_name)}
+                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, type_name, true)}
                                                     {$typescript usv_code}
                                                 {/if}
                                             } else {
@@ -508,14 +504,15 @@ fn handle_object_type_alias(
                                     {:case TypeCategory::Nullable(_)}
                                         {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                             {:case SerdeValueKind::PrimitiveLike}
+                                                {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                             {:case SerdeValueKind::Date}
                                                 if (@{raw_var_ident} === null) {
                                                     instance.@{field.field_ident} = null;
                                                 } else {
-                                                    instance.@{field.field_ident} = typeof @{raw_var_ident} === "string"
-                                                        ? new Date(@{raw_var_ident})
-                                                        : @{raw_var_ident};
+                                                    const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident};
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                                    instance.@{field.field_ident} = __dateVal;
                                                 }
                                             {:case _}
                                                 if (@{raw_var_ident} === null) {
@@ -551,7 +548,7 @@ fn handle_object_type_alias(
                                 {#match &field.type_cat}
                                     {:case TypeCategory::Primitive}
                                         {#if has_validators}
-                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
+                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}
                                             {$typescript validation_code}
 
                                         {/if}
@@ -571,18 +568,14 @@ fn handle_object_type_alias(
                                     {:case TypeCategory::Date}
                                         {
                                             const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident} as Date;
-                                            {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name)}
-                                                {$typescript validation_code}
-
-                                            {/if}
+                                            {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
                                             instance.@{field.field_ident} = __dateVal;
                                         }
 
                                     {:case TypeCategory::Array(inner)}
                                         if (Array.isArray(@{raw_var_ident})) {
                                             {#if has_validators}
-                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name)}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}
                                                 {$typescript validation_code}
 
                                             {/if}
@@ -682,7 +675,7 @@ fn handle_object_type_alias(
                                             if (typeof @{raw_var_ident} === "@{prim}") {
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                                 {#if field.has_union_string_validators()}
-                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, type_name)}
+                                                    {$let usv_code = generate_field_validations(&field.union_string_validators, &raw_var_name, &field.json_key, type_name, true)}
                                                     {$typescript usv_code}
                                                 {/if}
                                             } else {
@@ -707,14 +700,15 @@ fn handle_object_type_alias(
                                     {:case TypeCategory::Nullable(_)}
                                         {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
                                             {:case SerdeValueKind::PrimitiveLike}
+                                                {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, &raw_var_name, &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
                                                 instance.@{field.field_ident} = @{raw_var_ident};
                                             {:case SerdeValueKind::Date}
                                                 if (@{raw_var_ident} === null) {
                                                     instance.@{field.field_ident} = null;
                                                 } else {
-                                                    instance.@{field.field_ident} = typeof @{raw_var_ident} === "string"
-                                                        ? new Date(@{raw_var_ident})
-                                                        : @{raw_var_ident};
+                                                    const __dateVal = typeof @{raw_var_ident} === "string" ? new Date(@{raw_var_ident}) : @{raw_var_ident};
+                                                    {#if has_validators}{$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name, field.accepts_missing())}{$typescript validation_code}{/if}
+                                                    instance.@{field.field_ident} = __dateVal;
                                                 }
                                             {:case _}
                                                 if (@{raw_var_ident} === null) {
@@ -758,7 +752,7 @@ fn handle_object_type_alias(
                 {#for field in &fields_with_validators}
                 if (_field === "@{field.field_name}") {
                     const __val = _value as @{field.ts_type};
-                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
+                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.accepts_missing())}
                     {$typescript validation_code}
 
                 }
@@ -777,7 +771,7 @@ fn handle_object_type_alias(
                 {#for field in &fields_with_validators}
                 if ("@{field.field_name}" in _partial && _partial.@{field.field_ident} !== undefined) {
                     const __val = _partial.@{field.field_ident} as @{field.ts_type};
-                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
+                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name, field.accepts_missing())}
                     {$typescript validation_code}
 
                 }
@@ -810,6 +804,7 @@ fn handle_object_type_alias(
     result.add_aliased_import("DeserializeError", crate::package::SERDE);
     result.add_aliased_type_import("DeserializeOptions", crate::package::SERDE);
     result.add_aliased_import("PendingRef", crate::package::SERDE);
+    result.add_diagnostics(all_diagnostics.into_vec());
     Ok(result)
 }
 
@@ -1071,7 +1066,7 @@ fn handle_union_type_alias(
                 if let (Some(tv), Some(rt)) = (tag_value, ref_type) {
                     // A `{ tag: 'X' } & TypeRef` variant's payload must be deserialized
                     // through `TypeRef`'s own deserializer so nested fields (dates,
-                    // records, links) are reconstructed — a shallow `{ ...value, tag }`
+                    // records, links) are reconstructed: a shallow `{ ...value, tag }`
                     // spread leaves them as raw JSON. `serializable_types` only holds
                     // DIRECT type-ref union members, so an intersection's inner type is
                     // absent from it; recognize any non-primitive / non-date /
@@ -1112,7 +1107,7 @@ fn handle_union_type_alias(
         let camel_name = type_name.to_case(Case::Camel);
         let mut guards: Vec<TsStream> = Vec::new();
 
-        // Internally tagged inline object variants — discriminate by the tag
+        // Internally tagged inline object variants: discriminate by the tag
         // field equalling the variant's discriminant value.
         for ov in &object_variants {
             let variant_pascal = ov.tag_value.to_case(Case::Pascal);
@@ -1132,7 +1127,7 @@ fn handle_union_type_alias(
             });
         }
 
-        // Intersection variants (`{ tag: 'X' } & TypeRef`) — same shape, the
+        // Intersection variants (`{ tag: 'X' } & TypeRef`): same shape, the
         // tag field discriminates among union members.
         for iv in &intersection_variants {
             let variant_pascal = iv.tag_value.to_case(Case::Pascal);
@@ -1152,7 +1147,7 @@ fn handle_union_type_alias(
             });
         }
 
-        // Externally tagged inline objects (`{ TypeName: { ...fields } }`) —
+        // Externally tagged inline objects (`{ TypeName: { ...fields } }`):
         // discriminate on whether the variant's key is present.
         for ov in &external_object_variants {
             let variant_pascal = ov.name.to_case(Case::Pascal);
@@ -1239,7 +1234,7 @@ fn handle_union_type_alias(
     };
 
     // ── Literal-only unions: emit a simple switch-case block ──
-    // No JSON.parse, no DeserializeContext, no PendingRef — just
+    // No JSON.parse, no DeserializeContext, no PendingRef: just
     // validate input against the known variants directly.
     if is_literal_only {
         let fn_deserialize_ident = ts_ident!(
@@ -1349,7 +1344,7 @@ fn handle_union_type_alias(
     let error_from_ctx_expr =
         Expr::parse(&error_from_ctx).expect("deserialize ctx error wrapper should parse");
 
-    // If string is a valid variant, skip JSON.parse — the string IS the value.
+    // If string is a valid variant, skip JSON.parse: the string IS the value.
     // Check foreign serializable types directly (their hasShape inline tells us
     // if they accept strings) because the type registry may not be available
     // during cache builds.
@@ -1427,7 +1422,7 @@ fn handle_union_type_alias(
                                 message: "@{type_name}.deserializeWithContext: expected @{expected_types_str}, got " + typeof value
                             }]);
                         {:else if is_serializable_only}
-                            // Foreign types may not be objects — check hasShape first
+                            // Foreign types may not be objects: check hasShape first
                             {#for type_ref in &foreign_serializables}
                                 {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
                                     {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
@@ -1585,7 +1580,7 @@ fn handle_union_type_alias(
                                         {/for}
                                         {#for ov in &object_variants}
                                             if (__typeName === "@{ov.tag_value}") {
-                                                // Inline object variant — deserialize fields in place
+                                                // Inline object variant: deserialize fields in place
                                                 const __result: Record<string, unknown> = { "@{tag_field}": "@{ov.tag_value}" };
                                                 {#for field in &ov.fields}
                                                     {#if field.name != tag_field}
@@ -1597,7 +1592,7 @@ fn handle_union_type_alias(
                                         {/for}
                                         {#for iv in &intersection_variants}
                                             if (__typeName === "@{iv.tag_value}") {
-                                                // Intersection variant — deserialize the type ref and merge with tag
+                                                // Intersection variant: deserialize the type ref and merge with tag
                                                 {#if iv.is_serializable}
                                                     {$let iv_deser_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&iv.type_ref))).into()}
                                                     const __inner = @{iv_deser_fn}(value, ctx);
@@ -1646,7 +1641,7 @@ fn handle_union_type_alias(
                                 }
 
                                 if (__shapeMatches.length > 1) {
-                                    // Multiple variants match — try each deserializer in order, return first success
+                                    // Multiple variants match: try each deserializer in order, return first success
                                     {#for type_ref in &regular_serializables}
                                         {$let deserialize_with_context_fn: Expr = ts_ident!(nested_deserialize_fn_name(&extract_base_type(&type_ref.full_type))).into()}
                                         if (__shapeMatches.includes("@{type_ref.full_type}")) {
@@ -1817,7 +1812,7 @@ fn handle_union_type_alias(
                                                 {/if}
                                             {/for}
                                         } else {
-                                            // No tag field — infer variant via structural shape matching
+                                            // No tag field: infer variant via structural shape matching
                                             const __shapeMatches: Array<string> = [];
                                             {#for type_ref in &regular_serializables}
                                                 {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -1833,7 +1828,7 @@ fn handle_union_type_alias(
                                             }
                                         }
                                     } else {
-                                        // Non-object values — regular serializables may still match (e.g. RecordLink can be a string)
+                                        // Non-object values: regular serializables may still match (e.g. RecordLink can be a string)
                                         const __shapeMatches: Array<string> = [];
                                         {#for type_ref in &regular_serializables}
                                             {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}
@@ -1851,7 +1846,7 @@ fn handle_union_type_alias(
                                 {/if}
                             {/if}
 
-                            // Foreign types may not be objects — check hasShape outside the object block
+                            // Foreign types may not be objects: check hasShape outside the object block
                             {#for type_ref in &foreign_serializables}
                                 {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
                                     {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
@@ -1954,7 +1949,7 @@ fn handle_union_type_alias(
                         {:else if is_primitive_only}
                             return @{primitive_check_condition};
                         {:else if is_serializable_only}
-                            // Foreign types with hasShape may not be objects — check first
+                            // Foreign types with hasShape may not be objects: check first
                             {#for type_ref in &foreign_serializables}
                                 {#if let Some(ref shape_inline) = type_ref.foreign_has_shape_inline}
                                     {$let foreign_shape_expr: Expr = Expr::parse(shape_inline).expect("foreign hasShape expr should parse")}
@@ -2072,7 +2067,7 @@ fn handle_union_type_alias(
                                             if (__matchCount === 1) return true;
                                         }
                                     } else {
-                                        // Non-object values — regular serializables may still match (e.g. RecordLink can be a string)
+                                        // Non-object values: regular serializables may still match (e.g. RecordLink can be a string)
                                         let __matchCount = 0;
                                         {#for type_ref in &regular_serializables}
                                             {$let has_shape_fn: Expr = ts_ident!(nested_has_shape_fn_name(&extract_base_type(&type_ref.full_type))).into()}

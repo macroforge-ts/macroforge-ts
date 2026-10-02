@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_deserialize_user.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_deserialize_user.ts
 ---
 ## Input
 
@@ -13,6 +12,10 @@ class User {
     name: string;
     age: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -383,14 +386,8 @@ constructor(props: { name: string; age: number }) {
 
 
 
-
-
-
                         }{
                             const __raw_age = obj["age"] as number;instance.age = __raw_age;
-
-
-
 
 
 
@@ -1115,14 +1112,8 @@ constructor(props: { name: string; age: number }) {
 
 
 
-
-
-
                         }{
                             const __raw_age = obj["age"] as number;instance.age = __raw_age;
-
-
-
 
 
 
@@ -1483,5 +1474,26 @@ constructor(props: { name: string; age: number }) {
         }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 68..117 -> expanded 41..90
+original 117..118 -> expanded 4982..4983
+original 118..119 -> expanded 6164..6165
+generated 90..4982 <- Deserialize
+generated 4983..6164 <- Deserialize
+
+## Metadata
+
+class User: {"body_span":{"end":119,"start":81},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":69,"start":42}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":100,"start":87},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":117,"start":105},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":119,"start":70},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

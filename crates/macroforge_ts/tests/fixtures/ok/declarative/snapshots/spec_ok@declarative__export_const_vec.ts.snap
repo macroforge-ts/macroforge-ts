@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/export_const_vec.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/export_const_vec.ts
 ---
 ## Input
 
@@ -20,6 +20,10 @@ export const $vec = macroRules`
 
 const empty = $vec();
 const xs = $vec(1, 2, 3);
+
+## Changed
+
+true
 
 ## Output
 
@@ -41,5 +45,21 @@ const xs = [1,2,3];
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

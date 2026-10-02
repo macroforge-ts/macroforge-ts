@@ -1,6 +1,8 @@
 // Integration tests for ts_template! macro and derive macros
 // Migrated from tooling/playground/tests/rust-tests
 
+#[path = "template/comments_and_composition.rs"]
+mod comments_and_composition;
 #[path = "template/ir_declarations.rs"]
 mod ir_declarations;
 #[path = "template/ir_expressions.rs"]

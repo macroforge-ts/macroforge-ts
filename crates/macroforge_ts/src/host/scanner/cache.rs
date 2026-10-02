@@ -1,51 +1,39 @@
-//! Per-file scan cache with mtime+size invalidation (Phase 17).
+//! Per-file scan cache with mtime+size invalidation.
 //!
-//! `ProjectScanner::scan()` re-parses every `.ts/.tsx` file on every
-//! invocation. For large projects with frequent HMR churn this is
-//! noticeably wasteful — a single keystroke rescans hundreds of files
-//! that didn't change. This module adds a per-file cache keyed on
-//! `(path, mtime_ns, size)` so rescans only re-parse the files that
-//! actually moved on disk.
+//! A scan lowers every `.ts/.tsx` file in the project. The cache keeps what
+//! each file lowered to, keyed on its absolute path and `(mtime_ns, size)`,
+//! so a rescan only parses the files that moved on disk.
 //!
-//! The cache is intentionally dumb:
-//!
-//! - Keyed on the absolute path of the scanned file.
-//! - Stores every lowered artifact the scanner produced for that file
-//!   (classes, interfaces, enums, type aliases, declarative macros,
-//!   plus the file-level `imports` and `exported_names` sets).
-//! - Invalidates on any mismatch between `(mtime_ns, size)` and the
-//!   cached tuple. `mtime_ns` alone would be enough on most
-//!   filesystems but some editors do "safe writes" (write-and-rename)
-//!   that preserve mtime; `size` catches those cases cheaply.
-//! - No eviction / LRU logic — the cache grows monotonically over a
-//!   scanner's lifetime. HMR invalidation happens via
-//!   [`ScanCache::invalidate`] when Vite tells us a file changed.
-//!
-//! The scanner owns an `Option<ScanCache>`; the cache is created
-//! lazily and only turned on via [`ProjectScanner::with_cache`]. This
-//! keeps the single-shot CLI path unchanged while letting long-lived
-//! hosts (the Vite plugin, the LSP server) reuse the scanner across
-//! scans.
+//! - Stores every lowered artifact the scanner produced for a file (classes,
+//!   interfaces, enums, type aliases, declarative macros, the file's imports
+//!   and exported names), shared by reference with every scan that reuses it.
+//! - Invalidates on any mismatch between `(mtime_ns, size)` and the cached
+//!   tuple. `size` catches "safe writes" (write-and-rename) that keep mtime.
+//! - Does not trust the stamp of a file written in the last moments: another
+//!   write within the filesystem's timestamp resolution could leave it equal.
+//! - Persists across processes as `.macroforge/scan-cache.bin`, discarded
+//!   whole when the macroforge version that wrote it differs.
 
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::host::declarative::ProjectDeclarativeRegistry;
+use crate::host::declarative::project_registry::FileMacros;
 use crate::ts_syn::abi::ir::type_registry::FileImportEntry;
 use crate::ts_syn::abi::ir::{ClassIR, EnumIR, InterfaceIR, TypeAliasIR};
-use crate::ts_syn::declarative::MacroDef;
 
-/// Per-file cache entry — everything the scanner produces for a
-/// single `.ts/.tsx` file, plus the `(mtime_ns, size)` tuple used to
-/// decide whether the entry is still current.
-#[derive(Debug, Clone)]
+/// Everything the scanner produces for a single `.ts/.tsx` file, plus the
+/// `(mtime_ns, size)` tuple used to decide whether the entry is still current.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CacheEntry {
-    /// File mtime in nanoseconds since the Unix epoch, captured at
-    /// the time the entry was written. Combined with [`Self::size`]
-    /// this is the "generation" tag we compare against on rescan.
+    /// File mtime in nanoseconds since the Unix epoch, captured at the time
+    /// the entry was written. Combined with [`Self::size`] this is the
+    /// "generation" tag compared against on rescan.
     pub mtime_ns: u128,
-    /// File size in bytes. Catches write-and-rename saves where the
-    /// mtime is preserved but the content changed.
+    /// File size in bytes. Catches write-and-rename saves where the mtime is
+    /// preserved but the content changed.
     pub size: u64,
 
     /// Lowered class declarations from the file.
@@ -57,30 +45,105 @@ pub struct CacheEntry {
     /// Lowered type alias declarations from the file.
     pub type_aliases: Vec<TypeAliasIR>,
 
-    /// Declarative macros (`const $x = macroRules\`...\``) discovered
-    /// in the file. Empty for files that don't define any.
-    pub declarative_macros: Vec<MacroDef>,
+    /// Declarative macros (`const $x = macroRules\`...\``) discovered in the
+    /// file. Empty for files that don't define any.
+    pub declarative_macros: Arc<FileMacros>,
 
-    /// Module-level imports — needed by [`TypeRegistry::resolve`] to
+    /// Module-level imports, needed by `TypeRegistry::resolve` to
     /// cross-reference ambiguous type names.
     pub file_imports: Vec<FileImportEntry>,
-    /// Names exported from the file — used by the scanner's
-    /// `exported_only` filter.
+    /// Names exported from the file, used by the scanner's `exported_only`
+    /// filter.
     pub exported_names: HashSet<String>,
     /// Whether the file contains anything the engine expands.
     pub uses_macros: bool,
 }
 
 /// Project-wide scan cache keyed by absolute file path.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct ScanCache {
-    entries: HashMap<PathBuf, CacheEntry>,
+    entries: HashMap<PathBuf, Arc<CacheEntry>>,
+}
+
+/// What a persisted cache starts with, so one written by another release is
+/// never read as this one's.
+#[derive(serde::Serialize, serde::Deserialize)]
+struct PersistedHeader {
+    version: String,
+}
+
+/// Where a project's scan cache persists, under its root.
+pub fn persisted_path(root: &Path) -> PathBuf {
+    root.join(".macroforge").join("scan-cache.bin")
 }
 
 impl ScanCache {
     /// Create an empty cache.
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// The cache persisted at `path` by this macroforge version. A missing
+    /// file is an empty cache; one that is unreadable, from another version,
+    /// or corrupt is reported and also starts empty, since every entry in it
+    /// can be rebuilt.
+    pub fn load(path: &Path) -> Self {
+        let bytes = match std::fs::read(path) {
+            Ok(bytes) => bytes,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Self::new(),
+            Err(error) => {
+                eprintln!(
+                    "[macroforge] warning: could not read the scan cache {}: {error}",
+                    path.display()
+                );
+                return Self::new();
+            }
+        };
+        let decoded =
+            postcard::take_from_bytes::<PersistedHeader>(&bytes).and_then(|(header, rest)| {
+                if header.version == env!("CARGO_PKG_VERSION") {
+                    postcard::from_bytes::<ScanCache>(rest).map(Some)
+                } else {
+                    Ok(None)
+                }
+            });
+        match decoded {
+            Ok(Some(cache)) => cache,
+            Ok(None) => Self::new(),
+            Err(error) => {
+                eprintln!(
+                    "[macroforge] warning: discarding the unreadable scan cache {}: {error}",
+                    path.display()
+                );
+                Self::new()
+            }
+        }
+    }
+
+    /// Writes the cache to `path`, replacing any earlier one in one rename.
+    pub fn save(&self, path: &Path) -> anyhow::Result<()> {
+        use anyhow::Context;
+
+        let mut bytes = postcard::to_stdvec(&PersistedHeader {
+            version: env!("CARGO_PKG_VERSION").to_string(),
+        })
+        .context("failed to encode the scan cache header")?;
+        bytes.extend(postcard::to_stdvec(self).context("failed to encode the scan cache")?);
+
+        // Staged under a name of its own, so saves running at once, in this
+        // process or another, never rename each other's file away.
+        let parent = path.parent().unwrap_or_else(|| Path::new("."));
+        std::fs::create_dir_all(parent)
+            .with_context(|| format!("failed to create {}", parent.display()))?;
+        let mut staged = tempfile::NamedTempFile::new_in(parent)
+            .with_context(|| format!("failed to stage the scan cache in {}", parent.display()))?;
+        std::io::Write::write_all(&mut staged, &bytes)
+            .with_context(|| format!("failed to write the scan cache for {}", path.display()))?;
+        staged
+            .persist(path)
+            .map(drop)
+            .map_err(|error| error.error)
+            .with_context(|| format!("failed to move the scan cache into {}", path.display()))
     }
 
     /// Returns the number of entries currently in the cache.
@@ -93,100 +156,135 @@ impl ScanCache {
         self.entries.is_empty()
     }
 
-    /// Look up a cache entry by path. Returns `None` if the path
-    /// hasn't been scanned yet OR the on-disk `(mtime, size)` tuple
-    /// doesn't match the cached tuple.
-    ///
-    /// Callers pass the live `(mtime_ns, size)` they just read via
-    /// `fs::metadata` — the cache does not hit the filesystem itself,
-    /// so this method is cheap and side-effect-free.
-    pub fn get(&self, path: &Path, mtime_ns: u128, size: u64) -> Option<&CacheEntry> {
+    /// The entry for `path` when it was cached at `stamp`. A file without a
+    /// trustworthy stamp (see [`file_stamp`]) never matches.
+    pub fn get(&self, path: &Path, stamp: Option<FileStamp>) -> Option<Arc<CacheEntry>> {
+        let stamp = stamp?;
         let entry = self.entries.get(path)?;
-        if entry.mtime_ns == mtime_ns && entry.size == size {
-            Some(entry)
-        } else {
-            None
-        }
+        (entry.mtime_ns == stamp.mtime_ns && entry.size == stamp.size).then(|| Arc::clone(entry))
     }
 
     /// Insert (or overwrite) the cache entry for `path`.
-    pub fn insert(&mut self, path: PathBuf, entry: CacheEntry) {
+    pub fn insert(&mut self, path: PathBuf, entry: Arc<CacheEntry>) {
         self.entries.insert(path, entry);
     }
 
-    /// Remove a single entry by path. Used by HMR when Vite tells us
-    /// a file changed on disk — the next scan of that file will
-    /// re-parse it from scratch.
+    /// Keeps only the entries for `paths`, so files deleted from the project
+    /// do not stay in the cache forever.
+    pub fn retain_paths(&mut self, paths: &HashSet<&Path>) {
+        self.entries
+            .retain(|path, _| paths.contains(path.as_path()));
+    }
+
+    /// Remove a single entry by path. Used by HMR when Vite tells us a file
+    /// changed on disk: the next scan of that file re-parses it.
     pub fn invalidate(&mut self, path: &Path) -> bool {
         self.entries.remove(path).is_some()
     }
 
-    /// Drop every cached entry. Called when the scanner's config
-    /// changes (e.g. `macroforge.config.ts` was touched), since the
-    /// lowered IR can depend on config-driven options.
+    /// Drop every cached entry. Called when the scanner's config changes
+    /// (e.g. `macroforge.config.ts` was touched), since the lowered IR can
+    /// depend on config-driven options.
     pub fn clear(&mut self) {
         self.entries.clear();
     }
 
-    /// Iterate over the cached entries. Useful for stats or
-    /// debugging; callers shouldn't mutate cache state this way.
-    pub fn iter(&self) -> impl Iterator<Item = (&PathBuf, &CacheEntry)> {
+    /// Iterate over the cached entries. Useful for stats or debugging.
+    pub fn iter(&self) -> impl Iterator<Item = (&PathBuf, &Arc<CacheEntry>)> {
         self.entries.iter()
     }
 }
 
-/// Read `(mtime_ns, size)` from `fs::metadata`. Returns `None` when
-/// the metadata call fails (e.g. the file was deleted between the
-/// walker yielding its path and our `scan_file` reading it).
-pub fn file_stamp(path: &Path) -> Option<(u128, u64)> {
-    let meta = std::fs::metadata(path).ok()?;
-    let size = meta.len();
-    let mtime_ns = meta
-        .modified()
-        .ok()
-        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-        .map(|d| d.as_nanos())
-        .unwrap_or(0);
-    Some((mtime_ns, size))
+/// A file's `(mtime_ns, size)` when its metadata was read.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct FileStamp {
+    pub mtime_ns: u128,
+    pub size: u64,
 }
 
-// ---------------------------------------------------------------------------
-// Registry-splicing helpers
-// ---------------------------------------------------------------------------
-//
-// When a cache hit fires, we need to replay the cached entry into the
-// current scan's outputs without re-running the parser. These helpers
-// do the bookkeeping.
+/// How recently written a file may be before its stamp is not trusted: an
+/// edit within the filesystem's timestamp resolution could keep both fields.
+const RACY_WINDOW: Duration = Duration::from_secs(2);
+
+/// The file's stamp, or `None` when it has none worth trusting: the
+/// metadata or mtime is unavailable (the file was deleted between the walk
+/// and the read, or the platform has no mtime), or the file was written
+/// within [`RACY_WINDOW`].
+pub fn file_stamp(path: &Path) -> Option<FileStamp> {
+    let meta = std::fs::metadata(path).ok()?;
+    let modified = meta.modified().ok()?;
+    if SystemTime::now()
+        .duration_since(modified)
+        .is_ok_and(|age| age < RACY_WINDOW)
+    {
+        return None;
+    }
+    Some(FileStamp {
+        mtime_ns: modified.duration_since(UNIX_EPOCH).ok()?.as_nanos(),
+        size: meta.len(),
+    })
+}
 
 /// Splice a cached entry's declarative macros into the project-wide
-/// declarative registry. Only called on cache hits.
+/// declarative registry.
 pub fn splice_declarative(
     declarative_registry: &mut ProjectDeclarativeRegistry,
     file_name: &str,
     entry: &CacheEntry,
 ) {
-    if !entry.declarative_macros.is_empty() {
-        declarative_registry.insert_file(file_name.to_string(), entry.declarative_macros.clone());
-    }
+    declarative_registry.insert_file(file_name, Arc::clone(&entry.declarative_macros));
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn empty_entry(mtime_ns: u128, size: u64) -> CacheEntry {
-        CacheEntry {
+    fn empty_entry(mtime_ns: u128, size: u64) -> Arc<CacheEntry> {
+        Arc::new(CacheEntry {
             mtime_ns,
             size,
             classes: Vec::new(),
             interfaces: Vec::new(),
             enums: Vec::new(),
             type_aliases: Vec::new(),
-            declarative_macros: Vec::new(),
+            declarative_macros: Arc::default(),
             file_imports: Vec::new(),
             exported_names: HashSet::new(),
             uses_macros: false,
-        }
+        })
+    }
+
+    fn stamp(mtime_ns: u128, size: u64) -> Option<FileStamp> {
+        Some(FileStamp { mtime_ns, size })
+    }
+
+    /// How many files `scanner` holds in its cache, read back from a save.
+    fn cached_entries(scanner: &super::super::ProjectScanner, dir: &Path) -> usize {
+        let path = dir.join("scan-cache.bin");
+        scanner.save_cache(&path).expect("save the scan cache");
+        ScanCache::load(&path).len()
+    }
+
+    /// A fresh directory under the system temp dir.
+    fn temp_dir(label: &str) -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|elapsed| elapsed.as_nanos())
+            .unwrap_or_default();
+        let dir = std::env::temp_dir().join(format!("macroforge_{label}_{nanos}"));
+        std::fs::create_dir_all(&dir).expect("create temp dir");
+        dir
+    }
+
+    /// Writes `contents` to `path` with an mtime old enough to be trusted.
+    fn write_settled(path: &Path, contents: &str) {
+        std::fs::write(path, contents).expect("write fixture");
+        let settled = SystemTime::now() - Duration::from_secs(60);
+        std::fs::File::options()
+            .write(true)
+            .open(path)
+            .and_then(|file| file.set_modified(settled))
+            .expect("backdate fixture");
     }
 
     #[test]
@@ -194,7 +292,7 @@ mod tests {
         let mut cache = ScanCache::new();
         let path = PathBuf::from("/tmp/foo.ts");
         cache.insert(path.clone(), empty_entry(100, 50));
-        assert!(cache.get(&path, 100, 50).is_some());
+        assert!(cache.get(&path, stamp(100, 50)).is_some());
     }
 
     #[test]
@@ -202,8 +300,7 @@ mod tests {
         let mut cache = ScanCache::new();
         let path = PathBuf::from("/tmp/foo.ts");
         cache.insert(path.clone(), empty_entry(100, 50));
-        // Different mtime — miss.
-        assert!(cache.get(&path, 200, 50).is_none());
+        assert!(cache.get(&path, stamp(200, 50)).is_none());
     }
 
     #[test]
@@ -211,14 +308,26 @@ mod tests {
         let mut cache = ScanCache::new();
         let path = PathBuf::from("/tmp/foo.ts");
         cache.insert(path.clone(), empty_entry(100, 50));
-        // Same mtime, different size — miss (catches write-and-rename).
-        assert!(cache.get(&path, 100, 99).is_none());
+        // Same mtime, different size: catches write-and-rename.
+        assert!(cache.get(&path, stamp(100, 99)).is_none());
+    }
+
+    #[test]
+    fn get_returns_none_without_a_trusted_stamp() {
+        let mut cache = ScanCache::new();
+        let path = PathBuf::from("/tmp/foo.ts");
+        cache.insert(path.clone(), empty_entry(100, 50));
+        assert!(cache.get(&path, None).is_none());
     }
 
     #[test]
     fn get_returns_none_for_unknown_path() {
         let cache = ScanCache::new();
-        assert!(cache.get(Path::new("/tmp/unseen.ts"), 0, 0).is_none());
+        assert!(
+            cache
+                .get(Path::new("/tmp/unseen.ts"), stamp(0, 0))
+                .is_none()
+        );
     }
 
     #[test]
@@ -229,7 +338,6 @@ mod tests {
         assert_eq!(cache.len(), 1);
         assert!(cache.invalidate(&path));
         assert_eq!(cache.len(), 0);
-        // Second invalidate is a no-op.
         assert!(!cache.invalidate(&path));
     }
 
@@ -240,110 +348,130 @@ mod tests {
         cache.insert(PathBuf::from("/tmp/b.ts"), empty_entry(2, 20));
         assert_eq!(cache.len(), 2);
         cache.clear();
-        assert_eq!(cache.len(), 0);
         assert!(cache.is_empty());
     }
 
     #[test]
-    fn file_stamp_reads_real_file() {
-        // Write a tiny temp file and verify `file_stamp` returns a
-        // non-zero size and mtime for it. Uses the OS tempdir so
-        // we don't litter the crate directory.
-        let dir = std::env::temp_dir();
-        let path = dir.join(format!("macroforge_cache_test_{}.ts", std::process::id()));
+    fn a_just_written_file_has_no_trusted_stamp() {
+        let dir = temp_dir("cache_stamp");
+        let path = dir.join("fresh.ts");
         std::fs::write(&path, b"// hi\n").expect("write");
-        let (mtime_ns, size) = file_stamp(&path).expect("stamp");
-        assert!(mtime_ns > 0);
-        assert_eq!(size, 6);
-        std::fs::remove_file(&path).ok();
+        assert_eq!(file_stamp(&path), None);
+
+        write_settled(&path, "// hi\n");
+        let settled = file_stamp(&path).expect("settled stamp");
+        assert!(settled.mtime_ns > 0);
+        assert_eq!(settled.size, 6);
+        std::fs::remove_dir_all(&dir).expect("remove temp dir");
     }
 
-    // -----------------------------------------------------------------
-    // Scanner integration tests — exercise the full `scan()` path with
-    // an installed cache and verify that (a) a second scan hits the
-    // cache instead of re-parsing, and (b) `invalidate` forces a
-    // re-parse of just the changed file.
-    // -----------------------------------------------------------------
+    #[test]
+    fn a_saved_cache_loads_back() {
+        let dir = temp_dir("cache_persist");
+        let path = persisted_path(&dir);
+        let mut cache = ScanCache::new();
+        cache.insert(PathBuf::from("/tmp/a.ts"), empty_entry(1, 10));
+        cache.save(&path).expect("save");
+
+        let loaded = ScanCache::load(&path);
+        assert!(loaded.get(Path::new("/tmp/a.ts"), stamp(1, 10)).is_some());
+        std::fs::remove_dir_all(&dir).expect("remove temp dir");
+    }
+
+    #[test]
+    fn a_corrupt_cache_loads_empty() {
+        let dir = temp_dir("cache_corrupt");
+        let path = persisted_path(&dir);
+        std::fs::create_dir_all(path.parent().expect("cache dir")).expect("create");
+        std::fs::write(&path, b"not a cache").expect("write");
+        assert!(ScanCache::load(&path).is_empty());
+        std::fs::remove_dir_all(&dir).expect("remove temp dir");
+    }
 
     #[test]
     fn second_scan_reuses_cache_entries() {
         use super::super::{ProjectScanner, ScanConfig};
 
-        // Make a fresh tempdir with two .ts files so we can watch the
-        // cache populate then replay.
-        let dir = std::env::temp_dir().join(format!(
-            "macroforge_scanner_cache_{}",
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        std::fs::create_dir_all(&dir).unwrap();
-        std::fs::write(dir.join("a.ts"), "export interface A { id: string; }\n").unwrap();
-        std::fs::write(dir.join("b.ts"), "export class B { name = \"\"; }\n").unwrap();
+        let dir = temp_dir("scanner_cache");
+        write_settled(&dir.join("a.ts"), "export interface A { id: string; }\n");
+        write_settled(&dir.join("b.ts"), "export class B { name = \"\"; }\n");
 
-        let mut scanner = ProjectScanner::new(ScanConfig {
+        let scanner = ProjectScanner::new(ScanConfig {
             root_dir: dir.clone(),
             ..Default::default()
-        });
-        scanner.enable_cache();
+        })
+        .with_cache(ScanCache::new());
 
-        // First scan — populates the cache.
         let out1 = scanner.scan().expect("scan 1");
         assert_eq!(out1.files_scanned, 2);
-        assert_eq!(scanner.cache_len(), Some(2));
+        assert!(out1.changed);
+        assert_eq!(cached_entries(&scanner, &dir), 2);
 
-        // Second scan — should use cached entries. The output should
-        // be equivalent; we verify by checking the registry reports
-        // the same types.
         let out2 = scanner.scan().expect("scan 2");
         assert_eq!(out2.files_scanned, 2);
+        assert!(
+            !out2.changed,
+            "nothing moved, so the scan reports no change"
+        );
         assert!(out2.registry.get("A").is_some());
         assert!(out2.registry.get("B").is_some());
 
-        std::fs::remove_dir_all(&dir).ok();
+        std::fs::remove_dir_all(&dir).expect("remove temp dir");
     }
 
     #[test]
     fn invalidate_forces_rescan_of_changed_file() {
         use super::super::{ProjectScanner, ScanConfig};
 
-        let dir = std::env::temp_dir().join(format!(
-            "macroforge_scanner_invalidate_{}",
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        std::fs::create_dir_all(&dir).unwrap();
+        let dir = temp_dir("scanner_invalidate");
         let a_path = dir.join("a.ts");
-        std::fs::write(&a_path, "export interface A { id: string; }\n").unwrap();
+        write_settled(&a_path, "export interface A { id: string; }\n");
 
-        let mut scanner = ProjectScanner::new(ScanConfig {
+        let scanner = ProjectScanner::new(ScanConfig {
             root_dir: dir.clone(),
             ..Default::default()
-        });
-        scanner.enable_cache();
+        })
+        .with_cache(ScanCache::new());
 
-        // First scan populates the cache.
-        let _ = scanner.scan().expect("scan 1");
-        assert_eq!(scanner.cache_len(), Some(1));
+        scanner.scan().expect("scan 1");
+        assert_eq!(cached_entries(&scanner, &dir), 1);
 
-        // Invalidate and rewrite with different content. After
-        // invalidation the cache entry is gone; the next scan must
-        // re-parse the file and pick up the new type.
         scanner.invalidate_cache_entry(&a_path);
-        assert_eq!(scanner.cache_len(), Some(0));
-        std::fs::write(
+        assert_eq!(cached_entries(&scanner, &dir), 0);
+        write_settled(
             &a_path,
             "export interface A { id: string; }\nexport class A2 {}\n",
-        )
-        .unwrap();
+        );
 
         let out = scanner.scan().expect("scan 2");
         assert!(out.registry.get("A2").is_some(), "A2 should be re-scanned");
-        assert_eq!(scanner.cache_len(), Some(1));
+        assert_eq!(cached_entries(&scanner, &dir), 1);
 
-        std::fs::remove_dir_all(&dir).ok();
+        std::fs::remove_dir_all(&dir).expect("remove temp dir");
+    }
+
+    #[test]
+    fn a_deleted_file_leaves_the_cache() {
+        use super::super::{ProjectScanner, ScanConfig};
+
+        let dir = temp_dir("scanner_deleted");
+        write_settled(&dir.join("a.ts"), "export interface A { id: string; }\n");
+        write_settled(&dir.join("b.ts"), "export interface B { id: string; }\n");
+
+        let scanner = ProjectScanner::new(ScanConfig {
+            root_dir: dir.clone(),
+            ..Default::default()
+        })
+        .with_cache(ScanCache::new());
+        scanner.scan().expect("scan 1");
+        assert_eq!(cached_entries(&scanner, &dir), 2);
+
+        std::fs::remove_file(dir.join("b.ts")).expect("delete b.ts");
+        let out = scanner.scan().expect("scan 2");
+        assert!(out.changed, "a file left the project");
+        assert!(out.registry.get("B").is_none());
+        assert_eq!(cached_entries(&scanner, &dir), 1);
+
+        std::fs::remove_dir_all(&dir).expect("remove temp dir");
     }
 }

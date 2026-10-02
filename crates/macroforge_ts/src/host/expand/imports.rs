@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, Patch, SpanIR};
 
-use super::helpers::contains_identifier;
+use super::helpers::Identifiers;
 
 /// Built-in derive macros, available everywhere without an import.
 const BUILTIN_MACRO_NAMES: &[&str] = &[
@@ -71,6 +71,8 @@ pub(super) fn external_type_function_import_patches(
 ) -> Vec<Patch> {
     use convert_case::{Case, Casing};
 
+    let identifiers = Identifiers::of(tokens);
+
     // Track needed imports: (ident, module_src) -> is_type_only
     let mut needed: std::collections::BTreeMap<(String, String), bool> = Default::default();
 
@@ -128,7 +130,7 @@ pub(super) fn external_type_function_import_patches(
             if import_sources.contains_key(&ident) {
                 continue;
             }
-            if contains_identifier(tokens, &ident) {
+            if identifiers.contains(&ident) {
                 needed.insert((ident, module_src.clone()), is_type);
             }
         }

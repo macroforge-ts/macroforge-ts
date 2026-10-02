@@ -6,7 +6,6 @@
 //! ## Trait Hierarchy
 //!
 //! - [`Macroforge`] - The core trait for individual macro implementations
-//! - `MacroPackage` - Groups multiple macros into a distributable package
 //!
 //! ## Implementing a Custom Macro
 //!
@@ -117,9 +116,10 @@ pub trait Macroforge: Send + Sync {
     ///
     /// The macro kind determines how the macro is invoked:
     ///
-    /// - `Derive` - Applied via `@derive(MacroName)` to classes/interfaces
+    /// - `Derive` - Applied via `@derive(MacroName)` to a class, interface,
+    ///   enum or type alias
     /// - `Attribute` - Applied as `@macroName(args)` with custom arguments
-    /// - `Function` - Called as a function-like macro
+    /// - `Call` - Called as `$macroName(args)` in an expression
     fn kind(&self) -> MacroKind;
 
     /// Executes the macro with the given input stream.
@@ -178,88 +178,5 @@ pub trait Macroforge: Send + Sync {
     /// Returns `1` (the current stable ABI version).
     fn abi_version(&self) -> u32 {
         1
-    }
-}
-
-/// Trait for macro packages that provide multiple macros as a unit.
-///
-/// A macro package groups related macros together for distribution and
-/// registration. This is useful for:
-///
-/// - Distributing a set of related macros (e.g., all serde-related macros)
-/// - Versioning a collection of macros together
-/// - Loading external macro packages dynamically
-///
-/// # Example
-///
-/// ```rust,no_run
-/// use macroforge_ts::host::{Macroforge, MacroKind, MacroResult};
-/// use macroforge_ts::host::traits::MacroPackage;
-/// use macroforge_ts::ts_syn::TsStream;
-///
-/// // Define some macros
-/// struct DebugMacro;
-/// struct CloneMacro;
-///
-/// impl Macroforge for DebugMacro {
-///     fn name(&self) -> &str { "Debug" }
-///     fn kind(&self) -> MacroKind { MacroKind::Derive }
-///     fn run(&self, _: TsStream) -> MacroResult { MacroResult::default() }
-/// }
-///
-/// impl Macroforge for CloneMacro {
-///     fn name(&self) -> &str { "Clone" }
-///     fn kind(&self) -> MacroKind { MacroKind::Derive }
-///     fn run(&self, _: TsStream) -> MacroResult { MacroResult::default() }
-/// }
-///
-/// // Create a package containing multiple macros
-/// struct MyPackage;
-///
-/// impl MacroPackage for MyPackage {
-///     fn package_name(&self) -> &str { "my-macros" }
-///
-///     fn macros(&self) -> Vec<Box<dyn Macroforge>> {
-///         vec![
-///             Box::new(DebugMacro),
-///             Box::new(CloneMacro),
-///         ]
-///     }
-///
-///     fn version(&self) -> &str { "1.0.0" }
-/// }
-/// ```
-pub trait MacroPackage: Send + Sync {
-    /// Returns the package name.
-    ///
-    /// Used for:
-    /// - Identifying the package in configuration
-    /// - Error messages
-    /// - The macro manifest
-    fn package_name(&self) -> &str;
-
-    /// Returns all macros provided by this package.
-    ///
-    /// Each macro in the returned vector will be registered in the
-    /// macro registry with its name as the key.
-    ///
-    /// # Note
-    ///
-    /// This method returns owned boxed macros. Each call creates new
-    /// instances, so avoid calling this repeatedly in hot paths.
-    fn macros(&self) -> Vec<Box<dyn Macroforge>>;
-
-    /// Returns the package version.
-    ///
-    /// Used for:
-    /// - Compatibility checking
-    /// - Debugging and logging
-    /// - The macro manifest
-    ///
-    /// # Default
-    ///
-    /// Returns "0.1.0" if not overridden.
-    fn version(&self) -> &str {
-        "0.1.0"
     }
 }

@@ -1,6 +1,12 @@
 use super::*;
 use std::collections::HashMap;
 
+/// The config parsed from `content`, without the files it was built from.
+fn parse(content: &str, filepath: &str) -> crate::host::Result<MacroforgeConfig> {
+    MacroforgeConfigLoader::from_config_file_with_dependencies(content, filepath)
+        .map(|(config, _)| config)
+}
+
 #[test]
 fn test_parse_simple_config() {
     let content = r#"
@@ -10,7 +16,7 @@ fn test_parse_simple_config() {
             }
         "#;
 
-    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = parse(content, "macroforge.config.js").unwrap();
     assert!(config.keep_decorators);
     assert!(!config.generate_convenience_const);
 }
@@ -29,7 +35,7 @@ fn test_parse_config_with_foreign_types() {
             }
         "#;
 
-    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = parse(content, "macroforge.config.js").unwrap();
     assert_eq!(config.foreign_types.len(), 1);
 
     let dt = &config.foreign_types[0];
@@ -51,7 +57,7 @@ fn test_parse_config_with_multiple_sources() {
             }
         "#;
 
-    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = parse(content, "macroforge.config.js").unwrap();
     let dt = &config.foreign_types[0];
     assert_eq!(dt.from, vec!["effect", "@effect/schema"]);
 }
@@ -71,14 +77,14 @@ fn test_parse_typescript_config() {
             }
         "#;
 
-    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.ts").unwrap();
+    let config = parse(content, "macroforge.config.ts").unwrap();
     assert_eq!(config.foreign_types.len(), 1);
 }
 
 #[test]
 fn test_default_values() {
     let content = "export default {}";
-    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = parse(content, "macroforge.config.js").unwrap();
 
     assert!(!config.keep_decorators);
     assert!(config.generate_convenience_const);
@@ -107,25 +113,40 @@ fn test_parse_buildtime_block() {
                 buildtime: {
                     timeout: 1500,
                     maxHeap: 64,
-                    filesystem: { read: ["src/**"], write: ["out/**"] },
+                    filesystem: { read: ["src/**"] },
                     env: ["HOME", "CI"],
-                    network: true,
                     flags: { RELEASE: "1", DEBUG: false }
                 }
             }
         "#;
 
-    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = parse(content, "macroforge.config.js").unwrap();
     let bt = &config.buildtime;
     assert_eq!(bt.timeout_ms, 1500);
     assert_eq!(bt.max_heap_mb, 64);
     assert_eq!(bt.fs_read, vec!["src/**".to_string()]);
-    assert_eq!(bt.fs_write, vec!["out/**".to_string()]);
     assert_eq!(bt.env_allow, vec!["HOME".to_string(), "CI".to_string()]);
-    assert!(bt.network);
     assert_eq!(bt.flags.get("RELEASE").map(String::as_str), Some("1"));
     // Non-string scalars are stringified rather than dropped.
     assert_eq!(bt.flags.get("DEBUG").map(String::as_str), Some("false"));
+}
+
+#[test]
+fn test_buildtime_rejects_writes_and_network() {
+    for block in [
+        "filesystem: { write: [\"out/**\"] }",
+        "network: true",
+        "capabilities: { network: false }",
+    ] {
+        let content = format!("export default {{ buildtime: {{ {block} }} }}");
+        assert!(
+            matches!(
+                parse(&content, "macroforge.config.js"),
+                Err(crate::host::MacroError::InvalidConfig(_))
+            ),
+            "`{block}` must be rejected"
+        );
+    }
 }
 
 #[test]
@@ -134,14 +155,12 @@ fn test_buildtime_block_defaults_when_absent() {
             export default { keepDecorators: true }
         "#;
 
-    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = parse(content, "macroforge.config.js").unwrap();
     let bt = &config.buildtime;
     assert_eq!(bt.timeout_ms, 5_000);
     assert_eq!(bt.max_heap_mb, 256);
     assert_eq!(bt.fs_read, vec!["**".to_string()]);
-    assert!(bt.fs_write.is_empty());
     assert!(bt.env_allow.is_empty());
-    assert!(!bt.network);
     assert!(bt.flags.is_empty());
 }
 
@@ -161,7 +180,7 @@ fn test_parse_buildtime_capabilities_nesting() {
             }
         "#;
 
-    let config = MacroforgeConfigLoader::from_config_file(content, "macroforge.config.js").unwrap();
+    let config = parse(content, "macroforge.config.js").unwrap();
     let bt = &config.buildtime;
     assert_eq!(bt.timeout_ms, 250);
     assert_eq!(bt.fs_read, vec!["assets/**".to_string()]);
@@ -187,7 +206,9 @@ fn edited_config_is_reparsed_under_the_same_path() {
         "a changed file must not be served from the cache"
     );
     assert_eq!(
-        MacroforgeConfigLoader::get_cached(path).map(|config| config.keep_decorators),
+        CONFIG_CACHE
+            .get(path)
+            .map(|cached| cached.config.keep_decorators),
         Some(false)
     );
     CONFIG_CACHE.remove(path);

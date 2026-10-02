@@ -1,14 +1,17 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_class.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_class.ts
 ---
 ## Input
 
 /** @derive(Debug) */ export class User {
     name: string;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -43,5 +46,25 @@ export function userToString(value: User): string {
                     }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..60 -> expanded 0..39
+original 60..61 -> expanded 144..145
+original 61..62 -> expanded 400..401
+generated 39..144 <- Debug
+generated 145..400 <- Debug
+
+## Metadata
+
+class User: {"body_span":{"end":62,"start":41},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":60,"start":47},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":62,"start":30},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

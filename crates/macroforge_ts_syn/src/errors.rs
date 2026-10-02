@@ -101,11 +101,13 @@ pub enum TsSynError {
     Unsupported(String),
 }
 
-/// A macro error with an optional source span.
+/// A macro error: one or more diagnostics, at least one of them an error.
 ///
-/// This is the primary error type for macro implementations. It carries
-/// an error message and optionally a source span for precise error reporting.
-/// When converted to a [`MacroResult`], it becomes an error-level diagnostic.
+/// This is the primary error type for macro implementations. Most errors
+/// carry one message and, ideally, the source span it is about. An error
+/// built from [`MacroforgeErrors`] keeps every diagnostic of the collection,
+/// warnings included. When converted to a [`MacroResult`], each becomes one of
+/// the result's diagnostics.
 ///
 /// # Creating Errors
 ///
@@ -144,8 +146,7 @@ pub enum TsSynError {
 /// ```
 #[derive(Debug)]
 pub struct MacroforgeError {
-    message: String,
-    span: Option<SpanIR>,
+    diagnostics: Vec<Diagnostic>,
 }
 
 impl MacroforgeError {
@@ -159,10 +160,7 @@ impl MacroforgeError {
     /// - `span` - The source span where the error occurred
     /// - `message` - A human-readable error message
     pub fn new(span: SpanIR, message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-            span: Some(span),
-        }
+        Self::from_error(message.into(), Some(span))
     }
 
     /// Creates a new error without a source span.
@@ -174,39 +172,57 @@ impl MacroforgeError {
     ///
     /// - `message` - A human-readable error message
     pub fn new_global(message: impl Into<String>) -> Self {
+        Self::from_error(message.into(), None)
+    }
+
+    fn from_error(message: String, span: Option<SpanIR>) -> Self {
         Self {
-            message: message.into(),
-            span: None,
+            diagnostics: vec![Diagnostic {
+                level: DiagnosticLevel::Error,
+                message,
+                span,
+                notes: vec![],
+                help: None,
+            }],
         }
     }
 
-    /// Converts this error into a [`Diagnostic`].
-    ///
-    /// The resulting diagnostic has [`DiagnosticLevel::Error`] and includes
-    /// the message and span from this error.
-    pub fn to_diagnostic(self) -> Diagnostic {
-        Diagnostic {
-            level: DiagnosticLevel::Error,
-            message: self.message,
-            span: self.span,
-            notes: vec![],
-            help: None,
-        }
+    /// The diagnostics this error reports, in order.
+    pub fn diagnostics(&self) -> &[Diagnostic] {
+        &self.diagnostics
+    }
+
+    /// Converts this error into the diagnostics it reports.
+    pub fn into_diagnostics(self) -> Vec<Diagnostic> {
+        self.diagnostics
     }
 }
 
 impl From<MacroforgeError> for MacroResult {
     fn from(err: MacroforgeError) -> Self {
         MacroResult {
-            diagnostics: vec![err.to_diagnostic()],
+            diagnostics: err.diagnostics,
             ..Default::default()
         }
     }
 }
 
+/// The first error's message, and how many more diagnostics there are.
 impl std::fmt::Display for MacroforgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
+        let first = self
+            .diagnostics
+            .iter()
+            .find(|diagnostic| diagnostic.level == DiagnosticLevel::Error)
+            .or_else(|| self.diagnostics.first());
+        match first {
+            Some(diagnostic) => write!(f, "{}", diagnostic.message)?,
+            None => write!(f, "macro failed")?,
+        }
+        match self.diagnostics.len() {
+            0 | 1 => Ok(()),
+            count => write!(f, " (and {} more)", count - 1),
+        }
     }
 }
 
@@ -317,21 +333,70 @@ impl std::fmt::Display for MacroforgeErrors {
 
 impl std::error::Error for MacroforgeErrors {}
 
+/// Keeps every diagnostic. A collection with no error-level diagnostic gains
+/// one, since a `MacroforgeError` always fails the macro.
 impl From<MacroforgeErrors> for MacroforgeError {
     fn from(errors: MacroforgeErrors) -> Self {
-        // Take the first error, noting if there are more
-        let first_error = errors
-            .diagnostics
-            .into_iter()
-            .find(|d| d.level == DiagnosticLevel::Error);
-
-        if let Some(diag) = first_error {
-            MacroforgeError {
-                message: diag.message,
-                span: diag.span,
-            }
-        } else {
-            MacroforgeError::new_global("Multiple validation errors occurred")
+        let mut diagnostics = errors.diagnostics;
+        if !diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error)
+        {
+            diagnostics.push(Diagnostic {
+                level: DiagnosticLevel::Error,
+                message: "macro failed".to_string(),
+                span: None,
+                notes: vec![],
+                help: None,
+            });
         }
+        Self { diagnostics }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Diagnostic, DiagnosticLevel, MacroResult, MacroforgeError, MacroforgeErrors};
+
+    fn diagnostic(level: DiagnosticLevel, message: &str) -> Diagnostic {
+        Diagnostic {
+            level,
+            message: message.to_string(),
+            span: None,
+            notes: vec![],
+            help: None,
+        }
+    }
+
+    #[test]
+    fn an_error_built_from_a_collection_keeps_every_diagnostic() {
+        let errors = MacroforgeErrors::new(vec![
+            diagnostic(DiagnosticLevel::Warning, "careful"),
+            diagnostic(DiagnosticLevel::Error, "first"),
+            diagnostic(DiagnosticLevel::Error, "second"),
+        ]);
+        let error = MacroforgeError::from(errors);
+        assert_eq!(error.to_string(), "first (and 2 more)");
+        let result = MacroResult::from(error);
+        let messages: Vec<&str> = result
+            .diagnostics
+            .iter()
+            .map(|diagnostic| diagnostic.message.as_str())
+            .collect();
+        assert_eq!(messages, ["careful", "first", "second"]);
+    }
+
+    #[test]
+    fn a_collection_without_an_error_still_fails() {
+        let error = MacroforgeError::from(MacroforgeErrors::new(vec![diagnostic(
+            DiagnosticLevel::Warning,
+            "careful",
+        )]));
+        assert!(
+            error
+                .diagnostics()
+                .iter()
+                .any(|diagnostic| diagnostic.level == DiagnosticLevel::Error)
+        );
     }
 }

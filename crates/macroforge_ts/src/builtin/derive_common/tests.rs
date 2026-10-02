@@ -443,41 +443,6 @@ fn test_collection_element_type() {
 }
 
 #[test]
-fn test_map_key_type() {
-    let string_ref = ResolvedTypeRef {
-        raw_type: "string".to_string(),
-        base_type_name: "string".to_string(),
-        registry_key: None,
-        is_collection: false,
-        is_optional: false,
-        type_args: vec![],
-    };
-    let user_ref = ResolvedTypeRef {
-        raw_type: "User".to_string(),
-        base_type_name: "User".to_string(),
-        registry_key: Some("src/user.ts::User".to_string()),
-        is_collection: false,
-        is_optional: false,
-        type_args: vec![],
-    };
-    let map_ref = ResolvedTypeRef {
-        raw_type: "Map<string, User>".to_string(),
-        base_type_name: "Map".to_string(),
-        registry_key: None,
-        is_collection: true,
-        is_optional: false,
-        type_args: vec![string_ref.clone(), user_ref.clone()],
-    };
-
-    let key = map_key_type(&map_ref);
-    assert!(key.is_some());
-    assert_eq!(key.unwrap().base_type_name, "string");
-
-    // Non-Map returns None
-    assert!(map_key_type(&user_ref).is_none());
-}
-
-#[test]
 fn test_standalone_fn_name() {
     assert_eq!(standalone_fn_name("User", "Clone"), "userClone");
     assert_eq!(standalone_fn_name("User", "HashCode"), "userHashCode");

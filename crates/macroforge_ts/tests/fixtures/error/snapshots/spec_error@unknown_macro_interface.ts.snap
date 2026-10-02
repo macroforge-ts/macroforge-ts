@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/unknown_macro_interface.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/unknown_macro_interface.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ interface Config {
     host: string;
     port: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -27,4 +31,20 @@ interface Config {
 
 ## Diagnostics
 
-Error: Macro 'Serializable' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
+Error [4..25]: Macro 'Serializable' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
+
+## Mapping
+
+original 28..86 -> expanded 0..58
+
+## Metadata
+
+interface Config: {"body_span":{"end":86,"start":47},"decorators":[{"args_src":"Serializable","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"name":"host","optional":false,"readonly":false,"span":{"end":66,"start":53},"ts_type":"string"},{"decorators":[],"name":"port","optional":false,"readonly":false,"span":{"end":84,"start":71},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Config","span":{"end":86,"start":30},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

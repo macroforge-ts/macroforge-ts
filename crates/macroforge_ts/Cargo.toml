@@ -33,6 +33,7 @@ macroforge_ts_quote = { workspace = true }
 macroforge_ts_macros = { workspace = true }
 
 # Serialization
+postcard = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
@@ -54,7 +55,7 @@ notify-debouncer-full = { workspace = true }
 sha2 = { workspace = true }
 tempfile = { workspace = true }
 
-# Buildtime sandbox — Boa (pure Rust JS engine). Compiles to both
+# Buildtime sandbox: Boa (pure Rust JS engine). Compiles to both
 # native and wasm32-unknown-unknown since there's no C code in the
 # dependency tree. Optional; gated by `buildtime-boa`.
 boa_engine = { workspace = true, optional = true }
@@ -90,22 +91,21 @@ rayon = { workspace = true }
 # Runs wasm macro packages from the native host, so a crate built by
 # `macroforge build` is loadable by the CLI and not only by a JS host.
 #
-# `wasmi` rather than wasmtime deliberately: a pure-Rust interpreter with no
-# Cranelift backend keeps `cargo install macroforge` fast and the binary small.
-# Macro expansion is a short, infrequent call, so JIT warm-up would cost more
-# than it would save.
+# wasmtime compiles a package to machine code, which runs a project's macros
+# many times faster than an interpreter, and caches the compiled code on disk
+# so each package is compiled once per build of it.
 #
-# Excluded from wasm builds — a wasm host has no business instantiating another
+# Excluded from wasm builds: a wasm host has no business instantiating another
 # wasm module, and the JS side already calls macros directly.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-wasmi = { workspace = true }
+wasmtime = { workspace = true }
 
 [features]
 default = ["wasm", "buildtime-boa"]
 wasm = ["dep:wasm-bindgen", "dep:serde-wasm-bindgen", "dep:js-sys"]
-# Buildtime sandbox — Boa (pure Rust). Compiles to native + wasm32.
+# Buildtime sandbox: Boa (pure Rust). Compiles to native + wasm32.
 buildtime-boa = ["dep:boa_engine", "dep:getrandom", "dep:web-time"]
-# Register the `src/test_macros/` module — a small set of proc/attribute
+# Register the `src/test_macros/` module, a small set of proc/attribute
 # macros (@traced, $stringify, $concat_names) used exclusively by the
 # snapshot test fixtures under `tests/fixtures/ok/{attribute,call}/`.
 # These get registered via inventory just like the real built-ins, so
@@ -126,10 +126,10 @@ criterion = { workspace = true }
 name = "declarative_composition"
 harness = false
 
-# Snapshot tests exercise built-in, declarative, and test-macros fixtures.
-# `test-macros` is required so the `@traced`, `$stringify`, and
-# `$concat_names` macros are registered in the inventory when the test
-# binary runs.
+# The conformance corpus: fixtures and the playground projects expanded as the
+# integrations expand them, against committed goldens. `test-macros` is
+# required so the `@traced`, `$stringify`, and `$concat_names` macros the
+# fixtures use are registered in the inventory when the test binary runs.
 [[test]]
-name = "spec_tests"
+name = "conformance"
 required-features = ["test-macros"]

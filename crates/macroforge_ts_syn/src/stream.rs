@@ -203,6 +203,8 @@ pub struct TsStream {
     /// These resolve `{PascalCaseTypeName}{Suffix}` type references and generate
     /// `import type` statements. Used for types like `ColorsErrors`, `ColorsTainted`.
     pub cross_module_type_suffixes: Vec<String>,
+    /// Warnings and notes the macro reports while still producing output.
+    diagnostics: Vec<crate::abi::Diagnostic>,
 }
 
 impl TsStream {
@@ -241,6 +243,7 @@ impl TsStream {
             insert_pos: crate::abi::InsertPos::default(),
             cross_module_suffixes: vec![],
             cross_module_type_suffixes: vec![],
+            diagnostics: vec![],
         })
     }
 
@@ -254,6 +257,7 @@ impl TsStream {
             insert_pos: crate::abi::InsertPos::default(),
             cross_module_suffixes: vec![],
             cross_module_type_suffixes: vec![],
+            diagnostics: vec![],
         }
     }
 
@@ -267,30 +271,39 @@ impl TsStream {
             insert_pos,
             cross_module_suffixes: vec![],
             cross_module_type_suffixes: vec![],
-        }
-    }
-
-    /// Create a new parsing stream with a specific insert position and runtime patches.
-    /// Used by `ts_template!` to collect patches from embedded TsStreams.
-    pub fn with_insert_pos_and_patches(
-        source: String,
-        insert_pos: crate::abi::InsertPos,
-        runtime_patches: Vec<crate::abi::Patch>,
-    ) -> Self {
-        TsStream {
-            source,
-            file_name: "macro_output.ts".to_string(),
-            ctx: None,
-            runtime_patches,
-            insert_pos,
-            cross_module_suffixes: vec![],
-            cross_module_type_suffixes: vec![],
+            diagnostics: vec![],
         }
     }
 
     /// Get the source code of the stream.
     pub fn source(&self) -> &str {
         &self.source
+    }
+
+    /// Takes the source code out of the stream, leaving it empty. The rest of
+    /// the stream (patches, suffixes, diagnostics) stays, ready to `merge`.
+    pub fn take_source(&mut self) -> String {
+        std::mem::take(&mut self.source)
+    }
+
+    /// Reports a diagnostic, usually a warning or a note, alongside the
+    /// stream's output. To fail the macro, return a
+    /// [`MacroforgeError`](crate::MacroforgeError) instead.
+    pub fn add_diagnostic(&mut self, diagnostic: crate::abi::Diagnostic) {
+        self.diagnostics.push(diagnostic);
+    }
+
+    /// Reports several diagnostics; see [`Self::add_diagnostic`].
+    pub fn add_diagnostics(
+        &mut self,
+        diagnostics: impl IntoIterator<Item = crate::abi::Diagnostic>,
+    ) {
+        self.diagnostics.extend(diagnostics);
+    }
+
+    /// The diagnostics reported on this stream so far.
+    pub fn diagnostics(&self) -> &[crate::abi::Diagnostic] {
+        &self.diagnostics
     }
 
     /// Create a new parsing stream with macro context attached.
@@ -308,6 +321,7 @@ impl TsStream {
             insert_pos: crate::abi::InsertPos::default(),
             cross_module_suffixes: vec![],
             cross_module_type_suffixes: vec![],
+            diagnostics: vec![],
         })
     }
 
@@ -324,7 +338,7 @@ impl TsStream {
         crate::abi::MacroResult {
             runtime_patches: self.runtime_patches,
             type_patches: vec![],
-            diagnostics: vec![],
+            diagnostics: self.diagnostics,
             tokens: Some(self.source),
             insert_pos: self.insert_pos,
             debug: None,
@@ -337,7 +351,7 @@ impl TsStream {
     }
 
     /// Add an import statement. Registers in the [`ImportRegistry`](crate::ImportRegistry)
-    /// for idempotent deduplication — no patches are emitted; the registry emits all
+    /// for idempotent deduplication. No patches are emitted: the registry emits all
     /// generated imports at the end of expansion.
     pub fn add_import(&mut self, specifier: &str, module: &str) {
         let (original, local) = parse_import_specifier(specifier);
@@ -528,8 +542,8 @@ impl TsStream {
 
     /// Merge another TsStream into this one.
     ///
-    /// Combines the source code and runtime patches from both streams.
-    /// The insert position of `self` is preserved.
+    /// Combines the source code, runtime patches, cross-module suffixes and
+    /// diagnostics of both streams. The insert position of `self` is preserved.
     ///
     /// # Example
     ///
@@ -569,6 +583,7 @@ impl TsStream {
             .extend(other.cross_module_suffixes);
         self.cross_module_type_suffixes
             .extend(other.cross_module_type_suffixes);
+        self.diagnostics.extend(other.diagnostics);
 
         self
     }
@@ -891,15 +906,13 @@ mod import_for_tests {
         assert_eq!(field_controllers.source_module, "./linked-user.svelte");
         assert!(field_controllers.is_type_only);
 
-        // The dedup correctly skips re-emitting `LinkedUser` because it's
-        // already in `source_imports`. This is the *intended* behavior for
-        // request_import — the bug was using `install_source_imports` to
-        // shortcut module resolution for variants. Document the dedup
-        // behavior here so a future regression in either direction is caught.
+        // `request_import` skips a name already in `source_imports`, so
+        // `LinkedUser`, installed as a source import, gets no generated line.
+        // Variant types must therefore be resolved, not pre-registered.
         let bare = result.imports.iter().find(|i| i.local_name == "LinkedUser");
         assert!(
             bare.is_none(),
-            "bare LinkedUser should be dedup'd against source_imports — \
+            "bare LinkedUser should be dedup'd against source_imports: \
              callers must NOT pre-register variant types in source_imports \
              if they also want a generated `import type {{ LinkedUser }}` line"
         );

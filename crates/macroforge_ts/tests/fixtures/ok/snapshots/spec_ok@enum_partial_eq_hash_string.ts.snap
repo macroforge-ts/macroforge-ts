@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/enum_partial_eq_hash_string.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_partial_eq_hash_string.ts
 ---
 ## Input
 
@@ -12,6 +11,10 @@ enum Color {
     Green = 'green',
     Blue = 'blue'
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -64,5 +67,25 @@ namespace Color {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 31..102 -> expanded 0..71
+original 102..103 -> expanded 601..602
+generated 71..185 <- PartialEq
+generated 185..502 <- Hash
+generated 502..601 <- __convenience_const
+
+## Metadata
+
+enum Color: {"body_span":{"end":103,"start":44},"decorators":[{"args_src":"PartialEq, Hash","name":"Derive","span":{"end":32,"start":1}}],"is_const":false,"name":"Color","span":{"end":103,"start":33},"variants":[{"decorators":[],"name":"Red","span":{"end":61,"start":50},"value":{"String":"red"}},{"decorators":[],"name":"Green","span":{"end":82,"start":67},"value":{"String":"green"}},{"decorators":[],"name":"Blue","span":{"end":101,"start":88},"value":{"String":"blue"}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

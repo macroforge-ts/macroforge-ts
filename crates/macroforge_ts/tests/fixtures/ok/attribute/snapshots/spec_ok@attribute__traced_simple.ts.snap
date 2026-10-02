@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/attribute/traced_simple.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/attribute/traced_simple.ts
 ---
 ## Input
 
@@ -11,6 +11,10 @@ input_file: macroforge_ts/tests/fixtures/ok/attribute/traced_simple.ts
 export function add(a: number, b: number): number {
     return a + b;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -33,5 +37,24 @@ export function add(a: number, b: number): number {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..63 -> expanded 0..63
+original 77..78 -> expanded 63..64
+original 149..150 -> expanded 266..267
+generated 64..266 <- traced
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

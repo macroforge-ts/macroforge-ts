@@ -12,9 +12,10 @@
 //!
 //! # Architecture
 //!
-//! The template source string is parsed as TypeScript at macro-expansion time,
-//! enabling native support for type annotations and TypeScript syntax. Parsing
-//! is backed by OXC.
+//! `ts_quote!` parses its source as TypeScript (with OXC) when the Rust crate
+//! compiles, so a syntax error is a compile error, and builds the AST node at
+//! run time. `ts_template!` builds TypeScript source text and does not parse
+//! it.
 //!
 //! # Insert Positions
 //!

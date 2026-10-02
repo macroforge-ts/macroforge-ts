@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/enum_deserialize_string.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_deserialize_string.ts
 ---
 ## Input
 
@@ -12,6 +11,10 @@ enum Role {
     User = 'user',
     Guest = 'guest'
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -96,5 +99,24 @@ namespace Role {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 27..101 -> expanded 0..74
+original 101..102 -> expanded 1333..1334
+generated 74..1171 <- Deserialize
+generated 1171..1333 <- __convenience_const
+
+## Metadata
+
+enum Role: {"body_span":{"end":102,"start":39},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":28,"start":1}}],"is_const":false,"name":"Role","span":{"end":102,"start":29},"variants":[{"decorators":[],"name":"Admin","span":{"end":60,"start":45},"value":{"String":"admin"}},{"decorators":[],"name":"User","span":{"end":79,"start":66},"value":{"String":"user"}},{"decorators":[],"name":"Guest","span":{"end":100,"start":85},"value":{"String":"guest"}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

@@ -47,7 +47,7 @@ When an object is serialized:
 | Objects                                   | Call the type's `nameSerializeWithContext` function                              |
 
 Note: which strategy applies is resolved **statically** from the field's declared TypeScript type at
-expansion time — there is no runtime feature detection.
+expansion time: there is no runtime feature detection.
 
 ## Field-Level Options
 

@@ -1,0 +1,3203 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/product-defaults.svelte.ts
+sha256 9bc80730eb1c72a8db2424df44012785b12fc3281b00118a3517ebcb1061bdc2
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface ProductDefaults {
+    
+    price: number;
+    
+    
+    description: string;
+}
+
+export function productDefaultsDefaultValue(): ProductDefaults {
+                        return {
+price: 0,
+description: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function productDefaultsSerialize(value: ProductDefaults, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = productDefaultsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function productDefaultsSerializeWithContext(value: ProductDefaults, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "ProductDefaults",
+                        __id,
+                    };result.price = value.price;result.description = value.description;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function productDefaultsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ProductDefaults } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = productDefaultsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ProductDefaults.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function productDefaultsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ProductDefaults | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "ProductDefaults.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("price" in obj)) {
+                            errors.push({ field: "price", message: "missing required field" });
+                        }if (!("description" in obj)) {
+                            errors.push({ field: "description", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_price = obj["price"] as number;instance.price = __raw_price;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_description = obj["description"] as string;
+                                            if (__raw_description == null) { errors.push({ field: "description", message: "ProductDefaults.description is required" }); } else {
+if (__raw_description.length === 0) { errors.push({ field: "description", message: "ProductDefaults.description must not be empty" }); }
+}
+instance.description = __raw_description;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as ProductDefaults;
+            }
+
+            export function productDefaultsValidateField<K extends keyof ProductDefaults>(
+                _field: K,
+                _value: ProductDefaults[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "description") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "description", message: "ProductDefaults.description is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "description", message: "ProductDefaults.description must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function productDefaultsValidateFields(
+                _partial: Partial<ProductDefaults>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("description" in _partial && _partial.description !== undefined) {
+                    const __val = _partial.description as string;
+                    if (__val == null) { errors.push({ field: "description", message: "ProductDefaults.description is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "description", message: "ProductDefaults.description must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function productDefaultsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "price" in o && "description" in o;
+            }
+
+            export function productDefaultsIs(obj: unknown): obj is ProductDefaults {
+                if (!productDefaultsHasShape(obj)) {
+                    return false;
+                }
+                const result = productDefaultsDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type ProductDefaultsErrors = {
+            _errors: Option.Option<Array<string>>;
+            price: Option.Option<Array<string>>;
+            description: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type ProductDefaultsTainted = {
+            price: Option.Option<boolean>;
+            description: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface ProductDefaultsFieldControllers {
+            readonly price: FieldController<number>;
+            readonly description: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface ProductDefaultsGigaform {
+            readonly data: ProductDefaults;
+            readonly errors: ProductDefaultsErrors;
+            readonly tainted: ProductDefaultsTainted;
+            readonly fields: ProductDefaultsFieldControllers;
+            validate(): Exit.Exit<ProductDefaults, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<ProductDefaults>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function productDefaultsCreateForm(overrides?: Partial<ProductDefaults>): ProductDefaultsGigaform {
+            let data = $state({ ...productDefaultsDefaultValue(), ...overrides });
+            let errors = $state<ProductDefaultsErrors>({
+                _errors: Option.none(),
+                price: Option.none(),
+                description: Option.none(),
+
+
+            });
+            let tainted = $state<ProductDefaultsTainted>({
+                price: Option.none(),
+                description: Option.none(),
+
+
+            });
+            const fields = {
+            
+                price: {
+            name: "price",
+            label: "Price",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["price"],
+            get: () => data.price,
+            set: (value: number) => { data.price = value; },
+            getError: () => errors.price,
+            setError: (value: Option.Option<Array<string>>) => { errors.price = value; },
+            getTainted: () => tainted.price,
+            setTainted: (value: Option.Option<boolean>) => { tainted.price = value; },
+            validate: () => productDefaultsValidateField("price", data.price).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                description: {
+            name: "description",
+            label: "Description",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["description"],
+            get: () => data.description,
+            set: (value: string) => { data.description = value; },
+            getError: () => errors.description,
+            setError: (value: Option.Option<Array<string>>) => { errors.description = value; },
+            getTainted: () => tainted.description,
+            setTainted: (value: Option.Option<boolean>) => { tainted.description = value; },
+            validate: () => productDefaultsValidateField("description", data.description).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as ProductDefaultsFieldControllers;
+
+
+            function validate(): Exit.Exit<ProductDefaults, Array<{ field: string; message: string }>> {
+                return toExit(productDefaultsDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<ProductDefaults>): void {
+                data = { ...productDefaultsDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            price: Option.none(),
+            description: Option.none(),
+
+
+        };
+                tainted = {
+            price: Option.none(),
+            description: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function productDefaultsFromFormData(formData: FormData): Exit.Exit<ProductDefaults, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const priceStr = formData.get("price");
+                    obj.price = priceStr ? parseFloat(priceStr as string) : 0;
+                    if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
+                }
+            obj.description = formData.get("description") ?? "";
+
+
+            return toExit(productDefaultsDeserialize(obj));
+        }
+
+export const ProductDefaults = {
+  defaultValue: productDefaultsDefaultValue,
+  serialize: productDefaultsSerialize,
+  serializeWithContext: productDefaultsSerializeWithContext,
+  deserialize: productDefaultsDeserialize,
+  deserializeWithContext: productDefaultsDeserializeWithContext,
+  validateFields: productDefaultsValidateFields,
+  hasShape: productDefaultsHasShape,
+  is: productDefaultsIs,
+  createForm: productDefaultsCreateForm,
+  fromFormData: productDefaultsFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface ProductDefaults {
+    
+    price: number;
+    
+    
+    description: string;
+}
+
+export function productDefaultsDefaultValue(): ProductDefaults {
+                        return {
+price: 0,
+description: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function productDefaultsSerialize(value: ProductDefaults, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = productDefaultsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function productDefaultsSerializeWithContext(value: ProductDefaults, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "ProductDefaults",
+                        __id,
+                    };result.price = value.price;result.description = value.description;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function productDefaultsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ProductDefaults } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = productDefaultsDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "ProductDefaults.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function productDefaultsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ProductDefaults | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "ProductDefaults.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("price" in obj)) {
+                            errors.push({ field: "price", message: "missing required field" });
+                        }if (!("description" in obj)) {
+                            errors.push({ field: "description", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_price = obj["price"] as number;instance.price = __raw_price;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_description = obj["description"] as string;
+                                            if (__raw_description == null) { errors.push({ field: "description", message: "ProductDefaults.description is required" }); } else {
+if (__raw_description.length === 0) { errors.push({ field: "description", message: "ProductDefaults.description must not be empty" }); }
+}
+instance.description = __raw_description;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as ProductDefaults;
+            }
+
+            export function productDefaultsValidateField<K extends keyof ProductDefaults>(
+                _field: K,
+                _value: ProductDefaults[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "description") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "description", message: "ProductDefaults.description is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "description", message: "ProductDefaults.description must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function productDefaultsValidateFields(
+                _partial: Partial<ProductDefaults>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("description" in _partial && _partial.description !== undefined) {
+                    const __val = _partial.description as string;
+                    if (__val == null) { errors.push({ field: "description", message: "ProductDefaults.description is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "description", message: "ProductDefaults.description must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function productDefaultsHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "price" in o && "description" in o;
+            }
+
+            export function productDefaultsIs(obj: unknown): obj is ProductDefaults {
+                if (!productDefaultsHasShape(obj)) {
+                    return false;
+                }
+                const result = productDefaultsDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type ProductDefaultsErrors = {
+            _errors: Option.Option<Array<string>>;
+            price: Option.Option<Array<string>>;
+            description: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type ProductDefaultsTainted = {
+            price: Option.Option<boolean>;
+            description: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface ProductDefaultsFieldControllers {
+            readonly price: FieldController<number>;
+            readonly description: FieldController<string>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface ProductDefaultsGigaform {
+            readonly data: ProductDefaults;
+            readonly errors: ProductDefaultsErrors;
+            readonly tainted: ProductDefaultsTainted;
+            readonly fields: ProductDefaultsFieldControllers;
+            validate(): Exit.Exit<ProductDefaults, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<ProductDefaults>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function productDefaultsCreateForm(overrides?: Partial<ProductDefaults>): ProductDefaultsGigaform {
+            let data = $state({ ...productDefaultsDefaultValue(), ...overrides });
+            let errors = $state<ProductDefaultsErrors>({
+                _errors: Option.none(),
+                price: Option.none(),
+                description: Option.none(),
+
+
+            });
+            let tainted = $state<ProductDefaultsTainted>({
+                price: Option.none(),
+                description: Option.none(),
+
+
+            });
+            const fields = {
+            
+                price: {
+            name: "price",
+            label: "Price",
+            type: "number",
+            optional: false,
+            array: false,
+            path: ["price"],
+            get: () => data.price,
+            set: (value: number) => { data.price = value; },
+            getError: () => errors.price,
+            setError: (value: Option.Option<Array<string>>) => { errors.price = value; },
+            getTainted: () => tainted.price,
+            setTainted: (value: Option.Option<boolean>) => { tainted.price = value; },
+            validate: () => productDefaultsValidateField("price", data.price).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                description: {
+            name: "description",
+            label: "Description",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["description"],
+            get: () => data.description,
+            set: (value: string) => { data.description = value; },
+            getError: () => errors.description,
+            setError: (value: Option.Option<Array<string>>) => { errors.description = value; },
+            getTainted: () => tainted.description,
+            setTainted: (value: Option.Option<boolean>) => { tainted.description = value; },
+            validate: () => productDefaultsValidateField("description", data.description).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as ProductDefaultsFieldControllers;
+
+
+            function validate(): Exit.Exit<ProductDefaults, Array<{ field: string; message: string }>> {
+                return toExit(productDefaultsDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<ProductDefaults>): void {
+                data = { ...productDefaultsDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            price: Option.none(),
+            description: Option.none(),
+
+
+        };
+                tainted = {
+            price: Option.none(),
+            description: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function productDefaultsFromFormData(formData: FormData): Exit.Exit<ProductDefaults, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const priceStr = formData.get("price");
+                    obj.price = priceStr ? parseFloat(priceStr as string) : 0;
+                    if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
+                }
+            obj.description = formData.get("description") ?? "";
+
+
+            return toExit(productDefaultsDeserialize(obj));
+        }
+
+export const ProductDefaults = {
+  defaultValue: productDefaultsDefaultValue,
+  serialize: productDefaultsSerialize,
+  serializeWithContext: productDefaultsSerializeWithContext,
+  deserialize: productDefaultsDeserialize,
+  deserializeWithContext: productDefaultsDeserializeWithContext,
+  validateFields: productDefaultsValidateFields,
+  hasShape: productDefaultsHasShape,
+  is: productDefaultsIs,
+  createForm: productDefaultsCreateForm,
+  fromFormData: productDefaultsFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..155 -> expanded 58..98
+original 219..243 -> expanded 98..122
+original 295..300 -> expanded 122..127
+original 341..368 -> expanded 127..154
+original 368..369 -> expanded 15065..15066
+generated 154..305 <- Default
+generated 305..1912 <- Serialize
+generated 1912..9040 <- Deserialize
+generated 9040..14570 <- Gigaform
+generated 14570..15065 <- __convenience_const
+
+## Metadata
+
+interface ProductDefaults: {"body_span":{"end":369,"start":150},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Price\", min: 0, step: 0.01 }","name":"numberController","span":{"end":220,"start":156}}],"name":"price","optional":false,"readonly":false,"span":{"end":239,"start":225},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":342,"start":301}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":296,"start":244}}],"name":"description","optional":false,"readonly":false,"span":{"end":367,"start":347},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ProductDefaults","span":{"end":369,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("number")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

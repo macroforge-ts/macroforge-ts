@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_multiple_all.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_multiple_all.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ type Coordinate = {
     lat: number;
     lng: number;
 };
+
+## Changed
+
+true
 
 ## Output
 
@@ -184,9 +188,6 @@ export function coordinateHashCode(value: Coordinate): number {
 
                 ctx.trackForFreeze(instance);{
                                 const __raw_lat = obj["lat"] as number;instance.lat = __raw_lat;
-
-
-
 
 
 
@@ -561,16 +562,7 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
-
-
-
                             }
-
-
-
-
-
-
 
 
 
@@ -1420,14 +1412,8 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
-
-
-
                             }{
                                 const __raw_lng = obj["lng"] as number;instance.lng = __raw_lng;
-
-
-
 
 
 
@@ -2039,12 +2025,6 @@ export function coordinateHashCode(value: Coordinate): number {
 
 
 
-
-
-
-
-
-
                 ctx.pushErrors(errors);
 
                 return instance as Coordinate;
@@ -2118,5 +2098,29 @@ const Coordinate = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 69..126 -> expanded 0..57
+original 126..127 -> expanded 8621..8622
+generated 57..377 <- Debug
+generated 377..641 <- Clone
+generated 641..855 <- PartialEq
+generated 855..1330 <- Hash
+generated 1330..2963 <- Serialize
+generated 2963..8186 <- Deserialize
+generated 8186..8621 <- __convenience_const
+
+## Metadata
+
+type Coordinate: {"body":{"Object":{"fields":[{"decorators":[],"name":"lat","optional":false,"readonly":false,"span":{"end":107,"start":95},"ts_type":"number"},{"decorators":[],"name":"lng","optional":false,"readonly":false,"span":{"end":124,"start":112},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":70,"start":1}}],"name":"Coordinate","span":{"end":127,"start":71},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

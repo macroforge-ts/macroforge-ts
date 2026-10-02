@@ -1,12 +1,16 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_union_default_inline.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_inline.ts
 ---
 ## Input
 
 /** @derive(Default) */
 export type ActivityType = /** @default */ Created | Edited | Sent;
+
+## Changed
+
+true
 
 ## Output
 
@@ -33,5 +37,24 @@ export const ActivityType = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 23..91 -> expanded 0..68
+original 91..92 -> expanded 296..297
+generated 68..212 <- Default
+generated 212..296 <- __convenience_const
+
+## Metadata
+
+type ActivityType: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":67,"start":52}}],"kind":{"TypeRef":"Created"}},{"decorators":[],"kind":{"TypeRef":"Edited"}},{"decorators":[],"kind":{"TypeRef":"Sent"}}]},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"name":"ActivityType","span":{"end":92,"start":32},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

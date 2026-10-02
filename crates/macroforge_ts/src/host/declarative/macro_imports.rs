@@ -33,11 +33,20 @@ pub(crate) fn strip_consumed_macro_imports(
                 .join("; ")
         ));
     }
-    let semantic = SemanticBuilder::new().build(&parsed.program);
+    strip_consumed_macro_imports_in(source, &parsed.program)
+}
+
+/// Like [`strip_consumed_macro_imports`], for a `program` the caller already
+/// parsed from `source` without errors.
+pub(crate) fn strip_consumed_macro_imports_in(
+    source: &str,
+    program: &oxc::ast::ast::Program<'_>,
+) -> Result<Option<String>, String> {
+    let semantic = SemanticBuilder::new().build(program);
     let scoping = semantic.semantic.scoping();
 
     let mut patches = Vec::new();
-    for statement in &parsed.program.body {
+    for statement in &program.body {
         let Statement::ImportDeclaration(import) = statement else {
             continue;
         };

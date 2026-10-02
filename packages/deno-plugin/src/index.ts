@@ -27,7 +27,13 @@
  * @packageDocumentation
  */
 
-import { expandSync, loadConfig } from '@macroforge/core';
+import {
+    expandSync,
+    loadConfig,
+    releaseRegistry,
+    setDeclarativeRegistry,
+    setTypeRegistry
+} from '@macroforge/core';
 import { loadMacroConfig } from '@macroforge/shared';
 
 /** Options for {@link expand} and {@link expandFile}. */
@@ -46,6 +52,38 @@ export interface ExpandOptions {
     typeRegistryJson?: string;
     /** Pre-loaded declarative macro registry JSON. */
     declarativeRegistryJson?: string;
+    /** A type registry kept by the engine's `setTypeRegistry`; pass this or `typeRegistryJson`. */
+    typeRegistryId?: number;
+    /** A declarative registry kept by `setDeclarativeRegistry`; pass this or `declarativeRegistryJson`. */
+    declarativeRegistryId?: number;
+}
+
+/**
+ * `options` with any registry it carries as JSON kept by the engine and named
+ * by id instead, so expanding many files sends each registry once. Call
+ * `release` when the files are expanded.
+ */
+export function residentRegistries<T extends ExpandOptions>(
+    options: T
+): { options: T; release: () => void } {
+    const ids: number[] = [];
+    const resident: T = { ...options };
+    if (options.typeRegistryJson !== undefined) {
+        resident.typeRegistryId = setTypeRegistry(options.typeRegistryJson);
+        resident.typeRegistryJson = undefined;
+        ids.push(resident.typeRegistryId);
+    }
+    if (options.declarativeRegistryJson !== undefined) {
+        resident.declarativeRegistryId = setDeclarativeRegistry(options.declarativeRegistryJson);
+        resident.declarativeRegistryJson = undefined;
+        ids.push(resident.declarativeRegistryId);
+    }
+    return {
+        options: resident,
+        release: () => {
+            for (const id of ids) releaseRegistry(id);
+        }
+    };
 }
 
 /** What expanding one source produced. */
@@ -68,7 +106,7 @@ export interface ExpandResult {
  * Expand a single in-memory TypeScript source string.
  *
  * Looks up and parses `macroforge.config.*` from `projectRoot` (or
- * `Deno.cwd()`) on every call — the config is not cached — and forwards
+ * `Deno.cwd()`) on every call (the config is not cached) and forwards
  * every other concern to the Rust engine.
  */
 export function expand(
@@ -84,6 +122,8 @@ export function expand(
         configPath: macroConfig.configPath,
         typeRegistryJson: options.typeRegistryJson,
         declarativeRegistryJson: options.declarativeRegistryJson,
+        typeRegistryId: options.typeRegistryId,
+        declarativeRegistryId: options.declarativeRegistryId,
         buildMode: options.buildMode ?? 'prod'
     });
 

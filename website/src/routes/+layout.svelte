@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '../app.css';
+	import { afterNavigate } from '$app/navigation';
 	import { ModeWatcher } from 'mode-watcher';
 	import Header from '$lib/components/layout/Header.svelte';
 	import Footer from '$lib/components/layout/Footer.svelte';
@@ -9,6 +10,11 @@
 
 	let { children } = $props();
 	let mobileMenuOpen = $state(false);
+
+	// Choosing a page from the mobile menu takes the reader to it.
+	afterNavigate(() => {
+		mobileMenuOpen = false;
+	});
 </script>
 
 <svelte:head>

@@ -36,14 +36,42 @@ pub enum TypeCategory {
     /// built-in); contains the base name with any generic arguments stripped
     Serializable(String),
     /// Fallback for everything else: non-nullable unions (`A | B`),
-    /// dot-qualified names (`DateTime.Utc` — handled via foreign-type matching),
+    /// dot-qualified names (`DateTime.Utc`, handled via foreign-type matching),
     /// lowercase identifiers, and utility types with no serialization strategy
     /// (`Exclude`, `ReturnType`, `Promise`, ...)
     Unknown,
 }
 
+/// How many classified types a thread keeps. A project's field types repeat
+/// across every derive that reads them; the bound keeps a long session from
+/// holding every type it ever saw.
+const CLASSIFIED_TYPES: usize = 4096;
+
+thread_local! {
+    static CLASSIFIED: std::cell::RefCell<std::collections::HashMap<String, TypeCategory>> =
+        std::cell::RefCell::new(std::collections::HashMap::new());
+}
+
 impl TypeCategory {
+    /// The category of `ts_type`. Depends on the text alone, so each distinct
+    /// type is classified once per thread however many derives ask.
     pub fn from_ts_type(ts_type: &str) -> Self {
+        if let Some(known) = CLASSIFIED.with(|classified| classified.borrow().get(ts_type).cloned())
+        {
+            return known;
+        }
+        let category = Self::classify(ts_type);
+        CLASSIFIED.with(|classified| {
+            let mut classified = classified.borrow_mut();
+            if classified.len() >= CLASSIFIED_TYPES {
+                classified.clear();
+            }
+            classified.insert(ts_type.to_string(), category.clone());
+        });
+        category
+    }
+
+    fn classify(ts_type: &str) -> Self {
         let trimmed = ts_type.trim();
 
         // Handle string literal types (e.g., "Zoned", 'foo') - these are primitive-like
@@ -98,7 +126,7 @@ impl TypeCategory {
         }
 
         // Handle union types (T | undefined, T | null)
-        // Only split on top-level `|` — pipes inside <>, (), [], or string
+        // Only split on top-level `|`: pipes inside <>, (), [], or string
         // literals (e.g. Pick<User, 'a' | 'b'>) are ignored.
         if let Some(parts) = split_top_level_union(trimmed) {
             if parts.contains(&"undefined") {
@@ -238,8 +266,6 @@ impl TypeCategory {
         foreign_types: &'a [ForeignTypeConfig],
     ) -> ForeignTypeMatch<'a> {
         let trimmed = ts_type.trim();
-        let import_sources = with_registry(|r| r.source_modules());
-        let import_aliases = with_registry(|r| r.aliases());
 
         // Skip empty types
         if trimmed.is_empty() {
@@ -275,22 +301,26 @@ impl TypeCategory {
 
         // For unqualified types (no namespace), the type_name itself might be an alias
         // e.g., EffectOption -> Option. For qualified types, only the namespace is aliased.
+        let original_name =
+            |local: &str| with_registry(|r| r.resolve_alias(local).map(str::to_string));
+        let type_name_original = namespace_part
+            .is_none()
+            .then(|| original_name(type_name))
+            .flatten();
         let resolved_type_name = if namespace_part.is_none() {
-            import_aliases
-                .get(type_name)
-                .map(String::as_str)
-                .unwrap_or(type_name)
+            type_name_original.as_deref().unwrap_or(type_name)
         } else {
             // For qualified types, the type_name (last part) is not aliased
             type_name
         };
 
         // For unqualified aliased types, resolve the base_type
+        let base_type_original = namespace_part
+            .is_none()
+            .then(|| original_name(base_type))
+            .flatten();
         let resolved_base_type = if namespace_part.is_none() {
-            import_aliases
-                .get(base_type)
-                .map(String::as_str)
-                .unwrap_or(base_type)
+            base_type_original.as_deref().unwrap_or(base_type)
         } else {
             base_type
         };
@@ -302,7 +332,7 @@ impl TypeCategory {
         let resolved_namespace: Option<String> = namespace_part.map(|ns| {
             let parts: Vec<&str> = ns.split('.').collect();
             if let Some(first_part) = parts.first() {
-                if let Some(resolved_first) = import_aliases.get(*first_part) {
+                if let Some(resolved_first) = original_name(first_part) {
                     // Replace the first part with the resolved alias and rejoin
                     let mut resolved_parts: Vec<&str> = vec![resolved_first.as_str()];
                     resolved_parts.extend(&parts[1..]);
@@ -315,7 +345,16 @@ impl TypeCategory {
             }
         });
 
-        let mut near_match: Option<(&ForeignTypeConfig, String)> = None;
+        let source_of = |local: &str| with_registry(|r| r.get_source(local).map(str::to_string));
+        let import_source = source_of(import_name);
+        let alias_import_name = namespace_part.unwrap_or(type_name);
+        let alias_import_source = if alias_import_name == import_name {
+            import_source.clone()
+        } else {
+            source_of(alias_import_name)
+        };
+
+        let mut near_match: Option<String> = None;
 
         for ft in foreign_types {
             let ft_type_name = ft.get_type_name();
@@ -351,17 +390,10 @@ impl TypeCategory {
                     return ForeignTypeMatch::matched(ft);
                 }
                 // Now validate import source
-                if let Some(actual_source) = import_sources.get(import_name) {
-                    // Check if the actual import source matches any configured source
-                    let source_matches = ft.from.iter().any(|configured_source| {
-                        actual_source == configured_source
-                            || actual_source.ends_with(configured_source)
-                            || configured_source.ends_with(actual_source)
-                    });
-
-                    if source_matches {
+                if let Some(actual_source) = import_source.as_deref() {
+                    if imported_from_configured_source(actual_source, &ft.from) {
                         // Register required namespace imports for this foreign type
-                        register_foreign_type_namespaces(ft, actual_source);
+                        register_foreign_type_namespaces(ft);
                         return ForeignTypeMatch::matched(ft);
                     }
                     // Type is imported from a different source - don't match
@@ -371,10 +403,13 @@ impl TypeCategory {
                     // No import found for this type - likely a local type or re-exported
                     // Don't match foreign type config for types we can't verify the source of
                 }
-            } else if (type_name == ft_type_name || resolved_type_name == ft_type_name)
-                && !name_matches
+            } else if name_matches
+                && import_source
+                    .as_deref()
+                    .is_some_and(|actual| imported_from_configured_source(actual, &ft.from))
             {
-                // Type name matches but qualified form doesn't - helpful hint
+                // The name and its source match but the qualification doesn't,
+                // e.g. `DateTime` for `DateTime.DateTime`: a helpful hint
                 let warning = format!(
                     "Type '{}' has the same name as foreign type '{}' but uses different qualification. \
                      Expected '{}' or configure with namespace: '{}'.",
@@ -384,7 +419,7 @@ impl TypeCategory {
                     namespace_part.unwrap_or(type_name)
                 );
                 if near_match.is_none() {
-                    near_match = Some((ft, warning));
+                    near_match = Some(warning);
                 }
             }
 
@@ -415,16 +450,14 @@ impl TypeCategory {
                         return ForeignTypeMatch::matched(ft);
                     }
                     // Validate import source against alias's from
-                    let import_name = namespace_part.unwrap_or(type_name);
-
-                    if let Some(actual_source) = import_sources.get(import_name) {
+                    if let Some(actual_source) = alias_import_source.as_deref() {
                         // Check if import source matches the alias's from
-                        if actual_source == &alias.from
-                            || actual_source.ends_with(&alias.from)
+                        if actual_source == alias.from
+                            || actual_source.ends_with(alias.from.as_str())
                             || alias.from.ends_with(actual_source)
                         {
                             // Register required namespace imports for this foreign type
-                            register_foreign_type_namespaces(ft, actual_source);
+                            register_foreign_type_namespaces(ft);
                             return ForeignTypeMatch::matched(ft);
                         }
                     }
@@ -432,10 +465,18 @@ impl TypeCategory {
             }
         }
 
-        if let Some((ft, warning)) = near_match {
-            ForeignTypeMatch::near_match(ft, warning)
-        } else {
-            ForeignTypeMatch::none()
+        match near_match {
+            Some(warning) => ForeignTypeMatch::near_match(warning),
+            None => ForeignTypeMatch::none(),
         }
     }
+}
+
+/// Whether a type imported from `actual` comes from one of the sources a
+/// foreign type is configured `from`: the same specifier, or one ending with
+/// the other.
+fn imported_from_configured_source(actual: &str, configured: &[String]) -> bool {
+    configured.iter().any(|source| {
+        actual == source || actual.ends_with(source.as_str()) || source.ends_with(actual)
+    })
 }

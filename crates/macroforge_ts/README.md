@@ -79,8 +79,11 @@ cargo add macroforge_ts
 ### Functions
 
 - **`__macroforge_ffi_free`** - Free a buffer allocated by an FFI function.
+- **`__macroforge_ffi_set_registry`** - Installs the type registry a host sends once, so the
+  contexts it sends afterwards refer to it instead of carrying it on every call.
 - **`__macroforge_ffi_get_manifest`** - Returns the full MacroManifest as JSON via FFI.
-- **`has_macro_annotations`** - Whether `code` may contain anything the engine expands.
+- **`has_macro_annotations`** - Whether `code`, the source of `filepath`, may contain anything the
+  engine expands.
 - **`macro_imports`** - The macros `code` imports through `import macro` JSDoc comments, as macro
 - **`check_syntax`** - Whether `code` parses as TypeScript, with the parse error when it does not.
 - **`parse_import_sources`** - The import declarations of `code`: each imported name with the module
@@ -89,8 +92,7 @@ cargo add macroforge_ts
 - **`load_config`** - Parses a `macroforge.config.*` file's `content` and caches it under
   `filepath`.
 - **`clear_config_cache`** - Forgets every config `loadConfig` cached.
-- **`expand_sync`** - Expands the macros in `code`, the source of `filepath`, and returns the
-- ... and 9 more
+- ... and 15 more
 
 ## API Reference
 

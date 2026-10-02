@@ -1,0 +1,42 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/decl_macros_lib.ts
+sha256 c9f44081941989aafadd148387d964029f9be5b26995347ca7501285124d6cb2
+
+## Changed
+
+true
+
+## Output
+
+// Library file defining declarative macros that `cross-file-decl.ts` imports.
+//
+// The leading underscore keeps this file out of ambiguous alphabetical
+// sorts — it's a library, not an entry point.
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

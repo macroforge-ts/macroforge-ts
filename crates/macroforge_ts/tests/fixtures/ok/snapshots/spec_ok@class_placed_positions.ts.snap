@@ -1,0 +1,78 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_placed_positions.ts
+---
+## Input
+
+/** import macro { Placed } from "@macroforge/test-macros" */
+import { helper } from "./helper";
+
+/** @derive(Placed) */
+export class Widget {
+    id: string;
+}
+
+export const after = helper();
+
+## Changed
+
+true
+
+## Output
+
+const placedTop = "Widget";
+/** import macro { Placed } from "@macroforge/test-macros" */
+import { helper } from "./helper";
+
+
+export class Widget {
+    id: string;
+
+placedWithin(): string { return "Widget"; }}
+
+export const placedBelow = "Widget";
+
+export const after = helper();
+
+## DTS
+
+const placedTop = "Widget";
+/** import macro { Placed } from "@macroforge/test-macros" */
+import { helper } from "./helper";
+
+
+export class Widget {
+    id: string;
+
+placedWithin(): string { return "Widget"; }}
+
+export const placedBelow = "Widget";
+
+export const after = helper();
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..98 -> expanded 28..126
+original 120..159 -> expanded 126..165
+original 159..160 -> expanded 209..210
+original 160..193 -> expanded 248..281
+generated 0..28 <- Placed
+generated 165..209 <- Placed
+generated 210..248 <- Placed
+
+## Metadata
+
+class Widget: {"body_span":{"end":161,"start":142},"decorators":[{"args_src":"Placed","name":"Derive","span":{"end":121,"start":99}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":159,"start":148},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Widget","span":{"end":161,"start":129},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

@@ -1,0 +1,817 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/next-step.svelte.ts
+sha256 7cf65750e5a1fc83d5b8522155e86375067611da872eeea6abc6afb829726a55
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type NextStep =
+    | /** @default */ 'InitialContact'
+    | 'Qualified'
+    | 'Estimate'
+    | 'Negotiation';
+
+export function nextStepDefaultValue(): NextStep {
+                            return "InitialContact";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function nextStepSerialize(value: NextStep, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = nextStepSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function nextStepSerializeWithContext(value: NextStep, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function nextStepDeserialize(input: unknown): { success: true; value: NextStep } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return { success: true, value: input as NextStep };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for NextStep: expected one of " + ['InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function nextStepDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): NextStep | __mf_PendingRef {
+                switch (value) {
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return value as NextStep;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for NextStep: expected one of " + ['InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function nextStepHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function nextStepIs(value: unknown): value is NextStep {
+                return nextStepHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type NextStepInitialContactErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type NextStepQualifiedErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type NextStepEstimateErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type NextStepNegotiationErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type NextStepInitialContactTainted = {
+
+
+            };
+            export type NextStepQualifiedTainted = {
+
+
+            };
+            export type NextStepEstimateTainted = {
+
+
+            };
+            export type NextStepNegotiationTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type NextStepErrors = ({ _value: "InitialContact" } & NextStepInitialContactErrors) | ({ _value: "Qualified" } & NextStepQualifiedErrors) | ({ _value: "Estimate" } & NextStepEstimateErrors) | ({ _value: "Negotiation" } & NextStepNegotiationErrors);
+
+        /** Union tainted type  */
+        export type NextStepTainted = ({ _value: "InitialContact" } & NextStepInitialContactTainted) | ({ _value: "Qualified" } & NextStepQualifiedTainted) | ({ _value: "Estimate" } & NextStepEstimateTainted) | ({ _value: "Negotiation" } & NextStepNegotiationTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface NextStepInitialContactFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface NextStepQualifiedFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface NextStepEstimateFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface NextStepNegotiationFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface NextStepGigaform {
+            readonly currentVariant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
+            readonly data: NextStep;
+            readonly errors: NextStepErrors;
+            readonly tainted: NextStepTainted;
+            readonly variants: NextStepVariantFields;
+            switchVariant(variant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void;
+            validate(): Exit.Exit<NextStep, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<NextStep>): void;
+        }
+
+        /** Variant fields container  */
+        export interface NextStepVariantFields {
+            
+                readonly InitialContact: { readonly fields: NextStepInitialContactFieldControllers };
+            
+                readonly Qualified: { readonly fields: NextStepQualifiedFieldControllers };
+            
+                readonly Estimate: { readonly fields: NextStepEstimateFieldControllers };
+            
+                readonly Negotiation: { readonly fields: NextStepNegotiationFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function nextStepGetDefaultForVariant(variant: string): NextStep {
+            if (variant === "InitialContact") { return "InitialContact" as NextStep; }
+if (variant === "Qualified") { return "Qualified" as NextStep; }
+if (variant === "Estimate") { return "Estimate" as NextStep; }
+if (variant === "Negotiation") { return "Negotiation" as NextStep; }
+            return "InitialContact" as NextStep;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function nextStepCreateForm(initial?: NextStep): NextStepGigaform {
+
+            const initialVariant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation" = (initial as "InitialContact" | "Qualified" | "Estimate" | "Negotiation") ?? "InitialContact";
+
+
+            let currentVariant = $state<"InitialContact" | "Qualified" | "Estimate" | "Negotiation">(initialVariant);
+            let data = $state<NextStep>(initial ?? nextStepGetDefaultForVariant(initialVariant));
+            let errors = $state<NextStepErrors>({} as NextStepErrors);
+            let tainted = $state<NextStepTainted>({} as NextStepTainted);
+
+            const variants = {
+            
+                "InitialContact": { fields: {  } as unknown as NextStepInitialContactFieldControllers },
+            
+                "Qualified": { fields: {  } as unknown as NextStepQualifiedFieldControllers },
+            
+                "Estimate": { fields: {  } as unknown as NextStepEstimateFieldControllers },
+            
+                "Negotiation": { fields: {  } as unknown as NextStepNegotiationFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as NextStepVariantFields;
+
+
+            function switchVariant(variant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {
+                currentVariant = variant;
+                data = nextStepGetDefaultForVariant(variant);
+                errors = {} as NextStepErrors;
+                tainted = {} as NextStepTainted;
+            }
+
+
+            function validate(): Exit.Exit<NextStep, Array<{ field: string; message: string }>> {
+                return toExit(nextStepDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<NextStep>): void {
+                data = overrides ? overrides as typeof data : nextStepGetDefaultForVariant(currentVariant);
+                errors = {} as NextStepErrors;
+                tainted = {} as NextStepTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function nextStepFromFormData(formData: FormData): Exit.Exit<NextStep, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "InitialContact") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Qualified") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Estimate") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Negotiation") {
+                        
+                    }
+                }
+
+
+            return toExit(nextStepDeserialize(obj));
+        }
+
+export const NextStep = {
+  defaultValue: nextStepDefaultValue,
+  serialize: nextStepSerialize,
+  serializeWithContext: nextStepSerializeWithContext,
+  deserialize: nextStepDeserialize,
+  deserializeWithContext: nextStepDeserializeWithContext,
+  hasShape: nextStepHasShape,
+  is: nextStepIs,
+  createForm: nextStepCreateForm,
+  fromFormData: nextStepFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export type NextStep =
+    | /** @default */ 'InitialContact'
+    | 'Qualified'
+    | 'Estimate'
+    | 'Negotiation';
+
+export function nextStepDefaultValue(): NextStep {
+                            return "InitialContact";
+                        }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function nextStepSerialize(value: NextStep, keepMetadata?: boolean): string {
+                            const ctx = __mf_SerializeContext.create();
+                            const __raw = nextStepSerializeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                        export function nextStepSerializeWithContext(value: NextStep, ctx: __mf_SerializeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.serializeWithContext === "function") {
+                                __variant = (value as any).serializeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function nextStepDeserialize(input: unknown): { success: true; value: NextStep } | { success: false; errors: Array<{ field: string; message: string }> } {
+                switch (input) {
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return { success: true, value: input as NextStep };
+                    default:
+                        return { success: false, errors: [{ field: "_root", message: "Invalid value for NextStep: expected one of " + ['InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(input) }] };
+                }
+            }
+
+            /** Deserializes with an existing context (validates against known variants).  */
+            export function nextStepDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): NextStep | __mf_PendingRef {
+                switch (value) {
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return value as NextStep;
+                    default:
+                        throw new __mf_DeserializeError([{
+                            field: "_root",
+                            message: "Invalid value for NextStep: expected one of " + ['InitialContact', 'Qualified', 'Estimate', 'Negotiation'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                        }]);
+                }
+            }
+
+            export function nextStepHasShape(value: unknown): boolean {
+                switch (value) {
+                    case 'InitialContact':
+                    case 'Qualified':
+                    case 'Estimate':
+                    case 'Negotiation':
+
+
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            export function nextStepIs(value: unknown): value is NextStep {
+                return nextStepHasShape(value);
+            }
+
+/** Per-variant error types  */
+        
+            export type NextStepInitialContactErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type NextStepQualifiedErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type NextStepEstimateErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+            export type NextStepNegotiationErrors = {
+                _errors: Option.Option<Array<string>>;
+
+
+            };
+
+        /** Per-variant tainted types  */
+        
+            export type NextStepInitialContactTainted = {
+
+
+            };
+            export type NextStepQualifiedTainted = {
+
+
+            };
+            export type NextStepEstimateTainted = {
+
+
+            };
+            export type NextStepNegotiationTainted = {
+
+
+            };
+
+        /** Union error type  */
+        export type NextStepErrors = ({ _value: "InitialContact" } & NextStepInitialContactErrors) | ({ _value: "Qualified" } & NextStepQualifiedErrors) | ({ _value: "Estimate" } & NextStepEstimateErrors) | ({ _value: "Negotiation" } & NextStepNegotiationErrors);
+
+        /** Union tainted type  */
+        export type NextStepTainted = ({ _value: "InitialContact" } & NextStepInitialContactTainted) | ({ _value: "Qualified" } & NextStepQualifiedTainted) | ({ _value: "Estimate" } & NextStepEstimateTainted) | ({ _value: "Negotiation" } & NextStepNegotiationTainted);
+
+        /** Per-variant field controller types  */
+        
+            export interface NextStepInitialContactFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface NextStepQualifiedFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface NextStepEstimateFieldControllers {
+
+
+
+
+
+
+
+            }
+            export interface NextStepNegotiationFieldControllers {
+
+
+
+
+
+
+
+            }
+
+        /** Union Gigaform interface with variant switching  */
+        export interface NextStepGigaform {
+            readonly currentVariant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation";
+            readonly data: NextStep;
+            readonly errors: NextStepErrors;
+            readonly tainted: NextStepTainted;
+            readonly variants: NextStepVariantFields;
+            switchVariant(variant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void;
+            validate(): Exit.Exit<NextStep, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<NextStep>): void;
+        }
+
+        /** Variant fields container  */
+        export interface NextStepVariantFields {
+            
+                readonly InitialContact: { readonly fields: NextStepInitialContactFieldControllers };
+            
+                readonly Qualified: { readonly fields: NextStepQualifiedFieldControllers };
+            
+                readonly Estimate: { readonly fields: NextStepEstimateFieldControllers };
+            
+                readonly Negotiation: { readonly fields: NextStepNegotiationFieldControllers };
+
+
+
+
+
+        }
+/** Gets default value for a specific variant  */
+        function nextStepGetDefaultForVariant(variant: string): NextStep {
+            if (variant === "InitialContact") { return "InitialContact" as NextStep; }
+if (variant === "Qualified") { return "Qualified" as NextStep; }
+if (variant === "Estimate") { return "Estimate" as NextStep; }
+if (variant === "Negotiation") { return "Negotiation" as NextStep; }
+            return "InitialContact" as NextStep;
+        }
+
+        /** Creates a new discriminated union Gigaform with variant switching  */
+        export function nextStepCreateForm(initial?: NextStep): NextStepGigaform {
+
+            const initialVariant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation" = (initial as "InitialContact" | "Qualified" | "Estimate" | "Negotiation") ?? "InitialContact";
+
+
+            let currentVariant = $state<"InitialContact" | "Qualified" | "Estimate" | "Negotiation">(initialVariant);
+            let data = $state<NextStep>(initial ?? nextStepGetDefaultForVariant(initialVariant));
+            let errors = $state<NextStepErrors>({} as NextStepErrors);
+            let tainted = $state<NextStepTainted>({} as NextStepTainted);
+
+            const variants = {
+            
+                "InitialContact": { fields: {  } as unknown as NextStepInitialContactFieldControllers },
+            
+                "Qualified": { fields: {  } as unknown as NextStepQualifiedFieldControllers },
+            
+                "Estimate": { fields: {  } as unknown as NextStepEstimateFieldControllers },
+            
+                "Negotiation": { fields: {  } as unknown as NextStepNegotiationFieldControllers },
+
+
+
+
+
+
+
+        } as unknown as NextStepVariantFields;
+
+
+            function switchVariant(variant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {
+                currentVariant = variant;
+                data = nextStepGetDefaultForVariant(variant);
+                errors = {} as NextStepErrors;
+                tainted = {} as NextStepTainted;
+            }
+
+
+            function validate(): Exit.Exit<NextStep, Array<{ field: string; message: string }>> {
+                return toExit(nextStepDeserialize(data));
+            }
+
+
+            function reset(overrides?: Partial<NextStep>): void {
+                data = overrides ? overrides as typeof data : nextStepGetDefaultForVariant(currentVariant);
+                errors = {} as NextStepErrors;
+                tainted = {} as NextStepTainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData for union type, determining variant from discriminant field  */
+        export function nextStepFromFormData(formData: FormData): Exit.Exit<NextStep, Array<{ field: string; message: string }>> {
+            const discriminant = formData.get("_value") as "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null;
+
+            if (!discriminant) {
+                return toExit({ success: false, errors: [{ field: "_value", message: "Missing discriminant field" }] });
+            }
+
+            const obj: Record<string, unknown> = {};
+            obj._value = discriminant;
+
+            {
+
+                    if (discriminant === "InitialContact") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Qualified") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Estimate") {
+                        
+                    }
+                }
+{
+
+                    if (discriminant === "Negotiation") {
+                        
+                    }
+                }
+
+
+            return toExit(nextStepDeserialize(obj));
+        }
+
+export const NextStep = {
+  defaultValue: nextStepDefaultValue,
+  serialize: nextStepSerialize,
+  serializeWithContext: nextStepSerializeWithContext,
+  deserialize: nextStepDeserialize,
+  deserializeWithContext: nextStepDeserializeWithContext,
+  hasShape: nextStepHasShape,
+  is: nextStepIs,
+  createForm: nextStepCreateForm,
+  fromFormData: nextStepFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..233 -> expanded 58..176
+original 233..234 -> expanded 12274..12275
+generated 176..307 <- Default
+generated 307..2253 <- Serialize
+generated 2253..4626 <- Deserialize
+generated 4626..11898 <- Gigaform
+generated 11898..12274 <- __convenience_const
+
+## Metadata
+
+type NextStep: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":161,"start":146}}],"kind":{"Literal":"'InitialContact'"}},{"decorators":[],"kind":{"Literal":"'Qualified'"}},{"decorators":[],"kind":{"Literal":"'Estimate'"}},{"decorators":[],"kind":{"Literal":"'Negotiation'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"NextStep","span":{"end":234,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("NextStep")
+
+## Buildtime dependencies
+
+(none)

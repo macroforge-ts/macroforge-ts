@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/unknown_macro_class.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/unknown_macro_class.ts
 ---
 ## Input
 
@@ -9,6 +9,10 @@ input_file: macroforge_ts/tests/fixtures/error/unknown_macro_class.ts
 class User {
     name: string;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -24,4 +28,20 @@ class User {
 
 ## Diagnostics
 
-Error: Macro 'NonExistentMacro' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
+Error [4..29]: Macro 'NonExistentMacro' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.
+
+## Mapping
+
+original 32..66 -> expanded 0..34
+
+## Metadata
+
+class User: {"body_span":{"end":66,"start":45},"decorators":[{"args_src":"NonExistentMacro","name":"Derive","span":{"end":33,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":64,"start":51},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":66,"start":34},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

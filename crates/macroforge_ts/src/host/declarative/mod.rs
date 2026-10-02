@@ -35,7 +35,7 @@ pub enum BuildMode {
     /// shape count, so users can see why a particular emission
     /// strategy was picked. Defaults to `false`.
     ///
-    /// `force_share: true` is PR 17's opt-in — when set, `Auto`
+    /// `force_share: true` is PR 17's opt-in: when set, `Auto`
     /// macros expand to the shared-runtime form in dev, matching
     /// the prod pipeline, so share-mode bugs surface at dev time
     /// instead of only in prod builds. Defaults to `false`.
@@ -140,59 +140,11 @@ pub use rewriter::ProcMacroFallback;
 pub use rewriter::RewriteOutput;
 pub use rewriter::rewrite;
 
-/// Parse `source` with OXC purely to confirm it is syntactically valid
-/// TypeScript and surface any parse errors as structured [`Diagnostic`]s.
-///
-/// Used by the patch applicator's post-validation hook (Phase H of the
-/// production-hardening plan) to re-parse the fully-patched source after
-/// declarative macro expansion. If a macro's expansion produced invalid
-/// TypeScript, this helper turns OXC's parse errors into diagnostics the
-/// caller can blame on the originating macro via the patch source-map.
-///
-/// `jsx` should match whatever `SourceType` the caller used for the
-/// original parse — i.e., `true` iff the file's extension is `.tsx`.
-///
-/// Returns `Ok(())` when the source parses cleanly, or `Err(diagnostics)`
-/// with one `DiagnosticLevel::Error` entry per OXC error. Each entry's
-/// `message` is the OXC diagnostic text; `span` is left unset because
-/// the caller is responsible for mapping offsets back to a source
-/// macro.
-pub fn reparse_for_validation(
-    source: &str,
-    jsx: bool,
-) -> Result<(), Vec<crate::ts_syn::abi::Diagnostic>> {
-    use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel};
-    use oxc::allocator::Allocator;
-    use oxc::parser::Parser;
-    use oxc::span::SourceType;
-
-    let allocator = Allocator::default();
-    let source_type = SourceType::ts().with_jsx(jsx);
-    let parsed = Parser::new(&allocator, source, source_type).parse();
-
-    if parsed.diagnostics.is_empty() {
-        return Ok(());
-    }
-
-    let diagnostics = parsed
-        .diagnostics
-        .into_iter()
-        .map(|err| Diagnostic {
-            level: DiagnosticLevel::Error,
-            message: err.to_string(),
-            span: None,
-            notes: Vec::new(),
-            help: None,
-        })
-        .collect();
-    Err(diagnostics)
-}
-
 /// Validate a post-patch source and attribute parse errors to the
 /// originating declarative macro via a [`SourceMapping`].
 ///
-/// Unlike [`reparse_for_validation`], this variant does offset
-/// blame-tracing: for every OXC parse error with a labeled span, it
+/// This does offset blame-tracing: for every OXC parse error with a
+/// labeled span, it
 /// looks the byte offset up in `mapping` (built by the patch
 /// applicator's `apply_with_mapping`) and, if the offset falls inside
 /// a generated region, prefixes the diagnostic with the originating
@@ -207,21 +159,28 @@ pub fn validate_expanded_source(
     mapping: &crate::ts_syn::abi::SourceMapping,
     jsx: bool,
 ) -> Vec<crate::ts_syn::abi::Diagnostic> {
-    use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel};
     use oxc::allocator::Allocator;
     use oxc::parser::Parser;
-    use oxc::span::SourceType;
 
     let allocator = Allocator::default();
-    let source_type = SourceType::ts().with_jsx(jsx);
-    let parsed = Parser::new(&allocator, source, source_type).parse();
+    let parsed = Parser::new(&allocator, source, validation_source_type(jsx)).parse();
+    attribute_parse_errors(parsed.diagnostics, mapping)
+}
 
-    if parsed.diagnostics.is_empty() {
-        return Vec::new();
-    }
+/// The source type post-validation parses expanded output with.
+pub fn validation_source_type(jsx: bool) -> oxc::span::SourceType {
+    oxc::span::SourceType::ts().with_jsx(jsx)
+}
 
-    parsed
-        .diagnostics
+/// `errors`, from parsing expanded output, as diagnostics that name the
+/// macro whose generated code each one falls in, where `mapping` knows.
+pub fn attribute_parse_errors(
+    errors: oxc::diagnostics::Diagnostics,
+    mapping: &crate::ts_syn::abi::SourceMapping,
+) -> Vec<crate::ts_syn::abi::Diagnostic> {
+    use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel};
+
+    errors
         .into_iter()
         .map(|err| {
             // OXC diagnostics carry their `LabeledSpan`s via a `Deref`
@@ -255,21 +214,23 @@ pub fn validate_expanded_source(
 }
 
 #[cfg(test)]
-mod reparse_validation_tests {
-    use super::reparse_for_validation;
-    use crate::ts_syn::abi::DiagnosticLevel;
+mod validation_tests {
+    use super::validate_expanded_source;
+    use crate::ts_syn::abi::{DiagnosticLevel, SourceMapping};
+
+    fn validate(source: &str, jsx: bool) -> Vec<crate::ts_syn::abi::Diagnostic> {
+        validate_expanded_source(source, &SourceMapping::new(), jsx)
+    }
 
     #[test]
     fn valid_typescript_parses_cleanly() {
-        let source = "const x: number = 1 + 2;";
-        assert!(reparse_for_validation(source, false).is_ok());
+        assert!(validate("const x: number = 1 + 2;", false).is_empty());
     }
 
     #[test]
     fn invalid_typescript_surfaces_error_diagnostic() {
-        // `const x = ;` — an expression is missing after `=`.
-        let source = "const x = ;";
-        let diagnostics = reparse_for_validation(source, false).unwrap_err();
+        // `const x = ;`: an expression is missing after `=`.
+        let diagnostics = validate("const x = ;", false);
         assert!(
             !diagnostics.is_empty(),
             "expected at least one parse-error diagnostic"
@@ -292,11 +253,11 @@ mod reparse_validation_tests {
         // A JSX fragment parses only when `jsx = true`.
         let source = "const el = <div>hello</div>;";
         assert!(
-            reparse_for_validation(source, true).is_ok(),
+            validate(source, true).is_empty(),
             "JSX should parse with jsx=true"
         );
         assert!(
-            reparse_for_validation(source, false).is_err(),
+            !validate(source, false).is_empty(),
             "JSX should fail to parse with jsx=false"
         );
     }

@@ -45,25 +45,17 @@ pub fn compile_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     // Generate the output code
     let insert_pos = position_to_tokens(position);
 
-    // For Within position, wrap the body marker
-    let output = if position == Some("Within") {
-        quote! {
-            {
-                let mut __out = String::new();
-                let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
-                __out.push_str("/* @macroforge:body */");
-                #body
-                macroforge_ts::ts_syn::TsStream::with_insert_pos_and_patches(__out, #insert_pos, __patches)
-            }
-        }
-    } else {
-        quote! {
-            {
-                let mut __out = String::new();
-                let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
-                #body
-                macroforge_ts::ts_syn::TsStream::with_insert_pos_and_patches(__out, #insert_pos, __patches)
-            }
+    // An explicit position leaves its marker at the start of the code, so
+    // the position survives when the stream is injected into another one.
+    let marker = position
+        .map(|position| format!("/* @macroforge:{} */", marker_name(position)))
+        .unwrap_or_default();
+    let output = quote! {
+        {
+            let mut __out = String::from(#marker);
+            let mut __carried = macroforge_ts::ts_syn::TsStream::from_string(String::new());
+            #body
+            macroforge_ts::ts_syn::TsStream::with_insert_pos(__out, #insert_pos).merge(__carried)
         }
     };
 
@@ -127,6 +119,17 @@ fn position_to_tokens(position: Option<&str>) -> TokenStream2 {
         Some("Within") => quote! { macroforge_ts::ts_syn::InsertPos::Within },
         Some("Bottom") => quote! { macroforge_ts::ts_syn::InsertPos::Bottom },
         _ => quote! { macroforge_ts::ts_syn::InsertPos::Below },
+    }
+}
+
+/// The marker name the host splits a stream on for `position`.
+fn marker_name(position: &str) -> &'static str {
+    match position {
+        "Top" => "top",
+        "Above" => "above",
+        "Within" => "body",
+        "Bottom" => "bottom",
+        _ => "below",
     }
 }
 

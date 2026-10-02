@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/error/only_comments.ts
+input_file: crates/macroforge_ts/tests/fixtures/error/only_comments.ts
 ---
 ## Input
 
@@ -11,18 +11,34 @@ input_file: macroforge_ts/tests/fixtures/error/only_comments.ts
  * JSDoc comment without derive
  */
 
+## Changed
+
+false
+
 ## Output
 
-// This is a comment
-/* Another comment */
-/**
- * JSDoc comment without derive
- */
+(unchanged)
 
 ## DTS
 
 (none)
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

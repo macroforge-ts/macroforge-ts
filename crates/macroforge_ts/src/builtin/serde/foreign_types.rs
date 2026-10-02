@@ -1,19 +1,52 @@
 //! Foreign type configuration and matching.
 
+use std::rc::Rc;
+
 use crate::host::ForeignTypeConfig;
 use crate::host::import_registry::{with_registry, with_registry_mut};
 
-/// Get a clone of the current foreign types, including built-in global types.
-/// User-configured types are listed first (higher priority), followed by built-ins.
-pub fn get_foreign_types() -> Vec<ForeignTypeConfig> {
-    let mut types = crate::host::import_registry::with_foreign_types(|ft| ft.to_vec());
-    types.extend(get_builtin_foreign_types());
-    types
+/// The full foreign type list, and the configured types it was built from.
+struct WithBuiltins {
+    configured: Rc<[ForeignTypeConfig]>,
+    all: Rc<[ForeignTypeConfig]>,
+}
+
+thread_local! {
+    static WITH_BUILTINS: std::cell::RefCell<Option<WithBuiltins>> =
+        const { std::cell::RefCell::new(None) };
+}
+
+/// The current foreign types, including built-in global types: user-configured
+/// types first (higher priority), followed by built-ins. Built once per
+/// configuration and shared, not copied per call.
+pub fn get_foreign_types() -> Rc<[ForeignTypeConfig]> {
+    let configured = crate::host::import_registry::configured_foreign_types();
+    WITH_BUILTINS.with(|cell| {
+        let mut cell = cell.borrow_mut();
+        if let Some(cached) = cell.as_ref()
+            && Rc::ptr_eq(&cached.configured, &configured)
+        {
+            return Rc::clone(&cached.all);
+        }
+        let all: Rc<[ForeignTypeConfig]> = configured
+            .iter()
+            .chain(BUILTIN_FOREIGN_TYPES.iter())
+            .cloned()
+            .collect();
+        *cell = Some(WithBuiltins {
+            configured,
+            all: Rc::clone(&all),
+        });
+        all
+    })
 }
 
 /// Built-in foreign type registrations for global JS/TS types.
 /// These have empty `from` lists so they skip import validation.
-fn get_builtin_foreign_types() -> Vec<ForeignTypeConfig> {
+static BUILTIN_FOREIGN_TYPES: std::sync::LazyLock<Vec<ForeignTypeConfig>> =
+    std::sync::LazyLock::new(builtin_foreign_types);
+
+fn builtin_foreign_types() -> Vec<ForeignTypeConfig> {
     let ft = |name: &str, ser: &str, deser: &str| ForeignTypeConfig {
         name: name.to_string(),
         namespace: None,
@@ -166,26 +199,25 @@ fn replace_namespace_root(source: &str, namespace: &str, alias: &str) -> String 
 /// 1. The macroforge.config.ts top-level imports (`config_imports`), or
 /// 2. A configured foreign type whose surface name / namespace root is
 ///    `ns` (e.g. `DateTime.Utc`'s default body calls `Option.match` and
-///    `Option` is itself a foreign-type entry — its `from[0]` tells us
+///    `Option` is itself a foreign-type entry: its `from[0]` tells us
 ///    where to import it).
 ///
 /// **Globals are never imported.** Identifiers like `Array`, `console`,
 /// `Math`, `Object`, `BigInt`, `JSON`, `Date`, `Error`, etc. show up in
 /// `expression_namespaces` exactly the same as user-imported namespaces,
-/// but they live in the JS runtime — emitting `import { console as
+/// but they live in the JS runtime, and emitting `import { console as
 /// __mf_console } from "<ft.from>"` would produce a broken cache. The
 /// rule is: if neither `config_imports` nor the foreign-type registry
-/// names `ns`, leave it unrewritten — the runtime resolves it as a global
+/// names `ns`, leave it unrewritten: the runtime resolves it as a global
 /// for free.
 ///
 /// `ft.from[0]` is **not** used as a fallback module for `ns`. The
 /// matched foreign type's `from` describes where `ft` itself lives, not
 /// where arbitrary other identifiers in its expression body live.
-pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, _import_module: &str) {
-    let foreign_types = crate::host::import_registry::with_foreign_types(|fts| fts.to_vec());
+pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig) {
     with_registry_mut(|r| {
         for ns in &ft.expression_namespaces {
-            // Already a non-type-only value import in the target source —
+            // Already a non-type-only value import in the target source:
             // the inlined `ns.foo()` resolves directly, no alias needed.
             if r.source_map().contains_key(ns) && !r.is_type_only(ns) {
                 continue;
@@ -195,8 +227,8 @@ pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, _import_m
             //   1. macroforge.config.ts top-level `import` declarations.
             //   2. A configured foreign type whose surface name / namespace
             //      root / type name is `ns` (e.g. `Option` is itself a
-            //      foreign-type entry — its `from[0]` tells us the module).
-            //   3. The target source's own type-only import for `ns` — the
+            //      foreign-type entry: its `from[0]` tells us the module).
+            //   3. The target source's own type-only import for `ns`: the
             //      user already named the module in their `import type`
             //      statement, so we can faithfully promote that to a value
             //      import without guessing.
@@ -206,7 +238,9 @@ pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, _import_m
             // resolve it directly.
             let module = if let Some(m) = r.config_imports.get(ns).cloned() {
                 m
-            } else if let Some(m) = foreign_type_module(&foreign_types, ns) {
+            } else if let Some(m) = crate::host::import_registry::with_foreign_types(|configured| {
+                foreign_type_module(configured, ns)
+            }) {
                 m
             } else if let Some(m) = r.get_source(ns).map(str::to_string) {
                 m
@@ -219,7 +253,7 @@ pub(super) fn register_foreign_type_namespaces(ft: &ForeignTypeConfig, _import_m
         }
 
         // For dotted names like "DateTime.Utc", import the namespace root ("DateTime")
-        // since the leaf ("Utc") isn't a standalone export — it's accessed via the namespace.
+        // since the leaf ("Utc") isn't a standalone export; it's accessed via the namespace.
         let import_name = ft.get_namespace().unwrap_or_else(|| ft.get_type_name());
         if !r.is_available(&ft.name) && !r.is_available(import_name) && !ft.from.is_empty() {
             r.request_type_import(import_name, &ft.from[0]);
@@ -243,18 +277,15 @@ fn foreign_type_module(foreign_types: &[ForeignTypeConfig], ns: &str) -> Option<
     None
 }
 
-/// Result of matching a type against foreign type configurations.
+/// Result of matching a type against foreign type configurations. A type
+/// imported from a source other than the configured one is not a match: it
+/// falls through to generic handling, and TypeScript reports any problem.
 #[derive(Debug)]
 pub struct ForeignTypeMatch<'a> {
     /// The matched foreign type config, if any.
     pub config: Option<&'a ForeignTypeConfig>,
     /// Warning message for informational hints.
     pub warning: Option<String>,
-    /// Error message for import source mismatches. Currently never populated:
-    /// `match_foreign_type` lets import-source mismatches silently fall through
-    /// to generic handling (TypeScript catches any resulting issues downstream),
-    /// so consumers' error branches are dead code today.
-    pub error: Option<String>,
 }
 
 impl<'a> ForeignTypeMatch<'a> {
@@ -263,49 +294,28 @@ impl<'a> ForeignTypeMatch<'a> {
         Self {
             config: Some(config),
             warning: None,
-            error: None,
         }
     }
 
-    /// Create an import mismatch error (type matches but import source doesn't).
-    /// Currently unused: `match_foreign_type` treats import-source mismatches as
-    /// non-matches that fall through to generic handling rather than errors.
-    /// Kept for a future strict mode that fails the build on mismatches.
-    pub fn import_mismatch(_config: &'a ForeignTypeConfig, error: String) -> Self {
-        Self {
-            config: None,
-            warning: None,
-            error: Some(error),
-        }
-    }
-
-    /// Create a near-match (no match, but with a helpful warning).
-    /// The config parameter is for API consistency but not stored since this is a non-match.
-    pub fn near_match(_config: &'a ForeignTypeConfig, warning: String) -> Self {
+    /// Create a near-match: no match, but a hint about the one it resembles.
+    pub fn near_match(warning: String) -> Self {
         Self {
             config: None,
             warning: Some(warning),
-            error: None,
         }
     }
 
-    /// Create an empty result (no match, no warning, no error).
+    /// Create an empty result (no match, no warning).
     pub fn none() -> Self {
         Self {
             config: None,
             warning: None,
-            error: None,
         }
     }
 
     /// Returns true if there was a successful match.
     pub fn is_match(&self) -> bool {
         self.config.is_some()
-    }
-
-    /// Returns true if there was an error (import source mismatch).
-    pub fn has_error(&self) -> bool {
-        self.error.is_some()
     }
 }
 

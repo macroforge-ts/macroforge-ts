@@ -1,0 +1,154 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/conformance/dts/ambient_derive.d.ts
+---
+## Input
+
+/** @derive(Debug, Clone) */
+export declare class Point {
+    x: number;
+    y: number;
+}
+
+/** @derive(Debug) */
+export interface Named {
+    name: string;
+}
+
+/**
+ * Formats a point.
+ * @deprecated Use `Point.toString` instead.
+ */
+export declare function formatPoint(point: Point): string;
+
+## Changed
+
+true
+
+## Output
+
+export declare class Point {
+    x: number;
+    y: number;
+
+static toString(value: Point): string {
+                    return pointToString(value);
+                }
+static clone(value: Point): Point {
+                    return pointClone(value);
+                }}
+
+export function pointToString(value: Point): string {
+                        const parts: string[] = [];
+                        parts.push("x: " + value.x);
+parts.push("y: " + value.y);
+
+                        return "Point { " + parts.join(", ") + " }";
+                    }
+
+export function pointClone(value: Point): Point {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.x = value.x;
+cloned.y = value.y;
+
+                    return cloned;
+                }
+
+
+export interface Named {
+    name: string;
+}
+
+export function namedToString(value: Named): string {
+                        const parts: string[] = [];
+                        parts.push("name: " + value.name);
+
+                        return "Named { " + parts.join(", ") + " }";
+                    }
+
+export const Named = {
+  toString: namedToString
+} as const;
+
+/** @deprecated */
+export declare function formatPoint(point: Point): string;
+
+## DTS
+
+export declare class Point {
+    x: number;
+    y: number;
+
+static toString(value: Point): string {
+                    return pointToString(value);
+                }
+static clone(value: Point): Point {
+                    return pointClone(value);
+                }}
+
+export function pointToString(value: Point): string {
+                        const parts: string[] = [];
+                        parts.push("x: " + value.x);
+parts.push("y: " + value.y);
+
+                        return "Point { " + parts.join(", ") + " }";
+                    }
+
+export function pointClone(value: Point): Point {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
+                    cloned.x = value.x;
+cloned.y = value.y;
+
+                    return cloned;
+                }
+
+
+export interface Named {
+    name: string;
+}
+
+export function namedToString(value: Named): string {
+                        const parts: string[] = [];
+                        parts.push("name: " + value.name);
+
+                        return "Named { " + parts.join(", ") + " }";
+                    }
+
+export const Named = {
+  toString: namedToString
+} as const;
+
+/** @deprecated */
+export declare function formatPoint(point: Point): string;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 28..88 -> expanded 0..60
+original 88..89 -> expanded 267..268
+original 89..91 -> expanded 794..796
+original 112..157 -> expanded 796..841
+original 157..237 -> expanded 1161..1241
+generated 60..167 <- Debug
+generated 167..267 <- Clone
+generated 268..549 <- Debug
+generated 549..794 <- Clone
+generated 841..1099 <- Debug
+generated 1099..1161 <- __convenience_const
+
+## Metadata
+
+class Point: {"body_span":{"end":90,"start":57},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":29,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":73,"start":63},"ts_type":"number","visibility":"Public"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":88,"start":78},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"Point","span":{"end":90,"start":37},"type_params":[]}
+interface Named: {"body_span":{"end":158,"start":137},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":113,"start":92}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":156,"start":143},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Named","span":{"end":158,"start":121},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

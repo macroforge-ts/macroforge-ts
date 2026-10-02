@@ -1,0 +1,45 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/call/now_with_import.ts
+---
+## Input
+
+/** import macro { now } from "@macroforge/test-macros" */
+
+export const startedAt = $now();
+
+## Changed
+
+true
+
+## Output
+
+import { currentTime } from "@macroforge/test-runtime";
+/** import macro { now } from "@macroforge/test-macros" */
+
+export const startedAt = currentTime();
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+(none)
+
+## Metadata
+
+(none)
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

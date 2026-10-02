@@ -1,0 +1,5029 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/demo/types/phone-number.svelte.ts
+sha256 f2347097152c32ceab7681ea6deec005d4328820d9e3661d08f56ec81adb0472
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
+import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { Option } from "effect";
+import { Exit } from "effect";
+import type { FieldController } from "@playground/macro/gigaform";
+import { toExit } from "@playground/macro/gigaform";
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface PhoneNumber {
+    
+    main: boolean;
+    
+    
+    phoneType: string;
+    
+    
+    number: string;
+    
+    canText: boolean;
+    
+    canCall: boolean;
+}
+
+export function phoneNumberDefaultValue(): PhoneNumber {
+                        return {
+main: false,
+phoneType: "",
+number: "",
+canText: false,
+canCall: false,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function phoneNumberSerialize(value: PhoneNumber, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = phoneNumberSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function phoneNumberSerializeWithContext(value: PhoneNumber, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "PhoneNumber",
+                        __id,
+                    };result.main = value.main;result.phoneType = value.phoneType;result.number = value.number;result.canText = value.canText;result.canCall = value.canCall;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function phoneNumberDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = phoneNumberDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PhoneNumber.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function phoneNumberDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PhoneNumber | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "PhoneNumber.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("main" in obj)) {
+                            errors.push({ field: "main", message: "missing required field" });
+                        }if (!("phoneType" in obj)) {
+                            errors.push({ field: "phoneType", message: "missing required field" });
+                        }if (!("number" in obj)) {
+                            errors.push({ field: "number", message: "missing required field" });
+                        }if (!("canText" in obj)) {
+                            errors.push({ field: "canText", message: "missing required field" });
+                        }if (!("canCall" in obj)) {
+                            errors.push({ field: "canCall", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_main = obj["main"] as boolean;instance.main = __raw_main;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_phoneType = obj["phoneType"] as string;
+                                            if (__raw_phoneType == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+if (__raw_phoneType.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
+}
+instance.phoneType = __raw_phoneType;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_number = obj["number"] as string;
+                                            if (__raw_number == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+if (__raw_number.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
+}
+instance.number = __raw_number;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_canText = obj["canText"] as boolean;instance.canText = __raw_canText;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_canCall = obj["canCall"] as boolean;instance.canCall = __raw_canCall;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as PhoneNumber;
+            }
+
+            export function phoneNumberValidateField<K extends keyof PhoneNumber>(
+                _field: K,
+                _value: PhoneNumber[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "phoneType") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
+}
+
+
+                }
+                if (_field === "number") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function phoneNumberValidateFields(
+                _partial: Partial<PhoneNumber>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("phoneType" in _partial && _partial.phoneType !== undefined) {
+                    const __val = _partial.phoneType as string;
+                    if (__val == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
+}
+
+
+                }
+                if ("number" in _partial && _partial.number !== undefined) {
+                    const __val = _partial.number as string;
+                    if (__val == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function phoneNumberHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "main" in o && "phoneType" in o && "number" in o && "canText" in o && "canCall" in o;
+            }
+
+            export function phoneNumberIs(obj: unknown): obj is PhoneNumber {
+                if (!phoneNumberHasShape(obj)) {
+                    return false;
+                }
+                const result = phoneNumberDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type PhoneNumberErrors = {
+            _errors: Option.Option<Array<string>>;
+            main: Option.Option<Array<string>>;
+            phoneType: Option.Option<Array<string>>;
+            number: Option.Option<Array<string>>;
+            canText: Option.Option<Array<string>>;
+            canCall: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type PhoneNumberTainted = {
+            main: Option.Option<boolean>;
+            phoneType: Option.Option<boolean>;
+            number: Option.Option<boolean>;
+            canText: Option.Option<boolean>;
+            canCall: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface PhoneNumberFieldControllers {
+            readonly main: FieldController<boolean>;
+            readonly phoneType: FieldController<string>;
+            readonly number: FieldController<string>;
+            readonly canText: FieldController<boolean>;
+            readonly canCall: FieldController<boolean>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface PhoneNumberGigaform {
+            readonly data: PhoneNumber;
+            readonly errors: PhoneNumberErrors;
+            readonly tainted: PhoneNumberTainted;
+            readonly fields: PhoneNumberFieldControllers;
+            validate(): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<PhoneNumber>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNumberGigaform {
+            let data = $state({ ...phoneNumberDefaultValue(), ...overrides });
+            let errors = $state<PhoneNumberErrors>({
+                _errors: Option.none(),
+                main: Option.none(),
+                phoneType: Option.none(),
+                number: Option.none(),
+                canText: Option.none(),
+                canCall: Option.none(),
+
+
+            });
+            let tainted = $state<PhoneNumberTainted>({
+                main: Option.none(),
+                phoneType: Option.none(),
+                number: Option.none(),
+                canText: Option.none(),
+                canCall: Option.none(),
+
+
+            });
+            const fields = {
+            
+                main: {
+            name: "main",
+            label: "Main",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["main"],
+            get: () => data.main,
+            set: (value: boolean) => { data.main = value; },
+            getError: () => errors.main,
+            setError: (value: Option.Option<Array<string>>) => { errors.main = value; },
+            getTainted: () => tainted.main,
+            setTainted: (value: Option.Option<boolean>) => { tainted.main = value; },
+            validate: () => phoneNumberValidateField("main", data.main).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                phoneType: {
+            name: "phoneType",
+            label: "Phone Type",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["phoneType"],
+            get: () => data.phoneType,
+            set: (value: string) => { data.phoneType = value; },
+            getError: () => errors.phoneType,
+            setError: (value: Option.Option<Array<string>>) => { errors.phoneType = value; },
+            getTainted: () => tainted.phoneType,
+            setTainted: (value: Option.Option<boolean>) => { tainted.phoneType = value; },
+            validate: () => phoneNumberValidateField("phoneType", data.phoneType).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                number: {
+            name: "number",
+            label: "Number",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["number"],
+            get: () => data.number,
+            set: (value: string) => { data.number = value; },
+            getError: () => errors.number,
+            setError: (value: Option.Option<Array<string>>) => { errors.number = value; },
+            getTainted: () => tainted.number,
+            setTainted: (value: Option.Option<boolean>) => { tainted.number = value; },
+            validate: () => phoneNumberValidateField("number", data.number).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                canText: {
+            name: "canText",
+            label: "Can Text",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["canText"],
+            get: () => data.canText,
+            set: (value: boolean) => { data.canText = value; },
+            getError: () => errors.canText,
+            setError: (value: Option.Option<Array<string>>) => { errors.canText = value; },
+            getTainted: () => tainted.canText,
+            setTainted: (value: Option.Option<boolean>) => { tainted.canText = value; },
+            validate: () => phoneNumberValidateField("canText", data.canText).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                canCall: {
+            name: "canCall",
+            label: "Can Call",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["canCall"],
+            get: () => data.canCall,
+            set: (value: boolean) => { data.canCall = value; },
+            getError: () => errors.canCall,
+            setError: (value: Option.Option<Array<string>>) => { errors.canCall = value; },
+            getTainted: () => tainted.canCall,
+            setTainted: (value: Option.Option<boolean>) => { tainted.canCall = value; },
+            validate: () => phoneNumberValidateField("canCall", data.canCall).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as PhoneNumberFieldControllers;
+
+
+            function validate(): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>> {
+                return toExit(phoneNumberDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<PhoneNumber>): void {
+                data = { ...phoneNumberDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            main: Option.none(),
+            phoneType: Option.none(),
+            number: Option.none(),
+            canText: Option.none(),
+            canCall: Option.none(),
+
+
+        };
+                tainted = {
+            main: Option.none(),
+            phoneType: Option.none(),
+            number: Option.none(),
+            canText: Option.none(),
+            canCall: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function phoneNumberFromFormData(formData: FormData): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const mainVal = formData.get("main");
+                    obj.main = mainVal === "true" || mainVal === "on" || mainVal === "1";
+                }
+            obj.phoneType = formData.get("phoneType") ?? "";
+            obj.number = formData.get("number") ?? "";
+            {
+                    const canTextVal = formData.get("canText");
+                    obj.canText = canTextVal === "true" || canTextVal === "on" || canTextVal === "1";
+                }
+            {
+                    const canCallVal = formData.get("canCall");
+                    obj.canCall = canCallVal === "true" || canCallVal === "on" || canCallVal === "1";
+                }
+
+
+            return toExit(phoneNumberDeserialize(obj));
+        }
+
+export const PhoneNumber = {
+  defaultValue: phoneNumberDefaultValue,
+  serialize: phoneNumberSerialize,
+  serializeWithContext: phoneNumberSerializeWithContext,
+  deserialize: phoneNumberDeserialize,
+  deserializeWithContext: phoneNumberDeserializeWithContext,
+  validateFields: phoneNumberValidateFields,
+  hasShape: phoneNumberHasShape,
+  is: phoneNumberIs,
+  createForm: phoneNumberCreateForm,
+  fromFormData: phoneNumberFromFormData
+} as const;
+
+## DTS
+
+/** import macro {Gigaform} from "@playground/macro"; */
+
+
+export interface PhoneNumber {
+    
+    main: boolean;
+    
+    
+    phoneType: string;
+    
+    
+    number: string;
+    
+    canText: boolean;
+    
+    canCall: boolean;
+}
+
+export function phoneNumberDefaultValue(): PhoneNumber {
+                        return {
+main: false,
+phoneType: "",
+number: "",
+canText: false,
+canCall: false,
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function phoneNumberSerialize(value: PhoneNumber, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = phoneNumberSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function phoneNumberSerializeWithContext(value: PhoneNumber, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "PhoneNumber",
+                        __id,
+                    };result.main = value.main;result.phoneType = value.phoneType;result.number = value.number;result.canText = value.canText;result.canCall = value.canCall;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
+            export function phoneNumberDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DeserializeContext.create();
+                    const resultOrRef = phoneNumberDeserializeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "PhoneNumber.deserialize: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DeserializeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
+            export function phoneNumberDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PhoneNumber | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DeserializeError([{ field: "_root", message: "PhoneNumber.deserializeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("main" in obj)) {
+                            errors.push({ field: "main", message: "missing required field" });
+                        }if (!("phoneType" in obj)) {
+                            errors.push({ field: "phoneType", message: "missing required field" });
+                        }if (!("number" in obj)) {
+                            errors.push({ field: "number", message: "missing required field" });
+                        }if (!("canText" in obj)) {
+                            errors.push({ field: "canText", message: "missing required field" });
+                        }if (!("canCall" in obj)) {
+                            errors.push({ field: "canCall", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_main = obj["main"] as boolean;instance.main = __raw_main;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_phoneType = obj["phoneType"] as string;
+                                            if (__raw_phoneType == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+if (__raw_phoneType.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
+}
+instance.phoneType = __raw_phoneType;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_number = obj["number"] as string;
+                                            if (__raw_number == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+if (__raw_number.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
+}
+instance.number = __raw_number;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_canText = obj["canText"] as boolean;instance.canText = __raw_canText;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_canCall = obj["canCall"] as boolean;instance.canCall = __raw_canCall;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as PhoneNumber;
+            }
+
+            export function phoneNumberValidateField<K extends keyof PhoneNumber>(
+                _field: K,
+                _value: PhoneNumber[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "phoneType") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
+}
+
+
+                }
+                if (_field === "number") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function phoneNumberValidateFields(
+                _partial: Partial<PhoneNumber>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("phoneType" in _partial && _partial.phoneType !== undefined) {
+                    const __val = _partial.phoneType as string;
+                    if (__val == null) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "phoneType", message: "PhoneNumber.phoneType must not be empty" }); }
+}
+
+
+                }
+                if ("number" in _partial && _partial.number !== undefined) {
+                    const __val = _partial.number as string;
+                    if (__val == null) { errors.push({ field: "number", message: "PhoneNumber.number is required" }); } else {
+if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.number must not be empty" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function phoneNumberHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "main" in o && "phoneType" in o && "number" in o && "canText" in o && "canCall" in o;
+            }
+
+            export function phoneNumberIs(obj: unknown): obj is PhoneNumber {
+                if (!phoneNumberHasShape(obj)) {
+                    return false;
+                }
+                const result = phoneNumberDeserialize(obj);
+                return result.success;
+            }
+
+/** Nested error structure matching the data shape  */
+        export type PhoneNumberErrors = {
+            _errors: Option.Option<Array<string>>;
+            main: Option.Option<Array<string>>;
+            phoneType: Option.Option<Array<string>>;
+            number: Option.Option<Array<string>>;
+            canText: Option.Option<Array<string>>;
+            canCall: Option.Option<Array<string>>;
+
+
+        };
+
+        /** Nested boolean structure for tracking touched/dirty fields  */
+        export type PhoneNumberTainted = {
+            main: Option.Option<boolean>;
+            phoneType: Option.Option<boolean>;
+            number: Option.Option<boolean>;
+            canText: Option.Option<boolean>;
+            canCall: Option.Option<boolean>;
+
+
+        };
+
+        /** Type-safe field controllers for this form  */
+        export interface PhoneNumberFieldControllers {
+            readonly main: FieldController<boolean>;
+            readonly phoneType: FieldController<string>;
+            readonly number: FieldController<string>;
+            readonly canText: FieldController<boolean>;
+            readonly canCall: FieldController<boolean>;
+
+
+
+
+
+
+
+        }
+
+        /** Gigaform instance containing reactive state and field controllers  */
+        export interface PhoneNumberGigaform {
+            readonly data: PhoneNumber;
+            readonly errors: PhoneNumberErrors;
+            readonly tainted: PhoneNumberTainted;
+            readonly fields: PhoneNumberFieldControllers;
+            validate(): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<PhoneNumber>): void;
+        }
+/** Creates a new Gigaform instance with reactive state and field controllers.  */
+        export function phoneNumberCreateForm(overrides?: Partial<PhoneNumber>): PhoneNumberGigaform {
+            let data = $state({ ...phoneNumberDefaultValue(), ...overrides });
+            let errors = $state<PhoneNumberErrors>({
+                _errors: Option.none(),
+                main: Option.none(),
+                phoneType: Option.none(),
+                number: Option.none(),
+                canText: Option.none(),
+                canCall: Option.none(),
+
+
+            });
+            let tainted = $state<PhoneNumberTainted>({
+                main: Option.none(),
+                phoneType: Option.none(),
+                number: Option.none(),
+                canText: Option.none(),
+                canCall: Option.none(),
+
+
+            });
+            const fields = {
+            
+                main: {
+            name: "main",
+            label: "Main",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["main"],
+            get: () => data.main,
+            set: (value: boolean) => { data.main = value; },
+            getError: () => errors.main,
+            setError: (value: Option.Option<Array<string>>) => { errors.main = value; },
+            getTainted: () => tainted.main,
+            setTainted: (value: Option.Option<boolean>) => { tainted.main = value; },
+            validate: () => phoneNumberValidateField("main", data.main).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                phoneType: {
+            name: "phoneType",
+            label: "Phone Type",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["phoneType"],
+            get: () => data.phoneType,
+            set: (value: string) => { data.phoneType = value; },
+            getError: () => errors.phoneType,
+            setError: (value: Option.Option<Array<string>>) => { errors.phoneType = value; },
+            getTainted: () => tainted.phoneType,
+            setTainted: (value: Option.Option<boolean>) => { tainted.phoneType = value; },
+            validate: () => phoneNumberValidateField("phoneType", data.phoneType).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                number: {
+            name: "number",
+            label: "Number",
+            type: "text",
+            optional: false,
+            array: false,
+            path: ["number"],
+            get: () => data.number,
+            set: (value: string) => { data.number = value; },
+            getError: () => errors.number,
+            setError: (value: Option.Option<Array<string>>) => { errors.number = value; },
+            getTainted: () => tainted.number,
+            setTainted: (value: Option.Option<boolean>) => { tainted.number = value; },
+            validate: () => phoneNumberValidateField("number", data.number).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                canText: {
+            name: "canText",
+            label: "Can Text",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["canText"],
+            get: () => data.canText,
+            set: (value: boolean) => { data.canText = value; },
+            getError: () => errors.canText,
+            setError: (value: Option.Option<Array<string>>) => { errors.canText = value; },
+            getTainted: () => tainted.canText,
+            setTainted: (value: Option.Option<boolean>) => { tainted.canText = value; },
+            validate: () => phoneNumberValidateField("canText", data.canText).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+            
+                canCall: {
+            name: "canCall",
+            label: "Can Call",
+            type: "checkbox",
+            optional: false,
+            array: false,
+            path: ["canCall"],
+            get: () => data.canCall,
+            set: (value: boolean) => { data.canCall = value; },
+            getError: () => errors.canCall,
+            setError: (value: Option.Option<Array<string>>) => { errors.canCall = value; },
+            getTainted: () => tainted.canCall,
+            setTainted: (value: Option.Option<boolean>) => { tainted.canCall = value; },
+            validate: () => phoneNumberValidateField("canCall", data.canCall).map((e: { field: string; message: string }) => e.message),
+            
+            constraints: {},
+            
+            
+            disabled: false,
+            readonly: false,
+        },
+
+
+
+        } as unknown as PhoneNumberFieldControllers;
+
+
+            function validate(): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>> {
+                return toExit(phoneNumberDeserialize(data));
+            }
+
+
+            function reset(newOverrides?: Partial<PhoneNumber>): void {
+                data = { ...phoneNumberDefaultValue(), ...newOverrides };
+                errors = {
+            _errors: Option.none(),
+            main: Option.none(),
+            phoneType: Option.none(),
+            number: Option.none(),
+            canText: Option.none(),
+            canCall: Option.none(),
+
+
+        };
+                tainted = {
+            main: Option.none(),
+            phoneType: Option.none(),
+            number: Option.none(),
+            canText: Option.none(),
+            canCall: Option.none(),
+
+
+        };
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+        export function phoneNumberFromFormData(formData: FormData): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>> {
+            const obj: Record<string, unknown> = {};
+
+            
+            {
+                    const mainVal = formData.get("main");
+                    obj.main = mainVal === "true" || mainVal === "on" || mainVal === "1";
+                }
+            obj.phoneType = formData.get("phoneType") ?? "";
+            obj.number = formData.get("number") ?? "";
+            {
+                    const canTextVal = formData.get("canText");
+                    obj.canText = canTextVal === "true" || canTextVal === "on" || canTextVal === "1";
+                }
+            {
+                    const canCallVal = formData.get("canCall");
+                    obj.canCall = canCallVal === "true" || canCallVal === "on" || canCallVal === "1";
+                }
+
+
+            return toExit(phoneNumberDeserialize(obj));
+        }
+
+export const PhoneNumber = {
+  defaultValue: phoneNumberDefaultValue,
+  serialize: phoneNumberSerialize,
+  serializeWithContext: phoneNumberSerializeWithContext,
+  deserialize: phoneNumberDeserialize,
+  deserializeWithContext: phoneNumberDeserializeWithContext,
+  validateFields: phoneNumberValidateFields,
+  hasShape: phoneNumberHasShape,
+  is: phoneNumberIs,
+  createForm: phoneNumberCreateForm,
+  fromFormData: phoneNumberFromFormData
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..58 -> expanded 0..58
+original 115..151 -> expanded 58..94
+original 194..218 -> expanded 94..118
+original 288..293 -> expanded 118..123
+original 334..362 -> expanded 123..151
+original 405..410 -> expanded 151..156
+original 451..476 -> expanded 156..181
+original 523..550 -> expanded 181..208
+original 597..621 -> expanded 208..232
+original 621..622 -> expanded 21463..21464
+generated 232..420 <- Default
+generated 420..2088 <- Serialize
+generated 2088..11801 <- Deserialize
+generated 11801..21012 <- Gigaform
+generated 21012..21463 <- __convenience_const
+
+## Metadata
+
+interface PhoneNumber: {"body_span":{"end":622,"start":146},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Main\" }","name":"switchController","span":{"end":195,"start":152}}],"name":"main","optional":false,"readonly":false,"span":{"end":214,"start":200},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":335,"start":294}},{"args_src":"{ label: \"Phone Type\", allowCustom: true }","name":"comboboxController","span":{"end":289,"start":219}}],"name":"phoneType","optional":false,"readonly":false,"span":{"end":358,"start":340},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":452,"start":411}},{"args_src":"{ label: \"Number\" }","name":"textController","span":{"end":406,"start":363}}],"name":"number","optional":false,"readonly":false,"span":{"end":472,"start":457},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Can Text\" }","name":"switchController","span":{"end":524,"start":477}}],"name":"canText","optional":false,"readonly":false,"span":{"end":546,"start":529},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Can Call\" }","name":"switchController","span":{"end":598,"start":551}}],"name":"canCall","optional":false,"readonly":false,"span":{"end":620,"start":603},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"PhoneNumber","span":{"end":622,"start":124},"type_params":[]}
+
+## Registry reads
+
+Name("boolean")
+Name("string")
+
+## Buildtime dependencies
+
+(none)

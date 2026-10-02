@@ -1,0 +1,217 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/form-model.ts
+sha256 21c8d6de9f1c33cb6932ed37a487a067620eca91e87e132154a2156a9ea4c5b4
+
+## Changed
+
+true
+
+## Output
+
+/** import macro { Inspect } from "@playground/macro"; */
+
+/**
+ * Example class using the Inspect macro to test macroforge edge cases.
+ *
+ * Tests:
+ * - Generic type parameters (T | null for optional fields)
+ * - Optional fields
+ * - Array types
+ * - Conditional logic in templates
+ * - Field decorators with arguments (@inspect, @label)
+ * - Static methods (fieldMetadata)
+ * - Instance methods (getInspectableFields, cloneArrayFields, countPopulatedFields)
+ */
+/** @derive(Inspect) */
+export class FormModel {
+    /** @inspect @label("Memo Notes") */
+    memo: string | null;
+
+    /** @label("User Name") */
+    username: string;
+
+    /** @inspect @label("Description Text") */
+    description: string;
+
+    /** @inspect */
+    tags: Array<string>;
+
+    metadata: Record<string, unknown> | null;
+
+    constructor(
+        memo: string | null,
+        username: string,
+        description: string,
+        tags: Array<string> = [],
+        metadata: Record<string, unknown> | null = null
+    ) {
+        this.memo = memo;
+        this.username = username;
+        this.description = description;
+        this.tags = tags;
+        this.metadata = metadata;
+    }
+
+/** Returns field metadata for inspection  */
+                static fieldMetadata(): Array<{ name: string; label: string; optional: boolean; array: boolean; type: string }> {
+                    const arr: Array<{ name: string; label: string; optional: boolean; array: boolean; type: string }> = [];
+                    arr.push({ name: "memo", label: "Memo Notes", optional: true, array: false, type: "string | null" });arr.push({ name: "username", label: "User Name", optional: false, array: false, type: "string" });arr.push({ name: "description", label: "Description Text", optional: false, array: false, type: "string" });arr.push({ name: "tags", label: "Tags", optional: false, array: true, type: "Array<string>" });arr.push({ name: "metadata", label: "Metadata", optional: true, array: false, type: "Record<string, unknown> | null" });
+                    return arr;
+                }
+
+                /** Returns only the inspectable fields  */
+                getInspectableFields(): Record<string, unknown> {
+                    const result: Record<string, unknown> = {};
+                    result["memo"] = this.memo;result["description"] = this.description;result["tags"] = this.tags;
+                    return result;
+                }
+
+                /** Deep clones only array fields  */
+                cloneArrayFields(): Partial<FormModel> {
+                    const result: Partial<FormModel> = {};
+                    result.tags = [...(this.tags ?? [])] as Partial<FormModel>["tags"];
+                    return result;
+                }
+
+                /** Returns non-null field count  */
+                countPopulatedFields(): number {
+                    let count = 0;
+                    if (this.memo != null) count++;count++;count++;count++;if (this.metadata != null) count++;
+                    return count;
+                }}
+
+// Test the generated methods
+const model = new FormModel('Test memo', 'johndoe', 'A test description', [
+    'tag1',
+    'tag2'
+]);
+
+// Test static method - fieldMetadata()
+const metadata = FormModel.fieldMetadata();
+console.log('Field metadata:', metadata);
+
+// Test instance method - getInspectableFields()
+const inspectable = model.getInspectableFields();
+console.log('Inspectable fields:', inspectable);
+
+// Test instance method - cloneArrayFields()
+const clonedArrays = model.cloneArrayFields();
+console.log('Cloned arrays:', clonedArrays);
+
+// Test instance method - countPopulatedFields()
+const populatedCount = model.countPopulatedFields();
+console.log('Populated field count:', populatedCount);
+
+## DTS
+
+/** import macro { Inspect } from "@playground/macro"; */
+
+/**
+ * Example class using the Inspect macro to test macroforge edge cases.
+ *
+ * Tests:
+ * - Generic type parameters (T | null for optional fields)
+ * - Optional fields
+ * - Array types
+ * - Conditional logic in templates
+ * - Field decorators with arguments (@inspect, @label)
+ * - Static methods (fieldMetadata)
+ * - Instance methods (getInspectableFields, cloneArrayFields, countPopulatedFields)
+ */
+/** @derive(Inspect) */
+export class FormModel {
+    /** @inspect @label("Memo Notes") */
+    memo: string | null;
+
+    /** @label("User Name") */
+    username: string;
+
+    /** @inspect @label("Description Text") */
+    description: string;
+
+    /** @inspect */
+    tags: Array<string>;
+
+    metadata: Record<string, unknown> | null;
+
+    constructor(memo: string | null,
+        username: string,
+        description: string,
+        tags: Array<string> = [],
+        metadata: Record<string, unknown> | null = null);
+
+/** Returns field metadata for inspection  */
+                static fieldMetadata(): Array<{ name: string; label: string; optional: boolean; array: boolean; type: string }> {
+                    const arr: Array<{ name: string; label: string; optional: boolean; array: boolean; type: string }> = [];
+                    arr.push({ name: "memo", label: "Memo Notes", optional: true, array: false, type: "string | null" });arr.push({ name: "username", label: "User Name", optional: false, array: false, type: "string" });arr.push({ name: "description", label: "Description Text", optional: false, array: false, type: "string" });arr.push({ name: "tags", label: "Tags", optional: false, array: true, type: "Array<string>" });arr.push({ name: "metadata", label: "Metadata", optional: true, array: false, type: "Record<string, unknown> | null" });
+                    return arr;
+                }
+
+                /** Returns only the inspectable fields  */
+                getInspectableFields(): Record<string, unknown> {
+                    const result: Record<string, unknown> = {};
+                    result["memo"] = this.memo;result["description"] = this.description;result["tags"] = this.tags;
+                    return result;
+                }
+
+                /** Deep clones only array fields  */
+                cloneArrayFields(): Partial<FormModel> {
+                    const result: Partial<FormModel> = {};
+                    result.tags = [...(this.tags ?? [])] as Partial<FormModel>["tags"];
+                    return result;
+                }
+
+                /** Returns non-null field count  */
+                countPopulatedFields(): number {
+                    let count = 0;
+                    if (this.memo != null) count++;count++;count++;count++;if (this.metadata != null) count++;
+                    return count;
+                }}
+
+// Test the generated methods
+const model = new FormModel('Test memo', 'johndoe', 'A test description', [
+    'tag1',
+    'tag2'
+]);
+
+// Test static method - fieldMetadata()
+const metadata = FormModel.fieldMetadata();
+console.log('Field metadata:', metadata);
+
+// Test instance method - getInspectableFields()
+const inspectable = model.getInspectableFields();
+console.log('Inspectable fields:', inspectable);
+
+// Test instance method - cloneArrayFields()
+const clonedArrays = model.cloneArrayFields();
+console.log('Cloned arrays:', clonedArrays);
+
+// Test instance method - countPopulatedFields()
+const populatedCount = model.countPopulatedFields();
+console.log('Populated field count:', populatedCount);
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..1164 -> expanded 0..1164
+original 1164..1872 -> expanded 3031..3739
+generated 1164..3031 <- Inspect
+
+## Metadata
+
+class FormModel: {"body_span":{"end":1166,"start":511},"decorators":[{"args_src":"Inspect","name":"Derive","span":{"end":487,"start":464}}],"fields":[{"decorators":[{"args_src":"","name":"inspect","span":{"end":553,"start":517}},{"args_src":"\"Memo Notes\"","name":"label","span":{"end":553,"start":517}}],"name":"memo","optional":false,"readonly":false,"span":{"end":578,"start":558},"ts_type":"string | null","visibility":"Public"},{"decorators":[{"args_src":"\"User Name\"","name":"label","span":{"end":610,"start":584}}],"name":"username","optional":false,"readonly":false,"span":{"end":632,"start":615},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"","name":"inspect","span":{"end":680,"start":638}},{"args_src":"\"Description Text\"","name":"label","span":{"end":680,"start":638}}],"name":"description","optional":false,"readonly":false,"span":{"end":705,"start":685},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"","name":"inspect","span":{"end":726,"start":711}}],"name":"tags","optional":false,"readonly":false,"span":{"end":751,"start":731},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":798,"start":757},"ts_type":"Record<string, unknown> | null","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":1164,"start":997},"body_src":"\n        this.memo = memo;\n        this.username = username;\n        this.description = description;\n        this.tags = tags;\n        this.metadata = metadata;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"memo: string | null,\n        username: string,\n        description: string,\n        tags: Array<string> = [],\n        metadata: Record<string, unknown> | null = null","return_type_src":"","span":{"end":1164,"start":804},"type_params_src":"","visibility":"Public"}],"name":"FormModel","span":{"end":1166,"start":495},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

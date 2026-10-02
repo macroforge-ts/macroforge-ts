@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/enum_multiple_all.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_multiple_all.ts
 ---
 ## Input
 
@@ -11,6 +10,10 @@ enum Status {
     Active = 'active',
     Inactive = 'inactive'
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -187,5 +190,29 @@ namespace Status {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 69..134 -> expanded 0..65
+original 134..135 -> expanded 2969..2970
+generated 65..399 <- Debug
+generated 399..505 <- Clone
+generated 505..622 <- PartialEq
+generated 622..941 <- Hash
+generated 941..1404 <- Serialize
+generated 1404..2531 <- Deserialize
+generated 2531..2969 <- __convenience_const
+
+## Metadata
+
+enum Status: {"body_span":{"end":135,"start":83},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":70,"start":1}}],"is_const":false,"name":"Status","span":{"end":135,"start":71},"variants":[{"decorators":[],"name":"Active","span":{"end":106,"start":89},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":133,"start":112},"value":{"String":"inactive"}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

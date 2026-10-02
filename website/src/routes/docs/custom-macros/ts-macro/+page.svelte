@@ -1,6 +1,7 @@
 <script lang="ts">
     import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
     import Alert from '$lib/components/ui/Alert.svelte';
+    import { resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -14,7 +15,7 @@
 <h1>ts_macro</h1>
 
 <p class="lead">
-    <code>#[ts_macro]</code> registers a function-like macro — the
+    <code>#[ts_macro]</code> registers a function-like macro: the
     TypeScript equivalent of Rust's <code>#[proc_macro]</code>. Users
     invoke it as <code>$name(args)</code> in their source; the macro
     receives the argument text as a <code>TsStream</code> and emits a
@@ -52,7 +53,7 @@ export const quoted = "1 + 2 * 3";`}
     <p>
         The <code>$</code> prefix at call sites distinguishes macro
         invocations from regular function calls. The prefix is purely
-        syntactic — the macro name itself (as declared in
+        syntactic: the macro name itself (as declared in
         <code>#[ts_macro(name)]</code>) does not contain it.
     </p>
 </Alert>
@@ -124,7 +125,23 @@ pub fn concat_names_macro(input: TsStream) -> Result<TsStream, MacroforgeError> 
 <p>
     Call-macro expansion works by replacing the entire
     <code>$name(...)</code> span with the returned stream's source.
-    The engine inlines the output verbatim — no auto-wrapping.
+    The engine inlines the output verbatim, with no auto-wrapping.
+</p>
+
+<h2 id="what-a-call-macro-sees">What a Call Macro Sees</h2>
+
+<p>
+    <code>input.source()</code> is the text between the parentheses. The
+    context is minimal: its target is <code>TargetIR::Other</code>, and the
+    file name, config and type registry are empty, so a call macro works from
+    its arguments alone.
+</p>
+
+<p>
+    Imports the macro adds with <code>add_import</code> and its siblings are
+    written at the top of the file, like a derive's; see
+    <a href={resolve('/docs/custom-macros/output#imports')}>Output and Imports</a>.
+    Its warnings and errors are reported at the call.
 </p>
 
 <h2 id="no-op-exports">No-op Exports</h2>
@@ -176,7 +193,7 @@ const k = $concat_names(user, name);`}
 
 <h2 id="examples">Complete Examples</h2>
 
-<h3>$stringify — quote source text</h3>
+<h3>$stringify: quote source text</h3>
 
 <CodeBlock
     code={`#[ts_macro(stringify)]
@@ -190,7 +207,7 @@ pub fn stringify_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
     lang="rust"
 />
 
-<h3>$state — Svelte-runes-style reactive signal</h3>
+<h3>$state: Svelte-runes-style reactive signal</h3>
 
 <CodeBlock
     code={`#[ts_macro(state)]

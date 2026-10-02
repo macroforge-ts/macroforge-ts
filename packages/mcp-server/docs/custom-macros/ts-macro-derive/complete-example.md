@@ -41,7 +41,7 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, Macroforg
             }))
         }
         _ => Err(MacroforgeError::new(
-            input.decorator_span(),
+            input.error_span(),
             "@derive(Validate) only works on classes",
         )),
     }
@@ -51,3 +51,8 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, Macroforg
 ## Next Steps
 
 - [Learn the template syntax](../../docs/custom-macros/ts-quote)
+- [Output and Imports](../../docs/custom-macros/output)
+- [Context and IR](../../docs/custom-macros/context-and-ir)
+- [Type-Aware Macros](../../docs/custom-macros/type-aware)
+- [Errors and Diagnostics](../../docs/custom-macros/diagnostics)
+- [Testing and Debugging](../../docs/custom-macros/testing-and-debugging)

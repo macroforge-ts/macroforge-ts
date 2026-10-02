@@ -5,8 +5,10 @@
 //! `macroforge.config.*`. Outside such a project nothing is written. The file
 //! is created on first write and appended to thereafter.
 //!
-//! On WASM (`wasm32-unknown-unknown`), falls back to `eprintln!` since there
-//! is no filesystem access.
+//! On WASM (`wasm32-unknown-unknown`) there is no filesystem, so lines are
+//! held until they can leave: a macro package hands them back with its
+//! result, for the host to log, and the wasm core prints its own to the
+//! JavaScript console.
 //!
 //! # Usage
 //!
@@ -24,9 +26,53 @@
 //! macroforge_ts::debug_log!("MyMacro", "processing {type_name} with {n} fields");
 //! ```
 
-use std::fmt::Write as FmtWrite;
-
 use crate::ts_syn::abi::{MacroContextIR, MacroResult, TargetIR};
+
+#[cfg(target_arch = "wasm32")]
+thread_local! {
+    /// Lines logged on wasm, waiting for [`take_pending`].
+    static PENDING: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Holds `text`'s lines until they can leave the wasm instance.
+#[cfg(target_arch = "wasm32")]
+fn hold(text: &str) {
+    PENDING.with(|pending| {
+        pending
+            .borrow_mut()
+            .extend(text.lines().map(str::to_string))
+    });
+}
+
+/// The lines logged on wasm since the last call. Always empty natively,
+/// where lines are written as they are logged.
+#[doc(hidden)]
+pub fn take_pending() -> Vec<String> {
+    #[cfg(target_arch = "wasm32")]
+    {
+        PENDING.with(|pending| std::mem::take(&mut *pending.borrow_mut()))
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        Vec::new()
+    }
+}
+
+/// Moves the lines logged while a macro ran onto its result, so they leave
+/// the wasm instance with it. Called by the code `#[ts_macro_derive]` and
+/// its siblings generate.
+#[doc(hidden)]
+pub fn attach_pending(result: &mut MacroResult) {
+    let pending = take_pending();
+    if pending.is_empty() {
+        return;
+    }
+    let lines = pending.join("\n");
+    result.debug = Some(match result.debug.take() {
+        Some(existing) => format!("{existing}\n{lines}"),
+        None => lines,
+    });
+}
 
 #[cfg(not(target_arch = "wasm32"))]
 mod fs_log {
@@ -128,7 +174,7 @@ pub fn log(tag: &str, msg: &str) {
     }
     #[cfg(target_arch = "wasm32")]
     {
-        eprintln!("{}", line.trim_end());
+        hold(&line);
     }
 }
 
@@ -147,7 +193,7 @@ pub(crate) fn log_for_file(file: &str, tag: &str, msgs: &[String]) {
     }
     #[cfg(target_arch = "wasm32")]
     {
-        eprint!("{file}:\n{text}");
+        hold(&format!("{file}:\n{text}"));
     }
 }
 
@@ -168,9 +214,7 @@ pub fn log_ctx(tag: &str, ctx: &MacroContextIR) {
         _ => 0,
     };
 
-    let mut buf = String::new();
-    let _ = write!(
-        buf,
+    let summary = format!(
         "ctx {{ macro: {}::{}, file: {}, target: {} ({} fields), span: {}-{} }}",
         ctx.module_path,
         ctx.macro_name,
@@ -180,14 +224,12 @@ pub fn log_ctx(tag: &str, ctx: &MacroContextIR) {
         ctx.decorator_span.start,
         ctx.decorator_span.end,
     );
-    log(tag, &buf);
+    log(tag, &summary);
 }
 
 /// Log a `MacroResult` summary (patch counts, diagnostic counts, token length).
 pub fn log_result(tag: &str, result: &MacroResult) {
-    let mut buf = String::new();
-    let _ = write!(
-        buf,
+    let mut buf = format!(
         "result {{ runtime_patches: {}, type_patches: {}, tokens: {}, diagnostics: {} }}",
         result.runtime_patches.len(),
         result.type_patches.len(),
@@ -200,9 +242,9 @@ pub fn log_result(tag: &str, result: &MacroResult) {
     );
 
     for diag in &result.diagnostics {
-        let _ = write!(buf, "\n  [{:?}] {}", diag.level, diag.message);
+        buf.push_str(&format!("\n  [{:?}] {}", diag.level, diag.message));
         if let Some(help) = &diag.help {
-            let _ = write!(buf, " (help: {help})");
+            buf.push_str(&format!(" (help: {help})"));
         }
     }
 

@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/type_alias_deserialize.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_deserialize.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ type Settings = {
     theme: string;
     language: string;
 };
+
+## Changed
+
+true
 
 ## Output
 
@@ -108,9 +112,6 @@ type Settings = {
 
                 ctx.trackForFreeze(instance);{
                                 const __raw_theme = obj["theme"] as string;instance.theme = __raw_theme;
-
-
-
 
 
 
@@ -485,16 +486,7 @@ type Settings = {
 
 
 
-
-
-
                             }
-
-
-
-
-
-
 
 
 
@@ -1263,14 +1255,8 @@ type Settings = {
 
 
 
-
-
-
                             }{
                                 const __raw_language = obj["language"] as string;instance.language = __raw_language;
-
-
-
 
 
 
@@ -1882,12 +1868,6 @@ type Settings = {
 
 
 
-
-
-
-
-
-
                 ctx.pushErrors(errors);
 
                 return instance as Settings;
@@ -1955,5 +1935,24 @@ const Settings = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 27..89 -> expanded 0..62
+original 89..90 -> expanded 5513..5514
+generated 62..5298 <- Deserialize
+generated 5298..5513 <- __convenience_const
+
+## Metadata
+
+type Settings: {"body":{"Object":{"fields":[{"decorators":[],"name":"theme","optional":false,"readonly":false,"span":{"end":65,"start":51},"ts_type":"string"},{"decorators":[],"name":"language","optional":false,"readonly":false,"span":{"end":87,"start":70},"ts_type":"string"}]}},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":28,"start":1}}],"name":"Settings","span":{"end":90,"start":29},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

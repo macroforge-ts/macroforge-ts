@@ -1,6 +1,4 @@
-use super::descriptors::{
-    DYNAMIC_MODULE_MARKER, DecoratorMetadata, DerivedMacroDescriptor, DerivedMacroRegistration,
-};
+use super::descriptors::{DecoratorMetadata, DerivedMacroDescriptor, DerivedMacroRegistration};
 use crate::host::{MacroRegistry, Result};
 use std::collections::BTreeSet;
 
@@ -48,14 +46,6 @@ pub fn register_module(module: &str, registry: &MacroRegistry) -> Result<bool> {
 
     if descriptors.is_empty() {
         return Ok(false);
-    }
-
-    // Collect runtime entries from all packages (reserved for future use)
-    let mut runtime: BTreeSet<String> = BTreeSet::new();
-    for descriptor in &descriptors {
-        for entry in descriptor.runtime {
-            runtime.insert(entry.to_string());
-        }
     }
 
     // Register all macros - the registry will catch duplicate names
@@ -128,44 +118,4 @@ pub fn lookup_by_name(name: &str) -> Option<&'static DerivedMacroDescriptor> {
         .into_iter()
         .find(|entry| entry.descriptor.name == name)
         .map(|entry| entry.descriptor)
-}
-
-/// Registers all macros with dynamic module support.
-///
-/// For macros registered with `DYNAMIC_MODULE_MARKER`, uses the provided
-/// `actual_module` path instead. This enables a single set of macros to
-/// work with any import path.
-///
-/// # Arguments
-///
-/// * `actual_module` - The module path to use for dynamic macros
-/// * `registry` - The registry to register into
-///
-/// # Returns
-///
-/// The number of macros registered.
-///
-/// # Errors
-///
-/// Returns an error if a macro with the same name is already registered.
-pub fn register_all_with_module(actual_module: &str, registry: &MacroRegistry) -> Result<usize> {
-    let mut count = 0;
-
-    for entry in inventory::iter::<DerivedMacroRegistration> {
-        let descriptor = entry.descriptor;
-
-        // Use the actual module path for dynamic macros,
-        // otherwise use the descriptor's module
-        let module = if descriptor.module == DYNAMIC_MODULE_MARKER {
-            actual_module
-        } else {
-            descriptor.module
-        };
-
-        // Register the macro
-        registry.register(module, descriptor.name, (descriptor.constructor)())?;
-        count += 1;
-    }
-
-    Ok(count)
 }

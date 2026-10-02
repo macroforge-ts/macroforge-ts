@@ -20,7 +20,5 @@ output.add_type_import("ValidationResult", "my-validation-lib");
 Ok(output)
 ```
 
-Note
-
-Imports are automatically deduplicated. If the same import already exists in the file, it won't be
-added again.
+An import the file already has is not added again. Aliased imports, imports resolved from a type's
+module and the rest are in [Output and Imports](../../docs/custom-macros/output#imports).

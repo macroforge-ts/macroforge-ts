@@ -1,0 +1,84 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/differential/auto_single_shape.ts
+---
+## Input
+
+// Differential fixture: Auto mode with a single shape.
+//
+// Dev expands inline (returning the wrapped value directly). Prod runs
+// the megamorphism analyzer, sees 1 distinct shape, and shares via the
+// runtime helper. Both expansions must log the same final value.
+
+import { macroRules } from '@macroforge/core/rules';
+
+class User {
+    constructor(public id: number) {}
+}
+
+const $wrap = macroRules({
+    mode: 'auto',
+    expand: macroRules`
+    ($x:Expr) => ({ wrapped: $x })
+  `,
+    runtime: 'function __wrap(v) { return { wrapped: v }; }',
+    call: macroRules`
+    ($x:Expr) => __wrap($x)
+  `
+});
+
+const a = $wrap(User);
+const b = $wrap(User);
+
+console.log(JSON.stringify({ a: typeof a.wrapped, b: typeof b.wrapped }));
+
+## Changed
+
+true
+
+## Output
+
+function __wrap(v) { return { wrapped: v }; }
+// Differential fixture: Auto mode with a single shape.
+//
+// Dev expands inline (returning the wrapped value directly). Prod runs
+// the megamorphism analyzer, sees 1 distinct shape, and shares via the
+// runtime helper. Both expansions must log the same final value.
+
+
+
+class User {
+    constructor(public id: number) {}
+}
+
+
+
+const a = __wrap(User);
+const b = __wrap(User);
+
+console.log(JSON.stringify({ a: typeof a.wrapped, b: typeof b.wrapped }));
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+Info: declarative macro analyzer running without a type registry; structural clustering disabled, falling back to the name-prefix heuristic. Pass `type_registry_json` in ExpandOptions to enable field-level fingerprinting.
+
+## Mapping
+
+original 0..498 -> expanded 0..498
+
+## Metadata
+
+class User: {"body_span":{"end":371,"start":330},"decorators":[],"fields":[],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":369,"start":367},"body_src":"","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"public id: number","return_type_src":"","span":{"end":369,"start":336},"type_params_src":"","visibility":"Public"}],"name":"User","span":{"end":371,"start":319},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

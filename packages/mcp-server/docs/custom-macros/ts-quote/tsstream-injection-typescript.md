@@ -1,7 +1,8 @@
 ## TsStream Injection: `{$typescript}`
 
-Inject another TsStream into your template, preserving both its source code and runtime patches
-(like imports added via `add_import()`):
+Inject another `TsStream` into your template. Its source joins the output, and everything else it
+carries comes along: patches, cross-module suffixes and warnings. Imports requested with
+`add_import()` apply to the whole expansion whichever stream asked for them.
 
 Rust
 
@@ -9,10 +10,10 @@ Rust
 // Create a helper method with its own import
 let mut helper = ts_template!(Within {
     validateEmail(email: string): boolean {
-        return Result.ok(true);
+        return isEmail(email);
     }
 });
-helper.add_import("Result", "@macroforge/core/utils");
+helper.add_import("isEmail", "my-validation-lib");
 
 // Inject the helper into the main template
 let result = ts_template!(Within {
@@ -22,10 +23,10 @@ let result = ts_template!(Within {
         // ...
     }
 });
-// result now includes helper's source AND its Result import
 ```
 
-This is essential for composing multiple macro outputs while preserving imports and patches:
+The injected value must be a `TsStream` you own; injection moves it. This is how optional parts of a
+macro's output are composed:
 
 Rust
 
@@ -55,7 +56,6 @@ Rust
 
 ```
 ts_template! {
-    // This outputs a literal @{foo}
     const example = "Use @@{foo} for templates";
 }
 ```
@@ -65,6 +65,5 @@ ts_template! {
 TypeScript
 
 ```
-// This outputs a literal @{foo}
 const example = "Use @{foo} for templates";
 ```

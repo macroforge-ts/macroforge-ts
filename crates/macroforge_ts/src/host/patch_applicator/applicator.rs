@@ -24,39 +24,37 @@ impl<'a> PatchApplicator<'a> {
 
     /// Apply all patches and return the modified source code
     pub fn apply(mut self) -> Result<String> {
-        // Sort patches by position (reverse order for proper application)
         self.sort_patches();
-
-        // Validate patches don't overlap
         self.validate_no_overlaps()?;
+        self.validate_in_bounds()?;
 
-        // Apply patches in reverse order (from end to start)
-        let mut result = self.source.to_string();
-
-        for patch in self.patches.iter().rev() {
-            match patch {
-                Patch::Insert { at, code, .. } | Patch::InsertRaw { at, code, .. } => {
-                    let idx = at.start.saturating_sub(1) as usize;
-                    if idx <= result.len() {
-                        result.insert_str(idx, code);
-                    }
+        // Sorted, disjoint and in bounds, so one forward pass copies each
+        // unchanged stretch once instead of shifting the tail at every patch.
+        let generated: usize = self
+            .patches
+            .iter()
+            .map(|patch| patch_code(patch).len())
+            .sum();
+        let mut result = String::with_capacity(self.source.len() + generated);
+        let mut cursor = 0;
+        for patch in &self.patches {
+            let (start, end) = match patch {
+                Patch::Insert { at, .. } | Patch::InsertRaw { at, .. } => {
+                    let at = at.start.saturating_sub(1) as usize;
+                    (at, at)
                 }
-                Patch::Replace { span, code, .. } | Patch::ReplaceRaw { span, code, .. } => {
-                    let start = span.start.saturating_sub(1) as usize;
-                    let end = span.end.saturating_sub(1) as usize;
-                    if start <= end && end <= result.len() {
-                        result.replace_range(start..end, code);
-                    }
-                }
-                Patch::Delete { span } => {
-                    let start = span.start.saturating_sub(1) as usize;
-                    let end = span.end.saturating_sub(1) as usize;
-                    if start <= end && end <= result.len() {
-                        result.replace_range(start..end, "");
-                    }
-                }
-            }
+                Patch::Replace { span, .. }
+                | Patch::ReplaceRaw { span, .. }
+                | Patch::Delete { span } => (
+                    span.start.saturating_sub(1) as usize,
+                    span.end.saturating_sub(1) as usize,
+                ),
+            };
+            result.push_str(&self.source[cursor..start]);
+            result.push_str(patch_code(patch));
+            cursor = end;
         }
+        result.push_str(&self.source[cursor..]);
 
         Ok(result)
     }
@@ -68,8 +66,9 @@ impl<'a> PatchApplicator<'a> {
         // Sort patches by position (forward order for mapping generation)
         self.sort_patches();
 
-        // Validate patches don't overlap
+        // Validate patches don't overlap and stay inside the source
         self.validate_no_overlaps()?;
+        self.validate_in_bounds()?;
 
         // If no patches, return identity mapping (0-based positions for TS API)
         if self.patches.is_empty() {
@@ -205,7 +204,7 @@ impl<'a> PatchApplicator<'a> {
     /// previous iteration).
     ///
     /// Pre-PR 15 this was `O(n²)` (a nested loop). The linear sweep
-    /// is a pure perf fix — same diagnostics, same public API.
+    /// is a pure perf fix: same diagnostics, same public API.
     fn validate_no_overlaps(&self) -> Result<()> {
         for pair in self.patches.windows(2) {
             let a = self.get_patch_span(&pair[0]);
@@ -213,6 +212,29 @@ impl<'a> PatchApplicator<'a> {
             if a.end > b.start {
                 return Err(MacroError::Other(anyhow::anyhow!(
                     "Overlapping patches detected: patches cannot modify the same region"
+                )));
+            }
+        }
+        Ok(())
+    }
+
+    /// Fails on a patch that reaches outside the source, which would
+    /// otherwise lose the macro's output or the source around it.
+    fn validate_in_bounds(&self) -> Result<()> {
+        let end_of_source = self.source.len() as u32 + 1;
+        for patch in &self.patches {
+            let span = self.get_patch_span(patch);
+            let end = match patch {
+                Patch::Insert { .. } | Patch::InsertRaw { .. } => span.start,
+                Patch::Replace { .. } | Patch::ReplaceRaw { .. } | Patch::Delete { .. } => span.end,
+            };
+            if span.start > end || end > end_of_source {
+                return Err(MacroError::Patch(format!(
+                    "{} produced a patch at positions {}..{}, outside the {}-byte source",
+                    patch.source_macro().unwrap_or("a macro"),
+                    span.start,
+                    end,
+                    self.source.len()
                 )));
             }
         }
@@ -227,6 +249,17 @@ impl<'a> PatchApplicator<'a> {
             Patch::ReplaceRaw { span, .. } => *span,
             Patch::Delete { span } => *span,
         }
+    }
+}
+
+/// The code a patch writes; empty for a deletion.
+fn patch_code(patch: &Patch) -> &str {
+    match patch {
+        Patch::Insert { code, .. }
+        | Patch::InsertRaw { code, .. }
+        | Patch::Replace { code, .. }
+        | Patch::ReplaceRaw { code, .. } => code,
+        Patch::Delete { .. } => "",
     }
 }
 
@@ -258,11 +291,48 @@ mod overlap_tests {
     }
 
     #[test]
+    fn a_patch_outside_the_source_is_rejected() {
+        let source = "x".repeat(10);
+        let too_far = Patch::Insert {
+            at: SpanIR::new(20, 20),
+            code: "lost".to_string(),
+            source_macro: Some("Probe".to_string()),
+        };
+        for patches in [vec![delete_patch(5, 30)], vec![too_far]] {
+            let error = PatchApplicator::new(&source, patches.clone())
+                .apply()
+                .expect_err("an out-of-range patch must fail");
+            assert!(
+                error.to_string().contains("outside the 10-byte source"),
+                "{error}"
+            );
+            assert!(
+                PatchApplicator::new(&source, patches)
+                    .apply_with_mapping(None)
+                    .is_err()
+            );
+        }
+    }
+
+    #[test]
+    fn a_patch_at_the_end_of_the_source_applies() {
+        let insert = Patch::Insert {
+            at: SpanIR::new(4, 4),
+            code: "!".to_string(),
+            source_macro: None,
+        };
+        let applied = PatchApplicator::new("abc", vec![insert])
+            .apply()
+            .expect("inserting after the last byte is in bounds");
+        assert_eq!(applied, "abc!");
+    }
+
+    #[test]
     fn overlapping_patches_are_rejected() {
         let source = "x".repeat(100);
         let patches = vec![
             delete_patch(1, 15),
-            // Overlaps the first patch — second span starts before
+            // Overlaps the first patch: the second span starts before
             // the first ends.
             delete_patch(10, 20),
         ];
@@ -316,7 +386,7 @@ mod overlap_tests {
         assert!(result.is_ok(), "apply failed: {:?}", result);
         assert!(
             elapsed.as_millis() < 2000,
-            "10k-patch validate+apply took {} ms — orders-of-magnitude regression?",
+            "10k-patch validate+apply took {} ms, an orders-of-magnitude regression?",
             elapsed.as_millis()
         );
     }

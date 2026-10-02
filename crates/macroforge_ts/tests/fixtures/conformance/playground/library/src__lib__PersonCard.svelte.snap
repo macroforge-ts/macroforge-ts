@@ -1,0 +1,317 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/lib/PersonCard.svelte
+sha256 e78725c425bf69517b044c88ba47b2136057d4d013d49b1ebd261d73e33776f6
+
+## Changed
+
+true
+
+## Output
+
+import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+
+    
+    export interface CardLabels {
+        heading: string;
+    }
+
+export function cardLabelsDefaultValue(): CardLabels {
+                        return {
+heading: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function cardLabelsSerialize(value: CardLabels, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = cardLabelsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function cardLabelsSerializeWithContext(value: CardLabels, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "CardLabels",
+                        __id,
+                    };result.heading = value.heading;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+export const CardLabels = {
+  defaultValue: cardLabelsDefaultValue,
+  serialize: cardLabelsSerialize,
+  serializeWithContext: cardLabelsSerializeWithContext
+} as const;
+
+## DTS
+
+export interface CardLabels {
+        heading: string;
+    }
+
+export function cardLabelsDefaultValue(): CardLabels {
+                        return {
+heading: "",
+};
+                    }
+
+/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function cardLabelsSerialize(value: CardLabels, keepMetadata?: boolean): string {
+                    const ctx = __mf_SerializeContext.create();
+                    const __raw = cardLabelsSerializeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
+                export function cardLabelsSerializeWithContext(value: CardLabels, ctx: __mf_SerializeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "CardLabels",
+                        __id,
+                    };result.heading = value.heading;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+export const CardLabels = {
+  defaultValue: cardLabelsDefaultValue,
+  serialize: cardLabelsSerialize,
+  serializeWithContext: cardLabelsSerializeWithContext
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..5 -> expanded 0..5
+original 39..104 -> expanded 5..70
+original 104..105 -> expanded 1909..1910
+generated 70..197 <- Default
+generated 197..1739 <- Serialize
+generated 1739..1909 <- __convenience_const
+
+## Metadata
+
+interface CardLabels: {"body_span":{"end":105,"start":73},"decorators":[{"args_src":"Default, Serialize","name":"Derive","span":{"end":40,"start":6}}],"fields":[{"decorators":[],"name":"heading","optional":false,"readonly":false,"span":{"end":99,"start":83},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CardLabels","span":{"end":105,"start":52},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

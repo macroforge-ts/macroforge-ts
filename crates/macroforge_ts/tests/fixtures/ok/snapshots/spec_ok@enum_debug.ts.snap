@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/enum_debug.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_debug.ts
 ---
 ## Input
 
@@ -11,6 +11,10 @@ enum Status {
     Inactive,
     Pending
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -67,5 +71,24 @@ namespace Status {
 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..75 -> expanded 0..54
+original 75..76 -> expanded 452..453
+generated 54..388 <- Debug
+generated 388..452 <- __convenience_const
+
+## Metadata
+
+enum Status: {"body_span":{"end":76,"start":35},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"is_const":false,"name":"Status","span":{"end":76,"start":23},"variants":[{"decorators":[],"name":"Active","span":{"end":47,"start":41},"value":{"Number":0.0}},{"decorators":[],"name":"Inactive","span":{"end":61,"start":53},"value":{"Number":1.0}},{"decorators":[],"name":"Pending","span":{"end":74,"start":67},"value":{"Number":2.0}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

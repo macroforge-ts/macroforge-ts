@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/interface_all_macros_prefix.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_all_macros_prefix.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ export interface Point {
     x: number;
     y: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -549,9 +553,6 @@ y: 0,
 
 
 
-
-
-
                             }{
                                 const __raw_y = obj["y"] as number;instance.y = __raw_y;
 
@@ -812,16 +813,7 @@ y: 0,
 
 
 
-
-
-
                             }
-
-
-
-
-
-
 
 
 
@@ -1997,14 +1989,8 @@ y: 0,
 
 
 
-
-
-
                             }{
                                 const __raw_y = obj["y"] as number;instance.y = __raw_y;
-
-
-
 
 
 
@@ -2832,12 +2818,6 @@ y: 0,
 
 
 
-
-
-
-
-
-
                 ctx.pushErrors(errors);
 
                 return instance as Point;
@@ -2914,5 +2894,32 @@ export const Point = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 95..152 -> expanded 0..57
+original 152..153 -> expanded 9672..9673
+generated 57..338 <- Debug
+generated 338..558 <- Clone
+generated 558..737 <- PartialEq
+generated 737..1178 <- Hash
+generated 1178..1604 <- PartialOrd
+generated 1604..2030 <- Ord
+generated 2030..2146 <- Default
+generated 2146..3665 <- Serialize
+generated 3665..9191 <- Deserialize
+generated 9191..9672 <- __convenience_const
+
+## Metadata
+
+interface Point: {"body_span":{"end":153,"start":120},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize","name":"Derive","span":{"end":96,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":136,"start":126},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":151,"start":141},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":153,"start":104},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

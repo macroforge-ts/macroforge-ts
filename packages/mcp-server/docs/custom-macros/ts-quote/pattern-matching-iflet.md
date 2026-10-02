@@ -30,10 +30,10 @@ Rust
 
 ```
 let code = ts_template! {
-    {#if let Some(default_val) = field.default_value}
-        this.@{field.name} = @{default_val};
-    {:else}
-        this.@{field.name} = undefined;
-    {/if}
+    {#for variant in enum_.variants()}
+        {#if let Some(text) = variant.value.as_string()}
+            case "@{text}": return "@{variant.name}";
+        {/if}
+    {/for}
 };
 ```

@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/interface_default_object_literal_field.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_default_object_literal_field.ts
 ---
 ## Input
 
@@ -11,6 +11,10 @@ export interface Assignment {
     scores: { [key: string]: number };
     active: boolean;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -53,5 +57,24 @@ export const Assignment = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 23..133 -> expanded 0..110
+original 133..134 -> expanded 343..344
+generated 110..263 <- Default
+generated 263..343 <- __convenience_const
+
+## Metadata
+
+interface Assignment: {"body_span":{"end":134,"start":53},"decorators":[{"args_src":"Default","name":"Derive","span":{"end":24,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":72,"start":59},"ts_type":"string"},{"decorators":[],"name":"scores","optional":false,"readonly":false,"span":{"end":111,"start":77},"ts_type":"{ [key: string]: number }"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":132,"start":116},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Assignment","span":{"end":134,"start":32},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

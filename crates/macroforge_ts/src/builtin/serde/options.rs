@@ -1,7 +1,8 @@
 //! Serde container-level and field-level option types and parsing.
 
-use super::helpers::{extract_named_string, has_flag};
+use super::helpers::extract_named_value;
 use super::validators::{ValidatorSpec, extract_validators};
+use crate::builtin::derive_common::has_flag;
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector};
 
 /// Naming convention for JSON field renaming
@@ -87,7 +88,7 @@ impl SerdeContainerOptions {
             }
             let args = decorator.args_src.trim();
 
-            if let Some(rename_all) = extract_named_string(args, "renameAll")
+            if let Some(rename_all) = extract_named_value(args, "renameAll")
                 && let Ok(convention) = rename_all.parse::<RenameAll>()
             {
                 opts.rename_all = convention;
@@ -98,8 +99,8 @@ impl SerdeContainerOptions {
             }
 
             // Resolve tagging mode from combination of attributes
-            let tag = extract_named_string(args, "tag");
-            let content = extract_named_string(args, "content");
+            let tag = extract_named_value(args, "tag");
+            let content = extract_named_value(args, "content");
             let untagged = has_flag(args, "untagged");
             let externally_tagged = has_flag(args, "externallyTagged");
 
@@ -204,26 +205,26 @@ impl SerdeFieldOptions {
             }
 
             // Check for default (both boolean flag and expression)
-            if let Some(default_expr) = extract_named_string(args, "default") {
+            if let Some(default_expr) = extract_named_value(args, "default") {
                 opts.default = true;
                 opts.default_expr = Some(default_expr);
             } else if has_flag(args, "default") {
                 opts.default = true;
             }
 
-            if let Some(rename) = extract_named_string(args, "rename") {
+            if let Some(rename) = extract_named_value(args, "rename") {
                 opts.rename = Some(rename);
             }
 
             // Parse custom serialization/deserialization functions (like Rust's serde)
-            if let Some(fn_name) = extract_named_string(args, "serializeWith") {
+            if let Some(fn_name) = extract_named_value(args, "serializeWith") {
                 opts.serialize_with = Some(fn_name);
             }
-            if let Some(fn_name) = extract_named_string(args, "deserializeWith") {
+            if let Some(fn_name) = extract_named_value(args, "deserializeWith") {
                 opts.deserialize_with = Some(fn_name);
             }
 
-            if let Some(format) = extract_named_string(args, "format") {
+            if let Some(format) = extract_named_value(args, "format") {
                 opts.format = Some(format);
             }
 

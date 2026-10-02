@@ -130,6 +130,8 @@ pub mod test_macros;
 pub mod api;
 pub mod api_types;
 mod expand_core;
+pub mod line_index;
+pub mod workers;
 pub use expand_core::has_macro_annotations;
 pub use expand_core::macro_imports;
 mod manifest;
@@ -157,7 +159,7 @@ pub use position_mapper::NativePositionMapper;
 // ============================================================================
 //
 // Pointers and lengths only, never JS values: the CLI instantiates a macro
-// package's wasm with wasmi and calls these as ordinary exports, reading results
+// package's wasm with wasmtime and calls these as ordinary exports, reading results
 // out of the module's linear memory. The per-macro `__macroforge_ffi_run_*` are
 // emitted by `macroforge_ts_macros`.
 
@@ -172,6 +174,48 @@ pub use position_mapper::NativePositionMapper;
 pub unsafe extern "C" fn __macroforge_ffi_free(ptr: *mut u8, len: usize) {
     if !ptr.is_null() && len > 0 {
         drop(unsafe { Box::from_raw(std::ptr::slice_from_raw_parts_mut(ptr, len)) });
+    }
+}
+
+/// Installs the type registry a host sends once, so the contexts it sends
+/// afterwards refer to it instead of carrying it on every call.
+///
+/// Input: `payload_ptr`/`payload_len`, UTF-8 JSON of a
+/// [`ts_syn::abi::ir::type_registry::ResidentRegistryPayload`]. Returns 0 on
+/// success, with an empty `out_ptr`/`out_len`; otherwise 1, with the error
+/// message there for the host to free through `__macroforge_ffi_free`.
+///
+/// # Safety
+///
+/// `payload_ptr` must point to `payload_len` readable bytes, and `out_ptr`
+/// and `out_len` must be valid, non-null pointers to writable memory.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn __macroforge_ffi_set_registry(
+    payload_ptr: *const u8,
+    payload_len: usize,
+    out_ptr: *mut *mut u8,
+    out_len: *mut usize,
+) -> i32 {
+    let payload = unsafe { std::slice::from_raw_parts(payload_ptr, payload_len) };
+    let installed = std::str::from_utf8(payload)
+        .map_err(|error| format!("the registry payload is not UTF-8: {error}"))
+        .and_then(ts_syn::abi::ir::type_registry::install_resident_registry);
+    match installed {
+        Ok(()) => {
+            unsafe {
+                *out_len = 0;
+                *out_ptr = std::ptr::null_mut();
+            }
+            0
+        }
+        Err(message) => {
+            let message = message.into_bytes().into_boxed_slice();
+            unsafe {
+                *out_len = message.len();
+                *out_ptr = Box::into_raw(message) as *mut u8;
+            }
+            1
+        }
     }
 }
 

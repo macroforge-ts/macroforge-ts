@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_serialize_user.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_serialize_user.ts
 ---
 ## Input
 
@@ -13,6 +12,10 @@ class User {
     name: string;
     age: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -280,5 +283,26 @@ class User {
                 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 66..115 -> expanded 41..90
+original 115..116 -> expanded 824..825
+original 116..117 -> expanded 2350..2351
+generated 90..824 <- Serialize
+generated 825..2350 <- Serialize
+
+## Metadata
+
+class User: {"body_span":{"end":117,"start":79},"decorators":[{"args_src":"Serialize","name":"Derive","span":{"end":67,"start":42}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":98,"start":85},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":115,"start":103},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":117,"start":68},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

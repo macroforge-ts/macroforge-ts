@@ -30,7 +30,6 @@ pub(super) struct DeserializeField {
 
     /// The TypeScript type annotation string (e.g., "string", "number[]").
     /// Used for type casting in generated code.
-    #[allow(dead_code)]
     pub ts_type: String,
 
     /// The serialized (JSON-compatible) type for casting raw values from `obj[key]`.
@@ -46,10 +45,6 @@ pub(super) struct DeserializeField {
     /// Whether the field is optional (has `?` modifier or `@serde(default)`).
     /// Optional fields don't require the JSON property to be present.
     pub optional: bool,
-
-    /// Whether the field has a default value specified.
-    #[allow(dead_code)]
-    pub has_default: bool,
 
     /// The default value expression to use if the field is missing.
     /// Example: expression for `@serde(default = "guest")`.
@@ -89,25 +84,13 @@ pub(super) struct DeserializeField {
     pub map_value_kind: Option<SerdeValueKind>,
     /// For `Map<K, V>` where V is Serializable: the type name.
     pub map_value_serializable_type: Option<String>,
-    /// For `Record<K, V>`: classification of V.
-    #[allow(dead_code)]
-    pub record_value_kind: Option<SerdeValueKind>,
     /// For `Record<K, V>` where V is Serializable: the type name.
     pub record_value_serializable_type: Option<String>,
-    /// For wrapper types (`Partial<T>`, `Required<T>`, etc.): classification of T.
-    #[allow(dead_code)]
-    pub wrapper_inner_kind: Option<SerdeValueKind>,
     /// For wrapper types where T is Serializable: the type name.
     pub wrapper_serializable_type: Option<String>,
-    /// For `T | undefined`: classification of T.
-    #[allow(dead_code)]
-    pub optional_inner_kind: Option<SerdeValueKind>,
-    /// For `T | undefined` where T is Serializable: the type name.
-    #[allow(dead_code)]
-    pub optional_serializable_type: Option<String>,
 
     /// Set when the field's resolved type is a two-member primitive-or-serializable
-    /// union — the shape any `Alias<T> = primitive | T` generic resolves to.
+    /// union: the shape any `Alias<T> = primitive | T` generic resolves to.
     /// Holds the primitive keyword (e.g. `"string"`, `"number"`). When set, the
     /// `Serializable(name)` deserialize branch wraps its call in a
     /// `typeof === primitive` guard so raw primitive values pass through unchanged.
@@ -121,7 +104,7 @@ pub(super) struct DeserializeField {
     pub array_elem_primitive_union_guard: Option<String>,
 
     /// Validators declared on the *primitive arm* of the resolved
-    /// `primitive | Serializable` union — e.g. the `nonEmpty` on the `string`
+    /// `primitive | Serializable` union, e.g. the `nonEmpty` on the `string`
     /// arm of a record-link alias (`Alias<T> = string | T`). These don't appear
     /// on the field referencing the alias, so they're read from the alias
     /// definition and kept separate from `validators`: they apply only to the
@@ -136,6 +119,16 @@ impl DeserializeField {
     /// Returns true if this field has any validators that need to be applied.
     pub fn has_validators(&self) -> bool {
         !self.validators.is_empty()
+    }
+
+    /// Whether the field's type allows a missing value: `T | null`,
+    /// `T | undefined`, or an optional field.
+    pub fn accepts_missing(&self) -> bool {
+        self.optional
+            || matches!(
+                self.type_cat,
+                TypeCategory::Nullable(_) | TypeCategory::Optional(_)
+            )
     }
 
     /// Returns true if the primitive arm of a `primitive | Serializable` union
@@ -209,27 +202,4 @@ pub(super) struct SerializableTypeRef {
     /// For foreign types: the inline shape-check predicate, namespace-rewritten.
     /// e.g., `"(v: unknown) => typeof v === \"string\""`
     pub foreign_has_shape_inline: Option<String>,
-}
-
-/// Holds information about an inline object variant in a union type.
-///
-/// When a union contains inline object type literals like
-/// `{ __type: "admin"; permissions: string[] } | { __type: "viewer"; canComment: boolean }`,
-/// each object literal becomes an `ObjectVariant` with its tag value extracted and fields
-/// converted to `DeserializeField` for inline field-by-field deserialization.
-#[derive(Clone)]
-#[allow(dead_code)]
-pub(super) struct ObjectVariant {
-    /// The tag value from the tag field's literal type (e.g., "admin").
-    /// None if the object doesn't contain a tag field with a string literal type.
-    pub tag_value: Option<String>,
-    /// All deserialization fields excluding the tag field itself.
-    pub fields: Vec<DeserializeField>,
-    /// Required field JSON keys (non-optional, non-flatten) -- used for shape checking.
-    pub required_field_keys: Vec<String>,
-    /// All field JSON keys (non-flatten) -- used for shape checking.
-    #[allow(dead_code)]
-    pub all_field_keys: Vec<String>,
-    /// Display string for error messages (e.g., `{__type:"admin"}`).
-    pub display_name: String,
 }

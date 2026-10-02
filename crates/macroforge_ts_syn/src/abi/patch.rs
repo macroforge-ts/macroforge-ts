@@ -368,8 +368,7 @@ pub struct MacroResult {
 
     /// Imports requested by the macro via `TsStream::add_import()` and related methods.
     /// These are captured from the thread-local `ImportRegistry` when `into_result()` is called,
-    /// so they survive serialization across process boundaries (important for external macros
-    /// that run in a child Node.js process).
+    /// so they survive the trip back from a macro package running in its own wasm instance.
     #[serde(default)]
     pub imports: Vec<crate::import_registry::GeneratedImport>,
 }

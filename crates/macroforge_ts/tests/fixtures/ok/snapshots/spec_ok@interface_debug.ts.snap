@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/interface_debug.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_debug.ts
 ---
 ## Input
 
@@ -9,6 +9,10 @@ input_file: macroforge_ts/tests/fixtures/ok/interface_debug.ts
 interface Status {
     active: boolean;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -45,5 +49,24 @@ const Status = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..63 -> expanded 0..42
+original 63..64 -> expanded 364..365
+generated 42..307 <- Debug
+generated 307..364 <- __convenience_const
+
+## Metadata
+
+interface Status: {"body_span":{"end":64,"start":40},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":62,"start":46},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"Status","span":{"end":64,"start":23},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

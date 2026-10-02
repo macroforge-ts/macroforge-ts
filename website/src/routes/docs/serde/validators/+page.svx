@@ -23,9 +23,11 @@ class User {
 }
 ```
 
-1. **Array of strings** — `validate: ["email", "maxLength(255)"]`
-2. **Array of objects** — adds a custom `message` per validator
-3. **Shorthand** — bare validator calls directly in `@serde(...)`
+1. **Array of strings**: `validate: ["email", "maxLength(255)"]`
+2. **Array of objects**: adds a custom `message` per validator
+3. **Shorthand**: bare validator calls directly in `@serde(...)`
+
+Validators check the declared type's value. On a nullable or optional field (`string | null`, `name?: string`) a `null` or absent value is not checked, and a present value is checked like any other. On any other field a `null` value fails with *"is required"*.
 
 `validate` must be an **array**. An object literal such as `validate: { email: true }` is rejected with *"validate must be an array"*.
 
@@ -36,7 +38,7 @@ Misspelled names are caught with a suggestion: the parser does a Levenshtein mat
 | Validator | Checks |
 | --- | --- |
 | `email` | Valid email address |
-| `url` | Valid URL |
+| `url` | Parses as a URL (`URL.canParse`), any scheme |
 | `uuid` | Valid UUID |
 | `pattern("re")` | Matches the regular expression |
 | `minLength(n)` | Length ≥ n |
@@ -65,12 +67,12 @@ Misspelled names are caught with a suggestion: the parser does a Levenshtein mat
 | `int` | Integer |
 | `nonNegativeInt` | Integer **and** ≥ 0 |
 | `uint8` | Integer in 0–255 |
-| `multipleOf(n)` | Divisible by n |
+| `multipleOf(n)` | Divisible by n, exactly for decimals (`0.3` is a multiple of `0.1`); n must be finite and non-zero |
 | `positive` | > 0 |
 | `nonNegative` | ≥ 0 |
 | `negative` | &lt; 0 |
 | `nonPositive` | ≤ 0 |
-| `finite` | Not Infinity |
+| `finite` | Not Infinity, -Infinity or NaN |
 | `nonNaN` | Not NaN |
 
 ## BigInt validators
@@ -89,7 +91,7 @@ Misspelled names are caught with a suggestion: the parser does a Levenshtein mat
 
 ## Date validators
 
-Note the names — they are comparison-shaped, not `after`/`before`:
+Note the names: they are comparison-shaped, not `after`/`before`:
 
 | Validator | Checks |
 | --- | --- |
@@ -111,9 +113,20 @@ Note the names — they are comparison-shaped, not `after`/`before`:
 ## Custom validators
 
 `custom(fnName)` calls a function you supply, which should return `true` when the value is valid.
+The function must be in scope in the file: declared there, or imported by it.
 
 ```typescript
 /** @serde(validate: ["custom(isStrongPassword)"]) */
+password: string;
+```
+
+To use a function from another module without importing it yourself, pass an object with the
+`function` to call and the `source` module it comes from. The expansion imports it under a private
+name, so the import never looks unused to a linter and cannot be removed by one. `source` is
+written as you would write it in an import in that file.
+
+```typescript
+/** @serde(validate: ['custom({ function: "isStrongPassword", source: "./validators" })']) */
 password: string;
 ```
 

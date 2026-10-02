@@ -5,7 +5,8 @@ use crate::cache::{
     CacheEntry, CacheManifest, compute_external_macro_hash, content_hash, normalized_content_hash,
     warm_cache,
 };
-use crate::expand::{get_expanded_path, offset_to_line_col, type_surface_rel_path};
+use crate::expand::{get_expanded_path, type_surface_rel_path};
+use crate::hash_cache::HashCache;
 use crate::lock::{ProjectLock, resolve_project_root};
 use crate::package_expand::is_expandable;
 use crate::package_state::{
@@ -109,47 +110,6 @@ fn test_type_surface_rel_path_nested() {
 fn test_type_surface_rel_path_root_file() {
     let rel = Path::new("index.ts");
     assert_eq!(type_surface_rel_path(rel), PathBuf::from("index.d.ts"));
-}
-
-// =========================================================================
-// offset_to_line_col tests
-// =========================================================================
-
-#[test]
-fn test_offset_to_line_col_first_char() {
-    let source = "hello\nworld";
-    assert_eq!(offset_to_line_col(source, 0), (1, 1));
-}
-
-#[test]
-fn test_offset_to_line_col_same_line() {
-    let source = "hello\nworld";
-    assert_eq!(offset_to_line_col(source, 3), (1, 4)); // 'l' in hello
-}
-
-#[test]
-fn test_offset_to_line_col_second_line() {
-    let source = "hello\nworld";
-    assert_eq!(offset_to_line_col(source, 6), (2, 1)); // 'w' in world
-}
-
-#[test]
-fn test_offset_to_line_col_second_line_middle() {
-    let source = "hello\nworld";
-    assert_eq!(offset_to_line_col(source, 9), (2, 4)); // 'l' in world
-}
-
-#[test]
-fn test_offset_to_line_col_multiple_lines() {
-    let source = "line1\nline2\nline3";
-    assert_eq!(offset_to_line_col(source, 12), (3, 1)); // 'l' in line3
-}
-
-#[test]
-fn test_offset_to_line_col_empty_lines() {
-    let source = "a\n\nb";
-    assert_eq!(offset_to_line_col(source, 2), (2, 1)); // empty line
-    assert_eq!(offset_to_line_col(source, 3), (3, 1)); // 'b'
 }
 
 // =========================================================================
@@ -702,7 +662,7 @@ fn test_scan_input_sees_every_file_the_packager_does() {
     write(&input.join("nested/a.ts"), "export const a = 1;\n");
     write(&tmp.path().join(".gitignore"), "lib/nested\n");
 
-    let stamps = scan_input(&input, &no_extensions()).unwrap();
+    let stamps = scan_input(&input, &no_extensions(), None).unwrap();
     let found: Vec<&str> = stamps.keys().map(String::as_str).collect();
 
     assert_eq!(found, vec![".npmignore", "logo.svg", "nested/a.ts"]);
@@ -717,11 +677,11 @@ fn test_scan_input_ignores_formatting_in_code_but_not_in_data() {
 
     write(&input.join("a.ts"), "const x = 1;\n");
     write(&input.join("a.json"), "{\"x\":1}\n");
-    let before = scan_input(&input, &no_extensions()).unwrap();
+    let before = scan_input(&input, &no_extensions(), None).unwrap();
 
     write(&input.join("a.ts"), "const x = 1;   \n\n\n");
     write(&input.join("a.json"), "{\"x\":1}   \n\n\n");
-    let after = scan_input(&input, &no_extensions()).unwrap();
+    let after = scan_input(&input, &no_extensions(), None).unwrap();
 
     let changes = diff_files(&before, &after);
     assert_eq!(changes.changed, vec!["a.json"]);
@@ -738,11 +698,11 @@ fn test_configured_component_extensions_ignore_formatting_too() {
 
     write(&input.join("a.svx"), "# title\n");
     write(&input.join("b.txt"), "title\n");
-    let before = scan_input(&input, &extensions).unwrap();
+    let before = scan_input(&input, &extensions, None).unwrap();
 
     write(&input.join("a.svx"), "# title   \n\n");
     write(&input.join("b.txt"), "title   \n\n");
-    let after = scan_input(&input, &extensions).unwrap();
+    let after = scan_input(&input, &extensions, None).unwrap();
 
     let changes = diff_files(&before, &after);
     assert_eq!(changes.changed, vec!["b.txt"]);
@@ -755,11 +715,11 @@ fn test_diff_files_reports_additions_and_removals() {
 
     write(&input.join("keep.ts"), "const keep = 1;\n");
     write(&input.join("gone.ts"), "const gone = 1;\n");
-    let before = scan_input(&input, &no_extensions()).unwrap();
+    let before = scan_input(&input, &no_extensions(), None).unwrap();
 
     std::fs::remove_file(input.join("gone.ts")).unwrap();
     write(&input.join("added.ts"), "const added = 1;\n");
-    let after = scan_input(&input, &no_extensions()).unwrap();
+    let after = scan_input(&input, &no_extensions(), None).unwrap();
 
     let changes = diff_files(&before, &after);
     assert_eq!(changes.changed, vec!["added.ts"]);
@@ -835,7 +795,7 @@ fn test_project_hash_skips_dependencies_and_the_output_directory() {
 
     write(&tmp.path().join("src/lib/a.ts"), "export const a = 1;\n");
     write(&dist.join("a.js"), "export const a = 1;\n");
-    let original = project_hash(tmp.path(), &dist).unwrap();
+    let original = project_hash(tmp.path(), &dist, &mut HashCache::default()).unwrap();
 
     write(&dist.join("a.js"), "export const a = 999;\n");
     write(&dist.join("a.ts"), "export const a = 999;\n");
@@ -843,10 +803,16 @@ fn test_project_hash_skips_dependencies_and_the_output_directory() {
         &tmp.path().join("node_modules/dep/index.ts"),
         "export {};\n",
     );
-    assert_eq!(project_hash(tmp.path(), &dist).unwrap(), original);
+    assert_eq!(
+        project_hash(tmp.path(), &dist, &mut HashCache::default()).unwrap(),
+        original
+    );
 
     write(&tmp.path().join("src/lib/a.ts"), "export const a = 2;\n");
-    assert_ne!(project_hash(tmp.path(), &dist).unwrap(), original);
+    assert_ne!(
+        project_hash(tmp.path(), &dist, &mut HashCache::default()).unwrap(),
+        original
+    );
 }
 
 #[test]
@@ -855,10 +821,13 @@ fn test_project_hash_ignores_formatting() {
     let dist = tmp.path().join("dist");
 
     write(&tmp.path().join("src/a.ts"), "export const a = 1;\n");
-    let original = project_hash(tmp.path(), &dist).unwrap();
+    let original = project_hash(tmp.path(), &dist, &mut HashCache::default()).unwrap();
 
     write(&tmp.path().join("src/a.ts"), "export const a = 1;   \n\n\n");
-    assert_eq!(project_hash(tmp.path(), &dist).unwrap(), original);
+    assert_eq!(
+        project_hash(tmp.path(), &dist, &mut HashCache::default()).unwrap(),
+        original
+    );
 }
 
 #[test]
@@ -882,7 +851,7 @@ fn test_unreadable_state_is_treated_as_a_first_run() {
 fn test_external_macro_hash_finds_a_workspace_root_package() {
     // A workspace installs the macro package once, at the repository root, so a
     // package building from `apps/web` has no `node_modules` of its own. Missing
-    // it pins the hash at "none", and a rebuilt macro then invalidates nothing —
+    // it pins the hash at "none", and a rebuilt macro then invalidates nothing:
     // every consumer silently keeps serving the previous build's expansions.
     let tmp = tempfile::tempdir().unwrap();
     let workspace = tmp.path();
@@ -896,7 +865,7 @@ fn test_external_macro_hash_finds_a_workspace_root_package() {
     );
     write(&macros.join("pkg/macros_bg.wasm"), "binary");
 
-    let found = compute_external_macro_hash(&project);
+    let found = compute_external_macro_hash(&project, &mut HashCache::default());
     assert_ne!(
         found, "none",
         "a macro package at the workspace root should be found from a nested project"
@@ -905,7 +874,7 @@ fn test_external_macro_hash_finds_a_workspace_root_package() {
     // And rebuilding it has to move the hash, or nothing downstream reruns.
     write(&macros.join("pkg/macros_bg.wasm"), "a different binary");
     assert_ne!(
-        compute_external_macro_hash(&project),
+        compute_external_macro_hash(&project, &mut HashCache::default()),
         found,
         "a rebuilt macro artifact should invalidate the cache"
     );
@@ -920,7 +889,10 @@ fn test_external_macro_hash_ignores_packages_without_the_marker() {
     let plain = tmp.path().join("node_modules/left-pad");
     write(&plain.join("index.js"), "module.exports = () => {};");
 
-    assert_eq!(compute_external_macro_hash(&project), "none");
+    assert_eq!(
+        compute_external_macro_hash(&project, &mut HashCache::default()),
+        "none"
+    );
 }
 
 #[test]
@@ -959,6 +931,7 @@ fn recorded_state(files: &[&str]) -> PackageState {
                         FileStamp {
                             source_hash: format!("{rel}-source"),
                             normalized_hash: format!("{rel}-normalized"),
+                            stat: None,
                         },
                     )
                 })

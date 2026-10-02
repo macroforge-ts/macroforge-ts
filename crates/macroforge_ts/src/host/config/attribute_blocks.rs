@@ -10,6 +10,8 @@ use macroforge_ts_syn::config::{
 };
 use serde_json::Value;
 
+use crate::host::MacroError;
+
 /// Parse `cfg: { features, target, debugAssertions, custom }`.
 pub(crate) fn parse_cfg_flags(obj: &serde_json::Map<String, Value>) -> CfgFlags {
     let mut flags = CfgFlags::default();
@@ -31,7 +33,7 @@ pub(crate) fn parse_cfg_flags(obj: &serde_json::Map<String, Value>) -> CfgFlags 
 }
 
 /// Parse `deprecated: { runtimeWarn, failOnUse }`. Note that `runtimeWarn`
-/// is parsed but currently has no effect — the attribute pass does not yet
+/// is parsed but currently has no effect: the attribute pass does not yet
 /// inject the runtime `console.warn`.
 pub(crate) fn parse_deprecated_config(obj: &serde_json::Map<String, Value>) -> DeprecatedConfig {
     let mut config = DeprecatedConfig::default();
@@ -65,16 +67,16 @@ pub(crate) fn parse_non_exhaustive_config(
     config
 }
 
-/// Accept either a single string or an array of strings (the same shape
-/// `extract_string_or_array` produces from AST nodes) and flatten to a
-/// `Vec<String>`. Non-string members are skipped — parser-side validation
-/// can't express "string only" in JSON.
 /// Parse the `buildtime` block:
-/// `{ timeout, maxHeap, filesystem: { read, write }, env, network, flags }`.
+/// `{ timeout, maxHeap, filesystem: { read }, env, flags }`.
 ///
 /// Unset keys keep their defaults, so a partial block only overrides what it
-/// names. `timeout` is milliseconds; `maxHeap` is MiB.
-pub(crate) fn parse_buildtime_config(obj: &serde_json::Map<String, Value>) -> BuildtimeConfig {
+/// names. `timeout` is milliseconds; `maxHeap` is MiB. Build-time code cannot
+/// write files or reach the network, so `filesystem.write` and `network` are
+/// rejected rather than accepted and ignored.
+pub(crate) fn parse_buildtime_config(
+    obj: &serde_json::Map<String, Value>,
+) -> crate::host::Result<BuildtimeConfig> {
     // Config numbers arrive as JSON floats (both parsers build them with
     // `Number::from_f64`), so `as_u64` alone would silently miss every value.
     fn as_unsigned(value: &Value) -> Option<u64> {
@@ -85,7 +87,7 @@ pub(crate) fn parse_buildtime_config(obj: &serde_json::Map<String, Value>) -> Bu
 
     let mut config = BuildtimeConfig::default();
 
-    // Capability keys are canonically nested under `capabilities` — that is
+    // Capability keys are canonically nested under `capabilities`: that is
     // the path every sandbox diagnostic points users at. The flat form
     // (`buildtime.timeout`, …) is accepted too so a short config doesn't
     // need the extra level.
@@ -102,15 +104,19 @@ pub(crate) fn parse_buildtime_config(obj: &serde_json::Map<String, Value>) -> Bu
         if let Some(read) = fs.get("read") {
             config.fs_read = extract_string_array(read);
         }
-        if let Some(write) = fs.get("write") {
-            config.fs_write = extract_string_array(write);
+        if fs.contains_key("write") {
+            return Err(MacroError::InvalidConfig(
+                "`buildtime.capabilities.filesystem.write` is not supported: build-time code cannot write files".to_string(),
+            ));
         }
     }
     if let Some(env) = lookup("env") {
         config.env_allow = extract_string_array(env);
     }
-    if let Some(network) = lookup("network").and_then(Value::as_bool) {
-        config.network = network;
+    if lookup("network").is_some() {
+        return Err(MacroError::InvalidConfig(
+            "`buildtime.capabilities.network` is not supported: build-time code cannot reach the network".to_string(),
+        ));
     }
     if let Some(flags) = obj.get("flags").and_then(Value::as_object) {
         for (k, v) in flags {
@@ -125,9 +131,13 @@ pub(crate) fn parse_buildtime_config(obj: &serde_json::Map<String, Value>) -> Bu
             config.flags.insert(k.clone(), text);
         }
     }
-    config
+    Ok(config)
 }
 
+/// Accept either a single string or an array of strings (the same shape
+/// `extract_string_or_array` produces from AST nodes) and flatten to a
+/// `Vec<String>`. Non-string members are skipped: parser-side validation
+/// can't express "string only" in JSON.
 fn extract_string_array(value: &Value) -> Vec<String> {
     match value {
         Value::String(s) => vec![s.clone()],

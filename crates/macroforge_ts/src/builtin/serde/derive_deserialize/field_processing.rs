@@ -1,32 +1,33 @@
 use crate::ast::Expr;
 use crate::builtin::derive_common::detect_primitive_serializable_union;
-use crate::ts_syn::TsStream;
 use crate::ts_syn::abi::DiagnosticCollector;
 use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_aliases};
 use crate::ts_syn::ts_ident;
 
+use super::super::source_field::SourceField;
 use super::super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
 use super::super::{get_foreign_types, rewrite_expression_namespaces};
 use super::helpers::{
     alias_primitive_arm_validators, classify_serde_value_kind, get_serializable_type_name,
-    nested_deserialize_fn_name, parse_default_expr, try_composite_foreign_deserialize,
+    parse_default_expr, try_composite_foreign_deserialize,
 };
-use super::types::{DeserializeField, ObjectVariant, SerdeValueKind, raw_cast_type};
+use super::types::{DeserializeField, raw_cast_type};
 
-/// Converts an `InterfaceFieldIR` into a `DeserializeField`.
+/// Converts a field into a `DeserializeField`, or `None` when the field is
+/// skipped.
 ///
 /// This extracts serde options from decorators, computes the TypeCategory,
 /// and populates all the inner-kind and serializable-type fields needed
 /// for the field-deserialization template.
-pub(super) fn interface_field_to_deserialize_field(
-    field: &crate::ts_syn::abi::ir::interface::InterfaceFieldIR,
+pub(super) fn to_deserialize_field(
+    field: SourceField<'_>,
     container_opts: &SerdeContainerOptions,
     diagnostics: &mut DiagnosticCollector,
     type_registry: &TypeRegistry,
     caller_file_path: &str,
     file_imports: &[FileImportEntry],
 ) -> Option<DeserializeField> {
-    let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+    let parse_result = SerdeFieldOptions::from_decorators(field.decorators, field.name);
     diagnostics.extend(parse_result.diagnostics);
     let opts = parse_result.options;
 
@@ -37,16 +38,12 @@ pub(super) fn interface_field_to_deserialize_field(
     let json_key = opts
         .rename
         .clone()
-        .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
+        .unwrap_or_else(|| container_opts.rename_all.apply(field.name));
 
-    let resolved_ts_type = resolve_generic_aliases(
-        &field.ts_type,
-        type_registry,
-        caller_file_path,
-        file_imports,
-    );
+    let resolved_ts_type =
+        resolve_generic_aliases(field.ts_type, type_registry, caller_file_path, file_imports);
     let mut type_cat = TypeCategory::from_ts_type(&resolved_ts_type);
-    // `string | SomeSerializable` — the resolved shape of `RecordLink<T>`.
+    // `string | SomeSerializable`: the resolved shape of `RecordLink<T>`.
     // Downgrade to `Serializable(inner)` + a typeof-guard flag so downstream
     // templates keep a single code path.
     let primitive_union_guard = if matches!(
@@ -65,7 +62,7 @@ pub(super) fn interface_field_to_deserialize_field(
     // alias's `string` arm) so the primitive form of the union is validated.
     let union_string_validators = match &primitive_union_guard {
         Some(prim) => alias_primitive_arm_validators(
-            &field.ts_type,
+            field.ts_type,
             prim,
             type_registry,
             caller_file_path,
@@ -122,28 +119,12 @@ pub(super) fn interface_field_to_deserialize_field(
         TypeCategory::Map(_, value) => get_serializable_type_name(value),
         _ => None,
     };
-    let record_value_kind = match &type_cat {
-        TypeCategory::Record(_, value) => Some(classify_serde_value_kind(value)),
-        _ => None,
-    };
     let record_value_serializable_type = match &type_cat {
         TypeCategory::Record(_, value) => get_serializable_type_name(value),
         _ => None,
     };
-    let wrapper_inner_kind = match &type_cat {
-        TypeCategory::Wrapper(inner) => Some(classify_serde_value_kind(inner)),
-        _ => None,
-    };
     let wrapper_serializable_type = match &type_cat {
         TypeCategory::Wrapper(inner) => get_serializable_type_name(inner),
-        _ => None,
-    };
-    let optional_inner_kind = match &type_cat {
-        TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
-        _ => None,
-    };
-    let optional_serializable_type = match &type_cat {
-        TypeCategory::Optional(inner) => get_serializable_type_name(inner),
         _ => None,
     };
 
@@ -152,10 +133,7 @@ pub(super) fn interface_field_to_deserialize_field(
         opts.deserialize_with.clone()
     } else {
         let foreign_types = get_foreign_types();
-        let ft_match = TypeCategory::match_foreign_type(&field.ts_type, &foreign_types);
-        if let Some(error) = ft_match.error {
-            diagnostics.error(field.span, error);
-        }
+        let ft_match = TypeCategory::match_foreign_type(field.ts_type, &foreign_types);
         if let Some(warning) = ft_match.warning {
             diagnostics.warning(field.span, warning);
         }
@@ -163,7 +141,7 @@ pub(super) fn interface_field_to_deserialize_field(
             .config
             .and_then(|ft| ft.deserialize_expr.clone())
             .map(|expr| rewrite_expression_namespaces(&expr))
-            .or_else(|| try_composite_foreign_deserialize(&field.ts_type))
+            .or_else(|| try_composite_foreign_deserialize(field.ts_type))
     };
 
     let deserialize_with =
@@ -202,13 +180,12 @@ pub(super) fn interface_field_to_deserialize_field(
 
     Some(DeserializeField {
         json_key,
-        field_name: field.name.clone(),
-        field_ident: ts_ident!(field.name.as_str()),
+        field_name: field.name.to_string(),
+        field_ident: ts_ident!(field.name),
         raw_cast_type: raw_cast_type(&resolved_ts_type, &type_cat),
         ts_type: resolved_ts_type,
         type_cat,
         optional: field.optional || opts.default || opts.default_expr.is_some(),
-        has_default: opts.default || opts.default_expr.is_some(),
         default_expr,
         flatten: opts.flatten,
         validators: opts.validators.clone(),
@@ -222,188 +199,10 @@ pub(super) fn interface_field_to_deserialize_field(
         set_elem_serializable_type,
         map_value_kind,
         map_value_serializable_type,
-        record_value_kind,
         record_value_serializable_type,
-        wrapper_inner_kind,
         wrapper_serializable_type,
-        optional_inner_kind,
-        optional_serializable_type,
         primitive_union_guard,
         array_elem_primitive_union_guard,
         union_string_validators,
     })
-}
-
-/// Generates a TypeScript code block string that deserializes an inline object variant's fields.
-///
-/// The generated code reads fields from `source_var` (e.g., "value" or "__content"),
-/// builds an `instance` object with proper type conversions, and returns it.
-///
-/// Used by the union deserialization template to handle `TypeMemberKind::Object` members
-/// inline, without needing a separate named-type deserializer function.
-#[allow(dead_code)]
-pub(super) fn generate_object_variant_deser_block(
-    variant: &ObjectVariant,
-    source_var: &str,
-    tag_field: &str,
-    full_type_name: &str,
-) -> TsStream {
-    let mut lines = Vec::new();
-    lines.push("{".to_string());
-    lines.push(format!(
-        "  const __obj = {} as Record<string, unknown>;",
-        source_var
-    ));
-    lines.push("  const __inst: any = {};".to_string());
-
-    // Set the tag field
-    if let Some(tv) = &variant.tag_value {
-        lines.push(format!("  __inst[\"{}\"] = \"{}\";", tag_field, tv));
-    }
-
-    // Deserialize each field
-    for field in &variant.fields {
-        let key = &field.json_key;
-
-        if field.optional {
-            lines.push(format!(
-                "  if (\"{}\" in __obj && __obj[\"{}\"] !== undefined) {{",
-                key, key
-            ));
-            generate_field_assignment(&mut lines, field, "    ");
-            lines.push("  }".to_string());
-        } else {
-            lines.push(format!("  if (\"{}\" in __obj) {{", key));
-            generate_field_assignment(&mut lines, field, "    ");
-            lines.push("  }".to_string());
-        }
-    }
-
-    lines.push(format!(
-        "  ctx.trackForFreeze(__inst);  return __inst as {};",
-        full_type_name
-    ));
-    lines.push("}".to_string());
-    TsStream::from_string(lines.join("\n"))
-}
-
-/// Helper for `generate_object_variant_deser_block`: emits the field assignment
-/// line(s) for a single field, based on its `TypeCategory`.
-#[allow(dead_code)]
-pub(super) fn generate_field_assignment(
-    lines: &mut Vec<String>,
-    field: &DeserializeField,
-    indent: &str,
-) {
-    let key = &field.json_key;
-    let fname = &field.field_name;
-
-    match &field.type_cat {
-        TypeCategory::Primitive => {
-            lines.push(format!(
-                "{}__inst.{} = __obj[\"{}\"] as {};",
-                indent, fname, key, field.ts_type
-            ));
-        }
-        TypeCategory::Date => {
-            lines.push(format!(
-                "{}__inst.{} = typeof __obj[\"{}\"] === \"string\" ? new Date(__obj[\"{}\"] as string) : __obj[\"{}\"] as Date;",
-                indent, fname, key, key, key
-            ));
-        }
-        TypeCategory::Serializable(type_name) => {
-            let deser_fn = nested_deserialize_fn_name(type_name);
-            // For fields whose static type is a primitive-plus-serializable union,
-            // primitive-side values are passed through as-is — the `typeof === <prim>`
-            // guard captures the actual primitive (`string`, `number`, `boolean`, …)
-            // detected at codegen. Object values go through the nested deserializer.
-            if let Some(prim) = field.primitive_union_guard.as_deref() {
-                lines.push(format!(
-                    "{}__inst.{} = typeof __obj[\"{}\"] === \"{}\" ? __obj[\"{}\"] : {}(__obj[\"{}\"], ctx) as {};",
-                    indent, fname, key, prim, key, deser_fn, key, field.ts_type
-                ));
-            } else {
-                lines.push(format!(
-                    "{}__inst.{} = {}(__obj[\"{}\"], ctx) as {};",
-                    indent, fname, deser_fn, key, field.ts_type
-                ));
-            }
-        }
-        TypeCategory::Nullable(inner) => {
-            let inner_cat = TypeCategory::from_ts_type(inner);
-            match inner_cat {
-                TypeCategory::Date => {
-                    lines.push(format!(
-                        "{}__inst.{} = __obj[\"{}\"] === null ? null : (typeof __obj[\"{}\"] === \"string\" ? new Date(__obj[\"{}\"] as string) : __obj[\"{}\"] as Date);",
-                        indent, fname, key, key, key, key
-                    ));
-                }
-                TypeCategory::Serializable(ser_name) => {
-                    let deser_fn = nested_deserialize_fn_name(&ser_name);
-                    lines.push(format!(
-                        "{}__inst.{} = __obj[\"{}\"] === null ? null : {}(__obj[\"{}\"], ctx) as {};",
-                        indent, fname, key, deser_fn, key, field.ts_type
-                    ));
-                }
-                _ => {
-                    lines.push(format!(
-                        "{}__inst.{} = __obj[\"{}\"] as {};",
-                        indent, fname, key, field.raw_cast_type
-                    ));
-                }
-            }
-        }
-        TypeCategory::Array(inner) => {
-            let elem_kind = field.array_elem_kind.unwrap_or(SerdeValueKind::Other);
-            match elem_kind {
-                SerdeValueKind::PrimitiveLike => {
-                    lines.push(format!(
-                        "{}__inst.{} = __obj[\"{}\"] as {}[];",
-                        indent, fname, key, inner
-                    ));
-                }
-                SerdeValueKind::Date => {
-                    lines.push(format!(
-                        "{}__inst.{} = Array.isArray(__obj[\"{}\"]) ? (__obj[\"{}\"] as any[]).map((item: any) => typeof item === \"string\" ? new Date(item) : item as Date) : [];",
-                        indent, fname, key, key
-                    ));
-                }
-                _ => {
-                    if let Some(ref elem_type) = field.array_elem_serializable_type {
-                        let deser_fn = nested_deserialize_fn_name(elem_type);
-                        // For elements whose static type is a primitive-plus-serializable
-                        // union, primitive-side items are passed through as-is — the
-                        // `typeof === <prim>` guard captures the actual primitive
-                        // (`string`, `number`, `boolean`, …) detected at codegen.
-                        // Object items go through the per-element deserializer.
-                        if let Some(prim) = field.array_elem_primitive_union_guard.as_deref() {
-                            lines.push(format!(
-                                "{}__inst.{} = Array.isArray(__obj[\"{}\"]) ? (__obj[\"{}\"] as any[]).map((item: any) => typeof item === \"{}\" ? item : {}(item, ctx)) : [];",
-                                indent, fname, key, key, prim, deser_fn
-                            ));
-                        } else {
-                            lines.push(format!(
-                                "{}__inst.{} = Array.isArray(__obj[\"{}\"]) ? (__obj[\"{}\"] as any[]).map((item: any) => {}(item, ctx)) : [];",
-                                indent, fname, key, key, deser_fn
-                            ));
-                        }
-                    } else {
-                        lines.push(format!(
-                            "{}__inst.{} = __obj[\"{}\"] as {};",
-                            indent, fname, key, field.raw_cast_type
-                        ));
-                    }
-                }
-            }
-        }
-        // For all other categories (Map, Set, Record, Wrapper, Optional, etc.),
-        // fall back to a simple cast assignment. These cover less common inline
-        // object field types and can be enhanced later if needed.
-        _ => {
-            lines.push(format!(
-                "{}__inst.{} = __obj[\"{}\"] as {};",
-                indent, fname, key, field.raw_cast_type
-            ));
-        }
-    }
 }

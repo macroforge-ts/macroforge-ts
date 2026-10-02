@@ -1,0 +1,95 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+---
+## Source
+
+src/attributes-test.ts
+sha256 924d44621ab632dc1ab0838d323ce6e55afc4941c49d03f968a5db24d2b3d4e1
+
+## Changed
+
+true
+
+## Output
+
+// End-to-end fixture for the four Rust-inspired attribute macros:
+// `@cfg`, `@deprecated`, `@mustUse`, `@nonExhaustive`.
+//
+// `macroforge.config.ts` sets `cfg.features = ['playground']` and
+// `cfg.target = 'web'`. With those flags:
+//
+// - `@cfg({ feature: 'playground' })`  ⇒  declaration kept
+// - `@cfg({ feature: 'never' })`       ⇒  declaration stripped (export becomes undefined)
+// - `@cfg({ target: 'web' })`          ⇒  kept
+// - `@cfg({ target: 'node' })`         ⇒  stripped
+//
+// `@deprecated` rewrites the JSDoc to a tsc-readable form, which
+// `tests/expansion.test.mjs` covers; runtime can only confirm the function
+// still exists since JSDoc isn't reflected.
+//
+// `@mustUse` only flags discarded call sites. We consume the return below so
+// no diagnostic fires — the playground stays buildable.
+//
+// `@nonExhaustive` brands a type alias's RHS at type-level only. The runtime
+// artifact is just the type alias declaration; the brand intersection lives
+// in the snapshot.
+
+
+export function keptByPlayground(): string {
+    return 'kept-by-feature';
+}
+
+
+
+
+export function keptByWebTarget(): string {
+    return 'kept-by-target';
+}
+
+
+
+/** @deprecated use renderV2 instead */
+export function renderV1(): string {
+    return 'render-v1';
+}
+
+
+export function openConnection(): { close: () => void } {
+    return { close() {} };
+}
+
+
+export type ServerStatus = ('green' | 'yellow' | 'red') & { readonly __nonExhaustive: unique symbol };
+
+// Used to verify the type still typechecks after the brand intersection
+// added by `@nonExhaustive`. External code constructing a `ServerStatus`
+// must cast through the brand — that's the whole point of the brand.
+export const exampleStatus = 'green' as ServerStatus;
+
+// Consume the @mustUse return value so no diagnostic fires at build time.
+const handle = openConnection();
+handle.close();
+
+## DTS
+
+(none)
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..1863 -> expanded 0..1863
+
+## Metadata
+
+type ServerStatus: {"body":{"Intersection":[{"decorators":[],"kind":{"TypeRef":"'green' | 'yellow' | 'red'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"__nonExhaustive","optional":false,"readonly":true,"span":{"end":1461,"start":1422},"ts_type":"unique symbol"}]}}}]},"decorators":[],"name":"ServerStatus","span":{"end":1464,"start":1369},"type_params":[]}
+
+## Registry reads
+
+(none)
+
+## Buildtime dependencies
+
+(none)

@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_debug_clone.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_debug_clone.ts
 ---
 ## Input
 
@@ -18,6 +17,10 @@ class User {
         this.name = name;
     }
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -91,5 +94,28 @@ cloned.name = value.name;
                 }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 69..216 -> expanded 41..188
+original 216..217 -> expanded 390..391
+original 217..218 -> expanded 927..928
+generated 188..293 <- Debug
+generated 293..390 <- Clone
+generated 391..677 <- Debug
+generated 677..927 <- Clone
+
+## Metadata
+
+class User: {"body_span":{"end":218,"start":82},"decorators":[{"args_src":"Debug, Clone","name":"Derive","span":{"end":70,"start":42}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":99,"start":88},"ts_type":"number","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":117,"start":104},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[{"body_span":{"end":216,"start":161},"body_src":"\n        this.id = id;\n        this.name = name;\n    ","decorators":[],"is_async":false,"is_static":false,"name":"constructor","params_src":"id: number, name: string","return_type_src":"","span":{"end":216,"start":123},"type_params_src":"","visibility":"Public"}],"name":"User","span":{"end":218,"start":71},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

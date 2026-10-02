@@ -73,9 +73,11 @@ Template-based code generation similar to Rust's `quote!`:
 
 ### macroforge\_ts\_macros
 
-The procedural macro attribute for defining derive macros:
+The procedural macro attributes for defining custom macros:
 
-- `#[ts_macro_derive(Name)]` attribute
+- `#[ts_macro_derive(Name)]` for derive macros
+- `#[ts_macro_attribute(name)]` for attribute macros
+- `#[ts_macro(name)]` for call macros
 - Automatic registration with the macro system
 - Error handling and span tracking
 
@@ -139,7 +141,7 @@ Rust
 
 ```
 // Convenient re-exports for macro development
-use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
+use macroforge_ts::macros::{ts_macro, ts_macro_attribute, ts_macro_derive, ts_quote, ts_template};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 // Also available: the AST crate itself

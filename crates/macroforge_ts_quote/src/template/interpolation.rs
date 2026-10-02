@@ -157,84 +157,79 @@ pub fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
         return quote! { __out.push_str(#raw); };
     }
 
-    // Parse and interpolate
-    let mut output = TokenStream2::new();
     let quote_str = quote_char.to_string();
-    output.extend(quote! { __out.push_str(#quote_str); });
+    let body = interpolate_text(content, lit.span(), true);
+    quote! {
+        __out.push_str(#quote_str);
+        #body
+        __out.push_str(#quote_str);
+    }
+}
 
-    let mut chars = content.chars().peekable();
+/// Code that pushes `text` onto `__out`, with each `@{expr}` replaced by the
+/// expression's `ToTsString` output and each `@@` by `@`. When
+/// `keep_escapes` is set, a backslash escape is copied through unchanged so
+/// the text stays a valid JavaScript string body.
+pub fn interpolate_text(text: &str, span: proc_macro2::Span, keep_escapes: bool) -> TokenStream2 {
+    let mut output = TokenStream2::new();
+    let mut chars = text.chars().peekable();
     let mut current_literal = String::new();
 
     while let Some(c) = chars.next() {
         if c == '@' {
             match chars.peek() {
                 Some(&'@') => {
-                    // @@ -> literal @
-                    chars.next(); // Consume second @
+                    chars.next();
                     current_literal.push('@');
                 }
                 Some(&'{') => {
-                    // @{ -> interpolation
-                    // Flush current literal
                     if !current_literal.is_empty() {
                         output.extend(quote! { __out.push_str(#current_literal); });
                         current_literal.clear();
                     }
+                    chars.next();
 
-                    chars.next(); // Consume '{'
-
-                    // Collect expression until matching '}'
                     let mut expr_str = String::new();
                     let mut brace_depth = 1;
-
                     for ec in chars.by_ref() {
                         if ec == '{' {
                             brace_depth += 1;
-                            expr_str.push(ec);
                         } else if ec == '}' {
                             brace_depth -= 1;
                             if brace_depth == 0 {
                                 break;
                             }
-                            expr_str.push(ec);
-                        } else {
-                            expr_str.push(ec);
                         }
+                        expr_str.push(ec);
                     }
 
-                    // Parse the expression and generate interpolation code
-                    if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
-                        output.extend(quote! {
+                    match syn::parse_str::<syn::Expr>(&expr_str) {
+                        Ok(expr) => output.extend(quote! {
                             __out.push_str(&macroforge_ts::ts_syn::ToTsString::to_ts_string(&#expr));
-                        });
-                    } else {
-                        // Failed to parse, output as literal
-                        let fallback = format!("@{{{}}}", expr_str);
-                        output.extend(quote! { __out.push_str(#fallback); });
+                        }),
+                        Err(error) => output.extend(
+                            syn::Error::new(
+                                span,
+                                format!("`@{{{expr_str}}}` is not a Rust expression: {error}"),
+                            )
+                            .to_compile_error(),
+                        ),
                     }
                 }
-                _ => {
-                    // Just a literal @
-                    current_literal.push('@');
-                }
+                _ => current_literal.push('@'),
             }
-        } else if c == '\\' {
-            // Handle escape sequences - pass through as-is
+        } else if c == '\\' && keep_escapes {
             current_literal.push(c);
-            if chars.peek().is_some() {
-                current_literal.push(chars.next().unwrap());
+            if let Some(escaped) = chars.next() {
+                current_literal.push(escaped);
             }
         } else {
             current_literal.push(c);
         }
     }
 
-    // Flush remaining literal
     if !current_literal.is_empty() {
         output.extend(quote! { __out.push_str(#current_literal); });
     }
-
-    output.extend(quote! { __out.push_str(#quote_str); });
-
     output
 }

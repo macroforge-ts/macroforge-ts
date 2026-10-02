@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/interface_deserialize.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_deserialize.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ interface Point {
     x: number;
     y: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -108,9 +112,6 @@ interface Point {
 
                 ctx.trackForFreeze(instance);{
                                 const __raw_x = obj["x"] as number;instance.x = __raw_x;
-
-
-
 
 
 
@@ -629,16 +630,7 @@ interface Point {
 
 
 
-
-
-
                             }
-
-
-
-
-
-
 
 
 
@@ -1623,14 +1615,8 @@ interface Point {
 
 
 
-
-
-
                             }{
                                 const __raw_y = obj["y"] as number;instance.y = __raw_y;
-
-
-
 
 
 
@@ -2458,12 +2444,6 @@ interface Point {
 
 
 
-
-
-
-
-
-
                 ctx.pushErrors(errors);
 
                 return instance as Point;
@@ -2531,5 +2511,24 @@ const Point = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 27..77 -> expanded 0..50
+original 77..78 -> expanded 5773..5774
+generated 50..5576 <- Deserialize
+generated 5576..5773 <- __convenience_const
+
+## Metadata
+
+interface Point: {"body_span":{"end":78,"start":45},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":28,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":61,"start":51},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":76,"start":66},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":78,"start":29},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

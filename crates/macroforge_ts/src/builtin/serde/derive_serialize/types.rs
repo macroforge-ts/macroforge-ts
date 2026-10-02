@@ -104,18 +104,10 @@ pub(crate) fn nested_serialize_fn_name(type_name: &str) -> String {
 /// capturing the JSON key name, field access name, type category, and serialization options.
 #[derive(Clone)]
 pub(crate) struct SerializeField {
-    /// The JSON property name to use in the serialized output.
-    /// This may differ from `field_name` if `@serde(rename = "...")` is used.
-    #[allow(dead_code)]
-    pub(crate) json_key: String,
     /// The JSON key as an AST identifier for direct property access.
     /// Used in templates as `result.@{json_key_ident}` instead of computed access.
     pub(crate) json_key_ident: Ident,
 
-    /// The TypeScript field name as it appears in the source class.
-    /// Used for generating property access expressions like `this.fieldName`.
-    #[allow(dead_code)]
-    pub(crate) field_name: String,
     /// The field name as an AST identifier for property access.
     pub(crate) field_ident: Ident,
 

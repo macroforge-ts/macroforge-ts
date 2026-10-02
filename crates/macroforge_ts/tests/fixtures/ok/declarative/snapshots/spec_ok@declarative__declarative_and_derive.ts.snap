@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/declarative/declarative_and_derive.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/declarative/declarative_and_derive.ts
 ---
 ## Input
 
@@ -18,6 +17,10 @@ class User {
 }
 
 const greeting = $identity('hello');
+
+## Changed
+
+true
 
 ## Output
 
@@ -56,5 +59,26 @@ export function userToString(value: User): string {
 const greeting = 'hello';
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..4 -> expanded 0..4
+original 25..57 -> expanded 4..36
+original 57..58 -> expanded 141..142
+original 58..86 -> expanded 397..425
+generated 36..141 <- Debug
+generated 142..397 <- Debug
+
+## Metadata
+
+class User: {"body_span":{"end":59,"start":38},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":26,"start":5}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":57,"start":44},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":59,"start":27},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

@@ -2,7 +2,7 @@
 //!
 //! The pre-pass is pure: it owns no state beyond the sandbox it's given,
 //! and it returns a [`PrepassOutput`] that the host splices into the
-//! normal patch pipeline. Errors never propagate up through `anyhow` —
+//! normal patch pipeline. Errors never propagate up through `anyhow`:
 //! every failure becomes a [`Diagnostic`] attached to the offending
 //! declaration, so a broken `@buildtime` block fails the user's build
 //! with a useful message rather than crashing the compiler.
@@ -48,13 +48,13 @@ impl PrepassOutput {
 
 /// Run the pre-pass against `source`.
 ///
-/// * `program` — already-parsed OXC AST. The host reuses its allocator.
-/// * `source` — original TS source text, used for span-to-text lookups.
-/// * `origin_path` — absolute file path; surfaced inside the sandbox
+/// * `program`: already-parsed OXC AST. The host reuses its allocator.
+/// * `source`: original TS source text, used for span-to-text lookups.
+/// * `origin_path`: absolute file path; surfaced inside the sandbox
 ///   as `buildtime.location.file`.
-/// * `sandbox` — backend implementation. Typically
+/// * `sandbox`: backend implementation. Typically
 ///   [`crate::host::buildtime::default_backend`].
-/// * `base_options` — capability/timeout/heap config, built from the
+/// * `base_options`: capability/timeout/heap config, built from the
 ///   user's `macroforge.config.{js,ts}`. Each declaration gets a copy
 ///   with its `source_file` and `source_line` overridden to point at
 ///   the declaration.
@@ -85,7 +85,7 @@ pub fn run_prepass(
     // block can call any pure function in scope.
     //
     // If the stripped source has impure top-level code, the prelude is
-    // disabled and we emit a diagnostic — but evaluation still proceeds
+    // disabled and we emit a diagnostic, but evaluation still proceeds
     // with an empty prelude so files that don't rely on siblings work.
     let prelude = build_same_file_prelude(program, source, &decls);
     let prelude_for_sandbox = match &prelude {
@@ -96,13 +96,23 @@ pub fn run_prepass(
         }
     };
 
+    // Boa is a JS-only engine, so TS syntax in the prelude or a body
+    // (e.g. `: number` annotations, `as Foo` casts inside an IIFE) is
+    // lowered first. The prelude is shared by every declaration, so it
+    // is lowered once and each lowered body is appended to it.
+    let lowered_prelude = if prelude_for_sandbox.is_empty() {
+        Ok(String::new())
+    } else {
+        strip_ts_from_body(prelude_for_sandbox)
+    };
+    let lines = crate::line_index::LineIndex::new(source);
+
     for decl in decls {
         let mut opts = base_options.clone();
         opts.source_file = origin_path.to_path_buf();
         // SpanIR is 1-based; the line/column helper expects a 0-based
         // byte offset into source.
-        let (line, column) =
-            byte_offset_to_line_col(source, decl.decl_span.start.saturating_sub(1));
+        let (line, column) = lines.line_col(source, decl.decl_span.start.saturating_sub(1));
         opts.source_line = line;
         opts.source_column = column;
 
@@ -110,18 +120,18 @@ pub fn run_prepass(
         // `const` / `function` / etc. declarations hoisted to the top;
         // the body is a `return (EXPR);` or statement list that
         // references those declarations.
-        let raw_source = if prelude_for_sandbox.is_empty() {
-            decl.body_source.clone()
-        } else {
-            format!("{}\n{}", prelude_for_sandbox, decl.body_source)
+        let lowered = match &lowered_prelude {
+            Ok(prelude) => strip_ts_from_body(&decl.body_source).map(|body| {
+                if prelude.is_empty() {
+                    body
+                } else {
+                    format!("{prelude}\n{body}")
+                }
+            }),
+            Err(err) => Err(err.clone()),
         };
-        // Boa is a JS-only engine, so any TS syntax in the user's
-        // body (e.g. `: number` annotations, `as Foo` casts inside
-        // an IIFE) needs stripping before evaluation. We wrap the
-        // body in a fresh function, run it through OXC's TS->JS
-        // transformer, then unwrap.
-        let effective_source = match strip_ts_from_body(&raw_source) {
-            Ok(stripped) => stripped,
+        let effective_source = match lowered {
+            Ok(lowered) => lowered,
             Err(e) => {
                 diagnostics.push(Diagnostic {
                     level: DiagnosticLevel::Error,
@@ -171,7 +181,7 @@ pub fn run_prepass(
         }
     };
 
-    // Deduplicate dependencies — multiple decls may read the same file.
+    // Deduplicate dependencies: multiple decls may read the same file.
     dependencies.sort();
     dependencies.dedup();
 
@@ -188,18 +198,18 @@ fn build_patch(decl: &BuildtimeDecl, value: SandboxValue) -> Result<Patch, Seria
             let literal = value_to_ts_source(&value)?;
             format_const_decl(decl, &literal)
         }
-        // Tier 2 — string result splices verbatim.
+        // Tier 2: string result splices verbatim.
         (BuildtimeKind::Tier2Function, SandboxValue::String(text)) => text.clone(),
-        // Tier 2 — non-string result degrades to a const declaration
+        // Tier 2: non-string result degrades to a const declaration
         // named for the original function. This matches the spec:
         // `function f() { return 42; }` ≡ `const f = 42;`.
         (BuildtimeKind::Tier2Function, _) => {
             let literal = value_to_ts_source(&value)?;
             format_const_decl(decl, &literal)
         }
-        // Tier 3 — the returned string IS the new type RHS.
+        // Tier 3: the returned string IS the new type RHS.
         (BuildtimeKind::Tier3Type, SandboxValue::String(text)) => format_type_decl(decl, text),
-        // Tier 3 with non-string return — error out, this is almost
+        // Tier 3 with non-string return: error out, this is almost
         // always a user mistake (forgot to join(), returned a number
         // that can't be a type, etc.). SerializeError carries through
         // as a diagnostic.
@@ -287,31 +297,6 @@ fn sandbox_error_to_diagnostic(
             vec![],
             Some("add the path to `buildtime.capabilities.filesystem.read` in macroforge.config.js".to_string()),
         ),
-        SandboxError::UnauthorizedWrite { path } => (
-            format!(
-                "@buildtime `{}` tried to write `{}` but filesystem writes are not permitted for that path",
-                decl.name,
-                path.display()
-            ),
-            vec![],
-            Some("add the path to `buildtime.capabilities.filesystem.write` in macroforge.config.js".to_string()),
-        ),
-        SandboxError::UnauthorizedEnv { var } => (
-            format!(
-                "@buildtime `{}` tried to read env var `{}` which is not in the capability allowlist",
-                decl.name, var
-            ),
-            vec![],
-            Some("add the variable name to `buildtime.capabilities.env` in macroforge.config.js".to_string()),
-        ),
-        SandboxError::UnauthorizedNetwork { url } => (
-            format!(
-                "@buildtime `{}` tried to make a network request to {} but the network capability is off",
-                decl.name, url
-            ),
-            vec![],
-            Some("set `buildtime.capabilities.network = true` in macroforge.config.js (and accept non-deterministic builds)".to_string()),
-        ),
         SandboxError::UnserializableResult { kind } => (
             format!(
                 "@buildtime `{}` returned a {} which has no TypeScript literal representation",
@@ -348,27 +333,6 @@ fn serialize_error_to_diagnostic(decl: &BuildtimeDecl, err: SerializeError) -> D
     }
 }
 
-/// Convert a byte offset into a 1-based `(line, column)` pair for the
-/// given source. Used to stamp the declaration's position onto
-/// `SandboxOptions` for `buildtime.location.{line,column}`.
-fn byte_offset_to_line_col(source: &str, offset: u32) -> (u32, u32) {
-    let offset = (offset as usize).min(source.len());
-    let mut line = 1u32;
-    let mut column = 1u32;
-    for (i, ch) in source.char_indices() {
-        if i >= offset {
-            break;
-        }
-        if ch == '\n' {
-            line += 1;
-            column = 1;
-        } else {
-            column += 1;
-        }
-    }
-    (line, column)
-}
-
 /// Re-export so callers don't need to pull in `ts_syn::abi::patch`.
 ///
 /// A shim so external users can pattern-match the prepass output
@@ -382,8 +346,8 @@ pub use crate::ts_syn::abi::patch::Patch as PrepassPatch;
 /// TS syntax) can parse it.
 ///
 /// Returns:
-/// - `Ok(String)` — the prelude text to prepend to the body.
-/// - `Err(Diagnostic)` — the source has impure top-level code that
+/// - `Ok(String)`: the prelude text to prepend to the body.
+/// - `Err(Diagnostic)`: the source has impure top-level code that
 ///   makes it unsafe to include in the prelude. Evaluation still
 ///   proceeds without the prelude (so @buildtime blocks that only
 ///   use their own body still work).
@@ -468,7 +432,7 @@ fn build_same_file_prelude(
     // Second pass: collect the source text of each pure declaration we
     // want to include, per kind. Classes and TS-only declarations are
     // excluded because they can contain type annotations OXC codegen
-    // doesn't strip — we'd end up passing invalid JS to the sandbox.
+    // doesn't strip, so we'd end up passing invalid JS to the sandbox.
     // `const` initializers go through a JS-only check too: if the
     // initializer text contains `as`, `<T>`, `satisfies`, or a colon
     // outside a string, we skip that declaration.
@@ -524,25 +488,17 @@ fn build_same_file_prelude(
     Ok(prelude)
 }
 
-/// Conservative TS-vs-JS check: if the source has a TS-only
-/// construct we can't reliably strip (type annotations, generics in
-/// type position, `as`/`satisfies`), skip the declaration from the
-/// prelude rather than risk a parse error in the sandbox.
+/// Conservative TS-vs-JS check: a colon in a type-annotation position
+/// keeps the declaration out of the prelude rather than risk a parse
+/// error in the sandbox.
 ///
-/// False positives are fine — they just mean the user can't reference
-/// that helper from `@buildtime`. The user can work around by moving
-/// the helper to a plain-JS `.buildtime.ts` file in a follow-up.
+/// False positives are fine: they just mean the user can't reference
+/// that helper from `@buildtime`. Moving the helper to a plain-JS
+/// `.buildtime.ts` file works around it.
 fn looks_ts_only(text: &str) -> bool {
     // Strip strings + regex literals so colons / keywords inside them
     // don't trigger false positives.
     let stripped = strip_string_contents(text);
-    if stripped.contains(" as ") || stripped.contains("<") && stripped.contains(">") {
-        // `<T>` or `as X` — almost always a type annotation in a
-        // top-level position.
-        // `<T>` also matches JSX, but JSX at top level of a const
-        // initializer is rare and still JS-safe — false positive is
-        // acceptable.
-    }
     // The main signal: a colon in a parameter list (`(x: T)`) or
     // in a variable declarator (`const x: T = ...`). We scan the text
     // for a colon that isn't inside a string literal and isn't part
@@ -565,7 +521,7 @@ fn strip_string_contents(src: &str) -> String {
                     chars.next();
                     if next == '\\' {
                         // Skip the escaped char.
-                        if let Some(_escaped) = chars.next() {
+                        if chars.next().is_some() {
                             out.push(' ');
                         }
                         out.push(' ');
@@ -585,8 +541,8 @@ fn strip_string_contents(src: &str) -> String {
 
 /// True if `src` contains a `:` in a position consistent with a TS
 /// type annotation: after `)`, `]`, or an identifier, and not followed
-/// by `=` (which would make it `:=` — a shorthand property with
-/// default — those are rare and we tolerate false positives).
+/// by `=` (which would make it `:=`, a shorthand property with
+/// default; those are rare and we tolerate false positives).
 fn contains_type_colon(src: &str) -> bool {
     let bytes = src.as_bytes();
     let mut paren_depth = 0i32;
@@ -613,7 +569,7 @@ fn contains_type_colon(src: &str) -> bool {
                 // any braces / brackets) is a type annotation.
                 if paren_depth > 0 || (brace_depth == 0 && bracket_depth == 0) {
                     // Still need to exclude object-literal shorthand
-                    // like `{ a: 1 }` — which has brace_depth > 0 at
+                    // like `{ a: 1 }`, which has brace_depth > 0 at
                     // the colon. We've already required brace_depth == 0
                     // for the non-paren case.
                     return true;

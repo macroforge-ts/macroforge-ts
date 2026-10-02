@@ -4,13 +4,14 @@
  * Project-wide expansion: walk a directory tree, expand every `.ts`/`.tsx`
  * file containing macro annotations, and write the output to a mirror
  * directory. This is the workflow that lets you run a Deno app without
- * Vite — point Deno at the mirror via an `imports` entry in `deno.json`.
+ * Vite: point Deno at the mirror via an `imports` entry in `deno.json`.
  */
 
 import * as path from '@std/path';
 import { ensureDir, walk } from '@std/fs';
+import { escape } from '@std/regexp';
 import { hasMacroAnnotations } from '@macroforge/core';
-import { expand, type ExpandOptions } from './index.ts';
+import { expand, type ExpandOptions, residentRegistries } from './index.ts';
 
 /** Options for expanding a whole project tree into a mirror directory. */
 export interface ExpandProjectOptions extends ExpandOptions {
@@ -54,6 +55,17 @@ const DEFAULT_EXCLUDES = [
 const DEFAULT_EXTENSIONS = ['.ts', '.tsx'];
 
 /**
+ * A pattern for an excluded path segment. A segment that ends in `/` names a
+ * directory, so it also matches the directory's own path, which has no
+ * trailing separator, and the walk skips it whole.
+ */
+function excludePattern(segment: string): RegExp {
+    return segment.endsWith('/')
+        ? new RegExp(`${escape(segment.slice(0, -1))}(/|$)`)
+        : new RegExp(escape(segment));
+}
+
+/**
  * Expand every macro-bearing file under `root` and write the output to
  * `<root>/<outDir>/`. Returns the per-file events so callers can summarize.
  */
@@ -68,56 +80,61 @@ export async function expandProject(
     const onFile = options.onFile;
 
     const events: ExpandFileEvent[] = [];
+    const resident = residentRegistries(options);
+    try {
+        // Excluded directories are pruned rather than walked and filtered. The
+        // mirror is itself under `root`; never recurse into it.
+        const skip = [
+            new RegExp(`^${escape(outDir)}(${escape(path.SEPARATOR)}|$)`),
+            ...exclude.map(excludePattern)
+        ];
+        for await (
+            const entry of walk(root, { includeDirs: false, exts: extensions, skip })
+        ) {
+            const source = entry.path;
 
-    for await (
-        const entry of walk(root, { includeDirs: false, exts: extensions })
-    ) {
-        const source = entry.path;
-        // The mirror is itself under `root`; never recurse into it.
-        if (source.startsWith(outDir + path.SEPARATOR) || source === outDir) {
-            continue;
-        }
-        if (exclude.some((segment) => source.includes(segment))) continue;
+            const rel = path.relative(root, source);
+            const dest = path.join(outDir, rel);
 
-        const rel = path.relative(root, source);
-        const dest = path.join(outDir, rel);
+            const code = await Deno.readTextFile(source);
 
-        const code = await Deno.readTextFile(source);
-
-        if (!hasMacroAnnotations(code)) {
-            if (copyPassthrough) {
-                await ensureDir(path.dirname(dest));
-                await Deno.writeTextFile(dest, code);
+            if (!hasMacroAnnotations(code, source)) {
+                if (copyPassthrough) {
+                    await ensureDir(path.dirname(dest));
+                    await Deno.writeTextFile(dest, code);
+                }
+                const event: ExpandFileEvent = {
+                    source,
+                    dest,
+                    expanded: false,
+                    skipped: true,
+                    diagnostics: []
+                };
+                events.push(event);
+                onFile?.(event);
+                continue;
             }
+
+            const result = expand(code, source, {
+                ...resident.options,
+                projectRoot: root
+            });
+
+            await ensureDir(path.dirname(dest));
+            await Deno.writeTextFile(dest, result.code);
+
             const event: ExpandFileEvent = {
                 source,
                 dest,
-                expanded: false,
-                skipped: true,
-                diagnostics: []
+                expanded: result.hasMacros,
+                skipped: false,
+                diagnostics: result.diagnostics
             };
             events.push(event);
             onFile?.(event);
-            continue;
         }
-
-        const result = expand(code, source, {
-            ...options,
-            projectRoot: root
-        });
-
-        await ensureDir(path.dirname(dest));
-        await Deno.writeTextFile(dest, result.code);
-
-        const event: ExpandFileEvent = {
-            source,
-            dest,
-            expanded: result.hasMacros,
-            skipped: false,
-            diagnostics: result.diagnostics
-        };
-        events.push(event);
-        onFile?.(event);
+    } finally {
+        resident.release();
     }
 
     return events;
@@ -138,6 +155,7 @@ export async function watchProject(
 
     await expandProject(options);
 
+    const resident = residentRegistries(options);
     const watcher = Deno.watchFs(root, { recursive: true });
 
     (async () => {
@@ -155,7 +173,7 @@ export async function watchProject(
                     const rel = path.relative(root, changed);
                     const dest = path.join(outDir, rel);
 
-                    if (!hasMacroAnnotations(code)) {
+                    if (!hasMacroAnnotations(code, changed)) {
                         if (options.copyPassthrough) {
                             await ensureDir(path.dirname(dest));
                             await Deno.writeTextFile(dest, code);
@@ -164,7 +182,7 @@ export async function watchProject(
                     }
 
                     const result = expand(code, changed, {
-                        ...options,
+                        ...resident.options,
                         projectRoot: root
                     });
                     await ensureDir(path.dirname(dest));
@@ -187,5 +205,8 @@ export async function watchProject(
         }
     })();
 
-    return () => watcher.close();
+    return () => {
+        watcher.close();
+        resident.release();
+    };
 }

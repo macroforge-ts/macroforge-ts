@@ -1,8 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
-assertion_line: 78
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/class_debug_user.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_debug_user.ts
 ---
 ## Input
 
@@ -12,6 +11,10 @@ import { Derive } from '@macro/derive';
 class User {
     name: string;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -52,5 +55,26 @@ export function userToString(value: User): string {
                     }
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 62..94 -> expanded 41..73
+original 94..95 -> expanded 178..179
+original 95..96 -> expanded 434..435
+generated 73..178 <- Debug
+generated 179..434 <- Debug
+
+## Metadata
+
+class User: {"body_span":{"end":96,"start":75},"decorators":[{"args_src":"Debug","name":"Derive","span":{"end":63,"start":42}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":94,"start":81},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":96,"start":64},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

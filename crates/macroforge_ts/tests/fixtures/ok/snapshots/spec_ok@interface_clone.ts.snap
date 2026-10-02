@@ -1,7 +1,7 @@
 ---
-source: macroforge_ts/tests/spec_tests.rs
+source: crates/macroforge_ts/tests/conformance.rs
 expression: snapshot
-input_file: macroforge_ts/tests/fixtures/ok/interface_clone.ts
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_clone.ts
 ---
 ## Input
 
@@ -10,6 +10,10 @@ interface UserData {
     name: string;
     age: number;
 }
+
+## Changed
+
+true
 
 ## Output
 
@@ -50,5 +54,24 @@ const UserData = {
 } as const;
 
 ## Diagnostics
+
+(none)
+
+## Mapping
+
+original 21..79 -> expanded 0..58
+original 79..80 -> expanded 355..356
+generated 58..300 <- Clone
+generated 300..355 <- __convenience_const
+
+## Metadata
+
+interface UserData: {"body_span":{"end":80,"start":42},"decorators":[{"args_src":"Clone","name":"Derive","span":{"end":22,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":61,"start":48},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":78,"start":66},"ts_type":"number"}],"heritage":[],"methods":[],"name":"UserData","span":{"end":80,"start":23},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
 
 (none)

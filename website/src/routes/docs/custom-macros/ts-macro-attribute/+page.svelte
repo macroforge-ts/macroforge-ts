@@ -14,7 +14,7 @@
 <h1>ts_macro_attribute</h1>
 
 <p class="lead">
-    <code>#[ts_macro_attribute]</code> registers an attribute macro —
+    <code>#[ts_macro_attribute]</code> registers an attribute macro,
     the analog of Rust's <code>#[proc_macro_attribute]</code>. Users
     invoke it with a JSDoc <code>@name</code> decorator on a
     declaration; the macro rewrites the entire declaration.
@@ -88,7 +88,7 @@ export function add(a: number, b: number): number {
         <code>Patch::Replace</code> over the target span. Unlike
         derive macros, the expander does <strong>not</strong>
         auto-convert a returned <code>TsStream</code>'s tokens into
-        patches for attribute macros — your macro is responsible for
+        patches for attribute macros: your macro is responsible for
         describing the edit.
     </p>
 </Alert>
@@ -116,8 +116,8 @@ Ok(out)`}
 <h2 id="target-kinds">Target Kinds</h2>
 
 <p>
-    Attribute macros can be applied to any top-level declaration.
-    <code>ctx.target</code> is a <code>TargetIR</code> enum; the
+    Attribute macros can be applied to any top-level declaration, and to
+    class methods. <code>ctx.target</code> is a <code>TargetIR</code> enum; the
     structured <code>IR</code> types give you access to names, spans,
     parameters, fields, etc.
 </p>
@@ -128,6 +128,7 @@ Ok(out)`}
     </thead>
     <tbody>
         <tr><td>Function</td><td><code>TargetIR::Function(FunctionIR)</code></td></tr>
+        <tr><td>Class method</td><td><code>TargetIR::Function(FunctionIR)</code></td></tr>
         <tr><td>Class</td><td><code>TargetIR::Class(ClassIR)</code></td></tr>
         <tr><td>Interface</td><td><code>TargetIR::Interface(InterfaceIR)</code></td></tr>
         <tr><td>Enum</td><td><code>TargetIR::Enum(EnumIR)</code></td></tr>
