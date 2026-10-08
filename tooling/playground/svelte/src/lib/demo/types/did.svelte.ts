@@ -4,7 +4,7 @@ import type { ActivityType } from './activity-type.svelte';
 import type { Actor } from './actor.svelte';
 import type { Target } from './target.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Did {
     /** @default("") */
     in: string | Actor;

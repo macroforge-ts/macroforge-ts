@@ -258,7 +258,7 @@ impl CoreEngine {
     }
 
     /// Clear the entire singleton scan cache. Called when
-    /// `macroforge.config.ts` or `tsconfig.json` changes, anything
+    /// `macroforge.config.ts` or `tsconfig.json` changes: anything
     /// that could invalidate previously-lowered IR.
     pub fn clear_scan_cache() {
         #[cfg(not(target_arch = "wasm32"))]

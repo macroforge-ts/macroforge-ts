@@ -96,7 +96,7 @@ async function highlightCode(code, lang) {
  */
 function detectInlineLanguage(code) {
     // TypeScript patterns - decorators, method signatures, generics
-    if (/^@\w+/.test(code)) return 'typescript'; // @derive, @serde
+    if (/^@\w+/.test(code)) return 'typescript'; // @derive, @endec
     if (/[():]|=>|<[A-Z]/.test(code)) return 'typescript'; // Function signatures, generics
     if (/\b(string|number|boolean|void|any|null|undefined)\b/.test(code)) {
         return 'typescript';

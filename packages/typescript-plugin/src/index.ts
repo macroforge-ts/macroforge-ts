@@ -137,7 +137,7 @@ let macroManifestCache: {
  * const manifest = getMacroManifest();
  * if (manifest) {
  *   const debugMacro = manifest.macros.get('debug');
- *   const serdeDecorator = manifest.decorators.get('serde');
+ *   const endecDecorator = manifest.decorators.get('endec');
  * }
  * ```
  */
@@ -277,7 +277,7 @@ function findDeriveKeywordAtPosition(
 }
 
 /**
- * Finds a field decorator (like `@serde` or `@debug`) at a given cursor position.
+ * Finds a field decorator (like `@endec` or `@debug`) at a given cursor position.
  *
  * This function searches for decorator patterns (`@name`) in the source text and
  * determines if the cursor falls within one. It's used to provide hover information
@@ -293,15 +293,15 @@ function findDeriveKeywordAtPosition(
  * as those are handled by {@link findDeriveAtPosition} instead. The detection works by
  * checking if the match is between an unclosed JSDoc start and end markers.
  *
- * The span returned includes the `@` symbol, so for `@serde`:
+ * The span returned includes the `@` symbol, so for `@endec`:
  * - `start` points to the `@` character
  * - `end` points to the character after the last letter of the name
  *
  * @example
  * ```typescript
- * // Given text: "class User { @serde name: string; }"
+ * // Given text: "class User { @endec name: string; }"
  * findDecoratorAtPosition(text, 14);
- * // => { name: "serde", start: 13, end: 19 }
+ * // => { name: "endec", start: 13, end: 19 }
  *
  * // @derive in JSDoc is skipped (handled by findDeriveAtPosition)
  * // Given text: "/** @derive(Debug) * /"
@@ -354,15 +354,15 @@ function findDecoratorAtPosition(
  *
  * @example
  * ```typescript
- * const text = `/** @derive(Debug, Serialize) *​/
+ * const text = `/** @derive(Debug, Encode) *​/
  * class User {
- *   @serde({ skip: true })
+ *   @endec({ skip: true })
  *   password: string;
  * }`;
  *
- * // Position on @serde
- * findEnclosingDeriveContext(text, text.indexOf("@serde"));
- * // => ["Debug", "Serialize"]
+ * // Position on @endec
+ * findEnclosingDeriveContext(text, text.indexOf("@endec"));
+ * // => ["Debug", "Encode"]
  * ```
  */
 function findEnclosingDeriveContext(
@@ -394,7 +394,7 @@ function findEnclosingDeriveContext(
  * This function provides IDE hover tooltips for Macroforge-specific syntax:
  * - The `@derive` keyword itself
  * - Macro names within `@derive(...)` JSDoc decorators (both built-in and external)
- * - Field decorators like `@serde`, `@debug`, and custom decorators from external macros
+ * - Field decorators like `@endec`, `@debug`, and custom decorators from external macros
  *
  * @param text - The source text to analyze
  * @param fileName - The file's path, which decides how its source is parsed
@@ -441,11 +441,11 @@ function findEnclosingDeriveContext(
  * const info = getMacroHoverInfo(text, fileName, 14, ts);
  * // Returns QuickInfo with description loaded from @playground/macro package
  *
- * // Hovering over "@serde" field decorator
+ * // Hovering over "@endec" field decorator
  * const info = getMacroHoverInfo(text, fileName, 5, ts);
  * // Returns QuickInfo with:
- * // - displayParts: "@serde"
- * // - documentation: "Serialization/deserialization field options"
+ * // - displayParts: "@endec"
+ * // - documentation: "Encoding/decoding field options"
  *
  * // Hovering over "@hiddenController" from external Gigaform macro
  * const info = getMacroHoverInfo(text, fileName, 5, ts);
@@ -484,7 +484,7 @@ function getMacroHoverInfo(
                     text:
                         'Derive directive - applies build-time macros to generate methods and implementations.\n\n' +
                         '**Usage:** `/** @derive(MacroName, AnotherMacro) */`\n\n' +
-                        '**Built-in macros:** Debug, Clone, Default, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize\n\n' +
+                        '**Built-in macros:** Debug, Clone, Default, Hash, PartialEq, PartialOrd, Ord, Encode, Decode\n\n' +
                         'External macros can be imported using:\n' +
                         '`/** import macro {Name} from "package"; */`',
                     kind: 'text'

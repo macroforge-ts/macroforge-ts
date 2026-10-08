@@ -1,3 +1,11 @@
+import type {
+  DecodeContext,
+  DecodeOptions,
+  EncodeContext,
+  FieldError,
+  PendingRef,
+} from '../endec/index.ts';
+
 /**
  * # Macroforge Traits Module
  *
@@ -202,57 +210,57 @@ export interface Ord<T> {
 }
 
 /**
- * Trait for types that can be serialized to JSON.
+ * Trait for types that can be encoded to JSON.
  *
  * Analogous to Rust's serde `Serialize` trait. The generated methods
  * convert objects to JSON with cycle detection via `__id`/`__ref` markers.
  *
- * @template T - The type being serialized
+ * @template T - The type being encoded
  *
  * @example
  * ```typescript
- * const json = User.serialize(user);
+ * const json = User.encode(user);
  * // => '{"name":"Alice"}'
  *
- * const jsonWithMeta = User.serialize(user, true);
+ * const jsonWithMeta = User.encode(user, true);
  * // => '{"__type":"User","__id":0,"name":"Alice"}'
  * ```
  */
-export interface Serialize<T> {
+export interface Encode<T> {
   /**
-   * Serializes the value to a JSON string.
-   * @param value - The value to serialize
+   * Encodes the value to a JSON string.
+   * @param value - The value to encode
    * @param keepMetadata - If `true`, preserves the `__type` and `__id` cycle
    *   detection markers in the output; by default they are stripped
    * @returns JSON string representation of the value
    */
-  readonly serialize: (value: T, keepMetadata?: boolean) => string;
+  readonly encode: (value: T, keepMetadata?: boolean) => string;
 
   /**
-   * Serializes the value to a plain object using an explicit context.
-   * Called by nested serializers so that cycle detection state is shared
+   * Encodes the value to a plain object using an explicit context.
+   * Called by nested encoders so that cycle detection state is shared
    * across the whole object graph.
-   * @param value - The value to serialize
-   * @param ctx - A `SerializeContext` from `@macroforge/core/serde`
+   * @param value - The value to encode
+   * @param ctx - A `EncodeContext` from `@macroforge/core/endec`
    * @returns Plain object representation with `__type`/`__id` markers
    */
-  readonly serializeWithContext: (
+  readonly encodeWithContext: (
     value: T,
-    ctx: any,
+    ctx: EncodeContext,
   ) => Record<string, unknown>;
 }
 
 /**
- * Trait for types that can be deserialized from JSON.
+ * Trait for types that can be decoded from JSON.
  *
  * Analogous to Rust's serde `Deserialize` trait. The generated methods
  * parse JSON, resolve `__ref` markers, and validate field values.
  *
- * @template T - The type being deserialized
+ * @template T - The type being decoded
  *
  * @example
  * ```typescript
- * const result = User.deserialize(data);
+ * const result = User.decode(data);
  * if (result.success) {
  *   const user = result.value;
  * } else {
@@ -260,36 +268,36 @@ export interface Serialize<T> {
  * }
  * ```
  */
-export interface Deserialize<T> {
+export interface Decode<T> {
   /**
-   * Deserializes input into a value of type `T`.
+   * Decodes input into a value of type `T`.
    * Automatically detects whether the input is a JSON string or a plain
    * object, and returns a result union instead of throwing.
-   * @param input - JSON string or object to deserialize
+   * @param input - JSON string or object to decode
    * @param opts - Optional settings (e.g., `{ freeze: true }` to freeze all
-   *   deserialized objects)
+   *   decoded objects)
    * @returns `{ success: true, value }` on success, or
    *   `{ success: false, errors }` with field-level validation errors
    */
-  readonly deserialize: (
+  readonly decode: (
     input: unknown,
-    opts?: { freeze?: boolean },
+    opts?: DecodeOptions,
   ) =>
     | { success: true; value: T }
-    | { success: false; errors: Array<{ field: string; message: string }> };
+    | { success: false; errors: Array<FieldError> };
 
   /**
-   * Deserializes a raw object using an explicit context.
-   * Called by nested deserializers so that reference resolution state is
+   * Decodes a raw object using an explicit context.
+   * Called by nested decoders so that reference resolution state is
    * shared across the whole object graph. May return a `PendingRef`
    * placeholder for a forward `__ref` that is resolved later by
    * `ctx.applyPatches()`.
-   * @param value - Raw object to deserialize
-   * @param ctx - A `DeserializeContext` from `@macroforge/core/serde`
-   * @returns The deserialized value, or a `PendingRef` marker
+   * @param value - Raw object to decode
+   * @param ctx - A `DecodeContext` from `@macroforge/core/endec`
+   * @returns The decoded value, or a `PendingRef` marker
    */
-  readonly deserializeWithContext: (
-    value: any,
-    ctx: any,
-  ) => T | { readonly __pendingRef: true; readonly id: number };
+  readonly decodeWithContext: (
+    value: unknown,
+    ctx: DecodeContext,
+  ) => T | PendingRef;
 }

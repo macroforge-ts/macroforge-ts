@@ -10,7 +10,7 @@ import type { Site } from './site.svelte';
 import type { TaxRate } from './tax-rate.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Account {
     /** @hiddenController({}) */
     id: string;
@@ -40,7 +40,7 @@ export interface Account {
     /** @emailFieldController({ label: "Email" }) */
     email: Email;
     /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     leadSource: string;
     /** @hiddenController({}) */
     colors: Colors;
@@ -49,15 +49,15 @@ export interface Account {
     /** @toggleController({ label: "Has Alert" }) */
     hasAlert: boolean;
     /** @comboboxController({ label: "Account Type", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     accountType: string;
     /** @comboboxController({ label: "Subtype", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     subtype: string;
     /** @toggleController({ label: "Tax Exempt" }) */
     isTaxExempt: boolean;
     /** @comboboxController({ label: "Payment Terms", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
     /** @tagsController({ label: "Tags" }) */
     tags: Array<string>;

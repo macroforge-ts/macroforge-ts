@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/monthly-recurrence-rule.svelte.ts
-sha256 e59421e19f91d651c975ac4866a28ce15b9b65d97e43e41bd44fcbb11b519e65
+sha256 38d1e64a4c9dceb35e1bbd4d85dfd5f028a859c5fe5b30b50e14b308401987f2
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -39,16 +39,16 @@ name: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function monthlyRecurrenceRuleSerialize(value: MonthlyRecurrenceRule, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = monthlyRecurrenceRuleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function monthlyRecurrenceRuleEncode(value: MonthlyRecurrenceRule, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = monthlyRecurrenceRuleEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function monthlyRecurrenceRuleSerializeWithContext(value: MonthlyRecurrenceRule, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function monthlyRecurrenceRuleEncodeWithContext(value: MonthlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -160,21 +160,21 @@ name: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function monthlyRecurrenceRuleDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MonthlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function monthlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MonthlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = monthlyRecurrenceRuleDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = monthlyRecurrenceRuleDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "MonthlyRecurrenceRule.deserialize: root cannot be a forward reference"
+		message: "MonthlyRecurrenceRule.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -197,7 +197,7 @@ name: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -214,14 +214,14 @@ name: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function monthlyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MonthlyRecurrenceRule | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function monthlyRecurrenceRuleDecodeWithContext(value: any, ctx: __mf_DecodeContext): MonthlyRecurrenceRule | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "MonthlyRecurrenceRule.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "MonthlyRecurrenceRule.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1684,7 +1684,7 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
                 if (!monthlyRecurrenceRuleHasShape(obj)) {
                     return false;
                 }
-                const result = monthlyRecurrenceRuleDeserialize(obj);
+                const result = monthlyRecurrenceRuleDecode(obj);
                 return result.success;
             }
 
@@ -1822,7 +1822,7 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
 
 
             function validate(): Exit.Exit<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
-                return toExit(monthlyRecurrenceRuleDeserialize(data));
+                return toExit(monthlyRecurrenceRuleDecode(data));
             }
 
 
@@ -1857,7 +1857,7 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function monthlyRecurrenceRuleFromFormData(formData: FormData): Exit.Exit<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1875,15 +1875,15 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
             obj.name = formData.get("name") ?? "";
 
 
-            return toExit(monthlyRecurrenceRuleDeserialize(obj));
+            return toExit(monthlyRecurrenceRuleDecode(obj));
         }
 
 export const MonthlyRecurrenceRule = {
   defaultValue: monthlyRecurrenceRuleDefaultValue,
-  serialize: monthlyRecurrenceRuleSerialize,
-  serializeWithContext: monthlyRecurrenceRuleSerializeWithContext,
-  deserialize: monthlyRecurrenceRuleDeserialize,
-  deserializeWithContext: monthlyRecurrenceRuleDeserializeWithContext,
+  encode: monthlyRecurrenceRuleEncode,
+  encodeWithContext: monthlyRecurrenceRuleEncodeWithContext,
+  decode: monthlyRecurrenceRuleDecode,
+  decodeWithContext: monthlyRecurrenceRuleDecodeWithContext,
   validateFields: monthlyRecurrenceRuleValidateFields,
   hasShape: monthlyRecurrenceRuleHasShape,
   is: monthlyRecurrenceRuleIs,
@@ -1911,16 +1911,16 @@ name: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function monthlyRecurrenceRuleSerialize(value: MonthlyRecurrenceRule, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = monthlyRecurrenceRuleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function monthlyRecurrenceRuleEncode(value: MonthlyRecurrenceRule, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = monthlyRecurrenceRuleEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function monthlyRecurrenceRuleSerializeWithContext(value: MonthlyRecurrenceRule, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function monthlyRecurrenceRuleEncodeWithContext(value: MonthlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2032,21 +2032,21 @@ name: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function monthlyRecurrenceRuleDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MonthlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function monthlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MonthlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = monthlyRecurrenceRuleDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = monthlyRecurrenceRuleDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "MonthlyRecurrenceRule.deserialize: root cannot be a forward reference"
+		message: "MonthlyRecurrenceRule.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2069,7 +2069,7 @@ name: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2086,14 +2086,14 @@ name: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function monthlyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MonthlyRecurrenceRule | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function monthlyRecurrenceRuleDecodeWithContext(value: any, ctx: __mf_DecodeContext): MonthlyRecurrenceRule | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "MonthlyRecurrenceRule.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "MonthlyRecurrenceRule.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3556,7 +3556,7 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
                 if (!monthlyRecurrenceRuleHasShape(obj)) {
                     return false;
                 }
-                const result = monthlyRecurrenceRuleDeserialize(obj);
+                const result = monthlyRecurrenceRuleDecode(obj);
                 return result.success;
             }
 
@@ -3694,7 +3694,7 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
 
 
             function validate(): Exit.Exit<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
-                return toExit(monthlyRecurrenceRuleDeserialize(data));
+                return toExit(monthlyRecurrenceRuleDecode(data));
             }
 
 
@@ -3729,7 +3729,7 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function monthlyRecurrenceRuleFromFormData(formData: FormData): Exit.Exit<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3747,15 +3747,15 @@ if (__val.length === 0) { errors.push({ field: "name", message: "MonthlyRecurren
             obj.name = formData.get("name") ?? "";
 
 
-            return toExit(monthlyRecurrenceRuleDeserialize(obj));
+            return toExit(monthlyRecurrenceRuleDecode(obj));
         }
 
 export const MonthlyRecurrenceRule = {
   defaultValue: monthlyRecurrenceRuleDefaultValue,
-  serialize: monthlyRecurrenceRuleSerialize,
-  serializeWithContext: monthlyRecurrenceRuleSerializeWithContext,
-  deserialize: monthlyRecurrenceRuleDeserialize,
-  deserializeWithContext: monthlyRecurrenceRuleDeserializeWithContext,
+  encode: monthlyRecurrenceRuleEncode,
+  encodeWithContext: monthlyRecurrenceRuleEncodeWithContext,
+  decode: monthlyRecurrenceRuleDecode,
+  decodeWithContext: monthlyRecurrenceRuleDecodeWithContext,
   validateFields: monthlyRecurrenceRuleValidateFields,
   hasShape: monthlyRecurrenceRuleHasShape,
   is: monthlyRecurrenceRuleIs,
@@ -3770,18 +3770,18 @@ export const MonthlyRecurrenceRule = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..208 -> expanded 58..151
-original 249..269 -> expanded 151..171
-original 269..270 -> expanded 17478..17479
+original 107..200 -> expanded 58..151
+original 241..261 -> expanded 151..171
+original 261..262 -> expanded 17300..17301
 generated 171..346 <- Default
-generated 346..2020 <- Serialize
-generated 2020..9736 <- Deserialize
-generated 9736..16917 <- Gigaform
-generated 16917..17478 <- __convenience_const
+generated 346..1988 <- Encode
+generated 1988..9610 <- Decode
+generated 9610..16771 <- Gigaform
+generated 16771..17300 <- __convenience_const
 
 ## Metadata
 
-interface MonthlyRecurrenceRule: {"body_span":{"end":270,"start":156},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"quantityOfMonths","optional":false,"readonly":false,"span":{"end":187,"start":162},"ts_type":"number"},{"decorators":[],"name":"day","optional":false,"readonly":false,"span":{"end":204,"start":192},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":250,"start":209}}],"name":"name","optional":false,"readonly":false,"span":{"end":268,"start":255},"ts_type":"string"}],"heritage":[],"methods":[],"name":"MonthlyRecurrenceRule","span":{"end":270,"start":124},"type_params":[]}
+interface MonthlyRecurrenceRule: {"body_span":{"end":262,"start":148},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"quantityOfMonths","optional":false,"readonly":false,"span":{"end":179,"start":154},"ts_type":"number"},{"decorators":[],"name":"day","optional":false,"readonly":false,"span":{"end":196,"start":184},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":242,"start":201}}],"name":"name","optional":false,"readonly":false,"span":{"end":260,"start":247},"ts_type":"string"}],"heritage":[],"methods":[],"name":"MonthlyRecurrenceRule","span":{"end":262,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/validators/date-validator-tests.ts
-sha256 02e37fd777dfc638ff11b0b3f9971ffca7164f10c42ebcb9e7da54dcf64a4ed6
+sha256 31f94c1101aec29470967ccaa452af17a973da7b118c78db3b338130e81b1978
 
 ## Changed
 
@@ -12,18 +12,18 @@ true
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 /**
- * Date validator test classes for comprehensive deserializer validation testing.
+ * Date validator test classes for comprehensive decoder validation testing.
  */
 
 // ValidDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class ValidDateValidator {
-    /** @serde({ validate: ["validDate"] }) */
+    /** @endec({ validate: ["validDate"] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -32,21 +32,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = ValidDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = ValidDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ValidDateValidator.deserialize: root cannot be a forward reference"
+		message: "ValidDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -69,7 +69,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -86,15 +86,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ValidDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): ValidDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "ValidDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "ValidDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -497,29 +497,29 @@ if (isNaN(new Date(__val).getTime())) { errors.push({ field: "date", message: "V
             if (!ValidDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = ValidDateValidator.deserialize(obj);
+            const result = ValidDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function validDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return ValidDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function validDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return ValidDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function validDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ValidDateValidator | __mf_PendingRef {
-            return ValidDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function validDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): ValidDateValidator | __mf_PendingRef {
+            return ValidDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function validDateValidatorIs(value: unknown): value is ValidDateValidator {
             return ValidDateValidator.is(value);
         }
 
 // GreaterThanDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class GreaterThanDateValidator {
-    /** @serde({ validate: ['greaterThanDate("2020-01-01")'] }) */
+    /** @endec({ validate: ['greaterThanDate("2020-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -528,21 +528,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = GreaterThanDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = GreaterThanDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "GreaterThanDateValidator.deserialize: root cannot be a forward reference"
+		message: "GreaterThanDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -565,7 +565,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -582,15 +582,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): GreaterThanDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "GreaterThanDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -993,29 +993,29 @@ if (__val.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ field: 
             if (!GreaterThanDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = GreaterThanDateValidator.deserialize(obj);
+            const result = GreaterThanDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function greaterThanDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return GreaterThanDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function greaterThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return GreaterThanDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function greaterThanDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanDateValidator | __mf_PendingRef {
-            return GreaterThanDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function greaterThanDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): GreaterThanDateValidator | __mf_PendingRef {
+            return GreaterThanDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function greaterThanDateValidatorIs(value: unknown): value is GreaterThanDateValidator {
             return GreaterThanDateValidator.is(value);
         }
 
 // GreaterThanOrEqualToDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class GreaterThanOrEqualToDateValidator {
-    /** @serde({ validate: ['greaterThanOrEqualToDate("2020-01-01")'] }) */
+    /** @endec({ validate: ['greaterThanOrEqualToDate("2020-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -1024,21 +1024,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = GreaterThanOrEqualToDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = GreaterThanOrEqualToDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "GreaterThanOrEqualToDateValidator.deserialize: root cannot be a forward reference"
+		message: "GreaterThanOrEqualToDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1061,7 +1061,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1078,15 +1078,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "GreaterThanOrEqualToDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanOrEqualToDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -1489,29 +1489,29 @@ if (__val.getTime() < new Date("2020-01-01").getTime()) { errors.push({ field: "
             if (!GreaterThanOrEqualToDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = GreaterThanOrEqualToDateValidator.deserialize(obj);
+            const result = GreaterThanOrEqualToDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function greaterThanOrEqualToDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return GreaterThanOrEqualToDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function greaterThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return GreaterThanOrEqualToDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function greaterThanOrEqualToDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
-            return GreaterThanOrEqualToDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function greaterThanOrEqualToDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
+            return GreaterThanOrEqualToDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function greaterThanOrEqualToDateValidatorIs(value: unknown): value is GreaterThanOrEqualToDateValidator {
             return GreaterThanOrEqualToDateValidator.is(value);
         }
 
 // LessThanDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LessThanDateValidator {
-    /** @serde({ validate: ['lessThanDate("2030-01-01")'] }) */
+    /** @endec({ validate: ['lessThanDate("2030-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -1520,21 +1520,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = LessThanDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = LessThanDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "LessThanDateValidator.deserialize: root cannot be a forward reference"
+		message: "LessThanDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1557,7 +1557,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1574,15 +1574,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): LessThanDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "LessThanDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "LessThanDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -1985,29 +1985,29 @@ if (__val.getTime() >= new Date("2030-01-01").getTime()) { errors.push({ field: 
             if (!LessThanDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = LessThanDateValidator.deserialize(obj);
+            const result = LessThanDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function lessThanDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return LessThanDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function lessThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return LessThanDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function lessThanDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanDateValidator | __mf_PendingRef {
-            return LessThanDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function lessThanDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): LessThanDateValidator | __mf_PendingRef {
+            return LessThanDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function lessThanDateValidatorIs(value: unknown): value is LessThanDateValidator {
             return LessThanDateValidator.is(value);
         }
 
 // LessThanOrEqualToDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LessThanOrEqualToDateValidator {
-    /** @serde({ validate: ['lessThanOrEqualToDate("2030-01-01")'] }) */
+    /** @endec({ validate: ['lessThanOrEqualToDate("2030-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -2016,21 +2016,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = LessThanOrEqualToDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = LessThanOrEqualToDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "LessThanOrEqualToDateValidator.deserialize: root cannot be a forward reference"
+		message: "LessThanOrEqualToDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -2053,7 +2053,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -2070,15 +2070,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "LessThanOrEqualToDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "LessThanOrEqualToDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -2481,29 +2481,29 @@ if (__val.getTime() > new Date("2030-01-01").getTime()) { errors.push({ field: "
             if (!LessThanOrEqualToDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = LessThanOrEqualToDateValidator.deserialize(obj);
+            const result = LessThanOrEqualToDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function lessThanOrEqualToDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return LessThanOrEqualToDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function lessThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return LessThanOrEqualToDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function lessThanOrEqualToDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
-            return LessThanOrEqualToDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function lessThanOrEqualToDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
+            return LessThanOrEqualToDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function lessThanOrEqualToDateValidatorIs(value: unknown): value is LessThanOrEqualToDateValidator {
             return LessThanOrEqualToDateValidator.is(value);
         }
 
 // BetweenDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class BetweenDateValidator {
-    /** @serde({ validate: ['betweenDate("2020-01-01", "2030-01-01")'] }) */
+    /** @endec({ validate: ['betweenDate("2020-01-01", "2030-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -2512,21 +2512,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = BetweenDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = BetweenDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "BetweenDateValidator.deserialize: root cannot be a forward reference"
+		message: "BetweenDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -2549,7 +2549,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -2566,15 +2566,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): BetweenDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "BetweenDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "BetweenDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -2977,21 +2977,21 @@ if (__val.getTime() < new Date("2020-01-01").getTime() || __val.getTime() > new 
             if (!BetweenDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = BetweenDateValidator.deserialize(obj);
+            const result = BetweenDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function betweenDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return BetweenDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function betweenDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return BetweenDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function betweenDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenDateValidator | __mf_PendingRef {
-            return BetweenDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function betweenDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): BetweenDateValidator | __mf_PendingRef {
+            return BetweenDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function betweenDateValidatorIs(value: unknown): value is BetweenDateValidator {
             return BetweenDateValidator.is(value);
         }
@@ -2999,13 +2999,13 @@ if (__val.getTime() < new Date("2020-01-01").getTime() || __val.getTime() > new 
 ## DTS
 
 /**
- * Date validator test classes for comprehensive deserializer validation testing.
+ * Date validator test classes for comprehensive decoder validation testing.
  */
 
 // ValidDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class ValidDateValidator {
-    /** @serde({ validate: ["validDate"] }) */
+    /** @endec({ validate: ["validDate"] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -3014,21 +3014,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = ValidDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = ValidDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ValidDateValidator.deserialize: root cannot be a forward reference"
+		message: "ValidDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -3051,7 +3051,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -3068,15 +3068,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ValidDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): ValidDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "ValidDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "ValidDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -3479,29 +3479,29 @@ if (isNaN(new Date(__val).getTime())) { errors.push({ field: "date", message: "V
             if (!ValidDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = ValidDateValidator.deserialize(obj);
+            const result = ValidDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function validDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return ValidDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function validDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ValidDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return ValidDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function validDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ValidDateValidator | __mf_PendingRef {
-            return ValidDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function validDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): ValidDateValidator | __mf_PendingRef {
+            return ValidDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function validDateValidatorIs(value: unknown): value is ValidDateValidator {
             return ValidDateValidator.is(value);
         }
 
 // GreaterThanDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class GreaterThanDateValidator {
-    /** @serde({ validate: ['greaterThanDate("2020-01-01")'] }) */
+    /** @endec({ validate: ['greaterThanDate("2020-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -3510,21 +3510,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = GreaterThanDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = GreaterThanDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "GreaterThanDateValidator.deserialize: root cannot be a forward reference"
+		message: "GreaterThanDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -3547,7 +3547,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -3564,15 +3564,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): GreaterThanDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "GreaterThanDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -3975,29 +3975,29 @@ if (__val.getTime() <= new Date("2020-01-01").getTime()) { errors.push({ field: 
             if (!GreaterThanDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = GreaterThanDateValidator.deserialize(obj);
+            const result = GreaterThanDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function greaterThanDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return GreaterThanDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function greaterThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return GreaterThanDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function greaterThanDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanDateValidator | __mf_PendingRef {
-            return GreaterThanDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function greaterThanDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): GreaterThanDateValidator | __mf_PendingRef {
+            return GreaterThanDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function greaterThanDateValidatorIs(value: unknown): value is GreaterThanDateValidator {
             return GreaterThanDateValidator.is(value);
         }
 
 // GreaterThanOrEqualToDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class GreaterThanOrEqualToDateValidator {
-    /** @serde({ validate: ['greaterThanOrEqualToDate("2020-01-01")'] }) */
+    /** @endec({ validate: ['greaterThanOrEqualToDate("2020-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -4006,21 +4006,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = GreaterThanOrEqualToDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = GreaterThanOrEqualToDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "GreaterThanOrEqualToDateValidator.deserialize: root cannot be a forward reference"
+		message: "GreaterThanOrEqualToDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -4043,7 +4043,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -4060,15 +4060,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "GreaterThanOrEqualToDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "GreaterThanOrEqualToDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -4471,29 +4471,29 @@ if (__val.getTime() < new Date("2020-01-01").getTime()) { errors.push({ field: "
             if (!GreaterThanOrEqualToDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = GreaterThanOrEqualToDateValidator.deserialize(obj);
+            const result = GreaterThanOrEqualToDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function greaterThanOrEqualToDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return GreaterThanOrEqualToDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function greaterThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: GreaterThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return GreaterThanOrEqualToDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function greaterThanOrEqualToDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
-            return GreaterThanOrEqualToDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function greaterThanOrEqualToDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): GreaterThanOrEqualToDateValidator | __mf_PendingRef {
+            return GreaterThanOrEqualToDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function greaterThanOrEqualToDateValidatorIs(value: unknown): value is GreaterThanOrEqualToDateValidator {
             return GreaterThanOrEqualToDateValidator.is(value);
         }
 
 // LessThanDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LessThanDateValidator {
-    /** @serde({ validate: ['lessThanDate("2030-01-01")'] }) */
+    /** @endec({ validate: ['lessThanDate("2030-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -4502,21 +4502,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = LessThanDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = LessThanDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "LessThanDateValidator.deserialize: root cannot be a forward reference"
+		message: "LessThanDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -4539,7 +4539,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -4556,15 +4556,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): LessThanDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "LessThanDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "LessThanDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -4967,29 +4967,29 @@ if (__val.getTime() >= new Date("2030-01-01").getTime()) { errors.push({ field: 
             if (!LessThanDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = LessThanDateValidator.deserialize(obj);
+            const result = LessThanDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function lessThanDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return LessThanDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function lessThanDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return LessThanDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function lessThanDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanDateValidator | __mf_PendingRef {
-            return LessThanDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function lessThanDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): LessThanDateValidator | __mf_PendingRef {
+            return LessThanDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function lessThanDateValidatorIs(value: unknown): value is LessThanDateValidator {
             return LessThanDateValidator.is(value);
         }
 
 // LessThanOrEqualToDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LessThanOrEqualToDateValidator {
-    /** @serde({ validate: ['lessThanOrEqualToDate("2030-01-01")'] }) */
+    /** @endec({ validate: ['lessThanOrEqualToDate("2030-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -4998,21 +4998,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = LessThanOrEqualToDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = LessThanOrEqualToDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "LessThanOrEqualToDateValidator.deserialize: root cannot be a forward reference"
+		message: "LessThanOrEqualToDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -5035,7 +5035,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -5052,15 +5052,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "LessThanOrEqualToDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "LessThanOrEqualToDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -5463,29 +5463,29 @@ if (__val.getTime() > new Date("2030-01-01").getTime()) { errors.push({ field: "
             if (!LessThanOrEqualToDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = LessThanOrEqualToDateValidator.deserialize(obj);
+            const result = LessThanOrEqualToDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function lessThanOrEqualToDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return LessThanOrEqualToDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function lessThanOrEqualToDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: LessThanOrEqualToDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return LessThanOrEqualToDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function lessThanOrEqualToDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
-            return LessThanOrEqualToDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function lessThanOrEqualToDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): LessThanOrEqualToDateValidator | __mf_PendingRef {
+            return LessThanOrEqualToDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function lessThanOrEqualToDateValidatorIs(value: unknown): value is LessThanOrEqualToDateValidator {
             return LessThanOrEqualToDateValidator.is(value);
         }
 
 // BetweenDate validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class BetweenDateValidator {
-    /** @serde({ validate: ['betweenDate("2020-01-01", "2030-01-01")'] }) */
+    /** @endec({ validate: ['betweenDate("2020-01-01", "2030-01-01")'] }) */
     date: Date;
 
 constructor(props: { date: Date }) {
@@ -5494,21 +5494,21 @@ constructor(props: { date: Date }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = BetweenDateValidator.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = BetweenDateValidator.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "BetweenDateValidator.deserialize: root cannot be a forward reference"
+		message: "BetweenDateValidator.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -5531,7 +5531,7 @@ constructor(props: { date: Date }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -5548,15 +5548,15 @@ constructor(props: { date: Date }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenDateValidator | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): BetweenDateValidator | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "BetweenDateValidator.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "BetweenDateValidator.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -5959,21 +5959,21 @@ if (__val.getTime() < new Date("2020-01-01").getTime() || __val.getTime() > new 
             if (!BetweenDateValidator.hasShape(obj)) {
                 return false;
             }
-            const result = BetweenDateValidator.deserialize(obj);
+            const result = BetweenDateValidator.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function betweenDateValidatorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return BetweenDateValidator.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function betweenDateValidatorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BetweenDateValidator } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return BetweenDateValidator.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function betweenDateValidatorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): BetweenDateValidator | __mf_PendingRef {
-            return BetweenDateValidator.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function betweenDateValidatorDecodeWithContext(value: any, ctx: __mf_DecodeContext): BetweenDateValidator | __mf_PendingRef {
+            return BetweenDateValidator.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function betweenDateValidatorIs(value: unknown): value is BetweenDateValidator {
             return BetweenDateValidator.is(value);
         }
@@ -5984,40 +5984,40 @@ if (__val.getTime() < new Date("2020-01-01").getTime() || __val.getTime() > new 
 
 ## Mapping
 
-original 0..239 -> expanded 0..239
-original 239..240 -> expanded 6146..6147
-original 240..422 -> expanded 7454..7636
-original 422..423 -> expanded 13732..13733
-original 423..632 -> expanded 15094..15303
-original 632..633 -> expanded 21594..21595
-original 633..806 -> expanded 23037..23210
-original 806..807 -> expanded 29249..29250
-original 807..1007 -> expanded 30584..30784
-original 1007..1008 -> expanded 37018..37019
-original 1008..1192 -> expanded 38434..38618
-original 1192..1193 -> expanded 44848..44849
-original 1193..1194 -> expanded 46174..46175
-generated 239..6146 <- Deserialize
-generated 6147..7454 <- Deserialize
-generated 7636..13732 <- Deserialize
-generated 13733..15094 <- Deserialize
-generated 15303..21594 <- Deserialize
-generated 21595..23037 <- Deserialize
-generated 23210..29249 <- Deserialize
-generated 29250..30584 <- Deserialize
-generated 30784..37018 <- Deserialize
-generated 37019..38434 <- Deserialize
-generated 38618..44848 <- Deserialize
-generated 44849..46174 <- Deserialize
+original 0..229 -> expanded 0..229
+original 229..230 -> expanded 6042..6043
+original 230..407 -> expanded 7271..7448
+original 407..408 -> expanded 13450..13451
+original 408..612 -> expanded 14733..14937
+original 612..613 -> expanded 21134..21135
+original 613..781 -> expanded 22498..22666
+original 781..782 -> expanded 28611..28612
+original 782..977 -> expanded 29867..30062
+original 977..978 -> expanded 36202..36203
+original 978..1157 -> expanded 37539..37718
+original 1157..1158 -> expanded 43854..43855
+original 1158..1159 -> expanded 45101..45102
+generated 229..6042 <- Decode
+generated 6043..7271 <- Decode
+generated 7448..13450 <- Decode
+generated 13451..14733 <- Decode
+generated 14937..21134 <- Decode
+generated 21135..22498 <- Decode
+generated 22666..28611 <- Decode
+generated 28612..29867 <- Decode
+generated 30062..36202 <- Decode
+generated 36203..37539 <- Decode
+generated 37718..43854 <- Decode
+generated 43855..45101 <- Decode
 
 ## Metadata
 
-class ValidDateValidator: {"body_span":{"end":241,"start":175},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":142,"start":115}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"serde","span":{"end":223,"start":181}}],"name":"date","optional":false,"readonly":false,"span":{"end":239,"start":228},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ValidDateValidator","span":{"end":241,"start":150},"type_params":[]}
-class GreaterThanDateValidator: {"body_span":{"end":424,"start":338},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":299,"start":272}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanDate(\"2020-01-01\")'] }","name":"serde","span":{"end":406,"start":344}}],"name":"date","optional":false,"readonly":false,"span":{"end":422,"start":411},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanDateValidator","span":{"end":424,"start":307},"type_params":[]}
-class GreaterThanOrEqualToDateValidator: {"body_span":{"end":634,"start":539},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":491,"start":464}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanOrEqualToDate(\"2020-01-01\")'] }","name":"serde","span":{"end":616,"start":545}}],"name":"date","optional":false,"readonly":false,"span":{"end":632,"start":621},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToDateValidator","span":{"end":634,"start":499},"type_params":[]}
-class LessThanDateValidator: {"body_span":{"end":808,"start":725},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":689,"start":662}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanDate(\"2030-01-01\")'] }","name":"serde","span":{"end":790,"start":731}}],"name":"date","optional":false,"readonly":false,"span":{"end":806,"start":795},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanDateValidator","span":{"end":808,"start":697},"type_params":[]}
-class LessThanOrEqualToDateValidator: {"body_span":{"end":1009,"start":917},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":872,"start":845}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanOrEqualToDate(\"2030-01-01\")'] }","name":"serde","span":{"end":991,"start":923}}],"name":"date","optional":false,"readonly":false,"span":{"end":1007,"start":996},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToDateValidator","span":{"end":1009,"start":880},"type_params":[]}
-class BetweenDateValidator: {"body_span":{"end":1194,"start":1098},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":1063,"start":1036}}],"fields":[{"decorators":[{"args_src":"{ validate: ['betweenDate(\"2020-01-01\", \"2030-01-01\")'] }","name":"serde","span":{"end":1176,"start":1104}}],"name":"date","optional":false,"readonly":false,"span":{"end":1192,"start":1181},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenDateValidator","span":{"end":1194,"start":1071},"type_params":[]}
+class ValidDateValidator: {"body_span":{"end":231,"start":165},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":213,"start":171}}],"name":"date","optional":false,"readonly":false,"span":{"end":229,"start":218},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ValidDateValidator","span":{"end":231,"start":140},"type_params":[]}
+class GreaterThanDateValidator: {"body_span":{"end":409,"start":323},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":284,"start":262}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanDate(\"2020-01-01\")'] }","name":"endec","span":{"end":391,"start":329}}],"name":"date","optional":false,"readonly":false,"span":{"end":407,"start":396},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanDateValidator","span":{"end":409,"start":292},"type_params":[]}
+class GreaterThanOrEqualToDateValidator: {"body_span":{"end":614,"start":519},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":471,"start":449}}],"fields":[{"decorators":[{"args_src":"{ validate: ['greaterThanOrEqualToDate(\"2020-01-01\")'] }","name":"endec","span":{"end":596,"start":525}}],"name":"date","optional":false,"readonly":false,"span":{"end":612,"start":601},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"GreaterThanOrEqualToDateValidator","span":{"end":614,"start":479},"type_params":[]}
+class LessThanDateValidator: {"body_span":{"end":783,"start":700},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":664,"start":642}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanDate(\"2030-01-01\")'] }","name":"endec","span":{"end":765,"start":706}}],"name":"date","optional":false,"readonly":false,"span":{"end":781,"start":770},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanDateValidator","span":{"end":783,"start":672},"type_params":[]}
+class LessThanOrEqualToDateValidator: {"body_span":{"end":979,"start":887},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":842,"start":820}}],"fields":[{"decorators":[{"args_src":"{ validate: ['lessThanOrEqualToDate(\"2030-01-01\")'] }","name":"endec","span":{"end":961,"start":893}}],"name":"date","optional":false,"readonly":false,"span":{"end":977,"start":966},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"LessThanOrEqualToDateValidator","span":{"end":979,"start":850},"type_params":[]}
+class BetweenDateValidator: {"body_span":{"end":1159,"start":1063},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1028,"start":1006}}],"fields":[{"decorators":[{"args_src":"{ validate: ['betweenDate(\"2020-01-01\", \"2030-01-01\")'] }","name":"endec","span":{"end":1141,"start":1069}}],"name":"date","optional":false,"readonly":false,"span":{"end":1157,"start":1146},"ts_type":"Date","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"BetweenDateValidator","span":{"end":1159,"start":1036},"type_params":[]}
 
 ## Registry reads
 

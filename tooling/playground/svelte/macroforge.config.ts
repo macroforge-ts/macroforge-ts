@@ -12,16 +12,16 @@ export default {
         'DateTime.DateTime': {
             from: ['effect'],
             aliases: [{ name: 'DateTime', from: 'effect/DateTime' }],
-            serialize: (v: DateTime.DateTime) => DateTime.formatIso(v),
+            encode: (v: DateTime.DateTime) => DateTime.formatIso(v),
             // Form validation passes live values, so a DateTime must pass through as-is.
-            deserialize: (raw: unknown) => DateTime.unsafeMake(raw as DateTime.DateTime.Input),
+            decode: (raw: unknown) => DateTime.unsafeMake(raw as DateTime.DateTime.Input),
             default: () => DateTime.unsafeNow()
         },
         'Option.Option': {
             from: ['effect'],
             aliases: [{ name: 'Option', from: 'effect/Option' }],
-            serialize: (v: Option.Option<unknown>) => Option.getOrNull(v),
-            deserialize: (
+            encode: (v: Option.Option<unknown>) => Option.getOrNull(v),
+            decode: (
                 raw: unknown
             ) => (Option.isOption(raw) ? raw : Option.fromNullable(raw)),
             default: () => Option.none()

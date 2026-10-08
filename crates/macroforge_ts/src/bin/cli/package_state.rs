@@ -8,8 +8,8 @@
 //!
 //! Both answers are deliberately conservative. A missed change ships a stale
 //! published package, which is far worse than a rebuild that turns out to have
-//! been unnecessary, so anything this module cannot account for precisely (
-//! a config edit, a rebuilt macro binary, a changed declarative macro)
+//! been unnecessary, so anything this module cannot account for precisely :
+//! a config edit, a rebuilt macro binary, a changed declarative macro :
 //! invalidates everything rather than guessing. The type surface is accounted
 //! for precisely: each expansion records the registry lookups it made, and
 //! re-expands when one of them resolves differently.
@@ -48,7 +48,7 @@ fn state_path(root: &Path) -> PathBuf {
 ///
 /// Deliberately just these two. Everything else the packager takes is a direct
 /// reading of the command line, which the CLI already has and which
-/// [`PackageInputs::resolver_hash`] already covers; storing a second copy here
+/// [`PackageInputs::resolver_hash`] already covers: storing a second copy here
 /// would be one more thing that can disagree with itself. These two require
 /// evaluating a JavaScript module, so they are filled by the wrapper's
 /// `--macroforge-resolve-config` probe and cached for as long as that hash holds.
@@ -164,7 +164,7 @@ pub(crate) struct PackageState {
     /// Input paths that had an expanded artifact when the run finished.
     ///
     /// Recorded so a missing artifact is noticed. Nothing else can tell a file
-    /// that legitimately has none (no macros) from one whose artifact was
+    /// that legitimately has none: no macros: from one whose artifact was
     /// deleted, and the second case would hand the packager raw source and
     /// publish a module with its generated runtime missing.
     #[serde(default)]
@@ -330,9 +330,9 @@ impl<'a> Resolutions<'a> {
         if let Some(resolution) = self.resolved.get(read) {
             return Ok(resolution.clone());
         }
-        let serialized = serde_json::to_vec(&self.registry.resolution_of(read))
-            .with_context(|| format!("failed to serialize the resolution of {read:?}"))?;
-        let resolution = content_hash(&serialized);
+        let encoded = serde_json::to_vec(&self.registry.resolution_of(read))
+            .with_context(|| format!("failed to encode the resolution of {read:?}"))?;
+        let resolution = content_hash(&encoded);
         self.resolved.insert(read.clone(), resolution.clone());
         Ok(resolution)
     }
@@ -599,7 +599,7 @@ pub(crate) fn output_fingerprint(output: &Path) -> Result<String> {
 /// decision; [`PackageState::module_reads`] closes it for the incremental one.
 ///
 /// Mirrors `ScanConfig::default()`: `.ts`/`.tsx` under the project root, minus
-/// the usual non-source directories, plus the output directory, which is
+/// the usual non-source directories: plus the output directory, which is
 /// otherwise a build's own product feeding back into its next input.
 pub(crate) fn project_hash(root: &Path, output: &Path, hashes: &mut HashCache) -> Result<String> {
     let skip = SkipRules {
@@ -630,7 +630,7 @@ pub(crate) fn project_hash(root: &Path, output: &Path, hashes: &mut HashCache) -
 /// Read after the scan that writes it, and compared against the value stored
 /// with the expanded tree: a declarative macro can expand anywhere in the
 /// project, so when one moves every expansion is suspect. The registry
-/// serializes deterministically, so its bytes are its content.
+/// encodes deterministically, so its bytes are its content.
 pub(crate) fn declarative_hash(root: &Path) -> Result<String> {
     let path = root.join(".macroforge").join("declarative-registry.json");
     let bytes = fs::read(&path).with_context(|| format!("failed to read {}", path.display()))?;
@@ -680,7 +680,7 @@ pub(crate) fn resolver_hash(root: &Path, flags: &PackageFlags) -> Result<String>
 ///
 /// Versions rather than content: a package's own files are too many to hash on
 /// every invocation. A locally rebuilt link whose version did not change is the
-/// gap this leaves, and `--full-rebuild` is its escape hatch, except for macro
+/// gap this leaves, and `--full-rebuild` is its escape hatch: except for macro
 /// packages, which `external_macro_hash` already covers by binary metadata.
 pub(crate) fn tool_hashes(
     root: &Path,
@@ -724,8 +724,8 @@ fn file_hash(path: &Path) -> Result<String> {
 
 /// Finds the tsconfig the packager would fall back to.
 ///
-/// Mirrors `load_tsconfig`'s hand-rolled search (`typescript.js:157-181`):
-/// nearest `tsconfig.json` or `jsconfig.json` walking up, starting from the
+/// Mirrors `load_tsconfig`'s hand-rolled search (`typescript.js:157-181`) :
+/// nearest `tsconfig.json` or `jsconfig.json` walking up: starting from the
 /// input directory. Configs *inside* the input directory need no special
 /// handling: they are input files, and already stamped as such.
 fn find_tsconfig(input: &Path, root: &Path) -> Option<PathBuf> {

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/types/person-name.ts
-sha256 d406dae7c91c44ae3d88535a4265fb04a8d49b382a7ab97b6a979e3a93557bf6
+sha256 a1ede39bc42847c7c6a4326e271037f7c5ae2f62d29cbdddbfd185e1967a7bd0
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export interface PersonName {
     
@@ -32,16 +32,16 @@ lastName: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function personNameSerialize(value: PersonName, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = personNameSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function personNameEncode(value: PersonName, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = personNameEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function personNameSerializeWithContext(value: PersonName, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -153,21 +153,21 @@ lastName: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function personNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = personNameDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = personNameDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "PersonName.deserialize: root cannot be a forward reference"
+		message: "PersonName.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -190,7 +190,7 @@ lastName: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -207,14 +207,14 @@ lastName: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function personNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PersonName | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function personNameDecodeWithContext(value: any, ctx: __mf_DecodeContext): PersonName | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "PersonName.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "PersonName.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1435,16 +1435,16 @@ if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.
                 if (!personNameHasShape(obj)) {
                     return false;
                 }
-                const result = personNameDeserialize(obj);
+                const result = personNameDecode(obj);
                 return result.success;
             }
 
 export const PersonName = {
   defaultValue: personNameDefaultValue,
-  serialize: personNameSerialize,
-  serializeWithContext: personNameSerializeWithContext,
-  deserialize: personNameDeserialize,
-  deserializeWithContext: personNameDeserializeWithContext,
+  encode: personNameEncode,
+  encodeWithContext: personNameEncodeWithContext,
+  decode: personNameDecode,
+  decodeWithContext: personNameDecodeWithContext,
   validateFields: personNameValidateFields,
   hasShape: personNameHasShape,
   is: personNameIs
@@ -1466,16 +1466,16 @@ lastName: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function personNameSerialize(value: PersonName, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = personNameSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function personNameEncode(value: PersonName, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = personNameEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function personNameSerializeWithContext(value: PersonName, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function personNameEncodeWithContext(value: PersonName, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1587,21 +1587,21 @@ lastName: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function personNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function personNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PersonName } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = personNameDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = personNameDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "PersonName.deserialize: root cannot be a forward reference"
+		message: "PersonName.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1624,7 +1624,7 @@ lastName: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1641,14 +1641,14 @@ lastName: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function personNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PersonName | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function personNameDecodeWithContext(value: any, ctx: __mf_DecodeContext): PersonName | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "PersonName.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "PersonName.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2869,16 +2869,16 @@ if (__val.length === 0) { errors.push({ field: "lastName", message: "PersonName.
                 if (!personNameHasShape(obj)) {
                     return false;
                 }
-                const result = personNameDeserialize(obj);
+                const result = personNameDecode(obj);
                 return result.success;
             }
 
 export const PersonName = {
   defaultValue: personNameDefaultValue,
-  serialize: personNameSerialize,
-  serializeWithContext: personNameSerializeWithContext,
-  deserialize: personNameDeserialize,
-  deserializeWithContext: personNameDeserializeWithContext,
+  encode: personNameEncode,
+  encodeWithContext: personNameEncodeWithContext,
+  decode: personNameDecode,
+  decodeWithContext: personNameDecodeWithContext,
   validateFields: personNameValidateFields,
   hasShape: personNameHasShape,
   is: personNameIs
@@ -2890,18 +2890,18 @@ export const PersonName = {
 
 ## Mapping
 
-original 47..82 -> expanded 0..35
-original 123..151 -> expanded 35..63
-original 192..216 -> expanded 63..87
-original 216..217 -> expanded 10214..10215
+original 39..74 -> expanded 0..35
+original 115..143 -> expanded 35..63
+original 184..208 -> expanded 63..87
+original 208..209 -> expanded 10056..10057
 generated 87..230 <- Default
-generated 230..1809 <- Serialize
-generated 1809..9850 <- Deserialize
-generated 9850..10214 <- __convenience_const
+generated 230..1777 <- Encode
+generated 1777..9724 <- Decode
+generated 9724..10056 <- __convenience_const
 
 ## Metadata
 
-interface PersonName: {"body_span":{"end":217,"start":77},"decorators":[{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":48,"start":1}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":124,"start":83}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":147,"start":129},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":193,"start":152}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":215,"start":198},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":217,"start":56},"type_params":[]}
+interface PersonName: {"body_span":{"end":209,"start":69},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":116,"start":75}}],"name":"firstName","optional":false,"readonly":false,"span":{"end":139,"start":121},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"name":"lastName","optional":false,"readonly":false,"span":{"end":207,"start":190},"ts_type":"string"}],"heritage":[],"methods":[],"name":"PersonName","span":{"end":209,"start":48},"type_params":[]}
 
 ## Registry reads
 

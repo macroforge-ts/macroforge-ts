@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/all-macros-test.ts
-sha256 4fc334aa26fa54576844827b5c0cf7a62244825df83580c696095b3352ae6a25
+sha256 beaf2f094f885ebd69a8a4798d186d034c1977862720828ee18ab60c72712bed
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 /**
  * Comprehensive test class for Svelte playground.
  */
@@ -61,16 +61,16 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                     return a.id === b.id && a.title === b.title && a.content === b.content && a.apiKey === b.apiKey && a.count === b.count && a.enabled === b.enabled;
                 }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function svelteAllMacrosTestSerialize(value: SvelteAllMacrosTest, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = svelteAllMacrosTestSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function svelteAllMacrosTestEncode(value: SvelteAllMacrosTest, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = svelteAllMacrosTestEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function svelteAllMacrosTestSerializeWithContext(value: SvelteAllMacrosTest, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function svelteAllMacrosTestEncodeWithContext(value: SvelteAllMacrosTest, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -182,21 +182,21 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function svelteAllMacrosTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = svelteAllMacrosTestDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = svelteAllMacrosTestDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "SvelteAllMacrosTest.deserialize: root cannot be a forward reference"
+		message: "SvelteAllMacrosTest.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -219,7 +219,7 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -236,14 +236,14 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function svelteAllMacrosTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): SvelteAllMacrosTest | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function svelteAllMacrosTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): SvelteAllMacrosTest | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "SvelteAllMacrosTest.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "SvelteAllMacrosTest.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2456,7 +2456,7 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                 if (!svelteAllMacrosTestHasShape(obj)) {
                     return false;
                 }
-                const result = svelteAllMacrosTestDeserialize(obj);
+                const result = svelteAllMacrosTestDecode(obj);
                 return result.success;
             }
 
@@ -2538,16 +2538,16 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                     return a.id === b.id && a.title === b.title && a.content === b.content && a.apiKey === b.apiKey && a.count === b.count && a.enabled === b.enabled;
                 }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function svelteAllMacrosTestSerialize(value: SvelteAllMacrosTest, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = svelteAllMacrosTestSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function svelteAllMacrosTestEncode(value: SvelteAllMacrosTest, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = svelteAllMacrosTestEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function svelteAllMacrosTestSerializeWithContext(value: SvelteAllMacrosTest, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function svelteAllMacrosTestEncodeWithContext(value: SvelteAllMacrosTest, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2659,21 +2659,21 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function svelteAllMacrosTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function svelteAllMacrosTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: SvelteAllMacrosTest } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = svelteAllMacrosTestDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = svelteAllMacrosTestDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "SvelteAllMacrosTest.deserialize: root cannot be a forward reference"
+		message: "SvelteAllMacrosTest.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2696,7 +2696,7 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2713,14 +2713,14 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function svelteAllMacrosTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): SvelteAllMacrosTest | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function svelteAllMacrosTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): SvelteAllMacrosTest | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "SvelteAllMacrosTest.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "SvelteAllMacrosTest.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -4933,7 +4933,7 @@ export function svelteAllMacrosTestEquals(a: SvelteAllMacrosTest, b: SvelteAllMa
                 if (!svelteAllMacrosTestHasShape(obj)) {
                     return false;
                 }
-                const result = svelteAllMacrosTestDeserialize(obj);
+                const result = svelteAllMacrosTestDecode(obj);
                 return result.success;
             }
 
@@ -4976,20 +4976,20 @@ export const svelteTestInstance = SvelteAllMacrosTest.make(
 ## Mapping
 
 original 0..60 -> expanded 0..60
-original 129..173 -> expanded 60..104
-original 208..269 -> expanded 104..165
-original 298..361 -> expanded 165..228
-original 361..894 -> expanded 12045..12578
+original 121..165 -> expanded 60..104
+original 200..261 -> expanded 104..165
+original 290..353 -> expanded 165..228
+original 353..886 -> expanded 11919..12452
 generated 228..684 <- Debug
 generated 684..1092 <- Clone
 generated 1092..1425 <- PartialEq
-generated 1425..3156 <- Serialize
-generated 3156..11229 <- Deserialize
-generated 11229..12045 <- Hash
+generated 1425..3124 <- Encode
+generated 3124..11103 <- Decode
+generated 11103..11919 <- Hash
 
 ## Metadata
 
-interface SvelteAllMacrosTest: {"body_span":{"end":362,"start":168},"decorators":[{"args_src":"Debug, Clone, PartialEq, Serialize, Deserialize, Hash","name":"Derive","span":{"end":130,"start":61}}],"fields":[{"decorators":[{"args_src":"{ rename: \"testId\" }","name":"debug","span":{"end":209,"start":174}}],"name":"id","optional":false,"readonly":false,"span":{"end":225,"start":214},"ts_type":"string"},{"decorators":[],"name":"title","optional":false,"readonly":false,"span":{"end":244,"start":230},"ts_type":"string"},{"decorators":[],"name":"content","optional":false,"readonly":false,"span":{"end":265,"start":249},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":299,"start":270}}],"name":"apiKey","optional":false,"readonly":false,"span":{"end":319,"start":304},"ts_type":"string"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":338,"start":324},"ts_type":"number"},{"decorators":[],"name":"enabled","optional":false,"readonly":false,"span":{"end":360,"start":343},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"SvelteAllMacrosTest","span":{"end":362,"start":138},"type_params":[]}
+interface SvelteAllMacrosTest: {"body_span":{"end":354,"start":160},"decorators":[{"args_src":"Debug, Clone, PartialEq, Encode, Decode, Hash","name":"Derive","span":{"end":122,"start":61}}],"fields":[{"decorators":[{"args_src":"{ rename: \"testId\" }","name":"debug","span":{"end":201,"start":166}}],"name":"id","optional":false,"readonly":false,"span":{"end":217,"start":206},"ts_type":"string"},{"decorators":[],"name":"title","optional":false,"readonly":false,"span":{"end":236,"start":222},"ts_type":"string"},{"decorators":[],"name":"content","optional":false,"readonly":false,"span":{"end":257,"start":241},"ts_type":"string"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":291,"start":262}}],"name":"apiKey","optional":false,"readonly":false,"span":{"end":311,"start":296},"ts_type":"string"},{"decorators":[],"name":"count","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"number"},{"decorators":[],"name":"enabled","optional":false,"readonly":false,"span":{"end":352,"start":335},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"SvelteAllMacrosTest","span":{"end":354,"start":130},"type_params":[]}
 
 ## Registry reads
 

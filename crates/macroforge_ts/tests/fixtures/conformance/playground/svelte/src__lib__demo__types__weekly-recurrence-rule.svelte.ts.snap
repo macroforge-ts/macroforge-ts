@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/weekly-recurrence-rule.svelte.ts
-sha256 f362d38fcc66e0e700d67934bbd102747296c4b6eed8c37937dffb4e4e094410
+sha256 92d11d9112368897463707d11a31372c549dd64280fd1209031cfa3a04d4319c
 
 ## Changed
 
@@ -12,13 +12,13 @@ true
 
 ## Output
 
-import { weekdayDeserialize } from "./weekday.svelte";
-import { weekdaySerializeWithContext } from "./weekday.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { weekdayDecode } from "./weekday.svelte";
+import { weekdayEncodeWithContext } from "./weekday.svelte";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -41,16 +41,16 @@ weekdays: [],
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function weeklyRecurrenceRuleSerialize(value: WeeklyRecurrenceRule, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = weeklyRecurrenceRuleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function weeklyRecurrenceRuleEncode(value: WeeklyRecurrenceRule, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = weeklyRecurrenceRuleEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function weeklyRecurrenceRuleSerializeWithContext(value: WeeklyRecurrenceRule, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function weeklyRecurrenceRuleEncodeWithContext(value: WeeklyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -64,7 +64,7 @@ weekdays: [],
                         "__type": "WeeklyRecurrenceRule",
                         __id,
                     };result.quantityOfWeeks = value.quantityOfWeeks;result.weekdays = value.weekdays.map(
-                                                            (item) => weekdaySerializeWithContext(item, ctx)
+                                                            (item) => weekdayEncodeWithContext(item, ctx)
                                                         );
 
 
@@ -164,21 +164,21 @@ weekdays: [],
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function weeklyRecurrenceRuleDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: WeeklyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function weeklyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: WeeklyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = weeklyRecurrenceRuleDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = weeklyRecurrenceRuleDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "WeeklyRecurrenceRule.deserialize: root cannot be a forward reference"
+		message: "WeeklyRecurrenceRule.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -201,7 +201,7 @@ weekdays: [],
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -218,14 +218,14 @@ weekdays: [],
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function weeklyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): WeeklyRecurrenceRule | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function weeklyRecurrenceRuleDecodeWithContext(value: any, ctx: __mf_DecodeContext): WeeklyRecurrenceRule | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "WeeklyRecurrenceRule.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "WeeklyRecurrenceRule.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -525,7 +525,7 @@ weekdays: [],
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = weekdayDeserialize(item);
+                                                            const __elemResult = weekdayDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -1479,7 +1479,7 @@ weekdays: [],
                 if (!weeklyRecurrenceRuleHasShape(obj)) {
                     return false;
                 }
-                const result = weeklyRecurrenceRuleDeserialize(obj);
+                const result = weeklyRecurrenceRuleDecode(obj);
                 return result.success;
             }
 
@@ -1603,7 +1603,7 @@ weekdays: [],
 
 
             function validate(): Exit.Exit<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
-                return toExit(weeklyRecurrenceRuleDeserialize(data));
+                return toExit(weeklyRecurrenceRuleDecode(data));
             }
 
 
@@ -1636,7 +1636,7 @@ weekdays: [],
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function weeklyRecurrenceRuleFromFormData(formData: FormData): Exit.Exit<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1671,15 +1671,15 @@ weekdays: [],
                 }
 
 
-            return toExit(weeklyRecurrenceRuleDeserialize(obj));
+            return toExit(weeklyRecurrenceRuleDecode(obj));
         }
 
 export const WeeklyRecurrenceRule = {
   defaultValue: weeklyRecurrenceRuleDefaultValue,
-  serialize: weeklyRecurrenceRuleSerialize,
-  serializeWithContext: weeklyRecurrenceRuleSerializeWithContext,
-  deserialize: weeklyRecurrenceRuleDeserialize,
-  deserializeWithContext: weeklyRecurrenceRuleDeserializeWithContext,
+  encode: weeklyRecurrenceRuleEncode,
+  encodeWithContext: weeklyRecurrenceRuleEncodeWithContext,
+  decode: weeklyRecurrenceRuleDecode,
+  decodeWithContext: weeklyRecurrenceRuleDecodeWithContext,
   validateFields: weeklyRecurrenceRuleValidateFields,
   hasShape: weeklyRecurrenceRuleHasShape,
   is: weeklyRecurrenceRuleIs,
@@ -1706,16 +1706,16 @@ weekdays: [],
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function weeklyRecurrenceRuleSerialize(value: WeeklyRecurrenceRule, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = weeklyRecurrenceRuleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function weeklyRecurrenceRuleEncode(value: WeeklyRecurrenceRule, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = weeklyRecurrenceRuleEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function weeklyRecurrenceRuleSerializeWithContext(value: WeeklyRecurrenceRule, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function weeklyRecurrenceRuleEncodeWithContext(value: WeeklyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1729,7 +1729,7 @@ weekdays: [],
                         "__type": "WeeklyRecurrenceRule",
                         __id,
                     };result.quantityOfWeeks = value.quantityOfWeeks;result.weekdays = value.weekdays.map(
-                                                            (item) => weekdaySerializeWithContext(item, ctx)
+                                                            (item) => weekdayEncodeWithContext(item, ctx)
                                                         );
 
 
@@ -1829,21 +1829,21 @@ weekdays: [],
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function weeklyRecurrenceRuleDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: WeeklyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function weeklyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: WeeklyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = weeklyRecurrenceRuleDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = weeklyRecurrenceRuleDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "WeeklyRecurrenceRule.deserialize: root cannot be a forward reference"
+		message: "WeeklyRecurrenceRule.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1866,7 +1866,7 @@ weekdays: [],
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1883,14 +1883,14 @@ weekdays: [],
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function weeklyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): WeeklyRecurrenceRule | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function weeklyRecurrenceRuleDecodeWithContext(value: any, ctx: __mf_DecodeContext): WeeklyRecurrenceRule | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "WeeklyRecurrenceRule.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "WeeklyRecurrenceRule.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2190,7 +2190,7 @@ weekdays: [],
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = weekdayDeserialize(item);
+                                                            const __elemResult = weekdayDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -3144,7 +3144,7 @@ weekdays: [],
                 if (!weeklyRecurrenceRuleHasShape(obj)) {
                     return false;
                 }
-                const result = weeklyRecurrenceRuleDeserialize(obj);
+                const result = weeklyRecurrenceRuleDecode(obj);
                 return result.success;
             }
 
@@ -3268,7 +3268,7 @@ weekdays: [],
 
 
             function validate(): Exit.Exit<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
-                return toExit(weeklyRecurrenceRuleDeserialize(data));
+                return toExit(weeklyRecurrenceRuleDecode(data));
             }
 
 
@@ -3301,7 +3301,7 @@ weekdays: [],
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function weeklyRecurrenceRuleFromFormData(formData: FormData): Exit.Exit<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3336,15 +3336,15 @@ weekdays: [],
                 }
 
 
-            return toExit(weeklyRecurrenceRuleDeserialize(obj));
+            return toExit(weeklyRecurrenceRuleDecode(obj));
         }
 
 export const WeeklyRecurrenceRule = {
   defaultValue: weeklyRecurrenceRuleDefaultValue,
-  serialize: weeklyRecurrenceRuleSerialize,
-  serializeWithContext: weeklyRecurrenceRuleSerializeWithContext,
-  deserialize: weeklyRecurrenceRuleDeserialize,
-  deserializeWithContext: weeklyRecurrenceRuleDeserializeWithContext,
+  encode: weeklyRecurrenceRuleEncode,
+  encodeWithContext: weeklyRecurrenceRuleEncodeWithContext,
+  decode: weeklyRecurrenceRuleDecode,
+  decodeWithContext: weeklyRecurrenceRuleDecodeWithContext,
   validateFields: weeklyRecurrenceRuleValidateFields,
   hasShape: weeklyRecurrenceRuleHasShape,
   is: weeklyRecurrenceRuleIs,
@@ -3359,17 +3359,17 @@ export const WeeklyRecurrenceRule = {
 ## Mapping
 
 original 0..108 -> expanded 0..108
-original 165..266 -> expanded 108..209
-original 266..267 -> expanded 18960..18961
+original 157..258 -> expanded 108..209
+original 258..259 -> expanded 18774..18775
 generated 209..377 <- Default
-generated 377..2200 <- Serialize
-generated 2200..10771 <- Deserialize
-generated 10771..18410 <- Gigaform
-generated 18410..18960 <- __convenience_const
+generated 377..2165 <- Encode
+generated 2165..10637 <- Decode
+generated 10637..18256 <- Gigaform
+generated 18256..18774 <- __convenience_const
 
 ## Metadata
 
-interface WeeklyRecurrenceRule: {"body_span":{"end":267,"start":205},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":166,"start":109}}],"fields":[{"decorators":[],"name":"quantityOfWeeks","optional":false,"readonly":false,"span":{"end":235,"start":211},"ts_type":"number"},{"decorators":[],"name":"weekdays","optional":false,"readonly":false,"span":{"end":265,"start":240},"ts_type":"Array<Weekday>"}],"heritage":[],"methods":[],"name":"WeeklyRecurrenceRule","span":{"end":267,"start":174},"type_params":[]}
+interface WeeklyRecurrenceRule: {"body_span":{"end":259,"start":197},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":158,"start":109}}],"fields":[{"decorators":[],"name":"quantityOfWeeks","optional":false,"readonly":false,"span":{"end":227,"start":203},"ts_type":"number"},{"decorators":[],"name":"weekdays","optional":false,"readonly":false,"span":{"end":257,"start":232},"ts_type":"Array<Weekday>"}],"heritage":[],"methods":[],"name":"WeeklyRecurrenceRule","span":{"end":259,"start":166},"type_params":[]}
 
 ## Registry reads
 

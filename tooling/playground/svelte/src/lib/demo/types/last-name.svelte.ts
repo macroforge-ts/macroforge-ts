@@ -1,7 +1,7 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface LastName {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
 }

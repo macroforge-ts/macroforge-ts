@@ -33,7 +33,7 @@ const PACKAGES: Record<string, NpmPackage> = {
             { name: '.', path: 'pkg/macroforge_ts.js' },
             { name: './buildtime', path: 'js/buildtime/index.ts' },
             { name: './rules', path: 'js/rules/index.ts' },
-            { name: './serde', path: 'js/serde/index.ts' },
+            { name: './endec', path: 'js/endec/index.ts' },
             { name: './traits', path: 'js/traits/index.ts' }
         ],
         moduleFormat: 'esm',

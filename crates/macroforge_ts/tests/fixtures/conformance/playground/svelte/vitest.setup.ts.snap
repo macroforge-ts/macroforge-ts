@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 vitest.setup.ts
-sha256 60f2ea527613cdad82a50551d58d1fc15713b810c27d58551406d8900388c0bd
+sha256 5cf41ef10e197e3539d0a087306724cc5aa42ccf28c272dfc2f21378ab8889cd
 
 ## Changed
 

@@ -5,7 +5,7 @@ import type { Custom } from './custom.svelte';
 import type { Gradient } from './gradient.svelte';
 import type { Ordinal } from './ordinal.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type ColorsConfig =
     | Cardinal
     | Ordinal

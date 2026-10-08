@@ -2,8 +2,8 @@
 //!
 //! This macro **composes with** other Macroforge macros:
 //! - `@derive(Default)` provides `defaultValue()`
-//! - `@derive(Serialize)` provides `toObject()`
-//! - `@derive(Deserialize)` + `@serde` provides `fromObject()` with validation
+//! - `@derive(Encode)` provides `toObject()`
+//! - `@derive(Decode)` + `@endec` provides `fromObject()` with validation
 //!
 //! Gigaform adds (for a type `User`):
 //! - `UserErrors` type (nested error structure)
@@ -125,7 +125,7 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     // Combine into plain, prefixed exports (no namespace merging)
     let mut output = type_defs.merge(factory_fn).merge(form_data_fn);
 
-    // Add required imports from effect (value imports — use Option.Option<T> / Exit.Exit<T,E> in type positions)
+    // Add required imports from effect (value imports: use Option.Option<T> / Exit.Exit<T,E> in type positions)
     output.add_import("Option", "effect");
     output.add_import("Exit", "effect");
 
@@ -230,7 +230,7 @@ fn generate_union_form(
 
     let mut output = type_defs.merge(factory_fn).merge(form_data_fn);
 
-    // Add required imports from effect (value imports — use Option.Option<T> / Exit.Exit<T,E> in type positions)
+    // Add required imports from effect (value imports: use Option.Option<T> / Exit.Exit<T,E> in type positions)
     output.add_import("Option", "effect");
     output.add_import("Exit", "effect");
 
@@ -276,8 +276,8 @@ fn generate_enum_form(
 ///
 /// This macro **composes with** other Macroforge macros:
 /// - `@derive(Default)` provides `defaultValue()`
-/// - `@derive(Serialize)` provides `toObject()`
-/// - `@derive(Deserialize)` + `@serde({ validate: [...] })` provides `deserialize()` with validation
+/// - `@derive(Encode)` provides `toObject()`
+/// - `@derive(Decode)` + `@endec({ validate: [...] })` provides `decode()` with validation
 ///
 /// **Gigaform adds (for a type `UserForm`):**
 /// - `UserFormErrors` type (nested error structure)
@@ -290,17 +290,17 @@ fn generate_enum_form(
 /// # Example
 ///
 /// ```typescript
-/// /** @derive(Default, Serialize, Deserialize, Gigaform) */
+/// /** @derive(Default, Encode, Decode, Gigaform) */
 /// export interface UserForm {
-///   /** @serde({ validate: ["minLength(2)"] }) */
+///   /** @endec({ validate: ["minLength(2)"] }) */
 ///   /** @textController({ label: "Full Name" }) */
 ///   name: string;
 ///
-///   /** @serde({ validate: ["email"] }) */
+///   /** @endec({ validate: ["email"] }) */
 ///   /** @emailFieldController({ label: "Email" }) */
 ///   email: string;
 ///
-///   /** @serde({ validate: ["positive", "int"] }) */
+///   /** @endec({ validate: ["positive", "int"] }) */
 ///   /** @numberController({ label: "Age", min: 0 }) */
 ///   age: number;
 /// }

@@ -1,4 +1,4 @@
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 enum Status {
     Active = 'active',
     Inactive = 'inactive'

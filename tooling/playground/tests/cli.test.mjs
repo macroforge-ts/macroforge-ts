@@ -249,8 +249,8 @@ Deno.test('CLI cache: loads config and applies foreign types', () => {
   foreignTypes: {
     "DateTime.DateTime": {
       from: ["effect"],
-      serialize: (v: any) => v.toISOString(),
-      deserialize: (raw: unknown) => new Date(raw as string),
+      encode: (v: any) => v.toISOString(),
+      decode: (raw: unknown) => new Date(raw as string),
       default: () => new Date()
     }
   }
@@ -268,7 +268,7 @@ Deno.test('CLI cache: loads config and applies foreign types', () => {
             path.join(configDir, 'event.ts'),
             `import type { DateTime } from 'effect';
 
-/** @derive(Default, Serialize) */
+/** @derive(Default, Encode) */
 interface Event {
   name: string;
   startTime: DateTime.DateTime;
@@ -300,15 +300,15 @@ interface Event {
 });
 
 // ============================================================================
-// Serde Macro Tests (via cache)
+// Endec Macro Tests (via cache)
 // ============================================================================
 
-Deno.test('CLI cache: caches Serialize macro correctly', () => {
+Deno.test('CLI cache: caches Encode macro correctly', () => {
     setupTmpDir();
     try {
         fs.writeFileSync(
-            path.join(tmpDir, 'serialize.ts'),
-            `/** @derive(Serialize) */
+            path.join(tmpDir, 'encode.ts'),
+            `/** @derive(Encode) */
 interface Message {
   id: string;
   content: string;
@@ -324,23 +324,23 @@ interface Message {
             `CLI should succeed. stderr: ${result.stderr}`
         );
 
-        const content = readCacheFile('serialize.ts');
-        assert(content.includes('serialize'), 'Should have serialize function');
+        const content = readCacheFile('encode.ts');
+        assert(content.includes('encode'), 'Should have encode function');
         assert(
-            content.includes('SerializeContext'),
-            'Should import SerializeContext'
+            content.includes('EncodeContext'),
+            'Should import EncodeContext'
         );
     } finally {
         cleanupTmpDir();
     }
 });
 
-Deno.test('CLI cache: caches Deserialize macro correctly', () => {
+Deno.test('CLI cache: caches Decode macro correctly', () => {
     setupTmpDir();
     try {
         fs.writeFileSync(
-            path.join(tmpDir, 'deserialize.ts'),
-            `/** @derive(Deserialize) */
+            path.join(tmpDir, 'decode.ts'),
+            `/** @derive(Decode) */
 interface Request {
   method: string;
   path: string;
@@ -355,23 +355,23 @@ interface Request {
             `CLI should succeed. stderr: ${result.stderr}`
         );
 
-        const content = readCacheFile('deserialize.ts');
-        assert(content.includes('deserialize'), 'Should have deserialize function');
+        const content = readCacheFile('decode.ts');
+        assert(content.includes('decode'), 'Should have decode function');
         assert(
-            content.includes('DeserializeContext'),
-            'Should import DeserializeContext'
+            content.includes('DecodeContext'),
+            'Should import DecodeContext'
         );
     } finally {
         cleanupTmpDir();
     }
 });
 
-Deno.test('CLI cache: caches combined Serialize + Deserialize', () => {
+Deno.test('CLI cache: caches combined Encode + Decode', () => {
     setupTmpDir();
     try {
         fs.writeFileSync(
-            path.join(tmpDir, 'serde-combined.ts'),
-            `/** @derive(Serialize, Deserialize) */
+            path.join(tmpDir, 'endec-combined.ts'),
+            `/** @derive(Encode, Decode) */
 interface Data {
   value: string;
   count: number;
@@ -382,9 +382,9 @@ interface Data {
 
         assertEquals(result.success, true);
 
-        const content = readCacheFile('serde-combined.ts');
-        assert(content.includes('serialize'), 'Should have serialize');
-        assert(content.includes('deserialize'), 'Should have deserialize');
+        const content = readCacheFile('endec-combined.ts');
+        assert(content.includes('encode'), 'Should have encode');
+        assert(content.includes('decode'), 'Should have decode');
     } finally {
         cleanupTmpDir();
     }
@@ -620,7 +620,7 @@ Deno.test('CLI lock: concurrent runs all succeed with an intact manifest', async
             );
         }
 
-        // Serialized writes mean the manifest is never a blend of two writers.
+        // Encoded writes mean the manifest is never a blend of two writers.
         const manifest = JSON.parse(
             fs.readFileSync(path.join(cacheDir, 'manifest.json'), 'utf8')
         );

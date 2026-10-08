@@ -329,7 +329,7 @@ fn test_type_has_derive_ambiguous_name() {
             heritage: vec![],
             decorators: vec![make_decorator(
                 "derive",
-                "Default, Serialize, Deserialize, Gigaform",
+                "Default, Encode, Decode, Gigaform",
             )],
             fields: vec![],
             methods: vec![],
@@ -351,7 +351,7 @@ fn test_type_has_derive_ambiguous_name() {
             heritage: vec![],
             decorators: vec![make_decorator(
                 "derive",
-                "Default, Serialize, Deserialize, Gigaform",
+                "Default, Encode, Decode, Gigaform",
             )],
             fields: vec![],
             methods: vec![],
@@ -366,8 +366,8 @@ fn test_type_has_derive_ambiguous_name() {
     // type_has_derive should still return true
     assert!(type_has_derive(&registry, "PhoneNumber", "Gigaform"));
     assert!(type_has_derive(&registry, "PhoneNumber", "Default"));
-    assert!(type_has_derive(&registry, "PhoneNumber", "Serialize"));
-    assert!(type_has_derive(&registry, "PhoneNumber", "Deserialize"));
+    assert!(type_has_derive(&registry, "PhoneNumber", "Encode"));
+    assert!(type_has_derive(&registry, "PhoneNumber", "Decode"));
 }
 
 #[test]

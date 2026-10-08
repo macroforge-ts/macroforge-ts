@@ -62,7 +62,7 @@ use crate::abi::{DecoratorIR, InterfaceFieldIR, SpanIR};
 /// For the TypeScript type alias:
 ///
 /// ```typescript
-/// /** @derive(Serialize) */
+/// /** @derive(Encode) */
 /// type Result<T, E> = { ok: T } | { err: E };
 /// ```
 ///

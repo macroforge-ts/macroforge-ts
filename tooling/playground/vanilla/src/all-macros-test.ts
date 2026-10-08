@@ -3,7 +3,7 @@
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
  */
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export class AllMacrosTestClass {
     /** @debug({ rename: "identifier" }) */
     id: number;

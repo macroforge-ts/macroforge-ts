@@ -3,7 +3,7 @@
 import type { Account } from './account.svelte';
 import type { Employee } from './employee.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Represents {
     /** @default("") */
     in: string | Employee;

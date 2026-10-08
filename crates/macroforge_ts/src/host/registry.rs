@@ -43,7 +43,7 @@ use std::sync::Arc;
 pub struct MacroKey {
     /// The module/package the macro comes from (e.g., "builtin", "@my-org/macros").
     pub module: String,
-    /// The name of the macro (e.g., "Debug", "Clone", "Serialize").
+    /// The name of the macro (e.g., "Debug", "Clone", "Encode").
     pub name: String,
 }
 
@@ -220,6 +220,11 @@ impl MacroRegistry {
     pub fn contains(&self, module: &str, name: &str) -> bool {
         let key = MacroKey::new(module, name);
         self.macros.contains_key(&key)
+    }
+
+    /// Checks whether a module has any registered macro implementations.
+    pub fn contains_module(&self, module: &str) -> bool {
+        self.macros.iter().any(|entry| entry.key().module == module)
     }
 
     /// Looks up a macro by name only, ignoring the module path.

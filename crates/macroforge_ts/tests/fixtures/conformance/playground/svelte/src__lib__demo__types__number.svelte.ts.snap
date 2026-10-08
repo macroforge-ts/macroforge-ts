@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/number.svelte.ts
-sha256 ce13f29c60a846fd5d8747739ffe3a5644eacfa77457777147cfd620db53cae6
+sha256 f629aa86219d981d686d6290dc8a00f6d3f889183b5d3f6eba610638f00a5b62
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -41,16 +41,16 @@ localNumber: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function numberSerialize(value: Number, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = numberSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function numberEncode(value: Number, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = numberEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function numberSerializeWithContext(value: Number, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function numberEncodeWithContext(value: Number, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -162,21 +162,21 @@ localNumber: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function numberDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Number } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function numberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Number } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = numberDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = numberDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Number.deserialize: root cannot be a forward reference"
+		message: "Number.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -199,7 +199,7 @@ localNumber: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -216,14 +216,14 @@ localNumber: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function numberDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Number | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function numberDecodeWithContext(value: any, ctx: __mf_DecodeContext): Number | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Number.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Number.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1726,7 +1726,7 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
                 if (!numberHasShape(obj)) {
                     return false;
                 }
-                const result = numberDeserialize(obj);
+                const result = numberDecode(obj);
                 return result.success;
             }
 
@@ -1864,7 +1864,7 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
 
 
             function validate(): Exit.Exit<Number, Array<{ field: string; message: string }>> {
-                return toExit(numberDeserialize(data));
+                return toExit(numberDecode(data));
             }
 
 
@@ -1899,7 +1899,7 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function numberFromFormData(formData: FormData): Exit.Exit<Number, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1909,15 +1909,15 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
             obj.localNumber = formData.get("localNumber") ?? "";
 
 
-            return toExit(numberDeserialize(obj));
+            return toExit(numberDecode(obj));
         }
 
 export const Number = {
   defaultValue: numberDefaultValue,
-  serialize: numberSerialize,
-  serializeWithContext: numberSerializeWithContext,
-  deserialize: numberDeserialize,
-  deserializeWithContext: numberDeserializeWithContext,
+  encode: numberEncode,
+  encodeWithContext: numberEncodeWithContext,
+  decode: numberDecode,
+  decodeWithContext: numberDecodeWithContext,
   validateFields: numberValidateFields,
   hasShape: numberHasShape,
   is: numberIs,
@@ -1947,16 +1947,16 @@ localNumber: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function numberSerialize(value: Number, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = numberSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function numberEncode(value: Number, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = numberEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function numberSerializeWithContext(value: Number, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function numberEncodeWithContext(value: Number, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2068,21 +2068,21 @@ localNumber: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function numberDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Number } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function numberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Number } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = numberDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = numberDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Number.deserialize: root cannot be a forward reference"
+		message: "Number.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2105,7 +2105,7 @@ localNumber: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2122,14 +2122,14 @@ localNumber: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function numberDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Number | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function numberDecodeWithContext(value: any, ctx: __mf_DecodeContext): Number | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Number.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Number.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3632,7 +3632,7 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
                 if (!numberHasShape(obj)) {
                     return false;
                 }
-                const result = numberDeserialize(obj);
+                const result = numberDecode(obj);
                 return result.success;
             }
 
@@ -3770,7 +3770,7 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
 
 
             function validate(): Exit.Exit<Number, Array<{ field: string; message: string }>> {
-                return toExit(numberDeserialize(data));
+                return toExit(numberDecode(data));
             }
 
 
@@ -3805,7 +3805,7 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function numberFromFormData(formData: FormData): Exit.Exit<Number, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3815,15 +3815,15 @@ if (__val.length === 0) { errors.push({ field: "localNumber", message: "Number.l
             obj.localNumber = formData.get("localNumber") ?? "";
 
 
-            return toExit(numberDeserialize(obj));
+            return toExit(numberDecode(obj));
         }
 
 export const Number = {
   defaultValue: numberDefaultValue,
-  serialize: numberSerialize,
-  serializeWithContext: numberSerializeWithContext,
-  deserialize: numberDeserialize,
-  deserializeWithContext: numberDeserializeWithContext,
+  encode: numberEncode,
+  encodeWithContext: numberEncodeWithContext,
+  decode: numberDecode,
+  decodeWithContext: numberDecodeWithContext,
   validateFields: numberValidateFields,
   hasShape: numberHasShape,
   is: numberIs,
@@ -3838,20 +3838,20 @@ export const Number = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..146 -> expanded 58..89
-original 187..217 -> expanded 89..119
-original 258..285 -> expanded 119..146
-original 326..353 -> expanded 146..173
-original 353..354 -> expanded 18423..18424
+original 107..138 -> expanded 58..89
+original 179..209 -> expanded 89..119
+original 250..277 -> expanded 119..146
+original 318..345 -> expanded 146..173
+original 345..346 -> expanded 18245..18246
 generated 173..327 <- Default
-generated 327..1925 <- Serialize
-generated 1925..11586 <- Deserialize
-generated 11586..18027 <- Gigaform
-generated 18027..18423 <- __convenience_const
+generated 327..1893 <- Encode
+generated 1893..11460 <- Decode
+generated 11460..17881 <- Gigaform
+generated 17881..18245 <- __convenience_const
 
 ## Metadata
 
-interface Number: {"body_span":{"end":354,"start":141},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":188,"start":147}}],"name":"countryCode","optional":false,"readonly":false,"span":{"end":213,"start":193},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":259,"start":218}}],"name":"areaCode","optional":false,"readonly":false,"span":{"end":281,"start":264},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":327,"start":286}}],"name":"localNumber","optional":false,"readonly":false,"span":{"end":352,"start":332},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Number","span":{"end":354,"start":124},"type_params":[]}
+interface Number: {"body_span":{"end":346,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"name":"countryCode","optional":false,"readonly":false,"span":{"end":205,"start":185},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":251,"start":210}}],"name":"areaCode","optional":false,"readonly":false,"span":{"end":273,"start":256},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"name":"localNumber","optional":false,"readonly":false,"span":{"end":344,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Number","span":{"end":346,"start":116},"type_params":[]}
 
 ## Registry reads
 

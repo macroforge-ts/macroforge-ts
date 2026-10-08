@@ -6,7 +6,7 @@ with the same name:
 TypeScript
 
 ```
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Encode, Decode) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
@@ -18,19 +18,19 @@ enum Status {
 // export function statusClone(value: Status): Status { ... }
 // export function statusEquals(a: Status, b: Status): boolean { ... }
 // export function statusHashCode(value: Status): number { ... }
-// export function statusSerialize(value: Status): string { ... }
-// export function statusDeserialize(input: unknown): Status { ... }
+// export function statusEncode(value: Status): string { ... }
+// export function statusDecode(input: unknown): Status { ... }
 
 // Enums use namespace merging for the convenience names:
 // namespace Status {
 //   export const toString = statusToString;
-//   export const serialize = statusSerialize;
+//   export const encode = statusEncode;
 // }
 
 console.log(statusToString(Status.Active));                // "Status.Active"
 console.log(statusEquals(Status.Active, Status.Active));   // true
-const json = statusSerialize(Status.Pending);              // "pending"
-// Note: enum deserialize throws on invalid input rather than
+const json = statusEncode(Status.Pending);              // "pending"
+// Note: enum decode throws on invalid input rather than
 // returning a success/errors union.
-const parsed = statusDeserialize("active");                // Status.Active
+const parsed = statusDecode("active");                // Status.Active
 ```

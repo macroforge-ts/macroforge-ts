@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/did.svelte.ts
-sha256 a43914c0246d1fa911928f0af491f222cf5f8ef0ec04be20fef743b1d9d7963f
+sha256 d0310a54b3cf3944d473f9afbee138350beaacf04b6f82e82cbf6616ac662b21
 
 ## Changed
 
@@ -12,18 +12,18 @@ true
 
 ## Output
 
-import { activityTypeDeserializeWithContext } from "./activity-type.svelte";
-import { actorDeserializeWithContext } from "./actor.svelte";
-import { targetDeserializeWithContext } from "./target.svelte";
-import { activityTypeSerializeWithContext } from "./activity-type.svelte";
-import { actorSerializeWithContext } from "./actor.svelte";
-import { targetSerializeWithContext } from "./target.svelte";
+import { activityTypeDecodeWithContext } from "./activity-type.svelte";
+import { actorDecodeWithContext } from "./actor.svelte";
+import { targetDecodeWithContext } from "./target.svelte";
+import { activityTypeEncodeWithContext } from "./activity-type.svelte";
+import { actorEncodeWithContext } from "./actor.svelte";
+import { targetEncodeWithContext } from "./target.svelte";
 import { activityTypeDefaultValue } from "./activity-type.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -57,16 +57,16 @@ metadata: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function didSerialize(value: Did, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = didSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function didEncode(value: Did, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = didEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function didSerializeWithContext(value: Did, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function didEncodeWithContext(value: Did, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -81,9 +81,9 @@ metadata: null,
                         __id,
                     };result.in = typeof value.in === "string"
                                                 ? value.in
-                                                : actorSerializeWithContext(value.in, ctx);result.out = typeof value.out === "string"
+                                                : actorEncodeWithContext(value.in, ctx);result.out = typeof value.out === "string"
                                                 ? value.out
-                                                : targetSerializeWithContext(value.out, ctx);result.id = value.id;result.activityType = activityTypeSerializeWithContext(value.activityType, ctx);result.createdAt = value.createdAt;result.metadata = value.metadata;
+                                                : targetEncodeWithContext(value.out, ctx);result.id = value.id;result.activityType = activityTypeEncodeWithContext(value.activityType, ctx);result.createdAt = value.createdAt;result.metadata = value.metadata;
 
 
 
@@ -182,21 +182,21 @@ metadata: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function didDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Did } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function didDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Did } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = didDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = didDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Did.deserialize: root cannot be a forward reference"
+		message: "Did.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -219,7 +219,7 @@ metadata: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -236,14 +236,14 @@ metadata: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function didDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Did | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function didDecodeWithContext(value: any, ctx: __mf_DecodeContext): Did | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Did.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Did.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -282,10 +282,10 @@ metadata: null,
                                             } else {
                                                 ctx.pushScope("in");
                                                 try {
-                                                    const __result = actorDeserializeWithContext(__raw_in, ctx);
+                                                    const __result = actorDecodeWithContext(__raw_in, ctx);
                                                     ctx.assignOrDefer(instance, "in", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "in" : "in." + __err.field,
@@ -566,10 +566,10 @@ metadata: null,
                                             } else {
                                                 ctx.pushScope("out");
                                                 try {
-                                                    const __result = targetDeserializeWithContext(__raw_out, ctx);
+                                                    const __result = targetDecodeWithContext(__raw_out, ctx);
                                                     ctx.assignOrDefer(instance, "out", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "out" : "out." + __err.field,
@@ -1104,10 +1104,10 @@ metadata: null,
                             }{
                                 const __raw_activityType = obj["activityType"] as ActivityType;ctx.pushScope("activityType");
                                             try {
-                                                const __result = activityTypeDeserializeWithContext(__raw_activityType, ctx);
+                                                const __result = activityTypeDecodeWithContext(__raw_activityType, ctx);
                                                 ctx.assignOrDefer(instance, "activityType", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "activityType" : "activityType." + __err.field,
@@ -2522,7 +2522,7 @@ metadata: null,
                 if (!didHasShape(obj)) {
                     return false;
                 }
-                const result = didDeserialize(obj);
+                const result = didDecode(obj);
                 return result.success;
             }
 
@@ -2741,7 +2741,7 @@ metadata: null,
 
 
             function validate(): Exit.Exit<Did, Array<{ field: string; message: string }>> {
-                return toExit(didDeserialize(data));
+                return toExit(didDecode(data));
             }
 
 
@@ -2782,7 +2782,7 @@ metadata: null,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function didFromFormData(formData: FormData): Exit.Exit<Did, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2815,15 +2815,15 @@ metadata: null,
             obj.metadata = formData.get("metadata") ?? "";
 
 
-            return toExit(didDeserialize(obj));
+            return toExit(didDecode(obj));
         }
 
 export const Did = {
   defaultValue: didDefaultValue,
-  serialize: didSerialize,
-  serializeWithContext: didSerializeWithContext,
-  deserialize: didDeserialize,
-  deserializeWithContext: didDeserializeWithContext,
+  encode: didEncode,
+  encodeWithContext: didEncodeWithContext,
+  decode: didDecode,
+  decodeWithContext: didDecodeWithContext,
   validateFields: didValidateFields,
   hasShape: didHasShape,
   is: didIs,
@@ -2862,16 +2862,16 @@ metadata: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function didSerialize(value: Did, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = didSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function didEncode(value: Did, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = didEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function didSerializeWithContext(value: Did, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function didEncodeWithContext(value: Did, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2886,9 +2886,9 @@ metadata: null,
                         __id,
                     };result.in = typeof value.in === "string"
                                                 ? value.in
-                                                : actorSerializeWithContext(value.in, ctx);result.out = typeof value.out === "string"
+                                                : actorEncodeWithContext(value.in, ctx);result.out = typeof value.out === "string"
                                                 ? value.out
-                                                : targetSerializeWithContext(value.out, ctx);result.id = value.id;result.activityType = activityTypeSerializeWithContext(value.activityType, ctx);result.createdAt = value.createdAt;result.metadata = value.metadata;
+                                                : targetEncodeWithContext(value.out, ctx);result.id = value.id;result.activityType = activityTypeEncodeWithContext(value.activityType, ctx);result.createdAt = value.createdAt;result.metadata = value.metadata;
 
 
 
@@ -2987,21 +2987,21 @@ metadata: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function didDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Did } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function didDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Did } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = didDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = didDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Did.deserialize: root cannot be a forward reference"
+		message: "Did.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -3024,7 +3024,7 @@ metadata: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -3041,14 +3041,14 @@ metadata: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function didDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Did | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function didDecodeWithContext(value: any, ctx: __mf_DecodeContext): Did | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Did.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Did.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3087,10 +3087,10 @@ metadata: null,
                                             } else {
                                                 ctx.pushScope("in");
                                                 try {
-                                                    const __result = actorDeserializeWithContext(__raw_in, ctx);
+                                                    const __result = actorDecodeWithContext(__raw_in, ctx);
                                                     ctx.assignOrDefer(instance, "in", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "in" : "in." + __err.field,
@@ -3371,10 +3371,10 @@ metadata: null,
                                             } else {
                                                 ctx.pushScope("out");
                                                 try {
-                                                    const __result = targetDeserializeWithContext(__raw_out, ctx);
+                                                    const __result = targetDecodeWithContext(__raw_out, ctx);
                                                     ctx.assignOrDefer(instance, "out", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "out" : "out." + __err.field,
@@ -3909,10 +3909,10 @@ metadata: null,
                             }{
                                 const __raw_activityType = obj["activityType"] as ActivityType;ctx.pushScope("activityType");
                                             try {
-                                                const __result = activityTypeDeserializeWithContext(__raw_activityType, ctx);
+                                                const __result = activityTypeDecodeWithContext(__raw_activityType, ctx);
                                                 ctx.assignOrDefer(instance, "activityType", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "activityType" : "activityType." + __err.field,
@@ -5327,7 +5327,7 @@ metadata: null,
                 if (!didHasShape(obj)) {
                     return false;
                 }
-                const result = didDeserialize(obj);
+                const result = didDecode(obj);
                 return result.success;
             }
 
@@ -5546,7 +5546,7 @@ metadata: null,
 
 
             function validate(): Exit.Exit<Did, Array<{ field: string; message: string }>> {
-                return toExit(didDeserialize(data));
+                return toExit(didDecode(data));
             }
 
 
@@ -5587,7 +5587,7 @@ metadata: null,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function didFromFormData(formData: FormData): Exit.Exit<Did, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -5620,15 +5620,15 @@ metadata: null,
             obj.metadata = formData.get("metadata") ?? "";
 
 
-            return toExit(didDeserialize(obj));
+            return toExit(didDecode(obj));
         }
 
 export const Did = {
   defaultValue: didDefaultValue,
-  serialize: didSerialize,
-  serializeWithContext: didSerializeWithContext,
-  deserialize: didDeserialize,
-  deserializeWithContext: didDeserializeWithContext,
+  encode: didEncode,
+  encodeWithContext: didEncodeWithContext,
+  decode: didDecode,
+  decodeWithContext: didDecodeWithContext,
   validateFields: didValidateFields,
   hasShape: didHasShape,
   is: didIs,
@@ -5643,19 +5643,19 @@ export const Did = {
 ## Mapping
 
 original 0..211 -> expanded 0..211
-original 268..296 -> expanded 211..239
-original 315..344 -> expanded 239..268
-original 363..491 -> expanded 268..396
-original 491..492 -> expanded 25744..25745
+original 260..288 -> expanded 211..239
+original 307..336 -> expanded 239..268
+original 355..483 -> expanded 268..396
+original 483..484 -> expanded 25527..25528
 generated 396..594 <- Default
-generated 594..2619 <- Serialize
-generated 2619..14839 <- Deserialize
-generated 14839..25381 <- Gigaform
-generated 25381..25744 <- __convenience_const
+generated 594..2578 <- Encode
+generated 2578..14674 <- Decode
+generated 14674..25196 <- Gigaform
+generated 25196..25527 <- __convenience_const
 
 ## Metadata
 
-interface Did: {"body_span":{"end":492,"start":291},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":269,"start":212}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":316,"start":297}}],"name":"in","optional":false,"readonly":false,"span":{"end":340,"start":321},"ts_type":"string | Actor"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":364,"start":345}}],"name":"out","optional":false,"readonly":false,"span":{"end":390,"start":369},"ts_type":"string | Target"},{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":406,"start":395},"ts_type":"string"},{"decorators":[],"name":"activityType","optional":false,"readonly":false,"span":{"end":438,"start":411},"ts_type":"ActivityType"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":461,"start":443},"ts_type":"string"},{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":490,"start":466},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Did","span":{"end":492,"start":277},"type_params":[]}
+interface Did: {"body_span":{"end":484,"start":283},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":261,"start":212}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":308,"start":289}}],"name":"in","optional":false,"readonly":false,"span":{"end":332,"start":313},"ts_type":"string | Actor"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":356,"start":337}}],"name":"out","optional":false,"readonly":false,"span":{"end":382,"start":361},"ts_type":"string | Target"},{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":398,"start":387},"ts_type":"string"},{"decorators":[],"name":"activityType","optional":false,"readonly":false,"span":{"end":430,"start":403},"ts_type":"ActivityType"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":453,"start":435},"ts_type":"string"},{"decorators":[],"name":"metadata","optional":false,"readonly":false,"span":{"end":482,"start":458},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Did","span":{"end":484,"start":269},"type_params":[]}
 
 ## Registry reads
 

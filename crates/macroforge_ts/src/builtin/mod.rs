@@ -7,7 +7,7 @@
 //! ## Available Macros
 //!
 //! For **classes**, each macro generates a standalone function (e.g. `userClone`,
-//! `userSerialize`) plus a static wrapper method on the class that delegates to it.
+//! `userEncode`) plus a static wrapper method on the class that delegates to it.
 //! **Enums, interfaces, and type aliases** get standalone functions only (e.g.
 //! `statusDefaultValue`, `pointEquals`), since methods cannot be attached to them.
 //! The tables below show the class-side static methods.
@@ -39,30 +39,30 @@
 //! |-------|------------------|-------------|
 //! | `Default` | `static defaultValue(): T` | Factory method with default values |
 //!
-//! ### Serialization (Serde)
+//! ### Encoding (Endec)
 //!
 //! | Macro | Generated Method | Description |
 //! |-------|------------------|-------------|
-//! | `Serialize` | `static serialize(value, keepMetadata?): string` | JSON serialization with cycle detection |
-//! | `Deserialize` | `static deserialize(input, opts?): { success: true; value: T } \| { success: false; errors }` | JSON deserialization with validation |
+//! | `Encode` | `static encode(value, keepMetadata?): string` | JSON encoding with cycle detection |
+//! | `Decode` | `static decode(input, opts?): { success: true; value: T } \| { success: false; errors }` | JSON decoding with validation |
 //!
-//! `Deserialize` additionally generates `static is(value)` / `static hasShape(obj)` type
-//! guards and `validateField`/`validateFields` helpers; see [`serde`] for the full surface.
+//! `Decode` additionally generates `static is(value)` / `static hasShape(obj)` type
+//! guards and `validateField`/`validateFields` helpers; see [`endec`] for the full surface.
 //!
 //! ## Field-Level Decorators
 //!
 //! Most macros support field-level decorators to customize behavior:
 //!
 //! ```typescript
-//! /** @derive(Debug, PartialEq, Serialize) */
+//! /** @derive(Debug, PartialEq, Encode) */
 //! class User {
 //!     /** @debug({ rename: "identifier" }) */
 //!     id: number;
 //!
-//!     /** @partialEq({ skip: true }) @serde({ skipSerializing: true }) */
+//!     /** @partialEq({ skip: true }) @endec({ skipEncoding: true }) */
 //!     password: string;
 //!
-//!     /** @serde({ rename: "emailAddress" }) */
+//!     /** @endec({ rename: "emailAddress" }) */
 //!     email: string;
 //! }
 //! ```
@@ -106,8 +106,8 @@ pub mod derive_partial_eq;
 /// PartialOrd macro implementation (partial ordering).
 mod derive_partial_ord;
 
-/// Serialization macros (Serialize, Deserialize).
-pub mod serde;
+/// Encoding macros (Encode, Decode).
+pub mod endec;
 
-/// Return type code generation helpers for Deserialize and PartialOrd macros.
+/// Return type code generation helpers for Decode and PartialOrd macros.
 pub mod return_types;

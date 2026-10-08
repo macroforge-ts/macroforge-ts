@@ -1,18 +1,19 @@
-# Merge requests into main run `verify`. A `vX.Y.Z` tag on main verifies again
-# and publishes every package whose version is not yet on its registry.
+# Merge requests into main run `verify`. A `vX.Y.Z` tag on main verifies again,
+# publishes every package whose version is not yet on its registry, then
+# creates the GitLab Release.
 #
 # Jobs run on the self-hosted `mac-docker` runner, in the image
 # `pixi run ci:image` builds on the runner host from tooling/ci/Dockerfile.
 # The release jobs run on `mac-docker-release`, a protected runner on the
 # same host whose cache volumes no branch pipeline can write, except the npm
-# and JSR publish, which runs on a GitLab-hosted runner.
+# and JSR publish and the Release, which run on a GitLab-hosted runner.
 
 workflow:
     rules:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
         - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
 
-stages: [check, verify, publish]
+stages: [check, verify, publish, release]
 
 variables:
     GIT_STRATEGY: fetch
@@ -63,12 +64,12 @@ verify:
     timeout: 3h
     script:
         - *toolchain
-        - pixi run build:cli
         - pixi run verify --check
 
 publish-crates:
     stage: publish
     tags: [mac-docker-release]
+    timeout: 3h
     rules:
         - if: $CI_COMMIT_TAG
     environment: release
@@ -96,6 +97,9 @@ publish-packages:
     environment: release
     image: ghcr.io/prefix-dev/pixi:0.81.0-noble
     tags: [saas-linux-small-amd64]
+    # An ID token expires with the job's timeout, or after 5 minutes when the
+    # job sets none, and npm exchanges it again for every package.
+    timeout: 1h
     before_script: []
     id_tokens:
         NPM_ID_TOKEN:
@@ -105,3 +109,28 @@ publish-packages:
             aud: sigstore
     script:
         - pixi run --locked --environment publish publish:ci:packages
+
+# Created only once every registry has the version, so the Release event is
+# the signal that it shipped: the website deploys from it.
+release:
+    stage: release
+    needs: [publish-crates, publish-packages]
+    rules:
+        - if: $CI_COMMIT_TAG
+    image: registry.gitlab.com/gitlab-org/cli:latest
+    tags: [saas-linux-small-amd64]
+    before_script: []
+    script:
+        - echo "Releasing $CI_COMMIT_TAG"
+    release:
+        tag_name: $CI_COMMIT_TAG
+        name: $CI_COMMIT_TAG
+        description: Published to crates.io, npm and JSR.
+        assets:
+            links:
+                - name: crates.io
+                  url: https://crates.io/crates/macroforge_ts
+                - name: npm
+                  url: https://www.npmjs.com/package/@macroforge/core
+                - name: JSR
+                  url: https://jsr.io/@macroforge/core

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/validators/edge-case-tests.ts
-sha256 e36ec1ebf9693651def1ab74b2ab41baa557c301111beb68168c6d3637b1655e
+sha256 725b68827c41308573a94f4d0decb4596332f28f7613db3f0ddf2ac252d5da1b
 
 ## Changed
 
@@ -12,18 +12,18 @@ true
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 /**
- * Edge case test classes for comprehensive deserializer validation testing.
+ * Edge case test classes for comprehensive decoder validation testing.
  */
 
 // Multiple validators on single field
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MultipleValidatorsTest {
-    /** @serde({ validate: ["nonEmpty", "maxLength(100)", "trimmed"] }) */
+    /** @endec({ validate: ["nonEmpty", "maxLength(100)", "trimmed"] }) */
     text: string;
 
 constructor(props: { text: string }) {
@@ -32,21 +32,21 @@ constructor(props: { text: string }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = MultipleValidatorsTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = MultipleValidatorsTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "MultipleValidatorsTest.deserialize: root cannot be a forward reference"
+		message: "MultipleValidatorsTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -69,7 +69,7 @@ constructor(props: { text: string }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -86,15 +86,15 @@ constructor(props: { text: string }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MultipleValidatorsTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): MultipleValidatorsTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "MultipleValidatorsTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "MultipleValidatorsTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -501,29 +501,29 @@ if (__val !== __val.trim()) { errors.push({ field: "text", message: "MultipleVal
             if (!MultipleValidatorsTest.hasShape(obj)) {
                 return false;
             }
-            const result = MultipleValidatorsTest.deserialize(obj);
+            const result = MultipleValidatorsTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function multipleValidatorsTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return MultipleValidatorsTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function multipleValidatorsTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return MultipleValidatorsTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function multipleValidatorsTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MultipleValidatorsTest | __mf_PendingRef {
-            return MultipleValidatorsTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function multipleValidatorsTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): MultipleValidatorsTest | __mf_PendingRef {
+            return MultipleValidatorsTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function multipleValidatorsTestIs(value: unknown): value is MultipleValidatorsTest {
             return MultipleValidatorsTest.is(value);
         }
 
 // Custom error message
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CustomMessageTest {
-    /** @serde({ validate: [{ validate: "email", message: "Please enter a valid email address" }] }) */
+    /** @endec({ validate: [{ validate: "email", message: "Please enter a valid email address" }] }) */
     email: string;
 
 constructor(props: { email: string }) {
@@ -532,21 +532,21 @@ constructor(props: { email: string }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = CustomMessageTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = CustomMessageTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "CustomMessageTest.deserialize: root cannot be a forward reference"
+		message: "CustomMessageTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -569,7 +569,7 @@ constructor(props: { email: string }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -586,15 +586,15 @@ constructor(props: { email: string }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomMessageTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): CustomMessageTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "CustomMessageTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "CustomMessageTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -995,29 +995,29 @@ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", m
             if (!CustomMessageTest.hasShape(obj)) {
                 return false;
             }
-            const result = CustomMessageTest.deserialize(obj);
+            const result = CustomMessageTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function customMessageTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return CustomMessageTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function customMessageTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return CustomMessageTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function customMessageTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomMessageTest | __mf_PendingRef {
-            return CustomMessageTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function customMessageTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): CustomMessageTest | __mf_PendingRef {
+            return CustomMessageTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function customMessageTestIs(value: unknown): value is CustomMessageTest {
             return CustomMessageTest.is(value);
         }
 
 // Mixed validators with custom message
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MixedValidatorsTest {
-    /** @serde({ validate: ["nonEmpty", { validate: "email", message: "Invalid email format" }] }) */
+    /** @endec({ validate: ["nonEmpty", { validate: "email", message: "Invalid email format" }] }) */
     email: string;
 
 constructor(props: { email: string }) {
@@ -1026,21 +1026,21 @@ constructor(props: { email: string }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = MixedValidatorsTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = MixedValidatorsTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "MixedValidatorsTest.deserialize: root cannot be a forward reference"
+		message: "MixedValidatorsTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1063,7 +1063,7 @@ constructor(props: { email: string }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1080,15 +1080,15 @@ constructor(props: { email: string }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MixedValidatorsTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): MixedValidatorsTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "MixedValidatorsTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "MixedValidatorsTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -1492,29 +1492,29 @@ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", m
             if (!MixedValidatorsTest.hasShape(obj)) {
                 return false;
             }
-            const result = MixedValidatorsTest.deserialize(obj);
+            const result = MixedValidatorsTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function mixedValidatorsTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return MixedValidatorsTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function mixedValidatorsTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return MixedValidatorsTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function mixedValidatorsTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MixedValidatorsTest | __mf_PendingRef {
-            return MixedValidatorsTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function mixedValidatorsTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): MixedValidatorsTest | __mf_PendingRef {
+            return MixedValidatorsTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function mixedValidatorsTestIs(value: unknown): value is MixedValidatorsTest {
             return MixedValidatorsTest.is(value);
         }
 
 // Combined string validators
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CombinedStringValidatorsTest {
-    /** @serde({ validate: ["minLength(3)", "maxLength(20)", "lowercase"] }) */
+    /** @endec({ validate: ["minLength(3)", "maxLength(20)", "lowercase"] }) */
     username: string;
 
 constructor(props: { username: string }) {
@@ -1523,21 +1523,21 @@ constructor(props: { username: string }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = CombinedStringValidatorsTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "CombinedStringValidatorsTest.deserialize: root cannot be a forward reference"
+		message: "CombinedStringValidatorsTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1560,7 +1560,7 @@ constructor(props: { username: string }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1577,15 +1577,15 @@ constructor(props: { username: string }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedStringValidatorsTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): CombinedStringValidatorsTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "CombinedStringValidatorsTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "CombinedStringValidatorsTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -1992,29 +1992,29 @@ if (__val !== __val.toLowerCase()) { errors.push({ field: "username", message: "
             if (!CombinedStringValidatorsTest.hasShape(obj)) {
                 return false;
             }
-            const result = CombinedStringValidatorsTest.deserialize(obj);
+            const result = CombinedStringValidatorsTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function combinedStringValidatorsTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return CombinedStringValidatorsTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function combinedStringValidatorsTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return CombinedStringValidatorsTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function combinedStringValidatorsTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedStringValidatorsTest | __mf_PendingRef {
-            return CombinedStringValidatorsTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function combinedStringValidatorsTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): CombinedStringValidatorsTest | __mf_PendingRef {
+            return CombinedStringValidatorsTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function combinedStringValidatorsTestIs(value: unknown): value is CombinedStringValidatorsTest {
             return CombinedStringValidatorsTest.is(value);
         }
 
 // Combined number validators
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CombinedNumberValidatorsTest {
-    /** @serde({ validate: ["int", "positive", "lessThan(1000)"] }) */
+    /** @endec({ validate: ["int", "positive", "lessThan(1000)"] }) */
     score: number;
 
 constructor(props: { score: number }) {
@@ -2023,21 +2023,21 @@ constructor(props: { score: number }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = CombinedNumberValidatorsTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "CombinedNumberValidatorsTest.deserialize: root cannot be a forward reference"
+		message: "CombinedNumberValidatorsTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -2060,7 +2060,7 @@ constructor(props: { score: number }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -2077,15 +2077,15 @@ constructor(props: { score: number }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "CombinedNumberValidatorsTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "CombinedNumberValidatorsTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -2492,21 +2492,21 @@ if (__val >= 1000) { errors.push({ field: "score", message: "CombinedNumberValid
             if (!CombinedNumberValidatorsTest.hasShape(obj)) {
                 return false;
             }
-            const result = CombinedNumberValidatorsTest.deserialize(obj);
+            const result = CombinedNumberValidatorsTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function combinedNumberValidatorsTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return CombinedNumberValidatorsTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function combinedNumberValidatorsTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return CombinedNumberValidatorsTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function combinedNumberValidatorsTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
-            return CombinedNumberValidatorsTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function combinedNumberValidatorsTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
+            return CombinedNumberValidatorsTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function combinedNumberValidatorsTestIs(value: unknown): value is CombinedNumberValidatorsTest {
             return CombinedNumberValidatorsTest.is(value);
         }
@@ -2514,13 +2514,13 @@ if (__val >= 1000) { errors.push({ field: "score", message: "CombinedNumberValid
 ## DTS
 
 /**
- * Edge case test classes for comprehensive deserializer validation testing.
+ * Edge case test classes for comprehensive decoder validation testing.
  */
 
 // Multiple validators on single field
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MultipleValidatorsTest {
-    /** @serde({ validate: ["nonEmpty", "maxLength(100)", "trimmed"] }) */
+    /** @endec({ validate: ["nonEmpty", "maxLength(100)", "trimmed"] }) */
     text: string;
 
 constructor(props: { text: string }) {
@@ -2529,21 +2529,21 @@ constructor(props: { text: string }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = MultipleValidatorsTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = MultipleValidatorsTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "MultipleValidatorsTest.deserialize: root cannot be a forward reference"
+		message: "MultipleValidatorsTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -2566,7 +2566,7 @@ constructor(props: { text: string }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -2583,15 +2583,15 @@ constructor(props: { text: string }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MultipleValidatorsTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): MultipleValidatorsTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "MultipleValidatorsTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "MultipleValidatorsTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -2998,29 +2998,29 @@ if (__val !== __val.trim()) { errors.push({ field: "text", message: "MultipleVal
             if (!MultipleValidatorsTest.hasShape(obj)) {
                 return false;
             }
-            const result = MultipleValidatorsTest.deserialize(obj);
+            const result = MultipleValidatorsTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function multipleValidatorsTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return MultipleValidatorsTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function multipleValidatorsTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MultipleValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return MultipleValidatorsTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function multipleValidatorsTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MultipleValidatorsTest | __mf_PendingRef {
-            return MultipleValidatorsTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function multipleValidatorsTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): MultipleValidatorsTest | __mf_PendingRef {
+            return MultipleValidatorsTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function multipleValidatorsTestIs(value: unknown): value is MultipleValidatorsTest {
             return MultipleValidatorsTest.is(value);
         }
 
 // Custom error message
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CustomMessageTest {
-    /** @serde({ validate: [{ validate: "email", message: "Please enter a valid email address" }] }) */
+    /** @endec({ validate: [{ validate: "email", message: "Please enter a valid email address" }] }) */
     email: string;
 
 constructor(props: { email: string }) {
@@ -3029,21 +3029,21 @@ constructor(props: { email: string }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = CustomMessageTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = CustomMessageTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "CustomMessageTest.deserialize: root cannot be a forward reference"
+		message: "CustomMessageTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -3066,7 +3066,7 @@ constructor(props: { email: string }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -3083,15 +3083,15 @@ constructor(props: { email: string }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomMessageTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): CustomMessageTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "CustomMessageTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "CustomMessageTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -3492,29 +3492,29 @@ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", m
             if (!CustomMessageTest.hasShape(obj)) {
                 return false;
             }
-            const result = CustomMessageTest.deserialize(obj);
+            const result = CustomMessageTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function customMessageTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return CustomMessageTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function customMessageTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CustomMessageTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return CustomMessageTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function customMessageTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): CustomMessageTest | __mf_PendingRef {
-            return CustomMessageTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function customMessageTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): CustomMessageTest | __mf_PendingRef {
+            return CustomMessageTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function customMessageTestIs(value: unknown): value is CustomMessageTest {
             return CustomMessageTest.is(value);
         }
 
 // Mixed validators with custom message
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MixedValidatorsTest {
-    /** @serde({ validate: ["nonEmpty", { validate: "email", message: "Invalid email format" }] }) */
+    /** @endec({ validate: ["nonEmpty", { validate: "email", message: "Invalid email format" }] }) */
     email: string;
 
 constructor(props: { email: string }) {
@@ -3523,21 +3523,21 @@ constructor(props: { email: string }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = MixedValidatorsTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = MixedValidatorsTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "MixedValidatorsTest.deserialize: root cannot be a forward reference"
+		message: "MixedValidatorsTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -3560,7 +3560,7 @@ constructor(props: { email: string }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -3577,15 +3577,15 @@ constructor(props: { email: string }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): MixedValidatorsTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): MixedValidatorsTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "MixedValidatorsTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "MixedValidatorsTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -3989,29 +3989,29 @@ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", m
             if (!MixedValidatorsTest.hasShape(obj)) {
                 return false;
             }
-            const result = MixedValidatorsTest.deserialize(obj);
+            const result = MixedValidatorsTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function mixedValidatorsTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return MixedValidatorsTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function mixedValidatorsTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: MixedValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return MixedValidatorsTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function mixedValidatorsTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): MixedValidatorsTest | __mf_PendingRef {
-            return MixedValidatorsTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function mixedValidatorsTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): MixedValidatorsTest | __mf_PendingRef {
+            return MixedValidatorsTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function mixedValidatorsTestIs(value: unknown): value is MixedValidatorsTest {
             return MixedValidatorsTest.is(value);
         }
 
 // Combined string validators
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CombinedStringValidatorsTest {
-    /** @serde({ validate: ["minLength(3)", "maxLength(20)", "lowercase"] }) */
+    /** @endec({ validate: ["minLength(3)", "maxLength(20)", "lowercase"] }) */
     username: string;
 
 constructor(props: { username: string }) {
@@ -4020,21 +4020,21 @@ constructor(props: { username: string }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = CombinedStringValidatorsTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "CombinedStringValidatorsTest.deserialize: root cannot be a forward reference"
+		message: "CombinedStringValidatorsTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -4057,7 +4057,7 @@ constructor(props: { username: string }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -4074,15 +4074,15 @@ constructor(props: { username: string }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedStringValidatorsTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): CombinedStringValidatorsTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "CombinedStringValidatorsTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "CombinedStringValidatorsTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -4489,29 +4489,29 @@ if (__val !== __val.toLowerCase()) { errors.push({ field: "username", message: "
             if (!CombinedStringValidatorsTest.hasShape(obj)) {
                 return false;
             }
-            const result = CombinedStringValidatorsTest.deserialize(obj);
+            const result = CombinedStringValidatorsTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function combinedStringValidatorsTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return CombinedStringValidatorsTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function combinedStringValidatorsTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedStringValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return CombinedStringValidatorsTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function combinedStringValidatorsTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedStringValidatorsTest | __mf_PendingRef {
-            return CombinedStringValidatorsTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function combinedStringValidatorsTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): CombinedStringValidatorsTest | __mf_PendingRef {
+            return CombinedStringValidatorsTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function combinedStringValidatorsTestIs(value: unknown): value is CombinedStringValidatorsTest {
             return CombinedStringValidatorsTest.is(value);
         }
 
 // Combined number validators
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CombinedNumberValidatorsTest {
-    /** @serde({ validate: ["int", "positive", "lessThan(1000)"] }) */
+    /** @endec({ validate: ["int", "positive", "lessThan(1000)"] }) */
     score: number;
 
 constructor(props: { score: number }) {
@@ -4520,21 +4520,21 @@ constructor(props: { score: number }) {
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = CombinedNumberValidatorsTest.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "CombinedNumberValidatorsTest.deserialize: root cannot be a forward reference"
+		message: "CombinedNumberValidatorsTest.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -4557,7 +4557,7 @@ constructor(props: { score: number }) {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -4574,15 +4574,15 @@ constructor(props: { score: number }) {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "CombinedNumberValidatorsTest.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "CombinedNumberValidatorsTest.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -4989,21 +4989,21 @@ if (__val >= 1000) { errors.push({ field: "score", message: "CombinedNumberValid
             if (!CombinedNumberValidatorsTest.hasShape(obj)) {
                 return false;
             }
-            const result = CombinedNumberValidatorsTest.deserialize(obj);
+            const result = CombinedNumberValidatorsTest.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function combinedNumberValidatorsTestDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return CombinedNumberValidatorsTest.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function combinedNumberValidatorsTestDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CombinedNumberValidatorsTest } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return CombinedNumberValidatorsTest.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function combinedNumberValidatorsTestDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
-            return CombinedNumberValidatorsTest.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function combinedNumberValidatorsTestDecodeWithContext(value: any, ctx: __mf_DecodeContext): CombinedNumberValidatorsTest | __mf_PendingRef {
+            return CombinedNumberValidatorsTest.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function combinedNumberValidatorsTestIs(value: unknown): value is CombinedNumberValidatorsTest {
             return CombinedNumberValidatorsTest.is(value);
         }
@@ -5014,35 +5014,35 @@ if (__val >= 1000) { errors.push({ field: "score", message: "CombinedNumberValid
 
 ## Mapping
 
-original 0..284 -> expanded 0..284
-original 284..285 -> expanded 6823..6824
-original 285..495 -> expanded 8167..8377
-original 495..496 -> expanded 14118..14119
-original 496..722 -> expanded 15417..15643
-original 722..723 -> expanded 21733..21734
-original 723..929 -> expanded 23050..23256
-original 929..930 -> expanded 30180..30181
-original 930..1124 -> expanded 31578..31772
-original 1124..1125 -> expanded 38447..38448
-original 1125..1126 -> expanded 39845..39846
-generated 284..6823 <- Deserialize
-generated 6824..8167 <- Deserialize
-generated 8377..14118 <- Deserialize
-generated 14119..15417 <- Deserialize
-generated 15643..21733 <- Deserialize
-generated 21734..23050 <- Deserialize
-generated 23256..30180 <- Deserialize
-generated 30181..31578 <- Deserialize
-generated 31772..38447 <- Deserialize
-generated 38448..39845 <- Deserialize
+original 0..274 -> expanded 0..274
+original 274..275 -> expanded 6719..6720
+original 275..480 -> expanded 7984..8189
+original 480..481 -> expanded 13836..13837
+original 481..702 -> expanded 15056..15277
+original 702..703 -> expanded 21273..21274
+original 703..904 -> expanded 22511..22712
+original 904..905 -> expanded 29542..29543
+original 905..1094 -> expanded 30861..31050
+original 1094..1095 -> expanded 37631..37632
+original 1095..1096 -> expanded 38950..38951
+generated 274..6719 <- Decode
+generated 6720..7984 <- Decode
+generated 8189..13836 <- Decode
+generated 13837..15056 <- Decode
+generated 15277..21273 <- Decode
+generated 21274..22511 <- Decode
+generated 22712..29542 <- Decode
+generated 29543..30861 <- Decode
+generated 31050..37631 <- Decode
+generated 37632..38950 <- Decode
 
 ## Metadata
 
-class MultipleValidatorsTest: {"body_span":{"end":286,"start":190},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":153,"start":126}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\", \"trimmed\"] }","name":"serde","span":{"end":266,"start":196}}],"name":"text","optional":false,"readonly":false,"span":{"end":284,"start":271},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleValidatorsTest","span":{"end":286,"start":161},"type_params":[]}
-class CustomMessageTest: {"body_span":{"end":497,"start":371},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":339,"start":312}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"email\", message: \"Please enter a valid email address\" }] }","name":"serde","span":{"end":476,"start":377}}],"name":"email","optional":false,"readonly":false,"span":{"end":495,"start":481},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomMessageTest","span":{"end":497,"start":347},"type_params":[]}
-class MixedValidatorsTest: {"body_span":{"end":724,"start":600},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":566,"start":539}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", { validate: \"email\", message: \"Invalid email format\" }] }","name":"serde","span":{"end":703,"start":606}}],"name":"email","optional":false,"readonly":false,"span":{"end":722,"start":708},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MixedValidatorsTest","span":{"end":724,"start":574},"type_params":[]}
-class CombinedStringValidatorsTest: {"body_span":{"end":931,"start":826},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":783,"start":756}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\"] }","name":"serde","span":{"end":907,"start":832}}],"name":"username","optional":false,"readonly":false,"span":{"end":929,"start":912},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedStringValidatorsTest","span":{"end":931,"start":791},"type_params":[]}
-class CombinedNumberValidatorsTest: {"body_span":{"end":1126,"start":1033},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":990,"start":963}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\", \"positive\", \"lessThan(1000)\"] }","name":"serde","span":{"end":1105,"start":1039}}],"name":"score","optional":false,"readonly":false,"span":{"end":1124,"start":1110},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedNumberValidatorsTest","span":{"end":1126,"start":998},"type_params":[]}
+class MultipleValidatorsTest: {"body_span":{"end":276,"start":180},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":143,"start":121}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\", \"trimmed\"] }","name":"endec","span":{"end":256,"start":186}}],"name":"text","optional":false,"readonly":false,"span":{"end":274,"start":261},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MultipleValidatorsTest","span":{"end":276,"start":151},"type_params":[]}
+class CustomMessageTest: {"body_span":{"end":482,"start":356},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":324,"start":302}}],"fields":[{"decorators":[{"args_src":"{ validate: [{ validate: \"email\", message: \"Please enter a valid email address\" }] }","name":"endec","span":{"end":461,"start":362}}],"name":"email","optional":false,"readonly":false,"span":{"end":480,"start":466},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CustomMessageTest","span":{"end":482,"start":332},"type_params":[]}
+class MixedValidatorsTest: {"body_span":{"end":704,"start":580},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":546,"start":524}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", { validate: \"email\", message: \"Invalid email format\" }] }","name":"endec","span":{"end":683,"start":586}}],"name":"email","optional":false,"readonly":false,"span":{"end":702,"start":688},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"MixedValidatorsTest","span":{"end":704,"start":554},"type_params":[]}
+class CombinedStringValidatorsTest: {"body_span":{"end":906,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":758,"start":736}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\"] }","name":"endec","span":{"end":882,"start":807}}],"name":"username","optional":false,"readonly":false,"span":{"end":904,"start":887},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedStringValidatorsTest","span":{"end":906,"start":766},"type_params":[]}
+class CombinedNumberValidatorsTest: {"body_span":{"end":1096,"start":1003},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":960,"start":938}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"int\", \"positive\", \"lessThan(1000)\"] }","name":"endec","span":{"end":1075,"start":1009}}],"name":"score","optional":false,"readonly":false,"span":{"end":1094,"start":1080},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"CombinedNumberValidatorsTest","span":{"end":1096,"start":968},"type_params":[]}
 
 ## Registry reads
 

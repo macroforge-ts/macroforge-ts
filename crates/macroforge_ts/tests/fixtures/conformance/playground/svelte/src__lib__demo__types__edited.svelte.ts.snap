@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/edited.svelte.ts
-sha256 265940ce1fe6f3586036b5bf5052118270c31f86b58a51da1132354a3660670c
+sha256 2a7087f059581321cb41aeea5800fa2e98334c3f391875ed679403d91133ccc7
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -39,16 +39,16 @@ newValue: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function editedSerialize(value: Edited, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = editedSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function editedEncode(value: Edited, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = editedEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function editedSerializeWithContext(value: Edited, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function editedEncodeWithContext(value: Edited, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -160,21 +160,21 @@ newValue: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function editedDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Edited } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function editedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Edited } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = editedDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = editedDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Edited.deserialize: root cannot be a forward reference"
+		message: "Edited.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -197,7 +197,7 @@ newValue: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -214,14 +214,14 @@ newValue: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function editedDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Edited | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function editedDecodeWithContext(value: any, ctx: __mf_DecodeContext): Edited | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Edited.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Edited.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1686,7 +1686,7 @@ if (__val.length === 0) { errors.push({ field: "fieldName", message: "Edited.fie
                 if (!editedHasShape(obj)) {
                     return false;
                 }
-                const result = editedDeserialize(obj);
+                const result = editedDecode(obj);
                 return result.success;
             }
 
@@ -1824,7 +1824,7 @@ if (__val.length === 0) { errors.push({ field: "fieldName", message: "Edited.fie
 
 
             function validate(): Exit.Exit<Edited, Array<{ field: string; message: string }>> {
-                return toExit(editedDeserialize(data));
+                return toExit(editedDecode(data));
             }
 
 
@@ -1859,7 +1859,7 @@ if (__val.length === 0) { errors.push({ field: "fieldName", message: "Edited.fie
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function editedFromFormData(formData: FormData): Exit.Exit<Edited, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1869,15 +1869,15 @@ if (__val.length === 0) { errors.push({ field: "fieldName", message: "Edited.fie
             obj.newValue = formData.get("newValue") ?? "";
 
 
-            return toExit(editedDeserialize(obj));
+            return toExit(editedDecode(obj));
         }
 
 export const Edited = {
   defaultValue: editedDefaultValue,
-  serialize: editedSerialize,
-  serializeWithContext: editedSerializeWithContext,
-  deserialize: editedDeserialize,
-  deserializeWithContext: editedDeserializeWithContext,
+  encode: editedEncode,
+  encodeWithContext: editedEncodeWithContext,
+  decode: editedDecode,
+  decodeWithContext: editedDecodeWithContext,
   validateFields: editedValidateFields,
   hasShape: editedHasShape,
   is: editedIs,
@@ -1905,16 +1905,16 @@ newValue: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function editedSerialize(value: Edited, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = editedSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function editedEncode(value: Edited, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = editedEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function editedSerializeWithContext(value: Edited, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function editedEncodeWithContext(value: Edited, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2026,21 +2026,21 @@ newValue: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function editedDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Edited } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function editedDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Edited } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = editedDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = editedDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Edited.deserialize: root cannot be a forward reference"
+		message: "Edited.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2063,7 +2063,7 @@ newValue: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2080,14 +2080,14 @@ newValue: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function editedDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Edited | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function editedDecodeWithContext(value: any, ctx: __mf_DecodeContext): Edited | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Edited.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Edited.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3552,7 +3552,7 @@ if (__val.length === 0) { errors.push({ field: "fieldName", message: "Edited.fie
                 if (!editedHasShape(obj)) {
                     return false;
                 }
-                const result = editedDeserialize(obj);
+                const result = editedDecode(obj);
                 return result.success;
             }
 
@@ -3690,7 +3690,7 @@ if (__val.length === 0) { errors.push({ field: "fieldName", message: "Edited.fie
 
 
             function validate(): Exit.Exit<Edited, Array<{ field: string; message: string }>> {
-                return toExit(editedDeserialize(data));
+                return toExit(editedDecode(data));
             }
 
 
@@ -3725,7 +3725,7 @@ if (__val.length === 0) { errors.push({ field: "fieldName", message: "Edited.fie
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function editedFromFormData(formData: FormData): Exit.Exit<Edited, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3735,15 +3735,15 @@ if (__val.length === 0) { errors.push({ field: "fieldName", message: "Edited.fie
             obj.newValue = formData.get("newValue") ?? "";
 
 
-            return toExit(editedDeserialize(obj));
+            return toExit(editedDecode(obj));
         }
 
 export const Edited = {
   defaultValue: editedDefaultValue,
-  serialize: editedSerialize,
-  serializeWithContext: editedSerializeWithContext,
-  deserialize: editedDeserialize,
-  deserializeWithContext: editedDeserializeWithContext,
+  encode: editedEncode,
+  encodeWithContext: editedEncodeWithContext,
+  decode: editedDecode,
+  decodeWithContext: editedDecodeWithContext,
   validateFields: editedValidateFields,
   hasShape: editedHasShape,
   is: editedIs,
@@ -3758,18 +3758,18 @@ export const Edited = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..146 -> expanded 58..89
-original 187..270 -> expanded 89..172
-original 270..271 -> expanded 16245..16246
+original 107..138 -> expanded 58..89
+original 179..262 -> expanded 89..172
+original 262..263 -> expanded 16067..16068
 generated 172..325 <- Default
-generated 325..1913 <- Serialize
-generated 1913..9485 <- Deserialize
-generated 9485..15849 <- Gigaform
-generated 15849..16245 <- __convenience_const
+generated 325..1881 <- Encode
+generated 1881..9359 <- Decode
+generated 9359..15703 <- Gigaform
+generated 15703..16067 <- __convenience_const
 
 ## Metadata
 
-interface Edited: {"body_span":{"end":271,"start":141},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":188,"start":147}}],"name":"fieldName","optional":false,"readonly":false,"span":{"end":211,"start":193},"ts_type":"string"},{"decorators":[],"name":"oldValue","optional":false,"readonly":false,"span":{"end":240,"start":216},"ts_type":"string | null"},{"decorators":[],"name":"newValue","optional":false,"readonly":false,"span":{"end":269,"start":245},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Edited","span":{"end":271,"start":124},"type_params":[]}
+interface Edited: {"body_span":{"end":263,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"name":"fieldName","optional":false,"readonly":false,"span":{"end":203,"start":185},"ts_type":"string"},{"decorators":[],"name":"oldValue","optional":false,"readonly":false,"span":{"end":232,"start":208},"ts_type":"string | null"},{"decorators":[],"name":"newValue","optional":false,"readonly":false,"span":{"end":261,"start":237},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Edited","span":{"end":263,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -6,14 +6,14 @@ import {
     getExternalManifest
 } from '../src/external-manifest.ts';
 
-// A manifest shaped the way the engine's `MacroManifest` serializes.
+// A manifest shaped the way the engine's `MacroManifest` encodes.
 const mockManifest = {
     version: 1,
     macros: [
         {
             name: 'JSON',
             kind: 'derive',
-            description: 'JSON serialization macro',
+            description: 'JSON encoding macro',
             package: 'test-package'
         },
         {
@@ -141,7 +141,7 @@ Deno.test('getExternalMacroInfo - finds macro by name', () => {
     const result = getExternalMacroInfo('JSON', 'test-package', mockRequire);
 
     assertEquals(result?.name, 'JSON');
-    assertEquals(result?.description, 'JSON serialization macro');
+    assertEquals(result?.description, 'JSON encoding macro');
 });
 
 Deno.test('getExternalMacroInfo - case insensitive lookup', () => {

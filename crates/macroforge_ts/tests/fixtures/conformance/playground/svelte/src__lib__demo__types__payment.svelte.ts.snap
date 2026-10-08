@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/payment.svelte.ts
-sha256 2af136e995e247bc4c1b2a7bd9e46ef9067e8503e6a1a4128a810104eae195cd
+sha256 65eb551e183830e4e1f78963e5831422b89a0641d819b08772f1fb5c3cb06935
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -36,16 +36,16 @@ date: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function paymentSerialize(value: Payment, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = paymentSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function paymentEncode(value: Payment, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = paymentEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function paymentSerializeWithContext(value: Payment, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function paymentEncodeWithContext(value: Payment, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -157,21 +157,21 @@ date: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function paymentDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Payment } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function paymentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Payment } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = paymentDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = paymentDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Payment.deserialize: root cannot be a forward reference"
+		message: "Payment.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -194,7 +194,7 @@ date: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -211,14 +211,14 @@ date: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function paymentDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Payment | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function paymentDecodeWithContext(value: any, ctx: __mf_DecodeContext): Payment | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Payment.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Payment.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1383,7 +1383,7 @@ date: "",
                 if (!paymentHasShape(obj)) {
                     return false;
                 }
-                const result = paymentDeserialize(obj);
+                const result = paymentDecode(obj);
                 return result.success;
             }
 
@@ -1494,7 +1494,7 @@ date: "",
 
 
             function validate(): Exit.Exit<Payment, Array<{ field: string; message: string }>> {
-                return toExit(paymentDeserialize(data));
+                return toExit(paymentDecode(data));
             }
 
 
@@ -1527,7 +1527,7 @@ date: "",
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function paymentFromFormData(formData: FormData): Exit.Exit<Payment, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1536,15 +1536,15 @@ date: "",
             obj.date = formData.get("date") ?? "";
 
 
-            return toExit(paymentDeserialize(obj));
+            return toExit(paymentDecode(obj));
         }
 
 export const Payment = {
   defaultValue: paymentDefaultValue,
-  serialize: paymentSerialize,
-  serializeWithContext: paymentSerializeWithContext,
-  deserialize: paymentDeserialize,
-  deserializeWithContext: paymentDeserializeWithContext,
+  encode: paymentEncode,
+  encodeWithContext: paymentEncodeWithContext,
+  decode: paymentDecode,
+  decodeWithContext: paymentDecodeWithContext,
   validateFields: paymentValidateFields,
   hasShape: paymentHasShape,
   is: paymentIs,
@@ -1569,16 +1569,16 @@ date: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function paymentSerialize(value: Payment, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = paymentSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function paymentEncode(value: Payment, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = paymentEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function paymentSerializeWithContext(value: Payment, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function paymentEncodeWithContext(value: Payment, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1690,21 +1690,21 @@ date: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function paymentDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Payment } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function paymentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Payment } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = paymentDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = paymentDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Payment.deserialize: root cannot be a forward reference"
+		message: "Payment.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1727,7 +1727,7 @@ date: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1744,14 +1744,14 @@ date: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function paymentDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Payment | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function paymentDecodeWithContext(value: any, ctx: __mf_DecodeContext): Payment | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Payment.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Payment.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2916,7 +2916,7 @@ date: "",
                 if (!paymentHasShape(obj)) {
                     return false;
                 }
-                const result = paymentDeserialize(obj);
+                const result = paymentDecode(obj);
                 return result.success;
             }
 
@@ -3027,7 +3027,7 @@ date: "",
 
 
             function validate(): Exit.Exit<Payment, Array<{ field: string; message: string }>> {
-                return toExit(paymentDeserialize(data));
+                return toExit(paymentDecode(data));
             }
 
 
@@ -3060,7 +3060,7 @@ date: "",
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function paymentFromFormData(formData: FormData): Exit.Exit<Payment, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3069,15 +3069,15 @@ date: "",
             obj.date = formData.get("date") ?? "";
 
 
-            return toExit(paymentDeserialize(obj));
+            return toExit(paymentDecode(obj));
         }
 
 export const Payment = {
   defaultValue: paymentDefaultValue,
-  serialize: paymentSerialize,
-  serializeWithContext: paymentSerializeWithContext,
-  deserialize: paymentDeserialize,
-  deserializeWithContext: paymentDeserializeWithContext,
+  encode: paymentEncode,
+  encodeWithContext: paymentEncodeWithContext,
+  decode: paymentDecode,
+  decodeWithContext: paymentDecodeWithContext,
   validateFields: paymentValidateFields,
   hasShape: paymentHasShape,
   is: paymentIs,
@@ -3092,17 +3092,17 @@ export const Payment = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..178 -> expanded 58..121
-original 178..179 -> expanded 12681..12682
+original 107..170 -> expanded 58..121
+original 170..171 -> expanded 12503..12504
 generated 121..247 <- Default
-generated 247..1786 <- Serialize
-generated 1786..7376 <- Deserialize
-generated 7376..12274 <- Gigaform
-generated 12274..12681 <- __convenience_const
+generated 247..1754 <- Encode
+generated 1754..7250 <- Decode
+generated 7250..12128 <- Gigaform
+generated 12128..12503 <- __convenience_const
 
 ## Metadata
 
-interface Payment: {"body_span":{"end":179,"start":142},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":159,"start":148},"ts_type":"string"},{"decorators":[],"name":"date","optional":false,"readonly":false,"span":{"end":177,"start":164},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Payment","span":{"end":179,"start":124},"type_params":[]}
+interface Payment: {"body_span":{"end":171,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":151,"start":140},"ts_type":"string"},{"decorators":[],"name":"date","optional":false,"readonly":false,"span":{"end":169,"start":156},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Payment","span":{"end":171,"start":116},"type_params":[]}
 
 ## Registry reads
 

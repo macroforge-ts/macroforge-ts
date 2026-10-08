@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/routes/+page.svelte
-sha256 d4db2e9356d1795e50d6cb57364569e5c16f4ae2fc9e779f472fb4d0dfb712d4
+sha256 6b06f7a70e15da6b1a811837bffa8c5499e43862e1a16351d0b8d4de4feec033
 
 ## Changed
 
@@ -24,7 +24,7 @@ false
 
 ## Mapping
 
-original 0..2090 -> expanded 0..2090
+original 0..2030 -> expanded 0..2030
 
 ## Metadata
 

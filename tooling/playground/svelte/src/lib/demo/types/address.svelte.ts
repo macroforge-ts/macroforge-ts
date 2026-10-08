@@ -1,13 +1,13 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Address {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     street: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     city: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     state: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     zipcode: string;
 }

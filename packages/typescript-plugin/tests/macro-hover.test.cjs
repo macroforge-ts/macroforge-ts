@@ -121,7 +121,7 @@ class User {
 });
 
 test('macro hover on @derive with multiple macros', async (t) => {
-    const source = `/** @derive(Debug, Serialize, Clone) */
+    const source = `/** @derive(Debug, Encode, Clone) */
 class User {
   name: string;
 }`;
@@ -129,7 +129,7 @@ class User {
     const env = createPluginEnvironment(source);
 
     // Test hover on each macro name
-    const macros = ['Debug', 'Serialize', 'Clone'];
+    const macros = ['Debug', 'Encode', 'Clone'];
 
     for (const macro of macros) {
         const pos = source.indexOf(macro);
@@ -151,30 +151,30 @@ class User {
     }
 });
 
-test('macro hover on @serde field decorator', async (t) => {
-    const source = `/** @derive(Serialize) */
+test('macro hover on @endec field decorator', async (t) => {
+    const source = `/** @derive(Encode) */
 class User {
-  @serde({ skip: true })
+  @endec({ skip: true })
   password: string;
 }`;
 
     const env = createPluginEnvironment(source);
 
-    // Position on "serde" in @serde
-    const serdePos = source.indexOf('@serde') + 1; // +1 to be on 's'
+    // Position on "endec" in @endec
+    const endecPos = source.indexOf('@endec') + 1;
     const hover = env.languageServiceWithPlugin.getQuickInfoAtPosition(
         env.fileName,
-        serdePos
+        endecPos
     );
 
-    assert.ok(hover, 'expected hover info for @serde');
+    assert.ok(hover, 'expected hover info for @endec');
     assert.ok(hover.displayParts, 'hover should have displayParts');
     const displayText = hover.displayParts.map((p) => p.text).join('');
-    assert.ok(displayText.includes('serde'), 'display should mention serde');
+    assert.ok(displayText.includes('endec'), 'display should mention endec');
     const docText = (hover.documentation ?? []).map((d) => d.text).join('');
     assert.ok(
         docText.toLowerCase().includes('field'),
-        `expected @serde docs, got: ${docText}`
+        `expected @endec docs, got: ${docText}`
     );
 });
 
@@ -237,7 +237,7 @@ test('no macro hover on regular code', async (t) => {
 test('macro hover with multiline JSDoc', async (t) => {
     const source = `/**
  * User class for the system
- * @derive(Debug, Serialize)
+ * @derive(Debug, Encode)
  */
 class User {
   name: string;
@@ -293,9 +293,9 @@ class User {
 });
 
 test('multiple builtin import warnings', async (t) => {
-    const source = `import { Debug, Serialize, Clone } from "@macroforge/core";
+    const source = `import { Debug, Encode, Clone } from "@macroforge/core";
 
-/** @derive(Debug, Serialize, Clone) */
+/** @derive(Debug, Encode, Clone) */
 class User {
   name: string;
 }`;
@@ -313,7 +313,7 @@ class User {
             d.messageText.toString().includes('built-in macro')
     );
 
-    // Should have warnings for Debug, Serialize, and Clone
+    // Should have warnings for Debug, Encode, and Clone
     if (importWarnings.length > 0) {
         assert.ok(
             importWarnings.length >= 1,
@@ -324,7 +324,7 @@ class User {
 
 test('no warning for non-macro imports', async (t) => {
     const source = `import { Debug } from "./my-local-debug";
-import { Serialize } from "some-other-lib";
+import { Encode } from "some-other-lib";
 
 class User {
   name: string;

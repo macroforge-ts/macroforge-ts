@@ -7,8 +7,7 @@ use macroforge_ts::ts_syn::TsStream;
 use crate::gigaform::GenericInfo;
 use crate::gigaform::form_data::extract_base_type;
 use crate::gigaform::naming::{
-    call_default_value, call_default_value_for_type_ref, call_deserialize, fn_name,
-    type_name_prefixed,
+    call_decode, call_default_value, call_default_value_for_type_ref, fn_name, type_name_prefixed,
 };
 use crate::gigaform::parser::{GigaformOptions, ParsedField, UnionConfig, UnionMode};
 
@@ -41,7 +40,7 @@ pub fn generate_factory(
     let field_controllers_obj =
         generate_field_controllers_object(fields, options, interface_name, &field_controllers_name);
 
-    let validate_call = call_deserialize(interface_name, "", "data");
+    let validate_call = call_decode(interface_name, "", "data");
 
     ts_template! {
         /** Creates a new Gigaform instance with reactive state and field controllers. */
@@ -49,7 +48,7 @@ pub fn generate_factory(
             {$typescript data_state}
             {$typescript field_controllers_obj}
 
-            // Validate the entire form using Deserialize's deserialize
+            // Validate the entire form using Decode's decode
             function validate(): Exit.Exit<@{interface_name}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
@@ -124,7 +123,7 @@ pub fn generate_factory_with_generics(
     let field_controllers_obj =
         generate_field_controllers_object(fields, options, interface_name, &field_controllers_name);
 
-    let validate_call = call_deserialize(interface_name, &generic_args, "data");
+    let validate_call = call_decode(interface_name, &generic_args, "data");
 
     ts_template! {
         /** Creates a new Gigaform instance with reactive state and field controllers. */
@@ -132,7 +131,7 @@ pub fn generate_factory_with_generics(
             {$typescript data_state}
             {$typescript field_controllers_obj}
 
-            // Validate the entire form using Deserialize's deserialize
+            // Validate the entire form using Decode's decode
             function validate(): Exit.Exit<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
@@ -250,7 +249,7 @@ pub fn generate_union_factory_with_generics(
         )
     };
 
-    let validate_call = call_deserialize(type_name, &generic_args, "data");
+    let validate_call = call_decode(type_name, &generic_args, "data");
 
     ts_template! {
         /** Gets default value for a specific variant */
@@ -277,7 +276,7 @@ pub fn generate_union_factory_with_generics(
                 tainted = {} as @{tainted_name};
             }
 
-            // Validate the entire form using Deserialize's deserialize
+            // Validate the entire form using Decode's decode
             function validate(): Exit.Exit<@{type_name_with_args}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
@@ -379,7 +378,7 @@ pub fn generate_union_factory(
         )
     };
 
-    let validate_call = call_deserialize(type_name, "", "data");
+    let validate_call = call_decode(type_name, "", "data");
 
     ts_template! {
         /** Gets default value for a specific variant */
@@ -406,7 +405,7 @@ pub fn generate_union_factory(
                 tainted = {} as @{tainted_name};
             }
 
-            // Validate the entire form using Deserialize's deserialize
+            // Validate the entire form using Decode's decode
             function validate(): Exit.Exit<@{type_name}, Array<{ field: string; message: string }>> {
                 return toExit(@{validate_call});
             }
@@ -870,7 +869,7 @@ fn generate_field_controller_entry(field: &ParsedField, interface_name: &str) ->
 
 /// Generates constraints object from field validators.
 fn generate_constraints(field: &ParsedField) -> TsStream {
-    // Extract constraints from @serde validators
+    // Extract constraints from @endec validators
     let mut constraint_parts = Vec::new();
 
     for validator in &field.validators {

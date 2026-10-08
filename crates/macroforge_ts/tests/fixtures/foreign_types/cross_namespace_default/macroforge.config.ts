@@ -8,8 +8,8 @@ export default {
     foreignTypes: {
         'DateTime.Utc': {
             from: ['effect'],
-            serialize: (v: DateTime.Utc) => DateTime.formatIso(v),
-            deserialize: (raw: unknown) =>
+            encode: (v: DateTime.Utc) => DateTime.formatIso(v),
+            decode: (raw: unknown) =>
                 Option.match(DateTime.make(raw as string), {
                     onSome: (dt) => dt,
                     onNone: () => Option.getOrElse(DateTime.make(0), () => null as never)

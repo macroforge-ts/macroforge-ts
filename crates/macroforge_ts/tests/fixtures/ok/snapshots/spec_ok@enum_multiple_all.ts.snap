@@ -5,7 +5,7 @@ input_file: crates/macroforge_ts/tests/fixtures/ok/enum_multiple_all.ts
 ---
 ## Input
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 enum Status {
     Active = 'active',
     Inactive = 'inactive'
@@ -17,7 +17,8 @@ true
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
 
 enum Status {
     Active = 'active',
@@ -55,39 +56,49 @@ export function statusHashCode(value: Status): number {
                         return hash;
                     }
 
-/** Serializes this enum value to a JSON string.  */
-                export function statusSerialize(value: Status): string {
+/** Encodes this enum value to a JSON string.  */
+                export function statusEncode(value: Status): string {
                     return JSON.stringify(value);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs.  */
-                export function statusSerializeWithContext(value: Status, _ctx: __mf_SerializeContext): string | number {
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
+                export function statusEncodeWithContext(value: Status): string | number {
                     return value;
                 }
 
-/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function statusDeserialize(input: unknown): Status {
-            return statusDeserializeWithContext(input);
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function statusDecode(input: unknown): Status {
+            return statusDecodeWithContext(input);
         }
 
-        /** Deserializes with an existing context (for consistency with other types).  */
-        export function statusDeserializeWithContext(data: unknown): Status {
-            for (const key of Object.keys(Status)) {
-                const enumValue = Status[key as keyof typeof Status];
-                if (enumValue === data) {
-                    return data as Status;
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
+        export function statusDecodeWithContext(data: unknown): Status {
+            if (Status["Active"] === data) {
+                    return Status["Active"];
                 }
-            }
+            if (Status["Inactive"] === data) {
+                    return Status["Inactive"];
+                }
+
+
+
+
             throw new Error("Invalid Status value: " + JSON.stringify(data));
         }
 
         export function statusIs(value: unknown): value is Status {
-            for (const key of Object.keys(Status)) {
-                const enumValue = Status[key as keyof typeof Status];
-                if (enumValue === value) {
+            if (Status["Active"] === value) {
                     return true;
                 }
-            }
+            if (Status["Inactive"] === value) {
+                    return true;
+                }
+
+
+
+
             return false;
         }
 
@@ -96,10 +107,10 @@ namespace Status {
   export const clone = statusClone;
   export const equals = statusEquals;
   export const hashCode = statusHashCode;
-  export const serialize = statusSerialize;
-  export const serializeWithContext = statusSerializeWithContext;
-  export const deserialize = statusDeserialize;
-  export const deserializeWithContext = statusDeserializeWithContext;
+  export const encode = statusEncode;
+  export const encodeWithContext = statusEncodeWithContext;
+  export const decode = statusDecode;
+  export const decodeWithContext = statusDecodeWithContext;
   export const is = statusIs;
 }
 
@@ -141,39 +152,49 @@ export function statusHashCode(value: Status): number {
                         return hash;
                     }
 
-/** Serializes this enum value to a JSON string.  */
-                export function statusSerialize(value: Status): string {
+/** Encodes this enum value to a JSON string.  */
+                export function statusEncode(value: Status): string {
                     return JSON.stringify(value);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs.  */
-                export function statusSerializeWithContext(value: Status, _ctx: __mf_SerializeContext): string | number {
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
+                export function statusEncodeWithContext(value: Status): string | number {
                     return value;
                 }
 
-/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function statusDeserialize(input: unknown): Status {
-            return statusDeserializeWithContext(input);
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function statusDecode(input: unknown): Status {
+            return statusDecodeWithContext(input);
         }
 
-        /** Deserializes with an existing context (for consistency with other types).  */
-        export function statusDeserializeWithContext(data: unknown): Status {
-            for (const key of Object.keys(Status)) {
-                const enumValue = Status[key as keyof typeof Status];
-                if (enumValue === data) {
-                    return data as Status;
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
+        export function statusDecodeWithContext(data: unknown): Status {
+            if (Status["Active"] === data) {
+                    return Status["Active"];
                 }
-            }
+            if (Status["Inactive"] === data) {
+                    return Status["Inactive"];
+                }
+
+
+
+
             throw new Error("Invalid Status value: " + JSON.stringify(data));
         }
 
         export function statusIs(value: unknown): value is Status {
-            for (const key of Object.keys(Status)) {
-                const enumValue = Status[key as keyof typeof Status];
-                if (enumValue === value) {
+            if (Status["Active"] === value) {
                     return true;
                 }
-            }
+            if (Status["Inactive"] === value) {
+                    return true;
+                }
+
+
+
+
             return false;
         }
 
@@ -182,10 +203,10 @@ namespace Status {
   export const clone = statusClone;
   export const equals = statusEquals;
   export const hashCode = statusHashCode;
-  export const serialize = statusSerialize;
-  export const serializeWithContext = statusSerializeWithContext;
-  export const deserialize = statusDeserialize;
-  export const deserializeWithContext = statusDeserializeWithContext;
+  export const encode = statusEncode;
+  export const encodeWithContext = statusEncodeWithContext;
+  export const decode = statusDecode;
+  export const decodeWithContext = statusDecodeWithContext;
   export const is = statusIs;
 }
 
@@ -195,19 +216,19 @@ namespace Status {
 
 ## Mapping
 
-original 69..134 -> expanded 0..65
-original 134..135 -> expanded 2969..2970
+original 61..126 -> expanded 0..65
+original 126..127 -> expanded 3031..3032
 generated 65..399 <- Debug
 generated 399..505 <- Clone
 generated 505..622 <- PartialEq
 generated 622..941 <- Hash
-generated 941..1404 <- Serialize
-generated 1404..2531 <- Deserialize
-generated 2531..2969 <- __convenience_const
+generated 941..1477 <- Encode
+generated 1477..2625 <- Decode
+generated 2625..3031 <- __convenience_const
 
 ## Metadata
 
-enum Status: {"body_span":{"end":135,"start":83},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":70,"start":1}}],"is_const":false,"name":"Status","span":{"end":135,"start":71},"variants":[{"decorators":[],"name":"Active","span":{"end":106,"start":89},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":133,"start":112},"value":{"String":"inactive"}}]}
+enum Status: {"body_span":{"end":127,"start":75},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"is_const":false,"name":"Status","span":{"end":127,"start":63},"variants":[{"decorators":[],"name":"Active","span":{"end":98,"start":81},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":125,"start":104},"value":{"String":"inactive"}}]}
 
 ## Registry reads
 

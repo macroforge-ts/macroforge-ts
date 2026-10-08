@@ -1,8 +1,8 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Commented {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     comment: string;
     replyTo: string | null;
 }

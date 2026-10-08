@@ -2,7 +2,7 @@
  * Tests for foreign types configuration in macroforge.config.js
  *
  * Foreign types allow global registration of handlers for external types
- * (like Effect's DateTime) so they work automatically in serialization/deserialization
+ * (like Effect's DateTime) so they work automatically in encoding/decoding
  * without needing per-field decorators.
  */
 
@@ -25,8 +25,8 @@ describe('Foreign types configuration', () => {
         foreignTypes: {
           "DateTime.DateTime": {
             from: ["effect"],
-            serialize: (v) => v.toJSON(),
-            deserialize: (raw) => DateTime.fromJSON(raw),
+            encode: (v) => v.toJSON(),
+            decode: (raw) => DateTime.fromJSON(raw),
             default: () => DateTime.now()
           }
         }
@@ -46,13 +46,13 @@ describe('Foreign types configuration', () => {
         foreignTypes: {
           "DateTime.DateTime": {
             from: ["effect"],
-            serialize: (v) => v.toJSON(),
-            deserialize: (raw) => DateTime.fromJSON(raw)
+            encode: (v) => v.toJSON(),
+            decode: (raw) => DateTime.fromJSON(raw)
           },
           "Duration.Duration": {
             from: ["effect"],
-            serialize: (v) => v.toMillis(),
-            deserialize: (raw) => Duration.millis(raw)
+            encode: (v) => v.toMillis(),
+            decode: (raw) => Duration.millis(raw)
           }
         }
       }
@@ -133,8 +133,8 @@ describe('Foreign types in Default macro', () => {
       foreignTypes: {
         "DateTime.DateTime": {
           from: ["effect"],
-          serialize: (v) => v.toJSON(),
-          deserialize: (raw) => DateTime.fromJSON(raw),
+          encode: (v) => v.toJSON(),
+          decode: (raw) => DateTime.fromJSON(raw),
           default: () => DateTime.unsafeNow()
         }
       }
@@ -169,33 +169,33 @@ describe('Foreign types in Default macro', () => {
 });
 
 // ============================================================================
-// Foreign Type Expansion Tests - Serialize Macro
+// Foreign Type Expansion Tests - Encode Macro
 // ============================================================================
 
-describe('Foreign types in Serialize macro', () => {
+describe('Foreign types in Encode macro', () => {
     const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
           from: ["effect"],
-          serialize: (v) => DateTime.formatIso(v),
-          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          encode: (v) => DateTime.formatIso(v),
+          decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
           default: () => DateTime.unsafeNow()
         }
       }
     }
   `;
     // Use unique config path to avoid caching issues
-    const configPath = '/test/serialize-macro/macroforge.config.js';
+    const configPath = '/test/encode-macro/macroforge.config.js';
 
-    test('serialize uses foreign type serialize function', () => {
+    test('encode uses foreign type encode function', () => {
         clearConfigCache();
         loadConfig(configContent, configPath);
 
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         name: string;
         startTime: DateTime.DateTime;
@@ -204,12 +204,12 @@ describe('Foreign types in Serialize macro', () => {
 
         const result = expandSync(code, 'test.ts', { configPath });
 
-        // The serialize should use the configured serialize function
+        // The encode should use the configured encode function
         assert.ok(
             result.code.includes('DateTime.formatIso'),
-            `Serialize should use the foreign type serialize function. Got: ${result.code}`
+            `Encode should use the foreign type encode function. Got: ${result.code}`
         );
-        // Should NOT generate a generic helper call like dateTime.DateTimeSerializeWithContext
+        // Should NOT generate a generic helper call like dateTime.DateTimeEncodeWithContext
         assert.ok(
             !result.code.includes('dateTime.DateTime'),
             `Should not generate generic helper namespace. Got: ${result.code}`
@@ -223,7 +223,7 @@ describe('Foreign types in Serialize macro', () => {
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         startTime: DateTime;
       }
@@ -244,14 +244,14 @@ describe('Foreign types in Serialize macro', () => {
         );
     });
 
-    test('an object type alias uses the foreign type serialize function', () => {
+    test('an object type alias uses the foreign type encode function', () => {
         clearConfigCache();
         loadConfig(configContent, configPath);
 
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       type Event = {
         name: string;
         startTime: DateTime.DateTime;
@@ -262,7 +262,7 @@ describe('Foreign types in Serialize macro', () => {
 
         assert.ok(
             result.code.includes('DateTime.formatIso'),
-            `Serialize should use the foreign type serialize function. Got: ${result.code}`
+            `Encode should use the foreign type encode function. Got: ${result.code}`
         );
         assert.ok(
             !result.code.includes('dateTime.DateTime'),
@@ -272,33 +272,33 @@ describe('Foreign types in Serialize macro', () => {
 });
 
 // ============================================================================
-// Foreign Type Expansion Tests - Deserialize Macro
+// Foreign Type Expansion Tests - Decode Macro
 // ============================================================================
 
-describe('Foreign types in Deserialize macro', () => {
+describe('Foreign types in Decode macro', () => {
     const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
           from: ["effect"],
-          serialize: (v) => DateTime.formatIso(v),
-          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          encode: (v) => DateTime.formatIso(v),
+          decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
           default: () => DateTime.unsafeNow()
         }
       }
     }
   `;
     // Use unique config path to avoid caching issues
-    const configPath = '/test/deserialize-macro/macroforge.config.js';
+    const configPath = '/test/decode-macro/macroforge.config.js';
 
-    test('deserialize uses foreign type deserialize function', () => {
+    test('decode uses foreign type decode function', () => {
         clearConfigCache();
         loadConfig(configContent, configPath);
 
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       interface Event {
         name: string;
         startTime: DateTime.DateTime;
@@ -307,10 +307,10 @@ describe('Foreign types in Deserialize macro', () => {
 
         const result = expandSync(code, 'test.ts', { configPath });
 
-        // The deserialize should use the configured deserialize function
+        // The decode should use the configured decode function
         assert.ok(
             result.code.includes('DateTime.unsafeFromDate'),
-            `Deserialize should use the foreign type deserialize function. Got: ${result.code}`
+            `Decode should use the foreign type decode function. Got: ${result.code}`
         );
         // Should NOT generate a generic helper call
         assert.ok(
@@ -330,8 +330,8 @@ describe('Foreign types with combined macros', () => {
       foreignTypes: {
         "DateTime.DateTime": {
           from: ["effect"],
-          serialize: (v) => DateTime.formatIso(v),
-          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          encode: (v) => DateTime.formatIso(v),
+          decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
           default: () => DateTime.unsafeNow()
         }
       }
@@ -347,7 +347,7 @@ describe('Foreign types with combined macros', () => {
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Default, Serialize, Deserialize) */
+      /** @derive(Default, Encode, Decode) */
       interface Event {
         name: string;
         startTime: DateTime.DateTime;
@@ -363,11 +363,11 @@ describe('Foreign types with combined macros', () => {
         );
         assert.ok(
             result.code.includes('DateTime.formatIso'),
-            `Serialize should use foreign type serialize. Got: ${result.code}`
+            `Encode should use foreign type encode. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('DateTime.unsafeFromDate'),
-            `Deserialize should use foreign type deserialize. Got: ${result.code}`
+            `Decode should use foreign type decode. Got: ${result.code}`
         );
     });
 });
@@ -382,8 +382,8 @@ describe('Foreign type import matching', () => {
       foreignTypes: {
         "DateTime.DateTime": {
           from: ["effect", "@effect/schema"],
-          serialize: (v) => DateTime.formatIso(v),
-          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          encode: (v) => DateTime.formatIso(v),
+          decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
           default: () => DateTime.unsafeNow()
         }
       }
@@ -441,7 +441,7 @@ describe('Foreign type import matching', () => {
         const code = `
       import type { DateTime } from 'some-other-library';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         name: string;
         startTime: DateTime.DateTime;
@@ -454,7 +454,7 @@ describe('Foreign type import matching', () => {
         // We can't know if some-other-library's DateTime has the right methods
         assert.ok(
             !result.code.includes('DateTime.formatIso'),
-            `Should NOT use foreign type serialize for different library. Got: ${result.code}`
+            `Should NOT use foreign type encode for different library. Got: ${result.code}`
         );
         // Should not have any errors - just ignore and let tsc catch issues downstream
         assert.ok(
@@ -507,8 +507,8 @@ describe('Field decorators override foreign type config', () => {
       foreignTypes: {
         "DateTime.DateTime": {
           from: ["effect"],
-          serialize: (v) => DateTime.formatIso(v),
-          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          encode: (v) => DateTime.formatIso(v),
+          decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
           default: () => DateTime.unsafeNow()
         }
       }
@@ -516,59 +516,59 @@ describe('Field decorators override foreign type config', () => {
   `;
     const configPath = '/test/decorator-override/macroforge.config.js';
 
-    test('serializeWith decorator overrides foreign type serialize', () => {
+    test('encodeWith decorator overrides foreign type encode', () => {
         clearConfigCache();
         loadConfig(configContent, configPath);
 
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         name: string;
-        /** @serde({ serializeWith: (v) => v.toEpochMillis() }) */
+        /** @endec({ encodeWith: (v) => v.toEpochMillis() }) */
         startTime: DateTime.DateTime;
       }
     `;
 
         const result = expandSync(code, 'test.ts', { configPath });
 
-        // Should use the explicit serializeWith, NOT the foreign type config
+        // Should use the explicit encodeWith, NOT the foreign type config
         assert.ok(
             result.code.includes('toEpochMillis'),
-            `Should use explicit serializeWith decorator. Got: ${result.code}`
+            `Should use explicit encodeWith decorator. Got: ${result.code}`
         );
         assert.ok(
             !result.code.includes('DateTime.formatIso'),
-            `Should NOT use foreign type serialize when serializeWith is specified. Got: ${result.code}`
+            `Should NOT use foreign type encode when encodeWith is specified. Got: ${result.code}`
         );
     });
 
-    test('deserializeWith decorator overrides foreign type deserialize', () => {
+    test('decodeWith decorator overrides foreign type decode', () => {
         clearConfigCache();
         loadConfig(configContent, configPath);
 
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       interface Event {
         name: string;
-        /** @serde({ deserializeWith: (raw) => DateTime.fromEpochMillis(raw) }) */
+        /** @endec({ decodeWith: (raw) => DateTime.fromEpochMillis(raw) }) */
         startTime: DateTime.DateTime;
       }
     `;
 
         const result = expandSync(code, 'test.ts', { configPath });
 
-        // Should use the explicit deserializeWith, NOT the foreign type config
+        // Should use the explicit decodeWith, NOT the foreign type config
         assert.ok(
             result.code.includes('fromEpochMillis'),
-            `Should use explicit deserializeWith decorator. Got: ${result.code}`
+            `Should use explicit decodeWith decorator. Got: ${result.code}`
         );
         assert.ok(
             !result.code.includes('DateTime.unsafeFromDate'),
-            `Should NOT use foreign type deserialize when deserializeWith is specified. Got: ${result.code}`
+            `Should NOT use foreign type decode when decodeWith is specified. Got: ${result.code}`
         );
     });
 
@@ -615,8 +615,8 @@ describe('Foreign type aliases', () => {
             { name: "DateTime", from: "effect/DateTime" },
             { name: "MyDateTime", from: "my-effect-wrapper" }
           ],
-          serialize: (v) => DateTime.formatIso(v),
-          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          encode: (v) => DateTime.formatIso(v),
+          decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
           default: () => DateTime.unsafeNow()
         }
       }
@@ -639,7 +639,7 @@ describe('Foreign type aliases', () => {
         const code = `
       import type { DateTime } from 'effect/DateTime';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         name: string;
         startTime: DateTime;
@@ -648,10 +648,10 @@ describe('Foreign type aliases', () => {
 
         const result = expandSync(code, 'test.ts', { configPath });
 
-        // Should use the foreign type serialize function via alias match
+        // Should use the foreign type encode function via alias match
         assert.ok(
             result.code.includes('DateTime.formatIso'),
-            `Should match via alias and use foreign type serialize. Got: ${result.code}`
+            `Should match via alias and use foreign type encode. Got: ${result.code}`
         );
     });
 
@@ -685,7 +685,7 @@ describe('Foreign type aliases', () => {
         const code = `
       import type { DateTime } from 'some-other-library';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         name: string;
         startTime: DateTime;
@@ -708,7 +708,7 @@ describe('Foreign type aliases', () => {
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         name: string;
         startTime: DateTime.DateTime;
@@ -735,8 +735,8 @@ describe('Local import alias tracking', () => {
       foreignTypes: {
         "Option": {
           from: ["effect/Option"],
-          serialize: (v) => Option.getOrNull(v),
-          deserialize: (raw) => raw === null ? Option.none() : Option.some(raw),
+          encode: (v) => Option.getOrNull(v),
+          decode: (raw) => raw === null ? Option.none() : Option.some(raw),
           default: () => Option.none()
         }
       }
@@ -751,7 +751,7 @@ describe('Local import alias tracking', () => {
         const code = `
       import type { Option as EffectOption } from 'effect/Option';
 
-      /** @derive(Serialize, Deserialize, Default) */
+      /** @derive(Encode, Decode, Default) */
       interface UserPreferences {
         name: string;
         theme: EffectOption<string>;
@@ -763,11 +763,11 @@ describe('Local import alias tracking', () => {
         // Should recognize EffectOption as the foreign type Option from effect/Option
         assert.ok(
             result.code.includes('Option.getOrNull'),
-            `Should use foreign type serialize for aliased import. Got: ${result.code}`
+            `Should use foreign type encode for aliased import. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('Option.none()'),
-            `Should use foreign type default/deserialize for aliased import. Got: ${result.code}`
+            `Should use foreign type default/decode for aliased import. Got: ${result.code}`
         );
     });
 
@@ -778,14 +778,14 @@ describe('Local import alias tracking', () => {
         foreignTypes: {
           "Option": {
             from: ["effect/Option"],
-            serialize: (v) => Option.getOrNull(v),
-            deserialize: (raw) => raw === null ? Option.none() : Option.some(raw),
+            encode: (v) => Option.getOrNull(v),
+            decode: (raw) => raw === null ? Option.none() : Option.some(raw),
             default: () => Option.none()
           },
           "DateTime.DateTime": {
             from: ["effect"],
-            serialize: (v) => DateTime.formatIso(v),
-            deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+            encode: (v) => DateTime.formatIso(v),
+            decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
             default: () => DateTime.unsafeNow()
           }
         }
@@ -798,7 +798,7 @@ describe('Local import alias tracking', () => {
       import type { Option as MaybeValue } from 'effect/Option';
       import type { DateTime as EffectDateTime } from 'effect';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         title: string;
         description: MaybeValue<string>;
@@ -811,11 +811,11 @@ describe('Local import alias tracking', () => {
         // Both aliased types should be recognized
         assert.ok(
             result.code.includes('Option.getOrNull'),
-            `Should use foreign type serialize for MaybeValue alias. Got: ${result.code}`
+            `Should use foreign type encode for MaybeValue alias. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('DateTime.formatIso'),
-            `Should use foreign type serialize for EffectDateTime alias. Got: ${result.code}`
+            `Should use foreign type encode for EffectDateTime alias. Got: ${result.code}`
         );
     });
 
@@ -830,7 +830,7 @@ describe('Local import alias tracking', () => {
       // Local type with same base name
       type Option<T> = T | undefined;
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Container {
         effectValue: EffectOption<string>;
         localValue: Option<number>;
@@ -854,8 +854,8 @@ describe('Local import alias tracking', () => {
         foreignTypes: {
           "Deep.A.B.C.D.E.F.G.H.I.Type": {
             from: ["deep-module"],
-            serialize: (v) => Deep.serialize(v),
-            deserialize: (raw) => Deep.deserialize(raw),
+            encode: (v) => Deep.encode(v),
+            decode: (raw) => Deep.decode(raw),
             default: () => Deep.empty()
           }
         }
@@ -867,7 +867,7 @@ describe('Local import alias tracking', () => {
         const code = `
       import type { Deep as AliasedDeep } from 'deep-module';
 
-      /** @derive(Serialize, Default) */
+      /** @derive(Encode, Default) */
       interface Container {
         value: AliasedDeep.A.B.C.D.E.F.G.H.I.Type;
       }
@@ -877,8 +877,8 @@ describe('Local import alias tracking', () => {
 
         // Should resolve AliasedDeep -> Deep and match the foreign type
         assert.ok(
-            result.code.includes('Deep.serialize'),
-            `Should use foreign type serialize for deeply nested aliased namespace. Got: ${result.code}`
+            result.code.includes('Deep.encode'),
+            `Should use foreign type encode for deeply nested aliased namespace. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('Deep.empty()'),
@@ -900,8 +900,8 @@ describe('Type-only import namespace generation', () => {
           aliases: [
             { name: "DateTime", from: "effect/DateTime" }
           ],
-          serialize: (v) => DateTime.formatIso(v),
-          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          encode: (v) => DateTime.formatIso(v),
+          decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
           default: () => DateTime.unsafeNow()
         }
       }
@@ -917,7 +917,7 @@ describe('Type-only import namespace generation', () => {
         const code = `
       import type { DateTime } from 'effect/DateTime';
 
-      /** @derive(Serialize, Default) */
+      /** @derive(Encode, Default) */
       interface Event {
         startTime: DateTime;
       }
@@ -934,7 +934,7 @@ describe('Type-only import namespace generation', () => {
         // The generated code should use the aliased namespace
         assert.ok(
             result.code.includes('__mf_DateTime.formatIso'),
-            `Should use aliased namespace in serialize. Got: ${result.code}`
+            `Should use aliased namespace in encode. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('__mf_DateTime.unsafeNow'),
@@ -950,7 +950,7 @@ describe('Type-only import namespace generation', () => {
         const code = `
       import { DateTime } from 'effect/DateTime';
 
-      /** @derive(Serialize) */
+      /** @derive(Encode) */
       interface Event {
         startTime: DateTime;
       }
@@ -981,12 +981,12 @@ describe('Type-only import namespace generation', () => {
             aliases: [
               { name: "DateTime", from: "effect/DateTime" }
             ],
-            serialize: (v) => DateTime.formatIso(v),
+            encode: (v) => DateTime.formatIso(v),
             default: () => DateTime.unsafeNow()
           },
           "Option": {
             from: ["effect/Option"],
-            serialize: (v) => Option.getOrNull(v),
+            encode: (v) => Option.getOrNull(v),
             default: () => Option.none()
           }
         }
@@ -1000,7 +1000,7 @@ describe('Type-only import namespace generation', () => {
       import type { DateTime } from 'effect/DateTime';
       import { Option } from 'effect/Option';
 
-      /** @derive(Serialize, Default) */
+      /** @derive(Encode, Default) */
       interface Event {
         startTime: DateTime;
         description: Option<string>;
@@ -1034,7 +1034,7 @@ describe('Type-only import namespace generation', () => {
         );
     });
 
-    test('handles namespaced type with standalone function in serialize and namespaced function in deserialize', () => {
+    test('handles namespaced type with standalone function in encode and namespaced function in decode', () => {
         clearConfigCache();
         const mixedExprConfig = `
       export default {
@@ -1044,10 +1044,10 @@ describe('Type-only import namespace generation', () => {
             aliases: [
               { name: "DateTime", from: "effect/DateTime" }
             ],
-            // serialize uses DateTime namespace AND a standalone function (formatIsoString)
-            serialize: (v) => formatIsoString(DateTime.toDate(v)),
-            // deserialize uses DateTime namespace with a method call
-            deserialize: (raw) => DateTime.fromDate(new Date(raw)),
+            // encode uses DateTime namespace AND a standalone function (formatIsoString)
+            encode: (v) => formatIsoString(DateTime.toDate(v)),
+            // decode uses DateTime namespace with a method call
+            decode: (raw) => DateTime.fromDate(new Date(raw)),
             default: () => DateTime.unsafeNow()
           }
         }
@@ -1065,7 +1065,7 @@ describe('Type-only import namespace generation', () => {
         return date.toISOString();
       }
 
-      /** @derive(Serialize, Deserialize, Default) */
+      /** @derive(Encode, Decode, Default) */
       interface Event {
         startTime: DateTime;
       }
@@ -1081,14 +1081,14 @@ describe('Type-only import namespace generation', () => {
             `Should generate import for type-only DateTime. Got: ${result.code}`
         );
 
-        // Serialize: should use aliased DateTime namespace but keep standalone function as-is
+        // Encode: should use aliased DateTime namespace but keep standalone function as-is
         assert.ok(
             result.code.includes('__mf_DateTime.toDate'),
-            `Serialize should use aliased DateTime.toDate. Got: ${result.code}`
+            `Encode should use aliased DateTime.toDate. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('formatIsoString('),
-            `Serialize should keep standalone formatIsoString function. Got: ${result.code}`
+            `Encode should keep standalone formatIsoString function. Got: ${result.code}`
         );
         // Should NOT alias the standalone function
         assert.ok(
@@ -1096,10 +1096,10 @@ describe('Type-only import namespace generation', () => {
             `Should NOT alias standalone function. Got: ${result.code}`
         );
 
-        // Deserialize: should use aliased DateTime namespace
+        // Decode: should use aliased DateTime namespace
         assert.ok(
             result.code.includes('__mf_DateTime.fromDate'),
-            `Deserialize should use aliased DateTime.fromDate. Got: ${result.code}`
+            `Decode should use aliased DateTime.fromDate. Got: ${result.code}`
         );
 
         // Default: should use aliased DateTime namespace
@@ -1120,14 +1120,14 @@ describe('Type-only import namespace generation', () => {
             aliases: [
               { name: "Zoned", from: "effect/DateTime" }
             ],
-            // Complex serialize: multiple namespace calls + standalone functions + chaining
-            serialize: (v) => JSON.stringify({
+            // Complex encode: multiple namespace calls + standalone functions + chaining
+            encode: (v) => JSON.stringify({
               iso: Effect.Data.DateTime.Zoned.format(v, "iso"),
               epoch: Effect.Data.DateTime.Zoned.toEpochMillis(v),
               zone: Effect.Data.DateTime.Zoned.getZone(v).name
             }),
-            // Complex deserialize: nested namespace calls + standalone + ternary
-            deserialize: (raw) => {
+            // Complex decode: nested namespace calls + standalone + ternary
+            decode: (raw) => {
               const parsed = JSON.parse(raw);
               return parsed.iso
                 ? Effect.Data.DateTime.Zoned.fromString(parsed.iso)
@@ -1138,8 +1138,8 @@ describe('Type-only import namespace generation', () => {
           // Another namespace at different depth
           "Option": {
             from: ["effect/Option"],
-            serialize: (v) => Option.isSome(v) ? Option.getOrThrow(v) : null,
-            deserialize: (raw) => raw === null ? Option.none() : Option.some(raw),
+            encode: (v) => Option.isSome(v) ? Option.getOrThrow(v) : null,
+            decode: (raw) => raw === null ? Option.none() : Option.some(raw),
             default: () => Option.none()
           },
           // Third namespace with method chaining in expressions
@@ -1149,8 +1149,8 @@ describe('Type-only import namespace generation', () => {
               { name: "Duration", from: "effect/Duration" }
             ],
             // Chained namespace calls
-            serialize: (v) => Duration.toMillis(Duration.abs(v)),
-            deserialize: (raw) => Duration.millis(Math.abs(raw)),
+            encode: (v) => Duration.toMillis(Duration.abs(v)),
+            decode: (raw) => Duration.millis(Math.abs(raw)),
             default: () => Duration.zero
           }
         }
@@ -1176,7 +1176,7 @@ describe('Type-only import namespace generation', () => {
 
       const processData = (x: unknown) => x;
 
-      /** @derive(Serialize, Deserialize, Default) */
+      /** @derive(Encode, Decode, Default) */
       interface ComplexEvent {
         // Uses deep namespace Effect.Data.DateTime.Zoned
         timestamp: Effect.Data.DateTime.Zoned;
@@ -1216,7 +1216,7 @@ describe('Type-only import namespace generation', () => {
         // Effect.Data.DateTime.Zoned should become __mf_Effect.Data.DateTime.Zoned
         assert.ok(
             result.code.includes('__mf_Effect.Data.DateTime.Zoned.format'),
-            `Should rewrite deep namespace in serialize. Got: ${result.code}`
+            `Should rewrite deep namespace in encode. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('__mf_Effect.Data.DateTime.Zoned.toEpochMillis'),
@@ -1228,11 +1228,11 @@ describe('Type-only import namespace generation', () => {
         );
         assert.ok(
             result.code.includes('__mf_Effect.Data.DateTime.Zoned.fromString'),
-            `Should rewrite deep namespace in deserialize. Got: ${result.code}`
+            `Should rewrite deep namespace in decode. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('__mf_Effect.Data.DateTime.Zoned.unsafeNow'),
-            `Should rewrite deep namespace in default/deserialize fallback. Got: ${result.code}`
+            `Should rewrite deep namespace in default/decode fallback. Got: ${result.code}`
         );
 
         // === Option namespace rewriting checks ===
@@ -1310,7 +1310,7 @@ describe('Type-only import namespace generation', () => {
         // === Original namespaces should NOT appear (all should be rewritten) ===
 
         // Check that unrewritten namespace patterns don't exist (except in type annotations)
-        // The serialize/deserialize code should not have bare Effect., Option., Duration.
+        // The encode/decode code should not have bare Effect., Option., Duration.
         const codeWithoutTypes = result.code.replace(
             /:\s*\w+(\.\w+)*(<[^>]+>)?/g,
             ''
@@ -1328,24 +1328,24 @@ describe('Type-only import namespace generation', () => {
 });
 
 // ============================================================================
-// Foreign Type in Union Type Alias: Deserialize
+// Foreign Type in Union Type Alias: Decode
 // ============================================================================
 
-describe('Foreign types in union type alias deserialization', () => {
+describe('Foreign types in union type alias decoding', () => {
     const configContent = `
     export default {
       foreignTypes: {
         "DateTime.DateTime": {
           from: ["effect"],
-          serialize: (v) => DateTime.formatIso(v),
-          deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+          encode: (v) => DateTime.formatIso(v),
+          decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
           default: () => DateTime.unsafeNow(),
           hasShape: (v) => typeof v === "string"
         },
         "BigDecimal.BigDecimal": {
           from: ["effect"],
-          serialize: (v) => BigDecimal.format(v),
-          deserialize: (raw) => BigDecimal.fromString(String(raw)),
+          encode: (v) => BigDecimal.format(v),
+          decode: (raw) => BigDecimal.fromString(String(raw)),
           default: () => BigDecimal.unsafeFromNumber(0),
           hasShape: (v) => typeof v === "string" || typeof v === "number"
         }
@@ -1354,14 +1354,14 @@ describe('Foreign types in union type alias deserialization', () => {
   `;
     const configPath = '/test/union-foreign-types/macroforge.config.js';
 
-    test('union with foreign-only types uses hasShape for deserialization', () => {
+    test('union with foreign-only types uses hasShape for decoding', () => {
         clearConfigCache();
         loadConfig(configContent, configPath);
 
         const code = `
       import type { DateTime, BigDecimal } from 'effect';
 
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       type FlexibleValue = DateTime.DateTime | BigDecimal.BigDecimal;
     `;
 
@@ -1374,75 +1374,75 @@ describe('Foreign types in union type alias deserialization', () => {
             `Should use hasShape expression from config for DateTime. Got: ${result.code}`
         );
 
-        // Should use the configured deserialize expressions
+        // Should use the configured decode expressions
         assert.ok(
             result.code.includes('DateTime.unsafeFromDate') ||
                 result.code.includes('__mf_DateTime.unsafeFromDate'),
-            `Should use foreign type deserialize for DateTime. Got: ${result.code}`
+            `Should use foreign type decode for DateTime. Got: ${result.code}`
         );
         assert.ok(
             result.code.includes('BigDecimal.fromString') ||
                 result.code.includes('__mf_BigDecimal.fromString'),
-            `Should use foreign type deserialize for BigDecimal. Got: ${result.code}`
+            `Should use foreign type decode for BigDecimal. Got: ${result.code}`
         );
 
         // Should NOT generate broken camelCase helper calls like
-        // dateTime.dateTimeDeserializeWithContext or bigDecimal.bigDecimalDeserializeWithContext
+        // dateTime.dateTimeDecodeWithContext or bigDecimal.bigDecimalDecodeWithContext
         assert.ok(
-            !result.code.includes('dateTime.dateTimeDeserializeWithContext'),
-            `Should NOT generate broken dotted deserialize function. Got: ${result.code}`
+            !result.code.includes('dateTime.dateTimeDecodeWithContext'),
+            `Should NOT generate broken dotted decode function. Got: ${result.code}`
         );
         assert.ok(
-            !result.code.includes('bigDecimal.bigDecimalDeserializeWithContext'),
-            `Should NOT generate broken dotted deserialize function. Got: ${result.code}`
+            !result.code.includes('bigDecimal.bigDecimalDecodeWithContext'),
+            `Should NOT generate broken dotted decode function. Got: ${result.code}`
         );
     });
 
-    test('union with mixed regular and foreign types deserializes correctly', () => {
+    test('union with mixed regular and foreign types decodes correctly', () => {
         clearConfigCache();
         loadConfig(configContent, configPath);
 
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       type EventPayload = SuccessData | FailureData | DateTime.DateTime;
     `;
 
         const result = expandSync(code, 'test.ts', { configPath });
 
-        // Should have regular deserialize calls for SuccessData and FailureData
+        // Should have regular decode calls for SuccessData and FailureData
         assert.ok(
-            result.code.includes('successDataDeserializeWithContext'),
-            `Should generate regular deserialize for SuccessData. Got: ${result.code}`
+            result.code.includes('successDataDecodeWithContext'),
+            `Should generate regular decode for SuccessData. Got: ${result.code}`
         );
         assert.ok(
-            result.code.includes('failureDataDeserializeWithContext'),
-            `Should generate regular deserialize for FailureData. Got: ${result.code}`
+            result.code.includes('failureDataDecodeWithContext'),
+            `Should generate regular decode for FailureData. Got: ${result.code}`
         );
 
-        // Should use foreign type deserialize for DateTime.DateTime
+        // Should use foreign type decode for DateTime.DateTime
         assert.ok(
             result.code.includes('DateTime.unsafeFromDate') ||
                 result.code.includes('__mf_DateTime.unsafeFromDate'),
-            `Should use foreign type deserialize for DateTime in mixed union. Got: ${result.code}`
+            `Should use foreign type decode for DateTime in mixed union. Got: ${result.code}`
         );
 
-        // Should NOT generate broken dateTime.dateTimeDeserializeWithContext
+        // Should NOT generate broken dateTime.dateTimeDecodeWithContext
         assert.ok(
-            !result.code.includes('dateTime.dateTimeDeserializeWithContext'),
+            !result.code.includes('dateTime.dateTimeDecodeWithContext'),
             `Should NOT generate broken dotted identifier. Got: ${result.code}`
         );
     });
 
-    test('union with foreign type and primitives deserializes correctly', () => {
+    test('union with foreign type and primitives decodes correctly', () => {
         clearConfigCache();
         loadConfig(configContent, configPath);
 
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       type MaybeDate = DateTime.DateTime | string | number;
     `;
 
@@ -1452,7 +1452,7 @@ describe('Foreign types in union type alias deserialization', () => {
         assert.ok(
             result.code.includes('DateTime.unsafeFromDate') ||
                 result.code.includes('__mf_DateTime.unsafeFromDate'),
-            `Should use foreign type deserialize for DateTime in mixed union. Got: ${result.code}`
+            `Should use foreign type decode for DateTime in mixed union. Got: ${result.code}`
         );
 
         // Should have primitive checks
@@ -1473,7 +1473,7 @@ describe('Foreign types in union type alias deserialization', () => {
         const code = `
       import type { DateTime, BigDecimal } from 'effect';
 
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       type FlexibleValue = DateTime.DateTime | BigDecimal.BigDecimal;
     `;
 
@@ -1499,8 +1499,8 @@ describe('Foreign types in union type alias deserialization', () => {
         foreignTypes: {
           "DateTime.DateTime": {
             from: ["effect"],
-            serialize: (v) => DateTime.formatIso(v),
-            deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+            encode: (v) => DateTime.formatIso(v),
+            decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
             default: () => DateTime.unsafeNow()
           }
         }
@@ -1512,7 +1512,7 @@ describe('Foreign types in union type alias deserialization', () => {
         const code = `
       import type { DateTime } from 'effect';
 
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       type Value = DateTime.DateTime | RegularType;
     `;
 
@@ -1520,16 +1520,16 @@ describe('Foreign types in union type alias deserialization', () => {
             configPath: noShapeConfigPath
         });
 
-        // Should still use foreign deserialize for __type-based dispatch
+        // Should still use foreign decode for __type-based dispatch
         assert.ok(
             result.code.includes('DateTime.unsafeFromDate') ||
                 result.code.includes('__mf_DateTime.unsafeFromDate'),
-            `Should still use foreign type deserialize for __type dispatch. Got: ${result.code}`
+            `Should still use foreign type decode for __type dispatch. Got: ${result.code}`
         );
 
-        // Should NOT generate broken dateTime.dateTimeDeserializeWithContext
+        // Should NOT generate broken dateTime.dateTimeDecodeWithContext
         assert.ok(
-            !result.code.includes('dateTime.dateTimeDeserializeWithContext'),
+            !result.code.includes('dateTime.dateTimeDecodeWithContext'),
             `Should NOT generate broken dotted identifier even without hasShape. Got: ${result.code}`
         );
     });

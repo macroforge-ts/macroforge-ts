@@ -6,7 +6,7 @@
  * - Type generation (Errors, Tainted, FieldController, Gigaform interfaces)
  * - Factory function generation (createForm)
  * - Field controller generation with closures
- * - Integration with Default, Serialize, Deserialize macros
+ * - Integration with Default, Encode, Decode macros
  */
 
 import assert from 'node:assert/strict';
@@ -36,7 +36,7 @@ ${code}
 describe('Gigaform type generation', () => {
     test('generates Errors type with field error arrays', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface UserForm {
         name: string;
         email: string;
@@ -72,7 +72,7 @@ describe('Gigaform type generation', () => {
 
     test('generates Tainted type with boolean flags', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface UserForm {
         name: string;
         email: string;
@@ -97,7 +97,7 @@ describe('Gigaform type generation', () => {
 
     test('imports FieldController from canonical location', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface SimpleForm {
         value: string;
       }
@@ -118,7 +118,7 @@ describe('Gigaform type generation', () => {
 
     test('generates FieldControllers interface with typed fields', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface TypedForm {
         name: string;
         count: number;
@@ -147,7 +147,7 @@ describe('Gigaform type generation', () => {
 
     test('generates Gigaform interface', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface MyForm {
         value: string;
       }
@@ -183,7 +183,7 @@ describe('Gigaform type generation', () => {
 
     test('does not generate Data type alias (removed)', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface UserForm {
         name: string;
       }
@@ -206,7 +206,7 @@ describe('Gigaform type generation', () => {
 describe('Gigaform createForm factory', () => {
     test('generates createForm function', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface TestForm {
         value: string;
       }
@@ -229,7 +229,7 @@ describe('Gigaform createForm factory', () => {
 
     test('generates reactive $state for data', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ReactiveForm {
         name: string;
       }
@@ -252,7 +252,7 @@ describe('Gigaform createForm factory', () => {
 
     test('generates reactive $state for errors and tainted', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface StateForm {
         value: string;
       }
@@ -274,9 +274,9 @@ describe('Gigaform createForm factory', () => {
         );
     });
 
-    test('generates validate function that delegates to Deserialize', () => {
+    test('generates validate function that delegates to Decode', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ValidatedForm {
         name: string;
       }
@@ -288,14 +288,14 @@ describe('Gigaform createForm factory', () => {
             'Should generate validate function'
         );
         assert.ok(
-            includesNormalized(result.code, 'toExit(validatedFormDeserialize(data))'),
-            'Should call validatedFormDeserialize wrapped in toExit for validation'
+            includesNormalized(result.code, 'toExit(validatedFormDecode(data))'),
+            'Should call validatedFormDecode wrapped in toExit for validation'
         );
     });
 
     test('generates reset function', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ResettableForm {
         name: string;
       }
@@ -317,7 +317,7 @@ describe('Gigaform createForm factory', () => {
 
     test('generates getter/setter return object', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface GetSetForm {
         value: string;
       }
@@ -352,7 +352,7 @@ describe('Gigaform createForm factory', () => {
 describe('Gigaform field controllers', () => {
     test('generates field controllers with closure-based accessors', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ClosureForm {
         name: string;
       }
@@ -375,7 +375,7 @@ describe('Gigaform field controllers', () => {
 
     test('generates error accessors with closures', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ErrorForm {
         email: string;
       }
@@ -398,7 +398,7 @@ describe('Gigaform field controllers', () => {
 
     test('generates tainted accessors with closures', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface TaintedForm {
         field: string;
       }
@@ -421,7 +421,7 @@ describe('Gigaform field controllers', () => {
 
     test('generates field-level validate using validateField', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface FilterForm {
         username: string;
       }
@@ -457,7 +457,7 @@ describe('Gigaform field controllers', () => {
 
     test('generates path array for each field', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface PathForm {
         firstName: string;
         lastName: string;
@@ -485,15 +485,15 @@ describe('Gigaform field controllers', () => {
 
     test('generates constraints from validators', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ConstrainedForm {
-        /** @serde({ validate: ["minLength(2)", "maxLength(50)"] }) */
+        /** @endec({ validate: ["minLength(2)", "maxLength(50)"] }) */
         name: string;
 
-        /** @serde({ validate: ["email"] }) */
+        /** @endec({ validate: ["email"] }) */
         email: string;
 
-        /** @serde({ validate: ["positive", "int"] }) */
+        /** @endec({ validate: ["positive", "int"] }) */
         age: number;
       }
     `;
@@ -529,7 +529,7 @@ describe('Gigaform field controllers', () => {
 describe('Gigaform UI metadata', () => {
     test('generates label from controller', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface LabelForm {
         /** @textController({ label: "Full Name" }) */
         name: string;
@@ -545,7 +545,7 @@ describe('Gigaform UI metadata', () => {
 
     test('generates description from controller', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface DescForm {
         /** @textController({ description: "Enter your full legal name" }) */
         name: string;
@@ -561,7 +561,7 @@ describe('Gigaform UI metadata', () => {
 
     test('generates placeholder from controller', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface PlaceholderForm {
         /** @textController({ placeholder: "john@example.com" }) */
         email: string;
@@ -577,7 +577,7 @@ describe('Gigaform UI metadata', () => {
 
     test('generates disabled flag from controller', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface DisabledForm {
         /** @textController({ disabled: true }) */
         readOnlyField: string;
@@ -593,7 +593,7 @@ describe('Gigaform UI metadata', () => {
 
     test('generates readonly flag from controller', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ReadonlyForm {
         /** @textController({ readonly: true }) */
         fixedField: string;
@@ -615,7 +615,7 @@ describe('Gigaform UI metadata', () => {
 describe('Gigaform array fields', () => {
     test('generates array methods (at, push, remove, swap)', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ArrayForm {
         tags: string[];
       }
@@ -642,7 +642,7 @@ describe('Gigaform array fields', () => {
 
     test('generates at() with closure accessors', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface IndexedForm {
         items: number[];
       }
@@ -671,7 +671,7 @@ describe('Gigaform container options', () => {
     test('supports defaultOverride option', () => {
         const code = `
       /**
-       * @derive(Default, Deserialize, Gigaform)
+       * @derive(Default, Decode, Gigaform)
        * @gigaform({ defaultOverride: "getCustomDefaults" })
        */
       interface OverrideForm {
@@ -689,7 +689,7 @@ describe('Gigaform container options', () => {
     test('supports i18nPrefix option', () => {
         const code = `
       /**
-       * @derive(Default, Deserialize, Gigaform)
+       * @derive(Default, Decode, Gigaform)
        * @gigaform({ i18nPrefix: "userForm" })
        */
       interface I18nForm {
@@ -714,7 +714,7 @@ describe('Gigaform container options', () => {
 describe('Gigaform fromFormData', () => {
     test('generates fromFormData function', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface FormDataForm {
         name: string;
         age: number;
@@ -734,7 +734,7 @@ describe('Gigaform fromFormData', () => {
 
     test('returns Exit with structured errors', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ResultForm {
         name: string;
       }
@@ -751,19 +751,19 @@ describe('Gigaform fromFormData', () => {
         );
     });
 
-    test('delegates to Deserialize for validation', () => {
+    test('delegates to Decode for validation', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface DelegateForm {
         name: string;
       }
     `;
         const result = expandSync(withGigaformImport(code), 'test.ts');
 
-        // Should delegate to the deserialize function and wrap with toExit
+        // Should delegate to the decode function and wrap with toExit
         assert.ok(
-            result.code.includes('toExit(delegateFormDeserialize(obj))'),
-            'Should delegate to delegateFormDeserialize wrapped in toExit'
+            result.code.includes('toExit(delegateFormDecode(obj))'),
+            'Should delegate to delegateFormDecode wrapped in toExit'
         );
     });
 });
@@ -775,7 +775,7 @@ describe('Gigaform fromFormData', () => {
 describe('Gigaform imports', () => {
     test('adds Exit type import', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ImportForm {
         value: string;
       }
@@ -802,7 +802,7 @@ describe('Gigaform imports', () => {
 describe('Gigaform integration with other macros', () => {
     test('works with Default macro for defaultValue()', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface DefaultForm {
         name: string;
         count: number;
@@ -820,25 +820,25 @@ describe('Gigaform integration with other macros', () => {
         );
     });
 
-    test('works with Deserialize macro for validation', () => {
+    test('works with Decode macro for validation', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
-      interface DeserializeForm {
+      /** @derive(Default, Decode, Gigaform) */
+      interface DecodeForm {
         name: string;
       }
     `;
         const result = expandSync(withGigaformImport(code), 'test.ts');
 
-        // Gigaform uses the Deserialize macro's function for validation
+        // Gigaform uses the Decode macro's function for validation
         assert.ok(
-            result.code.includes('deserializeFormDeserialize('),
-            'Should use deserializeFormDeserialize()'
+            result.code.includes('decodeFormDecode('),
+            'Should use decodeFormDecode()'
         );
     });
 
     test('all three macros generate non-conflicting code', () => {
         const code = `
-      /** @derive(Default, Serialize, Deserialize, Gigaform) */
+      /** @derive(Default, Encode, Decode, Gigaform) */
       interface FullForm {
         name: string;
         email: string;
@@ -852,18 +852,18 @@ describe('Gigaform integration with other macros', () => {
             "Should have Default's defaultValue"
         );
 
-        // Serialize macro
+        // Encode macro
         assert.ok(
             result.code.includes('toStringifiedJSON') ||
-                result.code.includes('SerializeWithContext'),
-            'Should have Serialize methods'
+                result.code.includes('EncodeWithContext'),
+            'Should have Encode methods'
         );
 
-        // Deserialize macro
+        // Decode macro
         assert.ok(
             result.code.includes('fromStringifiedJSON') ||
-                result.code.includes('DeserializeWithContext'),
-            'Should have Deserialize methods'
+                result.code.includes('DecodeWithContext'),
+            'Should have Decode methods'
         );
 
         // Gigaform macro
@@ -892,7 +892,7 @@ describe('Gigaform integration with other macros', () => {
 describe('Gigaform error handling', () => {
     test('supports classes as well as interfaces', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       class SupportedClass {
         name: string;
       }
@@ -912,7 +912,7 @@ describe('Gigaform error handling', () => {
 
     test('reports error for empty interface', () => {
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface EmptyForm {}
     `;
         const result = expandSync(withGigaformImport(code), 'test.ts');
@@ -1024,7 +1024,7 @@ describe('Gigaform type-awareness with TypeRegistry', () => {
         ]);
 
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface OrderForm {
         name: string;
         status: Status;
@@ -1066,7 +1066,7 @@ describe('Gigaform type-awareness with TypeRegistry', () => {
         ]);
 
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface UserForm {
         name: string;
         address: Address;
@@ -1095,7 +1095,7 @@ describe('Gigaform type-awareness with TypeRegistry', () => {
         ]);
 
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface SettingsForm {
         name: string;
         profile: Profile;
@@ -1127,7 +1127,7 @@ describe('Gigaform type-awareness with TypeRegistry', () => {
         ]);
 
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface TaskForm {
         name: string;
         /** @radioGroupController({ label: "Priority Level" }) */
@@ -1161,7 +1161,7 @@ describe('Gigaform type-awareness with TypeRegistry', () => {
         ]);
 
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface ProjectForm {
         name: string;
         tags: Tag[];
@@ -1187,7 +1187,7 @@ describe('Gigaform type-awareness with TypeRegistry', () => {
     test('works without registry (backward compatible)', () => {
         // No typeRegistryJson passed - should work exactly as before
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface BasicForm {
         name: string;
         count: number;
@@ -1224,7 +1224,7 @@ describe('Gigaform type-awareness with TypeRegistry', () => {
         ]);
 
         const code = `
-      /** @derive(Default, Deserialize, Gigaform) */
+      /** @derive(Default, Decode, Gigaform) */
       interface CompleteForm {
         name: string;
         status: Status;
@@ -1259,7 +1259,7 @@ describe('Gigaform type-awareness with TypeRegistry', () => {
     });
 });
 
-// NOTE: Structured error tests for Deserialize are not included here.
-// The Gigaform macro depends on Deserialize returning string[] errors currently.
-// When structured errors are implemented in Deserialize, those tests should be
-// added to the serde tests, not the Gigaform tests.
+// NOTE: Structured error tests for Decode are not included here.
+// The Gigaform macro depends on Decode returning string[] errors currently.
+// When structured errors are implemented in Decode, those tests should be
+// added to the endec tests, not the Gigaform tests.

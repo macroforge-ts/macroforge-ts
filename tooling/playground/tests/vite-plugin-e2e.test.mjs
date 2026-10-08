@@ -252,9 +252,9 @@ describe('SSR Module Loading', () => {
 
                     // Verify static methods work
                     assert.equal(typeof mod.MacroUser.toString, 'function');
-                    assert.equal(typeof mod.MacroUser.serialize, 'function');
+                    assert.equal(typeof mod.MacroUser.encode, 'function');
 
-                    const json = JSON.parse(mod.MacroUser.serialize(user));
+                    const json = JSON.parse(mod.MacroUser.encode(user));
                     assert.equal(json.id, 'usr_1');
                     assert.equal(json.name, 'Svelte Tester');
                 }

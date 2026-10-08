@@ -2,7 +2,7 @@
 
 import type { Item } from './item.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface BilledItem {
     /** @comboboxController({ label: "Item", allowCustom: true, fetchUrls: ["/api/products", "/api/services"] }) */
     /** @default("") */

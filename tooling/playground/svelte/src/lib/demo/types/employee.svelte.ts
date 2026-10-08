@@ -6,21 +6,21 @@ import type { PhoneNumber } from './phone-number.svelte';
 import type { Route } from './route.svelte';
 import type { Settings } from './settings.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Employee {
     id: string;
     imageUrl: string | null;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
     phones: Array<PhoneNumber>;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     role: string;
     /** @default("Technician") */
     title: JobTitle;
     email: Email;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     address: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     username: string;
     /** @default("") */
     route: string | Route;

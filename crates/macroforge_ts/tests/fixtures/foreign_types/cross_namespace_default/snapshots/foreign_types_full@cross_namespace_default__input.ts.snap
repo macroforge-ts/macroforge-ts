@@ -7,7 +7,7 @@ input_file: crates/macroforge_ts/tests/fixtures/foreign_types/cross_namespace_de
 
 import { DateTime } from 'effect';
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface Foo {
     /** @default("place:holder") */
     id: string;
@@ -20,11 +20,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
 
@@ -44,16 +44,16 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function fooSerialize(value: Foo, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = fooSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function fooEncode(value: Foo, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = fooEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function fooSerializeWithContext(value: Foo, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function fooEncodeWithContext(value: Foo, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -165,21 +165,21 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function fooDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Foo } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function fooDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Foo } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = fooDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = fooDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Foo.deserialize: root cannot be a forward reference"
+		message: "Foo.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -202,7 +202,7 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -219,14 +219,14 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function fooDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Foo | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function fooDecodeWithContext(value: any, ctx: __mf_DecodeContext): Foo | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Foo.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Foo.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1134,16 +1134,16 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                 if (!fooHasShape(obj)) {
                     return false;
                 }
-                const result = fooDeserialize(obj);
+                const result = fooDecode(obj);
                 return result.success;
             }
 
 export const Foo = {
   defaultValue: fooDefaultValue,
-  serialize: fooSerialize,
-  serializeWithContext: fooSerializeWithContext,
-  deserialize: fooDeserialize,
-  deserializeWithContext: fooDeserializeWithContext,
+  encode: fooEncode,
+  encodeWithContext: fooEncodeWithContext,
+  decode: fooDecode,
+  decodeWithContext: fooDecodeWithContext,
   validateFields: fooValidateFields,
   hasShape: fooHasShape,
   is: fooIs
@@ -1170,16 +1170,16 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function fooSerialize(value: Foo, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = fooSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function fooEncode(value: Foo, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = fooEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function fooSerializeWithContext(value: Foo, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function fooEncodeWithContext(value: Foo, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1291,21 +1291,21 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function fooDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Foo } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function fooDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Foo } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = fooDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = fooDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Foo.deserialize: root cannot be a forward reference"
+		message: "Foo.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1328,7 +1328,7 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1345,14 +1345,14 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function fooDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Foo | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function fooDecodeWithContext(value: any, ctx: __mf_DecodeContext): Foo | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Foo.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Foo.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2260,16 +2260,16 @@ createdAt: (() => Option.match(DateTime.make(new Date()), {
                 if (!fooHasShape(obj)) {
                     return false;
                 }
-                const result = fooDeserialize(obj);
+                const result = fooDecode(obj);
                 return result.success;
             }
 
 export const Foo = {
   defaultValue: fooDefaultValue,
-  serialize: fooSerialize,
-  serializeWithContext: fooSerializeWithContext,
-  deserialize: fooDeserialize,
-  deserializeWithContext: fooDeserializeWithContext,
+  encode: fooEncode,
+  encodeWithContext: fooEncodeWithContext,
+  decode: fooDecode,
+  decodeWithContext: fooDecodeWithContext,
   validateFields: fooValidateFields,
   hasShape: fooHasShape,
   is: fooIs
@@ -2282,17 +2282,17 @@ export const Foo = {
 ## Mapping
 
 original 0..36 -> expanded 0..36
-original 83..111 -> expanded 36..64
-original 142..189 -> expanded 64..111
-original 189..190 -> expanded 7604..7605
+original 75..103 -> expanded 36..64
+original 134..181 -> expanded 64..111
+original 181..182 -> expanded 7446..7447
 generated 111..390 <- Default
-generated 390..1961 <- Serialize
-generated 1961..7303 <- Deserialize
-generated 7303..7604 <- __convenience_const
+generated 390..1929 <- Encode
+generated 1929..7177 <- Decode
+generated 7177..7446 <- __convenience_const
 
 ## Metadata
 
-interface Foo: {"body_span":{"end":190,"start":106},"decorators":[{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":84,"start":37}}],"fields":[{"decorators":[{"args_src":"\"place:holder\"","name":"default","span":{"end":143,"start":112}}],"name":"id","optional":false,"readonly":false,"span":{"end":159,"start":148},"ts_type":"string"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":188,"start":164},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Foo","span":{"end":190,"start":92},"type_params":[]}
+interface Foo: {"body_span":{"end":182,"start":98},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":76,"start":37}}],"fields":[{"decorators":[{"args_src":"\"place:holder\"","name":"default","span":{"end":135,"start":104}}],"name":"id","optional":false,"readonly":false,"span":{"end":151,"start":140},"ts_type":"string"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":180,"start":156},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Foo","span":{"end":182,"start":84},"type_params":[]}
 
 ## Registry reads
 

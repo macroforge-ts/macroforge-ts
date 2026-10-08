@@ -30,8 +30,8 @@
 //!       aliases: [
 //!         { name: "DateTime", from: "effect/DateTime" }
 //!       ],
-//!       serialize: (v) => DateTime.formatIso(v),
-//!       deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+//!       encode: (v) => DateTime.formatIso(v),
+//!       decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
 //!       default: () => DateTime.unsafeNow(),
 //!       hasShape: (v) => v instanceof Date || typeof v === "string"
 //!     }
@@ -78,8 +78,8 @@
 //! |--------|-------------|
 //! | `from` | Array of module paths this type can be imported from |
 //! | `aliases` | Array of `{ name, from }` objects for alternative type-package pairs |
-//! | `serialize` | Function `(value) => unknown` for serialization |
-//! | `deserialize` | Function `(raw) => T` for deserialization |
+//! | `encode` | Function `(value) => unknown` for encoding |
+//! | `decode` | Function `(raw) => T` for decoding |
 //! | `default` | Function `() => T` for default value generation |
 //!
 //! ### Import Source Validation

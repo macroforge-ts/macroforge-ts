@@ -1,6 +1,6 @@
 import { DateTime } from 'effect';
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface Tick {
     at: DateTime.Utc;
 }

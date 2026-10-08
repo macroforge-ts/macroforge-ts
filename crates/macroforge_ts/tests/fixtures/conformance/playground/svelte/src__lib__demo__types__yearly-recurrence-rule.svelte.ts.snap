@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/yearly-recurrence-rule.svelte.ts
-sha256 f5417a7f9751a5584e1bbbf751a45c5ff5d16f5a72cda4d4abcbafac98bb417b
+sha256 e985a792ce81c98d7ded177eb346c9826e5dc21bb365d011da0973a04e56dddf
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -34,16 +34,16 @@ quantityOfYears: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function yearlyRecurrenceRuleSerialize(value: YearlyRecurrenceRule, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = yearlyRecurrenceRuleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function yearlyRecurrenceRuleEncode(value: YearlyRecurrenceRule, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = yearlyRecurrenceRuleEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function yearlyRecurrenceRuleSerializeWithContext(value: YearlyRecurrenceRule, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function yearlyRecurrenceRuleEncodeWithContext(value: YearlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -155,21 +155,21 @@ quantityOfYears: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function yearlyRecurrenceRuleDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: YearlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function yearlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: YearlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = yearlyRecurrenceRuleDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = yearlyRecurrenceRuleDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "YearlyRecurrenceRule.deserialize: root cannot be a forward reference"
+		message: "YearlyRecurrenceRule.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -192,7 +192,7 @@ quantityOfYears: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -209,14 +209,14 @@ quantityOfYears: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function yearlyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): YearlyRecurrenceRule | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function yearlyRecurrenceRuleDecodeWithContext(value: any, ctx: __mf_DecodeContext): YearlyRecurrenceRule | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "YearlyRecurrenceRule.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "YearlyRecurrenceRule.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1119,7 +1119,7 @@ quantityOfYears: 0,
                 if (!yearlyRecurrenceRuleHasShape(obj)) {
                     return false;
                 }
-                const result = yearlyRecurrenceRuleDeserialize(obj);
+                const result = yearlyRecurrenceRuleDecode(obj);
                 return result.success;
             }
 
@@ -1203,7 +1203,7 @@ quantityOfYears: 0,
 
 
             function validate(): Exit.Exit<YearlyRecurrenceRule, Array<{ field: string; message: string }>> {
-                return toExit(yearlyRecurrenceRuleDeserialize(data));
+                return toExit(yearlyRecurrenceRuleDecode(data));
             }
 
 
@@ -1234,7 +1234,7 @@ quantityOfYears: 0,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function yearlyRecurrenceRuleFromFormData(formData: FormData): Exit.Exit<YearlyRecurrenceRule, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1246,15 +1246,15 @@ quantityOfYears: 0,
                 }
 
 
-            return toExit(yearlyRecurrenceRuleDeserialize(obj));
+            return toExit(yearlyRecurrenceRuleDecode(obj));
         }
 
 export const YearlyRecurrenceRule = {
   defaultValue: yearlyRecurrenceRuleDefaultValue,
-  serialize: yearlyRecurrenceRuleSerialize,
-  serializeWithContext: yearlyRecurrenceRuleSerializeWithContext,
-  deserialize: yearlyRecurrenceRuleDeserialize,
-  deserializeWithContext: yearlyRecurrenceRuleDeserializeWithContext,
+  encode: yearlyRecurrenceRuleEncode,
+  encodeWithContext: yearlyRecurrenceRuleEncodeWithContext,
+  decode: yearlyRecurrenceRuleDecode,
+  decodeWithContext: yearlyRecurrenceRuleDecodeWithContext,
   validateFields: yearlyRecurrenceRuleValidateFields,
   hasShape: yearlyRecurrenceRuleHasShape,
   is: yearlyRecurrenceRuleIs,
@@ -1277,16 +1277,16 @@ quantityOfYears: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function yearlyRecurrenceRuleSerialize(value: YearlyRecurrenceRule, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = yearlyRecurrenceRuleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function yearlyRecurrenceRuleEncode(value: YearlyRecurrenceRule, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = yearlyRecurrenceRuleEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function yearlyRecurrenceRuleSerializeWithContext(value: YearlyRecurrenceRule, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function yearlyRecurrenceRuleEncodeWithContext(value: YearlyRecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1398,21 +1398,21 @@ quantityOfYears: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function yearlyRecurrenceRuleDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: YearlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function yearlyRecurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: YearlyRecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = yearlyRecurrenceRuleDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = yearlyRecurrenceRuleDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "YearlyRecurrenceRule.deserialize: root cannot be a forward reference"
+		message: "YearlyRecurrenceRule.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1435,7 +1435,7 @@ quantityOfYears: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1452,14 +1452,14 @@ quantityOfYears: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function yearlyRecurrenceRuleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): YearlyRecurrenceRule | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function yearlyRecurrenceRuleDecodeWithContext(value: any, ctx: __mf_DecodeContext): YearlyRecurrenceRule | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "YearlyRecurrenceRule.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "YearlyRecurrenceRule.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2362,7 +2362,7 @@ quantityOfYears: 0,
                 if (!yearlyRecurrenceRuleHasShape(obj)) {
                     return false;
                 }
-                const result = yearlyRecurrenceRuleDeserialize(obj);
+                const result = yearlyRecurrenceRuleDecode(obj);
                 return result.success;
             }
 
@@ -2446,7 +2446,7 @@ quantityOfYears: 0,
 
 
             function validate(): Exit.Exit<YearlyRecurrenceRule, Array<{ field: string; message: string }>> {
-                return toExit(yearlyRecurrenceRuleDeserialize(data));
+                return toExit(yearlyRecurrenceRuleDecode(data));
             }
 
 
@@ -2477,7 +2477,7 @@ quantityOfYears: 0,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function yearlyRecurrenceRuleFromFormData(formData: FormData): Exit.Exit<YearlyRecurrenceRule, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2489,15 +2489,15 @@ quantityOfYears: 0,
                 }
 
 
-            return toExit(yearlyRecurrenceRuleDeserialize(obj));
+            return toExit(yearlyRecurrenceRuleDecode(obj));
         }
 
 export const YearlyRecurrenceRule = {
   defaultValue: yearlyRecurrenceRuleDefaultValue,
-  serialize: yearlyRecurrenceRuleSerialize,
-  serializeWithContext: yearlyRecurrenceRuleSerializeWithContext,
-  deserialize: yearlyRecurrenceRuleDeserialize,
-  deserializeWithContext: yearlyRecurrenceRuleDeserializeWithContext,
+  encode: yearlyRecurrenceRuleEncode,
+  encodeWithContext: yearlyRecurrenceRuleEncodeWithContext,
+  decode: yearlyRecurrenceRuleDecode,
+  decodeWithContext: yearlyRecurrenceRuleDecodeWithContext,
   validateFields: yearlyRecurrenceRuleValidateFields,
   hasShape: yearlyRecurrenceRuleHasShape,
   is: yearlyRecurrenceRuleIs,
@@ -2512,17 +2512,17 @@ export const YearlyRecurrenceRule = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..186 -> expanded 58..129
-original 186..187 -> expanded 12437..12438
+original 107..178 -> expanded 58..129
+original 178..179 -> expanded 12259..12260
 generated 129..283 <- Default
-generated 283..1901 <- Serialize
-generated 1901..7267 <- Deserialize
-generated 7267..11887 <- Gigaform
-generated 11887..12437 <- __convenience_const
+generated 283..1869 <- Encode
+generated 1869..7141 <- Decode
+generated 7141..11741 <- Gigaform
+generated 11741..12259 <- __convenience_const
 
 ## Metadata
 
-interface YearlyRecurrenceRule: {"body_span":{"end":187,"start":155},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"quantityOfYears","optional":false,"readonly":false,"span":{"end":185,"start":161},"ts_type":"number"}],"heritage":[],"methods":[],"name":"YearlyRecurrenceRule","span":{"end":187,"start":124},"type_params":[]}
+interface YearlyRecurrenceRule: {"body_span":{"end":179,"start":147},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"quantityOfYears","optional":false,"readonly":false,"span":{"end":177,"start":153},"ts_type":"number"}],"heritage":[],"methods":[],"name":"YearlyRecurrenceRule","span":{"end":179,"start":116},"type_params":[]}
 
 ## Registry reads
 

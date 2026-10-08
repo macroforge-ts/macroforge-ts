@@ -476,7 +476,7 @@ fn resident_registry(generation: RegistryGeneration) -> Result<TypeRegistry, Str
 
 /// What a [`RegistryRead`] resolves to: everything the lookup can answer
 /// from, with source spans cleared and maps ordered, so two resolutions
-/// serialize identically exactly when the lookup's answer is the same.
+/// encode identically exactly when the lookup's answer is the same.
 ///
 /// Spans are left out because they locate a declaration in its own file: an
 /// edit above it moves them without changing anything another module's
@@ -962,7 +962,7 @@ impl TypeRegistry {
 
     /// Like [`resolve`] but also disambiguates by the caller's own file path.
     /// When `name` is ambiguous and not in `file_imports`, this picks the
-    /// qualified entry whose `file_path` equals `caller_file_path`, i.e. the
+    /// qualified entry whose `file_path` equals `caller_file_path`: i.e. the
     /// type is declared in the same file that's referencing it (common in
     /// generated aggregator files that re-declare types alongside their
     /// canonical definitions).
@@ -1241,16 +1241,12 @@ mod tests {
         let entry1 = make_interface_entry(
             "PhoneNumber",
             "/project/src/types/phone-number.svelte.ts",
-            vec![derive_decorator(
-                "Default, Serialize, Deserialize, Gigaform",
-            )],
+            vec![derive_decorator("Default, Encode, Decode, Gigaform")],
         );
         let entry2 = make_interface_entry(
             "PhoneNumber",
             "/project/src/types/all-types.svelte.ts",
-            vec![derive_decorator(
-                "Default, Serialize, Deserialize, Gigaform",
-            )],
+            vec![derive_decorator("Default, Encode, Decode, Gigaform")],
         );
 
         registry.insert(entry1, "/project");
@@ -1259,7 +1255,7 @@ mod tests {
         // Name should be ambiguous
         assert!(registry.ambiguous_names.contains("PhoneNumber"));
 
-        // get() returns None for ambiguous names; callers must use resolve() or get_all()
+        // get() returns None for ambiguous names: callers must use resolve() or get_all()
         assert!(registry.get("PhoneNumber").is_none());
 
         // get_all() returns both entries
@@ -1703,7 +1699,7 @@ mod tests {
             make_interface_entry("User", "/project/src/user.ts", vec![]),
             "/project",
         );
-        let json = serde_json::to_value(&registry).expect("the registry serializes");
+        let json = serde_json::to_value(&registry).expect("the registry encodes");
         let mut keys: Vec<&String> = json.as_object().expect("an object").keys().collect();
         keys.sort();
         assert_eq!(

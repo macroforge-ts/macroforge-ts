@@ -30,8 +30,8 @@ export default {
     foreignTypes: {
         'DateTime.Utc': {
             from: ['effect'],
-            serialize: (v: DateTime.Utc) => DateTime.formatIso(v),
-            deserialize: (raw: unknown) =>
+            encode: (v: DateTime.Utc) => DateTime.formatIso(v),
+            decode: (raw: unknown) =>
                 Option.match(DateTime.make(raw as string), {
                     onSome: (dt) => dt,
                     onNone: () => Option.getOrElse(DateTime.make(0), () => null as never),
@@ -51,7 +51,7 @@ export default {
     let source = r#"
 import { DateTime } from 'effect';
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface Foo {
     /** @default("place:holder") */
     id: string;
@@ -154,8 +154,8 @@ export default {
     foreignTypes: {
         'DateTime.Utc': {
             from: ['effect'],
-            serialize: (v) => DateTime.formatIso(v),
-            deserialize: (raw) => DateTime.make(raw),
+            encode: (v) => DateTime.formatIso(v),
+            decode: (raw) => DateTime.make(raw),
             default: () =>
                 Option.match(DateTime.make(new Date()), {
                     onSome: (dt) => dt,
@@ -164,8 +164,8 @@ export default {
         },
         'Option': {
             from: ['effect'],
-            serialize: (v) => v,
-            deserialize: (raw) => raw,
+            encode: (v) => v,
+            decode: (raw) => raw,
             default: () => null,
         },
     },
@@ -252,8 +252,8 @@ export default {
     foreignTypes: {
         'DateTime.Utc': {
             from: ['effect'],
-            serialize: (v) => DateTime.formatIso(v),
-            deserialize: (raw) => {
+            encode: (v) => DateTime.formatIso(v),
+            decode: (raw) => {
                 if (!Array.isArray(raw) && typeof raw !== 'string') {
                     console.error('bad DateTime.Utc payload', raw);
                     return DateTime.make(0);
@@ -273,7 +273,7 @@ export default {
     let source = r#"
 import { DateTime } from 'effect';
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface Foo {
     createdAt: DateTime.Utc;
 }
@@ -338,12 +338,12 @@ export interface Foo {
         // Globals stay unrewritten in the inlined bodies.
         assert!(
             result.code.contains("Array.isArray"),
-            "Default/deserialize should call Array.isArray directly. Got:\n{}",
+            "Default/decode should call Array.isArray directly. Got:\n{}",
             result.code
         );
         assert!(
             result.code.contains("console.error"),
-            "Deserialize should call console.error directly. Got:\n{}",
+            "Decode should call console.error directly. Got:\n{}",
             result.code
         );
         assert!(
@@ -355,15 +355,15 @@ export interface Foo {
 }
 
 // ============================================================================
-// Foreign Types in Union Type Alias -- Deserialize
+// Foreign Types in Union Type Alias -- Decode
 // ============================================================================
 
 #[test]
-fn test_derive_deserialize_union_with_foreign_type_uses_has_shape() {
+fn test_derive_decode_union_with_foreign_type_uses_has_shape() {
     let source = r#"
 import type { DateTime } from 'effect';
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 type FlexibleValue = DateTime.DateTime | RegularType;
 "#;
 
@@ -390,20 +390,18 @@ type FlexibleValue = DateTime.DateTime | RegularType;
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Should use the configured deserialize expression, not broken camelCase helpers
+        // Should use the configured decode expression, not broken camelCase helpers
         assert!(
             result.code.contains("DateTime.unsafeFromDate")
                 || result.code.contains("__mf_DateTime.unsafeFromDate"),
-            "Should use foreign type deserialize expression. Got:\n{}",
+            "Should use foreign type decode expression. Got:\n{}",
             result.code
         );
 
         // Should NOT generate broken dotted identifier
         assert!(
-            !result
-                .code
-                .contains("dateTime.dateTimeDeserializeWithContext"),
-            "Should NOT generate broken dotted deserialize fn. Got:\n{}",
+            !result.code.contains("dateTime.dateTimeDecodeWithContext"),
+            "Should NOT generate broken dotted decode fn. Got:\n{}",
             result.code
         );
 
@@ -417,11 +415,11 @@ type FlexibleValue = DateTime.DateTime | RegularType;
 }
 
 #[test]
-fn test_derive_deserialize_union_foreign_only_types() {
+fn test_derive_decode_union_foreign_only_types() {
     let source = r#"
 import type { DateTime, BigDecimal } from 'effect';
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 type FlexValue = DateTime.DateTime | BigDecimal.BigDecimal;
 "#;
 
@@ -458,17 +456,17 @@ type FlexValue = DateTime.DateTime | BigDecimal.BigDecimal;
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Both foreign deserialize expressions should be present
+        // Both foreign decode expressions should be present
         assert!(
             result.code.contains("DateTime.unsafeFromDate")
                 || result.code.contains("__mf_DateTime.unsafeFromDate"),
-            "Should have DateTime foreign deserialize. Got:\n{}",
+            "Should have DateTime foreign decode. Got:\n{}",
             result.code
         );
         assert!(
             result.code.contains("BigDecimal.fromString")
                 || result.code.contains("__mf_BigDecimal.fromString"),
-            "Should have BigDecimal foreign deserialize. Got:\n{}",
+            "Should have BigDecimal foreign decode. Got:\n{}",
             result.code
         );
 
@@ -481,16 +479,14 @@ type FlexValue = DateTime.DateTime | BigDecimal.BigDecimal;
 
         // Should NOT generate broken camelCase helper calls
         assert!(
-            !result
-                .code
-                .contains("dateTime.dateTimeDeserializeWithContext"),
+            !result.code.contains("dateTime.dateTimeDecodeWithContext"),
             "Should NOT generate broken DateTime dotted identifier. Got:\n{}",
             result.code
         );
         assert!(
             !result
                 .code
-                .contains("bigDecimal.bigDecimalDeserializeWithContext"),
+                .contains("bigDecimal.bigDecimalDecodeWithContext"),
             "Should NOT generate broken BigDecimal dotted identifier. Got:\n{}",
             result.code
         );
@@ -498,13 +494,13 @@ type FlexValue = DateTime.DateTime | BigDecimal.BigDecimal;
 }
 
 #[test]
-fn test_derive_deserialize_union_foreign_without_has_shape() {
-    // Foreign type without hasShape should still use foreign deserialize for __type dispatch
+fn test_derive_decode_union_foreign_without_has_shape() {
+    // Foreign type without hasShape should still use foreign decode for __type dispatch
     // but won't participate in shape matching
     let source = r#"
 import type { DateTime } from 'effect';
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 type Value = DateTime.DateTime | RegularType;
 "#;
 
@@ -530,19 +526,17 @@ type Value = DateTime.DateTime | RegularType;
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Should still use foreign deserialize for __type-based dispatch
+        // Should still use foreign decode for __type-based dispatch
         assert!(
             result.code.contains("DateTime.unsafeFromDate")
                 || result.code.contains("__mf_DateTime.unsafeFromDate"),
-            "Should use foreign deserialize even without hasShape. Got:\n{}",
+            "Should use foreign decode even without hasShape. Got:\n{}",
             result.code
         );
 
         // Should NOT generate broken dotted identifier
         assert!(
-            !result
-                .code
-                .contains("dateTime.dateTimeDeserializeWithContext"),
+            !result.code.contains("dateTime.dateTimeDecodeWithContext"),
             "Should NOT generate broken dotted identifier. Got:\n{}",
             result.code
         );
@@ -550,11 +544,11 @@ type Value = DateTime.DateTime | RegularType;
 }
 
 #[test]
-fn test_derive_deserialize_union_mixed_foreign_and_primitives() {
+fn test_derive_decode_union_mixed_foreign_and_primitives() {
     let source = r#"
 import type { DateTime } from 'effect';
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 type MaybeDate = DateTime.DateTime | string | number;
 "#;
 
@@ -580,11 +574,11 @@ type MaybeDate = DateTime.DateTime | string | number;
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Should use foreign type deserialize
+        // Should use foreign type decode
         assert!(
             result.code.contains("DateTime.unsafeFromDate")
                 || result.code.contains("__mf_DateTime.unsafeFromDate"),
-            "Should use foreign type deserialize in mixed union. Got:\n{}",
+            "Should use foreign type decode in mixed union. Got:\n{}",
             result.code
         );
 

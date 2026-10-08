@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/company.svelte.ts
-sha256 8813c7a1ae5a8404f562632f78023a221fed4790f4a734cecf7b8e34392f6dc9
+sha256 58c7cd939f6a9fd17aa341feda97b07724c0266842820fbed758239b1a2e073b
 
 ## Changed
 
@@ -12,20 +12,20 @@ true
 
 ## Output
 
-import { colorsConfigDeserializeWithContext } from "./colors-config.svelte";
-import { phoneNumberDeserialize } from "./phone-number.svelte";
-import { siteDeserializeWithContext } from "./site.svelte";
-import { taxRateDeserializeWithContext } from "./tax-rate.svelte";
-import { colorsConfigSerializeWithContext } from "./colors-config.svelte";
-import { phoneNumberSerializeWithContext } from "./phone-number.svelte";
-import { siteSerializeWithContext } from "./site.svelte";
-import { taxRateSerializeWithContext } from "./tax-rate.svelte";
+import { colorsConfigDecodeWithContext } from "./colors-config.svelte";
+import { phoneNumberDecode } from "./phone-number.svelte";
+import { siteDecodeWithContext } from "./site.svelte";
+import { taxRateDecodeWithContext } from "./tax-rate.svelte";
+import { colorsConfigEncodeWithContext } from "./colors-config.svelte";
+import { phoneNumberEncodeWithContext } from "./phone-number.svelte";
+import { siteEncodeWithContext } from "./site.svelte";
+import { taxRateEncodeWithContext } from "./tax-rate.svelte";
 import { colorsConfigDefaultValue } from "./colors-config.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -118,16 +118,16 @@ colorsConfig: colorsConfigDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function companySerialize(value: Company, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = companySerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function companyEncode(value: Company, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = companyEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function companySerializeWithContext(value: Company, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function companyEncodeWithContext(value: Company, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -142,11 +142,11 @@ colorsConfig: colorsConfigDefaultValue(),
                         __id,
                     };result.id = value.id;result.legalName = value.legalName;result.headquarters = typeof value.headquarters === "string"
                                                 ? value.headquarters
-                                                : siteSerializeWithContext(value.headquarters, ctx);result.phones = value.phones.map(
-                                                            (item) => phoneNumberSerializeWithContext(item, ctx)
+                                                : siteEncodeWithContext(value.headquarters, ctx);result.phones = value.phones.map(
+                                                            (item) => phoneNumberEncodeWithContext(item, ctx)
                                                         );result.fax = value.fax;result.email = value.email;result.website = value.website;result.taxId = value.taxId;result.referenceNumber = value.referenceNumber;result.postalCodeLookup = value.postalCodeLookup;result.timeZone = value.timeZone;result.defaultTax = typeof value.defaultTax === "string"
                                                 ? value.defaultTax
-                                                : taxRateSerializeWithContext(value.defaultTax, ctx);result.defaultTaxLocation = value.defaultTaxLocation;result.defaultAreaCode = value.defaultAreaCode;result.defaultAccountType = value.defaultAccountType;result.lookupFormatting = value.lookupFormatting;result.accountNameFormat = value.accountNameFormat;result.merchantServiceProvider = value.merchantServiceProvider;result.dateDisplayStyle = value.dateDisplayStyle;result.hasAutoCommission = value.hasAutoCommission;result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;result.hasAutoFmsTracking = value.hasAutoFmsTracking;result.hasNotifications = value.hasNotifications;result.hasRequiredLeadSource = value.hasRequiredLeadSource;result.hasRequiredEmail = value.hasRequiredEmail;result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;result.scheduleInterval = value.scheduleInterval;result.colorsConfig = colorsConfigSerializeWithContext(value.colorsConfig, ctx);
+                                                : taxRateEncodeWithContext(value.defaultTax, ctx);result.defaultTaxLocation = value.defaultTaxLocation;result.defaultAreaCode = value.defaultAreaCode;result.defaultAccountType = value.defaultAccountType;result.lookupFormatting = value.lookupFormatting;result.accountNameFormat = value.accountNameFormat;result.merchantServiceProvider = value.merchantServiceProvider;result.dateDisplayStyle = value.dateDisplayStyle;result.hasAutoCommission = value.hasAutoCommission;result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;result.hasAutoFmsTracking = value.hasAutoFmsTracking;result.hasNotifications = value.hasNotifications;result.hasRequiredLeadSource = value.hasRequiredLeadSource;result.hasRequiredEmail = value.hasRequiredEmail;result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;result.scheduleInterval = value.scheduleInterval;result.colorsConfig = colorsConfigEncodeWithContext(value.colorsConfig, ctx);
 
 
 
@@ -245,21 +245,21 @@ colorsConfig: colorsConfigDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function companyDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Company } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function companyDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Company } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = companyDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = companyDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Company.deserialize: root cannot be a forward reference"
+		message: "Company.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -282,7 +282,7 @@ colorsConfig: colorsConfigDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -299,14 +299,14 @@ colorsConfig: colorsConfigDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function companyDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Company | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function companyDecodeWithContext(value: any, ctx: __mf_DecodeContext): Company | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Company.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Company.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -915,10 +915,10 @@ instance.legalName = __raw_legalName;
                                             } else {
                                                 ctx.pushScope("headquarters");
                                                 try {
-                                                    const __result = siteDeserializeWithContext(__raw_headquarters, ctx);
+                                                    const __result = siteDecodeWithContext(__raw_headquarters, ctx);
                                                     ctx.assignOrDefer(instance, "headquarters", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "headquarters" : "headquarters." + __err.field,
@@ -1208,7 +1208,7 @@ instance.legalName = __raw_legalName;
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = phoneNumberDeserialize(item);
+                                                            const __elemResult = phoneNumberDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -3388,10 +3388,10 @@ instance.postalCodeLookup = __raw_postalCodeLookup;
                                             } else {
                                                 ctx.pushScope("defaultTax");
                                                 try {
-                                                    const __result = taxRateDeserializeWithContext(__raw_defaultTax, ctx);
+                                                    const __result = taxRateDecodeWithContext(__raw_defaultTax, ctx);
                                                     ctx.assignOrDefer(instance, "defaultTax", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "defaultTax" : "defaultTax." + __err.field,
@@ -7847,10 +7847,10 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
                             }{
                                 const __raw_colorsConfig = obj["colorsConfig"] as ColorsConfig;ctx.pushScope("colorsConfig");
                                             try {
-                                                const __result = colorsConfigDeserializeWithContext(__raw_colorsConfig, ctx);
+                                                const __result = colorsConfigDecodeWithContext(__raw_colorsConfig, ctx);
                                                 ctx.assignOrDefer(instance, "colorsConfig", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "colorsConfig" : "colorsConfig." + __err.field,
@@ -8936,7 +8936,7 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
                 if (!companyHasShape(obj)) {
                     return false;
                 }
-                const result = companyDeserialize(obj);
+                const result = companyDecode(obj);
                 return result.success;
             }
 
@@ -9789,7 +9789,7 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
 
 
             function validate(): Exit.Exit<Company, Array<{ field: string; message: string }>> {
-                return toExit(companyDeserialize(data));
+                return toExit(companyDecode(data));
             }
 
 
@@ -9876,7 +9876,7 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function companyFromFormData(formData: FormData): Exit.Exit<Company, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -9990,15 +9990,15 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
         }
 
 
-            return toExit(companyDeserialize(obj));
+            return toExit(companyDecode(obj));
         }
 
 export const Company = {
   defaultValue: companyDefaultValue,
-  serialize: companySerialize,
-  serializeWithContext: companySerializeWithContext,
-  deserialize: companyDeserialize,
-  deserializeWithContext: companyDeserializeWithContext,
+  encode: companyEncode,
+  encodeWithContext: companyEncodeWithContext,
+  decode: companyDecode,
+  decodeWithContext: companyDecodeWithContext,
   validateFields: companyValidateFields,
   hasShape: companyHasShape,
   is: companyIs,
@@ -10095,16 +10095,16 @@ colorsConfig: colorsConfigDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function companySerialize(value: Company, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = companySerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function companyEncode(value: Company, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = companyEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function companySerializeWithContext(value: Company, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function companyEncodeWithContext(value: Company, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -10119,11 +10119,11 @@ colorsConfig: colorsConfigDefaultValue(),
                         __id,
                     };result.id = value.id;result.legalName = value.legalName;result.headquarters = typeof value.headquarters === "string"
                                                 ? value.headquarters
-                                                : siteSerializeWithContext(value.headquarters, ctx);result.phones = value.phones.map(
-                                                            (item) => phoneNumberSerializeWithContext(item, ctx)
+                                                : siteEncodeWithContext(value.headquarters, ctx);result.phones = value.phones.map(
+                                                            (item) => phoneNumberEncodeWithContext(item, ctx)
                                                         );result.fax = value.fax;result.email = value.email;result.website = value.website;result.taxId = value.taxId;result.referenceNumber = value.referenceNumber;result.postalCodeLookup = value.postalCodeLookup;result.timeZone = value.timeZone;result.defaultTax = typeof value.defaultTax === "string"
                                                 ? value.defaultTax
-                                                : taxRateSerializeWithContext(value.defaultTax, ctx);result.defaultTaxLocation = value.defaultTaxLocation;result.defaultAreaCode = value.defaultAreaCode;result.defaultAccountType = value.defaultAccountType;result.lookupFormatting = value.lookupFormatting;result.accountNameFormat = value.accountNameFormat;result.merchantServiceProvider = value.merchantServiceProvider;result.dateDisplayStyle = value.dateDisplayStyle;result.hasAutoCommission = value.hasAutoCommission;result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;result.hasAutoFmsTracking = value.hasAutoFmsTracking;result.hasNotifications = value.hasNotifications;result.hasRequiredLeadSource = value.hasRequiredLeadSource;result.hasRequiredEmail = value.hasRequiredEmail;result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;result.scheduleInterval = value.scheduleInterval;result.colorsConfig = colorsConfigSerializeWithContext(value.colorsConfig, ctx);
+                                                : taxRateEncodeWithContext(value.defaultTax, ctx);result.defaultTaxLocation = value.defaultTaxLocation;result.defaultAreaCode = value.defaultAreaCode;result.defaultAccountType = value.defaultAccountType;result.lookupFormatting = value.lookupFormatting;result.accountNameFormat = value.accountNameFormat;result.merchantServiceProvider = value.merchantServiceProvider;result.dateDisplayStyle = value.dateDisplayStyle;result.hasAutoCommission = value.hasAutoCommission;result.hasAutoDaylightSavings = value.hasAutoDaylightSavings;result.hasAutoFmsTracking = value.hasAutoFmsTracking;result.hasNotifications = value.hasNotifications;result.hasRequiredLeadSource = value.hasRequiredLeadSource;result.hasRequiredEmail = value.hasRequiredEmail;result.hasSortServiceItemsAlphabetically = value.hasSortServiceItemsAlphabetically;result.hasAttachOrderToAppointmentEmails = value.hasAttachOrderToAppointmentEmails;result.scheduleInterval = value.scheduleInterval;result.colorsConfig = colorsConfigEncodeWithContext(value.colorsConfig, ctx);
 
 
 
@@ -10222,21 +10222,21 @@ colorsConfig: colorsConfigDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function companyDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Company } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function companyDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Company } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = companyDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = companyDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Company.deserialize: root cannot be a forward reference"
+		message: "Company.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -10259,7 +10259,7 @@ colorsConfig: colorsConfigDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -10276,14 +10276,14 @@ colorsConfig: colorsConfigDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function companyDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Company | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function companyDecodeWithContext(value: any, ctx: __mf_DecodeContext): Company | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Company.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Company.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -10892,10 +10892,10 @@ instance.legalName = __raw_legalName;
                                             } else {
                                                 ctx.pushScope("headquarters");
                                                 try {
-                                                    const __result = siteDeserializeWithContext(__raw_headquarters, ctx);
+                                                    const __result = siteDecodeWithContext(__raw_headquarters, ctx);
                                                     ctx.assignOrDefer(instance, "headquarters", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "headquarters" : "headquarters." + __err.field,
@@ -11185,7 +11185,7 @@ instance.legalName = __raw_legalName;
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = phoneNumberDeserialize(item);
+                                                            const __elemResult = phoneNumberDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -13365,10 +13365,10 @@ instance.postalCodeLookup = __raw_postalCodeLookup;
                                             } else {
                                                 ctx.pushScope("defaultTax");
                                                 try {
-                                                    const __result = taxRateDeserializeWithContext(__raw_defaultTax, ctx);
+                                                    const __result = taxRateDecodeWithContext(__raw_defaultTax, ctx);
                                                     ctx.assignOrDefer(instance, "defaultTax", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "defaultTax" : "defaultTax." + __err.field,
@@ -17824,10 +17824,10 @@ instance.dateDisplayStyle = __raw_dateDisplayStyle;
                             }{
                                 const __raw_colorsConfig = obj["colorsConfig"] as ColorsConfig;ctx.pushScope("colorsConfig");
                                             try {
-                                                const __result = colorsConfigDeserializeWithContext(__raw_colorsConfig, ctx);
+                                                const __result = colorsConfigDecodeWithContext(__raw_colorsConfig, ctx);
                                                 ctx.assignOrDefer(instance, "colorsConfig", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "colorsConfig" : "colorsConfig." + __err.field,
@@ -18913,7 +18913,7 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
                 if (!companyHasShape(obj)) {
                     return false;
                 }
-                const result = companyDeserialize(obj);
+                const result = companyDecode(obj);
                 return result.success;
             }
 
@@ -19766,7 +19766,7 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
 
 
             function validate(): Exit.Exit<Company, Array<{ field: string; message: string }>> {
-                return toExit(companyDeserialize(data));
+                return toExit(companyDecode(data));
             }
 
 
@@ -19853,7 +19853,7 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function companyFromFormData(formData: FormData): Exit.Exit<Company, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -19967,15 +19967,15 @@ if (__val.length === 0) { errors.push({ field: "dateDisplayStyle", message: "Com
         }
 
 
-            return toExit(companyDeserialize(obj));
+            return toExit(companyDecode(obj));
         }
 
 export const Company = {
   defaultValue: companyDefaultValue,
-  serialize: companySerialize,
-  serializeWithContext: companySerializeWithContext,
-  deserialize: companyDeserialize,
-  deserializeWithContext: companyDeserializeWithContext,
+  encode: companyEncode,
+  encodeWithContext: companyEncodeWithContext,
+  decode: companyDecode,
+  decodeWithContext: companyDecodeWithContext,
   validateFields: companyValidateFields,
   hasShape: companyHasShape,
   is: companyIs,
@@ -19990,30 +19990,30 @@ export const Company = {
 ## Mapping
 
 original 0..270 -> expanded 0..270
-original 327..375 -> expanded 270..318
-original 416..444 -> expanded 318..346
-original 463..533 -> expanded 346..416
-original 574..596 -> expanded 416..438
-original 637..661 -> expanded 438..462
-original 702..728 -> expanded 462..488
-original 769..822 -> expanded 488..541
-original 863..920 -> expanded 541..598
-original 939..978 -> expanded 598..637
-original 1019..1085 -> expanded 637..703
-original 1126..1163 -> expanded 703..740
-original 1204..1239 -> expanded 740..775
-original 1280..1360 -> expanded 775..855
-original 1401..1791 -> expanded 855..1245
-original 1791..1792 -> expanded 95585..95586
+original 319..367 -> expanded 270..318
+original 408..436 -> expanded 318..346
+original 455..525 -> expanded 346..416
+original 566..588 -> expanded 416..438
+original 629..653 -> expanded 438..462
+original 694..720 -> expanded 462..488
+original 761..814 -> expanded 488..541
+original 855..912 -> expanded 541..598
+original 931..970 -> expanded 598..637
+original 1011..1077 -> expanded 637..703
+original 1118..1155 -> expanded 703..740
+original 1196..1231 -> expanded 740..775
+original 1272..1352 -> expanded 775..855
+original 1393..1783 -> expanded 855..1245
+original 1783..1784 -> expanded 95360..95361
 generated 1245..1999 <- Default
-generated 1999..5427 <- Serialize
-generated 5427..47585 <- Deserialize
-generated 47585..95178 <- Gigaform
-generated 95178..95585 <- __convenience_const
+generated 1999..5383 <- Encode
+generated 5383..47412 <- Decode
+generated 47412..94985 <- Gigaform
+generated 94985..95360 <- __convenience_const
 
 ## Metadata
 
-interface Company: {"body_span":{"end":1792,"start":354},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":328,"start":271}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":371,"start":360},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":417,"start":376}}],"name":"legalName","optional":false,"readonly":false,"span":{"end":440,"start":422},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":464,"start":445}}],"name":"headquarters","optional":false,"readonly":false,"span":{"end":497,"start":469},"ts_type":"string | Site"},{"decorators":[],"name":"phones","optional":false,"readonly":false,"span":{"end":529,"start":502},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":575,"start":534}}],"name":"fax","optional":false,"readonly":false,"span":{"end":592,"start":580},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":638,"start":597}}],"name":"email","optional":false,"readonly":false,"span":{"end":657,"start":643},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":703,"start":662}}],"name":"website","optional":false,"readonly":false,"span":{"end":724,"start":708},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":770,"start":729}}],"name":"taxId","optional":false,"readonly":false,"span":{"end":789,"start":775},"ts_type":"string"},{"decorators":[],"name":"referenceNumber","optional":false,"readonly":false,"span":{"end":818,"start":794},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":864,"start":823}}],"name":"postalCodeLookup","optional":false,"readonly":false,"span":{"end":894,"start":869},"ts_type":"string"},{"decorators":[],"name":"timeZone","optional":false,"readonly":false,"span":{"end":916,"start":899},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":940,"start":921}}],"name":"defaultTax","optional":false,"readonly":false,"span":{"end":974,"start":945},"ts_type":"string | TaxRate"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":1020,"start":979}}],"name":"defaultTaxLocation","optional":false,"readonly":false,"span":{"end":1052,"start":1025},"ts_type":"string"},{"decorators":[],"name":"defaultAreaCode","optional":false,"readonly":false,"span":{"end":1081,"start":1057},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":1127,"start":1086}}],"name":"defaultAccountType","optional":false,"readonly":false,"span":{"end":1159,"start":1132},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":1205,"start":1164}}],"name":"lookupFormatting","optional":false,"readonly":false,"span":{"end":1235,"start":1210},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":1281,"start":1240}}],"name":"accountNameFormat","optional":false,"readonly":false,"span":{"end":1312,"start":1286},"ts_type":"string"},{"decorators":[],"name":"merchantServiceProvider","optional":false,"readonly":false,"span":{"end":1356,"start":1317},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":1402,"start":1361}}],"name":"dateDisplayStyle","optional":false,"readonly":false,"span":{"end":1432,"start":1407},"ts_type":"string"},{"decorators":[],"name":"hasAutoCommission","optional":false,"readonly":false,"span":{"end":1464,"start":1437},"ts_type":"boolean"},{"decorators":[],"name":"hasAutoDaylightSavings","optional":false,"readonly":false,"span":{"end":1501,"start":1469},"ts_type":"boolean"},{"decorators":[],"name":"hasAutoFmsTracking","optional":false,"readonly":false,"span":{"end":1534,"start":1506},"ts_type":"boolean"},{"decorators":[],"name":"hasNotifications","optional":false,"readonly":false,"span":{"end":1565,"start":1539},"ts_type":"boolean"},{"decorators":[],"name":"hasRequiredLeadSource","optional":false,"readonly":false,"span":{"end":1601,"start":1570},"ts_type":"boolean"},{"decorators":[],"name":"hasRequiredEmail","optional":false,"readonly":false,"span":{"end":1632,"start":1606},"ts_type":"boolean"},{"decorators":[],"name":"hasSortServiceItemsAlphabetically","optional":false,"readonly":false,"span":{"end":1680,"start":1637},"ts_type":"boolean"},{"decorators":[],"name":"hasAttachOrderToAppointmentEmails","optional":false,"readonly":false,"span":{"end":1728,"start":1685},"ts_type":"boolean"},{"decorators":[],"name":"scheduleInterval","optional":false,"readonly":false,"span":{"end":1758,"start":1733},"ts_type":"number"},{"decorators":[],"name":"colorsConfig","optional":false,"readonly":false,"span":{"end":1790,"start":1763},"ts_type":"ColorsConfig"}],"heritage":[],"methods":[],"name":"Company","span":{"end":1792,"start":336},"type_params":[]}
+interface Company: {"body_span":{"end":1784,"start":346},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":320,"start":271}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":363,"start":352},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":409,"start":368}}],"name":"legalName","optional":false,"readonly":false,"span":{"end":432,"start":414},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":456,"start":437}}],"name":"headquarters","optional":false,"readonly":false,"span":{"end":489,"start":461},"ts_type":"string | Site"},{"decorators":[],"name":"phones","optional":false,"readonly":false,"span":{"end":521,"start":494},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":567,"start":526}}],"name":"fax","optional":false,"readonly":false,"span":{"end":584,"start":572},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":630,"start":589}}],"name":"email","optional":false,"readonly":false,"span":{"end":649,"start":635},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":695,"start":654}}],"name":"website","optional":false,"readonly":false,"span":{"end":716,"start":700},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":762,"start":721}}],"name":"taxId","optional":false,"readonly":false,"span":{"end":781,"start":767},"ts_type":"string"},{"decorators":[],"name":"referenceNumber","optional":false,"readonly":false,"span":{"end":810,"start":786},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":856,"start":815}}],"name":"postalCodeLookup","optional":false,"readonly":false,"span":{"end":886,"start":861},"ts_type":"string"},{"decorators":[],"name":"timeZone","optional":false,"readonly":false,"span":{"end":908,"start":891},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":932,"start":913}}],"name":"defaultTax","optional":false,"readonly":false,"span":{"end":966,"start":937},"ts_type":"string | TaxRate"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1012,"start":971}}],"name":"defaultTaxLocation","optional":false,"readonly":false,"span":{"end":1044,"start":1017},"ts_type":"string"},{"decorators":[],"name":"defaultAreaCode","optional":false,"readonly":false,"span":{"end":1073,"start":1049},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1119,"start":1078}}],"name":"defaultAccountType","optional":false,"readonly":false,"span":{"end":1151,"start":1124},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1197,"start":1156}}],"name":"lookupFormatting","optional":false,"readonly":false,"span":{"end":1227,"start":1202},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1273,"start":1232}}],"name":"accountNameFormat","optional":false,"readonly":false,"span":{"end":1304,"start":1278},"ts_type":"string"},{"decorators":[],"name":"merchantServiceProvider","optional":false,"readonly":false,"span":{"end":1348,"start":1309},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":1394,"start":1353}}],"name":"dateDisplayStyle","optional":false,"readonly":false,"span":{"end":1424,"start":1399},"ts_type":"string"},{"decorators":[],"name":"hasAutoCommission","optional":false,"readonly":false,"span":{"end":1456,"start":1429},"ts_type":"boolean"},{"decorators":[],"name":"hasAutoDaylightSavings","optional":false,"readonly":false,"span":{"end":1493,"start":1461},"ts_type":"boolean"},{"decorators":[],"name":"hasAutoFmsTracking","optional":false,"readonly":false,"span":{"end":1526,"start":1498},"ts_type":"boolean"},{"decorators":[],"name":"hasNotifications","optional":false,"readonly":false,"span":{"end":1557,"start":1531},"ts_type":"boolean"},{"decorators":[],"name":"hasRequiredLeadSource","optional":false,"readonly":false,"span":{"end":1593,"start":1562},"ts_type":"boolean"},{"decorators":[],"name":"hasRequiredEmail","optional":false,"readonly":false,"span":{"end":1624,"start":1598},"ts_type":"boolean"},{"decorators":[],"name":"hasSortServiceItemsAlphabetically","optional":false,"readonly":false,"span":{"end":1672,"start":1629},"ts_type":"boolean"},{"decorators":[],"name":"hasAttachOrderToAppointmentEmails","optional":false,"readonly":false,"span":{"end":1720,"start":1677},"ts_type":"boolean"},{"decorators":[],"name":"scheduleInterval","optional":false,"readonly":false,"span":{"end":1750,"start":1725},"ts_type":"number"},{"decorators":[],"name":"colorsConfig","optional":false,"readonly":false,"span":{"end":1782,"start":1755},"ts_type":"ColorsConfig"}],"heritage":[],"methods":[],"name":"Company","span":{"end":1784,"start":328},"type_params":[]}
 
 ## Registry reads
 

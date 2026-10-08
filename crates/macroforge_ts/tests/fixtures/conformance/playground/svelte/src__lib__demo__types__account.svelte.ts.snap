@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/account.svelte.ts
-sha256 ea304e02671809ab025056373269a82e47d2e2b98e0c78d0ada48cb67d77a24c
+sha256 77f5a456b18ea486101b42bc6bbde819ee6343d01a3702481cb6707dc937ab05
 
 ## Changed
 
@@ -12,32 +12,32 @@ true
 
 ## Output
 
-import { accountNameDeserializeWithContext } from "./account-name.svelte";
-import { colorsDeserializeWithContext } from "./colors.svelte";
-import { didDeserialize } from "./did.svelte";
-import { emailDeserializeWithContext } from "./email.svelte";
-import { orderedDeserialize } from "./ordered.svelte";
-import { phoneNumberDeserialize } from "./phone-number.svelte";
-import { sectorDeserializeWithContext } from "./sector.svelte";
-import { siteDeserializeWithContext } from "./site.svelte";
-import { taxRateDeserializeWithContext } from "./tax-rate.svelte";
-import { accountNameSerializeWithContext } from "./account-name.svelte";
-import { colorsSerializeWithContext } from "./colors.svelte";
-import { didSerializeWithContext } from "./did.svelte";
-import { emailSerializeWithContext } from "./email.svelte";
-import { orderedSerializeWithContext } from "./ordered.svelte";
-import { phoneNumberSerializeWithContext } from "./phone-number.svelte";
-import { sectorSerializeWithContext } from "./sector.svelte";
-import { siteSerializeWithContext } from "./site.svelte";
-import { taxRateSerializeWithContext } from "./tax-rate.svelte";
+import { accountNameDecodeWithContext } from "./account-name.svelte";
+import { colorsDecodeWithContext } from "./colors.svelte";
+import { didDecode } from "./did.svelte";
+import { emailDecodeWithContext } from "./email.svelte";
+import { orderedDecode } from "./ordered.svelte";
+import { phoneNumberDecode } from "./phone-number.svelte";
+import { sectorDecodeWithContext } from "./sector.svelte";
+import { siteDecodeWithContext } from "./site.svelte";
+import { taxRateDecodeWithContext } from "./tax-rate.svelte";
+import { accountNameEncodeWithContext } from "./account-name.svelte";
+import { colorsEncodeWithContext } from "./colors.svelte";
+import { didEncodeWithContext } from "./did.svelte";
+import { emailEncodeWithContext } from "./email.svelte";
+import { orderedEncodeWithContext } from "./ordered.svelte";
+import { phoneNumberEncodeWithContext } from "./phone-number.svelte";
+import { sectorEncodeWithContext } from "./sector.svelte";
+import { siteEncodeWithContext } from "./site.svelte";
+import { taxRateEncodeWithContext } from "./tax-rate.svelte";
 import { accountNameDefaultValue } from "./account-name.svelte";
 import { colorsDefaultValue } from "./colors.svelte";
 import { emailDefaultValue } from "./email.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -137,16 +137,16 @@ dateAdded: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function accountSerialize(value: Account, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = accountSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function accountEncode(value: Account, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = accountEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function accountSerializeWithContext(value: Account, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -161,9 +161,9 @@ dateAdded: "",
                         __id,
                     };result.id = value.id;result.taxRate = typeof value.taxRate === "string"
                                                 ? value.taxRate
-                                                : taxRateSerializeWithContext(value.taxRate, ctx);result.site = typeof value.site === "string"
+                                                : taxRateEncodeWithContext(value.taxRate, ctx);result.site = typeof value.site === "string"
                                                 ? value.site
-                                                : siteSerializeWithContext(value.site, ctx);if (value.salesRep !== null) {result.salesRep = value.salesRep;
+                                                : siteEncodeWithContext(value.site, ctx);if (value.salesRep !== null) {result.salesRep = value.salesRep;
 
 
 
@@ -172,12 +172,12 @@ dateAdded: "",
                                             } else {
                                                 result.salesRep = null;
                                             }result.orders = value.orders.map(
-                                                            (item) => orderedSerializeWithContext(item, ctx)
+                                                            (item) => orderedEncodeWithContext(item, ctx)
                                                         );result.activity = value.activity.map(
-                                                            (item) => didSerializeWithContext(item, ctx)
-                                                        );result.customFields = value.customFields;result.accountName = accountNameSerializeWithContext(value.accountName, ctx);result.sector = sectorSerializeWithContext(value.sector, ctx);result.memo = value.memo;result.phones = value.phones.map(
-                                                            (item) => phoneNumberSerializeWithContext(item, ctx)
-                                                        );result.email = emailSerializeWithContext(value.email, ctx);result.leadSource = value.leadSource;result.colors = colorsSerializeWithContext(value.colors, ctx);result.needsReview = value.needsReview;result.hasAlert = value.hasAlert;result.accountType = value.accountType;result.subtype = value.subtype;result.isTaxExempt = value.isTaxExempt;result.paymentTerms = value.paymentTerms;result.tags = value.tags;result.dateAdded = value.dateAdded;
+                                                            (item) => didEncodeWithContext(item, ctx)
+                                                        );result.customFields = value.customFields;result.accountName = accountNameEncodeWithContext(value.accountName, ctx);result.sector = sectorEncodeWithContext(value.sector, ctx);result.memo = value.memo;result.phones = value.phones.map(
+                                                            (item) => phoneNumberEncodeWithContext(item, ctx)
+                                                        );result.email = emailEncodeWithContext(value.email, ctx);result.leadSource = value.leadSource;result.colors = colorsEncodeWithContext(value.colors, ctx);result.needsReview = value.needsReview;result.hasAlert = value.hasAlert;result.accountType = value.accountType;result.subtype = value.subtype;result.isTaxExempt = value.isTaxExempt;result.paymentTerms = value.paymentTerms;result.tags = value.tags;result.dateAdded = value.dateAdded;
 
 
 
@@ -276,21 +276,21 @@ dateAdded: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function accountDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = accountDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = accountDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Account.deserialize: root cannot be a forward reference"
+		message: "Account.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -313,7 +313,7 @@ dateAdded: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -330,14 +330,14 @@ dateAdded: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Account | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function accountDecodeWithContext(value: any, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Account.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -668,10 +668,10 @@ dateAdded: "",
                                             } else {
                                                 ctx.pushScope("taxRate");
                                                 try {
-                                                    const __result = taxRateDeserializeWithContext(__raw_taxRate, ctx);
+                                                    const __result = taxRateDecodeWithContext(__raw_taxRate, ctx);
                                                     ctx.assignOrDefer(instance, "taxRate", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "taxRate" : "taxRate." + __err.field,
@@ -952,10 +952,10 @@ dateAdded: "",
                                             } else {
                                                 ctx.pushScope("site");
                                                 try {
-                                                    const __result = siteDeserializeWithContext(__raw_site, ctx);
+                                                    const __result = siteDecodeWithContext(__raw_site, ctx);
                                                     ctx.assignOrDefer(instance, "site", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "site" : "site." + __err.field,
@@ -1530,7 +1530,7 @@ dateAdded: "",
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = orderedDeserialize(item);
+                                                            const __elemResult = orderedDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -1879,7 +1879,7 @@ dateAdded: "",
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = didDeserialize(item);
+                                                            const __elemResult = didDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -2527,10 +2527,10 @@ dateAdded: "",
                             }{
                                 const __raw_accountName = obj["accountName"] as AccountName;ctx.pushScope("accountName");
                                             try {
-                                                const __result = accountNameDeserializeWithContext(__raw_accountName, ctx);
+                                                const __result = accountNameDecodeWithContext(__raw_accountName, ctx);
                                                 ctx.assignOrDefer(instance, "accountName", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "accountName" : "accountName." + __err.field,
@@ -2804,10 +2804,10 @@ dateAdded: "",
                             }{
                                 const __raw_sector = obj["sector"] as Sector;ctx.pushScope("sector");
                                             try {
-                                                const __result = sectorDeserializeWithContext(__raw_sector, ctx);
+                                                const __result = sectorDecodeWithContext(__raw_sector, ctx);
                                                 ctx.assignOrDefer(instance, "sector", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "sector" : "sector." + __err.field,
@@ -3357,7 +3357,7 @@ dateAdded: "",
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = phoneNumberDeserialize(item);
+                                                            const __elemResult = phoneNumberDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -3691,10 +3691,10 @@ dateAdded: "",
                             }{
                                 const __raw_email = obj["email"] as Email;ctx.pushScope("email");
                                             try {
-                                                const __result = emailDeserializeWithContext(__raw_email, ctx);
+                                                const __result = emailDecodeWithContext(__raw_email, ctx);
                                                 ctx.assignOrDefer(instance, "email", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "email" : "email." + __err.field,
@@ -4232,10 +4232,10 @@ instance.leadSource = __raw_leadSource;
                             }{
                                 const __raw_colors = obj["colors"] as Colors;ctx.pushScope("colors");
                                             try {
-                                                const __result = colorsDeserializeWithContext(__raw_colors, ctx);
+                                                const __result = colorsDecodeWithContext(__raw_colors, ctx);
                                                 ctx.assignOrDefer(instance, "colors", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "colors" : "colors." + __err.field,
@@ -7355,7 +7355,7 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account
                 if (!accountHasShape(obj)) {
                     return false;
                 }
-                const result = accountDeserialize(obj);
+                const result = accountDecode(obj);
                 return result.success;
             }
 
@@ -8071,7 +8071,7 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account
 
 
             function validate(): Exit.Exit<Account, Array<{ field: string; message: string }>> {
-                return toExit(accountDeserialize(data));
+                return toExit(accountDecode(data));
             }
 
 
@@ -8144,7 +8144,7 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function accountFromFormData(formData: FormData): Exit.Exit<Account, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -8370,15 +8370,15 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account
             obj.dateAdded = formData.get("dateAdded") ?? "";
 
 
-            return toExit(accountDeserialize(obj));
+            return toExit(accountDecode(obj));
         }
 
 export const Account = {
   defaultValue: accountDefaultValue,
-  serialize: accountSerialize,
-  serializeWithContext: accountSerializeWithContext,
-  deserialize: accountDeserialize,
-  deserializeWithContext: accountDeserializeWithContext,
+  encode: accountEncode,
+  encodeWithContext: accountEncodeWithContext,
+  decode: accountDecode,
+  decodeWithContext: accountDecodeWithContext,
   validateFields: accountValidateFields,
   hasShape: accountHasShape,
   is: accountIs,
@@ -8482,16 +8482,16 @@ dateAdded: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function accountSerialize(value: Account, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = accountSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function accountEncode(value: Account, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = accountEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function accountSerializeWithContext(value: Account, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function accountEncodeWithContext(value: Account, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -8506,9 +8506,9 @@ dateAdded: "",
                         __id,
                     };result.id = value.id;result.taxRate = typeof value.taxRate === "string"
                                                 ? value.taxRate
-                                                : taxRateSerializeWithContext(value.taxRate, ctx);result.site = typeof value.site === "string"
+                                                : taxRateEncodeWithContext(value.taxRate, ctx);result.site = typeof value.site === "string"
                                                 ? value.site
-                                                : siteSerializeWithContext(value.site, ctx);if (value.salesRep !== null) {result.salesRep = value.salesRep;
+                                                : siteEncodeWithContext(value.site, ctx);if (value.salesRep !== null) {result.salesRep = value.salesRep;
 
 
 
@@ -8517,12 +8517,12 @@ dateAdded: "",
                                             } else {
                                                 result.salesRep = null;
                                             }result.orders = value.orders.map(
-                                                            (item) => orderedSerializeWithContext(item, ctx)
+                                                            (item) => orderedEncodeWithContext(item, ctx)
                                                         );result.activity = value.activity.map(
-                                                            (item) => didSerializeWithContext(item, ctx)
-                                                        );result.customFields = value.customFields;result.accountName = accountNameSerializeWithContext(value.accountName, ctx);result.sector = sectorSerializeWithContext(value.sector, ctx);result.memo = value.memo;result.phones = value.phones.map(
-                                                            (item) => phoneNumberSerializeWithContext(item, ctx)
-                                                        );result.email = emailSerializeWithContext(value.email, ctx);result.leadSource = value.leadSource;result.colors = colorsSerializeWithContext(value.colors, ctx);result.needsReview = value.needsReview;result.hasAlert = value.hasAlert;result.accountType = value.accountType;result.subtype = value.subtype;result.isTaxExempt = value.isTaxExempt;result.paymentTerms = value.paymentTerms;result.tags = value.tags;result.dateAdded = value.dateAdded;
+                                                            (item) => didEncodeWithContext(item, ctx)
+                                                        );result.customFields = value.customFields;result.accountName = accountNameEncodeWithContext(value.accountName, ctx);result.sector = sectorEncodeWithContext(value.sector, ctx);result.memo = value.memo;result.phones = value.phones.map(
+                                                            (item) => phoneNumberEncodeWithContext(item, ctx)
+                                                        );result.email = emailEncodeWithContext(value.email, ctx);result.leadSource = value.leadSource;result.colors = colorsEncodeWithContext(value.colors, ctx);result.needsReview = value.needsReview;result.hasAlert = value.hasAlert;result.accountType = value.accountType;result.subtype = value.subtype;result.isTaxExempt = value.isTaxExempt;result.paymentTerms = value.paymentTerms;result.tags = value.tags;result.dateAdded = value.dateAdded;
 
 
 
@@ -8621,21 +8621,21 @@ dateAdded: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function accountDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function accountDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Account } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = accountDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = accountDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Account.deserialize: root cannot be a forward reference"
+		message: "Account.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -8658,7 +8658,7 @@ dateAdded: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -8675,14 +8675,14 @@ dateAdded: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function accountDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Account | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function accountDecodeWithContext(value: any, ctx: __mf_DecodeContext): Account | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Account.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Account.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -9013,10 +9013,10 @@ dateAdded: "",
                                             } else {
                                                 ctx.pushScope("taxRate");
                                                 try {
-                                                    const __result = taxRateDeserializeWithContext(__raw_taxRate, ctx);
+                                                    const __result = taxRateDecodeWithContext(__raw_taxRate, ctx);
                                                     ctx.assignOrDefer(instance, "taxRate", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "taxRate" : "taxRate." + __err.field,
@@ -9297,10 +9297,10 @@ dateAdded: "",
                                             } else {
                                                 ctx.pushScope("site");
                                                 try {
-                                                    const __result = siteDeserializeWithContext(__raw_site, ctx);
+                                                    const __result = siteDecodeWithContext(__raw_site, ctx);
                                                     ctx.assignOrDefer(instance, "site", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "site" : "site." + __err.field,
@@ -9875,7 +9875,7 @@ dateAdded: "",
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = orderedDeserialize(item);
+                                                            const __elemResult = orderedDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -10224,7 +10224,7 @@ dateAdded: "",
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = didDeserialize(item);
+                                                            const __elemResult = didDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -10872,10 +10872,10 @@ dateAdded: "",
                             }{
                                 const __raw_accountName = obj["accountName"] as AccountName;ctx.pushScope("accountName");
                                             try {
-                                                const __result = accountNameDeserializeWithContext(__raw_accountName, ctx);
+                                                const __result = accountNameDecodeWithContext(__raw_accountName, ctx);
                                                 ctx.assignOrDefer(instance, "accountName", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "accountName" : "accountName." + __err.field,
@@ -11149,10 +11149,10 @@ dateAdded: "",
                             }{
                                 const __raw_sector = obj["sector"] as Sector;ctx.pushScope("sector");
                                             try {
-                                                const __result = sectorDeserializeWithContext(__raw_sector, ctx);
+                                                const __result = sectorDecodeWithContext(__raw_sector, ctx);
                                                 ctx.assignOrDefer(instance, "sector", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "sector" : "sector." + __err.field,
@@ -11702,7 +11702,7 @@ dateAdded: "",
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = phoneNumberDeserialize(item);
+                                                            const __elemResult = phoneNumberDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -12036,10 +12036,10 @@ dateAdded: "",
                             }{
                                 const __raw_email = obj["email"] as Email;ctx.pushScope("email");
                                             try {
-                                                const __result = emailDeserializeWithContext(__raw_email, ctx);
+                                                const __result = emailDecodeWithContext(__raw_email, ctx);
                                                 ctx.assignOrDefer(instance, "email", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "email" : "email." + __err.field,
@@ -12577,10 +12577,10 @@ instance.leadSource = __raw_leadSource;
                             }{
                                 const __raw_colors = obj["colors"] as Colors;ctx.pushScope("colors");
                                             try {
-                                                const __result = colorsDeserializeWithContext(__raw_colors, ctx);
+                                                const __result = colorsDecodeWithContext(__raw_colors, ctx);
                                                 ctx.assignOrDefer(instance, "colors", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "colors" : "colors." + __err.field,
@@ -15700,7 +15700,7 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account
                 if (!accountHasShape(obj)) {
                     return false;
                 }
-                const result = accountDeserialize(obj);
+                const result = accountDecode(obj);
                 return result.success;
             }
 
@@ -16416,7 +16416,7 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account
 
 
             function validate(): Exit.Exit<Account, Array<{ field: string; message: string }>> {
-                return toExit(accountDeserialize(data));
+                return toExit(accountDecode(data));
             }
 
 
@@ -16489,7 +16489,7 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function accountFromFormData(formData: FormData): Exit.Exit<Account, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -16715,15 +16715,15 @@ if (__val.length === 0) { errors.push({ field: "paymentTerms", message: "Account
             obj.dateAdded = formData.get("dateAdded") ?? "";
 
 
-            return toExit(accountDeserialize(obj));
+            return toExit(accountDecode(obj));
         }
 
 export const Account = {
   defaultValue: accountDefaultValue,
-  serialize: accountSerialize,
-  serializeWithContext: accountSerializeWithContext,
-  deserialize: accountDeserialize,
-  deserializeWithContext: accountDeserializeWithContext,
+  encode: accountEncode,
+  encodeWithContext: accountEncodeWithContext,
+  decode: accountDecode,
+  decodeWithContext: accountDecodeWithContext,
   validateFields: accountValidateFields,
   hasShape: accountHasShape,
   is: accountIs,
@@ -16738,46 +16738,46 @@ export const Account = {
 ## Mapping
 
 original 0..551 -> expanded 0..551
-original 608..640 -> expanded 551..583
-original 668..689 -> expanded 583..604
-original 789..794 -> expanded 604..609
-original 813..849 -> expanded 609..645
-original 898..903 -> expanded 645..650
-original 922..952 -> expanded 650..680
-original 1041..1086 -> expanded 680..725
-original 1114..1147 -> expanded 725..758
-original 1175..1206 -> expanded 758..789
-original 1266..1314 -> expanded 789..837
-original 1446..1481 -> expanded 837..872
-original 1662..1667 -> expanded 872..877
-original 1697..1722 -> expanded 877..902
-original 1767..1797 -> expanded 902..932
-original 1850..1887 -> expanded 932..969
-original 1935..1958 -> expanded 969..992
-original 2029..2034 -> expanded 992..997
-original 2075..2104 -> expanded 997..1026
-original 2132..2157 -> expanded 1026..1051
-original 2208..2239 -> expanded 1051..1082
-original 2287..2315 -> expanded 1082..1110
-original 2387..2392 -> expanded 1110..1115
-original 2433..2463 -> expanded 1115..1145
-original 2530..2535 -> expanded 1145..1150
-original 2576..2602 -> expanded 1150..1176
-original 2651..2682 -> expanded 1176..1207
-original 2755..2760 -> expanded 1207..1212
-original 2801..2832 -> expanded 1212..1243
-original 2873..2903 -> expanded 1243..1273
-original 2931..2956 -> expanded 1273..1298
-original 2956..2957 -> expanded 85764..85765
+original 600..632 -> expanded 551..583
+original 660..681 -> expanded 583..604
+original 781..786 -> expanded 604..609
+original 805..841 -> expanded 609..645
+original 890..895 -> expanded 645..650
+original 914..944 -> expanded 650..680
+original 1033..1078 -> expanded 680..725
+original 1106..1139 -> expanded 725..758
+original 1167..1198 -> expanded 758..789
+original 1258..1306 -> expanded 789..837
+original 1438..1473 -> expanded 837..872
+original 1654..1659 -> expanded 872..877
+original 1689..1714 -> expanded 877..902
+original 1759..1789 -> expanded 902..932
+original 1842..1879 -> expanded 932..969
+original 1927..1950 -> expanded 969..992
+original 2021..2026 -> expanded 992..997
+original 2067..2096 -> expanded 997..1026
+original 2124..2149 -> expanded 1026..1051
+original 2200..2231 -> expanded 1051..1082
+original 2279..2307 -> expanded 1082..1110
+original 2379..2384 -> expanded 1110..1115
+original 2425..2455 -> expanded 1115..1145
+original 2522..2527 -> expanded 1145..1150
+original 2568..2594 -> expanded 1150..1176
+original 2643..2674 -> expanded 1176..1207
+original 2747..2752 -> expanded 1207..1212
+original 2793..2824 -> expanded 1212..1243
+original 2865..2895 -> expanded 1243..1273
+original 2923..2948 -> expanded 1273..1298
+original 2948..2949 -> expanded 85484..85485
 generated 1298..1788 <- Default
-generated 1788..5204 <- Serialize
-generated 5204..43398 <- Deserialize
-generated 43398..85357 <- Gigaform
-generated 85357..85764 <- __convenience_const
+generated 1788..5145 <- Encode
+generated 5145..43170 <- Decode
+generated 43170..85109 <- Gigaform
+generated 85109..85484 <- __convenience_const
 
 ## Metadata
 
-interface Account: {"body_span":{"end":2957,"start":635},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":609,"start":552}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":669,"start":641}}],"name":"id","optional":false,"readonly":false,"span":{"end":685,"start":674},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":814,"start":795}},{"args_src":"{ label: \"Tax Rate\", allowCustom: false, fetchUrls: [\"/api/tax_rates\"] }","name":"comboboxController","span":{"end":790,"start":690}}],"name":"taxRate","optional":false,"readonly":false,"span":{"end":845,"start":819},"ts_type":"string | TaxRate"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":923,"start":904}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":899,"start":850}}],"name":"site","optional":false,"readonly":false,"span":{"end":948,"start":928},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Sales Rep\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1042,"start":953}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":1082,"start":1047},"ts_type":"Array<Represents> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1115,"start":1087}}],"name":"orders","optional":false,"readonly":false,"span":{"end":1143,"start":1120},"ts_type":"Array<Ordered>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1176,"start":1148}}],"name":"activity","optional":false,"readonly":false,"span":{"end":1202,"start":1181},"ts_type":"Array<Did>"},{"decorators":[{"args_src":"{ legend: \"Custom Fields\" }","name":"arrayFieldsetController","span":{"end":1267,"start":1207}}],"name":"customFields","optional":false,"readonly":false,"span":{"end":1310,"start":1272},"ts_type":"Array<[string, string]>"},{"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":1447,"start":1315}}],"name":"accountName","optional":false,"readonly":false,"span":{"end":1477,"start":1452},"ts_type":"AccountName"},{"decorators":[{"args_src":"\"Residential\"","name":"default","span":{"end":1698,"start":1668}},{"args_src":"{ label: \"Sector\", options: [{ label: \"Residential\", value: \"Residential\" }, { label: \"Commercial\", value: \"Commercial\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":1663,"start":1482}}],"name":"sector","optional":false,"readonly":false,"span":{"end":1718,"start":1703},"ts_type":"Sector"},{"decorators":[{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":1768,"start":1723}}],"name":"memo","optional":false,"readonly":false,"span":{"end":1793,"start":1773},"ts_type":"string | null"},{"decorators":[{"args_src":"{ legend: \"Phones\" }","name":"arrayFieldsetController","span":{"end":1851,"start":1798}}],"name":"phones","optional":false,"readonly":false,"span":{"end":1883,"start":1856},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ label: \"Email\" }","name":"emailFieldController","span":{"end":1936,"start":1888}}],"name":"email","optional":false,"readonly":false,"span":{"end":1954,"start":1941},"ts_type":"Email"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":2076,"start":2035}},{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":2030,"start":1959}}],"name":"leadSource","optional":false,"readonly":false,"span":{"end":2100,"start":2081},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2133,"start":2105}}],"name":"colors","optional":false,"readonly":false,"span":{"end":2153,"start":2138},"ts_type":"Colors"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"toggleController","span":{"end":2209,"start":2158}}],"name":"needsReview","optional":false,"readonly":false,"span":{"end":2235,"start":2214},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Has Alert\" }","name":"toggleController","span":{"end":2288,"start":2240}}],"name":"hasAlert","optional":false,"readonly":false,"span":{"end":2311,"start":2293},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":2434,"start":2393}},{"args_src":"{ label: \"Account Type\", allowCustom: true }","name":"comboboxController","span":{"end":2388,"start":2316}}],"name":"accountType","optional":false,"readonly":false,"span":{"end":2459,"start":2439},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":2577,"start":2536}},{"args_src":"{ label: \"Subtype\", allowCustom: true }","name":"comboboxController","span":{"end":2531,"start":2464}}],"name":"subtype","optional":false,"readonly":false,"span":{"end":2598,"start":2582},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tax Exempt\" }","name":"toggleController","span":{"end":2652,"start":2603}}],"name":"isTaxExempt","optional":false,"readonly":false,"span":{"end":2678,"start":2657},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":2802,"start":2761}},{"args_src":"{ label: \"Payment Terms\", allowCustom: true }","name":"comboboxController","span":{"end":2756,"start":2683}}],"name":"paymentTerms","optional":false,"readonly":false,"span":{"end":2828,"start":2807},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tags\" }","name":"tagsController","span":{"end":2874,"start":2833}}],"name":"tags","optional":false,"readonly":false,"span":{"end":2899,"start":2879},"ts_type":"Array<string>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2932,"start":2904}}],"name":"dateAdded","optional":false,"readonly":false,"span":{"end":2955,"start":2937},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Account","span":{"end":2957,"start":617},"type_params":[]}
+interface Account: {"body_span":{"end":2949,"start":627},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":601,"start":552}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":661,"start":633}}],"name":"id","optional":false,"readonly":false,"span":{"end":677,"start":666},"ts_type":"string"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":806,"start":787}},{"args_src":"{ label: \"Tax Rate\", allowCustom: false, fetchUrls: [\"/api/tax_rates\"] }","name":"comboboxController","span":{"end":782,"start":682}}],"name":"taxRate","optional":false,"readonly":false,"span":{"end":837,"start":811},"ts_type":"string | TaxRate"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":915,"start":896}},{"args_src":"{ label: \"Site\" }","name":"siteFieldsetController","span":{"end":891,"start":842}}],"name":"site","optional":false,"readonly":false,"span":{"end":940,"start":920},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Sales Rep\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1034,"start":945}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":1074,"start":1039},"ts_type":"Array<Represents> | null"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1107,"start":1079}}],"name":"orders","optional":false,"readonly":false,"span":{"end":1135,"start":1112},"ts_type":"Array<Ordered>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1168,"start":1140}}],"name":"activity","optional":false,"readonly":false,"span":{"end":1194,"start":1173},"ts_type":"Array<Did>"},{"decorators":[{"args_src":"{ legend: \"Custom Fields\" }","name":"arrayFieldsetController","span":{"end":1259,"start":1199}}],"name":"customFields","optional":false,"readonly":false,"span":{"end":1302,"start":1264},"ts_type":"Array<[string, string]>"},{"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":1439,"start":1307}}],"name":"accountName","optional":false,"readonly":false,"span":{"end":1469,"start":1444},"ts_type":"AccountName"},{"decorators":[{"args_src":"\"Residential\"","name":"default","span":{"end":1690,"start":1660}},{"args_src":"{ label: \"Sector\", options: [{ label: \"Residential\", value: \"Residential\" }, { label: \"Commercial\", value: \"Commercial\" }], orientation: \"horizontal\" }","name":"radioGroupController","span":{"end":1655,"start":1474}}],"name":"sector","optional":false,"readonly":false,"span":{"end":1710,"start":1695},"ts_type":"Sector"},{"decorators":[{"args_src":"{ label: \"Memo\" }","name":"textAreaController","span":{"end":1760,"start":1715}}],"name":"memo","optional":false,"readonly":false,"span":{"end":1785,"start":1765},"ts_type":"string | null"},{"decorators":[{"args_src":"{ legend: \"Phones\" }","name":"arrayFieldsetController","span":{"end":1843,"start":1790}}],"name":"phones","optional":false,"readonly":false,"span":{"end":1875,"start":1848},"ts_type":"Array<PhoneNumber>"},{"decorators":[{"args_src":"{ label: \"Email\" }","name":"emailFieldController","span":{"end":1928,"start":1880}}],"name":"email","optional":false,"readonly":false,"span":{"end":1946,"start":1933},"ts_type":"Email"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2068,"start":2027}},{"args_src":"{ label: \"Lead Source\", allowCustom: true }","name":"comboboxController","span":{"end":2022,"start":1951}}],"name":"leadSource","optional":false,"readonly":false,"span":{"end":2092,"start":2073},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2125,"start":2097}}],"name":"colors","optional":false,"readonly":false,"span":{"end":2145,"start":2130},"ts_type":"Colors"},{"decorators":[{"args_src":"{ label: \"Needs Review\" }","name":"toggleController","span":{"end":2201,"start":2150}}],"name":"needsReview","optional":false,"readonly":false,"span":{"end":2227,"start":2206},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Has Alert\" }","name":"toggleController","span":{"end":2280,"start":2232}}],"name":"hasAlert","optional":false,"readonly":false,"span":{"end":2303,"start":2285},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2426,"start":2385}},{"args_src":"{ label: \"Account Type\", allowCustom: true }","name":"comboboxController","span":{"end":2380,"start":2308}}],"name":"accountType","optional":false,"readonly":false,"span":{"end":2451,"start":2431},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2569,"start":2528}},{"args_src":"{ label: \"Subtype\", allowCustom: true }","name":"comboboxController","span":{"end":2523,"start":2456}}],"name":"subtype","optional":false,"readonly":false,"span":{"end":2590,"start":2574},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tax Exempt\" }","name":"toggleController","span":{"end":2644,"start":2595}}],"name":"isTaxExempt","optional":false,"readonly":false,"span":{"end":2670,"start":2649},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":2794,"start":2753}},{"args_src":"{ label: \"Payment Terms\", allowCustom: true }","name":"comboboxController","span":{"end":2748,"start":2675}}],"name":"paymentTerms","optional":false,"readonly":false,"span":{"end":2820,"start":2799},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Tags\" }","name":"tagsController","span":{"end":2866,"start":2825}}],"name":"tags","optional":false,"readonly":false,"span":{"end":2891,"start":2871},"ts_type":"Array<string>"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":2924,"start":2896}}],"name":"dateAdded","optional":false,"readonly":false,"span":{"end":2947,"start":2929},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Account","span":{"end":2949,"start":609},"type_params":[]}
 
 ## Registry reads
 

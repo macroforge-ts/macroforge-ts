@@ -6,13 +6,13 @@ import type { Metadata } from './metadata.svelte';
 import type { Settings } from './settings.svelte';
 import type { UserRole } from './user-role.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface User {
     id: string;
     email: Option.Option<string>;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     firstName: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     lastName: string;
     password: Option.Option<string>;
     metadata: Option.Option<Metadata>;

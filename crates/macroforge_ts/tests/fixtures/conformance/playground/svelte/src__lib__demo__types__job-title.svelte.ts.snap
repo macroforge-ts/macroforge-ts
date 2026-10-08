@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/job-title.svelte.ts
-sha256 409f43b1b90e080002d6c82787cdd438014edd2436d32bd657f63d076769f6a1
+sha256 48de83fd3d55d25710e7279f70b858dd166ec19ead52f8938dad752d3e477eee
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -34,20 +34,20 @@ export function jobTitleDefaultValue(): JobTitle {
                             return "Technician";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function jobTitleSerialize(value: JobTitle, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = jobTitleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function jobTitleEncode(value: JobTitle, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = jobTitleEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function jobTitleSerializeWithContext(value: JobTitle, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function jobTitleEncodeWithContext(value: JobTitle, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -114,8 +114,8 @@ export function jobTitleDefaultValue(): JobTitle {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function jobTitleDeserialize(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function jobTitleDecode(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Technician':
                     case 'SalesRepresentative':
@@ -129,8 +129,8 @@ export function jobTitleDefaultValue(): JobTitle {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function jobTitleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): JobTitle | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function jobTitleDecodeWithContext(value: any, ctx: __mf_DecodeContext): JobTitle | __mf_PendingRef {
                 switch (value) {
                     case 'Technician':
                     case 'SalesRepresentative':
@@ -140,7 +140,7 @@ export function jobTitleDefaultValue(): JobTitle {
 
                         return value as JobTitle;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for JobTitle: expected one of " + ['Technician', 'SalesRepresentative', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -328,7 +328,7 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Job
 
 
             function validate(): Exit.Exit<JobTitle, Array<{ field: string; message: string }>> {
-                return toExit(jobTitleDeserialize(data));
+                return toExit(jobTitleDecode(data));
             }
 
 
@@ -389,15 +389,15 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Job
                 }
 
 
-            return toExit(jobTitleDeserialize(obj));
+            return toExit(jobTitleDecode(obj));
         }
 
 export const JobTitle = {
   defaultValue: jobTitleDefaultValue,
-  serialize: jobTitleSerialize,
-  serializeWithContext: jobTitleSerializeWithContext,
-  deserialize: jobTitleDeserialize,
-  deserializeWithContext: jobTitleDeserializeWithContext,
+  encode: jobTitleEncode,
+  encodeWithContext: jobTitleEncodeWithContext,
+  decode: jobTitleDecode,
+  decodeWithContext: jobTitleDecodeWithContext,
   hasShape: jobTitleHasShape,
   is: jobTitleIs,
   createForm: jobTitleCreateForm,
@@ -419,20 +419,20 @@ export function jobTitleDefaultValue(): JobTitle {
                             return "Technician";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function jobTitleSerialize(value: JobTitle, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = jobTitleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function jobTitleEncode(value: JobTitle, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = jobTitleEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function jobTitleSerializeWithContext(value: JobTitle, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function jobTitleEncodeWithContext(value: JobTitle, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -499,8 +499,8 @@ export function jobTitleDefaultValue(): JobTitle {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function jobTitleDeserialize(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function jobTitleDecode(input: unknown): { success: true; value: JobTitle } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Technician':
                     case 'SalesRepresentative':
@@ -514,8 +514,8 @@ export function jobTitleDefaultValue(): JobTitle {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function jobTitleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): JobTitle | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function jobTitleDecodeWithContext(value: any, ctx: __mf_DecodeContext): JobTitle | __mf_PendingRef {
                 switch (value) {
                     case 'Technician':
                     case 'SalesRepresentative':
@@ -525,7 +525,7 @@ export function jobTitleDefaultValue(): JobTitle {
 
                         return value as JobTitle;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for JobTitle: expected one of " + ['Technician', 'SalesRepresentative', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -713,7 +713,7 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Job
 
 
             function validate(): Exit.Exit<JobTitle, Array<{ field: string; message: string }>> {
-                return toExit(jobTitleDeserialize(data));
+                return toExit(jobTitleDecode(data));
             }
 
 
@@ -774,15 +774,15 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Job
                 }
 
 
-            return toExit(jobTitleDeserialize(obj));
+            return toExit(jobTitleDecode(obj));
         }
 
 export const JobTitle = {
   defaultValue: jobTitleDefaultValue,
-  serialize: jobTitleSerialize,
-  serializeWithContext: jobTitleSerializeWithContext,
-  deserialize: jobTitleDeserialize,
-  deserializeWithContext: jobTitleDeserializeWithContext,
+  encode: jobTitleEncode,
+  encodeWithContext: jobTitleEncodeWithContext,
+  decode: jobTitleDecode,
+  decodeWithContext: jobTitleDecodeWithContext,
   hasShape: jobTitleHasShape,
   is: jobTitleIs,
   createForm: jobTitleCreateForm,
@@ -796,17 +796,17 @@ export const JobTitle = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..255 -> expanded 58..198
-original 255..256 -> expanded 12856..12857
+original 107..247 -> expanded 58..198
+original 247..248 -> expanded 12746..12747
 generated 198..325 <- Default
-generated 325..2271 <- Serialize
-generated 2271..4754 <- Deserialize
-generated 4754..12480 <- Gigaform
-generated 12480..12856 <- __convenience_const
+generated 325..2233 <- Encode
+generated 2233..4686 <- Decode
+generated 4686..12402 <- Gigaform
+generated 12402..12746 <- __convenience_const
 
 ## Metadata
 
-type JobTitle: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":161,"start":146}}],"kind":{"Literal":"'Technician'"}},{"decorators":[],"kind":{"Literal":"'SalesRepresentative'"}},{"decorators":[],"kind":{"Literal":"'HumanResources'"}},{"decorators":[],"kind":{"Literal":"'InformationTechnology'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"JobTitle","span":{"end":256,"start":124},"type_params":[]}
+type JobTitle: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":153,"start":138}}],"kind":{"Literal":"'Technician'"}},{"decorators":[],"kind":{"Literal":"'SalesRepresentative'"}},{"decorators":[],"kind":{"Literal":"'HumanResources'"}},{"decorators":[],"kind":{"Literal":"'InformationTechnology'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"JobTitle","span":{"end":248,"start":116},"type_params":[]}
 
 ## Registry reads
 

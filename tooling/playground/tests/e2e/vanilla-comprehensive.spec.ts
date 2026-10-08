@@ -105,28 +105,28 @@ test.describe('Proc-macro derives (class)', () => {
         expect(typeof e2e.procDerives.hashCode).toBe('number');
     });
 
-    test('Serialize produces JSON with all fields', async ({ page }) => {
+    test('Encode produces JSON with all fields', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
-        const serialized = probed(e2e.procDerives.serialize, 'procDerives.serialize');
-        expect(JSON.parse(serialized)).toMatchObject({
+        const encoded = probed(e2e.procDerives.encode, 'procDerives.encode');
+        expect(JSON.parse(encoded)).toMatchObject({
             id: 42,
             name: 'Test User',
             email: 'test@example.com'
         });
     });
 
-    test('Deserialize succeeds with valid data', async ({ page }) => {
+    test('Decode succeeds with valid data', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
-        const result = probed(e2e.procDerives.deserializeSuccess, 'procDerives.deserializeSuccess');
+        const result = probed(e2e.procDerives.decodeSuccess, 'procDerives.decodeSuccess');
         if (!result.success) {
-            throw new Error(`deserialize failed: ${JSON.stringify(result.errors)}`);
+            throw new Error(`decode failed: ${JSON.stringify(result.errors)}`);
         }
         expect(result.value.name).toBe('OK');
     });
 
-    test('Deserialize fails with null input', async ({ page }) => {
+    test('Decode fails with null input', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
-        const result = probed(e2e.procDerives.deserializeBad, 'procDerives.deserializeBad');
+        const result = probed(e2e.procDerives.decodeBad, 'procDerives.decodeBad');
         expect(result.success).toBe(false);
     });
 });
@@ -244,16 +244,16 @@ test.describe('Enum derives', () => {
         expect(typeof statusHash).toBe('number');
     });
 
-    test('Status enum Serialize', async ({ page }) => {
+    test('Status enum Encode', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
-        const statusSerialize = probed(e2e.enums.statusSerialize, 'enums.statusSerialize');
-        expect(JSON.parse(statusSerialize)).toBe('inactive');
+        const statusEncode = probed(e2e.enums.statusEncode, 'enums.statusEncode');
+        expect(JSON.parse(statusEncode)).toBe('inactive');
     });
 
-    test('Status enum Deserialize', async ({ page }) => {
+    test('Status enum Decode', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
-        const statusDeserialize = probed(e2e.enums.statusDeserialize, 'enums.statusDeserialize');
-        expect(statusDeserialize).toBe('pending');
+        const statusDecode = probed(e2e.enums.statusDecode, 'enums.statusDecode');
+        expect(statusDecode).toBe('pending');
     });
 
     test('Priority enum Debug toString', async ({ page }) => {
@@ -310,22 +310,22 @@ test.describe('Type alias derives', () => {
         expect(typeof pointHash).toBe('number');
     });
 
-    test('Point Serialize', async ({ page }) => {
+    test('Point Encode', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
-        const pointSerialize = probed(e2e.typeAliases.pointSerialize, 'typeAliases.pointSerialize');
-        expect(JSON.parse(pointSerialize)).toMatchObject({ x: 10, y: 20 });
+        const pointEncode = probed(e2e.typeAliases.pointEncode, 'typeAliases.pointEncode');
+        expect(JSON.parse(pointEncode)).toMatchObject({ x: 10, y: 20 });
     });
 
-    test('Point Deserialize round-trips', async ({ page }) => {
+    test('Point Decode round-trips', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
-        const pointDeserialize = probed(
-            e2e.typeAliases.pointDeserialize,
-            'typeAliases.pointDeserialize'
+        const pointDecode = probed(
+            e2e.typeAliases.pointDecode,
+            'typeAliases.pointDecode'
         );
-        if (!pointDeserialize.success) {
-            throw new Error(`deserialize failed: ${JSON.stringify(pointDeserialize.errors)}`);
+        if (!pointDecode.success) {
+            throw new Error(`decode failed: ${JSON.stringify(pointDecode.errors)}`);
         }
-        expect(pointDeserialize.value).toEqual({ x: 5, y: 10 });
+        expect(pointDecode.value).toEqual({ x: 5, y: 10 });
     });
 
     test('UserProfile Debug toString', async ({ page }) => {
@@ -388,16 +388,16 @@ test.describe('Inspect macro (FormModel)', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────
-//  7. Nested Deserialize (interfaces with arrays)
+//  7. Nested Decode (interfaces with arrays)
 // ─────────────────────────────────────────────────────────────────
 
-test.describe('Nested Deserialize', () => {
+test.describe('Nested Decode', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
         await page.waitForSelector('#app');
     });
 
-    test('normal nested deserialization succeeds', async ({ page }) => {
+    test('normal nested decoding succeeds', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
         expect(e2e.nestedDeser.normal.success).toBe(true);
     });
@@ -414,11 +414,11 @@ test.describe('Nested Deserialize', () => {
         expect(e2e.nestedDeser.nullElement).toBeDefined();
     });
 
-    test('recursive deserialization with Date fields', async ({ page }) => {
+    test('recursive decoding with Date fields', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
         const result = e2e.nestedDeser.recursiveActual;
         if (!result.success) {
-            throw new Error(`deserialize failed: ${JSON.stringify(result.errors)}`);
+            throw new Error(`decode failed: ${JSON.stringify(result.errors)}`);
         }
         expect(result.itemCount).toBe(2);
         expect(result.firstIsDate).toBe(true);
@@ -500,7 +500,7 @@ test.describe('Complex declarative macros', () => {
 
     test('type-position $PartialShallow erases at runtime', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
-        // Runtime value still a plain object — the type-level transform
+        // Runtime value still a plain object: the type-level transform
         // has no runtime trace.
         expect(e2e.declarativeComplex.samplePatch).toEqual({ city: 'Berlin' });
     });
@@ -553,7 +553,7 @@ test.describe('Attribute & call macros', () => {
     test('$stringify quotes an identifier literally', async ({ page }) => {
         const e2e = await readVanillaSlice(page, 'e2e');
         // `$stringify(myVariable)` → `"myVariable"`, even though myVariable
-        // is not defined at the call site — the macro operates on source text.
+        // is not defined at the call site: the macro operates on source text.
         expect(e2e.attrMacros.stringifiedIdent).toBe('myVariable');
     });
 

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/phone-number.svelte.ts
-sha256 f2347097152c32ceab7681ea6deec005d4328820d9e3661d08f56ec81adb0472
+sha256 e31a91b024f2186cfee303e1cf9ab4722a126be71b4ea338d282ad8c45d7f4f0
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -49,16 +49,16 @@ canCall: false,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function phoneNumberSerialize(value: PhoneNumber, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = phoneNumberSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function phoneNumberEncode(value: PhoneNumber, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = phoneNumberEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function phoneNumberSerializeWithContext(value: PhoneNumber, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function phoneNumberEncodeWithContext(value: PhoneNumber, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -170,21 +170,21 @@ canCall: false,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function phoneNumberDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = phoneNumberDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = phoneNumberDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "PhoneNumber.deserialize: root cannot be a forward reference"
+		message: "PhoneNumber.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -207,7 +207,7 @@ canCall: false,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -224,14 +224,14 @@ canCall: false,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function phoneNumberDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PhoneNumber | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function phoneNumberDecodeWithContext(value: any, ctx: __mf_DecodeContext): PhoneNumber | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "PhoneNumber.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "PhoneNumber.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2238,7 +2238,7 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
                 if (!phoneNumberHasShape(obj)) {
                     return false;
                 }
-                const result = phoneNumberDeserialize(obj);
+                const result = phoneNumberDecode(obj);
                 return result.success;
             }
 
@@ -2430,7 +2430,7 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
 
 
             function validate(): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>> {
-                return toExit(phoneNumberDeserialize(data));
+                return toExit(phoneNumberDecode(data));
             }
 
 
@@ -2469,7 +2469,7 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function phoneNumberFromFormData(formData: FormData): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2490,15 +2490,15 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
                 }
 
 
-            return toExit(phoneNumberDeserialize(obj));
+            return toExit(phoneNumberDecode(obj));
         }
 
 export const PhoneNumber = {
   defaultValue: phoneNumberDefaultValue,
-  serialize: phoneNumberSerialize,
-  serializeWithContext: phoneNumberSerializeWithContext,
-  deserialize: phoneNumberDeserialize,
-  deserializeWithContext: phoneNumberDeserializeWithContext,
+  encode: phoneNumberEncode,
+  encodeWithContext: phoneNumberEncodeWithContext,
+  decode: phoneNumberDecode,
+  decodeWithContext: phoneNumberDecodeWithContext,
   validateFields: phoneNumberValidateFields,
   hasShape: phoneNumberHasShape,
   is: phoneNumberIs,
@@ -2536,16 +2536,16 @@ canCall: false,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function phoneNumberSerialize(value: PhoneNumber, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = phoneNumberSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function phoneNumberEncode(value: PhoneNumber, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = phoneNumberEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function phoneNumberSerializeWithContext(value: PhoneNumber, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function phoneNumberEncodeWithContext(value: PhoneNumber, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2657,21 +2657,21 @@ canCall: false,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function phoneNumberDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function phoneNumberDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PhoneNumber } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = phoneNumberDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = phoneNumberDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "PhoneNumber.deserialize: root cannot be a forward reference"
+		message: "PhoneNumber.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2694,7 +2694,7 @@ canCall: false,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2711,14 +2711,14 @@ canCall: false,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function phoneNumberDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PhoneNumber | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function phoneNumberDecodeWithContext(value: any, ctx: __mf_DecodeContext): PhoneNumber | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "PhoneNumber.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "PhoneNumber.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -4725,7 +4725,7 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
                 if (!phoneNumberHasShape(obj)) {
                     return false;
                 }
-                const result = phoneNumberDeserialize(obj);
+                const result = phoneNumberDecode(obj);
                 return result.success;
             }
 
@@ -4917,7 +4917,7 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
 
 
             function validate(): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>> {
-                return toExit(phoneNumberDeserialize(data));
+                return toExit(phoneNumberDecode(data));
             }
 
 
@@ -4956,7 +4956,7 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function phoneNumberFromFormData(formData: FormData): Exit.Exit<PhoneNumber, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4977,15 +4977,15 @@ if (__val.length === 0) { errors.push({ field: "number", message: "PhoneNumber.n
                 }
 
 
-            return toExit(phoneNumberDeserialize(obj));
+            return toExit(phoneNumberDecode(obj));
         }
 
 export const PhoneNumber = {
   defaultValue: phoneNumberDefaultValue,
-  serialize: phoneNumberSerialize,
-  serializeWithContext: phoneNumberSerializeWithContext,
-  deserialize: phoneNumberDeserialize,
-  deserializeWithContext: phoneNumberDeserializeWithContext,
+  encode: phoneNumberEncode,
+  encodeWithContext: phoneNumberEncodeWithContext,
+  decode: phoneNumberDecode,
+  decodeWithContext: phoneNumberDecodeWithContext,
   validateFields: phoneNumberValidateFields,
   hasShape: phoneNumberHasShape,
   is: phoneNumberIs,
@@ -5000,24 +5000,24 @@ export const PhoneNumber = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..151 -> expanded 58..94
-original 194..218 -> expanded 94..118
-original 288..293 -> expanded 118..123
-original 334..362 -> expanded 123..151
-original 405..410 -> expanded 151..156
-original 451..476 -> expanded 156..181
-original 523..550 -> expanded 181..208
-original 597..621 -> expanded 208..232
-original 621..622 -> expanded 21463..21464
+original 107..143 -> expanded 58..94
+original 186..210 -> expanded 94..118
+original 280..285 -> expanded 118..123
+original 326..354 -> expanded 123..151
+original 397..402 -> expanded 151..156
+original 443..468 -> expanded 156..181
+original 515..542 -> expanded 181..208
+original 589..613 -> expanded 208..232
+original 613..614 -> expanded 21285..21286
 generated 232..420 <- Default
-generated 420..2088 <- Serialize
-generated 2088..11801 <- Deserialize
-generated 11801..21012 <- Gigaform
-generated 21012..21463 <- __convenience_const
+generated 420..2056 <- Encode
+generated 2056..11675 <- Decode
+generated 11675..20866 <- Gigaform
+generated 20866..21285 <- __convenience_const
 
 ## Metadata
 
-interface PhoneNumber: {"body_span":{"end":622,"start":146},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Main\" }","name":"switchController","span":{"end":195,"start":152}}],"name":"main","optional":false,"readonly":false,"span":{"end":214,"start":200},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":335,"start":294}},{"args_src":"{ label: \"Phone Type\", allowCustom: true }","name":"comboboxController","span":{"end":289,"start":219}}],"name":"phoneType","optional":false,"readonly":false,"span":{"end":358,"start":340},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":452,"start":411}},{"args_src":"{ label: \"Number\" }","name":"textController","span":{"end":406,"start":363}}],"name":"number","optional":false,"readonly":false,"span":{"end":472,"start":457},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Can Text\" }","name":"switchController","span":{"end":524,"start":477}}],"name":"canText","optional":false,"readonly":false,"span":{"end":546,"start":529},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Can Call\" }","name":"switchController","span":{"end":598,"start":551}}],"name":"canCall","optional":false,"readonly":false,"span":{"end":620,"start":603},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"PhoneNumber","span":{"end":622,"start":124},"type_params":[]}
+interface PhoneNumber: {"body_span":{"end":614,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ label: \"Main\" }","name":"switchController","span":{"end":187,"start":144}}],"name":"main","optional":false,"readonly":false,"span":{"end":206,"start":192},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":327,"start":286}},{"args_src":"{ label: \"Phone Type\", allowCustom: true }","name":"comboboxController","span":{"end":281,"start":211}}],"name":"phoneType","optional":false,"readonly":false,"span":{"end":350,"start":332},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":444,"start":403}},{"args_src":"{ label: \"Number\" }","name":"textController","span":{"end":398,"start":355}}],"name":"number","optional":false,"readonly":false,"span":{"end":464,"start":449},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Can Text\" }","name":"switchController","span":{"end":516,"start":469}}],"name":"canText","optional":false,"readonly":false,"span":{"end":538,"start":521},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Can Call\" }","name":"switchController","span":{"end":590,"start":543}}],"name":"canCall","optional":false,"readonly":false,"span":{"end":612,"start":595},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"PhoneNumber","span":{"end":614,"start":116},"type_params":[]}
 
 ## Registry reads
 

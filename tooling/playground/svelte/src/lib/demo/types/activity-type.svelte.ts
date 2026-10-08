@@ -7,7 +7,7 @@ import type { Paid } from './paid.svelte';
 import type { Sent } from './sent.svelte';
 import type { Viewed } from './viewed.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type ActivityType =
     | /** @default */ Created
     | Edited

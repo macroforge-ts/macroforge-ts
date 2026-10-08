@@ -49,26 +49,26 @@ test.describe('Svelte Playground Macro Tests', () => {
         await expect(debugResult).not.toContainText('apiKey'); // skipped field
     });
 
-    test('Serialize macro generates toJSON() in Svelte', async ({ page }) => {
+    test('Encode macro generates toJSON() in Svelte', async ({ page }) => {
         await page.click('[data-testid="test-all-macros"]');
         await page.waitForSelector('[data-tests-complete="true"]');
 
-        const serializeResult = page.locator('[data-testid="result-serialize"]');
-        await expect(serializeResult).toContainText('Serialize (toJSON)');
-        await expect(serializeResult).toContainText('"id"');
-        await expect(serializeResult).toContainText('"title"');
+        const encodeResult = page.locator('[data-testid="result-encode"]');
+        await expect(encodeResult).toContainText('Encode (toJSON)');
+        await expect(encodeResult).toContainText('"id"');
+        await expect(encodeResult).toContainText('"title"');
     });
 
-    test('Deserialize macro result is displayed in Svelte', async ({ page }) => {
+    test('Decode macro result is displayed in Svelte', async ({ page }) => {
         await page.click('[data-testid="test-all-macros"]');
         await page.waitForSelector('[data-tests-complete="true"]');
 
-        const deserializeResult = page.locator(
-            '[data-testid="result-deserialize"]'
+        const decodeResult = page.locator(
+            '[data-testid="result-decode"]'
         );
-        const content = await deserializeResult.textContent();
+        const content = await decodeResult.textContent();
         expect(
-            content?.includes('Deserialized') || content?.includes('Not available')
+            content?.includes('Decoded') || content?.includes('Not available')
         ).toBe(true);
     });
 
@@ -82,8 +82,8 @@ test.describe('Svelte Playground Macro Tests', () => {
             '[data-testid="result-clone"]',
             '[data-testid="result-equals"]',
             '[data-testid="result-hashcode"]',
-            '[data-testid="result-serialize"]',
-            '[data-testid="result-deserialize"]'
+            '[data-testid="result-encode"]',
+            '[data-testid="result-decode"]'
         ];
 
         for (const selector of resultSelectors) {

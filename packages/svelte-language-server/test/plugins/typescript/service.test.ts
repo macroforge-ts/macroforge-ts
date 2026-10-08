@@ -895,11 +895,11 @@ describe('service', () => {
                 })
             );
 
-            // Create a file with @derive macro that generates serialize/deserialize
+            // Create a file with @derive macro that generates encode/decode
             const sourceFile = path.join(dirPath, 'user.svelte.ts');
             virtualSystem.writeFile(
                 sourceFile,
-                `/** @derive(Serialize, Deserialize) */
+                `/** @derive(Encode, Decode) */
 export interface User {
   name: string;
   age: number;
@@ -910,11 +910,11 @@ export interface User {
             const importingFile = path.join(dirPath, 'consumer.svelte.ts');
             virtualSystem.writeFile(
                 importingFile,
-                `import { userSerialize, userDeserialize, type User } from "./user.svelte";
+                `import { userEncode, userDecode, type User } from "./user.svelte";
 
 const user: User = { name: "test", age: 30 };
-const serialized = userSerialize(user);
-const deserialized = userDeserialize(serialized);`
+const encoded = userEncode(user);
+const decoded = userDecode(encoded);`
             );
 
             const ls = await getService(importingFile, rootUris, lsDocumentContext);
@@ -953,7 +953,7 @@ const deserialized = userDeserialize(serialized);`
             const dataPathFile = path.join(dirPath, 'data-path.svelte.ts');
             virtualSystem.writeFile(
                 dataPathFile,
-                `/** @derive(Serialize, Deserialize) */
+                `/** @derive(Encode, Decode) */
 export interface DataPath {
   path: string;
   segments: string[];
@@ -964,11 +964,11 @@ export interface DataPath {
             const consumerFile = path.join(dirPath, 'consumer.svelte.ts');
             virtualSystem.writeFile(
                 consumerFile,
-                `import { dataPathSerialize, dataPathDeserialize } from "./data-path.svelte";
+                `import { dataPathEncode, dataPathDecode } from "./data-path.svelte";
 
 export function processPath(path: string) {
   const data = { path, segments: path.split("/") };
-  return dataPathSerialize(data);
+  return dataPathEncode(data);
 }`
             );
 

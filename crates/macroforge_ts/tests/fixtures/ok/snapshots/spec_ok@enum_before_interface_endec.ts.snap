@@ -1,0 +1,2437 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+assertion_line: 347
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_before_interface_endec.ts
+---
+## Input
+
+/** @derive(Encode, Decode) */
+export enum Stage {
+    Draft = 0,
+    Active = 1,
+    'Needs Review' = 2
+}
+
+/** @derive(Encode, Decode) */
+export interface Job {
+    stage: Stage;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+
+export enum Stage {
+    Draft = 0,
+    Active = 1,
+    'Needs Review' = 2
+}
+
+/** Encodes this enum value to a JSON string.  */
+                export function stageEncode(value: Stage): string {
+                    return JSON.stringify(value);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): string | number;
+                export function stageEncodeWithContext(value: Stage): string | number {
+                    return value;
+                }
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function stageDecode(input: unknown): Stage {
+            return stageDecodeWithContext(input);
+        }
+
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function stageDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Stage;
+        export function stageDecodeWithContext(data: unknown): Stage {
+            if (Stage["Draft"] === data) {
+                    return Stage["Draft"];
+                }
+            if (Stage["Active"] === data) {
+                    return Stage["Active"];
+                }
+            if (Stage["Needs Review"] === data) {
+                    return Stage["Needs Review"];
+                }
+
+
+
+
+            throw new Error("Invalid Stage value: " + JSON.stringify(data));
+        }
+
+        export function stageIs(value: unknown): value is Stage {
+            if (Stage["Draft"] === value) {
+                    return true;
+                }
+            if (Stage["Active"] === value) {
+                    return true;
+                }
+            if (Stage["Needs Review"] === value) {
+                    return true;
+                }
+
+
+
+
+            return false;
+        }
+
+export namespace Stage {
+  export const encode = stageEncode;
+  export const encodeWithContext = stageEncodeWithContext;
+  export const decode = stageDecode;
+  export const decodeWithContext = stageDecodeWithContext;
+  export const is = stageIs;
+}
+
+
+export interface Job {
+    stage: Stage;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function jobEncode(value: Job, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = jobEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Job",
+                        __id,
+                    };result.stage = stageEncodeWithContext(value.stage, ctx);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Job } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = jobDecodeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Job.decode: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DecodeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function jobDecodeWithContext(value: any, ctx: __mf_DecodeContext): Job | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DecodeError([{ field: "_root", message: "Job.decodeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("stage" in obj)) {
+                            errors.push({ field: "stage", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_stage = obj["stage"] as Stage;ctx.pushScope("stage");
+                                            try {
+                                                const __result = stageDecodeWithContext(__raw_stage, ctx);
+                                                ctx.assignOrDefer(instance, "stage", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DecodeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "stage" : "stage." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Job;
+            }
+
+            export function jobValidateField<K extends keyof Job>(
+                _field: K,
+                _value: Job[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function jobValidateFields(
+                _partial: Partial<Job>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function jobHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "stage" in o;
+            }
+
+            export function jobIs(obj: unknown): obj is Job {
+                if (!jobHasShape(obj)) {
+                    return false;
+                }
+                const result = jobDecode(obj);
+                return result.success;
+            }
+
+export const Job = {
+  encode: jobEncode,
+  encodeWithContext: jobEncodeWithContext,
+  decode: jobDecode,
+  decodeWithContext: jobDecodeWithContext,
+  validateFields: jobValidateFields,
+  hasShape: jobHasShape,
+  is: jobIs
+} as const;
+
+## DTS
+
+export enum Stage {
+    Draft = 0,
+    Active = 1,
+    'Needs Review' = 2
+}
+
+/** Encodes this enum value to a JSON string.  */
+                export function stageEncode(value: Stage): string {
+                    return JSON.stringify(value);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): string | number;
+                export function stageEncodeWithContext(value: Stage): string | number {
+                    return value;
+                }
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function stageDecode(input: unknown): Stage {
+            return stageDecodeWithContext(input);
+        }
+
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function stageDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Stage;
+        export function stageDecodeWithContext(data: unknown): Stage {
+            if (Stage["Draft"] === data) {
+                    return Stage["Draft"];
+                }
+            if (Stage["Active"] === data) {
+                    return Stage["Active"];
+                }
+            if (Stage["Needs Review"] === data) {
+                    return Stage["Needs Review"];
+                }
+
+
+
+
+            throw new Error("Invalid Stage value: " + JSON.stringify(data));
+        }
+
+        export function stageIs(value: unknown): value is Stage {
+            if (Stage["Draft"] === value) {
+                    return true;
+                }
+            if (Stage["Active"] === value) {
+                    return true;
+                }
+            if (Stage["Needs Review"] === value) {
+                    return true;
+                }
+
+
+
+
+            return false;
+        }
+
+export namespace Stage {
+  export const encode = stageEncode;
+  export const encodeWithContext = stageEncodeWithContext;
+  export const decode = stageDecode;
+  export const decodeWithContext = stageDecodeWithContext;
+  export const is = stageIs;
+}
+
+
+export interface Job {
+    stage: Stage;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function jobEncode(value: Job, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = jobEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function jobEncodeWithContext(value: Job, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Job",
+                        __id,
+                    };result.stage = stageEncodeWithContext(value.stage, ctx);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function jobDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Job } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = jobDecodeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Job.decode: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DecodeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function jobDecodeWithContext(value: any, ctx: __mf_DecodeContext): Job | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DecodeError([{ field: "_root", message: "Job.decodeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("stage" in obj)) {
+                            errors.push({ field: "stage", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_stage = obj["stage"] as Stage;ctx.pushScope("stage");
+                                            try {
+                                                const __result = stageDecodeWithContext(__raw_stage, ctx);
+                                                ctx.assignOrDefer(instance, "stage", __result);
+                                            } catch (__e) {
+                                                if (__e instanceof __mf_DecodeError) {
+                                                    for (const __err of __e.errors) {
+                                                        errors.push({
+                                                            field: __err.field === "_root" ? "stage" : "stage." + __err.field,
+                                                            message: __err.message
+                                                        });
+                                                    }
+                                                } else {
+                                                    throw __e;
+                                                }
+                                            } finally {
+                                                ctx.popScope();
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as Job;
+            }
+
+            export function jobValidateField<K extends keyof Job>(
+                _field: K,
+                _value: Job[K]
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function jobValidateFields(
+                _partial: Partial<Job>
+            ): Array<{ field: string; message: string }> {return [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function jobHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "stage" in o;
+            }
+
+            export function jobIs(obj: unknown): obj is Job {
+                if (!jobHasShape(obj)) {
+                    return false;
+                }
+                const result = jobDecode(obj);
+                return result.success;
+            }
+
+export const Job = {
+  encode: jobEncode,
+  encodeWithContext: jobEncodeWithContext,
+  decode: jobDecode,
+  decodeWithContext: jobDecodeWithContext,
+  validateFields: jobValidateFields,
+  hasShape: jobHasShape,
+  is: jobIs
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 30..106 -> expanded 0..76
+original 106..108 -> expanded 2198..2200
+original 138..181 -> expanded 2200..2243
+original 181..182 -> expanded 10077..10078
+generated 76..606 <- Encode
+generated 606..1949 <- Decode
+generated 1949..2198 <- __convenience_const
+generated 2243..3736 <- Encode
+generated 3736..9841 <- Decode
+generated 9841..10077 <- __convenience_const
+
+## Metadata
+
+interface Job: {"body_span":{"end":182,"start":161},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":139,"start":109}}],"fields":[{"decorators":[],"name":"stage","optional":false,"readonly":false,"span":{"end":180,"start":167},"ts_type":"Stage"}],"heritage":[],"methods":[],"name":"Job","span":{"end":182,"start":147},"type_params":[]}
+enum Stage: {"body_span":{"end":107,"start":50},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":31,"start":1}}],"is_const":false,"name":"Stage","span":{"end":107,"start":39},"variants":[{"decorators":[],"name":"Draft","span":{"end":65,"start":56},"value":{"Number":0.0}},{"decorators":[],"name":"Active","span":{"end":81,"start":71},"value":{"Number":1.0}},{"decorators":[],"name":"Needs Review","span":{"end":105,"start":87},"value":{"Number":2.0}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

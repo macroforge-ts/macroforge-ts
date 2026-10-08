@@ -9,8 +9,8 @@
 /// The published package that carries the generated runtime.
 pub const PACKAGE: &str = "@macroforge/core";
 
-/// Serialization runtime: `DeserializeContext`, `DeserializeError`, `PendingRef`.
-pub const SERDE: &str = "@macroforge/core/serde";
+/// Encoding runtime: `DecodeContext`, `DecodeError`, `PendingRef`.
+pub const ENDEC: &str = "@macroforge/core/endec";
 
 /// Declarative macro definitions (`macroRules`) and the `import macro` form.
 pub const RULES: &str = "@macroforge/core/rules";

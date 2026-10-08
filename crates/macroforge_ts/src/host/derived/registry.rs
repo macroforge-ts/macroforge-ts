@@ -11,7 +11,7 @@ inventory::collect!(DerivedMacroRegistration);
 ///
 /// # Returns
 ///
-/// A sorted set of module names (e.g., `{"@macro/derive", "serde"}`).
+/// A sorted set of module names (e.g., `{"@macro/derive", "endec"}`).
 pub fn modules() -> BTreeSet<&'static str> {
     inventory::iter::<DerivedMacroRegistration>
         .into_iter()
@@ -74,13 +74,13 @@ pub fn decorator_metadata() -> Vec<DecoratorMetadata> {
 
 /// Returns all unique decorator annotation names.
 ///
-/// These are the keywords used in field-level decorators like `@serde({ ... })`,
+/// These are the keywords used in field-level decorators like `@endec({ ... })`,
 /// `@debug(skip)`, `@default(...)`, etc. Used by annotation filtering to only
 /// recognize valid macroforge annotations during lowering.
 ///
 /// # Returns
 ///
-/// A set of annotation names (e.g., `{"serde", "debug", "hash", "default", "ord"}`).
+/// A set of annotation names (e.g., `{"endec", "debug", "hash", "default", "ord"}`).
 pub fn decorator_annotation_names() -> BTreeSet<&'static str> {
     inventory::iter::<DerivedMacroRegistration>
         .into_iter()
@@ -93,7 +93,7 @@ pub fn decorator_annotation_names() -> BTreeSet<&'static str> {
 ///
 /// # Returns
 ///
-/// A vector of macro names (e.g., `["Debug", "Clone", "Serialize"]`).
+/// A vector of macro names (e.g., `["Debug", "Clone", "Encode"]`).
 pub fn macro_names() -> Vec<&'static str> {
     inventory::iter::<DerivedMacroRegistration>
         .into_iter()

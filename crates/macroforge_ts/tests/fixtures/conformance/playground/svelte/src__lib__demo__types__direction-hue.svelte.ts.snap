@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/direction-hue.svelte.ts
-sha256 f051ec64ba25a3a7e81e113413ce65f6b1aac29ae4ce8aeebb40f4b9611b68c7
+sha256 6ae501e78c1efd97775b382d5e7efbc46ab6dfafee3d640f21caaa60f78c26f7
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -36,16 +36,16 @@ hue: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function directionHueSerialize(value: DirectionHue, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = directionHueSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function directionHueEncode(value: DirectionHue, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = directionHueEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function directionHueSerializeWithContext(value: DirectionHue, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function directionHueEncodeWithContext(value: DirectionHue, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -157,21 +157,21 @@ hue: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function directionHueDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function directionHueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = directionHueDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = directionHueDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "DirectionHue.deserialize: root cannot be a forward reference"
+		message: "DirectionHue.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -194,7 +194,7 @@ hue: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -211,14 +211,14 @@ hue: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function directionHueDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): DirectionHue | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function directionHueDecodeWithContext(value: any, ctx: __mf_DecodeContext): DirectionHue | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "DirectionHue.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "DirectionHue.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1383,7 +1383,7 @@ hue: 0,
                 if (!directionHueHasShape(obj)) {
                     return false;
                 }
-                const result = directionHueDeserialize(obj);
+                const result = directionHueDecode(obj);
                 return result.success;
             }
 
@@ -1494,7 +1494,7 @@ hue: 0,
 
 
             function validate(): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
-                return toExit(directionHueDeserialize(data));
+                return toExit(directionHueDecode(data));
             }
 
 
@@ -1527,7 +1527,7 @@ hue: 0,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function directionHueFromFormData(formData: FormData): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1544,15 +1544,15 @@ hue: 0,
                 }
 
 
-            return toExit(directionHueDeserialize(obj));
+            return toExit(directionHueDecode(obj));
         }
 
 export const DirectionHue = {
   defaultValue: directionHueDefaultValue,
-  serialize: directionHueSerialize,
-  serializeWithContext: directionHueSerializeWithContext,
-  deserialize: directionHueDeserialize,
-  deserializeWithContext: directionHueDeserializeWithContext,
+  encode: directionHueEncode,
+  encodeWithContext: directionHueEncodeWithContext,
+  decode: directionHueDecode,
+  decodeWithContext: directionHueDecodeWithContext,
   validateFields: directionHueValidateFields,
   hasShape: directionHueHasShape,
   is: directionHueIs,
@@ -1577,16 +1577,16 @@ hue: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function directionHueSerialize(value: DirectionHue, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = directionHueSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function directionHueEncode(value: DirectionHue, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = directionHueEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function directionHueSerializeWithContext(value: DirectionHue, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function directionHueEncodeWithContext(value: DirectionHue, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1698,21 +1698,21 @@ hue: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function directionHueDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function directionHueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DirectionHue } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = directionHueDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = directionHueDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "DirectionHue.deserialize: root cannot be a forward reference"
+		message: "DirectionHue.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1735,7 +1735,7 @@ hue: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1752,14 +1752,14 @@ hue: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function directionHueDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): DirectionHue | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function directionHueDecodeWithContext(value: any, ctx: __mf_DecodeContext): DirectionHue | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "DirectionHue.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "DirectionHue.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2924,7 +2924,7 @@ hue: 0,
                 if (!directionHueHasShape(obj)) {
                     return false;
                 }
-                const result = directionHueDeserialize(obj);
+                const result = directionHueDecode(obj);
                 return result.success;
             }
 
@@ -3035,7 +3035,7 @@ hue: 0,
 
 
             function validate(): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
-                return toExit(directionHueDeserialize(data));
+                return toExit(directionHueDecode(data));
             }
 
 
@@ -3068,7 +3068,7 @@ hue: 0,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function directionHueFromFormData(formData: FormData): Exit.Exit<DirectionHue, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3085,15 +3085,15 @@ hue: 0,
                 }
 
 
-            return toExit(directionHueDeserialize(obj));
+            return toExit(directionHueDecode(obj));
         }
 
 export const DirectionHue = {
   defaultValue: directionHueDefaultValue,
-  serialize: directionHueSerialize,
-  serializeWithContext: directionHueSerializeWithContext,
-  deserialize: directionHueDeserialize,
-  deserializeWithContext: directionHueDeserializeWithContext,
+  encode: directionHueEncode,
+  encodeWithContext: directionHueEncodeWithContext,
+  decode: directionHueDecode,
+  decodeWithContext: directionHueDecodeWithContext,
   validateFields: directionHueValidateFields,
   hasShape: directionHueHasShape,
   is: directionHueIs,
@@ -3108,17 +3108,17 @@ export const DirectionHue = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..187 -> expanded 58..130
-original 187..188 -> expanded 13555..13556
+original 107..179 -> expanded 58..130
+original 179..180 -> expanded 13377..13378
 generated 130..268 <- Default
-generated 268..1845 <- Serialize
-generated 1845..7553 <- Deserialize
-generated 7553..13093 <- Gigaform
-generated 13093..13555 <- __convenience_const
+generated 268..1813 <- Encode
+generated 1813..7427 <- Decode
+generated 7427..12947 <- Gigaform
+generated 12947..13377 <- __convenience_const
 
 ## Metadata
 
-interface DirectionHue: {"body_span":{"end":188,"start":147},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"bearing","optional":false,"readonly":false,"span":{"end":169,"start":153},"ts_type":"number"},{"decorators":[],"name":"hue","optional":false,"readonly":false,"span":{"end":186,"start":174},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DirectionHue","span":{"end":188,"start":124},"type_params":[]}
+interface DirectionHue: {"body_span":{"end":180,"start":139},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"bearing","optional":false,"readonly":false,"span":{"end":161,"start":145},"ts_type":"number"},{"decorators":[],"name":"hue","optional":false,"readonly":false,"span":{"end":178,"start":166},"ts_type":"number"}],"heritage":[],"methods":[],"name":"DirectionHue","span":{"end":180,"start":116},"type_params":[]}
 
 ## Registry reads
 

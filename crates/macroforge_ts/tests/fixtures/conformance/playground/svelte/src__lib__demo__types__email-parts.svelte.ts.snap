@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/email-parts.svelte.ts
-sha256 166ea22fce80a7544095ea385bbb57befaad3ed939e87248e438cf10fbcd68a8
+sha256 ad05aa23ef74d8ebd7017267dfe890586a8ce260fcf35d89d6322033b28051ca
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -41,16 +41,16 @@ topLevelDomain: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function emailPartsSerialize(value: EmailParts, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = emailPartsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function emailPartsEncode(value: EmailParts, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = emailPartsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function emailPartsSerializeWithContext(value: EmailParts, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function emailPartsEncodeWithContext(value: EmailParts, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -162,21 +162,21 @@ topLevelDomain: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function emailPartsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function emailPartsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = emailPartsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = emailPartsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "EmailParts.deserialize: root cannot be a forward reference"
+		message: "EmailParts.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -199,7 +199,7 @@ topLevelDomain: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -216,14 +216,14 @@ topLevelDomain: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function emailPartsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): EmailParts | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function emailPartsDecodeWithContext(value: any, ctx: __mf_DecodeContext): EmailParts | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "EmailParts.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "EmailParts.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1726,7 +1726,7 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
                 if (!emailPartsHasShape(obj)) {
                     return false;
                 }
-                const result = emailPartsDeserialize(obj);
+                const result = emailPartsDecode(obj);
                 return result.success;
             }
 
@@ -1864,7 +1864,7 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
 
 
             function validate(): Exit.Exit<EmailParts, Array<{ field: string; message: string }>> {
-                return toExit(emailPartsDeserialize(data));
+                return toExit(emailPartsDecode(data));
             }
 
 
@@ -1899,7 +1899,7 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function emailPartsFromFormData(formData: FormData): Exit.Exit<EmailParts, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1909,15 +1909,15 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
             obj.topLevelDomain = formData.get("topLevelDomain") ?? "";
 
 
-            return toExit(emailPartsDeserialize(obj));
+            return toExit(emailPartsDecode(obj));
         }
 
 export const EmailParts = {
   defaultValue: emailPartsDefaultValue,
-  serialize: emailPartsSerialize,
-  serializeWithContext: emailPartsSerializeWithContext,
-  deserialize: emailPartsDeserialize,
-  deserializeWithContext: emailPartsDeserializeWithContext,
+  encode: emailPartsEncode,
+  encodeWithContext: emailPartsEncodeWithContext,
+  decode: emailPartsDecode,
+  decodeWithContext: emailPartsDecodeWithContext,
   validateFields: emailPartsValidateFields,
   hasShape: emailPartsHasShape,
   is: emailPartsIs,
@@ -1947,16 +1947,16 @@ topLevelDomain: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function emailPartsSerialize(value: EmailParts, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = emailPartsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function emailPartsEncode(value: EmailParts, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = emailPartsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function emailPartsSerializeWithContext(value: EmailParts, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function emailPartsEncodeWithContext(value: EmailParts, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2068,21 +2068,21 @@ topLevelDomain: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function emailPartsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function emailPartsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EmailParts } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = emailPartsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = emailPartsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "EmailParts.deserialize: root cannot be a forward reference"
+		message: "EmailParts.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2105,7 +2105,7 @@ topLevelDomain: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2122,14 +2122,14 @@ topLevelDomain: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function emailPartsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): EmailParts | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function emailPartsDecodeWithContext(value: any, ctx: __mf_DecodeContext): EmailParts | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "EmailParts.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "EmailParts.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3632,7 +3632,7 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
                 if (!emailPartsHasShape(obj)) {
                     return false;
                 }
-                const result = emailPartsDeserialize(obj);
+                const result = emailPartsDecode(obj);
                 return result.success;
             }
 
@@ -3770,7 +3770,7 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
 
 
             function validate(): Exit.Exit<EmailParts, Array<{ field: string; message: string }>> {
-                return toExit(emailPartsDeserialize(data));
+                return toExit(emailPartsDecode(data));
             }
 
 
@@ -3805,7 +3805,7 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function emailPartsFromFormData(formData: FormData): Exit.Exit<EmailParts, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3815,15 +3815,15 @@ if (__val.length === 0) { errors.push({ field: "topLevelDomain", message: "Email
             obj.topLevelDomain = formData.get("topLevelDomain") ?? "";
 
 
-            return toExit(emailPartsDeserialize(obj));
+            return toExit(emailPartsDecode(obj));
         }
 
 export const EmailParts = {
   defaultValue: emailPartsDefaultValue,
-  serialize: emailPartsSerialize,
-  serializeWithContext: emailPartsSerializeWithContext,
-  deserialize: emailPartsDeserialize,
-  deserializeWithContext: emailPartsDeserializeWithContext,
+  encode: emailPartsEncode,
+  encodeWithContext: emailPartsEncodeWithContext,
+  decode: emailPartsDecode,
+  decodeWithContext: emailPartsDecodeWithContext,
   validateFields: emailPartsValidateFields,
   hasShape: emailPartsHasShape,
   is: emailPartsIs,
@@ -3838,20 +3838,20 @@ export const EmailParts = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..150 -> expanded 58..93
-original 191..215 -> expanded 93..117
-original 256..285 -> expanded 117..146
-original 326..356 -> expanded 146..176
-original 356..357 -> expanded 18705..18706
+original 107..142 -> expanded 58..93
+original 183..207 -> expanded 93..117
+original 248..277 -> expanded 117..146
+original 318..348 -> expanded 146..176
+original 348..349 -> expanded 18527..18528
 generated 176..337 <- Default
-generated 337..1957 <- Serialize
-generated 1957..11737 <- Deserialize
-generated 11737..18265 <- Gigaform
-generated 18265..18705 <- __convenience_const
+generated 337..1925 <- Encode
+generated 1925..11611 <- Decode
+generated 11611..18119 <- Gigaform
+generated 18119..18527 <- __convenience_const
 
 ## Metadata
 
-interface EmailParts: {"body_span":{"end":357,"start":145},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":192,"start":151}}],"name":"local","optional":false,"readonly":false,"span":{"end":211,"start":197},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":257,"start":216}}],"name":"domainName","optional":false,"readonly":false,"span":{"end":281,"start":262},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":327,"start":286}}],"name":"topLevelDomain","optional":false,"readonly":false,"span":{"end":355,"start":332},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EmailParts","span":{"end":357,"start":124},"type_params":[]}
+interface EmailParts: {"body_span":{"end":349,"start":137},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":184,"start":143}}],"name":"local","optional":false,"readonly":false,"span":{"end":203,"start":189},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":249,"start":208}}],"name":"domainName","optional":false,"readonly":false,"span":{"end":273,"start":254},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":319,"start":278}}],"name":"topLevelDomain","optional":false,"readonly":false,"span":{"end":347,"start":324},"ts_type":"string"}],"heritage":[],"methods":[],"name":"EmailParts","span":{"end":349,"start":116},"type_params":[]}
 
 ## Registry reads
 

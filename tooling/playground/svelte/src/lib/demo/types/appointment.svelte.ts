@@ -7,12 +7,12 @@ import type { RecurrenceRule } from './recurrence-rule.svelte';
 import type { Site } from './site.svelte';
 import type { Status } from './status.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Appointment {
     /** @hiddenController({}) */
     id: string;
     /** @textController({ label: "Title" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     title: string;
     /** @selectController({ label: "Status", options: [{ label: "Scheduled", value: "Scheduled" }, { label: "On Deck", value: "OnDeck" }, { label: "Waiting", value: "Waiting" }] }) */
     /** @default("Scheduled") */

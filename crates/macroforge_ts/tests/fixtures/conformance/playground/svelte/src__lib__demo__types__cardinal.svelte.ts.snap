@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/cardinal.svelte.ts
-sha256 a6a18d340ea404a4899f6fca716d27a7fc284c319ba573477c100542690b7952
+sha256 01c462d688c57130e30e81c17e7cd53fbe213de369f06c4b185af74f5c01768e
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -40,16 +40,16 @@ west: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function cardinalSerialize(value: Cardinal, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = cardinalSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function cardinalEncode(value: Cardinal, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = cardinalEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function cardinalSerializeWithContext(value: Cardinal, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function cardinalEncodeWithContext(value: Cardinal, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -161,21 +161,21 @@ west: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function cardinalDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Cardinal } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cardinal } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = cardinalDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = cardinalDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Cardinal.deserialize: root cannot be a forward reference"
+		message: "Cardinal.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -198,7 +198,7 @@ west: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -215,14 +215,14 @@ west: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function cardinalDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Cardinal | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function cardinalDecodeWithContext(value: any, ctx: __mf_DecodeContext): Cardinal | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Cardinal.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Cardinal.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1911,7 +1911,7 @@ west: 0,
                 if (!cardinalHasShape(obj)) {
                     return false;
                 }
-                const result = cardinalDeserialize(obj);
+                const result = cardinalDecode(obj);
                 return result.success;
             }
 
@@ -2076,7 +2076,7 @@ west: 0,
 
 
             function validate(): Exit.Exit<Cardinal, Array<{ field: string; message: string }>> {
-                return toExit(cardinalDeserialize(data));
+                return toExit(cardinalDecode(data));
             }
 
 
@@ -2113,7 +2113,7 @@ west: 0,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function cardinalFromFormData(formData: FormData): Exit.Exit<Cardinal, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2140,15 +2140,15 @@ west: 0,
                 }
 
 
-            return toExit(cardinalDeserialize(obj));
+            return toExit(cardinalDecode(obj));
         }
 
 export const Cardinal = {
   defaultValue: cardinalDefaultValue,
-  serialize: cardinalSerialize,
-  serializeWithContext: cardinalSerializeWithContext,
-  deserialize: cardinalDeserialize,
-  deserializeWithContext: cardinalDeserializeWithContext,
+  encode: cardinalEncode,
+  encodeWithContext: cardinalEncodeWithContext,
+  decode: cardinalDecode,
+  decodeWithContext: cardinalDecodeWithContext,
   validateFields: cardinalValidateFields,
   hasShape: cardinalHasShape,
   is: cardinalIs,
@@ -2177,16 +2177,16 @@ west: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function cardinalSerialize(value: Cardinal, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = cardinalSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function cardinalEncode(value: Cardinal, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = cardinalEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function cardinalSerializeWithContext(value: Cardinal, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function cardinalEncodeWithContext(value: Cardinal, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2298,21 +2298,21 @@ west: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function cardinalDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Cardinal } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function cardinalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Cardinal } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = cardinalDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = cardinalDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Cardinal.deserialize: root cannot be a forward reference"
+		message: "Cardinal.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2335,7 +2335,7 @@ west: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2352,14 +2352,14 @@ west: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function cardinalDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Cardinal | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function cardinalDecodeWithContext(value: any, ctx: __mf_DecodeContext): Cardinal | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Cardinal.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Cardinal.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -4048,7 +4048,7 @@ west: 0,
                 if (!cardinalHasShape(obj)) {
                     return false;
                 }
-                const result = cardinalDeserialize(obj);
+                const result = cardinalDecode(obj);
                 return result.success;
             }
 
@@ -4213,7 +4213,7 @@ west: 0,
 
 
             function validate(): Exit.Exit<Cardinal, Array<{ field: string; message: string }>> {
-                return toExit(cardinalDeserialize(data));
+                return toExit(cardinalDecode(data));
             }
 
 
@@ -4250,7 +4250,7 @@ west: 0,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function cardinalFromFormData(formData: FormData): Exit.Exit<Cardinal, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4277,15 +4277,15 @@ west: 0,
                 }
 
 
-            return toExit(cardinalDeserialize(obj));
+            return toExit(cardinalDecode(obj));
         }
 
 export const Cardinal = {
   defaultValue: cardinalDefaultValue,
-  serialize: cardinalSerialize,
-  serializeWithContext: cardinalSerializeWithContext,
-  deserialize: cardinalDeserialize,
-  deserializeWithContext: cardinalDeserializeWithContext,
+  encode: cardinalEncode,
+  encodeWithContext: cardinalEncodeWithContext,
+  decode: cardinalDecode,
+  decodeWithContext: cardinalDecodeWithContext,
   validateFields: cardinalValidateFields,
   hasShape: cardinalHasShape,
   is: cardinalIs,
@@ -4300,17 +4300,17 @@ export const Cardinal = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..219 -> expanded 58..162
-original 219..220 -> expanded 17219..17220
+original 107..211 -> expanded 58..162
+original 211..212 -> expanded 17041..17042
 generated 162..310 <- Default
-generated 310..1913 <- Serialize
-generated 1913..8647 <- Deserialize
-generated 8647..16801 <- Gigaform
-generated 16801..17219 <- __convenience_const
+generated 310..1881 <- Encode
+generated 1881..8521 <- Decode
+generated 8521..16655 <- Gigaform
+generated 16655..17041 <- __convenience_const
 
 ## Metadata
 
-interface Cardinal: {"body_span":{"end":220,"start":143},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"north","optional":false,"readonly":false,"span":{"end":163,"start":149},"ts_type":"number"},{"decorators":[],"name":"east","optional":false,"readonly":false,"span":{"end":181,"start":168},"ts_type":"number"},{"decorators":[],"name":"south","optional":false,"readonly":false,"span":{"end":200,"start":186},"ts_type":"number"},{"decorators":[],"name":"west","optional":false,"readonly":false,"span":{"end":218,"start":205},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Cardinal","span":{"end":220,"start":124},"type_params":[]}
+interface Cardinal: {"body_span":{"end":212,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"north","optional":false,"readonly":false,"span":{"end":155,"start":141},"ts_type":"number"},{"decorators":[],"name":"east","optional":false,"readonly":false,"span":{"end":173,"start":160},"ts_type":"number"},{"decorators":[],"name":"south","optional":false,"readonly":false,"span":{"end":192,"start":178},"ts_type":"number"},{"decorators":[],"name":"west","optional":false,"readonly":false,"span":{"end":210,"start":197},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Cardinal","span":{"end":212,"start":116},"type_params":[]}
 
 ## Registry reads
 

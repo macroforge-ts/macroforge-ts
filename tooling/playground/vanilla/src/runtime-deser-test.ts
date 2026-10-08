@@ -1,17 +1,17 @@
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export interface Inner {
     name: string;
     createdAt: Date;
     score: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export interface Container {
     items: Inner[];
 }
 
 export function testNormal() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 }
         ]
@@ -19,7 +19,7 @@ export function testNormal() {
 }
 
 export function testMissingFields() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Bob' } // missing createdAt and score
         ]
@@ -27,13 +27,13 @@ export function testMissingFields() {
 }
 
 export function testNullElement() {
-    return Container.deserialize({
+    return Container.decode({
         items: [null]
     });
 }
 
 export function testMixedElements() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
             { name: 'Bob' } // missing fields
@@ -41,7 +41,7 @@ export function testMixedElements() {
     });
 }
 
-type ContainerFailure = Extract<ReturnType<typeof Container.deserialize>, { success: false }>;
+type ContainerFailure = Extract<ReturnType<typeof Container.decode>, { success: false }>;
 
 export type RecursiveDeserResult =
     | { success: false; errors: ContainerFailure['errors'] }
@@ -54,13 +54,13 @@ export type RecursiveDeserResult =
         secondDateISO: string | undefined;
     };
 
-/** The item's ISO date when deserialization produced a real `Date`. */
+/** The item's ISO date when decoding produced a real `Date`. */
 function isoDate(item: Inner | undefined): string | undefined {
     return item?.createdAt instanceof Date ? item.createdAt.toISOString() : undefined;
 }
 
 export function testRecursiveActual(): RecursiveDeserResult {
-    const result = Container.deserialize({
+    const result = Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
             { name: 'Bob', createdAt: '2024-06-20T14:00:00Z', score: 87 }

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/company-name.svelte.ts
-sha256 b33fb0118bbfdd13456c9229e9ef241c3aedf11c8850b11f6a9b57a3ad4b0bed
+sha256 d4a7648ecb089d7ab77bac4abcd4359dc7d8f32b81879c89a903c6dd45be3082
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -36,16 +36,16 @@ companyName: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function companyNameSerialize(value: CompanyName, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = companyNameSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function companyNameEncode(value: CompanyName, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = companyNameEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function companyNameSerializeWithContext(value: CompanyName, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function companyNameEncodeWithContext(value: CompanyName, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -157,21 +157,21 @@ companyName: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function companyNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = companyNameDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = companyNameDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "CompanyName.deserialize: root cannot be a forward reference"
+		message: "CompanyName.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -194,7 +194,7 @@ companyName: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -211,14 +211,14 @@ companyName: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function companyNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): CompanyName | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function companyNameDecodeWithContext(value: any, ctx: __mf_DecodeContext): CompanyName | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "CompanyName.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "CompanyName.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1157,7 +1157,7 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
                 if (!companyNameHasShape(obj)) {
                     return false;
                 }
-                const result = companyNameDeserialize(obj);
+                const result = companyNameDecode(obj);
                 return result.success;
             }
 
@@ -1241,7 +1241,7 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
 
 
             function validate(): Exit.Exit<CompanyName, Array<{ field: string; message: string }>> {
-                return toExit(companyNameDeserialize(data));
+                return toExit(companyNameDecode(data));
             }
 
 
@@ -1272,7 +1272,7 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function companyNameFromFormData(formData: FormData): Exit.Exit<CompanyName, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1280,15 +1280,15 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
             obj.companyName = formData.get("companyName") ?? "";
 
 
-            return toExit(companyNameDeserialize(obj));
+            return toExit(companyNameDecode(obj));
         }
 
 export const CompanyName = {
   defaultValue: companyNameDefaultValue,
-  serialize: companyNameSerialize,
-  serializeWithContext: companyNameSerializeWithContext,
-  deserialize: companyNameDeserialize,
-  deserializeWithContext: companyNameDeserializeWithContext,
+  encode: companyNameEncode,
+  encodeWithContext: companyNameEncodeWithContext,
+  decode: companyNameDecode,
+  decodeWithContext: companyNameDecodeWithContext,
   validateFields: companyNameValidateFields,
   hasShape: companyNameHasShape,
   is: companyNameIs,
@@ -1313,16 +1313,16 @@ companyName: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function companyNameSerialize(value: CompanyName, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = companyNameSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function companyNameEncode(value: CompanyName, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = companyNameEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function companyNameSerializeWithContext(value: CompanyName, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function companyNameEncodeWithContext(value: CompanyName, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1434,21 +1434,21 @@ companyName: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function companyNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function companyNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: CompanyName } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = companyNameDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = companyNameDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "CompanyName.deserialize: root cannot be a forward reference"
+		message: "CompanyName.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1471,7 +1471,7 @@ companyName: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1488,14 +1488,14 @@ companyName: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function companyNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): CompanyName | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function companyNameDecodeWithContext(value: any, ctx: __mf_DecodeContext): CompanyName | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "CompanyName.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "CompanyName.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2434,7 +2434,7 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
                 if (!companyNameHasShape(obj)) {
                     return false;
                 }
-                const result = companyNameDeserialize(obj);
+                const result = companyNameDecode(obj);
                 return result.success;
             }
 
@@ -2518,7 +2518,7 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
 
 
             function validate(): Exit.Exit<CompanyName, Array<{ field: string; message: string }>> {
-                return toExit(companyNameDeserialize(data));
+                return toExit(companyNameDecode(data));
             }
 
 
@@ -2549,7 +2549,7 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function companyNameFromFormData(formData: FormData): Exit.Exit<CompanyName, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2557,15 +2557,15 @@ if (__val.length === 0) { errors.push({ field: "companyName", message: "CompanyN
             obj.companyName = formData.get("companyName") ?? "";
 
 
-            return toExit(companyNameDeserialize(obj));
+            return toExit(companyNameDecode(obj));
         }
 
 export const CompanyName = {
   defaultValue: companyNameDefaultValue,
-  serialize: companyNameSerialize,
-  serializeWithContext: companyNameSerializeWithContext,
-  deserialize: companyNameDeserialize,
-  deserializeWithContext: companyNameDeserializeWithContext,
+  encode: companyNameEncode,
+  encodeWithContext: companyNameEncodeWithContext,
+  decode: companyNameDecode,
+  decodeWithContext: companyNameDecodeWithContext,
   validateFields: companyNameValidateFields,
   hasShape: companyNameHasShape,
   is: companyNameIs,
@@ -2580,19 +2580,19 @@ export const CompanyName = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..151 -> expanded 58..94
-original 200..205 -> expanded 94..99
-original 246..273 -> expanded 99..126
-original 273..274 -> expanded 12780..12781
+original 107..143 -> expanded 58..94
+original 192..197 -> expanded 94..99
+original 238..265 -> expanded 99..126
+original 265..266 -> expanded 12602..12603
 generated 126..259 <- Default
-generated 259..1815 <- Serialize
-generated 1815..8291 <- Deserialize
-generated 8291..12329 <- Gigaform
-generated 12329..12780 <- __convenience_const
+generated 259..1783 <- Encode
+generated 1783..8165 <- Decode
+generated 8165..12183 <- Gigaform
+generated 12183..12602 <- __convenience_const
 
 ## Metadata
 
-interface CompanyName: {"body_span":{"end":274,"start":146},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":247,"start":206}},{"args_src":"{ label: \"Company Name\" }","name":"textController","span":{"end":201,"start":152}}],"name":"companyName","optional":false,"readonly":false,"span":{"end":272,"start":252},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CompanyName","span":{"end":274,"start":124},"type_params":[]}
+interface CompanyName: {"body_span":{"end":266,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":239,"start":198}},{"args_src":"{ label: \"Company Name\" }","name":"textController","span":{"end":193,"start":144}}],"name":"companyName","optional":false,"readonly":false,"span":{"end":264,"start":244},"ts_type":"string"}],"heritage":[],"methods":[],"name":"CompanyName","span":{"end":266,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/types/order.svelte.ts
-sha256 88dcc7c8a311cf8baca13bc02ed32c6cd04a1ec01a4070b50575a5c182b4c65e
+sha256 23f94633a01335c4b1f52fe00cbb1548c5fa813a16f5fdb735b288f824e764f7
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export interface Order {
     id: string;
@@ -30,16 +30,16 @@ quantity: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function orderSerialize(value: Order, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = orderSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function orderEncode(value: Order, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = orderEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function orderSerializeWithContext(value: Order, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -151,21 +151,21 @@ quantity: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function orderDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = orderDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = orderDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Order.deserialize: root cannot be a forward reference"
+		message: "Order.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -188,7 +188,7 @@ quantity: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -205,14 +205,14 @@ quantity: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Order | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function orderDecodeWithContext(value: any, ctx: __mf_DecodeContext): Order | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Order.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Order.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1377,16 +1377,16 @@ quantity: 0,
                 if (!orderHasShape(obj)) {
                     return false;
                 }
-                const result = orderDeserialize(obj);
+                const result = orderDecode(obj);
                 return result.success;
             }
 
 export const Order = {
   defaultValue: orderDefaultValue,
-  serialize: orderSerialize,
-  serializeWithContext: orderSerializeWithContext,
-  deserialize: orderDeserialize,
-  deserializeWithContext: orderDeserializeWithContext,
+  encode: orderEncode,
+  encodeWithContext: orderEncodeWithContext,
+  decode: orderDecode,
+  decodeWithContext: orderDecodeWithContext,
   validateFields: orderValidateFields,
   hasShape: orderHasShape,
   is: orderIs
@@ -1406,16 +1406,16 @@ quantity: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function orderSerialize(value: Order, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = orderSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function orderEncode(value: Order, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = orderEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function orderSerializeWithContext(value: Order, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function orderEncodeWithContext(value: Order, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1527,21 +1527,21 @@ quantity: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function orderDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function orderDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Order } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = orderDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = orderDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Order.deserialize: root cannot be a forward reference"
+		message: "Order.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1564,7 +1564,7 @@ quantity: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1581,14 +1581,14 @@ quantity: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function orderDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Order | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function orderDecodeWithContext(value: any, ctx: __mf_DecodeContext): Order | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Order.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Order.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2753,16 +2753,16 @@ quantity: 0,
                 if (!orderHasShape(obj)) {
                     return false;
                 }
-                const result = orderDeserialize(obj);
+                const result = orderDecode(obj);
                 return result.success;
             }
 
 export const Order = {
   defaultValue: orderDefaultValue,
-  serialize: orderSerialize,
-  serializeWithContext: orderSerializeWithContext,
-  deserialize: orderDeserialize,
-  deserializeWithContext: orderDeserializeWithContext,
+  encode: orderEncode,
+  encodeWithContext: orderEncodeWithContext,
+  decode: orderDecode,
+  decodeWithContext: orderDecodeWithContext,
   validateFields: orderValidateFields,
   hasShape: orderHasShape,
   is: orderIs
@@ -2774,16 +2774,16 @@ export const Order = {
 
 ## Mapping
 
-original 47..112 -> expanded 0..65
-original 112..113 -> expanded 7626..7627
+original 39..104 -> expanded 0..65
+original 104..105 -> expanded 7468..7469
 generated 65..190 <- Default
-generated 190..1725 <- Serialize
-generated 1725..7307 <- Deserialize
-generated 7307..7626 <- __convenience_const
+generated 190..1693 <- Encode
+generated 1693..7181 <- Decode
+generated 7181..7468 <- __convenience_const
 
 ## Metadata
 
-interface Order: {"body_span":{"end":113,"start":72},"decorators":[{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":48,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":89,"start":78},"ts_type":"string"},{"decorators":[],"name":"quantity","optional":false,"readonly":false,"span":{"end":111,"start":94},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Order","span":{"end":113,"start":56},"type_params":[]}
+interface Order: {"body_span":{"end":105,"start":64},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":81,"start":70},"ts_type":"string"},{"decorators":[],"name":"quantity","optional":false,"readonly":false,"span":{"end":103,"start":86},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Order","span":{"end":105,"start":48},"type_params":[]}
 
 ## Registry reads
 

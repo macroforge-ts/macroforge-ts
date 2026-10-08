@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/item.svelte.ts
-sha256 13805c6fd68ea6baeb8019c3ab4d8ac4faf1c221c0089989f8de1e5750ebbcb6
+sha256 67867ddc354208593e11ec392071052bde26a7b5e02210e37af052462a9f86dc
 
 ## Changed
 
@@ -12,13 +12,13 @@ true
 
 ## Output
 
-import { recordLinkDeserializeWithContext } from "./record-link.svelte";
+import { recordLinkDecodeWithContext } from "./record-link.svelte";
 import { recordLinkHasShape } from "./record-link.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { recordLinkDefaultValue } from "./record-link.svelte";
 import { Option } from "effect";
 import { Exit } from "effect";
@@ -37,20 +37,20 @@ export function itemDefaultValue(): Item {
                             return "";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function itemSerialize(value: Item, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = itemSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function itemEncode(value: Item, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = itemEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function itemSerializeWithContext(value: Item, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -117,20 +117,20 @@ export function itemDefaultValue(): Item {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function itemDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = itemDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = itemDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Item.deserialize: root cannot be a forward reference"
+		message: "Item.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -153,7 +153,7 @@ export function itemDefaultValue(): Item {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -170,8 +170,8 @@ export function itemDefaultValue(): Item {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function itemDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Item | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function itemDecodeWithContext(value: any, ctx: __mf_DecodeContext): Item | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Item | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -179,11 +179,11 @@ export function itemDefaultValue(): Item {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "RecordLink<Product>") {
-                                                return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                                return recordLinkDecodeWithContext(value, ctx) as Item;
                                             }
                                         
                                             if (__typeName === "RecordLink<Service>") {
-                                                return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                                return recordLinkDecodeWithContext(value, ctx) as Item;
                                             }
 
 
@@ -197,9 +197,9 @@ export function itemDefaultValue(): Item {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "Item.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: RecordLink<Product>, RecordLink<Service>"
+                                            message: "Item.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: RecordLink<Product>, RecordLink<Service>"
                                         }]);
                                     }
                                 }
@@ -219,11 +219,11 @@ export function itemDefaultValue(): Item {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "RecordLink<Product>") {
-                                            return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                            return recordLinkDecodeWithContext(value, ctx) as Item;
                                         }
                                     
                                         if (__shapeMatches[0] === "RecordLink<Service>") {
-                                            return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                            return recordLinkDecodeWithContext(value, ctx) as Item;
                                         }
 
 
@@ -239,14 +239,14 @@ export function itemDefaultValue(): Item {
                                     
                                         if (__shapeMatches.includes("RecordLink<Product>")) {
                                             try {
-                                                return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                                return recordLinkDecodeWithContext(value, ctx) as Item;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("RecordLink<Service>")) {
                                             try {
-                                                return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                                return recordLinkDecodeWithContext(value, ctx) as Item;
                                             } catch {                        }
                                         }
 
@@ -259,15 +259,15 @@ export function itemDefaultValue(): Item {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "Item.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "Item.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "Item.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: RecordLink<Product>, RecordLink<Service>"
+                                    message: "Item.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: RecordLink<Product>, RecordLink<Service>"
                                 }]);
 
 
@@ -1106,7 +1106,7 @@ if (variant === "RecordLink<Service>") { return recordLinkDefaultValue<Service>(
 
 
             function validate(): Exit.Exit<Item, Array<{ field: string; message: string }>> {
-                return toExit(itemDeserialize(data));
+                return toExit(itemDecode(data));
             }
 
 
@@ -1155,15 +1155,15 @@ if (variant === "RecordLink<Service>") { return recordLinkDefaultValue<Service>(
                 }
 
 
-            return toExit(itemDeserialize(obj));
+            return toExit(itemDecode(obj));
         }
 
 export const Item = {
   defaultValue: itemDefaultValue,
-  serialize: itemSerialize,
-  serializeWithContext: itemSerializeWithContext,
-  deserialize: itemDeserialize,
-  deserializeWithContext: itemDeserializeWithContext,
+  encode: itemEncode,
+  encodeWithContext: itemEncodeWithContext,
+  decode: itemDecode,
+  decodeWithContext: itemDecodeWithContext,
   hasShape: itemHasShape,
   is: itemIs,
   createForm: itemCreateForm,
@@ -1185,20 +1185,20 @@ export function itemDefaultValue(): Item {
                             return "";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function itemSerialize(value: Item, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = itemSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function itemEncode(value: Item, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = itemEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function itemSerializeWithContext(value: Item, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function itemEncodeWithContext(value: Item, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1265,20 +1265,20 @@ export function itemDefaultValue(): Item {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function itemDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function itemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Item } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = itemDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = itemDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Item.deserialize: root cannot be a forward reference"
+		message: "Item.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1301,7 +1301,7 @@ export function itemDefaultValue(): Item {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1318,8 +1318,8 @@ export function itemDefaultValue(): Item {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function itemDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Item | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function itemDecodeWithContext(value: any, ctx: __mf_DecodeContext): Item | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Item | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -1327,11 +1327,11 @@ export function itemDefaultValue(): Item {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "RecordLink<Product>") {
-                                                return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                                return recordLinkDecodeWithContext(value, ctx) as Item;
                                             }
                                         
                                             if (__typeName === "RecordLink<Service>") {
-                                                return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                                return recordLinkDecodeWithContext(value, ctx) as Item;
                                             }
 
 
@@ -1345,9 +1345,9 @@ export function itemDefaultValue(): Item {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "Item.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: RecordLink<Product>, RecordLink<Service>"
+                                            message: "Item.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: RecordLink<Product>, RecordLink<Service>"
                                         }]);
                                     }
                                 }
@@ -1367,11 +1367,11 @@ export function itemDefaultValue(): Item {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "RecordLink<Product>") {
-                                            return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                            return recordLinkDecodeWithContext(value, ctx) as Item;
                                         }
                                     
                                         if (__shapeMatches[0] === "RecordLink<Service>") {
-                                            return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                            return recordLinkDecodeWithContext(value, ctx) as Item;
                                         }
 
 
@@ -1387,14 +1387,14 @@ export function itemDefaultValue(): Item {
                                     
                                         if (__shapeMatches.includes("RecordLink<Product>")) {
                                             try {
-                                                return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                                return recordLinkDecodeWithContext(value, ctx) as Item;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("RecordLink<Service>")) {
                                             try {
-                                                return recordLinkDeserializeWithContext(value, ctx) as Item;
+                                                return recordLinkDecodeWithContext(value, ctx) as Item;
                                             } catch {                        }
                                         }
 
@@ -1407,15 +1407,15 @@ export function itemDefaultValue(): Item {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "Item.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "Item.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "Item.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: RecordLink<Product>, RecordLink<Service>"
+                                    message: "Item.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: RecordLink<Product>, RecordLink<Service>"
                                 }]);
 
 
@@ -2254,7 +2254,7 @@ if (variant === "RecordLink<Service>") { return recordLinkDefaultValue<Service>(
 
 
             function validate(): Exit.Exit<Item, Array<{ field: string; message: string }>> {
-                return toExit(itemDeserialize(data));
+                return toExit(itemDecode(data));
             }
 
 
@@ -2303,15 +2303,15 @@ if (variant === "RecordLink<Service>") { return recordLinkDefaultValue<Service>(
                 }
 
 
-            return toExit(itemDeserialize(obj));
+            return toExit(itemDecode(obj));
         }
 
 export const Item = {
   defaultValue: itemDefaultValue,
-  serialize: itemSerialize,
-  serializeWithContext: itemSerializeWithContext,
-  deserialize: itemDeserialize,
-  deserializeWithContext: itemDeserializeWithContext,
+  encode: itemEncode,
+  encodeWithContext: itemEncodeWithContext,
+  decode: itemDecode,
+  decodeWithContext: itemDecodeWithContext,
   hasShape: itemHasShape,
   is: itemIs,
   createForm: itemCreateForm,
@@ -2325,17 +2325,17 @@ export const Item = {
 ## Mapping
 
 original 0..213 -> expanded 0..213
-original 270..348 -> expanded 213..291
-original 348..349 -> expanded 15815..15816
+original 262..340 -> expanded 213..291
+original 340..341 -> expanded 15596..15597
 generated 291..400 <- Default
-generated 400..2326 <- Serialize
-generated 2326..9942 <- Deserialize
-generated 9942..15479 <- Gigaform
-generated 15479..15815 <- __convenience_const
+generated 400..2288 <- Encode
+generated 2288..9765 <- Decode
+generated 9765..15292 <- Gigaform
+generated 15292..15596 <- __convenience_const
 
 ## Metadata
 
-type Item: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"RecordLink<Product>"}},{"decorators":[{"args_src":"","name":"default","span":{"end":328,"start":313}}],"kind":{"TypeRef":"RecordLink<Service>"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":271,"start":214}}],"name":"Item","span":{"end":349,"start":279},"type_params":[]}
+type Item: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"RecordLink<Product>"}},{"decorators":[{"args_src":"","name":"default","span":{"end":320,"start":305}}],"kind":{"TypeRef":"RecordLink<Service>"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":263,"start":214}}],"name":"Item","span":{"end":341,"start":271},"type_params":[]}
 
 ## Registry reads
 

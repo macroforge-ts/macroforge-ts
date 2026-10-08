@@ -1,14 +1,14 @@
 import { Exit } from 'effect';
 import type { Option } from 'effect';
 
-/** Deserialize result format from @derive(Deserialize) */
-export type DeserializeResult<T> =
+/** Decode result format from @derive(Decode) */
+export type DecodeResult<T> =
     | { success: true; value: T }
     | { success: false; errors: Array<{ field: string; message: string }> };
 
-/** Converts a deserialize result to an Effect Exit */
+/** Converts a decode result to an Effect Exit */
 export function toExit<T>(
-    result: DeserializeResult<T>
+    result: DecodeResult<T>
 ): Exit.Exit<T, Array<{ field: string; message: string }>> {
     if (result.success) {
         return Exit.succeed(result.value);

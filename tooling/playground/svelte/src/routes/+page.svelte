@@ -2,10 +2,10 @@
 import { MacroUser, showcaseUserJson, showcaseUserSummary } from '$lib/demo/macro-user';
 import {
     svelteAllMacrosTestClone,
-    svelteAllMacrosTestDeserialize,
+    svelteAllMacrosTestDecode,
     svelteAllMacrosTestEquals,
     svelteAllMacrosTestHashCode,
-    svelteAllMacrosTestSerialize,
+    svelteAllMacrosTestEncode,
     svelteAllMacrosTestToString,
     svelteTestInstance
 } from '$lib/demo/all-macros-test';
@@ -22,7 +22,7 @@ const derivedUser = new MacroUser({
     apiToken: 'sk-live-token'
 });
 const derivedSummary = MacroUser.toString(derivedUser);
-const derivedUserJson = JSON.parse(MacroUser.serialize(derivedUser));
+const derivedUserJson = JSON.parse(MacroUser.encode(derivedUser));
 const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2);
 const showcaseJsonPretty = JSON.stringify(showcaseUserJson, null, 2);
 
@@ -33,8 +33,8 @@ let testResults: {
     clone?: object;
     equals?: boolean;
     hashCode?: number;
-    serialize?: object;
-    deserialize?: object;
+    encode?: object;
+    decode?: object;
 } = $state({});
 
 function runAllMacroTests() {
@@ -43,18 +43,18 @@ function runAllMacroTests() {
     testResults.clone = svelteAllMacrosTestClone(svelteTestInstance);
     testResults.equals = svelteAllMacrosTestEquals(svelteTestInstance, svelteTestInstance);
     testResults.hashCode = svelteAllMacrosTestHashCode(svelteTestInstance);
-    testResults.serialize = JSON.parse(svelteAllMacrosTestSerialize(svelteTestInstance));
+    testResults.encode = JSON.parse(svelteAllMacrosTestEncode(svelteTestInstance));
 
-    const deserialized = svelteAllMacrosTestDeserialize({
+    const decoded = svelteAllMacrosTestDecode({
         id: 'svelte-099',
-        title: 'Deserialized Item',
-        content: 'Round-tripped through the Deserialize macro',
+        title: 'Decoded Item',
+        content: 'Round-tripped through the Decode macro',
         apiKey: 'sk-other-key',
         count: 7,
         enabled: false
     });
-    if (deserialized.success) {
-        testResults.deserialize = deserialized.value;
+    if (decoded.success) {
+        testResults.decode = decoded.value;
     }
 
     // Trigger reactivity
@@ -124,20 +124,20 @@ function runAllMacroTests() {
                 {/if}
             </div>
 
-            <div data-testid="result-serialize">
-                <strong>Serialize (toJSON):</strong>
-                {#if testResults.serialize}
-                    <pre>{JSON.stringify(testResults.serialize, null, 2)}</pre>
+            <div data-testid="result-encode">
+                <strong>Encode (toJSON):</strong>
+                {#if testResults.encode}
+                    <pre>{JSON.stringify(testResults.encode, null, 2)}</pre>
                 {:else if testsComplete}
                     <em>Not available</em>
                 {/if}
             </div>
 
-            <div data-testid="result-deserialize">
-                <strong>Deserialize (fromJSON):</strong>
-                {#if testResults.deserialize}
+            <div data-testid="result-decode">
+                <strong>Decode (fromJSON):</strong>
+                {#if testResults.decode}
                     <pre>{JSON.stringify(
-                            testResults.deserialize,
+                            testResults.decode,
                             null,
                             2,
                         )}</pre>
@@ -155,7 +155,7 @@ function runAllMacroTests() {
             <code>/** @derive(Debug, JSON) */</code>. The macro injects
             <code>toString()</code>
             and <code>toJSON()</code>, so we can hydrate typed data without
-            manually writing serializers.
+            manually writing encoders.
         </p>
         <div class="card">
             <h3>toString()</h3>
@@ -183,7 +183,7 @@ function runAllMacroTests() {
             Every value below was computed at build time by macroforge
             and spliced into the module as a TS literal. The runtime
             stub imported from <code>@macroforge/core/buildtime</code> still
-            throws when called — proving the plugin did the work, not
+            throws when called: proving the plugin did the work, not
             the browser.
         </p>
         <div class="card" data-testid="buildtime-results">

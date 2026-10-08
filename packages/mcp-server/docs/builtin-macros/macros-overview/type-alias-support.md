@@ -6,7 +6,7 @@ functions, plus the optional grouping `const`:
 TypeScript
 
 ```
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Encode, Decode) */
 type Point = {
   x: number;
   y: number;
@@ -17,8 +17,8 @@ type Point = {
 // export function pointClone(value: Point): Point { ... }
 // export function pointEquals(a: Point, b: Point): boolean { ... }
 // export function pointHashCode(value: Point): number { ... }
-// export function pointSerialize(value: Point, keepMetadata?: boolean): string { ... }
-// export function pointDeserialize(input: unknown, opts?): { success: true; value: Point }
+// export function pointEncode(value: Point, keepMetadata?: boolean): string { ... }
+// export function pointDecode(input: unknown, opts?): { success: true; value: Point }
 //                                                        | { success: false; errors } { ... }
 
 const point: Point = { x: 10, y: 20 };

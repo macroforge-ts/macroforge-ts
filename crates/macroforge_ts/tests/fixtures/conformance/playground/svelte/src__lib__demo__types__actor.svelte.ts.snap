@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/actor.svelte.ts
-sha256 0e2fca858a3dd3271adc20420ac43f7757b8df5aa08f36d1a9ffd719e2ea56e1
+sha256 9f85019ba7cee02181374c13f858dafe3f2e016d93df0c1ace1674758f0949d9
 
 ## Changed
 
@@ -12,18 +12,18 @@ true
 
 ## Output
 
-import { accountDeserializeWithContext } from "./account.svelte";
+import { accountDecodeWithContext } from "./account.svelte";
 import { accountHasShape } from "./account.svelte";
-import { employeeDeserializeWithContext } from "./employee.svelte";
+import { employeeDecodeWithContext } from "./employee.svelte";
 import { employeeHasShape } from "./employee.svelte";
-import { userDeserializeWithContext } from "./user.svelte";
+import { userDecodeWithContext } from "./user.svelte";
 import { userHasShape } from "./user.svelte";
 import { userDefaultValue } from "./user.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { accountDefaultValue } from "./account.svelte";
 import { employeeDefaultValue } from "./employee.svelte";
 import { Option } from "effect";
@@ -43,20 +43,20 @@ export function actorDefaultValue(): Actor {
                             return userDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function actorSerialize(value: Actor, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = actorSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function actorEncode(value: Actor, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = actorEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function actorSerializeWithContext(value: Actor, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -123,20 +123,20 @@ export function actorDefaultValue(): Actor {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function actorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function actorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = actorDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = actorDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Actor.deserialize: root cannot be a forward reference"
+		message: "Actor.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -159,7 +159,7 @@ export function actorDefaultValue(): Actor {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -176,8 +176,8 @@ export function actorDefaultValue(): Actor {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function actorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Actor | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function actorDecodeWithContext(value: any, ctx: __mf_DecodeContext): Actor | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Actor | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -185,15 +185,15 @@ export function actorDefaultValue(): Actor {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "User") {
-                                                return userDeserializeWithContext(value, ctx) as Actor;
+                                                return userDecodeWithContext(value, ctx) as Actor;
                                             }
                                         
                                             if (__typeName === "Employee") {
-                                                return employeeDeserializeWithContext(value, ctx) as Actor;
+                                                return employeeDecodeWithContext(value, ctx) as Actor;
                                             }
                                         
                                             if (__typeName === "Account") {
-                                                return accountDeserializeWithContext(value, ctx) as Actor;
+                                                return accountDecodeWithContext(value, ctx) as Actor;
                                             }
 
 
@@ -207,9 +207,9 @@ export function actorDefaultValue(): Actor {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "Actor.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account"
+                                            message: "Actor.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account"
                                         }]);
                                     }
                                 }
@@ -231,15 +231,15 @@ export function actorDefaultValue(): Actor {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "User") {
-                                            return userDeserializeWithContext(value, ctx) as Actor;
+                                            return userDecodeWithContext(value, ctx) as Actor;
                                         }
                                     
                                         if (__shapeMatches[0] === "Employee") {
-                                            return employeeDeserializeWithContext(value, ctx) as Actor;
+                                            return employeeDecodeWithContext(value, ctx) as Actor;
                                         }
                                     
                                         if (__shapeMatches[0] === "Account") {
-                                            return accountDeserializeWithContext(value, ctx) as Actor;
+                                            return accountDecodeWithContext(value, ctx) as Actor;
                                         }
 
 
@@ -255,21 +255,21 @@ export function actorDefaultValue(): Actor {
                                     
                                         if (__shapeMatches.includes("User")) {
                                             try {
-                                                return userDeserializeWithContext(value, ctx) as Actor;
+                                                return userDecodeWithContext(value, ctx) as Actor;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Employee")) {
                                             try {
-                                                return employeeDeserializeWithContext(value, ctx) as Actor;
+                                                return employeeDecodeWithContext(value, ctx) as Actor;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Account")) {
                                             try {
-                                                return accountDeserializeWithContext(value, ctx) as Actor;
+                                                return accountDecodeWithContext(value, ctx) as Actor;
                                             } catch {                        }
                                         }
 
@@ -282,15 +282,15 @@ export function actorDefaultValue(): Actor {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "Actor.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "Actor.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "Actor.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: User, Employee, Account"
+                                    message: "Actor.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: User, Employee, Account"
                                 }]);
 
 
@@ -1154,7 +1154,7 @@ if (variant === "Account") { return accountDefaultValue() as Actor; }
 
 
             function validate(): Exit.Exit<Actor, Array<{ field: string; message: string }>> {
-                return toExit(actorDeserialize(data));
+                return toExit(actorDecode(data));
             }
 
 
@@ -1209,15 +1209,15 @@ if (variant === "Account") { return accountDefaultValue() as Actor; }
                 }
 
 
-            return toExit(actorDeserialize(obj));
+            return toExit(actorDecode(obj));
         }
 
 export const Actor = {
   defaultValue: actorDefaultValue,
-  serialize: actorSerialize,
-  serializeWithContext: actorSerializeWithContext,
-  deserialize: actorDeserialize,
-  deserializeWithContext: actorDeserializeWithContext,
+  encode: actorEncode,
+  encodeWithContext: actorEncodeWithContext,
+  decode: actorDecode,
+  decodeWithContext: actorDecodeWithContext,
   hasShape: actorHasShape,
   is: actorIs,
   createForm: actorCreateForm,
@@ -1239,20 +1239,20 @@ export function actorDefaultValue(): Actor {
                             return userDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function actorSerialize(value: Actor, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = actorSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function actorEncode(value: Actor, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = actorEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function actorSerializeWithContext(value: Actor, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function actorEncodeWithContext(value: Actor, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1319,20 +1319,20 @@ export function actorDefaultValue(): Actor {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function actorDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function actorDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Actor } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = actorDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = actorDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Actor.deserialize: root cannot be a forward reference"
+		message: "Actor.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1355,7 +1355,7 @@ export function actorDefaultValue(): Actor {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1372,8 +1372,8 @@ export function actorDefaultValue(): Actor {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function actorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Actor | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function actorDecodeWithContext(value: any, ctx: __mf_DecodeContext): Actor | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Actor | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -1381,15 +1381,15 @@ export function actorDefaultValue(): Actor {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "User") {
-                                                return userDeserializeWithContext(value, ctx) as Actor;
+                                                return userDecodeWithContext(value, ctx) as Actor;
                                             }
                                         
                                             if (__typeName === "Employee") {
-                                                return employeeDeserializeWithContext(value, ctx) as Actor;
+                                                return employeeDecodeWithContext(value, ctx) as Actor;
                                             }
                                         
                                             if (__typeName === "Account") {
-                                                return accountDeserializeWithContext(value, ctx) as Actor;
+                                                return accountDecodeWithContext(value, ctx) as Actor;
                                             }
 
 
@@ -1403,9 +1403,9 @@ export function actorDefaultValue(): Actor {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "Actor.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account"
+                                            message: "Actor.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account"
                                         }]);
                                     }
                                 }
@@ -1427,15 +1427,15 @@ export function actorDefaultValue(): Actor {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "User") {
-                                            return userDeserializeWithContext(value, ctx) as Actor;
+                                            return userDecodeWithContext(value, ctx) as Actor;
                                         }
                                     
                                         if (__shapeMatches[0] === "Employee") {
-                                            return employeeDeserializeWithContext(value, ctx) as Actor;
+                                            return employeeDecodeWithContext(value, ctx) as Actor;
                                         }
                                     
                                         if (__shapeMatches[0] === "Account") {
-                                            return accountDeserializeWithContext(value, ctx) as Actor;
+                                            return accountDecodeWithContext(value, ctx) as Actor;
                                         }
 
 
@@ -1451,21 +1451,21 @@ export function actorDefaultValue(): Actor {
                                     
                                         if (__shapeMatches.includes("User")) {
                                             try {
-                                                return userDeserializeWithContext(value, ctx) as Actor;
+                                                return userDecodeWithContext(value, ctx) as Actor;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Employee")) {
                                             try {
-                                                return employeeDeserializeWithContext(value, ctx) as Actor;
+                                                return employeeDecodeWithContext(value, ctx) as Actor;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Account")) {
                                             try {
-                                                return accountDeserializeWithContext(value, ctx) as Actor;
+                                                return accountDecodeWithContext(value, ctx) as Actor;
                                             } catch {                        }
                                         }
 
@@ -1478,15 +1478,15 @@ export function actorDefaultValue(): Actor {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "Actor.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "Actor.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "Actor.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: User, Employee, Account"
+                                    message: "Actor.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: User, Employee, Account"
                                 }]);
 
 
@@ -2350,7 +2350,7 @@ if (variant === "Account") { return accountDefaultValue() as Actor; }
 
 
             function validate(): Exit.Exit<Actor, Array<{ field: string; message: string }>> {
-                return toExit(actorDeserialize(data));
+                return toExit(actorDecode(data));
             }
 
 
@@ -2405,15 +2405,15 @@ if (variant === "Account") { return accountDefaultValue() as Actor; }
                 }
 
 
-            return toExit(actorDeserialize(obj));
+            return toExit(actorDecode(obj));
         }
 
 export const Actor = {
   defaultValue: actorDefaultValue,
-  serialize: actorSerialize,
-  serializeWithContext: actorSerializeWithContext,
-  deserialize: actorDeserialize,
-  deserializeWithContext: actorDeserializeWithContext,
+  encode: actorEncode,
+  encodeWithContext: actorEncodeWithContext,
+  decode: actorDecode,
+  decodeWithContext: actorDecodeWithContext,
   hasShape: actorHasShape,
   is: actorIs,
   createForm: actorCreateForm,
@@ -2427,17 +2427,17 @@ export const Actor = {
 ## Mapping
 
 original 0..202 -> expanded 0..202
-original 259..322 -> expanded 202..265
-original 322..323 -> expanded 17183..17184
+original 251..314 -> expanded 202..265
+original 314..315 -> expanded 16949..16950
 generated 265..392 <- Default
-generated 392..2323 <- Serialize
-generated 2323..10954 <- Deserialize
-generated 10954..16837 <- Gigaform
-generated 16837..17183 <- __convenience_const
+generated 392..2285 <- Encode
+generated 2285..10762 <- Decode
+generated 10762..16635 <- Gigaform
+generated 16635..16949 <- __convenience_const
 
 ## Metadata
 
-type Actor: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":296,"start":281}}],"kind":{"TypeRef":"User"}},{"decorators":[],"kind":{"TypeRef":"Employee"}},{"decorators":[],"kind":{"TypeRef":"Account"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":260,"start":203}}],"name":"Actor","span":{"end":323,"start":268},"type_params":[]}
+type Actor: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":288,"start":273}}],"kind":{"TypeRef":"User"}},{"decorators":[],"kind":{"TypeRef":"Employee"}},{"decorators":[],"kind":{"TypeRef":"Account"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":252,"start":203}}],"name":"Actor","span":{"end":315,"start":260},"type_params":[]}
 
 ## Registry reads
 

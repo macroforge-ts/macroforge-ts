@@ -1,12 +1,12 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface User {
     id: string;
     email: string | null;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     firstName: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     lastName: string;
     password: string | null;
     metadata: Metadata | null;
@@ -21,15 +21,15 @@ export interface User {
     permissions: AppPermissions;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Service {
     /** @hiddenController({}) */
     id: string;
     /** @textController({ label: "Name" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
     /** @textController({ label: "Quick Code" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     quickCode: string;
     /** @comboboxController({ label: "Group", allowCustom: true }) */
     group: string | null;
@@ -48,16 +48,16 @@ export interface Service {
     defaults: ServiceDefaults;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface ServiceDefaults {
     /** @numberController({ label: "Price", min: 0, step: 0.01 }) */
     price: number;
     /** @textAreaController({ label: "Description" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     description: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Did {
     /** @default("") */
     in: string | Actor;
@@ -69,44 +69,44 @@ export interface Did {
     metadata: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface PersonName {
     /** @textController({ label: "First Name" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     firstName: string;
     /** @textController({ label: "Last Name" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     lastName: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Promotion {
     id: string;
     date: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Site {
     id: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     addressLine1: string;
     addressLine2: string | null;
     sublocalityLevel1: string | null;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     locality: string;
     administrativeAreaLevel3: string | null;
     administrativeAreaLevel2: string | null;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     administrativeAreaLevel1: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     country: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     postalCode: string;
     postalCodeSuffix: string | null;
     coordinates: Coordinates;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Metadata {
     createdAt: string;
     lastLogin: string | null;
@@ -114,22 +114,22 @@ export interface Metadata {
     roles: Array<string>;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface ColumnConfig {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     heading: string;
     dataPath: DataPath;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface PhoneNumber {
     /** @switchController({ label: "Main" }) */
     main: boolean;
     /** @comboboxController({ label: "Phone Type", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     phoneType: string;
     /** @textController({ label: "Number" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     number: string;
     /** @switchController({ label: "Can Text" }) */
     canText: boolean;
@@ -137,20 +137,20 @@ export interface PhoneNumber {
     canCall: boolean;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Gradient {
     startHue: number;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Product {
     /** @hiddenController({}) */
     id: string;
     /** @textController({ label: "Name" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
     /** @textController({ label: "Quick Code" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     quickCode: string;
     /** @comboboxController({ label: "Group", allowCustom: true }) */
     group: string | null;
@@ -167,34 +167,34 @@ export interface Product {
     defaults: ProductDefaults;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface YearlyRecurrenceRule {
     quantityOfYears: number;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface AppointmentNotifications {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     personalScheduleChangeNotifications: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     allScheduleChangeNotifications: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface DirectionHue {
     bearing: number;
     hue: number;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface MonthlyRecurrenceRule {
     quantityOfMonths: number;
     day: number;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Represents {
     /** @default("") */
     in: string | Employee;
@@ -204,13 +204,13 @@ export interface Represents {
     dateStarted: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Payment {
     id: string;
     date: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Settings {
     appointmentNotifications: AppointmentNotifications | null;
     commissions: Commissions | null;
@@ -227,26 +227,26 @@ export interface Settings {
     homePage: Page;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Color {
     red: number;
     green: number;
     blue: number;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface CompanyName {
     /** @textController({ label: "Company Name" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     companyName: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Appointment {
     /** @hiddenController({}) */
     id: string;
     /** @textController({ label: "Title" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     title: string;
     /** @selectController({ label: "Status", options: [{ label: "Scheduled", value: "Scheduled" }, { label: "On Deck", value: "OnDeck" }, { label: "Waiting", value: "Waiting" }] }) */
     /** @default("Scheduled") */
@@ -277,7 +277,7 @@ export interface Appointment {
     recurrenceRule: RecurrenceRule | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Package {
     /** @hiddenController({}) */
     id: string;
@@ -285,7 +285,7 @@ export interface Package {
     date: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface ScheduleSettings {
     daysPerWeek: number;
     /** @default("Medium") */
@@ -294,12 +294,12 @@ export interface ScheduleSettings {
     detailedCards: boolean;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface DailyRecurrenceRule {
     quantityOfDays: number;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface SignUpCredentials {
     firstName: FirstName;
     lastName: LastName;
@@ -308,7 +308,7 @@ export interface SignUpCredentials {
     rememberMe: boolean;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface OverviewSettings {
     /** @default("Medium") */
     rowHeight: RowHeight;
@@ -318,13 +318,13 @@ export interface OverviewSettings {
     columnConfigs: Array<ColumnConfig>;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface FirstName {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Account {
     /** @hiddenController({}) */
     id: string;
@@ -354,7 +354,7 @@ export interface Account {
     /** @emailFieldController({ label: "Email" }) */
     email: Email;
     /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     leadSource: string;
     /** @hiddenController({}) */
     colors: Colors;
@@ -363,15 +363,15 @@ export interface Account {
     /** @toggleController({ label: "Has Alert" }) */
     hasAlert: boolean;
     /** @comboboxController({ label: "Account Type", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     accountType: string;
     /** @comboboxController({ label: "Subtype", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     subtype: string;
     /** @toggleController({ label: "Tax Exempt" }) */
     isTaxExempt: boolean;
     /** @comboboxController({ label: "Payment Terms", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
     /** @tagsController({ label: "Tags" }) */
     tags: Array<string>;
@@ -379,15 +379,15 @@ export interface Account {
     dateAdded: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Edited {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     fieldName: string;
     oldValue: string | null;
     newValue: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Order {
     /** @hiddenController({}) */
     id: string;
@@ -402,29 +402,29 @@ export interface Order {
     /** @hiddenController({}) */
     payments: Array<string | Payment>;
     /** @textController({ label: "Opportunity" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     opportunity: string;
     /** @textController({ label: "Reference" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     reference: string;
     /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     leadSource: string;
     /** @comboboxController({ label: "Sales Rep", allowCustom: false, fetchUrls: ["/api/employees"] }) */
     /** @default("") */
     salesRep: string | Employee;
     /** @comboboxController({ label: "Group", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     group: string;
     /** @comboboxController({ label: "Subgroup", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     subgroup: string;
     /** @switchController({ label: "Posted" }) */
     isPosted: boolean;
     /** @switchController({ label: "Needs Review" }) */
     needsReview: boolean;
     /** @textController({ label: "Action Item" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     actionItem: string;
     /** @hiddenController({}) */
     upsale: number;
@@ -451,7 +451,7 @@ export interface Order {
     /** @arrayFieldsetController({ legend: "Billed Items" }) */
     billedItems: Array<BilledItem>;
     /** @textAreaController({ label: "Memo" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     memo: string;
     /** @hiddenController({}) */
     discount: number;
@@ -461,100 +461,100 @@ export interface Order {
     commissions: Array<number>;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Commented {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     comment: string;
     replyTo: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Custom {
     mappings: Array<DirectionHue>;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Colors {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     main: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     hover: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     active: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface ProductDefaults {
     /** @numberController({ label: "Price", min: 0, step: 0.01 }) */
     price: number;
     /** @textAreaController({ label: "Description" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     description: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Viewed {
     durationSeconds: number | null;
     source: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface WeeklyRecurrenceRule {
     quantityOfWeeks: number;
     weekdays: Array<Weekday>;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Paid {
     amount: number | null;
     currency: string | null;
     paymentMethod: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface TaxRate {
     /** @hiddenController({}) */
     id: string;
     /** @textController({ label: "Name" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
     /** @textController({ label: "Tax Agency" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     taxAgency: string;
     /** @numberController({ label: "Zip", min: 0 }) */
     zip: number;
     /** @textController({ label: "City" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     city: string;
     /** @textController({ label: "County" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     county: string;
     /** @textController({ label: "State" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     state: string;
     /** @switchController({ label: "Active" }) */
     isActive: boolean;
     /** @textAreaController({ label: "Description" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     description: string;
     /** @hiddenController({}) */
     /** @default({}) */
     taxComponents: { [key: string]: number };
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Address {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     street: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     city: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     state: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     zipcode: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Lead {
     /** @hiddenController({}) */
     id: string;
@@ -577,7 +577,7 @@ export interface Lead {
     /** @default("Open") */
     stage: LeadStage;
     /** @textController({ label: "Status" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     status: string;
     /** @textAreaController({ label: "Description" }) */
     description: string | null;
@@ -605,7 +605,7 @@ export interface Lead {
     /** @default("") */
     site: string | Site;
     /** @textAreaController({ label: "Memo" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     memo: string;
     /** @toggleController({ label: "Needs Review" }) */
     needsReview: boolean;
@@ -616,15 +616,15 @@ export interface Lead {
     /** @hiddenController({}) */
     color: string | null;
     /** @comboboxController({ label: "Account Type", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     accountType: string;
     /** @comboboxController({ label: "Subtype", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     subtype: string;
     /** @toggleController({ label: "Tax Exempt" }) */
     isTaxExempt: boolean;
     /** @comboboxController({ label: "Payment Terms", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
     /** @tagsController({ label: "Tags" }) */
     tags: Array<string>;
@@ -632,46 +632,46 @@ export interface Lead {
     customFields: Array<[string, string]>;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface AppPermissions {
     applications: Array<Applications>;
     pages: Array<Page>;
     data: Array<Table>;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Company {
     id: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     legalName: string;
     /** @default("") */
     headquarters: string | Site;
     phones: Array<PhoneNumber>;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     fax: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     email: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     website: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     taxId: string;
     referenceNumber: number;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     postalCodeLookup: string;
     timeZone: string;
     /** @default("") */
     defaultTax: string | TaxRate;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     defaultTaxLocation: string;
     defaultAreaCode: number;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     defaultAccountType: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     lookupFormatting: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     accountNameFormat: string;
     merchantServiceProvider: string | null;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     dateDisplayStyle: string;
     hasAutoCommission: boolean;
     hasAutoDaylightSavings: boolean;
@@ -685,7 +685,7 @@ export interface Company {
     colorsConfig: ColorsConfig;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Ordinal {
     north: number;
     northeast: number;
@@ -697,32 +697,32 @@ export interface Ordinal {
     northwest: number;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Password {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     password: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Created {
     initialData: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Employee {
     id: string;
     imageUrl: string | null;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
     phones: Array<PhoneNumber>;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     role: string;
     /** @default("Technician") */
     title: JobTitle;
     email: Email;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     address: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     username: string;
     /** @default("") */
     route: string | Route;
@@ -736,40 +736,40 @@ export interface Employee {
     settings: Settings;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Commissions {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     technician: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     salesRep: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Number {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     countryCode: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     areaCode: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     localNumber: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface DataPath {
     path: Array<string>;
     formatter: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Route {
     id: string;
     techs: Array<string | Employee> | null;
     active: boolean;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     phone: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     position: string;
     serviceRoute: boolean;
     defaultDurationHours: number;
@@ -778,23 +778,23 @@ export interface Route {
     color: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface EmailParts {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     local: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     domainName: string;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     topLevelDomain: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Sent {
     recipient: string | null;
     method: string | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface BilledItem {
     /** @comboboxController({ label: "Item", allowCustom: true, fetchUrls: ["/api/products", "/api/services"] }) */
     /** @default("") */
@@ -807,13 +807,13 @@ export interface BilledItem {
     upsale: boolean;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Coordinates {
     lat: number;
     lng: number;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Ordered {
     id: string;
     /** @default("") */
@@ -823,16 +823,16 @@ export interface Ordered {
     date: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Email {
     /** @switchController({ label: "Can Email" }) */
     canEmail: boolean;
     /** @textController({ label: "Email" }) */
-    /** @serde({ validate: ["nonEmpty", "email"] }) */
+    /** @endec({ validate: ["nonEmpty", "email"] }) */
     emailString: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface RecurrenceRule {
     interval: Interval;
     recurrenceBegins: string;
@@ -841,13 +841,13 @@ export interface RecurrenceRule {
     additionalInstances: Array<string> | null;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface LastName {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Cardinal {
     north: number;
     east: number;
@@ -855,14 +855,14 @@ export interface Cardinal {
     west: number;
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Interval =
     | /** @default */ DailyRecurrenceRule
     | WeeklyRecurrenceRule
     | MonthlyRecurrenceRule
     | YearlyRecurrenceRule;
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Page =
     | /** @default */ 'SalesHomeDashboard'
     | 'SalesHomeProducts'
@@ -890,7 +890,7 @@ export type Page =
     | 'SalesSchedulingReminders'
     | 'UserHome';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type UserRole =
     | /** @default */ 'Administrator'
     | 'SalesRepresentative'
@@ -898,7 +898,7 @@ export type UserRole =
     | 'HumanResources'
     | 'InformationTechnology';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Target =
     | /** @default */ Account
     | User
@@ -918,19 +918,19 @@ export type Target =
     | Represents
     | Ordered;
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type RecurrenceEnd = /** @default(0) */ number | string;
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type OverviewDisplay = /** @default */ 'Card' | 'Table';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type IntervalUnit = /** @default */ 'Day' | 'Week' | 'Month' | 'Year';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Sector = /** @default */ 'Residential' | 'Commercial';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Weekday =
     | /** @default */ 'Monday'
     | 'Tuesday'
@@ -940,17 +940,17 @@ export type Weekday =
     | 'Saturday'
     | 'Sunday';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Status = /** @default */ 'Scheduled' | 'OnDeck' | 'Waiting';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type NextStep =
     | /** @default */ 'InitialContact'
     | 'Qualified'
     | 'Estimate'
     | 'Negotiation';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type LeadStage =
     | /** @default */ 'Open'
     | 'InitialContact'
@@ -958,14 +958,14 @@ export type LeadStage =
     | 'Estimate'
     | 'Negotiation';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 /** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
 export type AccountName = /** @default */ CompanyName | PersonName;
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Priority = /** @default */ 'Medium' | 'High' | 'Low';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Applications =
     | /** @default */ 'Sales'
     | 'Accounting'
@@ -975,21 +975,21 @@ export type Applications =
     | 'Marketing'
     | 'Website';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type JobTitle =
     | /** @default */ 'Technician'
     | 'SalesRepresentative'
     | 'HumanResources'
     | 'InformationTechnology';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type ColorsConfig =
     | Cardinal
     | Ordinal
     | Custom
     | /** @default */ Gradient;
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type WeekOfMonth =
     | /** @default */ 'First'
     | 'Second'
@@ -997,7 +997,7 @@ export type WeekOfMonth =
     | 'Fourth'
     | 'Last';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type ActivityType =
     | /** @default */ Created
     | Edited
@@ -1006,17 +1006,17 @@ export type ActivityType =
     | Commented
     | Paid;
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type RowHeight =
     | 'ExtraSmall'
     | 'Small'
     | /** @default */ 'Medium'
     | 'Large';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type OrderStage = /** @default */ 'Estimate' | 'Active' | 'Invoice';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Table =
     | /** @default */ 'Account'
     | 'Did'
@@ -1037,11 +1037,11 @@ export type Table =
     | 'Represents'
     | 'Ordered';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Item = RecordLink<Product> | /** @default */ RecordLink<Service>;
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export type RecordLink<T> = /** @default */ string | T;
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Actor = /** @default */ User | Employee | Account;

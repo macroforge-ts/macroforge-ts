@@ -5,61 +5,61 @@
 
 import type { ValidationOutcome } from '../validation-outcome';
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class UserRegistrationForm {
-    /** @serde({ validate: ["email"] }) */
+    /** @endec({ validate: ["email"] }) */
     email: string;
 
-    /** @serde({ validate: ["minLength(8)", "maxLength(50)"] }) */
+    /** @endec({ validate: ["minLength(8)", "maxLength(50)"] }) */
     password: string;
 
-    /** @serde({ validate: ["minLength(3)", "maxLength(20)", "lowercase", "pattern(\"^[a-z][a-z0-9_]+$\")"] }) */
+    /** @endec({ validate: ["minLength(3)", "maxLength(20)", "lowercase", "pattern(\"^[a-z][a-z0-9_]+$\")"] }) */
     username: string;
 
-    /** @serde({ validate: ["int", "between(18, 120)"] }) */
+    /** @endec({ validate: ["int", "between(18, 120)"] }) */
     age: number;
 
-    /** @serde({ validate: ["url"] }) */
+    /** @endec({ validate: ["url"] }) */
     website: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class ProductForm {
-    /** @serde({ validate: ["nonEmpty", "maxLength(100)"] }) */
+    /** @endec({ validate: ["nonEmpty", "maxLength(100)"] }) */
     name: string;
 
-    /** @serde({ validate: ["positive", "lessThan(1000000)"] }) */
+    /** @endec({ validate: ["positive", "lessThan(1000000)"] }) */
     price: number;
 
-    /** @serde({ validate: ["int", "nonNegative"] }) */
+    /** @endec({ validate: ["int", "nonNegative"] }) */
     quantity: number;
 
-    /** @serde({ validate: ["minItems(1)", "maxItems(5)"] }) */
+    /** @endec({ validate: ["minItems(1)", "maxItems(5)"] }) */
     tags: Array<string>;
 
-    /** @serde({ validate: ["uuid"] }) */
+    /** @endec({ validate: ["uuid"] }) */
     sku: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class EventForm {
-    /** @serde({ validate: ["nonEmpty", "trimmed"] }) */
+    /** @endec({ validate: ["nonEmpty", "trimmed"] }) */
     title: string;
 
-    /** @serde({ validate: ["validDate", "greaterThanDate(\"2020-01-01\")"] }) */
+    /** @endec({ validate: ["validDate", "greaterThanDate(\"2020-01-01\")"] }) */
     startDate: Date;
 
-    /** @serde({ validate: ["validDate"] }) */
+    /** @endec({ validate: ["validDate"] }) */
     endDate: Date;
 
-    /** @serde({ validate: ["int", "between(1, 1000)"] }) */
+    /** @endec({ validate: ["int", "between(1, 1000)"] }) */
     maxAttendees: number;
 }
 
 /** A validator's result, with each field error rendered as `field: message`. */
 export type ValidationResult<T> = ValidationOutcome<T, Array<string>>;
 
-/** Converts what a derived `deserialize()` returns into a `ValidationResult`. */
+/** Converts what a derived `decode()` returns into a `ValidationResult`. */
 export function toValidationResult<T>(
     result: { success: true; value: T } | {
         success: false;
@@ -79,16 +79,16 @@ export function toValidationResult<T>(
 export function validateUserRegistration(
     data: unknown
 ): ValidationResult<UserRegistrationForm> {
-    const result = UserRegistrationForm.deserialize(data);
+    const result = UserRegistrationForm.decode(data);
     return toValidationResult(result);
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = ProductForm.deserialize(data);
+    const result = ProductForm.decode(data);
     return toValidationResult(result);
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = EventForm.deserialize(data);
+    const result = EventForm.decode(data);
     return toValidationResult(result);
 }

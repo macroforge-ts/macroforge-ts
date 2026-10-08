@@ -2,5 +2,5 @@
 // every required field must be present, and optional fields are copied only
 // when the input carries them.
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export type Link = string | { id: string; label?: string };

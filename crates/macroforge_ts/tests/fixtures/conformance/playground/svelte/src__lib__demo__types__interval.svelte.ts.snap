@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/interval.svelte.ts
-sha256 ce23034ac35945cdd29cddd18bc51708ac291ec0d68ad8476000b8b54de1ea9b
+sha256 8f8373183429d72d2813a28fca73f10157dca338c73a451b2fde158c0e884cd6
 
 ## Changed
 
@@ -12,20 +12,20 @@ true
 
 ## Output
 
-import { dailyRecurrenceRuleDeserializeWithContext } from "./daily-recurrence-rule.svelte";
+import { dailyRecurrenceRuleDecodeWithContext } from "./daily-recurrence-rule.svelte";
 import { dailyRecurrenceRuleHasShape } from "./daily-recurrence-rule.svelte";
-import { monthlyRecurrenceRuleDeserializeWithContext } from "./monthly-recurrence-rule.svelte";
+import { monthlyRecurrenceRuleDecodeWithContext } from "./monthly-recurrence-rule.svelte";
 import { monthlyRecurrenceRuleHasShape } from "./monthly-recurrence-rule.svelte";
-import { weeklyRecurrenceRuleDeserializeWithContext } from "./weekly-recurrence-rule.svelte";
+import { weeklyRecurrenceRuleDecodeWithContext } from "./weekly-recurrence-rule.svelte";
 import { weeklyRecurrenceRuleHasShape } from "./weekly-recurrence-rule.svelte";
-import { yearlyRecurrenceRuleDeserializeWithContext } from "./yearly-recurrence-rule.svelte";
+import { yearlyRecurrenceRuleDecodeWithContext } from "./yearly-recurrence-rule.svelte";
 import { yearlyRecurrenceRuleHasShape } from "./yearly-recurrence-rule.svelte";
 import { dailyRecurrenceRuleDefaultValue } from "./daily-recurrence-rule.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { monthlyRecurrenceRuleDefaultValue } from "./monthly-recurrence-rule.svelte";
 import { weeklyRecurrenceRuleDefaultValue } from "./weekly-recurrence-rule.svelte";
 import { yearlyRecurrenceRuleDefaultValue } from "./yearly-recurrence-rule.svelte";
@@ -51,20 +51,20 @@ export function intervalDefaultValue(): Interval {
                             return dailyRecurrenceRuleDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function intervalSerialize(value: Interval, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = intervalSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function intervalEncode(value: Interval, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = intervalEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function intervalSerializeWithContext(value: Interval, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -131,20 +131,20 @@ export function intervalDefaultValue(): Interval {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function intervalDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = intervalDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = intervalDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Interval.deserialize: root cannot be a forward reference"
+		message: "Interval.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -167,7 +167,7 @@ export function intervalDefaultValue(): Interval {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -184,8 +184,8 @@ export function intervalDefaultValue(): Interval {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function intervalDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Interval | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function intervalDecodeWithContext(value: any, ctx: __mf_DecodeContext): Interval | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Interval | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -193,19 +193,19 @@ export function intervalDefaultValue(): Interval {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "DailyRecurrenceRule") {
-                                                return dailyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             }
                                         
                                             if (__typeName === "WeeklyRecurrenceRule") {
-                                                return weeklyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             }
                                         
                                             if (__typeName === "MonthlyRecurrenceRule") {
-                                                return monthlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             }
                                         
                                             if (__typeName === "YearlyRecurrenceRule") {
-                                                return yearlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             }
 
 
@@ -219,9 +219,9 @@ export function intervalDefaultValue(): Interval {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "Interval.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
+                                            message: "Interval.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
                                         }]);
                                     }
                                 }
@@ -245,19 +245,19 @@ export function intervalDefaultValue(): Interval {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "DailyRecurrenceRule") {
-                                            return dailyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                            return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                         }
                                     
                                         if (__shapeMatches[0] === "WeeklyRecurrenceRule") {
-                                            return weeklyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                            return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                         }
                                     
                                         if (__shapeMatches[0] === "MonthlyRecurrenceRule") {
-                                            return monthlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                            return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                         }
                                     
                                         if (__shapeMatches[0] === "YearlyRecurrenceRule") {
-                                            return yearlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                            return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                         }
 
 
@@ -273,28 +273,28 @@ export function intervalDefaultValue(): Interval {
                                     
                                         if (__shapeMatches.includes("DailyRecurrenceRule")) {
                                             try {
-                                                return dailyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("WeeklyRecurrenceRule")) {
                                             try {
-                                                return weeklyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("MonthlyRecurrenceRule")) {
                                             try {
-                                                return monthlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("YearlyRecurrenceRule")) {
                                             try {
-                                                return yearlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             } catch {                        }
                                         }
 
@@ -307,15 +307,15 @@ export function intervalDefaultValue(): Interval {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "Interval.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "Interval.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "Interval.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
+                                    message: "Interval.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
                                 }]);
 
 
@@ -1204,7 +1204,7 @@ if (variant === "YearlyRecurrenceRule") { return yearlyRecurrenceRuleDefaultValu
 
 
             function validate(): Exit.Exit<Interval, Array<{ field: string; message: string }>> {
-                return toExit(intervalDeserialize(data));
+                return toExit(intervalDecode(data));
             }
 
 
@@ -1265,15 +1265,15 @@ if (variant === "YearlyRecurrenceRule") { return yearlyRecurrenceRuleDefaultValu
                 }
 
 
-            return toExit(intervalDeserialize(obj));
+            return toExit(intervalDecode(obj));
         }
 
 export const Interval = {
   defaultValue: intervalDefaultValue,
-  serialize: intervalSerialize,
-  serializeWithContext: intervalSerializeWithContext,
-  deserialize: intervalDeserialize,
-  deserializeWithContext: intervalDeserializeWithContext,
+  encode: intervalEncode,
+  encodeWithContext: intervalEncodeWithContext,
+  decode: intervalDecode,
+  decodeWithContext: intervalDecodeWithContext,
   hasShape: intervalHasShape,
   is: intervalIs,
   createForm: intervalCreateForm,
@@ -1300,20 +1300,20 @@ export function intervalDefaultValue(): Interval {
                             return dailyRecurrenceRuleDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function intervalSerialize(value: Interval, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = intervalSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function intervalEncode(value: Interval, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = intervalEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function intervalSerializeWithContext(value: Interval, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function intervalEncodeWithContext(value: Interval, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1380,20 +1380,20 @@ export function intervalDefaultValue(): Interval {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function intervalDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function intervalDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Interval } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = intervalDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = intervalDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Interval.deserialize: root cannot be a forward reference"
+		message: "Interval.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1416,7 +1416,7 @@ export function intervalDefaultValue(): Interval {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1433,8 +1433,8 @@ export function intervalDefaultValue(): Interval {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function intervalDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Interval | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function intervalDecodeWithContext(value: any, ctx: __mf_DecodeContext): Interval | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Interval | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -1442,19 +1442,19 @@ export function intervalDefaultValue(): Interval {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "DailyRecurrenceRule") {
-                                                return dailyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             }
                                         
                                             if (__typeName === "WeeklyRecurrenceRule") {
-                                                return weeklyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             }
                                         
                                             if (__typeName === "MonthlyRecurrenceRule") {
-                                                return monthlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             }
                                         
                                             if (__typeName === "YearlyRecurrenceRule") {
-                                                return yearlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             }
 
 
@@ -1468,9 +1468,9 @@ export function intervalDefaultValue(): Interval {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "Interval.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
+                                            message: "Interval.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
                                         }]);
                                     }
                                 }
@@ -1494,19 +1494,19 @@ export function intervalDefaultValue(): Interval {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "DailyRecurrenceRule") {
-                                            return dailyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                            return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                         }
                                     
                                         if (__shapeMatches[0] === "WeeklyRecurrenceRule") {
-                                            return weeklyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                            return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                         }
                                     
                                         if (__shapeMatches[0] === "MonthlyRecurrenceRule") {
-                                            return monthlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                            return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                         }
                                     
                                         if (__shapeMatches[0] === "YearlyRecurrenceRule") {
-                                            return yearlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                            return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                         }
 
 
@@ -1522,28 +1522,28 @@ export function intervalDefaultValue(): Interval {
                                     
                                         if (__shapeMatches.includes("DailyRecurrenceRule")) {
                                             try {
-                                                return dailyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return dailyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("WeeklyRecurrenceRule")) {
                                             try {
-                                                return weeklyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return weeklyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("MonthlyRecurrenceRule")) {
                                             try {
-                                                return monthlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return monthlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("YearlyRecurrenceRule")) {
                                             try {
-                                                return yearlyRecurrenceRuleDeserializeWithContext(value, ctx) as Interval;
+                                                return yearlyRecurrenceRuleDecodeWithContext(value, ctx) as Interval;
                                             } catch {                        }
                                         }
 
@@ -1556,15 +1556,15 @@ export function intervalDefaultValue(): Interval {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "Interval.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "Interval.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "Interval.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
+                                    message: "Interval.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule"
                                 }]);
 
 
@@ -2453,7 +2453,7 @@ if (variant === "YearlyRecurrenceRule") { return yearlyRecurrenceRuleDefaultValu
 
 
             function validate(): Exit.Exit<Interval, Array<{ field: string; message: string }>> {
-                return toExit(intervalDeserialize(data));
+                return toExit(intervalDecode(data));
             }
 
 
@@ -2514,15 +2514,15 @@ if (variant === "YearlyRecurrenceRule") { return yearlyRecurrenceRuleDefaultValu
                 }
 
 
-            return toExit(intervalDeserialize(obj));
+            return toExit(intervalDecode(obj));
         }
 
 export const Interval = {
   defaultValue: intervalDefaultValue,
-  serialize: intervalSerialize,
-  serializeWithContext: intervalSerializeWithContext,
-  deserialize: intervalDeserialize,
-  deserializeWithContext: intervalDeserializeWithContext,
+  encode: intervalEncode,
+  encodeWithContext: intervalEncodeWithContext,
+  decode: intervalDecode,
+  decodeWithContext: intervalDecodeWithContext,
   hasShape: intervalHasShape,
   is: intervalIs,
   createForm: intervalCreateForm,
@@ -2536,17 +2536,17 @@ export const Interval = {
 ## Mapping
 
 original 0..367 -> expanded 0..367
-original 424..572 -> expanded 367..515
-original 572..573 -> expanded 21574..21575
+original 416..564 -> expanded 367..515
+original 564..565 -> expanded 21325..21326
 generated 515..663 <- Default
-generated 663..2609 <- Serialize
-generated 2609..13183 <- Deserialize
-generated 13183..21198 <- Gigaform
-generated 21198..21574 <- __convenience_const
+generated 663..2571 <- Encode
+generated 2571..12976 <- Decode
+generated 12976..20981 <- Gigaform
+generated 20981..21325 <- __convenience_const
 
 ## Metadata
 
-type Interval: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":470,"start":455}}],"kind":{"TypeRef":"DailyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"WeeklyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"MonthlyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"YearlyRecurrenceRule"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":425,"start":368}}],"name":"Interval","span":{"end":573,"start":433},"type_params":[]}
+type Interval: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":462,"start":447}}],"kind":{"TypeRef":"DailyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"WeeklyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"MonthlyRecurrenceRule"}},{"decorators":[],"kind":{"TypeRef":"YearlyRecurrenceRule"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":417,"start":368}}],"name":"Interval","span":{"end":565,"start":425},"type_params":[]}
 
 ## Registry reads
 

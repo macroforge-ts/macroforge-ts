@@ -7,13 +7,13 @@
  * @example
  * ```typescript
  * // Define form with Gigaform macro
- * // @derive(Default, Serialize, Deserialize, Gigaform)
+ * // @derive(Default, Encode, Decode, Gigaform)
  * export interface UserForm {
- *   // @serde({ validate: ["email"] })
+ *   // @endec({ validate: ["email"] })
  *   // @textController({ label: "Email" })
  *   email: string;
  *
- *   // @serde({ validate: ["minLength(2)"] })
+ *   // @endec({ validate: ["minLength(2)"] })
  *   // @textController({ label: "Name" })
  *   name: string;
  * }

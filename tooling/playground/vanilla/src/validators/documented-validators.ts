@@ -1,341 +1,341 @@
 /**
- * One class per validator in the serde validators documentation, each holding
+ * One class per validator in the endec validators documentation, each holding
  * a single `value` field, so the documented behaviour of every validator is
  * checked by documented-validators.test.mjs.
  */
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocEmail {
-    /** @serde({ validate: ["email"] }) */
+    /** @endec({ validate: ["email"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocUrl {
-    /** @serde({ validate: ["url"] }) */
+    /** @endec({ validate: ["url"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocUuid {
-    /** @serde({ validate: ["uuid"] }) */
+    /** @endec({ validate: ["uuid"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocPattern {
-    /** @serde({ validate: ['pattern("^[A-Z]{3}$")'] }) */
+    /** @endec({ validate: ['pattern("^[A-Z]{3}$")'] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocPatternWithSlash {
-    /** @serde({ validate: ['pattern("^a/b$")'] }) */
+    /** @endec({ validate: ['pattern("^a/b$")'] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocMinLength {
-    /** @serde({ validate: ["minLength(3)"] }) */
+    /** @endec({ validate: ["minLength(3)"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocMaxLength {
-    /** @serde({ validate: ["maxLength(3)"] }) */
+    /** @endec({ validate: ["maxLength(3)"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLength {
-    /** @serde({ validate: ["length(3)"] }) */
+    /** @endec({ validate: ["length(3)"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLengthRange {
-    /** @serde({ validate: ["length(2, 4)"] }) */
+    /** @endec({ validate: ["length(2, 4)"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNonEmpty {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocTrimmed {
-    /** @serde({ validate: ["trimmed"] }) */
+    /** @endec({ validate: ["trimmed"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLowercase {
-    /** @serde({ validate: ["lowercase"] }) */
+    /** @endec({ validate: ["lowercase"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocUppercase {
-    /** @serde({ validate: ["uppercase"] }) */
+    /** @endec({ validate: ["uppercase"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocCapitalized {
-    /** @serde({ validate: ["capitalized"] }) */
+    /** @endec({ validate: ["capitalized"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocUncapitalized {
-    /** @serde({ validate: ["uncapitalized"] }) */
+    /** @endec({ validate: ["uncapitalized"] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocStartsWith {
-    /** @serde({ validate: ['startsWith("pre")'] }) */
+    /** @endec({ validate: ['startsWith("pre")'] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocStartsWithQuote {
-    /** @serde({ validate: ['startsWith("a\\"b")'] }) */
+    /** @endec({ validate: ['startsWith("a\\"b")'] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocEndsWith {
-    /** @serde({ validate: ['endsWith("fix")'] }) */
+    /** @endec({ validate: ['endsWith("fix")'] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocIncludes {
-    /** @serde({ validate: ['includes("mid")'] }) */
+    /** @endec({ validate: ['includes("mid")'] }) */
     value: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocGreaterThan {
-    /** @serde({ validate: ["greaterThan(5)"] }) */
+    /** @endec({ validate: ["greaterThan(5)"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocGreaterThanOrEqualTo {
-    /** @serde({ validate: ["greaterThanOrEqualTo(5)"] }) */
+    /** @endec({ validate: ["greaterThanOrEqualTo(5)"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLessThan {
-    /** @serde({ validate: ["lessThan(5)"] }) */
+    /** @endec({ validate: ["lessThan(5)"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLessThanOrEqualTo {
-    /** @serde({ validate: ["lessThanOrEqualTo(5)"] }) */
+    /** @endec({ validate: ["lessThanOrEqualTo(5)"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocBetween {
-    /** @serde({ validate: ["between(1, 10)"] }) */
+    /** @endec({ validate: ["between(1, 10)"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocInt {
-    /** @serde({ validate: ["int"] }) */
+    /** @endec({ validate: ["int"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNonNegativeInt {
-    /** @serde({ validate: ["nonNegativeInt"] }) */
+    /** @endec({ validate: ["nonNegativeInt"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocUint8 {
-    /** @serde({ validate: ["uint8"] }) */
+    /** @endec({ validate: ["uint8"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocMultipleOfDecimal {
-    /** @serde({ validate: ["multipleOf(0.1)"] }) */
+    /** @endec({ validate: ["multipleOf(0.1)"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocMultipleOfInteger {
-    /** @serde({ validate: ["multipleOf(5)"] }) */
+    /** @endec({ validate: ["multipleOf(5)"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocPositive {
-    /** @serde({ validate: ["positive"] }) */
+    /** @endec({ validate: ["positive"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNonNegative {
-    /** @serde({ validate: ["nonNegative"] }) */
+    /** @endec({ validate: ["nonNegative"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNegative {
-    /** @serde({ validate: ["negative"] }) */
+    /** @endec({ validate: ["negative"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNonPositive {
-    /** @serde({ validate: ["nonPositive"] }) */
+    /** @endec({ validate: ["nonPositive"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocFinite {
-    /** @serde({ validate: ["finite"] }) */
+    /** @endec({ validate: ["finite"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNonNaN {
-    /** @serde({ validate: ["nonNaN"] }) */
+    /** @endec({ validate: ["nonNaN"] }) */
     value: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocPositiveBigInt {
-    /** @serde({ validate: ["positiveBigInt"] }) */
+    /** @endec({ validate: ["positiveBigInt"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNonNegativeBigInt {
-    /** @serde({ validate: ["nonNegativeBigInt"] }) */
+    /** @endec({ validate: ["nonNegativeBigInt"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNegativeBigInt {
-    /** @serde({ validate: ["negativeBigInt"] }) */
+    /** @endec({ validate: ["negativeBigInt"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNonPositiveBigInt {
-    /** @serde({ validate: ["nonPositiveBigInt"] }) */
+    /** @endec({ validate: ["nonPositiveBigInt"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocGreaterThanBigInt {
-    /** @serde({ validate: ["greaterThanBigInt(5)"] }) */
+    /** @endec({ validate: ["greaterThanBigInt(5)"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocGreaterThanOrEqualToBigInt {
-    /** @serde({ validate: ["greaterThanOrEqualToBigInt(5)"] }) */
+    /** @endec({ validate: ["greaterThanOrEqualToBigInt(5)"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLessThanBigInt {
-    /** @serde({ validate: ["lessThanBigInt(5)"] }) */
+    /** @endec({ validate: ["lessThanBigInt(5)"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLessThanOrEqualToBigInt {
-    /** @serde({ validate: ["lessThanOrEqualToBigInt(5)"] }) */
+    /** @endec({ validate: ["lessThanOrEqualToBigInt(5)"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocBetweenBigInt {
-    /** @serde({ validate: ["betweenBigInt(1, 10)"] }) */
+    /** @endec({ validate: ["betweenBigInt(1, 10)"] }) */
     value: bigint;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocValidDate {
-    /** @serde({ validate: ["validDate"] }) */
+    /** @endec({ validate: ["validDate"] }) */
     value: Date;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocGreaterThanDate {
-    /** @serde({ validate: ['greaterThanDate("2020-01-01")'] }) */
+    /** @endec({ validate: ['greaterThanDate("2020-01-01")'] }) */
     value: Date;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocGreaterThanOrEqualToDate {
-    /** @serde({ validate: ['greaterThanOrEqualToDate("2020-01-01")'] }) */
+    /** @endec({ validate: ['greaterThanOrEqualToDate("2020-01-01")'] }) */
     value: Date;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLessThanDate {
-    /** @serde({ validate: ['lessThanDate("2020-01-01")'] }) */
+    /** @endec({ validate: ['lessThanDate("2020-01-01")'] }) */
     value: Date;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocLessThanOrEqualToDate {
-    /** @serde({ validate: ['lessThanOrEqualToDate("2020-01-01")'] }) */
+    /** @endec({ validate: ['lessThanOrEqualToDate("2020-01-01")'] }) */
     value: Date;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocBetweenDate {
-    /** @serde({ validate: ['betweenDate("2020-01-01", "2020-12-31")'] }) */
+    /** @endec({ validate: ['betweenDate("2020-01-01", "2020-12-31")'] }) */
     value: Date;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocMinItems {
-    /** @serde({ validate: ["minItems(2)"] }) */
+    /** @endec({ validate: ["minItems(2)"] }) */
     value: number[];
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocMaxItems {
-    /** @serde({ validate: ["maxItems(2)"] }) */
+    /** @endec({ validate: ["maxItems(2)"] }) */
     value: number[];
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocItemsCount {
-    /** @serde({ validate: ["itemsCount(2)"] }) */
+    /** @endec({ validate: ["itemsCount(2)"] }) */
     value: number[];
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNullableMaxLength {
-    /** @serde({ validate: ["maxLength(3)"] }) */
+    /** @endec({ validate: ["maxLength(3)"] }) */
     value: string | null;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocNullableDate {
-    /** @serde({ validate: ["greaterThanDate(\"2020-01-01\")"] }) */
+    /** @endec({ validate: ["greaterThanDate(\"2020-01-01\")"] }) */
     value: Date | null;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class DocMessageEscaping {
-    /** @serde({ validate: [{ validate: "nonEmpty", message: "say \"hi\"\nthen stop" }] }) */
+    /** @endec({ validate: [{ validate: "nonEmpty", message: "say \"hi\"\nthen stop" }] }) */
     value: string;
 }

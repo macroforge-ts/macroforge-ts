@@ -37,10 +37,10 @@ class User {
     }
 
     #[test]
-    fn warns_on_importing_serialize_from_macroforge_core() {
-        let source = r#"import { Serialize, Deserialize } from "@macroforge/core";
+    fn warns_on_importing_encode_from_macroforge_core() {
+        let source = r#"import { Encode, Decode } from "@macroforge/core";
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 class User {
     name: string;
 }"#;
@@ -51,12 +51,12 @@ class User {
         assert!(
             warnings
                 .iter()
-                .any(|warning| warning.message.contains("Serialize"))
+                .any(|warning| warning.message.contains("Encode"))
         );
         assert!(
             warnings
                 .iter()
-                .any(|warning| warning.message.contains("Deserialize"))
+                .any(|warning| warning.message.contains("Decode"))
         );
     }
 

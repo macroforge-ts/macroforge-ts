@@ -9,8 +9,8 @@ export default {
     foreignTypes: {
         'DateTime.Utc': {
             from: ['effect'],
-            serialize: (v) => DateTime.formatIso(v),
-            deserialize: (raw) => DateTime.make(raw as string),
+            encode: (v) => DateTime.formatIso(v),
+            decode: (raw) => DateTime.make(raw as string),
             default: () =>
                 Option.match(DateTime.make(new Date()), {
                     onSome: (dt) => dt,
@@ -19,8 +19,8 @@ export default {
         },
         'Option': {
             from: ['effect'],
-            serialize: (v) => v,
-            deserialize: (raw) => raw,
+            encode: (v) => v,
+            decode: (raw) => raw,
             default: () => null
         }
     }

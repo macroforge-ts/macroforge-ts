@@ -86,10 +86,10 @@ describe('Dev Server Macro Expansion', () => {
                     'Should have Clone macro expansion'
                 );
 
-                // Serialize macro
+                // Encode macro
                 assert.ok(
-                    code.includes('serialize'),
-                    'Should have Serialize macro expansion'
+                    code.includes('encode'),
+                    'Should have Encode macro expansion'
                 );
             });
         }

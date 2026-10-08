@@ -5,8 +5,8 @@ input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_union_default_obje
 ---
 ## Input
 
-/** @derive(Default, Serialize, Deserialize) */
-/** @serde({ tag: "type", content: "value" }) */
+/** @derive(Default, Encode, Decode) */
+/** @endec({ tag: "type", content: "value" }) */
 export type PropValue =
     | /** @default */ { type: 'String'; value: string }
     | { type: 'Number'; value: number }
@@ -22,11 +22,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export type PropValue =
     | /** @default */ { type: 'String'; value: string }
@@ -44,20 +44,20 @@ export function propValueDefaultValue(): PropValue {
 });
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function propValueSerialize(value: PropValue, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = propValueSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function propValueEncode(value: PropValue, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = propValueEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function propValueSerializeWithContext(value: PropValue, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -124,20 +124,20 @@ export function propValueDefaultValue(): PropValue {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function propValueDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function propValueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = propValueDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = propValueDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "PropValue.deserialize: root cannot be a forward reference"
+		message: "PropValue.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -160,7 +160,7 @@ export function propValueDefaultValue(): PropValue {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -177,8 +177,8 @@ export function propValueDefaultValue(): PropValue {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function propValueDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PropValue | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function propValueDecodeWithContext(value: any, ctx: __mf_DecodeContext): PropValue | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as PropValue | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -278,9 +278,9 @@ export function propValueDefaultValue(): PropValue {
 
 
 
-                            throw new __mf_DeserializeError([{
+                            throw new __mf_DecodeError([{
                                 field: "_root",
-                                message: "PropValue.deserializeWithContext: value does not match any union member"
+                                message: "PropValue.decodeWithContext: value does not match any union member"
                             }]);
 
 
@@ -1026,10 +1026,10 @@ export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, {
 
 export const PropValue = {
   defaultValue: propValueDefaultValue,
-  serialize: propValueSerialize,
-  serializeWithContext: propValueSerializeWithContext,
-  deserialize: propValueDeserialize,
-  deserializeWithContext: propValueDeserializeWithContext,
+  encode: propValueEncode,
+  encodeWithContext: propValueEncodeWithContext,
+  decode: propValueDecode,
+  decodeWithContext: propValueDecodeWithContext,
   hasShape: propValueHasShape,
   is: propValueIs,
   stringIs: propValueStringIs,
@@ -1059,20 +1059,20 @@ export function propValueDefaultValue(): PropValue {
 });
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function propValueSerialize(value: PropValue, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = propValueSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function propValueEncode(value: PropValue, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = propValueEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function propValueSerializeWithContext(value: PropValue, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function propValueEncodeWithContext(value: PropValue, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1139,20 +1139,20 @@ export function propValueDefaultValue(): PropValue {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function propValueDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function propValueDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: PropValue } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = propValueDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = propValueDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "PropValue.deserialize: root cannot be a forward reference"
+		message: "PropValue.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1175,7 +1175,7 @@ export function propValueDefaultValue(): PropValue {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1192,8 +1192,8 @@ export function propValueDefaultValue(): PropValue {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function propValueDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): PropValue | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function propValueDecodeWithContext(value: any, ctx: __mf_DecodeContext): PropValue | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as PropValue | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -1293,9 +1293,9 @@ export function propValueDefaultValue(): PropValue {
 
 
 
-                            throw new __mf_DeserializeError([{
+                            throw new __mf_DecodeError([{
                                 field: "_root",
-                                message: "PropValue.deserializeWithContext: value does not match any union member"
+                                message: "PropValue.decodeWithContext: value does not match any union member"
                             }]);
 
 
@@ -2041,10 +2041,10 @@ export function propValueExpressionIs(__v: unknown): __v is Extract<PropValue, {
 
 export const PropValue = {
   defaultValue: propValueDefaultValue,
-  serialize: propValueSerialize,
-  serializeWithContext: propValueSerializeWithContext,
-  deserialize: propValueDeserialize,
-  deserializeWithContext: propValueDeserializeWithContext,
+  encode: propValueEncode,
+  encodeWithContext: propValueEncodeWithContext,
+  decode: propValueDecode,
+  decodeWithContext: propValueDecodeWithContext,
   hasShape: propValueHasShape,
   is: propValueIs,
   stringIs: propValueStringIs,
@@ -2062,16 +2062,16 @@ export const PropValue = {
 
 ## Mapping
 
-original 96..418 -> expanded 0..322
-original 418..419 -> expanded 12189..12190
+original 88..410 -> expanded 0..322
+original 410..411 -> expanded 12030..12031
 generated 322..472 <- Default
-generated 472..2530 <- Serialize
-generated 2530..11660 <- Deserialize
-generated 11660..12189 <- __convenience_const
+generated 472..2492 <- Encode
+generated 2492..11533 <- Decode
+generated 11533..12030 <- __convenience_const
 
 ## Metadata
 
-type PropValue: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":143,"start":128}}],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":161,"start":146},"ts_type":"'String'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":175,"start":162},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":201,"start":186},"ts_type":"'Number'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":215,"start":202},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":242,"start":226},"ts_type":"'Boolean'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":257,"start":243},"ts_type":"boolean"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":281,"start":268},"ts_type":"'Json'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":295,"start":282},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":320,"start":306},"ts_type":"'Asset'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":334,"start":321},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":358,"start":345},"ts_type":"'Page'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":372,"start":359},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":402,"start":383},"ts_type":"'Expression'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":416,"start":403},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"{ tag: \"type\", content: \"value\" }","name":"serde","span":{"end":97,"start":49}},{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":48,"start":1}}],"name":"PropValue","span":{"end":419,"start":105},"type_params":[]}
+type PropValue: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":135,"start":120}}],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":153,"start":138},"ts_type":"'String'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":167,"start":154},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":193,"start":178},"ts_type":"'Number'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":207,"start":194},"ts_type":"number"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":234,"start":218},"ts_type":"'Boolean'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":249,"start":235},"ts_type":"boolean"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":273,"start":260},"ts_type":"'Json'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":287,"start":274},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":312,"start":298},"ts_type":"'Asset'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":326,"start":313},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":350,"start":337},"ts_type":"'Page'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":364,"start":351},"ts_type":"string"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"type","optional":false,"readonly":false,"span":{"end":394,"start":375},"ts_type":"'Expression'"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":408,"start":395},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"{ tag: \"type\", content: \"value\" }","name":"endec","span":{"end":89,"start":41}},{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":40,"start":1}}],"name":"PropValue","span":{"end":411,"start":97},"type_params":[]}
 
 ## Registry reads
 

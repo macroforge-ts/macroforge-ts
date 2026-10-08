@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/tests/svelte5-mocks.ts
-sha256 c6022b9ab10ed01e66877e7d62c8bd1d9c790fb68dae7fbd61152218ccdb8a4f
+sha256 0db6fd10c05d86ba081dee459e7e2877733d7d9851f9a066236efedbf32777ac
 
 ## Changed
 

@@ -1,5 +1,5 @@
 /**
- * Every validator in the serde validators documentation, checked against what
+ * Every validator in the endec validators documentation, checked against what
  * the documentation says it does. Each row names the class from
  * vanilla/src/validators/documented-validators.ts, the values the documented
  * check accepts, and the values it rejects, with the boundary on both sides.
@@ -127,12 +127,12 @@ describe('Documented validators', () => {
         describe(`${className.slice(3)}: ${check}`, () => {
             for (const value of accepted) {
                 test(`accepts ${describeValue(value)}`, () => {
-                    assertValidationSuccess(mod[className].deserialize({ value }), 'value');
+                    assertValidationSuccess(mod[className].decode({ value }), 'value');
                 });
             }
             for (const value of rejected) {
                 test(`rejects ${describeValue(value)}`, () => {
-                    assertValidationError(mod[className].deserialize({ value }), 'value', '');
+                    assertValidationError(mod[className].decode({ value }), 'value', '');
                 });
             }
         });
@@ -140,7 +140,7 @@ describe('Documented validators', () => {
 
     test('a required field given null fails as required', () => {
         assertValidationError(
-            mod.DocMaxLength.deserialize({ value: null }),
+            mod.DocMaxLength.decode({ value: null }),
             'value',
             'is required'
         );
@@ -157,7 +157,7 @@ describe('Documented validators', () => {
     });
 
     test('a custom message keeps its quotes and newline', () => {
-        const result = mod.DocMessageEscaping.deserialize({ value: '' });
+        const result = mod.DocMessageEscaping.decode({ value: '' });
         assert.equal(result.success, false);
         assert.deepStrictEqual(result.errors.map((error) => error.message), [
             'say "hi"\nthen stop'

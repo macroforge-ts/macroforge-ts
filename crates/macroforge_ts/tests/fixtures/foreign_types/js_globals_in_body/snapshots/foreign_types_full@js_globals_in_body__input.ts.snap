@@ -7,7 +7,7 @@ input_file: crates/macroforge_ts/tests/fixtures/foreign_types/js_globals_in_body
 
 import { DateTime } from 'effect';
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface Event {
     at: DateTime.Utc;
 }
@@ -18,11 +18,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
 
@@ -39,16 +39,16 @@ at: (() => {
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function eventSerialize(value: Event, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = eventSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function eventEncode(value: Event, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = eventEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function eventSerializeWithContext(value: Event, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -160,21 +160,21 @@ at: (() => {
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function eventDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function eventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = eventDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = eventDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Event.deserialize: root cannot be a forward reference"
+		message: "Event.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -197,7 +197,7 @@ at: (() => {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -214,14 +214,14 @@ at: (() => {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function eventDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Event | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function eventDecodeWithContext(value: any, ctx: __mf_DecodeContext): Event | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Event.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Event.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -870,16 +870,16 @@ at: (() => {
                 if (!eventHasShape(obj)) {
                     return false;
                 }
-                const result = eventDeserialize(obj);
+                const result = eventDecode(obj);
                 return result.success;
             }
 
 export const Event = {
   defaultValue: eventDefaultValue,
-  serialize: eventSerialize,
-  serializeWithContext: eventSerializeWithContext,
-  deserialize: eventDeserialize,
-  deserializeWithContext: eventDeserializeWithContext,
+  encode: eventEncode,
+  encodeWithContext: eventEncodeWithContext,
+  decode: eventDecode,
+  decodeWithContext: eventDecodeWithContext,
   validateFields: eventValidateFields,
   hasShape: eventHasShape,
   is: eventIs
@@ -903,16 +903,16 @@ at: (() => {
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function eventSerialize(value: Event, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = eventSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function eventEncode(value: Event, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = eventEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function eventSerializeWithContext(value: Event, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function eventEncodeWithContext(value: Event, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1024,21 +1024,21 @@ at: (() => {
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function eventDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function eventDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Event } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = eventDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = eventDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Event.deserialize: root cannot be a forward reference"
+		message: "Event.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1061,7 +1061,7 @@ at: (() => {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1078,14 +1078,14 @@ at: (() => {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function eventDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Event | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function eventDecodeWithContext(value: any, ctx: __mf_DecodeContext): Event | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Event.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Event.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1734,16 +1734,16 @@ at: (() => {
                 if (!eventHasShape(obj)) {
                     return false;
                 }
-                const result = eventDeserialize(obj);
+                const result = eventDecode(obj);
                 return result.success;
             }
 
 export const Event = {
   defaultValue: eventDefaultValue,
-  serialize: eventSerialize,
-  serializeWithContext: eventSerializeWithContext,
-  deserialize: eventDeserialize,
-  deserializeWithContext: eventDeserializeWithContext,
+  encode: eventEncode,
+  encodeWithContext: eventEncodeWithContext,
+  decode: eventDecode,
+  decodeWithContext: eventDecodeWithContext,
   validateFields: eventValidateFields,
   hasShape: eventHasShape,
   is: eventIs
@@ -1756,16 +1756,16 @@ export const Event = {
 ## Mapping
 
 original 0..36 -> expanded 0..36
-original 83..132 -> expanded 36..85
-original 132..133 -> expanded 6991..6992
+original 75..124 -> expanded 36..85
+original 124..125 -> expanded 6833..6834
 generated 85..279 <- Default
-generated 279..1827 <- Serialize
-generated 1827..6672 <- Deserialize
-generated 6672..6991 <- __convenience_const
+generated 279..1795 <- Encode
+generated 1795..6546 <- Decode
+generated 6546..6833 <- __convenience_const
 
 ## Metadata
 
-interface Event: {"body_span":{"end":133,"start":108},"decorators":[{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":84,"start":37}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":131,"start":114},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Event","span":{"end":133,"start":92},"type_params":[]}
+interface Event: {"body_span":{"end":125,"start":100},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":76,"start":37}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":123,"start":106},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Event","span":{"end":125,"start":84},"type_params":[]}
 
 ## Registry reads
 

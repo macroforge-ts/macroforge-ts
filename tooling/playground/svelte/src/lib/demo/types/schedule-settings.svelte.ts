@@ -2,7 +2,7 @@
 
 import type { RowHeight } from './row-height.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface ScheduleSettings {
     daysPerWeek: number;
     /** @default("Medium") */

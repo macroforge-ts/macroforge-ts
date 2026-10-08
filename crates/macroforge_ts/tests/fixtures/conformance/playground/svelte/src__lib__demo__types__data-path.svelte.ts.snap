@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/data-path.svelte.ts
-sha256 c784a4159e813885bcb0236bc2ff24206d654f52dd42cd73d03e191b33c7f998
+sha256 63ffd2ba22e8cfcfdca2cda3aeaa791c58c97bf02ffa61c253bf28aeeb761f2f
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -37,16 +37,16 @@ formatter: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function dataPathSerialize(value: DataPath, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = dataPathSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function dataPathEncode(value: DataPath, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = dataPathEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function dataPathSerializeWithContext(value: DataPath, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function dataPathEncodeWithContext(value: DataPath, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -158,21 +158,21 @@ formatter: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function dataPathDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = dataPathDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = dataPathDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "DataPath.deserialize: root cannot be a forward reference"
+		message: "DataPath.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -195,7 +195,7 @@ formatter: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -212,14 +212,14 @@ formatter: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function dataPathDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): DataPath | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function dataPathDecodeWithContext(value: any, ctx: __mf_DecodeContext): DataPath | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "DataPath.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "DataPath.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1439,7 +1439,7 @@ formatter: null,
                 if (!dataPathHasShape(obj)) {
                     return false;
                 }
-                const result = dataPathDeserialize(obj);
+                const result = dataPathDecode(obj);
                 return result.success;
             }
 
@@ -1563,7 +1563,7 @@ formatter: null,
 
 
             function validate(): Exit.Exit<DataPath, Array<{ field: string; message: string }>> {
-                return toExit(dataPathDeserialize(data));
+                return toExit(dataPathDecode(data));
             }
 
 
@@ -1596,7 +1596,7 @@ formatter: null,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function dataPathFromFormData(formData: FormData): Exit.Exit<DataPath, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1605,15 +1605,15 @@ formatter: null,
             obj.formatter = formData.get("formatter") ?? "";
 
 
-            return toExit(dataPathDeserialize(obj));
+            return toExit(dataPathDecode(obj));
         }
 
 export const DataPath = {
   defaultValue: dataPathDefaultValue,
-  serialize: dataPathSerialize,
-  serializeWithContext: dataPathSerializeWithContext,
-  deserialize: dataPathDeserialize,
-  deserializeWithContext: dataPathDeserializeWithContext,
+  encode: dataPathEncode,
+  encodeWithContext: dataPathEncodeWithContext,
+  decode: dataPathDecode,
+  decodeWithContext: dataPathDecodeWithContext,
   validateFields: dataPathValidateFields,
   hasShape: dataPathHasShape,
   is: dataPathIs,
@@ -1638,16 +1638,16 @@ formatter: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function dataPathSerialize(value: DataPath, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = dataPathSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function dataPathEncode(value: DataPath, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = dataPathEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function dataPathSerializeWithContext(value: DataPath, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function dataPathEncodeWithContext(value: DataPath, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1759,21 +1759,21 @@ formatter: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function dataPathDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function dataPathDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: DataPath } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = dataPathDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = dataPathDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "DataPath.deserialize: root cannot be a forward reference"
+		message: "DataPath.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1796,7 +1796,7 @@ formatter: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1813,14 +1813,14 @@ formatter: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function dataPathDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): DataPath | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function dataPathDecodeWithContext(value: any, ctx: __mf_DecodeContext): DataPath | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "DataPath.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "DataPath.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3040,7 +3040,7 @@ formatter: null,
                 if (!dataPathHasShape(obj)) {
                     return false;
                 }
-                const result = dataPathDeserialize(obj);
+                const result = dataPathDecode(obj);
                 return result.success;
             }
 
@@ -3164,7 +3164,7 @@ formatter: null,
 
 
             function validate(): Exit.Exit<DataPath, Array<{ field: string; message: string }>> {
-                return toExit(dataPathDeserialize(data));
+                return toExit(dataPathDecode(data));
             }
 
 
@@ -3197,7 +3197,7 @@ formatter: null,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function dataPathFromFormData(formData: FormData): Exit.Exit<DataPath, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3206,15 +3206,15 @@ formatter: null,
             obj.formatter = formData.get("formatter") ?? "";
 
 
-            return toExit(dataPathDeserialize(obj));
+            return toExit(dataPathDecode(obj));
         }
 
 export const DataPath = {
   defaultValue: dataPathDefaultValue,
-  serialize: dataPathSerialize,
-  serializeWithContext: dataPathSerializeWithContext,
-  deserialize: dataPathDeserialize,
-  deserializeWithContext: dataPathDeserializeWithContext,
+  encode: dataPathEncode,
+  encodeWithContext: dataPathEncodeWithContext,
+  decode: dataPathDecode,
+  decodeWithContext: dataPathDecodeWithContext,
   validateFields: dataPathValidateFields,
   hasShape: dataPathHasShape,
   is: dataPathIs,
@@ -3229,17 +3229,17 @@ export const DataPath = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..200 -> expanded 58..143
-original 200..201 -> expanded 13863..13864
+original 107..192 -> expanded 58..143
+original 192..193 -> expanded 13685..13686
 generated 143..280 <- Default
-generated 280..1839 <- Serialize
-generated 1839..7698 <- Deserialize
-generated 7698..13445 <- Gigaform
-generated 13445..13863 <- __convenience_const
+generated 280..1807 <- Encode
+generated 1807..7572 <- Decode
+generated 7572..13299 <- Gigaform
+generated 13299..13685 <- __convenience_const
 
 ## Metadata
 
-interface DataPath: {"body_span":{"end":201,"start":143},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"path","optional":false,"readonly":false,"span":{"end":169,"start":149},"ts_type":"Array<string>"},{"decorators":[],"name":"formatter","optional":false,"readonly":false,"span":{"end":199,"start":174},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"DataPath","span":{"end":201,"start":124},"type_params":[]}
+interface DataPath: {"body_span":{"end":193,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"path","optional":false,"readonly":false,"span":{"end":161,"start":141},"ts_type":"Array<string>"},{"decorators":[],"name":"formatter","optional":false,"readonly":false,"span":{"end":191,"start":166},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"DataPath","span":{"end":193,"start":116},"type_params":[]}
 
 ## Registry reads
 

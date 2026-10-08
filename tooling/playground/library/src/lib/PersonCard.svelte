@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    /** @derive(Default, Serialize) */
+    /** @derive(Default, Encode) */
     export interface CardLabels {
         heading: string;
     }

@@ -1,0 +1,152 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_decode_string.ts
+---
+## Input
+
+/** @derive(Decode) */
+enum Role {
+    Admin = 'admin',
+    User = 'user',
+    Guest = 'guest'
+}
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+
+enum Role {
+    Admin = 'admin',
+    User = 'user',
+    Guest = 'guest'
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function roleDecode(input: unknown): Role {
+            return roleDecodeWithContext(input);
+        }
+
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function roleDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Role;
+        export function roleDecodeWithContext(data: unknown): Role {
+            if (Role["Admin"] === data) {
+                    return Role["Admin"];
+                }
+            if (Role["User"] === data) {
+                    return Role["User"];
+                }
+            if (Role["Guest"] === data) {
+                    return Role["Guest"];
+                }
+
+
+
+
+            throw new Error("Invalid Role value: " + JSON.stringify(data));
+        }
+
+        export function roleIs(value: unknown): value is Role {
+            if (Role["Admin"] === value) {
+                    return true;
+                }
+            if (Role["User"] === value) {
+                    return true;
+                }
+            if (Role["Guest"] === value) {
+                    return true;
+                }
+
+
+
+
+            return false;
+        }
+
+namespace Role {
+  export const decode = roleDecode;
+  export const decodeWithContext = roleDecodeWithContext;
+  export const is = roleIs;
+}
+
+## DTS
+
+enum Role {
+    Admin = 'admin',
+    User = 'user',
+    Guest = 'guest'
+}
+
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function roleDecode(input: unknown): Role {
+            return roleDecodeWithContext(input);
+        }
+
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function roleDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Role;
+        export function roleDecodeWithContext(data: unknown): Role {
+            if (Role["Admin"] === data) {
+                    return Role["Admin"];
+                }
+            if (Role["User"] === data) {
+                    return Role["User"];
+                }
+            if (Role["Guest"] === data) {
+                    return Role["Guest"];
+                }
+
+
+
+
+            throw new Error("Invalid Role value: " + JSON.stringify(data));
+        }
+
+        export function roleIs(value: unknown): value is Role {
+            if (Role["Admin"] === value) {
+                    return true;
+                }
+            if (Role["User"] === value) {
+                    return true;
+                }
+            if (Role["Guest"] === value) {
+                    return true;
+                }
+
+
+
+
+            return false;
+        }
+
+namespace Role {
+  export const decode = roleDecode;
+  export const decodeWithContext = roleDecodeWithContext;
+  export const is = roleIs;
+}
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 22..96 -> expanded 0..74
+original 96..97 -> expanded 1513..1514
+generated 74..1371 <- Decode
+generated 1371..1513 <- __convenience_const
+
+## Metadata
+
+enum Role: {"body_span":{"end":97,"start":34},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"is_const":false,"name":"Role","span":{"end":97,"start":24},"variants":[{"decorators":[],"name":"Admin","span":{"end":55,"start":40},"value":{"String":"admin"}},{"decorators":[],"name":"User","span":{"end":74,"start":61},"value":{"String":"user"}},{"decorators":[],"name":"Guest","span":{"end":95,"start":80},"value":{"String":"guest"}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

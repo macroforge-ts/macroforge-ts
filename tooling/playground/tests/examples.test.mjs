@@ -311,7 +311,7 @@ test(
                     since: '2025-02-01',
                     apiToken: 'token_qa'
                 });
-                assert.deepEqual(JSON.parse(MacroUser.serialize(svelteUser)), {
+                assert.deepEqual(JSON.parse(MacroUser.encode(svelteUser)), {
                     id: 'usr_55',
                     name: 'Rin Tester',
                     role: 'Macro QA',
@@ -339,7 +339,7 @@ test(
                     '/src/lib/demo/macro-user.ts'
                 );
                 assert.ok(
-                    transformed?.code.includes('static serialize('),
+                    transformed?.code.includes('static encode('),
                     'Derived static methods should appear in transformed code'
                 );
             }

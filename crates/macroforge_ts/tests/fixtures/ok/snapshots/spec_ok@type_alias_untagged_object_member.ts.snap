@@ -9,7 +9,7 @@ input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_untagged_object_me
 // every required field must be present, and optional fields are copied only
 // when the input carries them.
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export type Link = string | { id: string; label?: string };
 
 ## Changed
@@ -18,11 +18,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 // An inline object member with no tag field is recognised by shape alone:
 // every required field must be present, and optional fields are copied only
 // when the input carries them.
@@ -30,20 +30,20 @@ import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
 
 export type Link = string | { id: string; label?: string };
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function linkSerialize(value: Link, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = linkSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function linkEncode(value: Link, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = linkEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function linkSerializeWithContext(value: Link, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -110,20 +110,20 @@ export type Link = string | { id: string; label?: string };
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function linkDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function linkDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = linkDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = linkDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Link.deserialize: root cannot be a forward reference"
+		message: "Link.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -146,7 +146,7 @@ export type Link = string | { id: string; label?: string };
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -163,8 +163,8 @@ export type Link = string | { id: string; label?: string };
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function linkDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Link | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function linkDecodeWithContext(value: any, ctx: __mf_DecodeContext): Link | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Link | __mf_PendingRef;
                         }if (typeof value === "string") {
@@ -219,9 +219,9 @@ export type Link = string | { id: string; label?: string };
 
 
 
-                            throw new __mf_DeserializeError([{
+                            throw new __mf_DecodeError([{
                                 field: "_root",
-                                message: "Link.deserializeWithContext: value does not match any union member"
+                                message: "Link.decodeWithContext: value does not match any union member"
                             }]);
 
 
@@ -938,10 +938,10 @@ export type Link = string | { id: string; label?: string };
         }
 
 export const Link = {
-  serialize: linkSerialize,
-  serializeWithContext: linkSerializeWithContext,
-  deserialize: linkDeserialize,
-  deserializeWithContext: linkDeserializeWithContext,
+  encode: linkEncode,
+  encodeWithContext: linkEncodeWithContext,
+  decode: linkDecode,
+  decodeWithContext: linkDecodeWithContext,
   hasShape: linkHasShape,
   is: linkIs
 } as const;
@@ -955,20 +955,20 @@ export const Link = {
 
 export type Link = string | { id: string; label?: string };
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function linkSerialize(value: Link, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = linkSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function linkEncode(value: Link, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = linkEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function linkSerializeWithContext(value: Link, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function linkEncodeWithContext(value: Link, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1035,20 +1035,20 @@ export type Link = string | { id: string; label?: string };
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function linkDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function linkDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Link } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = linkDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = linkDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Link.deserialize: root cannot be a forward reference"
+		message: "Link.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1071,7 +1071,7 @@ export type Link = string | { id: string; label?: string };
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1088,8 +1088,8 @@ export type Link = string | { id: string; label?: string };
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function linkDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Link | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function linkDecodeWithContext(value: any, ctx: __mf_DecodeContext): Link | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Link | __mf_PendingRef;
                         }if (typeof value === "string") {
@@ -1144,9 +1144,9 @@ export type Link = string | { id: string; label?: string };
 
 
 
-                            throw new __mf_DeserializeError([{
+                            throw new __mf_DecodeError([{
                                 field: "_root",
-                                message: "Link.deserializeWithContext: value does not match any union member"
+                                message: "Link.decodeWithContext: value does not match any union member"
                             }]);
 
 
@@ -1863,10 +1863,10 @@ export type Link = string | { id: string; label?: string };
         }
 
 export const Link = {
-  serialize: linkSerialize,
-  serializeWithContext: linkSerializeWithContext,
-  deserialize: linkDeserialize,
-  deserializeWithContext: linkDeserializeWithContext,
+  encode: linkEncode,
+  encodeWithContext: linkEncodeWithContext,
+  decode: linkDecode,
+  decodeWithContext: linkDecodeWithContext,
   hasShape: linkHasShape,
   is: linkIs
 } as const;
@@ -1878,15 +1878,15 @@ export const Link = {
 ## Mapping
 
 original 0..185 -> expanded 0..185
-original 223..283 -> expanded 185..245
-original 283..284 -> expanded 6417..6418
-generated 245..2171 <- Serialize
-generated 2171..6179 <- Deserialize
-generated 6179..6417 <- __convenience_const
+original 215..275 -> expanded 185..245
+original 275..276 -> expanded 6258..6259
+generated 245..2133 <- Encode
+generated 2133..6052 <- Decode
+generated 6052..6258 <- __convenience_const
 
 ## Metadata
 
-type Link: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":266,"start":255},"ts_type":"string"},{"decorators":[],"name":"label","optional":true,"readonly":false,"span":{"end":281,"start":267},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Serialize, Deserialize","name":"Derive","span":{"end":224,"start":186}}],"name":"Link","span":{"end":284,"start":232},"type_params":[]}
+type Link: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":258,"start":247},"ts_type":"string"},{"decorators":[],"name":"label","optional":true,"readonly":false,"span":{"end":273,"start":259},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":216,"start":186}}],"name":"Link","span":{"end":276,"start":224},"type_params":[]}
 
 ## Registry reads
 

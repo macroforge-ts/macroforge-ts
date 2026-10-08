@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/priority.svelte.ts
-sha256 905934d8f0d078c6823fa34a8a65971439f751ff4ead7ef8bf836eebd2185dd0
+sha256 f4efff440e7b26294068b631e33f61eeb3fc2f78d688317766a9a79a118f8cd7
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -30,20 +30,20 @@ export function priorityDefaultValue(): Priority {
                             return "Medium";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function prioritySerialize(value: Priority, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = prioritySerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function priorityEncode(value: Priority, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = priorityEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function prioritySerializeWithContext(value: Priority, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -110,8 +110,8 @@ export function priorityDefaultValue(): Priority {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function priorityDeserialize(input: unknown): { success: true; value: Priority } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function priorityDecode(input: unknown): { success: true; value: Priority } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Medium':
                     case 'High':
@@ -124,8 +124,8 @@ export function priorityDefaultValue(): Priority {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function priorityDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Priority | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function priorityDecodeWithContext(value: any, ctx: __mf_DecodeContext): Priority | __mf_PendingRef {
                 switch (value) {
                     case 'Medium':
                     case 'High':
@@ -134,7 +134,7 @@ export function priorityDefaultValue(): Priority {
 
                         return value as Priority;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Priority: expected one of " + ['Medium', 'High', 'Low'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -298,7 +298,7 @@ if (variant === "Low") { return "Low" as Priority; }
 
 
             function validate(): Exit.Exit<Priority, Array<{ field: string; message: string }>> {
-                return toExit(priorityDeserialize(data));
+                return toExit(priorityDecode(data));
             }
 
 
@@ -353,15 +353,15 @@ if (variant === "Low") { return "Low" as Priority; }
                 }
 
 
-            return toExit(priorityDeserialize(obj));
+            return toExit(priorityDecode(obj));
         }
 
 export const Priority = {
   defaultValue: priorityDefaultValue,
-  serialize: prioritySerialize,
-  serializeWithContext: prioritySerializeWithContext,
-  deserialize: priorityDeserialize,
-  deserializeWithContext: priorityDeserializeWithContext,
+  encode: priorityEncode,
+  encodeWithContext: priorityEncodeWithContext,
+  decode: priorityDecode,
+  decodeWithContext: priorityDecodeWithContext,
   hasShape: priorityHasShape,
   is: priorityIs,
   createForm: priorityCreateForm,
@@ -379,20 +379,20 @@ export function priorityDefaultValue(): Priority {
                             return "Medium";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function prioritySerialize(value: Priority, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = prioritySerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function priorityEncode(value: Priority, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = priorityEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function prioritySerializeWithContext(value: Priority, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -459,8 +459,8 @@ export function priorityDefaultValue(): Priority {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function priorityDeserialize(input: unknown): { success: true; value: Priority } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function priorityDecode(input: unknown): { success: true; value: Priority } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Medium':
                     case 'High':
@@ -473,8 +473,8 @@ export function priorityDefaultValue(): Priority {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function priorityDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Priority | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function priorityDecodeWithContext(value: any, ctx: __mf_DecodeContext): Priority | __mf_PendingRef {
                 switch (value) {
                     case 'Medium':
                     case 'High':
@@ -483,7 +483,7 @@ export function priorityDefaultValue(): Priority {
 
                         return value as Priority;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Priority: expected one of " + ['Medium', 'High', 'Low'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -647,7 +647,7 @@ if (variant === "Low") { return "Low" as Priority; }
 
 
             function validate(): Exit.Exit<Priority, Array<{ field: string; message: string }>> {
-                return toExit(priorityDeserialize(data));
+                return toExit(priorityDecode(data));
             }
 
 
@@ -702,15 +702,15 @@ if (variant === "Low") { return "Low" as Priority; }
                 }
 
 
-            return toExit(priorityDeserialize(obj));
+            return toExit(priorityDecode(obj));
         }
 
 export const Priority = {
   defaultValue: priorityDefaultValue,
-  serialize: prioritySerialize,
-  serializeWithContext: prioritySerializeWithContext,
-  deserialize: priorityDeserialize,
-  deserializeWithContext: priorityDeserializeWithContext,
+  encode: priorityEncode,
+  encodeWithContext: priorityEncodeWithContext,
+  decode: priorityDecode,
+  decodeWithContext: priorityDecodeWithContext,
   hasShape: priorityHasShape,
   is: priorityIs,
   createForm: priorityCreateForm,
@@ -724,17 +724,17 @@ export const Priority = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..181 -> expanded 58..124
-original 181..182 -> expanded 10649..10650
+original 107..173 -> expanded 58..124
+original 173..174 -> expanded 10539..10540
 generated 124..247 <- Default
-generated 247..2193 <- Serialize
-generated 2193..4326 <- Deserialize
-generated 4326..10273 <- Gigaform
-generated 10273..10649 <- __convenience_const
+generated 247..2155 <- Encode
+generated 2155..4258 <- Decode
+generated 4258..10195 <- Gigaform
+generated 10195..10539 <- __convenience_const
 
 ## Metadata
 
-type Priority: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":155,"start":140}}],"kind":{"Literal":"'Medium'"}},{"decorators":[],"kind":{"Literal":"'High'"}},{"decorators":[],"kind":{"Literal":"'Low'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Priority","span":{"end":182,"start":124},"type_params":[]}
+type Priority: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":147,"start":132}}],"kind":{"Literal":"'Medium'"}},{"decorators":[],"kind":{"Literal":"'High'"}},{"decorators":[],"kind":{"Literal":"'Low'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"Priority","span":{"end":174,"start":116},"type_params":[]}
 
 ## Registry reads
 

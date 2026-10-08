@@ -98,7 +98,7 @@ function offsetToLineColumn(offset, lineStarts) {
  * object suitable for return from Vite's `transform` hook.
  *
  * The engine's `SourceMapping` tracks segments of the form
- * `{ original_start, original_end, expanded_start, expanded_end }`,
+ * `{ original_start, original_end, expanded_start, expanded_end }` :
  * byte-offset ranges in the original and expanded source. Source Map
  * v3 wants `(generated_line, generated_column, source_index,
  * original_line, original_column)` per-segment tuples, VLQ-encoded.
@@ -106,7 +106,7 @@ function offsetToLineColumn(offset, lineStarts) {
  * The original offsets are in the pre-expansion source (`originalCode`),
  * the expanded offsets are in the post-expansion source (`expandedCode`).
  * Note that the engine's offsets are 0-based from a patch-applicator
- * standpoint even though `SpanIR` uses 1-based storage internally;
+ * standpoint even though `SpanIR` uses 1-based storage internally :
  * `SourceMappingResult` emits 0-based values across the ABI boundary.
  *
  * We only emit one source entry (`sources: [sourcePath]`). If other
@@ -1413,7 +1413,7 @@ export async function macroforge() {
                     // "has macros" if derive macros emitted generated regions OR
                     // if the buildtime pre-pass rewrote the source (detected by
                     // presence of dependencies or by text difference against the
-                    // input; a `@buildtime const X = 1+1` rewrite reads no files
+                    // input: a `@buildtime const X = 1+1` rewrite reads no files
                     // but still changes the output).
                     const hasMacros = result.sourceMapping?.generatedRegions?.length > 0 ||
                         (result.buildtimeDependencies?.length ?? 0) > 0 ||
@@ -1496,7 +1496,7 @@ export async function macroforge() {
          * be stale.
          *
          * The hook returns `undefined` so Vite uses its default module-
-         * graph invalidation logic; we're only piggy-backing on the
+         * graph invalidation logic: we're only piggy-backing on the
          * notification, not trying to control what reloads.
          *
          * @param {{ file: string, modules: any[] }} ctx

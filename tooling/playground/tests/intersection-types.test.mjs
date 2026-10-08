@@ -2,7 +2,7 @@
  * E2E tests for intersection type support.
  *
  * Tests that intersection types like `{ variant: 'savings' } & AccountBase`
- * correctly serialize, deserialize, and round-trip through the full
+ * correctly encode, decode, and round-trip through the full
  * Vite macro pipeline at runtime.
  */
 
@@ -10,8 +10,8 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { svelteRoot, withViteServer } from './test-utils.mjs';
 
-describe('Intersection types E2E — Serialize & Deserialize via SvelteKit', () => {
-    test('deserializes a SavingsAccount intersection type from raw JSON', async () => {
+describe('Intersection types E2E: Encode & Decode via SvelteKit', () => {
+    test('decodes a SavingsAccount intersection type from raw JSON', async () => {
         await withViteServer(svelteRoot, async (server) => {
             const fixtureMod = await server.ssrLoadModule('/src/lib/e2e/fixture.ts');
             const raw = fixtureMod.savingsAccountFixture;
@@ -25,18 +25,18 @@ describe('Intersection types E2E — Serialize & Deserialize via SvelteKit', () 
             const typesMod = await server.ssrLoadModule(
                 '/src/lib/e2e/types.svelte.ts'
             );
-            const { savingsAccountDeserialize } = typesMod;
+            const { savingsAccountDecode } = typesMod;
             assert.equal(
-                typeof savingsAccountDeserialize,
+                typeof savingsAccountDecode,
                 'function',
-                'savingsAccountDeserialize should be exported'
+                'savingsAccountDecode should be exported'
             );
 
-            // Deserialize
-            const result = savingsAccountDeserialize(raw);
+            // Decode
+            const result = savingsAccountDecode(raw);
             assert.ok(
                 result.success,
-                `Deserialization failed: ${JSON.stringify(result.errors ?? [])}`
+                `Decoding failed: ${JSON.stringify(result.errors ?? [])}`
             );
             const account = result.value;
 
@@ -53,7 +53,7 @@ describe('Intersection types E2E — Serialize & Deserialize via SvelteKit', () 
         });
     });
 
-    test('deserializes a CheckingAccount intersection type from raw JSON', async () => {
+    test('decodes a CheckingAccount intersection type from raw JSON', async () => {
         await withViteServer(svelteRoot, async (server) => {
             const fixtureMod = await server.ssrLoadModule('/src/lib/e2e/fixture.ts');
             const raw = fixtureMod.checkingAccountFixture;
@@ -61,17 +61,17 @@ describe('Intersection types E2E — Serialize & Deserialize via SvelteKit', () 
             const typesMod = await server.ssrLoadModule(
                 '/src/lib/e2e/types.svelte.ts'
             );
-            const { checkingAccountDeserialize } = typesMod;
+            const { checkingAccountDecode } = typesMod;
             assert.equal(
-                typeof checkingAccountDeserialize,
+                typeof checkingAccountDecode,
                 'function',
-                'checkingAccountDeserialize should be exported'
+                'checkingAccountDecode should be exported'
             );
 
-            const result = checkingAccountDeserialize(raw);
+            const result = checkingAccountDecode(raw);
             assert.ok(
                 result.success,
-                `Deserialization failed: ${JSON.stringify(result.errors ?? [])}`
+                `Decoding failed: ${JSON.stringify(result.errors ?? [])}`
             );
             const account = result.value;
 
@@ -88,7 +88,7 @@ describe('Intersection types E2E — Serialize & Deserialize via SvelteKit', () 
         });
     });
 
-    test('serializes an intersection type and round-trips through deserialize', async () => {
+    test('encodes an intersection type and round-trips through decode', async () => {
         await withViteServer(svelteRoot, async (server) => {
             const fixtureMod = await server.ssrLoadModule('/src/lib/e2e/fixture.ts');
             const raw = fixtureMod.savingsAccountFixture;
@@ -97,34 +97,34 @@ describe('Intersection types E2E — Serialize & Deserialize via SvelteKit', () 
                 '/src/lib/e2e/types.svelte.ts'
             );
             const {
-                savingsAccountSerialize,
-                savingsAccountDeserialize
+                savingsAccountEncode,
+                savingsAccountDecode
             } = typesMod;
 
-            // Deserialize from raw
-            const desResult = savingsAccountDeserialize(raw);
+            // Decode from raw
+            const desResult = savingsAccountDecode(raw);
             assert.ok(
                 desResult.success,
                 `Initial deser failed: ${JSON.stringify(desResult.errors ?? [])}`
             );
             const account = desResult.value;
 
-            // Serialize back to JSON string
+            // Encode back to JSON string
             assert.equal(
-                typeof savingsAccountSerialize,
+                typeof savingsAccountEncode,
                 'function',
-                'savingsAccountSerialize should be exported'
+                'savingsAccountEncode should be exported'
             );
-            const jsonStr = savingsAccountSerialize(account);
+            const jsonStr = savingsAccountEncode(account);
             assert.equal(
                 typeof jsonStr,
                 'string',
-                'serialize should return a string'
+                'encode should return a string'
             );
 
-            // Parse and deserialize again
+            // Parse and decode again
             const parsed = JSON.parse(jsonStr);
-            const roundTrip = savingsAccountDeserialize(parsed);
+            const roundTrip = savingsAccountDecode(parsed);
             assert.ok(
                 roundTrip.success,
                 `Round-trip deser failed: ${JSON.stringify(roundTrip.errors ?? [])}`

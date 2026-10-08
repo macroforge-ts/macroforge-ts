@@ -26,7 +26,7 @@ The crate is organized into several key components:
 - **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping for IDE
   integration.
 - **Macro Host** (`host` module): Core expansion engine with registry and dispatcher.
-- **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Serialize, etc.).
+- **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Encode, etc.).
 
 ## Usage
 

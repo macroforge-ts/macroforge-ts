@@ -21,7 +21,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
     });
 
     test('Tier 1 build-time sha256 hash is stable', async ({ page }) => {
-        // sha256('user-schema-v1') is deterministic — the build-time
+        // sha256('user-schema-v1') is deterministic: the build-time
         // result must match what a runtime sha256 would produce.
         const hash = page.locator('[data-testid="bt-hash"]');
         const hashText = (await hash.textContent())?.trim() ?? '';
@@ -49,7 +49,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
         await expect(keys).toHaveText('alice,bob,cam');
     });
 
-    test('Tier 1 nested object is serialized as a proper object literal', async ({ page }) => {
+    test('Tier 1 nested object is encoded as a proper object literal', async ({ page }) => {
         const thirteen = page.locator('[data-testid="bt-const-thirteen"]');
         await expect(thirteen).toHaveText('13');
     });
@@ -64,7 +64,7 @@ test.describe('Vanilla Playground @buildtime Tests', () => {
     test('runtime `@macroforge/core/buildtime` stub still throws', async ({ page }) => {
         // If the Vite plugin runs, every real @buildtime use was already
         // evaluated at build time. But importing `buildtime` at runtime
-        // and calling a method on it should still throw — that's the
+        // and calling a method on it should still throw: that's the
         // contract of the runtime stub.
         const stubThrows = page.locator('[data-testid="bt-stub-throws"]');
         await expect(stubThrows).toHaveText('true');

@@ -9,12 +9,12 @@
 //!
 //! # Macros
 //!
-//! - `@traced`, attribute macro: wrap a function declaration with a
+//! - `@traced`: attribute macro: wrap a function declaration with a
 //!   counter increment so each invocation is observable via a global
 //!   `__traced[fnName]` map.
-//! - `$stringify`, call macro: quote its argument source as a string
+//! - `$stringify`: call macro: quote its argument source as a string
 //!   literal. `$stringify(a + b)` → `"a + b"`.
-//! - `$concat_names`, call macro: join two identifier-shaped arguments
+//! - `$concat_names`: call macro: join two identifier-shaped arguments
 //!   with an underscore, emitted as a string literal.
 //!   `$concat_names(foo, bar)` → `"foo_bar"`.
 //! - `$now`, call macro: expand to a call of a runtime helper, imported

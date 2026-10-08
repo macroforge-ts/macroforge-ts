@@ -92,5 +92,5 @@ vi.mock('$app/forms', () => ({
         };
     }),
     applyAction: vi.fn(),
-    deserialize: vi.fn()
+    decode: vi.fn()
 }));

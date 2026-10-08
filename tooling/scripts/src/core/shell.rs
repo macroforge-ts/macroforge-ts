@@ -220,6 +220,14 @@ pub mod cargo {
         }
     }
 
+    /// Debug-build one binary of a workspace package.
+    pub fn build_bin(cwd: &Path, package: &str, bin: &str) -> Result<CommandResult> {
+        Shell::new("cargo")
+            .args(&["build", "-p", package, "--bin", bin])
+            .dir(cwd)
+            .run_checked()
+    }
+
     /// Run cargo build with a specific target
     pub fn build_target(cwd: &Path, target: &str) -> Result<CommandResult> {
         Shell::new("cargo")

@@ -1,6 +1,6 @@
 import { Metadata } from './metadata.svelte';
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface User {
     metadata: Metadata;
 }

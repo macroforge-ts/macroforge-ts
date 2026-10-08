@@ -5,7 +5,7 @@ input_file: crates/macroforge_ts/tests/fixtures/ok/inline_jsdoc_export_interface
 ---
 ## Input
 
-/** @derive(Deserialize) */ export interface User {
+/** @derive(Decode) */ export interface User {
     name: string;
     age: number;
 }
@@ -16,30 +16,30 @@ true
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
  export interface User {
     name: string;
     age: number;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function userDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = userDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = userDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "User.deserialize: root cannot be a forward reference"
+		message: "User.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -62,7 +62,7 @@ import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -79,14 +79,14 @@ import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function userDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): User | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function userDecodeWithContext(value: any, ctx: __mf_DecodeContext): User | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "User.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1251,13 +1251,13 @@ import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
                 if (!userHasShape(obj)) {
                     return false;
                 }
-                const result = userDeserialize(obj);
+                const result = userDecode(obj);
                 return result.success;
             }
 
 export const User = {
-  deserialize: userDeserialize,
-  deserializeWithContext: userDeserializeWithContext,
+  decode: userDecode,
+  decodeWithContext: userDecodeWithContext,
   validateFields: userValidateFields,
   hasShape: userHasShape,
   is: userIs
@@ -1270,21 +1270,21 @@ export interface User {
     age: number;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function userDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function userDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: User } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = userDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = userDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "User.deserialize: root cannot be a forward reference"
+		message: "User.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1307,7 +1307,7 @@ export interface User {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1324,14 +1324,14 @@ export interface User {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function userDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): User | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function userDecodeWithContext(value: any, ctx: __mf_DecodeContext): User | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "User.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "User.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2496,13 +2496,13 @@ export interface User {
                 if (!userHasShape(obj)) {
                     return false;
                 }
-                const result = userDeserialize(obj);
+                const result = userDecode(obj);
                 return result.success;
             }
 
 export const User = {
-  deserialize: userDeserialize,
-  deserializeWithContext: userDeserializeWithContext,
+  decode: userDecode,
+  decodeWithContext: userDecodeWithContext,
   validateFields: userValidateFields,
   hasShape: userHasShape,
   is: userIs
@@ -2514,14 +2514,14 @@ export const User = {
 
 ## Mapping
 
-original 27..88 -> expanded 0..61
-original 88..89 -> expanded 5802..5803
-generated 61..5604 <- Deserialize
-generated 5604..5802 <- __convenience_const
+original 22..83 -> expanded 0..61
+original 83..84 -> expanded 5688..5689
+generated 61..5510 <- Decode
+generated 5510..5688 <- __convenience_const
 
 ## Metadata
 
-interface User: {"body_span":{"end":89,"start":51},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":28,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":70,"start":57},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":87,"start":75},"ts_type":"number"}],"heritage":[],"methods":[],"name":"User","span":{"end":89,"start":36},"type_params":[]}
+interface User: {"body_span":{"end":84,"start":46},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":65,"start":52},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":82,"start":70},"ts_type":"number"}],"heritage":[],"methods":[],"name":"User","span":{"end":84,"start":31},"type_params":[]}
 
 ## Registry reads
 

@@ -32,7 +32,7 @@ What `@buildtime` does depends on what it's attached to.
 
 ### Tier 1: `const` expression
 
-The expression is evaluated and its result serialized to a TypeScript literal.
+The expression is evaluated and its result encoded to a TypeScript literal.
 
 ```typescript
 /** @buildtime */

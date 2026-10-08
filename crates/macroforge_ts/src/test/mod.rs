@@ -16,8 +16,8 @@
 //! - **Hash** - Generates `hashCode()` methods for hash-based collections
 //! - **Ord/PartialOrd** - Generates `compareTo()` methods for ordering
 //! - **Default** - Generates `defaultValue()` factory methods
-//! - **Serialize** - Generates JSON serialization methods
-//! - **Deserialize** - Generates JSON deserialization methods with validation
+//! - **Encode** - Generates JSON encoding methods
+//! - **Decode** - Generates JSON decoding methods with validation
 //!
 //! ### Type Construct Tests
 //!
@@ -58,12 +58,12 @@ mod class_features;
 mod decorator_stripping;
 mod derive_basic;
 mod early_bailout;
+mod endec_tests;
 mod enum_tests;
 mod foreign_types;
 mod interface_tests;
 mod jsdoc_tests;
 mod resident_registries;
-mod serde_tests;
 mod source_mapping;
 mod type_alias_tests;
 
@@ -86,8 +86,8 @@ fn expand_test_file(source: &str, file_name: &str) -> MacroExpansion {
 fn make_foreign_type(
     name: &str,
     from: Vec<&str>,
-    serialize_expr: Option<&str>,
-    deserialize_expr: Option<&str>,
+    encode_expr: Option<&str>,
+    decode_expr: Option<&str>,
     default_expr: Option<&str>,
     has_shape_expr: Option<&str>,
     expression_namespaces: Vec<&str>,
@@ -100,10 +100,10 @@ fn make_foreign_type(
             None
         },
         from: from.into_iter().map(|s| s.to_string()).collect(),
-        serialize_expr: serialize_expr.map(|s| s.to_string()),
-        serialize_import: None,
-        deserialize_expr: deserialize_expr.map(|s| s.to_string()),
-        deserialize_import: None,
+        encode_expr: encode_expr.map(|s| s.to_string()),
+        encode_import: None,
+        decode_expr: decode_expr.map(|s| s.to_string()),
+        decode_import: None,
         default_expr: default_expr.map(|s| s.to_string()),
         default_import: None,
         has_shape_expr: has_shape_expr.map(|s| s.to_string()),

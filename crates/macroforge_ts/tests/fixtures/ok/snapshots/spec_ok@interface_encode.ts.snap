@@ -1,0 +1,307 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_encode.ts
+---
+## Input
+
+/** @derive(Encode) */
+interface Point {
+    x: number;
+    y: number;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+
+interface Point {
+    x: number;
+    y: number;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function pointEncode(value: Point, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = pointEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Point",
+                        __id,
+                    };result.x = value.x;result.y = value.y;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+const Point = {
+  encode: pointEncode,
+  encodeWithContext: pointEncodeWithContext
+} as const;
+
+## DTS
+
+interface Point {
+    x: number;
+    y: number;
+}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function pointEncode(value: Point, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = pointEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "Point",
+                        __id,
+                    };result.x = value.x;result.y = value.y;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+const Point = {
+  encode: pointEncode,
+  encodeWithContext: pointEncodeWithContext
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 22..72 -> expanded 0..50
+original 72..73 -> expanded 1633..1634
+generated 50..1537 <- Encode
+generated 1537..1633 <- __convenience_const
+
+## Metadata
+
+interface Point: {"body_span":{"end":73,"start":40},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":56,"start":46},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":71,"start":61},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":73,"start":24},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

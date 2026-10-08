@@ -2,10 +2,10 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { svelteRoot, withViteServer } from './test-utils.mjs';
 
-describe('Deserialization E2E — complex nested type graph via SvelteKit', () => {
-    test('deserializes a hyper-complex Organization from raw JSON through the full macro pipeline', async () => {
+describe('Decoding E2E: complex nested type graph via SvelteKit', () => {
+    test('decodes a hyper-complex Organization from raw JSON through the full macro pipeline', async () => {
         await withViteServer(svelteRoot, async (server) => {
-            // Load the raw fixture (plain JSON — dates are ISO strings, sets are arrays, maps are objects)
+            // Load the raw fixture (plain JSON: dates are ISO strings, sets are arrays, maps are objects)
             const fixtureMod = await server.ssrLoadModule('/src/lib/e2e/fixture.ts');
             const raw = fixtureMod.organizationFixture;
 
@@ -22,20 +22,20 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             const typesMod = await server.ssrLoadModule(
                 '/src/lib/e2e/types.svelte.ts'
             );
-            const { organizationDeserialize } = typesMod;
+            const { organizationDecode } = typesMod;
             assert.equal(
-                typeof organizationDeserialize,
+                typeof organizationDecode,
                 'function',
-                'organizationDeserialize should be exported'
+                'organizationDecode should be exported'
             );
 
             // ============================================================
-            //  DESERIALIZE
+            //  DECODE
             // ============================================================
-            const result = organizationDeserialize(raw);
+            const result = organizationDecode(raw);
             assert.ok(
                 result.success,
-                `Deserialization failed: ${JSON.stringify(result.errors ?? [])}`
+                `Decoding failed: ${JSON.stringify(result.errors ?? [])}`
             );
             const org = result.value;
 
@@ -48,7 +48,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             assert.equal(org.foundedAt.toISOString(), '2020-03-15T09:00:00.000Z');
 
             // ============================================================
-            //  Array<Tag> — recursive deser of array elements with Date
+            //  Array<Tag>: recursive deser of array elements with Date
             // ============================================================
             assert.equal(org.tags.length, 3);
             for (const tag of org.tags) {
@@ -110,7 +110,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             assert.equal(eng.name, 'Engineering');
             assert.ok(eng.createdAt instanceof Date, 'dept.createdAt should be Date');
 
-            // Budget — nested Serializable with Date
+            // Budget: nested Encodable with Date
             assert.ok(
                 eng.budget.approvedAt instanceof Date,
                 'budget.approvedAt should be Date'
@@ -119,7 +119,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             assert.equal(eng.budget.currency, 'USD');
 
             // ============================================================
-            //  Lead (Employee) — deeply nested Serializable
+            //  Lead (Employee): deeply nested Encodable
             // ============================================================
             const lead = eng.lead;
             assert.equal(lead.id, 'emp_001');
@@ -128,7 +128,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             assert.equal(lead.hireDate.toISOString(), '2020-03-15T09:00:00.000Z');
             assert.equal(lead.terminatedAt, null, 'lead.terminatedAt should be null');
 
-            // Address — nested Serializable with only primitives
+            // Address: nested Encodable with only primitives
             assert.equal(lead.address.street, '123 Compiler Lane');
             assert.equal(lead.address.city, 'San Francisco');
             assert.equal(lead.address.state, 'CA');
@@ -136,7 +136,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             assert.equal(lead.address.country, 'US');
 
             // ============================================================
-            //  Set<Skill> on lead — Set elements with Date
+            //  Set<Skill> on lead: Set elements with Date
             // ============================================================
             const skills = lead.skills;
             assert.ok(skills instanceof Set, 'skills should be Set');
@@ -151,7 +151,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             }
 
             // ============================================================
-            //  Project[] > Milestone[] — doubly nested arrays with Date | null
+            //  Project[] > Milestone[]: doubly nested arrays with Date | null
             // ============================================================
             assert.equal(lead.projects.length, 1);
             const project = lead.projects[0];
@@ -163,7 +163,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             );
             assert.equal(project.milestones.length, 3);
 
-            // Milestone 0: completed — Date | null where non-null
+            // Milestone 0: completed: Date | null where non-null
             const m0 = project.milestones[0];
             assert.equal(m0.title, 'Parser rewrite');
             assert.ok(m0.dueDate instanceof Date, 'milestone.dueDate should be Date');
@@ -178,7 +178,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             assert.ok(m1.completedAt instanceof Date);
             assert.equal(m1.completedAt.toISOString(), '2024-05-15T14:00:00.000Z');
 
-            // Milestone 2: pending — Date | null where null
+            // Milestone 2: pending: Date | null where null
             const m2 = project.milestones[2];
             assert.equal(m2.title, 'Incremental expansion');
             assert.ok(m2.dueDate instanceof Date);
@@ -189,7 +189,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             );
 
             // ============================================================
-            //  Map<string, MetadataValue> on Project — Map values with Date
+            //  Map<string, MetadataValue> on Project: Map values with Date
             // ============================================================
             const meta = project.metadata;
             assert.ok(meta instanceof Map, 'project.metadata should be Map');
@@ -209,11 +209,11 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             assert.ok(status.updatedAt instanceof Date);
 
             // ============================================================
-            //  employees[] — department employee list
+            //  employees[]: department employee list
             // ============================================================
             assert.equal(eng.employees.length, 2);
 
-            // Bob — active employee with projects
+            // Bob: active employee with projects
             const bob = eng.employees[0];
             assert.equal(bob.id, 'emp_002');
             assert.equal(bob.name, 'Bob Martinez');
@@ -244,7 +244,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
                 assert.ok(v.updatedAt instanceof Date);
             }
 
-            // Carol — terminated employee (nullable Date is non-null)
+            // Carol: terminated employee (nullable Date is non-null)
             const carol = eng.employees[1];
             assert.equal(carol.id, 'emp_003');
             assert.equal(carol.name, 'Carol Nakamura');
@@ -261,7 +261,7 @@ describe('Deserialization E2E — complex nested type graph via SvelteKit', () =
             assert.equal(carol.skills.size, 1);
 
             // ============================================================
-            //  Department[1]: Design — empty employees, lead with projects
+            //  Department[1]: Design: empty employees, lead with projects
             // ============================================================
             const design = org.departments[1];
             assert.equal(design.id, 'dept_design');

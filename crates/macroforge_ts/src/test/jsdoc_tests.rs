@@ -4,8 +4,7 @@ use crate::ts_syn::abi::DiagnosticLevel;
 #[test]
 fn test_inline_jsdoc_with_export_interface() {
     // Test that /** @derive(X) */ export interface works on same line
-    let source =
-        r#"/** @derive(Deserialize) */ export interface User { name: string; age: number; }"#;
+    let source = r#"/** @derive(Decode) */ export interface User { name: string; age: number; }"#;
 
     {
         let result = expand_test(source);
@@ -22,10 +21,10 @@ fn test_inline_jsdoc_with_export_interface() {
             error_count
         );
 
-        // Should generate deserialize method in User namespace
+        // Should generate decode method in User namespace
         assert!(
-            result.code.contains("User") && result.code.contains("deserialize"),
-            "Should generate deserialize for Deserialize on interface. Got:\n{}",
+            result.code.contains("User") && result.code.contains("decode"),
+            "Should generate decode for Decode on interface. Got:\n{}",
             result.code
         );
     }

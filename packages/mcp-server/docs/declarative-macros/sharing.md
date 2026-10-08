@@ -4,11 +4,11 @@ Inlining a macro at every call site is fast but duplicates code. Reverse monomor
 opposite: emit the logic **once** as a runtime helper, and rewrite each call site into a call to it.
 
 ```typescript
-const $serialize = macroRules({
+const $encode = macroRules({
     mode: 'auto',
     expand: macroRules`($x:Expr) => JSON.stringify($x)`,
-    runtime: 'function __serialize(value) { return JSON.stringify(value); }',
-    call: macroRules`($x:Expr) => __serialize($x)`
+    runtime: 'function __encode(value) { return JSON.stringify(value); }',
+    call: macroRules`($x:Expr) => __encode($x)`
 });
 ```
 
@@ -27,7 +27,7 @@ Two honest notes:
 
 - **`share-only` and `share-anyway` are currently behaviorally identical.** Neither emits a
   megamorphism warning, because the analyzer only examines `auto` macros. `share-anyway` is
-  meaningful as intent — it's the mode the `auto` warning tells you to switch to.
+  meaningful as intent: it's the mode the `auto` warning tells you to switch to.
 - **Sharing applies in dev too.** The share modes are not prod-only; they emit the helper regardless
   of build mode.
 
@@ -38,9 +38,9 @@ to `auto`, everything else to `expand-only`.
 
 In `auto` mode the analyzer inspects every call site of the macro and recommends one of:
 
-- **Share** — call sites are homogeneous enough for one helper.
-- **Cluster** — call sites fall into distinct groups; emit one helper per cluster.
-- **ForceExpand** — too many distinct shapes; a shared helper would be megamorphic and slow, so
+- **Share**: call sites are homogeneous enough for one helper.
+- **Cluster**: call sites fall into distinct groups; emit one helper per cluster.
+- **ForceExpand**: too many distinct shapes; a shared helper would be megamorphic and slow, so
   inline instead. Emits a warning.
 
 ### How shapes are extracted
@@ -56,7 +56,7 @@ This is the part that most affects whether `auto` works for you. For each argume
 | anything else                               | `Opaque`                            |
 
 Lowercase identifiers become `Opaque` because a local variable name doesn't bound the type. This is
-the common case in real code — `$serialize(user)` contributes no type information. If you want the
+the common case in real code: `$encode(user)` contributes no type information. If you want the
 analyzer to cluster usefully, call it with type-bearing expressions, or accept that it will see
 opaque shapes and fall back accordingly.
 
@@ -71,7 +71,7 @@ opaque shapes and fall back accordingly.
 4. If a cluster's distinct-fingerprint count exceeds `megamorphismThreshold`, the macro is forced to
    expand inline.
 
-Cluster ids appear in the generated helper names — derived from the member type names, or `empty` /
+Cluster ids appear in the generated helper names: derived from the member type names, or `empty` /
 `lit` / `opaque` for the degenerate buckets.
 
 ### Requirements

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/represents.svelte.ts
-sha256 acbeefa3dbb2841f76fde6a3f7350ebd3b5f119652fd47228e2259f42241d8ad
+sha256 fac00213a02508f878d0b40d1e2d3c3dfca51469dd52fd5489f24d5a81e4ba29
 
 ## Changed
 
@@ -12,15 +12,15 @@ true
 
 ## Output
 
-import { accountDeserializeWithContext } from "./account.svelte";
-import { employeeDeserializeWithContext } from "./employee.svelte";
-import { accountSerializeWithContext } from "./account.svelte";
-import { employeeSerializeWithContext } from "./employee.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { accountDecodeWithContext } from "./account.svelte";
+import { employeeDecodeWithContext } from "./employee.svelte";
+import { accountEncodeWithContext } from "./account.svelte";
+import { employeeEncodeWithContext } from "./employee.svelte";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -49,16 +49,16 @@ dateStarted: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function representsSerialize(value: Represents, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = representsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function representsEncode(value: Represents, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = representsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function representsSerializeWithContext(value: Represents, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function representsEncodeWithContext(value: Represents, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -73,9 +73,9 @@ dateStarted: "",
                         __id,
                     };result.in = typeof value.in === "string"
                                                 ? value.in
-                                                : employeeSerializeWithContext(value.in, ctx);result.out = typeof value.out === "string"
+                                                : employeeEncodeWithContext(value.in, ctx);result.out = typeof value.out === "string"
                                                 ? value.out
-                                                : accountSerializeWithContext(value.out, ctx);result.id = value.id;result.dateStarted = value.dateStarted;
+                                                : accountEncodeWithContext(value.out, ctx);result.id = value.id;result.dateStarted = value.dateStarted;
 
 
 
@@ -174,21 +174,21 @@ dateStarted: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function representsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Represents } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function representsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Represents } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = representsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = representsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Represents.deserialize: root cannot be a forward reference"
+		message: "Represents.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -211,7 +211,7 @@ dateStarted: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -228,14 +228,14 @@ dateStarted: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function representsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Represents | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function representsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Represents | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Represents.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Represents.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -270,10 +270,10 @@ dateStarted: "",
                                             } else {
                                                 ctx.pushScope("in");
                                                 try {
-                                                    const __result = employeeDeserializeWithContext(__raw_in, ctx);
+                                                    const __result = employeeDecodeWithContext(__raw_in, ctx);
                                                     ctx.assignOrDefer(instance, "in", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "in" : "in." + __err.field,
@@ -554,10 +554,10 @@ dateStarted: "",
                                             } else {
                                                 ctx.pushScope("out");
                                                 try {
-                                                    const __result = accountDeserializeWithContext(__raw_out, ctx);
+                                                    const __result = accountDecodeWithContext(__raw_out, ctx);
                                                     ctx.assignOrDefer(instance, "out", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "out" : "out." + __err.field,
@@ -1972,7 +1972,7 @@ dateStarted: "",
                 if (!representsHasShape(obj)) {
                     return false;
                 }
-                const result = representsDeserialize(obj);
+                const result = representsDecode(obj);
                 return result.success;
             }
 
@@ -2137,7 +2137,7 @@ dateStarted: "",
 
 
             function validate(): Exit.Exit<Represents, Array<{ field: string; message: string }>> {
-                return toExit(representsDeserialize(data));
+                return toExit(representsDecode(data));
             }
 
 
@@ -2174,7 +2174,7 @@ dateStarted: "",
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function representsFromFormData(formData: FormData): Exit.Exit<Represents, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2185,15 +2185,15 @@ dateStarted: "",
             obj.dateStarted = formData.get("dateStarted") ?? "";
 
 
-            return toExit(representsDeserialize(obj));
+            return toExit(representsDecode(obj));
         }
 
 export const Represents = {
   defaultValue: representsDefaultValue,
-  serialize: representsSerialize,
-  serializeWithContext: representsSerializeWithContext,
-  deserialize: representsDeserialize,
-  deserializeWithContext: representsDeserializeWithContext,
+  encode: representsEncode,
+  encodeWithContext: representsEncodeWithContext,
+  decode: representsDecode,
+  decodeWithContext: representsDecodeWithContext,
   validateFields: representsValidateFields,
   hasShape: representsHasShape,
   is: representsIs,
@@ -2227,16 +2227,16 @@ dateStarted: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function representsSerialize(value: Represents, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = representsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function representsEncode(value: Represents, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = representsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function representsSerializeWithContext(value: Represents, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function representsEncodeWithContext(value: Represents, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2251,9 +2251,9 @@ dateStarted: "",
                         __id,
                     };result.in = typeof value.in === "string"
                                                 ? value.in
-                                                : employeeSerializeWithContext(value.in, ctx);result.out = typeof value.out === "string"
+                                                : employeeEncodeWithContext(value.in, ctx);result.out = typeof value.out === "string"
                                                 ? value.out
-                                                : accountSerializeWithContext(value.out, ctx);result.id = value.id;result.dateStarted = value.dateStarted;
+                                                : accountEncodeWithContext(value.out, ctx);result.id = value.id;result.dateStarted = value.dateStarted;
 
 
 
@@ -2352,21 +2352,21 @@ dateStarted: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function representsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Represents } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function representsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Represents } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = representsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = representsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Represents.deserialize: root cannot be a forward reference"
+		message: "Represents.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2389,7 +2389,7 @@ dateStarted: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2406,14 +2406,14 @@ dateStarted: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function representsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Represents | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function representsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Represents | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Represents.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Represents.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2448,10 +2448,10 @@ dateStarted: "",
                                             } else {
                                                 ctx.pushScope("in");
                                                 try {
-                                                    const __result = employeeDeserializeWithContext(__raw_in, ctx);
+                                                    const __result = employeeDecodeWithContext(__raw_in, ctx);
                                                     ctx.assignOrDefer(instance, "in", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "in" : "in." + __err.field,
@@ -2732,10 +2732,10 @@ dateStarted: "",
                                             } else {
                                                 ctx.pushScope("out");
                                                 try {
-                                                    const __result = accountDeserializeWithContext(__raw_out, ctx);
+                                                    const __result = accountDecodeWithContext(__raw_out, ctx);
                                                     ctx.assignOrDefer(instance, "out", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "out" : "out." + __err.field,
@@ -4150,7 +4150,7 @@ dateStarted: "",
                 if (!representsHasShape(obj)) {
                     return false;
                 }
-                const result = representsDeserialize(obj);
+                const result = representsDecode(obj);
                 return result.success;
             }
 
@@ -4315,7 +4315,7 @@ dateStarted: "",
 
 
             function validate(): Exit.Exit<Represents, Array<{ field: string; message: string }>> {
-                return toExit(representsDeserialize(data));
+                return toExit(representsDecode(data));
             }
 
 
@@ -4352,7 +4352,7 @@ dateStarted: "",
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function representsFromFormData(formData: FormData): Exit.Exit<Represents, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4363,15 +4363,15 @@ dateStarted: "",
             obj.dateStarted = formData.get("dateStarted") ?? "";
 
 
-            return toExit(representsDeserialize(obj));
+            return toExit(representsDecode(obj));
         }
 
 export const Represents = {
   defaultValue: representsDefaultValue,
-  serialize: representsSerialize,
-  serializeWithContext: representsSerializeWithContext,
-  deserialize: representsDeserialize,
-  deserializeWithContext: representsDeserializeWithContext,
+  encode: representsEncode,
+  encodeWithContext: representsEncodeWithContext,
+  decode: representsDecode,
+  decodeWithContext: representsDecodeWithContext,
   validateFields: representsValidateFields,
   hasShape: representsHasShape,
   is: representsIs,
@@ -4386,19 +4386,19 @@ export const Represents = {
 ## Mapping
 
 original 0..159 -> expanded 0..159
-original 216..251 -> expanded 159..194
-original 270..302 -> expanded 194..226
-original 321..391 -> expanded 226..296
-original 391..392 -> expanded 20138..20139
+original 208..243 -> expanded 159..194
+original 262..294 -> expanded 194..226
+original 313..383 -> expanded 226..296
+original 383..384 -> expanded 19934..19935
 generated 296..452 <- Default
-generated 452..2414 <- Serialize
-generated 2414..12290 <- Deserialize
-generated 12290..19698 <- Gigaform
-generated 19698..20138 <- __convenience_const
+generated 452..2376 <- Encode
+generated 2376..12138 <- Decode
+generated 12138..19526 <- Gigaform
+generated 19526..19934 <- __convenience_const
 
 ## Metadata
 
-interface Represents: {"body_span":{"end":392,"start":246},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":217,"start":160}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":271,"start":252}}],"name":"in","optional":false,"readonly":false,"span":{"end":298,"start":276},"ts_type":"string | Employee"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":322,"start":303}}],"name":"out","optional":false,"readonly":false,"span":{"end":349,"start":327},"ts_type":"string | Account"},{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":365,"start":354},"ts_type":"string"},{"decorators":[],"name":"dateStarted","optional":false,"readonly":false,"span":{"end":390,"start":370},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Represents","span":{"end":392,"start":225},"type_params":[]}
+interface Represents: {"body_span":{"end":384,"start":238},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":209,"start":160}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":263,"start":244}}],"name":"in","optional":false,"readonly":false,"span":{"end":290,"start":268},"ts_type":"string | Employee"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":314,"start":295}}],"name":"out","optional":false,"readonly":false,"span":{"end":341,"start":319},"ts_type":"string | Account"},{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":357,"start":346},"ts_type":"string"},{"decorators":[],"name":"dateStarted","optional":false,"readonly":false,"span":{"end":382,"start":362},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Represents","span":{"end":384,"start":217},"type_params":[]}
 
 ## Registry reads
 

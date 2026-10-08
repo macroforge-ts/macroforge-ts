@@ -19,7 +19,7 @@
  *
  * const sections = loadSections();
  * const debug = getSection(sections, 'debug');
- * const matches = searchSections(sections, 'serialization');
+ * const matches = searchSections(sections, 'encoding');
  * ```
  */
 
@@ -43,7 +43,7 @@ const docsDir = join(__dirname, '..', '..', 'docs');
  * Chunked sections have a parent entry with `is_chunked: true` and child entries
  * with `parent_id` pointing to the parent.
  *
- * @property id - Unique identifier for the section (e.g., "debug", "serde-validators")
+ * @property id - Unique identifier for the section (e.g., "debug", "endec-validators")
  * @property title - Human-readable title displayed to users
  * @property category - Category slug for grouping (e.g., "macros", "guides")
  * @property category_title - Human-readable category name
@@ -127,7 +127,7 @@ export function loadSections(): Section[] {
  * @example
  * ```typescript
  * const debug = getSection(sections, 'debug');        // Exact ID match
- * const serde = getSection(sections, 'Serialize');    // Exact title match
+ * const endec = getSection(sections, 'Encode');    // Exact title match
  * const partial = getSection(sections, 'valid');      // Partial match on "validators"
  * ```
  */

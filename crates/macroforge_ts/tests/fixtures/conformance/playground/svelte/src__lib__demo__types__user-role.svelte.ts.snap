@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/user-role.svelte.ts
-sha256 4bb72db26caaf416ad1b3014fece0a1aa53cee3c93cab7ba3a8f132fe256c008
+sha256 fea03d3290570ffb7665b57059cb1aeb2f1e4327049d25ed021a1ae56b958ba7
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -35,20 +35,20 @@ export function userRoleDefaultValue(): UserRole {
                             return "Administrator";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function userRoleSerialize(value: UserRole, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = userRoleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function userRoleEncode(value: UserRole, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = userRoleEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function userRoleSerializeWithContext(value: UserRole, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function userRoleEncodeWithContext(value: UserRole, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -115,8 +115,8 @@ export function userRoleDefaultValue(): UserRole {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function userRoleDeserialize(input: unknown): { success: true; value: UserRole } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function userRoleDecode(input: unknown): { success: true; value: UserRole } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Administrator':
                     case 'SalesRepresentative':
@@ -131,8 +131,8 @@ export function userRoleDefaultValue(): UserRole {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function userRoleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserRole | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function userRoleDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserRole | __mf_PendingRef {
                 switch (value) {
                     case 'Administrator':
                     case 'SalesRepresentative':
@@ -143,7 +143,7 @@ export function userRoleDefaultValue(): UserRole {
 
                         return value as UserRole;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for UserRole: expected one of " + ['Administrator', 'SalesRepresentative', 'Technician', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -355,7 +355,7 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Use
 
 
             function validate(): Exit.Exit<UserRole, Array<{ field: string; message: string }>> {
-                return toExit(userRoleDeserialize(data));
+                return toExit(userRoleDecode(data));
             }
 
 
@@ -422,15 +422,15 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Use
                 }
 
 
-            return toExit(userRoleDeserialize(obj));
+            return toExit(userRoleDecode(obj));
         }
 
 export const UserRole = {
   defaultValue: userRoleDefaultValue,
-  serialize: userRoleSerialize,
-  serializeWithContext: userRoleSerializeWithContext,
-  deserialize: userRoleDeserialize,
-  deserializeWithContext: userRoleDeserializeWithContext,
+  encode: userRoleEncode,
+  encodeWithContext: userRoleEncodeWithContext,
+  decode: userRoleDecode,
+  decodeWithContext: userRoleDecodeWithContext,
   hasShape: userRoleHasShape,
   is: userRoleIs,
   createForm: userRoleCreateForm,
@@ -453,20 +453,20 @@ export function userRoleDefaultValue(): UserRole {
                             return "Administrator";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function userRoleSerialize(value: UserRole, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = userRoleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function userRoleEncode(value: UserRole, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = userRoleEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function userRoleSerializeWithContext(value: UserRole, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function userRoleEncodeWithContext(value: UserRole, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -533,8 +533,8 @@ export function userRoleDefaultValue(): UserRole {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function userRoleDeserialize(input: unknown): { success: true; value: UserRole } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function userRoleDecode(input: unknown): { success: true; value: UserRole } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Administrator':
                     case 'SalesRepresentative':
@@ -549,8 +549,8 @@ export function userRoleDefaultValue(): UserRole {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function userRoleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserRole | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function userRoleDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserRole | __mf_PendingRef {
                 switch (value) {
                     case 'Administrator':
                     case 'SalesRepresentative':
@@ -561,7 +561,7 @@ export function userRoleDefaultValue(): UserRole {
 
                         return value as UserRole;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for UserRole: expected one of " + ['Administrator', 'SalesRepresentative', 'Technician', 'HumanResources', 'InformationTechnology'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -773,7 +773,7 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Use
 
 
             function validate(): Exit.Exit<UserRole, Array<{ field: string; message: string }>> {
-                return toExit(userRoleDeserialize(data));
+                return toExit(userRoleDecode(data));
             }
 
 
@@ -840,15 +840,15 @@ if (variant === "InformationTechnology") { return "InformationTechnology" as Use
                 }
 
 
-            return toExit(userRoleDeserialize(obj));
+            return toExit(userRoleDecode(obj));
         }
 
 export const UserRole = {
   defaultValue: userRoleDefaultValue,
-  serialize: userRoleSerialize,
-  serializeWithContext: userRoleSerializeWithContext,
-  deserialize: userRoleDeserialize,
-  deserializeWithContext: userRoleDeserializeWithContext,
+  encode: userRoleEncode,
+  encodeWithContext: userRoleEncodeWithContext,
+  decode: userRoleDecode,
+  decodeWithContext: userRoleDecodeWithContext,
   hasShape: userRoleHasShape,
   is: userRoleIs,
   createForm: userRoleCreateForm,
@@ -862,17 +862,17 @@ export const UserRole = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..277 -> expanded 58..220
-original 277..278 -> expanded 14020..14021
+original 107..269 -> expanded 58..220
+original 269..270 -> expanded 13910..13911
 generated 220..350 <- Default
-generated 350..2296 <- Serialize
-generated 2296..4939 <- Deserialize
-generated 4939..13644 <- Gigaform
-generated 13644..14020 <- __convenience_const
+generated 350..2258 <- Encode
+generated 2258..4871 <- Decode
+generated 4871..13566 <- Gigaform
+generated 13566..13910 <- __convenience_const
 
 ## Metadata
 
-type UserRole: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":161,"start":146}}],"kind":{"Literal":"'Administrator'"}},{"decorators":[],"kind":{"Literal":"'SalesRepresentative'"}},{"decorators":[],"kind":{"Literal":"'Technician'"}},{"decorators":[],"kind":{"Literal":"'HumanResources'"}},{"decorators":[],"kind":{"Literal":"'InformationTechnology'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"UserRole","span":{"end":278,"start":124},"type_params":[]}
+type UserRole: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":153,"start":138}}],"kind":{"Literal":"'Administrator'"}},{"decorators":[],"kind":{"Literal":"'SalesRepresentative'"}},{"decorators":[],"kind":{"Literal":"'Technician'"}},{"decorators":[],"kind":{"Literal":"'HumanResources'"}},{"decorators":[],"kind":{"Literal":"'InformationTechnology'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"UserRole","span":{"end":270,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -3,15 +3,15 @@
 //! Build-time JavaScript execution for macroforge. Semantically modelled
 //! on Zig's `comptime`: a declaration annotated with `/** @buildtime */` is
 //! evaluated in a sandboxed JS context during source transformation, its
-//! result is serialized back to a TypeScript literal, and the original
+//! result is encoded back to a TypeScript literal, and the original
 //! declaration is replaced with that literal. Subsequent passes (declarative
 //! macros, derive macros) see the spliced-in result, not the original
 //! expression.
 //!
 //! This module holds the backend-agnostic pieces: the [`BuildtimeSandbox`]
-//! trait, value and error types, capability enforcement, and the serializer
+//! trait, value and error types, capability enforcement, and the encoder
 //! that converts sandbox values to TS source. The only backend today is
-//! Boa ([`backends::boa`]) — a pure-Rust JS engine that compiles to both
+//! Boa ([`backends::boa`]): a pure-Rust JS engine that compiles to both
 //! native targets and wasm32-unknown-unknown, which is what the Vite
 //! plugin ships. Earlier prototypes included QuickJS, V8, and deno_core
 //! backends; they've been dropped in favour of Boa for portability.
@@ -28,7 +28,7 @@
 //! prepass::evaluate                 ← for each decl: synthetic module → sandbox
 //!     │
 //!     ▼
-//! serialize::value_to_ts_source     ← SandboxValue → TS literal
+//! encode::value_to_ts_source     ← SandboxValue → TS literal
 //!     │
 //!     ▼
 //! Patch::Replace { span, code }     ← fed to the existing PatchApplicator
@@ -57,7 +57,7 @@ pub use serialize::{SerializeError, value_to_ts_source};
 ///
 /// Currently only the Boa backend is available; it compiles for every
 /// target macroforge runs on. Returns `None` if the `buildtime-boa`
-/// feature is disabled — callers treat that as a no-op pre-pass.
+/// feature is disabled: callers treat that as a no-op pre-pass.
 #[must_use]
 pub fn default_backend() -> Option<Box<dyn BuildtimeSandbox>> {
     #[cfg(feature = "buildtime-boa")]

@@ -53,7 +53,7 @@ pub struct ResolvedCallSite {
     ///
     /// The analyzer treats two call sites as "same polymorphism
     /// class" iff their `arg_shapes` vectors are element-wise equal
-    /// so `(User, Order)` and `(User, Product)` count as two
+    ///: so `(User, Order)` and `(User, Product)` count as two
     /// distinct classes even though the first argument matches.
     /// This closes the gap where pre-PR-7 `Auto`-mode multi-arg
     /// macros under-reported their polymorphism by ignoring every
@@ -574,7 +574,7 @@ fn structural_cluster_id(group: &[Vec<TypeShape>]) -> String {
 /// type-checker access here, so a bare `user` identifier turns into
 /// `Named { name: "user" }` even though at the JS type level it might
 /// be `User | Admin`. That's a conscious trade-off: the analyzer
-/// catches the common case of "user calls `$serialize(thisClassInstance)`
+/// catches the common case of "user calls `$encode(thisClassInstance)`
 /// consistently", and opaque fallbacks prevent the heuristic from
 /// over-committing when it's unsure.
 ///
@@ -726,7 +726,7 @@ fn extract_fingerprint_fields(
 
 /// Non-recursive fingerprint extractor used when following a type
 /// alias's target. Matches [`extract_fingerprint_fields`] but stops
-/// at the first alias it encounters instead of chasing the chain:
+/// at the first alias it encounters instead of chasing the chain :
 /// this caps work at `O(1)` indirection and sidesteps any pathological
 /// `type A = B; type B = A` cycles the user might have written.
 fn extract_fingerprint_fields_direct(def: &TypeDefinitionIR) -> Option<Vec<String>> {
@@ -821,15 +821,14 @@ mod tests {
     #[test]
     fn analyze_monomorphic_share() {
         let mut reg = DeclarativeMacroRegistry::new();
-        reg.register(fake_def("serialize", MacroMode::Auto))
-            .unwrap();
+        reg.register(fake_def("encode", MacroMode::Auto)).unwrap();
         let sites = vec![
-            site("serialize", TypeShape::named("User")),
-            site("serialize", TypeShape::named("User")),
-            site("serialize", TypeShape::named("User")),
+            site("encode", TypeShape::named("User")),
+            site("encode", TypeShape::named("User")),
+            site("encode", TypeShape::named("User")),
         ];
         let report = analyze(&reg, &sites, 4);
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         assert_eq!(info.distinct_shapes, 1);
         assert_eq!(info.recommendation, Recommendation::Share);
     }
@@ -837,16 +836,15 @@ mod tests {
     #[test]
     fn analyze_at_threshold_still_share() {
         let mut reg = DeclarativeMacroRegistry::new();
-        reg.register(fake_def("serialize", MacroMode::Auto))
-            .unwrap();
+        reg.register(fake_def("encode", MacroMode::Auto)).unwrap();
         let sites = vec![
-            site("serialize", TypeShape::named("User")),
-            site("serialize", TypeShape::named("Admin")),
-            site("serialize", TypeShape::named("Guest")),
-            site("serialize", TypeShape::named("Bot")),
+            site("encode", TypeShape::named("User")),
+            site("encode", TypeShape::named("Admin")),
+            site("encode", TypeShape::named("Guest")),
+            site("encode", TypeShape::named("Bot")),
         ];
         let report = analyze(&reg, &sites, 4);
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         assert_eq!(info.distinct_shapes, 4);
         assert_eq!(info.recommendation, Recommendation::Share);
     }
@@ -857,17 +855,16 @@ mod tests {
         // heuristic: this test intentionally uses `TypeShape::named`
         // (no fields) to exercise that path.
         let mut reg = DeclarativeMacroRegistry::new();
-        reg.register(fake_def("serialize", MacroMode::Auto))
-            .unwrap();
+        reg.register(fake_def("encode", MacroMode::Auto)).unwrap();
         let sites = vec![
-            site("serialize", TypeShape::named("User")),
-            site("serialize", TypeShape::named("Admin")),
-            site("serialize", TypeShape::named("Alice")),
-            site("serialize", TypeShape::named("Bob")),
-            site("serialize", TypeShape::named("Guest")),
+            site("encode", TypeShape::named("User")),
+            site("encode", TypeShape::named("Admin")),
+            site("encode", TypeShape::named("Alice")),
+            site("encode", TypeShape::named("Bob")),
+            site("encode", TypeShape::named("Guest")),
         ];
         let report = analyze(&reg, &sites, 4);
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         assert_eq!(info.distinct_shapes, 5);
         let Recommendation::Cluster(clusters) = &info.recommendation else {
             panic!("expected Cluster, got {:?}", info.recommendation);
@@ -883,18 +880,17 @@ mod tests {
         // All shapes start with the same letter → one cluster with 6
         // members → still above threshold → ForceExpand.
         let mut reg = DeclarativeMacroRegistry::new();
-        reg.register(fake_def("serialize", MacroMode::Auto))
-            .unwrap();
+        reg.register(fake_def("encode", MacroMode::Auto)).unwrap();
         let sites = vec![
-            site("serialize", TypeShape::named("User1")),
-            site("serialize", TypeShape::named("User2")),
-            site("serialize", TypeShape::named("User3")),
-            site("serialize", TypeShape::named("User4")),
-            site("serialize", TypeShape::named("User5")),
-            site("serialize", TypeShape::named("User6")),
+            site("encode", TypeShape::named("User1")),
+            site("encode", TypeShape::named("User2")),
+            site("encode", TypeShape::named("User3")),
+            site("encode", TypeShape::named("User4")),
+            site("encode", TypeShape::named("User5")),
+            site("encode", TypeShape::named("User6")),
         ];
         let report = analyze(&reg, &sites, 4);
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         assert_eq!(info.recommendation, Recommendation::ForceExpand);
     }
 
@@ -902,18 +898,18 @@ mod tests {
     fn analyze_respects_per_macro_threshold() {
         // Override the threshold for this macro to 2 via MacroDef field.
         let mut reg = DeclarativeMacroRegistry::new();
-        let mut def = fake_def("serialize", MacroMode::Auto);
+        let mut def = fake_def("encode", MacroMode::Auto);
         def.megamorphism_threshold = 2;
         reg.register(def).unwrap();
 
         let sites = vec![
-            site("serialize", TypeShape::named("User")),
-            site("serialize", TypeShape::named("Admin")),
-            site("serialize", TypeShape::named("Guest")),
+            site("encode", TypeShape::named("User")),
+            site("encode", TypeShape::named("Admin")),
+            site("encode", TypeShape::named("Guest")),
         ];
         let report = analyze(&reg, &sites, 4);
         // 3 shapes > per-macro threshold of 2 → Cluster.
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         assert!(matches!(info.recommendation, Recommendation::Cluster(_)));
     }
 
@@ -1043,8 +1039,8 @@ mod tests {
 
     #[test]
     fn cluster_shapes_mixes_structural_and_prefix_paths() {
-        // Two shapes with fingerprints that match, plus one without:
-        // the fingerprinted pair forms a structural cluster and the
+        // Two shapes with fingerprints that match, plus one without
+        //: the fingerprinted pair forms a structural cluster and the
         // non-fingerprinted shape lands in a prefix bucket.
         let shapes = vec![
             tuple(named_with_fields("User", &["id", "name"])),
@@ -1066,17 +1062,16 @@ mod tests {
         // ForceExpand (5 different buckets); under structural clustering
         // they collapse to a single cluster.
         let mut reg = DeclarativeMacroRegistry::new();
-        reg.register(fake_def("serialize", MacroMode::Auto))
-            .unwrap();
+        reg.register(fake_def("encode", MacroMode::Auto)).unwrap();
         let sites = vec![
-            site("serialize", named_with_fields("Alpha", &["id", "name"])),
-            site("serialize", named_with_fields("Bravo", &["id", "name"])),
-            site("serialize", named_with_fields("Charlie", &["id", "name"])),
-            site("serialize", named_with_fields("Delta", &["id", "name"])),
-            site("serialize", named_with_fields("Echo", &["id", "name"])),
+            site("encode", named_with_fields("Alpha", &["id", "name"])),
+            site("encode", named_with_fields("Bravo", &["id", "name"])),
+            site("encode", named_with_fields("Charlie", &["id", "name"])),
+            site("encode", named_with_fields("Delta", &["id", "name"])),
+            site("encode", named_with_fields("Echo", &["id", "name"])),
         ];
         let report = analyze(&reg, &sites, 4);
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         let Recommendation::Cluster(clusters) = &info.recommendation else {
             panic!(
                 "expected Cluster (structural grouping), got {:?}",
@@ -1097,27 +1092,26 @@ mod tests {
 
     #[test]
     fn analyze_two_arg_monomorphic_shares() {
-        // All call sites have the same `(User, Order)` shape tuple:
+        // All call sites have the same `(User, Order)` shape tuple :
         // one distinct polymorphism class → Share.
         let mut reg = DeclarativeMacroRegistry::new();
-        reg.register(fake_def("serialize", MacroMode::Auto))
-            .unwrap();
+        reg.register(fake_def("encode", MacroMode::Auto)).unwrap();
         let sites = vec![
             multi_arg_site(
-                "serialize",
+                "encode",
                 vec![TypeShape::named("User"), TypeShape::named("Order")],
             ),
             multi_arg_site(
-                "serialize",
+                "encode",
                 vec![TypeShape::named("User"), TypeShape::named("Order")],
             ),
             multi_arg_site(
-                "serialize",
+                "encode",
                 vec![TypeShape::named("User"), TypeShape::named("Order")],
             ),
         ];
         let report = analyze(&reg, &sites, 4);
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         assert_eq!(info.distinct_shapes, 1);
         assert_eq!(info.recommendation, Recommendation::Share);
     }
@@ -1129,30 +1123,30 @@ mod tests {
         // distinct tuples > 1 → Cluster. The clustering falls back
         // to first-letter bucketing on the first arg (all `u`), so
         // every tuple lands in the same bucket. That bucket has 3
-        // distinct fingerprints (above the per-cluster threshold),
+        // distinct fingerprints: above the per-cluster threshold :
         // so the analyzer picks ForceExpand. Verifies that divergent
         // per-position shapes don't get silently collapsed by the
         // first-arg heuristic.
         let mut reg = DeclarativeMacroRegistry::new();
-        let mut def = fake_def("serialize", MacroMode::Auto);
+        let mut def = fake_def("encode", MacroMode::Auto);
         def.megamorphism_threshold = 1;
         reg.register(def).unwrap();
         let sites = vec![
             multi_arg_site(
-                "serialize",
+                "encode",
                 vec![TypeShape::named("User"), TypeShape::named("Order")],
             ),
             multi_arg_site(
-                "serialize",
+                "encode",
                 vec![TypeShape::named("User"), TypeShape::named("Invoice")],
             ),
             multi_arg_site(
-                "serialize",
+                "encode",
                 vec![TypeShape::named("User"), TypeShape::named("Product")],
             ),
         ];
         let report = analyze(&reg, &sites, 4);
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         assert_eq!(
             info.distinct_shapes, 3,
             "three distinct tuples expected, got {}",
@@ -1172,20 +1166,20 @@ mod tests {
         // same cluster, because the helper function's parameter
         // count differs.
         let mut reg = DeclarativeMacroRegistry::new();
-        let mut def = fake_def("serialize", MacroMode::Auto);
+        let mut def = fake_def("encode", MacroMode::Auto);
         def.megamorphism_threshold = 1;
         reg.register(def).unwrap();
         let sites = vec![
-            multi_arg_site("serialize", vec![TypeShape::named("User")]),
+            multi_arg_site("encode", vec![TypeShape::named("User")]),
             multi_arg_site(
-                "serialize",
+                "encode",
                 vec![TypeShape::named("User"), TypeShape::named("Order")],
             ),
         ];
         let report = analyze(&reg, &sites, 4);
-        let info = report.lookup("serialize").unwrap();
+        let info = report.lookup("encode").unwrap();
         assert_eq!(info.distinct_shapes, 2);
-        // Either Cluster with two separate clusters or ForceExpand:
+        // Either Cluster with two separate clusters or ForceExpand :
         // both are acceptable; the invariant is that the two tuples
         // never land in the same cluster.
         match &info.recommendation {

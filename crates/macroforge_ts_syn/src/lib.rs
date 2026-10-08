@@ -12,7 +12,7 @@
 //!
 //! - [`abi`] - Application Binary Interface types for stable macro communication
 //! - [`ast`] - Source-backed expression and identifier values for templates
-//! - [`config`] - Serializable configuration types shared between host and macro processes
+//! - [`config`] - Encodable configuration types shared between host and macro processes
 //! - [`context_registry`] - Thread-local storage for the active [`MacroContextIR`]
 //! - [`declarative`] - Grammar and parser for declarative (pattern-matching) macros
 //! - [`derive`] - Derive input types that mirror Rust's `syn::DeriveInput`

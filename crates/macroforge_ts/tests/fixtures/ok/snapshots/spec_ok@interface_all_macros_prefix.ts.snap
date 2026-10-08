@@ -5,7 +5,7 @@ input_file: crates/macroforge_ts/tests/fixtures/ok/interface_all_macros_prefix.t
 ---
 ## Input
 
-/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
 export interface Point {
     x: number;
     y: number;
@@ -17,11 +17,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 export interface Point {
     x: number;
@@ -89,16 +89,16 @@ y: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function pointSerialize(value: Point, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = pointSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function pointEncode(value: Point, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = pointEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function pointSerializeWithContext(value: Point, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -210,21 +210,21 @@ y: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function pointDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = pointDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = pointDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Point.deserialize: root cannot be a forward reference"
+		message: "Point.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -247,7 +247,7 @@ y: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -264,14 +264,14 @@ y: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function pointDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Point | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function pointDecodeWithContext(value: any, ctx: __mf_DecodeContext): Point | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Point.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1436,7 +1436,7 @@ y: 0,
                 if (!pointHasShape(obj)) {
                     return false;
                 }
-                const result = pointDeserialize(obj);
+                const result = pointDecode(obj);
                 return result.success;
             }
 
@@ -1448,10 +1448,10 @@ export const Point = {
   partialCompare: pointPartialCompare,
   compare: pointCompare,
   defaultValue: pointDefaultValue,
-  serialize: pointSerialize,
-  serializeWithContext: pointSerializeWithContext,
-  deserialize: pointDeserialize,
-  deserializeWithContext: pointDeserializeWithContext,
+  encode: pointEncode,
+  encodeWithContext: pointEncodeWithContext,
+  decode: pointDecode,
+  decodeWithContext: pointDecodeWithContext,
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
@@ -1525,16 +1525,16 @@ y: 0,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function pointSerialize(value: Point, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = pointSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function pointEncode(value: Point, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = pointEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function pointSerializeWithContext(value: Point, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1646,21 +1646,21 @@ y: 0,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function pointDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = pointDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = pointDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Point.deserialize: root cannot be a forward reference"
+		message: "Point.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1683,7 +1683,7 @@ y: 0,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1700,14 +1700,14 @@ y: 0,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function pointDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Point | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function pointDecodeWithContext(value: any, ctx: __mf_DecodeContext): Point | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Point.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2872,7 +2872,7 @@ y: 0,
                 if (!pointHasShape(obj)) {
                     return false;
                 }
-                const result = pointDeserialize(obj);
+                const result = pointDecode(obj);
                 return result.success;
             }
 
@@ -2884,10 +2884,10 @@ export const Point = {
   partialCompare: pointPartialCompare,
   compare: pointCompare,
   defaultValue: pointDefaultValue,
-  serialize: pointSerialize,
-  serializeWithContext: pointSerializeWithContext,
-  deserialize: pointDeserialize,
-  deserializeWithContext: pointDeserializeWithContext,
+  encode: pointEncode,
+  encodeWithContext: pointEncodeWithContext,
+  decode: pointDecode,
+  decodeWithContext: pointDecodeWithContext,
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
@@ -2899,8 +2899,8 @@ export const Point = {
 
 ## Mapping
 
-original 95..152 -> expanded 0..57
-original 152..153 -> expanded 9672..9673
+original 87..144 -> expanded 0..57
+original 144..145 -> expanded 9514..9515
 generated 57..338 <- Debug
 generated 338..558 <- Clone
 generated 558..737 <- PartialEq
@@ -2908,13 +2908,13 @@ generated 737..1178 <- Hash
 generated 1178..1604 <- PartialOrd
 generated 1604..2030 <- Ord
 generated 2030..2146 <- Default
-generated 2146..3665 <- Serialize
-generated 3665..9191 <- Deserialize
-generated 9191..9672 <- __convenience_const
+generated 2146..3633 <- Encode
+generated 3633..9065 <- Decode
+generated 9065..9514 <- __convenience_const
 
 ## Metadata
 
-interface Point: {"body_span":{"end":153,"start":120},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize","name":"Derive","span":{"end":96,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":136,"start":126},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":151,"start":141},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":153,"start":104},"type_params":[]}
+interface Point: {"body_span":{"end":145,"start":112},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Encode, Decode","name":"Derive","span":{"end":88,"start":1}}],"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":128,"start":118},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":143,"start":133},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Point","span":{"end":145,"start":96},"type_params":[]}
 
 ## Registry reads
 

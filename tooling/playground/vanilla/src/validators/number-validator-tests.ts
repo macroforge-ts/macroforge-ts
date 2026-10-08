@@ -1,101 +1,101 @@
 /**
- * Number validator test classes for comprehensive deserializer validation testing.
+ * Number validator test classes for comprehensive decoder validation testing.
  */
 
 // GreaterThan validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class GreaterThanValidator {
-    /** @serde({ validate: ["greaterThan(0)"] }) */
+    /** @endec({ validate: ["greaterThan(0)"] }) */
     positive: number;
 }
 
 // GreaterThanOrEqualTo validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class GreaterThanOrEqualToValidator {
-    /** @serde({ validate: ["greaterThanOrEqualTo(0)"] }) */
+    /** @endec({ validate: ["greaterThanOrEqualTo(0)"] }) */
     nonNegative: number;
 }
 
 // LessThan validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LessThanValidator {
-    /** @serde({ validate: ["lessThan(100)"] }) */
+    /** @endec({ validate: ["lessThan(100)"] }) */
     capped: number;
 }
 
 // LessThanOrEqualTo validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LessThanOrEqualToValidator {
-    /** @serde({ validate: ["lessThanOrEqualTo(100)"] }) */
+    /** @endec({ validate: ["lessThanOrEqualTo(100)"] }) */
     maxed: number;
 }
 
 // Between validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class BetweenValidator {
-    /** @serde({ validate: ["between(1, 100)"] }) */
+    /** @endec({ validate: ["between(1, 100)"] }) */
     ranged: number;
 }
 
 // Int validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class IntValidator {
-    /** @serde({ validate: ["int"] }) */
+    /** @endec({ validate: ["int"] }) */
     integer: number;
 }
 
 // NonNaN validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class NonNaNValidator {
-    /** @serde({ validate: ["nonNaN"] }) */
+    /** @endec({ validate: ["nonNaN"] }) */
     valid: number;
 }
 
 // Finite validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class FiniteValidator {
-    /** @serde({ validate: ["finite"] }) */
+    /** @endec({ validate: ["finite"] }) */
     finite: number;
 }
 
 // Positive validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class PositiveValidator {
-    /** @serde({ validate: ["positive"] }) */
+    /** @endec({ validate: ["positive"] }) */
     positive: number;
 }
 
 // NonNegative validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class NonNegativeValidator {
-    /** @serde({ validate: ["nonNegative"] }) */
+    /** @endec({ validate: ["nonNegative"] }) */
     nonNegative: number;
 }
 
 // Negative validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class NegativeValidator {
-    /** @serde({ validate: ["negative"] }) */
+    /** @endec({ validate: ["negative"] }) */
     negative: number;
 }
 
 // NonPositive validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class NonPositiveValidator {
-    /** @serde({ validate: ["nonPositive"] }) */
+    /** @endec({ validate: ["nonPositive"] }) */
     nonPositive: number;
 }
 
 // MultipleOf validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MultipleOfValidator {
-    /** @serde({ validate: ["multipleOf(5)"] }) */
+    /** @endec({ validate: ["multipleOf(5)"] }) */
     multiple: number;
 }
 
 // Uint8 validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class Uint8Validator {
-    /** @serde({ validate: ["uint8"] }) */
+    /** @endec({ validate: ["uint8"] }) */
     byte: number;
 }

@@ -3,7 +3,7 @@
 import type { Interval } from './interval.svelte';
 import type { RecurrenceEnd } from './recurrence-end.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface RecurrenceRule {
     interval: Interval;
     recurrenceBegins: string;

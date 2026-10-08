@@ -74,8 +74,8 @@ class User {
 
 Built-in macros
 
-Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do
-not require an import statement.
+Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode) do not
+require an import statement.
 
 ### Field Attributes
 
@@ -84,16 +84,16 @@ Macros can define field-level attributes to customize behavior per field:
 Before (Your Code)
 
 ```
-/** @derive(Debug, Serialize) */
+/** @derive(Debug, Encode) */
 class User {
   /** @debug({ rename: "userId" }) */
-  /** @serde({ rename: "user_id" }) */
+  /** @endec({ rename: "user_id" }) */
   id: number;
 
   name: string;
 
   /** @debug({ skip: true }) */
-  /** @serde({ skip: true }) */
+  /** @endec({ skip: true }) */
   password: string;
 
   metadata: Record<string, unknown>;
@@ -103,7 +103,7 @@ class User {
 After (Generated)
 
 ```
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
 
 class User {
   
@@ -121,14 +121,14 @@ class User {
 static toString(value: User): string {
                     return userToString(value);
                 }
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                static serialize(value: User, keepMetadata?: boolean): string {
-                    return userSerialize(value, keepMetadata);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static encode(value: User, keepMetadata?: boolean): string {
+                    return userEncode(value, keepMetadata);
                 }
 
-                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                static serializeWithContext(value: User, ctx: __mf_SerializeContext): Record<string, unknown> {
-                    return userSerializeWithContext(value, ctx);
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                static encodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+                    return userEncodeWithContext(value, ctx);
                 }}
 
 export function userToString(value: User): string {
@@ -140,16 +140,16 @@ parts.push("metadata: " + value.metadata);
                         return "User { " + parts.join(", ") + " }";
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function userSerialize(value: User, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = userSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function userEncode(value: User, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = userEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function userSerializeWithContext(value: User, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -177,13 +177,13 @@ Syntax rules:
 
 Common field attributes by macro:
 
-| Macro                 | Attribute     | Options                                |
-| --------------------- | ------------- | -------------------------------------- |
-| Debug                 | `@debug`      | `skip`, `rename`                       |
-| Clone                 | `@clone`      | `skip`, `clone_with`                   |
-| Serialize/Deserialize | `@serde`      | `skip`, `rename`, `flatten`, `default` |
-| Hash                  | `@hash`       | `skip`                                 |
-| PartialEq/Ord         | `@eq`, `@ord` | `skip`                                 |
+| Macro         | Attribute     | Options                                |
+| ------------- | ------------- | -------------------------------------- |
+| Debug         | `@debug`      | `skip`, `rename`                       |
+| Clone         | `@clone`      | `skip`, `clone_with`                   |
+| Encode/Decode | `@endec`      | `skip`, `rename`, `flatten`, `default` |
+| Hash          | `@hash`       | `skip`                                 |
+| PartialEq/Ord | `@eq`, `@ord` | `skip`                                 |
 
 ## How It Works
 

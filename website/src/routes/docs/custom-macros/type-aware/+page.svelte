@@ -197,7 +197,7 @@ let shape = resolve_generic_aliases(
 }`} lang="rust" />
 
 <p>
-	<a href={resolve('/docs/serde/foreign-types')}>Foreign types</a> are the usual reason to read it:
+	<a href={resolve('/docs/endec/foreign-types')}>Foreign types</a> are the usual reason to read it:
 	a macro that handles field types itself should treat a configured foreign type, such as
 	<code>DateTime.DateTime</code>, the way the project configured it.
 </p>

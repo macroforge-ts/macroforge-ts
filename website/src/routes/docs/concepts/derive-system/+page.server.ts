@@ -3,16 +3,16 @@ import { expandExample } from '$lib/server/macroforge.ts';
 export const load = async () => {
     const [fieldAttributes, deriveBasic, deriveMultiple] = await Promise.all([
         expandExample(
-            `/** @derive(Debug, Serialize) */
+            `/** @derive(Debug, Encode) */
 class User {
   /** @debug({ rename: "userId" }) */
-  /** @serde({ rename: "user_id" }) */
+  /** @endec({ rename: "user_id" }) */
   id: number;
 
   name: string;
 
   /** @debug({ skip: true }) */
-  /** @serde({ skip: true }) */
+  /** @endec({ skip: true }) */
   password: string;
 
   metadata: Record<string, unknown>;

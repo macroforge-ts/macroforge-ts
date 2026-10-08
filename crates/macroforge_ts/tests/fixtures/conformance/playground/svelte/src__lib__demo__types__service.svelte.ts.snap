@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/service.svelte.ts
-sha256 11573992ea90c3431f76341a2eef9a47104b9f24dcbb2abe9b23298ac236562b
+sha256 6fb0ceec6bca8ba84f892f9599fbd965e9867a213484da7f342d8ec8fbaf9d6a
 
 ## Changed
 
@@ -12,14 +12,14 @@ true
 
 ## Output
 
-import { serviceDefaultsDeserializeWithContext } from "./service-defaults.svelte";
-import { serviceDefaultsSerializeWithContext } from "./service-defaults.svelte";
+import { serviceDefaultsDecodeWithContext } from "./service-defaults.svelte";
+import { serviceDefaultsEncodeWithContext } from "./service-defaults.svelte";
 import { serviceDefaultsDefaultValue } from "./service-defaults.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -71,16 +71,16 @@ defaults: serviceDefaultsDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function serviceSerialize(value: Service, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = serviceSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function serviceEncode(value: Service, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = serviceEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function serviceSerializeWithContext(value: Service, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function serviceEncodeWithContext(value: Service, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -93,7 +93,7 @@ defaults: serviceDefaultsDefaultValue(),
                     const result: Record<string, unknown> = {
                         "__type": "Service",
                         __id,
-                    };result.id = value.id;result.name = value.name;result.quickCode = value.quickCode;result.group = value.group;result.subgroup = value.subgroup;result.unit = value.unit;result.active = value.active;result.commission = value.commission;result.favorite = value.favorite;result.averageTime = value.averageTime;result.defaults = serviceDefaultsSerializeWithContext(value.defaults, ctx);
+                    };result.id = value.id;result.name = value.name;result.quickCode = value.quickCode;result.group = value.group;result.subgroup = value.subgroup;result.unit = value.unit;result.active = value.active;result.commission = value.commission;result.favorite = value.favorite;result.averageTime = value.averageTime;result.defaults = serviceDefaultsEncodeWithContext(value.defaults, ctx);
 
 
 
@@ -192,21 +192,21 @@ defaults: serviceDefaultsDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function serviceDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Service } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function serviceDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Service } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = serviceDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = serviceDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Service.deserialize: root cannot be a forward reference"
+		message: "Service.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -229,7 +229,7 @@ defaults: serviceDefaultsDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -246,14 +246,14 @@ defaults: serviceDefaultsDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function serviceDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Service | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function serviceDecodeWithContext(value: any, ctx: __mf_DecodeContext): Service | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Service.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Service.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2908,10 +2908,10 @@ instance.quickCode = __raw_quickCode;
                             }{
                                 const __raw_defaults = obj["defaults"] as ServiceDefaults;ctx.pushScope("defaults");
                                             try {
-                                                const __result = serviceDefaultsDeserializeWithContext(__raw_defaults, ctx);
+                                                const __result = serviceDefaultsDecodeWithContext(__raw_defaults, ctx);
                                                 ctx.assignOrDefer(instance, "defaults", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
@@ -3853,7 +3853,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Service.qu
                 if (!serviceHasShape(obj)) {
                     return false;
                 }
-                const result = serviceDeserialize(obj);
+                const result = serviceDecode(obj);
                 return result.success;
             }
 
@@ -4207,7 +4207,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Service.qu
 
 
             function validate(): Exit.Exit<Service, Array<{ field: string; message: string }>> {
-                return toExit(serviceDeserialize(data));
+                return toExit(serviceDecode(data));
             }
 
 
@@ -4258,7 +4258,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Service.qu
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function serviceFromFormData(formData: FormData): Exit.Exit<Service, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4305,15 +4305,15 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Service.qu
         }
 
 
-            return toExit(serviceDeserialize(obj));
+            return toExit(serviceDecode(obj));
         }
 
 export const Service = {
   defaultValue: serviceDefaultValue,
-  serialize: serviceSerialize,
-  serializeWithContext: serviceSerializeWithContext,
-  deserialize: serviceDeserialize,
-  deserializeWithContext: serviceDeserializeWithContext,
+  encode: serviceEncode,
+  encodeWithContext: serviceEncodeWithContext,
+  decode: serviceDecode,
+  decodeWithContext: serviceDecodeWithContext,
   validateFields: serviceValidateFields,
   hasShape: serviceHasShape,
   is: serviceIs,
@@ -4370,16 +4370,16 @@ defaults: serviceDefaultsDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function serviceSerialize(value: Service, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = serviceSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function serviceEncode(value: Service, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = serviceEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function serviceSerializeWithContext(value: Service, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function serviceEncodeWithContext(value: Service, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -4392,7 +4392,7 @@ defaults: serviceDefaultsDefaultValue(),
                     const result: Record<string, unknown> = {
                         "__type": "Service",
                         __id,
-                    };result.id = value.id;result.name = value.name;result.quickCode = value.quickCode;result.group = value.group;result.subgroup = value.subgroup;result.unit = value.unit;result.active = value.active;result.commission = value.commission;result.favorite = value.favorite;result.averageTime = value.averageTime;result.defaults = serviceDefaultsSerializeWithContext(value.defaults, ctx);
+                    };result.id = value.id;result.name = value.name;result.quickCode = value.quickCode;result.group = value.group;result.subgroup = value.subgroup;result.unit = value.unit;result.active = value.active;result.commission = value.commission;result.favorite = value.favorite;result.averageTime = value.averageTime;result.defaults = serviceDefaultsEncodeWithContext(value.defaults, ctx);
 
 
 
@@ -4491,21 +4491,21 @@ defaults: serviceDefaultsDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function serviceDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Service } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function serviceDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Service } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = serviceDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = serviceDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Service.deserialize: root cannot be a forward reference"
+		message: "Service.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -4528,7 +4528,7 @@ defaults: serviceDefaultsDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -4545,14 +4545,14 @@ defaults: serviceDefaultsDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function serviceDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Service | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function serviceDecodeWithContext(value: any, ctx: __mf_DecodeContext): Service | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Service.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Service.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -7207,10 +7207,10 @@ instance.quickCode = __raw_quickCode;
                             }{
                                 const __raw_defaults = obj["defaults"] as ServiceDefaults;ctx.pushScope("defaults");
                                             try {
-                                                const __result = serviceDefaultsDeserializeWithContext(__raw_defaults, ctx);
+                                                const __result = serviceDefaultsDecodeWithContext(__raw_defaults, ctx);
                                                 ctx.assignOrDefer(instance, "defaults", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
@@ -8152,7 +8152,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Service.qu
                 if (!serviceHasShape(obj)) {
                     return false;
                 }
-                const result = serviceDeserialize(obj);
+                const result = serviceDecode(obj);
                 return result.success;
             }
 
@@ -8506,7 +8506,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Service.qu
 
 
             function validate(): Exit.Exit<Service, Array<{ field: string; message: string }>> {
-                return toExit(serviceDeserialize(data));
+                return toExit(serviceDecode(data));
             }
 
 
@@ -8557,7 +8557,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Service.qu
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function serviceFromFormData(formData: FormData): Exit.Exit<Service, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -8604,15 +8604,15 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Service.qu
         }
 
 
-            return toExit(serviceDeserialize(obj));
+            return toExit(serviceDecode(obj));
         }
 
 export const Service = {
   defaultValue: serviceDefaultValue,
-  serialize: serviceSerialize,
-  serializeWithContext: serviceSerializeWithContext,
-  deserialize: serviceDeserialize,
-  deserializeWithContext: serviceDeserializeWithContext,
+  encode: serviceEncode,
+  encodeWithContext: serviceEncodeWithContext,
+  decode: serviceDecode,
+  decodeWithContext: serviceDecodeWithContext,
   validateFields: serviceValidateFields,
   hasShape: serviceHasShape,
   is: serviceIs,
@@ -8627,29 +8627,29 @@ export const Service = {
 ## Mapping
 
 original 0..125 -> expanded 0..125
-original 182..214 -> expanded 125..157
-original 242..263 -> expanded 157..178
-original 304..309 -> expanded 178..183
-original 350..373 -> expanded 183..206
-original 420..425 -> expanded 206..211
-original 466..494 -> expanded 211..239
-original 559..590 -> expanded 239..270
-original 658..692 -> expanded 270..304
-original 758..788 -> expanded 304..334
-original 833..859 -> expanded 334..360
-original 908..938 -> expanded 360..390
-original 985..1013 -> expanded 390..418
-original 1062..1127 -> expanded 418..483
-original 1127..1128 -> expanded 34772..34773
+original 174..206 -> expanded 125..157
+original 234..255 -> expanded 157..178
+original 296..301 -> expanded 178..183
+original 342..365 -> expanded 183..206
+original 412..417 -> expanded 206..211
+original 458..486 -> expanded 211..239
+original 551..582 -> expanded 239..270
+original 650..684 -> expanded 270..304
+original 750..780 -> expanded 304..334
+original 825..851 -> expanded 334..360
+original 900..930 -> expanded 360..390
+original 977..1005 -> expanded 390..418
+original 1054..1119 -> expanded 418..483
+original 1119..1120 -> expanded 34581..34582
 generated 483..776 <- Default
-generated 776..2648 <- Serialize
-generated 2648..17097 <- Deserialize
-generated 17097..34365 <- Gigaform
-generated 34365..34772 <- __convenience_const
+generated 776..2613 <- Encode
+generated 2613..16958 <- Decode
+generated 16958..34206 <- Gigaform
+generated 34206..34581 <- __convenience_const
 
 ## Metadata
 
-interface Service: {"body_span":{"end":1128,"start":209},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":183,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":243,"start":215}}],"name":"id","optional":false,"readonly":false,"span":{"end":259,"start":248},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":351,"start":310}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":305,"start":264}}],"name":"name","optional":false,"readonly":false,"span":{"end":369,"start":356},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":467,"start":426}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":421,"start":374}}],"name":"quickCode","optional":false,"readonly":false,"span":{"end":490,"start":472},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":560,"start":495}}],"name":"group","optional":false,"readonly":false,"span":{"end":586,"start":565},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":659,"start":591}}],"name":"subgroup","optional":false,"readonly":false,"span":{"end":688,"start":664},"ts_type":"string | null"},{"decorators":[{"args_src":"{ labeool: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":759,"start":693}}],"name":"unit","optional":false,"readonly":false,"span":{"end":784,"start":764},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":834,"start":789}}],"name":"active","optional":false,"readonly":false,"span":{"end":855,"start":839},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":909,"start":860}}],"name":"commission","optional":false,"readonly":false,"span":{"end":934,"start":914},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":986,"start":939}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":1009,"start":991},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Average Time\" }","name":"textController","span":{"end":1063,"start":1014}}],"name":"averageTime","optional":false,"readonly":false,"span":{"end":1095,"start":1068},"ts_type":"string | null"},{"decorators":[],"name":"defaults","optional":false,"readonly":false,"span":{"end":1126,"start":1100},"ts_type":"ServiceDefaults"}],"heritage":[],"methods":[],"name":"Service","span":{"end":1128,"start":191},"type_params":[]}
+interface Service: {"body_span":{"end":1120,"start":201},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":175,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":235,"start":207}}],"name":"id","optional":false,"readonly":false,"span":{"end":251,"start":240},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":343,"start":302}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":297,"start":256}}],"name":"name","optional":false,"readonly":false,"span":{"end":361,"start":348},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":459,"start":418}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":413,"start":366}}],"name":"quickCode","optional":false,"readonly":false,"span":{"end":482,"start":464},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":552,"start":487}}],"name":"group","optional":false,"readonly":false,"span":{"end":578,"start":557},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":651,"start":583}}],"name":"subgroup","optional":false,"readonly":false,"span":{"end":680,"start":656},"ts_type":"string | null"},{"decorators":[{"args_src":"{ labeool: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":751,"start":685}}],"name":"unit","optional":false,"readonly":false,"span":{"end":776,"start":756},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":826,"start":781}}],"name":"active","optional":false,"readonly":false,"span":{"end":847,"start":831},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":901,"start":852}}],"name":"commission","optional":false,"readonly":false,"span":{"end":926,"start":906},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":978,"start":931}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":1001,"start":983},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Average Time\" }","name":"textController","span":{"end":1055,"start":1006}}],"name":"averageTime","optional":false,"readonly":false,"span":{"end":1087,"start":1060},"ts_type":"string | null"},{"decorators":[],"name":"defaults","optional":false,"readonly":false,"span":{"end":1118,"start":1092},"ts_type":"ServiceDefaults"}],"heritage":[],"methods":[],"name":"Service","span":{"end":1120,"start":183},"type_params":[]}
 
 ## Registry reads
 

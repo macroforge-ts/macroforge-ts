@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/status.svelte.ts
-sha256 cbe6a6e139f87cf31562f42f24abad4e1128591c19453b950da7fd155f5adb4a
+sha256 2105b4ff801c2188611636808ad2d8c823cbda55ebe4d987f18c9857a5d867f4
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -30,20 +30,20 @@ export function statusDefaultValue(): Status {
                             return "Scheduled";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function statusSerialize(value: Status, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = statusSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function statusEncode(value: Status, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = statusEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function statusSerializeWithContext(value: Status, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -110,8 +110,8 @@ export function statusDefaultValue(): Status {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function statusDeserialize(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function statusDecode(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Scheduled':
                     case 'OnDeck':
@@ -124,8 +124,8 @@ export function statusDefaultValue(): Status {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function statusDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Status | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function statusDecodeWithContext(value: any, ctx: __mf_DecodeContext): Status | __mf_PendingRef {
                 switch (value) {
                     case 'Scheduled':
                     case 'OnDeck':
@@ -134,7 +134,7 @@ export function statusDefaultValue(): Status {
 
                         return value as Status;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -298,7 +298,7 @@ if (variant === "Waiting") { return "Waiting" as Status; }
 
 
             function validate(): Exit.Exit<Status, Array<{ field: string; message: string }>> {
-                return toExit(statusDeserialize(data));
+                return toExit(statusDecode(data));
             }
 
 
@@ -353,15 +353,15 @@ if (variant === "Waiting") { return "Waiting" as Status; }
                 }
 
 
-            return toExit(statusDeserialize(obj));
+            return toExit(statusDecode(obj));
         }
 
 export const Status = {
   defaultValue: statusDefaultValue,
-  serialize: statusSerialize,
-  serializeWithContext: statusSerializeWithContext,
-  deserialize: statusDeserialize,
-  deserializeWithContext: statusDeserializeWithContext,
+  encode: statusEncode,
+  encodeWithContext: statusEncodeWithContext,
+  decode: statusDecode,
+  decodeWithContext: statusDecodeWithContext,
   hasShape: statusHasShape,
   is: statusIs,
   createForm: statusCreateForm,
@@ -379,20 +379,20 @@ export function statusDefaultValue(): Status {
                             return "Scheduled";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function statusSerialize(value: Status, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = statusSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function statusEncode(value: Status, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = statusEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function statusSerializeWithContext(value: Status, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -459,8 +459,8 @@ export function statusDefaultValue(): Status {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function statusDeserialize(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function statusDecode(input: unknown): { success: true; value: Status } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Scheduled':
                     case 'OnDeck':
@@ -473,8 +473,8 @@ export function statusDefaultValue(): Status {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function statusDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Status | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function statusDecodeWithContext(value: any, ctx: __mf_DecodeContext): Status | __mf_PendingRef {
                 switch (value) {
                     case 'Scheduled':
                     case 'OnDeck':
@@ -483,7 +483,7 @@ export function statusDefaultValue(): Status {
 
                         return value as Status;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Status: expected one of " + ['Scheduled', 'OnDeck', 'Waiting'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -647,7 +647,7 @@ if (variant === "Waiting") { return "Waiting" as Status; }
 
 
             function validate(): Exit.Exit<Status, Array<{ field: string; message: string }>> {
-                return toExit(statusDeserialize(data));
+                return toExit(statusDecode(data));
             }
 
 
@@ -702,15 +702,15 @@ if (variant === "Waiting") { return "Waiting" as Status; }
                 }
 
 
-            return toExit(statusDeserialize(obj));
+            return toExit(statusDecode(obj));
         }
 
 export const Status = {
   defaultValue: statusDefaultValue,
-  serialize: statusSerialize,
-  serializeWithContext: statusSerializeWithContext,
-  deserialize: statusDeserialize,
-  deserializeWithContext: statusDeserializeWithContext,
+  encode: statusEncode,
+  encodeWithContext: statusEncodeWithContext,
+  decode: statusDecode,
+  decodeWithContext: statusDecodeWithContext,
   hasShape: statusHasShape,
   is: statusIs,
   createForm: statusCreateForm,
@@ -724,17 +724,17 @@ export const Status = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..188 -> expanded 58..131
-original 188..189 -> expanded 10723..10724
+original 107..180 -> expanded 58..131
+original 180..181 -> expanded 10613..10614
 generated 131..253 <- Default
-generated 253..2189 <- Serialize
-generated 2189..4343 <- Deserialize
-generated 4343..10367 <- Gigaform
-generated 10367..10723 <- __convenience_const
+generated 253..2151 <- Encode
+generated 2151..4275 <- Decode
+generated 4275..10289 <- Gigaform
+generated 10289..10613 <- __convenience_const
 
 ## Metadata
 
-type Status: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":153,"start":138}}],"kind":{"Literal":"'Scheduled'"}},{"decorators":[],"kind":{"Literal":"'OnDeck'"}},{"decorators":[],"kind":{"Literal":"'Waiting'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Status","span":{"end":189,"start":124},"type_params":[]}
+type Status: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":145,"start":130}}],"kind":{"Literal":"'Scheduled'"}},{"decorators":[],"kind":{"Literal":"'OnDeck'"}},{"decorators":[],"kind":{"Literal":"'Waiting'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"Status","span":{"end":181,"start":116},"type_params":[]}
 
 ## Registry reads
 

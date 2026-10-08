@@ -9,14 +9,14 @@
 //! ```typescript
 //! /** @derive(Debug, Clone) */
 //! class User {
-//!     /** @serde(rename = "user_name") */
+//!     /** @endec(rename = "user_name") */
 //!     name: string;
 //! }
 //! ```
 //!
 //! This would produce:
 //! - Class-level: `DecoratorIR { name: "Derive", args_src: "Debug, Clone", ... }`
-//! - Field-level: `DecoratorIR { name: "serde", args_src: "rename = \"user_name\"", ... }`
+//! - Field-level: `DecoratorIR { name: "endec", args_src: "rename = \"user_name\"", ... }`
 
 use serde::{Deserialize, Serialize};
 
@@ -32,7 +32,7 @@ use crate::abi::SpanIR;
 /// Names are preserved with their original casing, with one exception: a
 /// `@derive` directive (matched case-insensitively) is normalized to
 /// `"Derive"` during lowering. All other names are stored exactly as written
-/// (`@serde` -> `"serde"`, `@Entity` -> `"Entity"`).
+/// (`@endec` -> `"endec"`, `@Entity` -> `"Entity"`).
 ///
 /// # Arguments
 ///
@@ -47,7 +47,7 @@ use crate::abi::SpanIR;
 ///
 /// fn has_skip_decorator(decorators: &[DecoratorIR]) -> bool {
 ///     decorators.iter().any(|d| {
-///         d.name.eq_ignore_ascii_case("serde") &&
+///         d.name.eq_ignore_ascii_case("endec") &&
 ///         d.args_src.contains("skip")
 ///     })
 /// }
@@ -56,14 +56,14 @@ use crate::abi::SpanIR;
 pub struct DecoratorIR {
     /// The decorator name without the `@` prefix.
     ///
-    /// Examples: `"derive"`, `"serde"`, `"Entity"`, `"deprecated"`
+    /// Examples: `"derive"`, `"endec"`, `"Entity"`, `"deprecated"`
     pub name: String,
 
     /// Raw arguments text (everything inside the parentheses).
     ///
     /// Examples:
     /// - `@derive(Debug, Clone)` -> `"Debug, Clone"`
-    /// - `@serde(rename = "id")` -> `"rename = \"id\""`
+    /// - `@endec(rename = "id")` -> `"rename = \"id\""`
     /// - `@Entity("users")` -> `"\"users\""`
     /// - `@deprecated` -> `""` (no arguments)
     pub args_src: String,

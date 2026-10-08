@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/schedule-settings.svelte.ts
-sha256 35a23f7e028a4a06896187796d4359e9a4c7467e62d741a50d67f3f37b3e3708
+sha256 2e60b041c077efffdb87156d0f956d7a9458dbdccd72889ae07333e7084d9f33
 
 ## Changed
 
@@ -12,13 +12,13 @@ true
 
 ## Output
 
-import { rowHeightDeserializeWithContext } from "./row-height.svelte";
-import { rowHeightSerializeWithContext } from "./row-height.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { rowHeightDecodeWithContext } from "./row-height.svelte";
+import { rowHeightEncodeWithContext } from "./row-height.svelte";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -46,16 +46,16 @@ detailedCards: false,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function scheduleSettingsSerialize(value: ScheduleSettings, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = scheduleSettingsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function scheduleSettingsEncode(value: ScheduleSettings, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = scheduleSettingsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function scheduleSettingsSerializeWithContext(value: ScheduleSettings, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function scheduleSettingsEncodeWithContext(value: ScheduleSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -68,7 +68,7 @@ detailedCards: false,
                     const result: Record<string, unknown> = {
                         "__type": "ScheduleSettings",
                         __id,
-                    };result.daysPerWeek = value.daysPerWeek;result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);result.visibleRoutes = value.visibleRoutes;result.detailedCards = value.detailedCards;
+                    };result.daysPerWeek = value.daysPerWeek;result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);result.visibleRoutes = value.visibleRoutes;result.detailedCards = value.detailedCards;
 
 
 
@@ -167,21 +167,21 @@ detailedCards: false,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function scheduleSettingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = scheduleSettingsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = scheduleSettingsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ScheduleSettings.deserialize: root cannot be a forward reference"
+		message: "ScheduleSettings.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -204,7 +204,7 @@ detailedCards: false,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -221,14 +221,14 @@ detailedCards: false,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function scheduleSettingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ScheduleSettings | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function scheduleSettingsDecodeWithContext(value: any, ctx: __mf_DecodeContext): ScheduleSettings | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "ScheduleSettings.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "ScheduleSettings.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -517,10 +517,10 @@ detailedCards: false,
                             }{
                                 const __raw_rowHeight = obj["rowHeight"] as RowHeight;ctx.pushScope("rowHeight");
                                             try {
-                                                const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
+                                                const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
                                                 ctx.assignOrDefer(instance, "rowHeight", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
@@ -1988,7 +1988,7 @@ detailedCards: false,
                 if (!scheduleSettingsHasShape(obj)) {
                     return false;
                 }
-                const result = scheduleSettingsDeserialize(obj);
+                const result = scheduleSettingsDecode(obj);
                 return result.success;
             }
 
@@ -2166,7 +2166,7 @@ detailedCards: false,
 
 
             function validate(): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
-                return toExit(scheduleSettingsDeserialize(data));
+                return toExit(scheduleSettingsDecode(data));
             }
 
 
@@ -2203,7 +2203,7 @@ detailedCards: false,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function scheduleSettingsFromFormData(formData: FormData): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2241,15 +2241,15 @@ detailedCards: false,
                 }
 
 
-            return toExit(scheduleSettingsDeserialize(obj));
+            return toExit(scheduleSettingsDecode(obj));
         }
 
 export const ScheduleSettings = {
   defaultValue: scheduleSettingsDefaultValue,
-  serialize: scheduleSettingsSerialize,
-  serializeWithContext: scheduleSettingsSerializeWithContext,
-  deserialize: scheduleSettingsDeserialize,
-  deserializeWithContext: scheduleSettingsDeserializeWithContext,
+  encode: scheduleSettingsEncode,
+  encodeWithContext: scheduleSettingsEncodeWithContext,
+  decode: scheduleSettingsDecode,
+  decodeWithContext: scheduleSettingsDecodeWithContext,
   validateFields: scheduleSettingsValidateFields,
   hasShape: scheduleSettingsHasShape,
   is: scheduleSettingsIs,
@@ -2281,16 +2281,16 @@ detailedCards: false,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function scheduleSettingsSerialize(value: ScheduleSettings, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = scheduleSettingsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function scheduleSettingsEncode(value: ScheduleSettings, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = scheduleSettingsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function scheduleSettingsSerializeWithContext(value: ScheduleSettings, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function scheduleSettingsEncodeWithContext(value: ScheduleSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2303,7 +2303,7 @@ detailedCards: false,
                     const result: Record<string, unknown> = {
                         "__type": "ScheduleSettings",
                         __id,
-                    };result.daysPerWeek = value.daysPerWeek;result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);result.visibleRoutes = value.visibleRoutes;result.detailedCards = value.detailedCards;
+                    };result.daysPerWeek = value.daysPerWeek;result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);result.visibleRoutes = value.visibleRoutes;result.detailedCards = value.detailedCards;
 
 
 
@@ -2402,21 +2402,21 @@ detailedCards: false,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function scheduleSettingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function scheduleSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ScheduleSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = scheduleSettingsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = scheduleSettingsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ScheduleSettings.deserialize: root cannot be a forward reference"
+		message: "ScheduleSettings.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2439,7 +2439,7 @@ detailedCards: false,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2456,14 +2456,14 @@ detailedCards: false,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function scheduleSettingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ScheduleSettings | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function scheduleSettingsDecodeWithContext(value: any, ctx: __mf_DecodeContext): ScheduleSettings | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "ScheduleSettings.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "ScheduleSettings.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2752,10 +2752,10 @@ detailedCards: false,
                             }{
                                 const __raw_rowHeight = obj["rowHeight"] as RowHeight;ctx.pushScope("rowHeight");
                                             try {
-                                                const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
+                                                const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
                                                 ctx.assignOrDefer(instance, "rowHeight", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
@@ -4223,7 +4223,7 @@ detailedCards: false,
                 if (!scheduleSettingsHasShape(obj)) {
                     return false;
                 }
-                const result = scheduleSettingsDeserialize(obj);
+                const result = scheduleSettingsDecode(obj);
                 return result.success;
             }
 
@@ -4401,7 +4401,7 @@ detailedCards: false,
 
 
             function validate(): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
-                return toExit(scheduleSettingsDeserialize(data));
+                return toExit(scheduleSettingsDecode(data));
             }
 
 
@@ -4438,7 +4438,7 @@ detailedCards: false,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function scheduleSettingsFromFormData(formData: FormData): Exit.Exit<ScheduleSettings, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4476,15 +4476,15 @@ detailedCards: false,
                 }
 
 
-            return toExit(scheduleSettingsDeserialize(obj));
+            return toExit(scheduleSettingsDecode(obj));
         }
 
 export const ScheduleSettings = {
   defaultValue: scheduleSettingsDefaultValue,
-  serialize: scheduleSettingsSerialize,
-  serializeWithContext: scheduleSettingsSerializeWithContext,
-  deserialize: scheduleSettingsDeserialize,
-  deserializeWithContext: scheduleSettingsDeserializeWithContext,
+  encode: scheduleSettingsEncode,
+  encodeWithContext: scheduleSettingsEncodeWithContext,
+  decode: scheduleSettingsDecode,
+  decodeWithContext: scheduleSettingsDecodeWithContext,
   validateFields: scheduleSettingsValidateFields,
   hasShape: scheduleSettingsHasShape,
   is: scheduleSettingsIs,
@@ -4499,18 +4499,18 @@ export const ScheduleSettings = {
 ## Mapping
 
 original 0..113 -> expanded 0..113
-original 170..236 -> expanded 113..179
-original 261..351 -> expanded 179..269
-original 351..352 -> expanded 21290..21291
+original 162..228 -> expanded 113..179
+original 253..343 -> expanded 179..269
+original 343..344 -> expanded 21099..21100
 generated 269..473 <- Default
-generated 473..2216 <- Serialize
-generated 2216..10685 <- Deserialize
-generated 10685..20784 <- Gigaform
-generated 20784..21290 <- __convenience_const
+generated 473..2181 <- Encode
+generated 2181..10546 <- Decode
+generated 10546..20625 <- Gigaform
+generated 20625..21099 <- __convenience_const
 
 ## Metadata
 
-interface ScheduleSettings: {"body_span":{"end":352,"start":206},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":171,"start":114}}],"fields":[{"decorators":[],"name":"daysPerWeek","optional":false,"readonly":false,"span":{"end":232,"start":212},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":262,"start":237}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":288,"start":267},"ts_type":"RowHeight"},{"decorators":[],"name":"visibleRoutes","optional":false,"readonly":false,"span":{"end":322,"start":293},"ts_type":"Array<string>"},{"decorators":[],"name":"detailedCards","optional":false,"readonly":false,"span":{"end":350,"start":327},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"ScheduleSettings","span":{"end":352,"start":179},"type_params":[]}
+interface ScheduleSettings: {"body_span":{"end":344,"start":198},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":163,"start":114}}],"fields":[{"decorators":[],"name":"daysPerWeek","optional":false,"readonly":false,"span":{"end":224,"start":204},"ts_type":"number"},{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":254,"start":229}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":280,"start":259},"ts_type":"RowHeight"},{"decorators":[],"name":"visibleRoutes","optional":false,"readonly":false,"span":{"end":314,"start":285},"ts_type":"Array<string>"},{"decorators":[],"name":"detailedCards","optional":false,"readonly":false,"span":{"end":342,"start":319},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"ScheduleSettings","span":{"end":344,"start":171},"type_params":[]}
 
 ## Registry reads
 

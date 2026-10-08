@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/page.svelte.ts
-sha256 4941dac777d6e844f40bd998e654e4fd5dd45783ccd3ecd94713e71e872683e0
+sha256 b8ff0d3116946eb340047d2bd6859292088c81226c7811fbe57662d33baf1d81
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -55,20 +55,20 @@ export function pageDefaultValue(): Page {
                             return "SalesHomeDashboard";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function pageSerialize(value: Page, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = pageSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function pageEncode(value: Page, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = pageEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function pageSerializeWithContext(value: Page, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function pageEncodeWithContext(value: Page, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -135,8 +135,8 @@ export function pageDefaultValue(): Page {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function pageDeserialize(input: unknown): { success: true; value: Page } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function pageDecode(input: unknown): { success: true; value: Page } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'SalesHomeDashboard':
                     case 'SalesHomeProducts':
@@ -171,8 +171,8 @@ export function pageDefaultValue(): Page {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function pageDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Page | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function pageDecodeWithContext(value: any, ctx: __mf_DecodeContext): Page | __mf_PendingRef {
                 switch (value) {
                     case 'SalesHomeDashboard':
                     case 'SalesHomeProducts':
@@ -203,7 +203,7 @@ export function pageDefaultValue(): Page {
 
                         return value as Page;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Page: expected one of " + ['SalesHomeDashboard', 'SalesHomeProducts', 'SalesHomeServices', 'SalesHomePackages', 'SalesHomeTaxRates', 'SalesLeadsOverview', 'SalesLeadsActivities', 'SalesLeadsCampaigns', 'SalesLeadsDripCampaigns', 'SalesLeadsOpportunities', 'SalesLeadsPromotions', 'SalesAccountsOverview', 'SalesAccountsActivities', 'SalesAccountsBilling', 'SalesAccountsContracts', 'SalesOrdersOverview', 'SalesOrdersActivities', 'SalesOrdersPayments', 'SalesOrdersCommissions', 'SalesSchedulingSchedule', 'SalesSchedulingAppointments', 'SalesSchedulingRecurring', 'SalesSchedulingRoutes', 'SalesSchedulingReminders', 'UserHome'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -895,7 +895,7 @@ if (variant === "UserHome") { return "UserHome" as Page; }
 
 
             function validate(): Exit.Exit<Page, Array<{ field: string; message: string }>> {
-                return toExit(pageDeserialize(data));
+                return toExit(pageDecode(data));
             }
 
 
@@ -1082,15 +1082,15 @@ if (variant === "UserHome") { return "UserHome" as Page; }
                 }
 
 
-            return toExit(pageDeserialize(obj));
+            return toExit(pageDecode(obj));
         }
 
 export const Page = {
   defaultValue: pageDefaultValue,
-  serialize: pageSerialize,
-  serializeWithContext: pageSerializeWithContext,
-  deserialize: pageDeserialize,
-  deserializeWithContext: pageDeserializeWithContext,
+  encode: pageEncode,
+  encodeWithContext: pageEncodeWithContext,
+  decode: pageDecode,
+  decodeWithContext: pageDecodeWithContext,
   hasShape: pageHasShape,
   is: pageIs,
   createForm: pageCreateForm,
@@ -1133,20 +1133,20 @@ export function pageDefaultValue(): Page {
                             return "SalesHomeDashboard";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function pageSerialize(value: Page, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = pageSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function pageEncode(value: Page, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = pageEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function pageSerializeWithContext(value: Page, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function pageEncodeWithContext(value: Page, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1213,8 +1213,8 @@ export function pageDefaultValue(): Page {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function pageDeserialize(input: unknown): { success: true; value: Page } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function pageDecode(input: unknown): { success: true; value: Page } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'SalesHomeDashboard':
                     case 'SalesHomeProducts':
@@ -1249,8 +1249,8 @@ export function pageDefaultValue(): Page {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function pageDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Page | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function pageDecodeWithContext(value: any, ctx: __mf_DecodeContext): Page | __mf_PendingRef {
                 switch (value) {
                     case 'SalesHomeDashboard':
                     case 'SalesHomeProducts':
@@ -1281,7 +1281,7 @@ export function pageDefaultValue(): Page {
 
                         return value as Page;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Page: expected one of " + ['SalesHomeDashboard', 'SalesHomeProducts', 'SalesHomeServices', 'SalesHomePackages', 'SalesHomeTaxRates', 'SalesLeadsOverview', 'SalesLeadsActivities', 'SalesLeadsCampaigns', 'SalesLeadsDripCampaigns', 'SalesLeadsOpportunities', 'SalesLeadsPromotions', 'SalesAccountsOverview', 'SalesAccountsActivities', 'SalesAccountsBilling', 'SalesAccountsContracts', 'SalesOrdersOverview', 'SalesOrdersActivities', 'SalesOrdersPayments', 'SalesOrdersCommissions', 'SalesSchedulingSchedule', 'SalesSchedulingAppointments', 'SalesSchedulingRecurring', 'SalesSchedulingRoutes', 'SalesSchedulingReminders', 'UserHome'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -1973,7 +1973,7 @@ if (variant === "UserHome") { return "UserHome" as Page; }
 
 
             function validate(): Exit.Exit<Page, Array<{ field: string; message: string }>> {
-                return toExit(pageDeserialize(data));
+                return toExit(pageDecode(data));
             }
 
 
@@ -2160,15 +2160,15 @@ if (variant === "UserHome") { return "UserHome" as Page; }
                 }
 
 
-            return toExit(pageDeserialize(obj));
+            return toExit(pageDecode(obj));
         }
 
 export const Page = {
   defaultValue: pageDefaultValue,
-  serialize: pageSerialize,
-  serializeWithContext: pageSerializeWithContext,
-  deserialize: pageDeserialize,
-  deserializeWithContext: pageDeserializeWithContext,
+  encode: pageEncode,
+  encodeWithContext: pageEncodeWithContext,
+  decode: pageDecode,
+  decodeWithContext: pageDecodeWithContext,
   hasShape: pageHasShape,
   is: pageIs,
   createForm: pageCreateForm,
@@ -2182,17 +2182,17 @@ export const Page = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..879 -> expanded 58..822
-original 879..880 -> expanded 40557..40558
+original 107..871 -> expanded 58..822
+original 871..872 -> expanded 40447..40448
 generated 822..949 <- Default
-generated 949..2875 <- Serialize
-generated 2875..9500 <- Deserialize
-generated 9500..40221 <- Gigaform
-generated 40221..40557 <- __convenience_const
+generated 949..2837 <- Encode
+generated 2837..9432 <- Decode
+generated 9432..40143 <- Gigaform
+generated 40143..40447 <- __convenience_const
 
 ## Metadata
 
-type Page: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":157,"start":142}}],"kind":{"Literal":"'SalesHomeDashboard'"}},{"decorators":[],"kind":{"Literal":"'SalesHomeProducts'"}},{"decorators":[],"kind":{"Literal":"'SalesHomeServices'"}},{"decorators":[],"kind":{"Literal":"'SalesHomePackages'"}},{"decorators":[],"kind":{"Literal":"'SalesHomeTaxRates'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsOverview'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsActivities'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsCampaigns'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsDripCampaigns'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsOpportunities'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsPromotions'"}},{"decorators":[],"kind":{"Literal":"'SalesAccountsOverview'"}},{"decorators":[],"kind":{"Literal":"'SalesAccountsActivities'"}},{"decorators":[],"kind":{"Literal":"'SalesAccountsBilling'"}},{"decorators":[],"kind":{"Literal":"'SalesAccountsContracts'"}},{"decorators":[],"kind":{"Literal":"'SalesOrdersOverview'"}},{"decorators":[],"kind":{"Literal":"'SalesOrdersActivities'"}},{"decorators":[],"kind":{"Literal":"'SalesOrdersPayments'"}},{"decorators":[],"kind":{"Literal":"'SalesOrdersCommissions'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingSchedule'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingAppointments'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingRecurring'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingRoutes'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingReminders'"}},{"decorators":[],"kind":{"Literal":"'UserHome'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Page","span":{"end":880,"start":124},"type_params":[]}
+type Page: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":149,"start":134}}],"kind":{"Literal":"'SalesHomeDashboard'"}},{"decorators":[],"kind":{"Literal":"'SalesHomeProducts'"}},{"decorators":[],"kind":{"Literal":"'SalesHomeServices'"}},{"decorators":[],"kind":{"Literal":"'SalesHomePackages'"}},{"decorators":[],"kind":{"Literal":"'SalesHomeTaxRates'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsOverview'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsActivities'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsCampaigns'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsDripCampaigns'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsOpportunities'"}},{"decorators":[],"kind":{"Literal":"'SalesLeadsPromotions'"}},{"decorators":[],"kind":{"Literal":"'SalesAccountsOverview'"}},{"decorators":[],"kind":{"Literal":"'SalesAccountsActivities'"}},{"decorators":[],"kind":{"Literal":"'SalesAccountsBilling'"}},{"decorators":[],"kind":{"Literal":"'SalesAccountsContracts'"}},{"decorators":[],"kind":{"Literal":"'SalesOrdersOverview'"}},{"decorators":[],"kind":{"Literal":"'SalesOrdersActivities'"}},{"decorators":[],"kind":{"Literal":"'SalesOrdersPayments'"}},{"decorators":[],"kind":{"Literal":"'SalesOrdersCommissions'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingSchedule'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingAppointments'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingRecurring'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingRoutes'"}},{"decorators":[],"kind":{"Literal":"'SalesSchedulingReminders'"}},{"decorators":[],"kind":{"Literal":"'UserHome'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"Page","span":{"end":872,"start":116},"type_params":[]}
 
 ## Registry reads
 

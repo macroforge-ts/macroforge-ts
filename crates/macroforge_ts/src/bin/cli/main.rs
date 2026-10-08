@@ -106,8 +106,8 @@
 //! one exits without repackaging. When a rebuild is needed, only the files that
 //! changed are re-expanded; the rest keep the expanded output from last time.
 //!
-//! A file that differs only in formatting (trailing whitespace, blank-line runs)
-//! does not count as changed. `.ts` is transpiled on the way into the package
+//! A file that differs only in formatting: trailing whitespace, blank-line runs
+//!: does not count as changed. `.ts` is transpiled on the way into the package
 //! so its formatting is discarded anyway, but `.svelte` and `.js` are copied
 //! through verbatim, which means a formatting-only edit to those will not reach
 //! the package until the next real change or a `--full-rebuild`.
@@ -149,8 +149,8 @@
 //!   foreignTypes: {
 //!     "DateTime.DateTime": {
 //!       from: ["effect"],
-//!       serialize: (v) => DateTime.formatIso(v),
-//!       deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+//!       encode: (v) => DateTime.formatIso(v),
+//!       decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
 //!       default: () => DateTime.unsafeNow()
 //!     }
 //!   }
@@ -361,7 +361,7 @@ impl Command {
     /// The cache-oriented subcommands take a project root. `build` takes a
     /// crate directory and writes its WASM package there, so keying on that
     /// rather than the current directory makes two builds of the same crate
-    /// serialize no matter where they were invoked from. Everything else works
+    /// encode no matter where they were invoked from. Everything else works
     /// from the current directory.
     fn explicit_root(&self) -> Option<PathBuf> {
         match self {
@@ -418,8 +418,8 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     // One lock per project, taken here so every subcommand is covered by the
-    // same rule. `.macroforge/` (the type registry, the declarative registry,
-    // the expansion cache and its manifest) is shared mutable state, and
+    // same rule. `.macroforge/`: the type registry, the declarative registry,
+    // the expansion cache and its manifest: is shared mutable state, and
     // running two macroforge processes against one project is routine
     // (`watch` beside `vite dev`, `svelte-package` from another terminal, an
     // editor invoking `svelte-check`).

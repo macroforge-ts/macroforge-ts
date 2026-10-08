@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/weekday.svelte.ts
-sha256 0c7aecca21c1871913d76fa14845ef65d609d911c2c0a8ff90ff332247b32a60
+sha256 0aaa9dc12d88452fd96720a4d13d432b66182fb8d0766d3e44e5c0525e20a3e8
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -37,20 +37,20 @@ export function weekdayDefaultValue(): Weekday {
                             return "Monday";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function weekdaySerialize(value: Weekday, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = weekdaySerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function weekdayEncode(value: Weekday, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = weekdayEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function weekdaySerializeWithContext(value: Weekday, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function weekdayEncodeWithContext(value: Weekday, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -117,8 +117,8 @@ export function weekdayDefaultValue(): Weekday {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function weekdayDeserialize(input: unknown): { success: true; value: Weekday } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function weekdayDecode(input: unknown): { success: true; value: Weekday } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Monday':
                     case 'Tuesday':
@@ -135,8 +135,8 @@ export function weekdayDefaultValue(): Weekday {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function weekdayDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Weekday | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function weekdayDecodeWithContext(value: any, ctx: __mf_DecodeContext): Weekday | __mf_PendingRef {
                 switch (value) {
                     case 'Monday':
                     case 'Tuesday':
@@ -149,7 +149,7 @@ export function weekdayDefaultValue(): Weekday {
 
                         return value as Weekday;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Weekday: expected one of " + ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -409,7 +409,7 @@ if (variant === "Sunday") { return "Sunday" as Weekday; }
 
 
             function validate(): Exit.Exit<Weekday, Array<{ field: string; message: string }>> {
-                return toExit(weekdayDeserialize(data));
+                return toExit(weekdayDecode(data));
             }
 
 
@@ -488,15 +488,15 @@ if (variant === "Sunday") { return "Sunday" as Weekday; }
                 }
 
 
-            return toExit(weekdayDeserialize(obj));
+            return toExit(weekdayDecode(obj));
         }
 
 export const Weekday = {
   defaultValue: weekdayDefaultValue,
-  serialize: weekdaySerialize,
-  serializeWithContext: weekdaySerializeWithContext,
-  deserialize: weekdayDeserialize,
-  deserializeWithContext: weekdayDeserializeWithContext,
+  encode: weekdayEncode,
+  encodeWithContext: weekdayEncodeWithContext,
+  decode: weekdayDecode,
+  decodeWithContext: weekdayDecodeWithContext,
   hasShape: weekdayHasShape,
   is: weekdayIs,
   createForm: weekdayCreateForm,
@@ -521,20 +521,20 @@ export function weekdayDefaultValue(): Weekday {
                             return "Monday";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function weekdaySerialize(value: Weekday, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = weekdaySerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function weekdayEncode(value: Weekday, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = weekdayEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function weekdaySerializeWithContext(value: Weekday, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function weekdayEncodeWithContext(value: Weekday, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -601,8 +601,8 @@ export function weekdayDefaultValue(): Weekday {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function weekdayDeserialize(input: unknown): { success: true; value: Weekday } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function weekdayDecode(input: unknown): { success: true; value: Weekday } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Monday':
                     case 'Tuesday':
@@ -619,8 +619,8 @@ export function weekdayDefaultValue(): Weekday {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function weekdayDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Weekday | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function weekdayDecodeWithContext(value: any, ctx: __mf_DecodeContext): Weekday | __mf_PendingRef {
                 switch (value) {
                     case 'Monday':
                     case 'Tuesday':
@@ -633,7 +633,7 @@ export function weekdayDefaultValue(): Weekday {
 
                         return value as Weekday;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Weekday: expected one of " + ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -893,7 +893,7 @@ if (variant === "Sunday") { return "Sunday" as Weekday; }
 
 
             function validate(): Exit.Exit<Weekday, Array<{ field: string; message: string }>> {
-                return toExit(weekdayDeserialize(data));
+                return toExit(weekdayDecode(data));
             }
 
 
@@ -972,15 +972,15 @@ if (variant === "Sunday") { return "Sunday" as Weekday; }
                 }
 
 
-            return toExit(weekdayDeserialize(obj));
+            return toExit(weekdayDecode(obj));
         }
 
 export const Weekday = {
   defaultValue: weekdayDefaultValue,
-  serialize: weekdaySerialize,
-  serializeWithContext: weekdaySerializeWithContext,
-  deserialize: weekdayDeserialize,
-  deserializeWithContext: weekdayDeserializeWithContext,
+  encode: weekdayEncode,
+  encodeWithContext: weekdayEncodeWithContext,
+  decode: weekdayDecode,
+  decodeWithContext: weekdayDecodeWithContext,
   hasShape: weekdayHasShape,
   is: weekdayIs,
   createForm: weekdayCreateForm,
@@ -994,17 +994,17 @@ export const Weekday = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..267 -> expanded 58..210
-original 267..268 -> expanded 14757..14758
+original 107..259 -> expanded 58..210
+original 259..260 -> expanded 14647..14648
 generated 210..331 <- Default
-generated 331..2272 <- Serialize
-generated 2272..4958 <- Deserialize
-generated 4958..14391 <- Gigaform
-generated 14391..14757 <- __convenience_const
+generated 331..2234 <- Encode
+generated 2234..4890 <- Decode
+generated 4890..14313 <- Gigaform
+generated 14313..14647 <- __convenience_const
 
 ## Metadata
 
-type Weekday: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":160,"start":145}}],"kind":{"Literal":"'Monday'"}},{"decorators":[],"kind":{"Literal":"'Tuesday'"}},{"decorators":[],"kind":{"Literal":"'Wednesday'"}},{"decorators":[],"kind":{"Literal":"'Thursday'"}},{"decorators":[],"kind":{"Literal":"'Friday'"}},{"decorators":[],"kind":{"Literal":"'Saturday'"}},{"decorators":[],"kind":{"Literal":"'Sunday'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Weekday","span":{"end":268,"start":124},"type_params":[]}
+type Weekday: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":152,"start":137}}],"kind":{"Literal":"'Monday'"}},{"decorators":[],"kind":{"Literal":"'Tuesday'"}},{"decorators":[],"kind":{"Literal":"'Wednesday'"}},{"decorators":[],"kind":{"Literal":"'Thursday'"}},{"decorators":[],"kind":{"Literal":"'Friday'"}},{"decorators":[],"kind":{"Literal":"'Saturday'"}},{"decorators":[],"kind":{"Literal":"'Sunday'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"Weekday","span":{"end":260,"start":116},"type_params":[]}
 
 ## Registry reads
 

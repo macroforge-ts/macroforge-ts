@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/appointment-notifications.svelte.ts
-sha256 6d57935603fc9251d82799ba0e7a98f04f580a626456dcb084cfc28c5c1de1eb
+sha256 0dc1ef0eda406ad9a5ed9b5faa236b29c2c343f64a34808a0a01cf11a88f2995
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -38,16 +38,16 @@ allScheduleChangeNotifications: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function appointmentNotificationsSerialize(value: AppointmentNotifications, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = appointmentNotificationsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function appointmentNotificationsEncode(value: AppointmentNotifications, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = appointmentNotificationsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function appointmentNotificationsSerializeWithContext(value: AppointmentNotifications, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function appointmentNotificationsEncodeWithContext(value: AppointmentNotifications, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -159,21 +159,21 @@ allScheduleChangeNotifications: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function appointmentNotificationsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: AppointmentNotifications } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function appointmentNotificationsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AppointmentNotifications } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = appointmentNotificationsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = appointmentNotificationsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "AppointmentNotifications.deserialize: root cannot be a forward reference"
+		message: "AppointmentNotifications.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -196,7 +196,7 @@ allScheduleChangeNotifications: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -213,14 +213,14 @@ allScheduleChangeNotifications: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function appointmentNotificationsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): AppointmentNotifications | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function appointmentNotificationsDecodeWithContext(value: any, ctx: __mf_DecodeContext): AppointmentNotifications | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "AppointmentNotifications.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "AppointmentNotifications.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1441,7 +1441,7 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
                 if (!appointmentNotificationsHasShape(obj)) {
                     return false;
                 }
-                const result = appointmentNotificationsDeserialize(obj);
+                const result = appointmentNotificationsDecode(obj);
                 return result.success;
             }
 
@@ -1552,7 +1552,7 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
 
 
             function validate(): Exit.Exit<AppointmentNotifications, Array<{ field: string; message: string }>> {
-                return toExit(appointmentNotificationsDeserialize(data));
+                return toExit(appointmentNotificationsDecode(data));
             }
 
 
@@ -1585,7 +1585,7 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function appointmentNotificationsFromFormData(formData: FormData): Exit.Exit<AppointmentNotifications, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1594,15 +1594,15 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
             obj.allScheduleChangeNotifications = formData.get("allScheduleChangeNotifications") ?? "";
 
 
-            return toExit(appointmentNotificationsDeserialize(obj));
+            return toExit(appointmentNotificationsDecode(obj));
         }
 
 export const AppointmentNotifications = {
   defaultValue: appointmentNotificationsDefaultValue,
-  serialize: appointmentNotificationsSerialize,
-  serializeWithContext: appointmentNotificationsSerializeWithContext,
-  deserialize: appointmentNotificationsDeserialize,
-  deserializeWithContext: appointmentNotificationsDeserializeWithContext,
+  encode: appointmentNotificationsEncode,
+  encodeWithContext: appointmentNotificationsEncodeWithContext,
+  decode: appointmentNotificationsDecode,
+  decodeWithContext: appointmentNotificationsDecodeWithContext,
   validateFields: appointmentNotificationsValidateFields,
   hasShape: appointmentNotificationsHasShape,
   is: appointmentNotificationsIs,
@@ -1629,16 +1629,16 @@ allScheduleChangeNotifications: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function appointmentNotificationsSerialize(value: AppointmentNotifications, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = appointmentNotificationsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function appointmentNotificationsEncode(value: AppointmentNotifications, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = appointmentNotificationsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function appointmentNotificationsSerializeWithContext(value: AppointmentNotifications, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function appointmentNotificationsEncodeWithContext(value: AppointmentNotifications, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1750,21 +1750,21 @@ allScheduleChangeNotifications: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function appointmentNotificationsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: AppointmentNotifications } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function appointmentNotificationsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AppointmentNotifications } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = appointmentNotificationsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = appointmentNotificationsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "AppointmentNotifications.deserialize: root cannot be a forward reference"
+		message: "AppointmentNotifications.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1787,7 +1787,7 @@ allScheduleChangeNotifications: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1804,14 +1804,14 @@ allScheduleChangeNotifications: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function appointmentNotificationsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): AppointmentNotifications | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function appointmentNotificationsDecodeWithContext(value: any, ctx: __mf_DecodeContext): AppointmentNotifications | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "AppointmentNotifications.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "AppointmentNotifications.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3032,7 +3032,7 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
                 if (!appointmentNotificationsHasShape(obj)) {
                     return false;
                 }
-                const result = appointmentNotificationsDeserialize(obj);
+                const result = appointmentNotificationsDecode(obj);
                 return result.success;
             }
 
@@ -3143,7 +3143,7 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
 
 
             function validate(): Exit.Exit<AppointmentNotifications, Array<{ field: string; message: string }>> {
-                return toExit(appointmentNotificationsDeserialize(data));
+                return toExit(appointmentNotificationsDecode(data));
             }
 
 
@@ -3176,7 +3176,7 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function appointmentNotificationsFromFormData(formData: FormData): Exit.Exit<AppointmentNotifications, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3185,15 +3185,15 @@ if (__val.length === 0) { errors.push({ field: "allScheduleChangeNotifications",
             obj.allScheduleChangeNotifications = formData.get("allScheduleChangeNotifications") ?? "";
 
 
-            return toExit(appointmentNotificationsDeserialize(obj));
+            return toExit(appointmentNotificationsDecode(obj));
         }
 
 export const AppointmentNotifications = {
   defaultValue: appointmentNotificationsDefaultValue,
-  serialize: appointmentNotificationsSerialize,
-  serializeWithContext: appointmentNotificationsSerializeWithContext,
-  deserialize: appointmentNotificationsDeserialize,
-  deserializeWithContext: appointmentNotificationsDeserializeWithContext,
+  encode: appointmentNotificationsEncode,
+  encodeWithContext: appointmentNotificationsEncodeWithContext,
+  decode: appointmentNotificationsDecode,
+  decodeWithContext: appointmentNotificationsDecodeWithContext,
   validateFields: appointmentNotificationsValidateFields,
   hasShape: appointmentNotificationsHasShape,
   is: appointmentNotificationsIs,
@@ -3208,19 +3208,19 @@ export const AppointmentNotifications = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..164 -> expanded 58..107
-original 205..259 -> expanded 107..161
-original 300..346 -> expanded 161..207
-original 346..347 -> expanded 19019..19020
+original 107..156 -> expanded 58..107
+original 197..251 -> expanded 107..161
+original 292..338 -> expanded 161..207
+original 338..339 -> expanded 18841..18842
 generated 207..426 <- Default
-generated 426..2185 <- Serialize
-generated 2185..11846 <- Deserialize
-generated 11846..18425 <- Gigaform
-generated 18425..19019 <- __convenience_const
+generated 426..2153 <- Encode
+generated 2153..11720 <- Decode
+generated 11720..18279 <- Gigaform
+generated 18279..18841 <- __convenience_const
 
 ## Metadata
 
-interface AppointmentNotifications: {"body_span":{"end":347,"start":159},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":206,"start":165}}],"name":"personalScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":255,"start":211},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":301,"start":260}}],"name":"allScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":345,"start":306},"ts_type":"string"}],"heritage":[],"methods":[],"name":"AppointmentNotifications","span":{"end":347,"start":124},"type_params":[]}
+interface AppointmentNotifications: {"body_span":{"end":339,"start":151},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":198,"start":157}}],"name":"personalScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":247,"start":203},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":293,"start":252}}],"name":"allScheduleChangeNotifications","optional":false,"readonly":false,"span":{"end":337,"start":298},"ts_type":"string"}],"heritage":[],"methods":[],"name":"AppointmentNotifications","span":{"end":339,"start":116},"type_params":[]}
 
 ## Registry reads
 

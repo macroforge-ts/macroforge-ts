@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/order-stage.svelte.ts
-sha256 e3156ec764707d28745c3a62a191eed439114b78781e5fe4b7bf63c82ecefdc8
+sha256 274cfb87d77e1b3b4bee697e63dc939242502d75270d99d013605e0a5761d6d9
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -30,20 +30,20 @@ export function orderStageDefaultValue(): OrderStage {
                             return "Estimate";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function orderStageSerialize(value: OrderStage, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = orderStageSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function orderStageEncode(value: OrderStage, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = orderStageEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function orderStageSerializeWithContext(value: OrderStage, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function orderStageEncodeWithContext(value: OrderStage, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -110,8 +110,8 @@ export function orderStageDefaultValue(): OrderStage {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function orderStageDeserialize(input: unknown): { success: true; value: OrderStage } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function orderStageDecode(input: unknown): { success: true; value: OrderStage } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Estimate':
                     case 'Active':
@@ -124,8 +124,8 @@ export function orderStageDefaultValue(): OrderStage {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function orderStageDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): OrderStage | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function orderStageDecodeWithContext(value: any, ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef {
                 switch (value) {
                     case 'Estimate':
                     case 'Active':
@@ -134,7 +134,7 @@ export function orderStageDefaultValue(): OrderStage {
 
                         return value as OrderStage;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for OrderStage: expected one of " + ['Estimate', 'Active', 'Invoice'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -298,7 +298,7 @@ if (variant === "Invoice") { return "Invoice" as OrderStage; }
 
 
             function validate(): Exit.Exit<OrderStage, Array<{ field: string; message: string }>> {
-                return toExit(orderStageDeserialize(data));
+                return toExit(orderStageDecode(data));
             }
 
 
@@ -353,15 +353,15 @@ if (variant === "Invoice") { return "Invoice" as OrderStage; }
                 }
 
 
-            return toExit(orderStageDeserialize(obj));
+            return toExit(orderStageDecode(obj));
         }
 
 export const OrderStage = {
   defaultValue: orderStageDefaultValue,
-  serialize: orderStageSerialize,
-  serializeWithContext: orderStageSerializeWithContext,
-  deserialize: orderStageDeserialize,
-  deserializeWithContext: orderStageDeserializeWithContext,
+  encode: orderStageEncode,
+  encodeWithContext: orderStageEncodeWithContext,
+  decode: orderStageDecode,
+  decodeWithContext: orderStageDecodeWithContext,
   hasShape: orderStageHasShape,
   is: orderStageIs,
   createForm: orderStageCreateForm,
@@ -379,20 +379,20 @@ export function orderStageDefaultValue(): OrderStage {
                             return "Estimate";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function orderStageSerialize(value: OrderStage, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = orderStageSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function orderStageEncode(value: OrderStage, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = orderStageEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function orderStageSerializeWithContext(value: OrderStage, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function orderStageEncodeWithContext(value: OrderStage, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -459,8 +459,8 @@ export function orderStageDefaultValue(): OrderStage {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function orderStageDeserialize(input: unknown): { success: true; value: OrderStage } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function orderStageDecode(input: unknown): { success: true; value: OrderStage } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Estimate':
                     case 'Active':
@@ -473,8 +473,8 @@ export function orderStageDefaultValue(): OrderStage {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function orderStageDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): OrderStage | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function orderStageDecodeWithContext(value: any, ctx: __mf_DecodeContext): OrderStage | __mf_PendingRef {
                 switch (value) {
                     case 'Estimate':
                     case 'Active':
@@ -483,7 +483,7 @@ export function orderStageDefaultValue(): OrderStage {
 
                         return value as OrderStage;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for OrderStage: expected one of " + ['Estimate', 'Active', 'Invoice'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -647,7 +647,7 @@ if (variant === "Invoice") { return "Invoice" as OrderStage; }
 
 
             function validate(): Exit.Exit<OrderStage, Array<{ field: string; message: string }>> {
-                return toExit(orderStageDeserialize(data));
+                return toExit(orderStageDecode(data));
             }
 
 
@@ -702,15 +702,15 @@ if (variant === "Invoice") { return "Invoice" as OrderStage; }
                 }
 
 
-            return toExit(orderStageDeserialize(obj));
+            return toExit(orderStageDecode(obj));
         }
 
 export const OrderStage = {
   defaultValue: orderStageDefaultValue,
-  serialize: orderStageSerialize,
-  serializeWithContext: orderStageSerializeWithContext,
-  deserialize: orderStageDeserialize,
-  deserializeWithContext: orderStageDeserializeWithContext,
+  encode: orderStageEncode,
+  encodeWithContext: orderStageEncodeWithContext,
+  decode: orderStageDecode,
+  decodeWithContext: orderStageDecodeWithContext,
   hasShape: orderStageHasShape,
   is: orderStageIs,
   createForm: orderStageCreateForm,
@@ -724,17 +724,17 @@ export const OrderStage = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..191 -> expanded 58..134
-original 191..192 -> expanded 11049..11050
+original 107..183 -> expanded 58..134
+original 183..184 -> expanded 10939..10940
 generated 134..263 <- Default
-generated 263..2219 <- Serialize
-generated 2219..4416 <- Deserialize
-generated 4416..10653 <- Gigaform
-generated 10653..11049 <- __convenience_const
+generated 263..2181 <- Encode
+generated 2181..4348 <- Decode
+generated 4348..10575 <- Gigaform
+generated 10575..10939 <- __convenience_const
 
 ## Metadata
 
-type OrderStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":157,"start":142}}],"kind":{"Literal":"'Estimate'"}},{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Literal":"'Invoice'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"OrderStage","span":{"end":192,"start":124},"type_params":[]}
+type OrderStage: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":149,"start":134}}],"kind":{"Literal":"'Estimate'"}},{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Literal":"'Invoice'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"OrderStage","span":{"end":184,"start":116},"type_params":[]}
 
 ## Registry reads
 

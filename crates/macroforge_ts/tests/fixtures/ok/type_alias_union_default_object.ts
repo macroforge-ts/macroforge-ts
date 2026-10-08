@@ -1,5 +1,5 @@
-/** @derive(Default, Serialize, Deserialize) */
-/** @serde({ tag: "type", content: "value" }) */
+/** @derive(Default, Encode, Decode) */
+/** @endec({ tag: "type", content: "value" }) */
 export type PropValue =
     | /** @default */ { type: 'String'; value: string }
     | { type: 'Number'; value: number }

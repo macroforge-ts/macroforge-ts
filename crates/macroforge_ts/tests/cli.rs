@@ -9,11 +9,11 @@ fn macroforge_bin() -> Command {
 }
 
 /// Builds a `src/` tree used by the scan-mode tests:
-/// - `src/withmacro.ts`      — a `@derive(Default)` interface (expands)
-/// - `src/plain.ts`          — no macros (copied verbatim into a mirrored tree)
-/// - `src/nested/style.css`  — a non-TS asset (copied verbatim)
-/// - `src/Comp.svelte`       — a component file (copied verbatim, not expanded)
-/// - `src/withmacro.expanded.ts` — a pre-existing debug sibling (never scanned)
+/// - `src/withmacro.ts`     : a `@derive(Default)` interface (expands)
+/// - `src/plain.ts`         : no macros (copied verbatim into a mirrored tree)
+/// - `src/nested/style.css` : a non-TS asset (copied verbatim)
+/// - `src/Comp.svelte`      : a component file (copied verbatim, not expanded)
+/// - `src/withmacro.expanded.ts`: a pre-existing debug sibling (never scanned)
 fn setup_scan_fixture(temp: &Path) {
     // A package.json marks the project root for config/registry resolution.
     std::fs::write(temp.join("package.json"), "{ \"name\": \"scan-fixture\" }").unwrap();
@@ -22,7 +22,7 @@ fn setup_scan_fixture(temp: &Path) {
     std::fs::create_dir_all(src.join("nested")).unwrap();
     std::fs::write(
         src.join("withmacro.ts"),
-        "/** @derive(Default, Serialize, Deserialize) */\nexport interface Foo {\n  name: string;\n}\n",
+        "/** @derive(Default, Encode, Decode) */\nexport interface Foo {\n  name: string;\n}\n",
     )
     .unwrap();
     std::fs::write(
@@ -43,7 +43,7 @@ fn setup_scan_fixture(temp: &Path) {
     // A stale sibling from a previous --emit-expanded run: must be ignored.
     std::fs::write(
         src.join("withmacro.expanded.ts"),
-        "// stale artifact — should never be scanned or mirrored\n",
+        "// stale artifact: should never be scanned or mirrored\n",
     )
     .unwrap();
 }
@@ -587,7 +587,7 @@ fn contended_lock_stays_silent_in_quiet_mode() {
 
     // A quiet run announces nothing, so it cannot signal that it reached the
     // lock. A second, speaking run does, and it was started later against the
-    // same lock — so once it reports waiting, the quiet one is waiting too.
+    // same lock: so once it reports waiting, the quiet one is waiting too.
     let mut probe = macroforge_bin()
         .arg("expand")
         .arg("plain.ts")
@@ -655,7 +655,7 @@ fn cache_with_explicit_root_keeps_state_in_that_project() {
 #[test]
 fn svelte_package_accepts_full_rebuild() {
     // Packaging is incremental by default, so the escape hatch has to exist and
-    // be discoverable — a user staring at a stale `dist` reaches for `--help`.
+    // be discoverable: a user staring at a stale `dist` reaches for `--help`.
     let output = macroforge_bin()
         .args(["svelte-package", "--help"])
         .output()

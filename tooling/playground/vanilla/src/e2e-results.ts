@@ -47,8 +47,8 @@ export interface EnumDeriveResults {
     statusClone: Probed<ReturnType<typeof enumTypes.statusClone>>;
     statusEquals: Probed<boolean>;
     statusHash: Probed<number>;
-    statusSerialize: Probed<ReturnType<typeof enumTypes.statusSerialize>>;
-    statusDeserialize: Probed<ReturnType<typeof enumTypes.statusDeserialize>>;
+    statusEncode: Probed<ReturnType<typeof enumTypes.statusEncode>>;
+    statusDecode: Probed<ReturnType<typeof enumTypes.statusDecode>>;
     priorityDebug: Probed<string>;
     priorityEquals: Probed<boolean>;
     colorDebug: Probed<string>;
@@ -61,8 +61,8 @@ export interface TypeAliasDeriveResults {
     pointEquals: Probed<boolean>;
     pointEqualsNe: Probed<boolean>;
     pointHash: Probed<number>;
-    pointSerialize: Probed<ReturnType<typeof enumTypes.pointSerialize>>;
-    pointDeserialize: Probed<ReturnType<typeof enumTypes.pointDeserialize>>;
+    pointEncode: Probed<ReturnType<typeof enumTypes.pointEncode>>;
+    pointDecode: Probed<ReturnType<typeof enumTypes.pointDecode>>;
     userProfileDebug: Probed<string>;
     userProfileEquals: Probed<boolean>;
 }
@@ -88,20 +88,20 @@ export interface ProcMacroDeriveResults {
     equals: Probed<boolean>;
     equalsSelf: Probed<boolean>;
     hashCode: Probed<number>;
-    serialize: Probed<string>;
-    deserializeSuccess: Probed<ReturnType<typeof AllMacrosTestClass.deserialize>>;
-    deserializeBad: Probed<ReturnType<typeof AllMacrosTestClass.deserialize>>;
+    encode: Probed<string>;
+    decodeSuccess: Probed<ReturnType<typeof AllMacrosTestClass.decode>>;
+    decodeBad: Probed<ReturnType<typeof AllMacrosTestClass.decode>>;
 }
 
 export interface AttrMacroResults {
-    /** Result of `tracedAdd(2, 3)` — the wrapper must preserve semantics. */
+    /** Result of `tracedAdd(2, 3)`: the wrapper must preserve semantics. */
     addResult: number;
     /** Result of `tracedGreet("world")`. */
     greetResult: string;
     /** Call counts captured from `globalThis.__traced` after N invocations. */
     tracedAddCount: number;
     tracedGreetCount: number;
-    /** Output of `$stringify(1 + 2 * 3)` — literal text from the source. */
+    /** Output of `$stringify(1 + 2 * 3)`: literal text from the source. */
     stringifiedExpr: unknown;
     /** Output of `$stringify(myVariable)`. */
     stringifiedIdent: unknown;

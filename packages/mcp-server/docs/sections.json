@@ -252,67 +252,67 @@
         "use_cases": "compareTo, partial ordering, sorting, nullable comparison"
     },
     {
-        "id": "serialize",
-        "title": "Serialize",
+        "id": "encode",
+        "title": "Encode",
         "category": "builtin-macros",
         "category_title": "Built-in Macros",
-        "path": "builtin-macros/serialize.md",
-        "use_cases": "toJSON, serialization, json, api, data transfer"
+        "path": "builtin-macros/encode.md",
+        "use_cases": "toJSON, encoding, json, api, data transfer"
     },
     {
-        "id": "deserialize",
-        "title": "Deserialize",
+        "id": "decode",
+        "title": "Decode",
         "category": "builtin-macros",
         "category_title": "Built-in Macros",
-        "path": "builtin-macros/deserialize.md",
-        "use_cases": "fromJSON, deserialization, parsing, validation, json"
+        "path": "builtin-macros/decode.md",
+        "use_cases": "fromJSON, decoding, parsing, validation, json"
     },
     {
-        "id": "serde",
+        "id": "endec",
         "title": "Overview",
-        "category": "serde",
-        "category_title": "Serde Reference",
-        "path": "serde/serde.md",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/endec.md",
         "use_cases": "overview"
     },
     {
         "id": "validators",
         "title": "Validators",
-        "category": "serde",
-        "category_title": "Serde Reference",
-        "path": "serde/validators.md",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/validators.md",
         "use_cases": "validators"
     },
     {
         "id": "container-options",
         "title": "Container Options",
-        "category": "serde",
-        "category_title": "Serde Reference",
-        "path": "serde/container-options.md",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/container-options.md",
         "use_cases": "container options"
     },
     {
         "id": "field-options",
         "title": "Field Options",
-        "category": "serde",
-        "category_title": "Serde Reference",
-        "path": "serde/field-options.md",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/field-options.md",
         "use_cases": "field options"
     },
     {
         "id": "foreign-types",
         "title": "Foreign Types",
-        "category": "serde",
-        "category_title": "Serde Reference",
-        "path": "serde/foreign-types.md",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/foreign-types.md",
         "use_cases": "foreign types"
     },
     {
         "id": "cycles-and-references",
         "title": "Cycles & References",
-        "category": "serde",
-        "category_title": "Serde Reference",
-        "path": "serde/cycles-and-references.md",
+        "category": "endec",
+        "category_title": "Endec Reference",
+        "path": "endec/cycles-and-references.md",
         "use_cases": "cycles & references"
     },
     {

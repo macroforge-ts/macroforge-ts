@@ -112,7 +112,7 @@ export default defineConfig({
 </table>
 
 <p>
-	Whether to generate a convenience const for non-class types. When <code>true</code>, generates an <code>export const TypeName = &#123; ... &#125; as const;</code> that groups all generated functions for a type into a single namespace-like object. For example: <code>export const User = &#123; clone: userClone, serialize: userSerialize &#125; as const;</code>.
+	Whether to generate a convenience const for non-class types. When <code>true</code>, generates an <code>export const TypeName = &#123; ... &#125; as const;</code> that groups all generated functions for a type into a single namespace-like object. For example: <code>export const User = &#123; clone: userClone, encode: userEncode &#125; as const;</code>.
 </p>
 
 <h3>foreignTypes</h3>
@@ -139,8 +139,8 @@ export default {
       aliases: [
         { name: "DateTime", from: "effect/DateTime" }
       ],
-      serialize: (v) => DateTime.formatIso(v),
-      deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+      encode: (v) => DateTime.formatIso(v),
+      decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
       default: () => DateTime.unsafeNow(),
       // Optional shape check for union variant matching
       hasShape: (v) => v instanceof Date || typeof v === "string"
@@ -154,8 +154,8 @@ export default {
 
 <ul>
   <li><code>from</code>: Array of module paths this type can be imported from.</li>
-  <li><code>serialize</code>: Function <code>(value) => unknown</code> for serialization.</li>
-  <li><code>deserialize</code>: Function <code>(raw) => T</code> for deserialization.</li>
+  <li><code>encode</code>: Function <code>(value) => unknown</code> for encoding.</li>
+  <li><code>decode</code>: Function <code>(raw) => T</code> for decoding.</li>
   <li><code>default</code>: Function <code>() => T</code> for default value generation.</li>
   <li><code>hasShape</code>: Optional function <code>(value) => boolean</code> used for shape-check predicate expression in union variant matching.</li>
   <li><code>aliases</code>: Array of <code>&#123; name: string, from: string &#125;</code> objects for alternative type-package pairs.</li>

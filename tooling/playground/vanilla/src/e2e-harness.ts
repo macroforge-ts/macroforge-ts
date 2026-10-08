@@ -52,20 +52,20 @@ import {
     colorToString,
     type Point,
     pointClone,
-    pointDeserialize,
+    pointDecode,
+    pointEncode,
     pointEquals,
     pointHashCode,
-    pointSerialize,
     pointToString,
     Priority,
     priorityEquals,
     priorityToString,
     Status,
     statusClone,
-    statusDeserialize,
+    statusDecode,
+    statusEncode,
     statusEquals,
     statusHashCode,
-    statusSerialize,
     statusToString,
     user,
     userProfileEquals,
@@ -153,8 +153,8 @@ function collectEnumDerives(): EnumDeriveResults {
         statusClone: probe('statusClone', () => statusClone(Status.Pending)),
         statusEquals: probe('statusEquals', () => statusEquals(Status.Active, Status.Active)),
         statusHash: probe('statusHashCode', () => statusHashCode(Status.Active)),
-        statusSerialize: probe('statusSerialize', () => statusSerialize(Status.Inactive)),
-        statusDeserialize: probe('statusDeserialize', () => statusDeserialize('pending')),
+        statusEncode: probe('statusEncode', () => statusEncode(Status.Inactive)),
+        statusDecode: probe('statusDecode', () => statusDecode('pending')),
         priorityDebug: probe('priorityToString', () => priorityToString(Priority.High)),
         priorityEquals: probe('priorityEquals', () => priorityEquals(Priority.Low, Priority.Low)),
         colorDebug: probe('colorToString', () => colorToString(Color.Red)),
@@ -175,8 +175,8 @@ function collectTypeAliasDerives(): TypeAliasDeriveResults {
         pointEquals: probe('pointEquals', () => pointEquals(origin, sameAsOrigin)),
         pointEqualsNe: probe('pointEquals', () => pointEquals(origin, elsewhere)),
         pointHash: probe('pointHashCode', () => pointHashCode(origin)),
-        pointSerialize: probe('pointSerialize', () => pointSerialize(origin)),
-        pointDeserialize: probe('pointDeserialize', () => pointDeserialize({ x: 5, y: 10 })),
+        pointEncode: probe('pointEncode', () => pointEncode(origin)),
+        pointDecode: probe('pointDecode', () => pointDecode({ x: 5, y: 10 })),
         userProfileDebug: probe('userProfileToString', () => userProfileToString(user)),
         userProfileEquals: probe('userProfileEquals', () => userProfileEquals(user, user))
     };
@@ -201,7 +201,7 @@ function collectInspectMacro(): InspectMacroResults {
     };
 }
 
-// ── Nested deserialize ──────────────────────────────────────────
+// ── Nested decode ──────────────────────────────────────────
 
 function collectNestedDeser(): NestedDeserResults {
     return {
@@ -231,9 +231,9 @@ function collectProcMacroDerives(): ProcMacroDeriveResults {
         equals: probe('equals', () => AllMacrosTestClass.equals(testInstance, other)),
         equalsSelf: probe('equals', () => AllMacrosTestClass.equals(testInstance, testInstance)),
         hashCode: probe('hashCode', () => AllMacrosTestClass.hashCode(testInstance)),
-        serialize: probe('serialize', () => AllMacrosTestClass.serialize(testInstance)),
-        deserializeSuccess: probe('deserialize', () =>
-            AllMacrosTestClass.deserialize({
+        encode: probe('encode', () => AllMacrosTestClass.encode(testInstance)),
+        decodeSuccess: probe('decode', () =>
+            AllMacrosTestClass.decode({
                 id: 1,
                 name: 'OK',
                 email: 'ok@ok.com',
@@ -241,7 +241,7 @@ function collectProcMacroDerives(): ProcMacroDeriveResults {
                 isActive: true,
                 score: 50
             })),
-        deserializeBad: probe('deserialize', () => AllMacrosTestClass.deserialize(null))
+        decodeBad: probe('decode', () => AllMacrosTestClass.decode(null))
     };
 }
 

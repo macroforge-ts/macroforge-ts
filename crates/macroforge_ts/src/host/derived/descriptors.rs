@@ -48,10 +48,10 @@ pub struct DerivedMacroDescriptor {
 /// Descriptor for a field or class decorator provided by a macro.
 ///
 /// Decorators are additional annotations that modify how a macro processes
-/// a field or class. For example, `@serde(skip)` tells the Serialize macro
+/// a field or class. For example, `@endec(skip)` tells the Encode macro
 /// to skip a particular field.
 pub struct DecoratorDescriptor {
-    /// Module this decorator belongs to (e.g., "serde").
+    /// Module this decorator belongs to (e.g., "endec").
     pub module: &'static str,
     /// The exported decorator name (e.g., "skip", "rename").
     pub export: &'static str,
@@ -103,7 +103,7 @@ pub struct DerivedMacroRegistration {
     pub descriptor: &'static DerivedMacroDescriptor,
 }
 
-/// Metadata about a decorator for serialization and tooling.
+/// Metadata about a decorator for encoding and tooling.
 #[derive(Debug, Clone, Serialize)]
 pub struct DecoratorMetadata {
     /// Module this decorator belongs to.

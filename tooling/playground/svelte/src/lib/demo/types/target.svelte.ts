@@ -18,7 +18,7 @@ import type { Site } from './site.svelte';
 import type { TaxRate } from './tax-rate.svelte';
 import type { User } from './user.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export type Target =
     | /** @default */ Account
     | User

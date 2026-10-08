@@ -24,12 +24,12 @@
     "builtinMacros": [
         "clone",
         "debug",
+        "decode",
         "default",
-        "deserialize",
+        "encode",
         "hash",
         "ord",
         "partial_eq",
-        "partial_ord",
-        "serialize"
+        "partial_ord"
     ]
 }

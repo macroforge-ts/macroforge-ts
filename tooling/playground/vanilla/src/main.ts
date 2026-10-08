@@ -79,39 +79,39 @@ function runAllMacroTests() {
         renderResult('result-hashcode', `<strong>HashCode:</strong> <em>Not available</em>`);
     }
 
-    // Test Serialize macro -> static serialize()
-    const serialized = AllMacrosTestClass.serialize(testInstance);
-    macroTestResults.serialize = serialized;
-    renderResult('result-serialize', `<strong>Serialize:</strong> <pre>${serialized}</pre>`);
+    // Test Encode macro -> static encode()
+    const encoded = AllMacrosTestClass.encode(testInstance);
+    macroTestResults.encode = encoded;
+    renderResult('result-encode', `<strong>Encode:</strong> <pre>${encoded}</pre>`);
 
-    // Test Deserialize macro -> deserialize()
-    if (typeof AllMacrosTestClass.deserialize === 'function') {
+    // Test Decode macro -> decode()
+    if (typeof AllMacrosTestClass.decode === 'function') {
         const testData = {
             id: 99,
-            name: 'Deserialized User',
+            name: 'Decoded User',
             email: 'deser@test.com',
             secretToken: 'token',
             isActive: false,
             score: 50
         };
-        // deserialize returns a vanilla result { success: boolean, value/errors }
-        const result = AllMacrosTestClass.deserialize(testData);
+        // decode returns a vanilla result { success: boolean, value/errors }
+        const result = AllMacrosTestClass.decode(testData);
         if (result.success) {
-            macroTestResults.deserialize = result.value;
+            macroTestResults.decode = result.value;
             renderResult(
-                'result-deserialize',
-                `<strong>Deserialize:</strong> <pre>${JSON.stringify(result.value, null, 2)}</pre>`
+                'result-decode',
+                `<strong>Decode:</strong> <pre>${JSON.stringify(result.value, null, 2)}</pre>`
             );
         } else {
             renderResult(
-                'result-deserialize',
-                `<strong>Deserialize Error:</strong> <pre>${
+                'result-decode',
+                `<strong>Decode Error:</strong> <pre>${
                     JSON.stringify(result.errors, null, 2)
                 }</pre>`
             );
         }
     } else {
-        renderResult('result-deserialize', `<strong>Deserialize:</strong> <em>Not available</em>`);
+        renderResult('result-decode', `<strong>Decode:</strong> <em>Not available</em>`);
     }
 
     // Mark tests as complete
@@ -156,8 +156,8 @@ function testMacros() {
         <div id="result-clone" data-testid="result-clone"></div>
         <div id="result-equals" data-testid="result-equals"></div>
         <div id="result-hashcode" data-testid="result-hashcode"></div>
-        <div id="result-serialize" data-testid="result-serialize"></div>
-        <div id="result-deserialize" data-testid="result-deserialize"></div>
+        <div id="result-encode" data-testid="result-encode"></div>
+        <div id="result-decode" data-testid="result-decode"></div>
       </div>
 
       <h2>Features:</h2>
@@ -182,7 +182,7 @@ function testMacros() {
         Every value below was computed at build time by macroforge and
         spliced into the module as a TS literal. The runtime stub
         imported from <code>@macroforge/core/buildtime</code> still throws if
-        called — proving the plugin did the work, not the browser.
+        called: proving the plugin did the work, not the browser.
       </p>
       <div id="buildtime-results" data-testid="buildtime-results">
         <div><strong>answer (6 * 7):</strong> <code data-testid="bt-answer">${buildtimeResult.answer}</code></div>

@@ -99,9 +99,9 @@ enum Color {
 }
 
 #[test]
-fn test_derive_serialize_on_enum_generates_functions() {
+fn test_derive_encode_on_enum_generates_functions() {
     let source = r#"
-/** @derive(Serialize) */
+/** @derive(Encode) */
 enum Direction {
     North,
     South,
@@ -121,18 +121,18 @@ enum Direction {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Serialize macro on enum generates prefix-style serialize function
+        // Encode macro on enum generates prefix-style encode function
         assert!(
-            result.code.contains("directionSerialize"),
-            "Should generate prefix-style directionSerialize function"
+            result.code.contains("directionEncode"),
+            "Should generate prefix-style directionEncode function"
         );
     }
 }
 
 #[test]
-fn test_derive_deserialize_on_enum_generates_functions() {
+fn test_derive_decode_on_enum_generates_functions() {
     let source = r#"
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 enum Role {
     Admin = "admin",
     User = "user",
@@ -151,10 +151,10 @@ enum Role {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Deserialize macro on enum generates prefix-style deserialize function
+        // Decode macro on enum generates prefix-style decode function
         assert!(
-            result.code.contains("roleDeserialize"),
-            "Should generate prefix-style roleDeserialize function"
+            result.code.contains("roleDecode"),
+            "Should generate prefix-style roleDecode function"
         );
     }
 }
@@ -162,7 +162,7 @@ enum Role {
 #[test]
 fn test_multiple_derives_on_enum() {
     let source = r#"
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 enum Status {
     Active = "active",
     Inactive = "inactive"
@@ -202,12 +202,12 @@ enum Status {
             "Should have Hash's statusHashCode"
         );
         assert!(
-            result.code.contains("statusSerialize"),
-            "Should have Serialize's statusSerialize"
+            result.code.contains("statusEncode"),
+            "Should have Encode's statusEncode"
         );
         assert!(
-            result.code.contains("statusDeserialize"),
-            "Should have Deserialize's statusDeserialize"
+            result.code.contains("statusDecode"),
+            "Should have Decode's statusDecode"
         );
     }
 }

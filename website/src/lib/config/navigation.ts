@@ -48,19 +48,19 @@ export function resolvePath(path: Pathname): ResolvedPathname {
         case '/docs/declarative-macros/cross-file':
             return resolve('/docs/declarative-macros/cross-file');
 
-        // Serde, Attributes, Buildtime, Deno
-        case '/docs/serde':
-            return resolve('/docs/serde');
-        case '/docs/serde/validators':
-            return resolve('/docs/serde/validators');
-        case '/docs/serde/container-options':
-            return resolve('/docs/serde/container-options');
-        case '/docs/serde/field-options':
-            return resolve('/docs/serde/field-options');
-        case '/docs/serde/foreign-types':
-            return resolve('/docs/serde/foreign-types');
-        case '/docs/serde/cycles-and-references':
-            return resolve('/docs/serde/cycles-and-references');
+        // Endec, Attributes, Buildtime, Deno
+        case '/docs/endec':
+            return resolve('/docs/endec');
+        case '/docs/endec/validators':
+            return resolve('/docs/endec/validators');
+        case '/docs/endec/container-options':
+            return resolve('/docs/endec/container-options');
+        case '/docs/endec/field-options':
+            return resolve('/docs/endec/field-options');
+        case '/docs/endec/foreign-types':
+            return resolve('/docs/endec/foreign-types');
+        case '/docs/endec/cycles-and-references':
+            return resolve('/docs/endec/cycles-and-references');
         case '/docs/attributes':
             return resolve('/docs/attributes');
         case '/docs/buildtime':
@@ -85,10 +85,10 @@ export function resolvePath(path: Pathname): ResolvedPathname {
             return resolve('/docs/builtin-macros/partial-eq');
         case '/docs/builtin-macros/partial-ord':
             return resolve('/docs/builtin-macros/partial-ord');
-        case '/docs/builtin-macros/serialize':
-            return resolve('/docs/builtin-macros/serialize');
-        case '/docs/builtin-macros/deserialize':
-            return resolve('/docs/builtin-macros/deserialize');
+        case '/docs/builtin-macros/encode':
+            return resolve('/docs/builtin-macros/encode');
+        case '/docs/builtin-macros/decode':
+            return resolve('/docs/builtin-macros/decode');
 
         // Custom Macros
         case '/docs/custom-macros':
@@ -210,19 +210,19 @@ export const navigation: NavSection[] = [
             { title: 'Ord', href: '/docs/builtin-macros/ord' },
             { title: 'PartialEq', href: '/docs/builtin-macros/partial-eq' },
             { title: 'PartialOrd', href: '/docs/builtin-macros/partial-ord' },
-            { title: 'Serialize', href: '/docs/builtin-macros/serialize' },
-            { title: 'Deserialize', href: '/docs/builtin-macros/deserialize' }
+            { title: 'Encode', href: '/docs/builtin-macros/encode' },
+            { title: 'Decode', href: '/docs/builtin-macros/decode' }
         ]
     },
     {
-        title: 'Serde Reference',
+        title: 'Endec Reference',
         items: [
-            { title: 'Overview', href: '/docs/serde' },
-            { title: 'Validators', href: '/docs/serde/validators' },
-            { title: 'Container Options', href: '/docs/serde/container-options' },
-            { title: 'Field Options', href: '/docs/serde/field-options' },
-            { title: 'Foreign Types', href: '/docs/serde/foreign-types' },
-            { title: 'Cycles & References', href: '/docs/serde/cycles-and-references' }
+            { title: 'Overview', href: '/docs/endec' },
+            { title: 'Validators', href: '/docs/endec/validators' },
+            { title: 'Container Options', href: '/docs/endec/container-options' },
+            { title: 'Field Options', href: '/docs/endec/field-options' },
+            { title: 'Foreign Types', href: '/docs/endec/foreign-types' },
+            { title: 'Cycles & References', href: '/docs/endec/cycles-and-references' }
         ]
     },
     {

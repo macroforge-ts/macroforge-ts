@@ -5,17 +5,17 @@ macros work with classes, interfaces, enums, and type aliases.
 
 ## Overview
 
-| Macro                                               | Generates                                                                                                                     | Description                             |
-| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| [`Debug`](../docs/builtin-macros/debug)             | `static toString(value: T): string`                                                                                           | Human-readable string representation    |
-| [`Clone`](../docs/builtin-macros/clone)             | `static clone(value: T): T`                                                                                                   | Creates a deep copy of the object       |
-| [`Default`](../docs/builtin-macros/default)         | `static defaultValue(): T`                                                                                                    | Creates an instance with default values |
-| [`Hash`](../docs/builtin-macros/hash)               | `static hashCode(value: T): number`                                                                                           | Generates a hash code for the object    |
-| [`PartialEq`](../docs/builtin-macros/partial-eq)    | `static equals(a: T, b: T): boolean`                                                                                          | Value equality comparison               |
-| [`Ord`](../docs/builtin-macros/ord)                 | `static compareTo(a: T, b: T): number`                                                                                        | Total ordering comparison (-1, 0, 1)    |
-| [`PartialOrd`](../docs/builtin-macros/partial-ord)  | `static compareTo(a: T, b: T): number &#124; null`                                                                            | Partial ordering comparison             |
-| [`Serialize`](../docs/builtin-macros/serialize)     | `static serialize(value: T, keepMetadata?: boolean): string`                                                                  | JSON serialization with type handling   |
-| [`Deserialize`](../docs/builtin-macros/deserialize) | `static deserialize(input, opts?): &lbrace; success: true; value: T &rbrace; &#124; &lbrace; success: false; errors &rbrace;` | JSON deserialization with validation    |
+| Macro                                              | Generates                                                                                                                | Description                             |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| [`Debug`](../docs/builtin-macros/debug)            | `static toString(value: T): string`                                                                                      | Human-readable string representation    |
+| [`Clone`](../docs/builtin-macros/clone)            | `static clone(value: T): T`                                                                                              | Creates a deep copy of the object       |
+| [`Default`](../docs/builtin-macros/default)        | `static defaultValue(): T`                                                                                               | Creates an instance with default values |
+| [`Hash`](../docs/builtin-macros/hash)              | `static hashCode(value: T): number`                                                                                      | Generates a hash code for the object    |
+| [`PartialEq`](../docs/builtin-macros/partial-eq)   | `static equals(a: T, b: T): boolean`                                                                                     | Value equality comparison               |
+| [`Ord`](../docs/builtin-macros/ord)                | `static compareTo(a: T, b: T): number`                                                                                   | Total ordering comparison (-1, 0, 1)    |
+| [`PartialOrd`](../docs/builtin-macros/partial-ord) | `static compareTo(a: T, b: T): number &#124; null`                                                                       | Partial ordering comparison             |
+| [`Encode`](../docs/builtin-macros/encode)          | `static encode(value: T, keepMetadata?: boolean): string`                                                                | JSON encoding with type handling        |
+| [`Decode`](../docs/builtin-macros/decode)          | `static decode(input, opts?): &lbrace; success: true; value: T &rbrace; &#124; &lbrace; success: false; errors &rbrace;` | JSON decoding with validation           |
 
 ## Using Built-in Macros
 
@@ -84,7 +84,7 @@ with the same name:
 TypeScript
 
 ```
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Encode, Decode) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
@@ -96,21 +96,21 @@ enum Status {
 // export function statusClone(value: Status): Status { ... }
 // export function statusEquals(a: Status, b: Status): boolean { ... }
 // export function statusHashCode(value: Status): number { ... }
-// export function statusSerialize(value: Status): string { ... }
-// export function statusDeserialize(input: unknown): Status { ... }
+// export function statusEncode(value: Status): string { ... }
+// export function statusDecode(input: unknown): Status { ... }
 
 // Enums use namespace merging for the convenience names:
 // namespace Status {
 //   export const toString = statusToString;
-//   export const serialize = statusSerialize;
+//   export const encode = statusEncode;
 // }
 
 console.log(statusToString(Status.Active));                // "Status.Active"
 console.log(statusEquals(Status.Active, Status.Active));   // true
-const json = statusSerialize(Status.Pending);              // "pending"
-// Note: enum deserialize throws on invalid input rather than
+const json = statusEncode(Status.Pending);              // "pending"
+// Note: enum decode throws on invalid input rather than
 // returning a success/errors union.
-const parsed = statusDeserialize("active");                // Status.Active
+const parsed = statusDecode("active");                // Status.Active
 ```
 
 ## Type Alias Support
@@ -121,7 +121,7 @@ functions, plus the optional grouping `const`:
 TypeScript
 
 ```
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Encode, Decode) */
 type Point = {
   x: number;
   y: number;
@@ -132,8 +132,8 @@ type Point = {
 // export function pointClone(value: Point): Point { ... }
 // export function pointEquals(a: Point, b: Point): boolean { ... }
 // export function pointHashCode(value: Point): number { ... }
-// export function pointSerialize(value: Point, keepMetadata?: boolean): string { ... }
-// export function pointDeserialize(input: unknown, opts?): { success: true; value: Point }
+// export function pointEncode(value: Point, keepMetadata?: boolean): string { ... }
+// export function pointDecode(input: unknown, opts?): { success: true; value: Point }
 //                                                        | { success: false; errors } { ... }
 
 const point: Point = { x: 10, y: 20 };
@@ -187,5 +187,5 @@ Each macro has its own options and behaviors:
 - [**PartialEq**](../docs/builtin-macros/partial-eq) - Value-based equality comparison
 - [**Ord**](../docs/builtin-macros/ord) - Total ordering for sorting
 - [**PartialOrd**](../docs/builtin-macros/partial-ord) - Partial ordering comparison
-- [**Serialize**](../docs/builtin-macros/serialize) - JSON serialization with serde-style options
-- [**Deserialize**](../docs/builtin-macros/deserialize) - JSON deserialization with validation
+- [**Encode**](../docs/builtin-macros/encode) - JSON encoding with endec-style options
+- [**Decode**](../docs/builtin-macros/decode) - JSON decoding with validation

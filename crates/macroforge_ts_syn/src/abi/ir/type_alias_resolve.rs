@@ -10,8 +10,8 @@
 //! resolved too, so callers only need to invoke [`resolve_generic_aliases`]
 //! once per raw type string.
 //!
-//! This exists so that serde codegen does not need runtime helpers like
-//! `recordLinkDeserializeWithContext<T>` or `recordLinkDefaultValue<T>` —
+//! This exists so that endec codegen does not need runtime helpers like
+//! `recordLinkDecodeWithContext<T>` or `recordLinkDefaultValue<T>` :
 //! the alias disappears at expansion time and the classifier sees the real
 //! structural shape.
 //!
@@ -32,11 +32,11 @@ const MAX_DEPTH: u8 = 16;
 /// object-body alias, etc.).
 ///
 /// `caller_file_path` and `file_imports` come from the file *referencing*
-/// the type. Both feed [`TypeRegistry::resolve_in_file`] — the file path
+/// the type. Both feed [`TypeRegistry::resolve_in_file`]: the file path
 /// disambiguates types declared in the caller's own file (typical of
 /// generated aggregators that re-declare types alongside their canonical
 /// definitions); the imports disambiguate types pulled in by name. Pass an
-/// empty path/slice when the caller has no such context — unambiguous names
+/// empty path/slice when the caller has no such context: unambiguous names
 /// still resolve via simple-name lookup.
 pub fn resolve_generic_aliases(
     ts_type: &str,
@@ -77,7 +77,7 @@ fn resolve_recursive(
         return resolved.join(" & ");
     }
 
-    // `T[]` — recurse into element type.
+    // `T[]`: recurse into element type.
     if let Some(inner) = trimmed.strip_suffix("[]") {
         return format!(
             "{}[]",
@@ -126,8 +126,8 @@ fn try_expand_alias(
     caller_file_path: &str,
     file_imports: &[FileImportEntry],
 ) -> Option<String> {
-    // Use `resolve_in_file` so ambiguous names — e.g. types redeclared in an
-    // aggregator file — still hit the canonical entry once we know either
+    // Use `resolve_in_file` so ambiguous names: e.g. types redeclared in an
+    // aggregator file: still hit the canonical entry once we know either
     // the caller's own file (same-file declaration) or the file it imported
     // the name from.
     let entry = registry.resolve_in_file(base, caller_file_path, file_imports)?;
@@ -253,7 +253,7 @@ fn split_top_level_commas(args: &str) -> Vec<&str> {
         .collect()
 }
 
-/// Split on top-level `|` — mirrors the classifier's behavior for unions.
+/// Split on top-level `|`: mirrors the classifier's behavior for unions.
 fn split_top_level_union(s: &str) -> Option<Vec<&str>> {
     let parts = split_on_top_level(s, b'|');
     if parts.len() < 2 {

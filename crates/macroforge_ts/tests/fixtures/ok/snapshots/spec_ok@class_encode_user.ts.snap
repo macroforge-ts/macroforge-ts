@@ -1,0 +1,308 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/class_encode_user.ts
+---
+## Input
+
+import { Derive } from '@macro/derive';
+
+/** @derive(Encode) */
+class User {
+    name: string;
+    age: number;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { Derive } from '@macro/derive';
+
+
+class User {
+    name: string;
+    age: number;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static encode(value: User, keepMetadata?: boolean): string {
+                    return userEncode(value, keepMetadata);
+                }
+
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                static encodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+                    return userEncodeWithContext(value, ctx);
+                }}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function userEncode(value: User, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = userEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "User",
+                        __id,
+                    };result.name = value.name;result.age = value.age;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+## DTS
+
+import { Derive } from '@macro/derive';
+
+
+class User {
+    name: string;
+    age: number;
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static encode(value: User, keepMetadata?: boolean): string {
+                    return userEncode(value, keepMetadata);
+                }
+
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                static encodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+                    return userEncodeWithContext(value, ctx);
+                }}
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function userEncode(value: User, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = userEncodeWithContext(value, ctx);
+                    if (keepMetadata) return JSON.stringify(__raw);
+                    return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                }
+
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+
+                    const existingId = ctx.getId(value);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+
+                    const __id = ctx.register(value);
+
+                    const result: Record<string, unknown> = {
+                        "__type": "User",
+                        __id,
+                    };result.name = value.name;result.age = value.age;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    return result;
+                }
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..41 -> expanded 0..41
+original 63..112 -> expanded 41..90
+original 112..113 -> expanded 792..793
+original 113..114 -> expanded 2286..2287
+generated 90..792 <- Encode
+generated 793..2286 <- Encode
+
+## Metadata
+
+class User: {"body_span":{"end":114,"start":76},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":64,"start":42}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":95,"start":82},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":112,"start":100},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"User","span":{"end":114,"start":65},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

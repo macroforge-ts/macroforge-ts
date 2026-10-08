@@ -1,0 +1,155 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_encode.ts
+---
+## Input
+
+/** @derive(Encode) */
+type User = {
+    name: string;
+    age: number;
+};
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+
+type User = {
+    name: string;
+    age: number;
+};
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function userEncode(value: User, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = userEncodeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+                            const existingId = ctx.getId(value);
+                            if (existingId !== undefined) {
+                                return { __ref: existingId };
+                            }
+
+                            const __id = ctx.register(value);
+                            const result: Record<string, unknown> = {
+                                "__type": "User",
+                                __id,
+                            };result.name = value.name;result.age = value.age;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            return result;
+                        }
+
+const User = {
+  encode: userEncode,
+  encodeWithContext: userEncodeWithContext
+} as const;
+
+## DTS
+
+type User = {
+    name: string;
+    age: number;
+};
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function userEncode(value: User, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = userEncodeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function userEncodeWithContext(value: User, ctx: __mf_EncodeContext): Record<string, unknown> {
+                            const existingId = ctx.getId(value);
+                            if (existingId !== undefined) {
+                                return { __ref: existingId };
+                            }
+
+                            const __id = ctx.register(value);
+                            const result: Record<string, unknown> = {
+                                "__type": "User",
+                                __id,
+                            };result.name = value.name;result.age = value.age;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            return result;
+                        }
+
+const User = {
+  encode: userEncode,
+  encodeWithContext: userEncodeWithContext
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 22..74 -> expanded 0..52
+original 74..75 -> expanded 1712..1713
+generated 52..1619 <- Encode
+generated 1619..1712 <- __convenience_const
+
+## Metadata
+
+type User: {"body":{"Object":{"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":55,"start":42},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":72,"start":60},"ts_type":"number"}]}},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"name":"User","span":{"end":75,"start":24},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

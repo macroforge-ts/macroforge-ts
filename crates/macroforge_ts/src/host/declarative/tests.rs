@@ -553,16 +553,16 @@ fn project_registry_serializes_the_same_whatever_the_scan_order() {
     );
 
     assert_eq!(
-        forward.to_json().expect("serialize"),
-        backward.to_json().expect("serialize")
+        forward.to_json().expect("encode"),
+        backward.to_json().expect("encode")
     );
 }
 
 #[test]
 fn project_registry_json_roundtrip() {
     let (registry, _) = library_registry();
-    let json = registry.to_json().expect("serialize");
-    let parsed = ProjectDeclarativeRegistry::from_json(&json).expect("deserialize");
+    let json = registry.to_json().expect("encode");
+    let parsed = ProjectDeclarativeRegistry::from_json(&json).expect("decode");
     assert_eq!(parsed.file_count(), 1);
     assert_eq!(parsed.macro_count(), 1);
 }
@@ -574,14 +574,14 @@ fn project_registry_json_roundtrip() {
 #[test]
 fn object_form_explicit_share_only() {
     let source = r#"import { macroRules } from "@macroforge/core/rules";
-const $serialize = macroRules({
+const $encode = macroRules({
   mode: "share-only",
   expand: macroRules`
     ($x:Expr) => __inline_fallback($x)
   `,
-  runtime: "function __serialize(value, schema) { return { value, schema }; }",
+  runtime: "function __encode(value, schema) { return { value, schema }; }",
   call: macroRules`
-    ($x:Expr) => __serialize($x, [])
+    ($x:Expr) => __encode($x, [])
   `,
 });
 "#;
@@ -595,10 +595,10 @@ const $serialize = macroRules({
     let defs = discover(&parsed.program, source).expect("discover");
     assert_eq!(defs.len(), 1);
     let def = &defs[0].def;
-    assert_eq!(def.name, "serialize");
+    assert_eq!(def.name, "encode");
     assert_eq!(def.mode, MacroMode::ShareOnly);
     assert!(def.runtime.is_some());
-    assert!(def.runtime.as_ref().unwrap().contains("__serialize"));
+    assert!(def.runtime.as_ref().unwrap().contains("__encode"));
     assert!(def.call_arms.is_some());
     assert_eq!(def.call_arms.as_ref().unwrap().len(), 1);
     assert_eq!(def.arms.len(), 1); // expand arms still populated
@@ -961,19 +961,19 @@ fn share_only_emits_runtime_once_per_file() {
     // runtime insert patch, not two.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 
-const $serialize = macroRules({
+const $encode = macroRules({
   mode: "share-only",
   expand: macroRules`
     ($x:Expr) => __inline_fallback($x)
   `,
-  runtime: "function __serialize(value, schema) { return value; }",
+  runtime: "function __encode(value, schema) { return value; }",
   call: macroRules`
-    ($x:Expr) => __serialize($x, [])
+    ($x:Expr) => __encode($x, [])
   `,
 });
 
-const a = $serialize(user);
-const b = $serialize(admin);
+const a = $encode(user);
+const b = $encode(admin);
 "#;
     let out = rewrite_source(source, BuildMode::dev());
     assert!(out.diagnostics.is_empty(), "diag: {:?}", out.diagnostics);
@@ -1008,21 +1008,21 @@ const b = $serialize(admin);
 fn share_only_uses_call_arms_not_expand_arms() {
     // In share mode the rewriter should splice `call_arms`, not `arms`.
     // If it used `arms` we'd see `__inline_fallback` in the output; with
-    // `call_arms` we see `__serialize`.
+    // `call_arms` we see `__encode`.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 
-const $serialize = macroRules({
+const $encode = macroRules({
   mode: "share-only",
   expand: macroRules`
     ($x:Expr) => __inline_fallback($x)
   `,
-  runtime: "function __serialize(value) { return value; }",
+  runtime: "function __encode(value) { return value; }",
   call: macroRules`
-    ($x:Expr) => __serialize($x)
+    ($x:Expr) => __encode($x)
   `,
 });
 
-const result = $serialize(user);
+const result = $encode(user);
 "#;
     let out = rewrite_source(source, BuildMode::dev());
     assert!(out.diagnostics.is_empty(), "diag: {:?}", out.diagnostics);
@@ -1036,8 +1036,8 @@ const result = $serialize(user);
         })
         .expect("expected at least one Replace patch");
     assert!(
-        replace.contains("__serialize"),
-        "expected call-arms expansion (__serialize), got: {}",
+        replace.contains("__encode"),
+        "expected call-arms expansion (__encode), got: {}",
         replace
     );
     assert!(
@@ -1121,19 +1121,19 @@ class UserD {}
 class UserE {}
 class UserF {}
 
-const $serialize = macroRules({
+const $encode = macroRules({
   mode: "auto",
   expand: macroRules`($x:Expr) => __inline($x)`,
-  runtime: "function __serialize(v) { return v; }",
-  call: macroRules`($x:Expr) => __serialize($x)`,
+  runtime: "function __encode(v) { return v; }",
+  call: macroRules`($x:Expr) => __encode($x)`,
 });
 
-export const a = $serialize(UserA);
-export const b = $serialize(UserB);
-export const c = $serialize(UserC);
-export const d = $serialize(UserD);
-export const e = $serialize(UserE);
-export const f = $serialize(UserF);
+export const a = $encode(UserA);
+export const b = $encode(UserB);
+export const c = $encode(UserC);
+export const d = $encode(UserD);
+export const e = $encode(UserE);
+export const f = $encode(UserF);
 "#;
     let out = rewrite_source(source, BuildMode::Prod);
     let warning = out
@@ -1142,7 +1142,7 @@ export const f = $serialize(UserF);
         .find(|d| matches!(d.level, crate::ts_syn::abi::DiagnosticLevel::Warning))
         .expect("expected a megamorphism warning");
     assert!(
-        warning.message.contains("serialize"),
+        warning.message.contains("encode"),
         "warning should mention the macro name: {}",
         warning.message
     );
@@ -1158,16 +1158,16 @@ class User {}
 class Admin {}
 class Guest {}
 
-const $serialize = macroRules({
+const $encode = macroRules({
   mode: "auto",
   expand: macroRules`($x:Expr) => __inline($x)`,
-  runtime: "function __serialize(v) { return v; }",
-  call: macroRules`($x:Expr) => __serialize($x)`,
+  runtime: "function __encode(v) { return v; }",
+  call: macroRules`($x:Expr) => __encode($x)`,
 });
 
-export const a = $serialize(User);
-export const b = $serialize(Admin);
-export const c = $serialize(Guest);
+export const a = $encode(User);
+export const b = $encode(Admin);
+export const c = $encode(Guest);
 "#;
     let out = rewrite_source(source, BuildMode::Prod);
     let runtime_inserts = out
@@ -1191,7 +1191,7 @@ export const c = $serialize(Guest);
 #[test]
 fn auto_mode_prod_shares_by_default() {
     // Pending Phase 9c's megamorphism analyzer, Auto + Prod shares
-    // unconditionally, exercising the end-to-end share pipeline.
+    // unconditionally: exercising the end-to-end share pipeline.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 
 const $id = macroRules({
@@ -1630,18 +1630,18 @@ fn cluster_id_appears_in_attribution_for_clustered_emissions() {
     // span.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 
-const $serialize = macroRules({
+const $encode = macroRules({
   mode: "auto",
   expand: macroRules`($x:Expr) => __inline_fallback($x)`,
-  runtime: "function __serialize(value) { return value; }",
-  runtimeName: "__serialize_$__cluster__",
-  call: macroRules`($x:Expr) => __serialize_$__cluster__($x)`,
+  runtime: "function __encode(value) { return value; }",
+  runtimeName: "__encode_$__cluster__",
+  call: macroRules`($x:Expr) => __encode_$__cluster__($x)`,
   megamorphismThreshold: 2,
 });
 
-const a1 = $serialize(Alice);
-const b1 = $serialize(Barbara);
-const b2 = $serialize(Bert);
+const a1 = $encode(Alice);
+const b1 = $encode(Barbara);
+const b2 = $encode(Bert);
 "#;
     let out = rewrite_source(source, BuildMode::prod());
     let attributions: Vec<String> = out
@@ -1658,7 +1658,7 @@ const b2 = $serialize(Bert);
     // we can assert at least two distinct attributions exist.
     let clustered: Vec<&String> = attributions
         .iter()
-        .filter(|a| a.starts_with("$serialize@"))
+        .filter(|a| a.starts_with("$encode@"))
         .collect();
     assert!(
         clustered.len() >= 2,
@@ -1667,7 +1667,7 @@ const b2 = $serialize(Bert);
     );
     let distinct_cluster_ids: std::collections::HashSet<&str> = clustered
         .iter()
-        .filter_map(|a| a.strip_prefix("$serialize@"))
+        .filter_map(|a| a.strip_prefix("$encode@"))
         .collect();
     assert!(
         distinct_cluster_ids.len() >= 2,
@@ -2087,18 +2087,18 @@ fn cluster_aware_auto_macro_emits_one_helper_per_cluster_in_prod() {
     // the analyzer picks `Cluster(..)` rather than `ForceExpand`.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 
-const $serialize = macroRules({
+const $encode = macroRules({
   mode: "auto",
   expand: macroRules`($x:Expr) => __inline_fallback($x)`,
-  runtime: "function __serialize(value) { return value; }",
-  runtimeName: "__serialize_$__cluster__",
-  call: macroRules`($x:Expr) => __serialize_$__cluster__($x)`,
+  runtime: "function __encode(value) { return value; }",
+  runtimeName: "__encode_$__cluster__",
+  call: macroRules`($x:Expr) => __encode_$__cluster__($x)`,
   megamorphismThreshold: 2,
 });
 
-const a1 = $serialize(Alice);
-const b1 = $serialize(Barbara);
-const b2 = $serialize(Bert);
+const a1 = $encode(Alice);
+const b1 = $encode(Barbara);
+const b2 = $encode(Bert);
 "#;
     let out = rewrite_source(source, BuildMode::Prod);
     // The megamorph analyzer should produce a Cluster warning
@@ -2142,12 +2142,12 @@ const b2 = $serialize(Bert);
         .collect::<Vec<_>>()
         .join("\n");
     assert!(
-        combined.contains("__serialize_a"),
+        combined.contains("__encode_a"),
         "expected helper specialized for cluster `a`, got: {}",
         combined
     );
     assert!(
-        combined.contains("__serialize_b"),
+        combined.contains("__encode_b"),
         "expected helper specialized for cluster `b`, got: {}",
         combined
     );
@@ -2311,18 +2311,18 @@ fn pr19_multi_arg_auto_macro_with_clustering_end_to_end() {
     // megamorphismThreshold=2 → 3 distinct tuples > 2 → Cluster.
     let source = r#"import { macroRules } from "@macroforge/core/rules";
 
-const $serialize = macroRules({
+const $encode = macroRules({
   mode: "auto",
   expand: macroRules`($v:Expr, $o:Expr) => __inline_fallback($v)`,
-  runtime: "function __serialize(value, opts) { return value; }",
-  runtimeName: "__serialize_$__cluster__",
-  call: macroRules`($v:Expr, $o:Expr) => __serialize_$__cluster__($v, $o)`,
+  runtime: "function __encode(value, opts) { return value; }",
+  runtimeName: "__encode_$__cluster__",
+  call: macroRules`($v:Expr, $o:Expr) => __encode_$__cluster__($v, $o)`,
   megamorphismThreshold: 2,
 });
 
-const a1 = $serialize(Alice, Cfg);
-const b1 = $serialize(Barbara, Cfg);
-const b2 = $serialize(Bert, Cfg);
+const a1 = $encode(Alice, Cfg);
+const b1 = $encode(Barbara, Cfg);
+const b2 = $encode(Bert, Cfg);
 "#;
     let out = rewrite_source(source, BuildMode::prod());
     let error_diags: Vec<_> = out
@@ -2548,7 +2548,7 @@ const $T = macroRules({
 const x = $T(string);
 "#;
     let out = rewrite_source(source, BuildMode::dev());
-    // No replacement should happen for the value-position call:
+    // No replacement should happen for the value-position call :
     // the `try_rewrite_call` lookup finds a value-position macro
     // (the visitor doesn't gate on `kind`), so it would expand it
     // as a value macro. Either:

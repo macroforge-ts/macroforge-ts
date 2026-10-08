@@ -13,18 +13,18 @@
 //!
 //! Benches:
 //!
-//! - `composition/depth_{4,16,64,192}` — deeply-nested inter-macro
+//! - `composition/depth_{4,16,64,192}`: deeply-nested inter-macro
 //!   composition, exercising `expand_macro_call`'s OXC re-parse
 //!   per nested level. Useful for catching regressions in the
 //!   composition loop or in the body parser's performance.
 //!   192 is just under `MAX_EXPANSION_DEPTH = 256` so we don't
 //!   trip the recursion cap.
 //!
-//! - `hygiene/rewrite_large_body` — a single hygiene rewrite over
+//! - `hygiene/rewrite_large_body`: a single hygiene rewrite over
 //!   a macro body containing ~50 `__`-prefixed declarations plus
 //!   ~200 uses. Exercises the `hygiene` cursor's token scan.
 //!
-//! - `cluster/analyze_50_shapes` — run the megamorph analyzer over
+//! - `cluster/analyze_50_shapes`: run the megamorph analyzer over
 //!   50 synthesized call sites. Covers `cluster_shapes` and the
 //!   pairwise Jaccard path.
 
@@ -140,19 +140,19 @@ fn cluster_source() -> String {
     for prefix in ['A', 'B', 'C', 'D', 'E'] {
         for i in 0..10 {
             calls.push_str(&format!(
-                "const v_{}_{} = $serialize({}{});\n",
+                "const v_{}_{} = $encode({}{});\n",
                 prefix, i, prefix, i
             ));
         }
     }
     format!(
         "import {{ macroRules }} from \"@macroforge/core/rules\";\n\
-         const $serialize = macroRules({{\n\
+         const $encode = macroRules({{\n\
            mode: \"auto\",\n\
            expand: macroRules`($x:Expr) => __inline($x)`,\n\
-           runtime: \"function __serialize(v) {{ return v; }}\",\n\
-           runtimeName: \"__serialize_$__cluster__\",\n\
-           call: macroRules`($x:Expr) => __serialize_$__cluster__($x)`,\n\
+           runtime: \"function __encode(v) {{ return v; }}\",\n\
+           runtimeName: \"__encode_$__cluster__\",\n\
+           call: macroRules`($x:Expr) => __encode_$__cluster__($x)`,\n\
            megamorphismThreshold: 10,\n\
          }});\n\
          {}",
@@ -165,7 +165,7 @@ fn bench_cluster(c: &mut Criterion) {
     c.bench_function("cluster/analyze_50_shapes", |b| {
         b.iter(|| {
             // Use prod build mode so the megamorph analyzer actually
-            // runs — in dev it's short-circuited for Auto macros.
+            // runs: in dev it's short-circuited for Auto macros.
             let allocator = Allocator::default();
             let parsed = Parser::new(&allocator, &source, SourceType::ts()).parse();
             assert!(

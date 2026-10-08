@@ -10,7 +10,7 @@
 //! - **Execution errors**: Macro panics, invalid output
 //! - **Compatibility errors**: ABI version mismatches
 //! - **I/O errors**: File read/write failures
-//! - **Serialization errors**: JSON parsing failures
+//! - **Encoding errors**: JSON parsing failures
 //!
 //! ## Error Handling Patterns
 //!
@@ -163,11 +163,11 @@ pub enum MacroError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 
-    /// JSON serialization or deserialization failed.
+    /// JSON encoding or decoding failed.
     ///
     /// This occurs when:
     /// - Parsing `macroforge.config.ts` configuration
-    /// - Serializing metadata output
+    /// - Encoding metadata output
     /// - Processing JSON in macro logic
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),

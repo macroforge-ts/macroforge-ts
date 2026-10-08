@@ -11,7 +11,7 @@ import type { Payment } from './payment.svelte';
 import type { Promotion } from './promotion.svelte';
 import type { Site } from './site.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Order {
     /** @hiddenController({}) */
     id: string;
@@ -26,29 +26,29 @@ export interface Order {
     /** @hiddenController({}) */
     payments: Array<string | Payment>;
     /** @textController({ label: "Opportunity" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     opportunity: string;
     /** @textController({ label: "Reference" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     reference: string;
     /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     leadSource: string;
     /** @comboboxController({ label: "Sales Rep", allowCustom: false, fetchUrls: ["/api/employees"] }) */
     /** @default("") */
     salesRep: string | Employee;
     /** @comboboxController({ label: "Group", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     group: string;
     /** @comboboxController({ label: "Subgroup", allowCustom: true }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     subgroup: string;
     /** @switchController({ label: "Posted" }) */
     isPosted: boolean;
     /** @switchController({ label: "Needs Review" }) */
     needsReview: boolean;
     /** @textController({ label: "Action Item" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     actionItem: string;
     /** @hiddenController({}) */
     upsale: number;
