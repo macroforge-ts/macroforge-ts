@@ -91,7 +91,7 @@ fn test_scanner_svelte_ts_interface_with_derive() {
     };
 
     // A .svelte.ts file with a JSDoc @derive on an interface.
-    let source = r#"/** @derive(Default, Serialize, Deserialize, Gigaform) */
+    let source = r#"/** @derive(Default, Encode, Decode, Gigaform) */
 export interface PhoneNumber {
     label: string;
     number: string;

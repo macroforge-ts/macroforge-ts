@@ -547,7 +547,7 @@ fn test_union_type_for_loop_basic() {
         function dispatch(value: any) {
             {#for type_ref in type_refs}
                 if (value.__type === "@{type_ref}") {
-                    return @{type_ref}.deserializeWithContext(value);
+                    return @{type_ref}.decodeWithContext(value);
                 }
             {/for}
         }
@@ -557,18 +557,18 @@ fn test_union_type_for_loop_basic() {
     println!("Generated Source:\n{}", s);
 
     assert!(
-        s.contains("User.deserializeWithContext"),
-        "Expected User.deserializeWithContext, found: {}",
+        s.contains("User.decodeWithContext"),
+        "Expected User.decodeWithContext, found: {}",
         s
     );
     assert!(
-        s.contains("Admin.deserializeWithContext"),
-        "Expected Admin.deserializeWithContext, found: {}",
+        s.contains("Admin.decodeWithContext"),
+        "Expected Admin.decodeWithContext, found: {}",
         s
     );
     assert!(
-        s.contains("Guest.deserializeWithContext"),
-        "Expected Guest.deserializeWithContext, found: {}",
+        s.contains("Guest.decodeWithContext"),
+        "Expected Guest.decodeWithContext, found: {}",
         s
     );
 }
@@ -583,7 +583,7 @@ fn test_union_type_for_loop_with_conditionals() {
     let is_type_ref_only = true;
 
     let stream: TsStream = ts_template! {
-        function deserializeWithContext(value: any) {
+        function decodeWithContext(value: any) {
             {#if is_literal_only}
                 const allowedValues = [{#for lit in literals}@{lit}, {/for}] as const;
                 return value;
@@ -591,7 +591,7 @@ fn test_union_type_for_loop_with_conditionals() {
                 const typeName = value.__type;
                 {#for type_ref in type_refs}
                     if (typeName === "@{type_ref}") {
-                        return @{type_ref}.deserializeWithContext(value);
+                        return @{type_ref}.decodeWithContext(value);
                     }
                 {/for}
                 throw new Error("Unknown type");
@@ -605,13 +605,13 @@ fn test_union_type_for_loop_with_conditionals() {
     println!("Generated Source:\n{}", s);
 
     assert!(
-        s.contains("Success.deserializeWithContext"),
-        "Expected Success.deserializeWithContext, found: {}",
+        s.contains("Success.decodeWithContext"),
+        "Expected Success.decodeWithContext, found: {}",
         s
     );
     assert!(
-        s.contains("Failure.deserializeWithContext"),
-        "Expected Failure.deserializeWithContext, found: {}",
+        s.contains("Failure.decodeWithContext"),
+        "Expected Failure.decodeWithContext, found: {}",
         s
     );
 }
@@ -658,14 +658,14 @@ fn test_union_type_nested_if_for() {
     let has_type_refs = !type_refs.is_empty();
 
     let stream: TsStream = ts_template! {
-        function deserializeWithContext(value: any) {
+        function decodeWithContext(value: any) {
             {#if has_type_refs}
                 if (typeof value === "object" && value !== null) {
                     const __typeName = value.__type;
                     if (typeof __typeName === "string") {
                         {#for type_ref in type_refs}
                             if (__typeName === "@{type_ref}") {
-                                return @{type_ref}.deserializeWithContext(value);
+                                return @{type_ref}.decodeWithContext(value);
                             }
                         {/for}
                     }
@@ -679,13 +679,13 @@ fn test_union_type_nested_if_for() {
     println!("Generated Source:\n{}", s);
 
     assert!(
-        s.contains("Option1.deserializeWithContext"),
-        "Expected Option1.deserializeWithContext, found: {}",
+        s.contains("Option1.decodeWithContext"),
+        "Expected Option1.decodeWithContext, found: {}",
         s
     );
     assert!(
-        s.contains("Option2.deserializeWithContext"),
-        "Expected Option2.deserializeWithContext, found: {}",
+        s.contains("Option2.decodeWithContext"),
+        "Expected Option2.decodeWithContext, found: {}",
         s
     );
 }

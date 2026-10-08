@@ -1,10 +1,10 @@
 /**
  * # Macroforge Buildtime Module
  *
- * Build-time JavaScript evaluation — the Zig-comptime primitive for
+ * Build-time JavaScript evaluation: the Zig-comptime primitive for
  * TypeScript. Annotate a top-level `const` or `function` declaration with
  * `/** @buildtime *\/` and the macroforge build pass evaluates it in a
- * sandboxed JS context, serializes the result, and splices a plain TS
+ * sandboxed JS context, encodes the result, and splices a plain TS
  * literal back into the module.
  *
  * ```ts
@@ -28,7 +28,7 @@
  * ## Runtime behavior
  *
  * Every export from this module is a sentinel. Calling any of them at
- * runtime throws — they should have been resolved by the macroforge
+ * runtime throws: they should have been resolved by the macroforge
  * build pass and no longer exist in the output. If you see the runtime
  * error, the build pass is not running on this file.
  *
@@ -51,7 +51,7 @@ export interface BuildtimeFs {
    *  as `readText`. */
   readJson(path: string): unknown;
   /** Return whether the path exists on disk. Counts as a read for
-   *  dependency tracking — if the file appears later, the cache
+   *  dependency tracking: if the file appears later, the cache
    *  invalidates. */
   exists(path: string): boolean;
   /** Return the names of the entries in a directory, sorted. Counts as
@@ -61,16 +61,16 @@ export interface BuildtimeFs {
 
 /** Hashing available to a `@buildtime` declaration. */
 export interface BuildtimeCrypto {
-  /** SHA-256 of the input, lowercase hex. Pure — always allowed. */
+  /** SHA-256 of the input, lowercase hex. Pure: always allowed. */
   sha256(input: string): string;
-  /** SHA-512 of the input, lowercase hex. Pure — always allowed. */
+  /** SHA-512 of the input, lowercase hex. Pure: always allowed. */
   sha512(input: string): string;
 }
 
 /** The build's wall clock. */
 export interface BuildtimeTime {
   /** Current wall-clock time as an ISO 8601 string. Makes builds
-   *  non-deterministic — prefer recording a fixed timestamp if
+   *  non-deterministic: prefer recording a fixed timestamp if
    *  determinism matters. */
   now(): string;
   /** Current wall-clock time in unix seconds. */
@@ -129,7 +129,7 @@ export interface Buildtime {
 /**
  * The build-time API. Inside a `@buildtime` declaration, calls
  * against this object are routed to native implementations. At
- * runtime, every access throws — see module docs for why.
+ * runtime, every access throws: see module docs for why.
  */
 export const buildtime: Buildtime = {
   fs: {

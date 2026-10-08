@@ -16,8 +16,8 @@ export interface MacroTestResults {
     clone?: AllMacrosTestClass;
     equals?: boolean;
     hashCode?: number;
-    serialize?: string;
-    deserialize?: AllMacrosTestClass;
+    encode?: string;
+    decode?: AllMacrosTestClass;
 }
 
 /**

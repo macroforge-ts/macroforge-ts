@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 // Mock SvelteKit modules that are commonly used but unavailable during testing
 vi.mock('$app/forms', () => ({
     applyAction: vi.fn(),
-    deserialize: vi.fn(),
+    decode: vi.fn(),
     enhance: vi.fn()
 }));
 

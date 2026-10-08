@@ -1,10 +1,11 @@
 ---
 source: crates/macroforge_ts/tests/conformance.rs
+assertion_line: 259
 ---
 ## Source
 
 src/enum-type-examples.ts
-sha256 d3f1ef5edd8d116207d8202a2e93e3db0331b52c924cd1dab09025717ad60396
+sha256 0aa76185c87e43b9843c9a0ea2084508f82017597ad7255894ac1850e10ab44d
 
 ## Changed
 
@@ -12,11 +13,11 @@ true
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 /**
  * Examples demonstrating derive macros on enums and type aliases.
  * These showcase the new enum and type alias support for all built-in macros.
@@ -28,7 +29,7 @@ import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
 
 // ==================== ENUM EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export enum Status {
     Active = 'active',
     Inactive = 'inactive',
@@ -66,39 +67,55 @@ export function statusHashCode(value: Status): number {
                         return hash;
                     }
 
-/** Serializes this enum value to a JSON string.  */
-                export function statusSerialize(value: Status): string {
+/** Encodes this enum value to a JSON string.  */
+                export function statusEncode(value: Status): string {
                     return JSON.stringify(value);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs.  */
-                export function statusSerializeWithContext(value: Status, _ctx: __mf_SerializeContext): string | number {
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
+                export function statusEncodeWithContext(value: Status): string | number {
                     return value;
                 }
 
-/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function statusDeserialize(input: unknown): Status {
-            return statusDeserializeWithContext(input);
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function statusDecode(input: unknown): Status {
+            return statusDecodeWithContext(input);
         }
 
-        /** Deserializes with an existing context (for consistency with other types).  */
-        export function statusDeserializeWithContext(data: unknown): Status {
-            for (const key of Object.keys(Status)) {
-                const enumValue = Status[key as keyof typeof Status];
-                if (enumValue === data) {
-                    return data as Status;
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
+        export function statusDecodeWithContext(data: unknown): Status {
+            if (Status["Active"] === data) {
+                    return Status["Active"];
                 }
-            }
+            if (Status["Inactive"] === data) {
+                    return Status["Inactive"];
+                }
+            if (Status["Pending"] === data) {
+                    return Status["Pending"];
+                }
+
+
+
+
             throw new Error("Invalid Status value: " + JSON.stringify(data));
         }
 
         export function statusIs(value: unknown): value is Status {
-            for (const key of Object.keys(Status)) {
-                const enumValue = Status[key as keyof typeof Status];
-                if (enumValue === value) {
+            if (Status["Active"] === value) {
                     return true;
                 }
-            }
+            if (Status["Inactive"] === value) {
+                    return true;
+                }
+            if (Status["Pending"] === value) {
+                    return true;
+                }
+
+
+
+
             return false;
         }
 
@@ -107,14 +124,14 @@ export namespace Status {
   export const clone = statusClone;
   export const equals = statusEquals;
   export const hashCode = statusHashCode;
-  export const serialize = statusSerialize;
-  export const serializeWithContext = statusSerializeWithContext;
-  export const deserialize = statusDeserialize;
-  export const deserializeWithContext = statusDeserializeWithContext;
+  export const encode = statusEncode;
+  export const encodeWithContext = statusEncodeWithContext;
+  export const decode = statusDecode;
+  export const decodeWithContext = statusDecodeWithContext;
   export const is = statusIs;
 }
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export enum Priority {
     Low = 1,
     Medium = 2,
@@ -149,39 +166,61 @@ export function priorityHashCode(value: Priority): number {
                         return value as number;
                     }
 
-/** Serializes this enum value to a JSON string.  */
-                export function prioritySerialize(value: Priority): string {
+/** Encodes this enum value to a JSON string.  */
+                export function priorityEncode(value: Priority): string {
                     return JSON.stringify(value);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs.  */
-                export function prioritySerializeWithContext(value: Priority, _ctx: __mf_SerializeContext): string | number {
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeContext): string | number;
+                export function priorityEncodeWithContext(value: Priority): string | number {
                     return value;
                 }
 
-/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function priorityDeserialize(input: unknown): Priority {
-            return priorityDeserializeWithContext(input);
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function priorityDecode(input: unknown): Priority {
+            return priorityDecodeWithContext(input);
         }
 
-        /** Deserializes with an existing context (for consistency with other types).  */
-        export function priorityDeserializeWithContext(data: unknown): Priority {
-            for (const key of Object.keys(Priority)) {
-                const enumValue = Priority[key as keyof typeof Priority];
-                if (enumValue === data) {
-                    return data as Priority;
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function priorityDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Priority;
+        export function priorityDecodeWithContext(data: unknown): Priority {
+            if (Priority["Low"] === data) {
+                    return Priority["Low"];
                 }
-            }
+            if (Priority["Medium"] === data) {
+                    return Priority["Medium"];
+                }
+            if (Priority["High"] === data) {
+                    return Priority["High"];
+                }
+            if (Priority["Critical"] === data) {
+                    return Priority["Critical"];
+                }
+
+
+
+
             throw new Error("Invalid Priority value: " + JSON.stringify(data));
         }
 
         export function priorityIs(value: unknown): value is Priority {
-            for (const key of Object.keys(Priority)) {
-                const enumValue = Priority[key as keyof typeof Priority];
-                if (enumValue === value) {
+            if (Priority["Low"] === value) {
                     return true;
                 }
-            }
+            if (Priority["Medium"] === value) {
+                    return true;
+                }
+            if (Priority["High"] === value) {
+                    return true;
+                }
+            if (Priority["Critical"] === value) {
+                    return true;
+                }
+
+
+
+
             return false;
         }
 
@@ -190,10 +229,10 @@ export namespace Priority {
   export const clone = priorityClone;
   export const equals = priorityEquals;
   export const hashCode = priorityHashCode;
-  export const serialize = prioritySerialize;
-  export const serializeWithContext = prioritySerializeWithContext;
-  export const deserialize = priorityDeserialize;
-  export const deserializeWithContext = priorityDeserializeWithContext;
+  export const encode = priorityEncode;
+  export const encodeWithContext = priorityEncodeWithContext;
+  export const decode = priorityDecode;
+  export const decodeWithContext = priorityDecodeWithContext;
   export const is = priorityIs;
 }
 
@@ -235,7 +274,7 @@ export namespace Color {
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type Point = {
     x: number;
     y: number;
@@ -271,16 +310,16 @@ export function pointHashCode(value: Point): number {
                         return hash;
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function pointSerialize(value: Point, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = pointSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function pointEncode(value: Point, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = pointEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function pointSerializeWithContext(value: Point, ctx: __mf_SerializeContext): Record<string, unknown> {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
                                 return { __ref: existingId };
@@ -316,21 +355,21 @@ export function pointHashCode(value: Point): number {
                             return result;
                         }
 
-/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function pointDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = pointDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = pointDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Point.deserialize: root cannot be a forward reference"
+		message: "Point.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -353,7 +392,7 @@ export function pointHashCode(value: Point): number {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -370,14 +409,14 @@ export function pointHashCode(value: Point): number {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function pointDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Point | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function pointDecodeWithContext(value: any, ctx: __mf_DecodeContext): Point | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Point.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1263,16 +1302,16 @@ export const Point = {
   clone: pointClone,
   equals: pointEquals,
   hashCode: pointHashCode,
-  serialize: pointSerialize,
-  serializeWithContext: pointSerializeWithContext,
-  deserialize: pointDeserialize,
-  deserializeWithContext: pointDeserializeWithContext,
+  encode: pointEncode,
+  encodeWithContext: pointEncodeWithContext,
+  decode: pointDecode,
+  decodeWithContext: pointDecodeWithContext,
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
 } as const;
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type UserProfile = {
     id: string;
     username: string;
@@ -1317,16 +1356,16 @@ export function userProfileHashCode(value: UserProfile): number {
                         return hash;
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function userProfileSerialize(value: UserProfile, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = userProfileSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function userProfileEncode(value: UserProfile, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = userProfileEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function userProfileSerializeWithContext(value: UserProfile, ctx: __mf_SerializeContext): Record<string, unknown> {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function userProfileEncodeWithContext(value: UserProfile, ctx: __mf_EncodeContext): Record<string, unknown> {
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
                                 return { __ref: existingId };
@@ -1362,21 +1401,21 @@ export function userProfileHashCode(value: UserProfile): number {
                             return result;
                         }
 
-/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function userProfileDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = userProfileDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = userProfileDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "UserProfile.deserialize: root cannot be a forward reference"
+		message: "UserProfile.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1399,7 +1438,7 @@ export function userProfileHashCode(value: UserProfile): number {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1416,14 +1455,14 @@ export function userProfileHashCode(value: UserProfile): number {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function userProfileDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserProfile | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function userProfileDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref) as UserProfile | __mf_PendingRef;
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "UserProfile.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "UserProfile.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2879,10 +2918,10 @@ export const UserProfile = {
   clone: userProfileClone,
   equals: userProfileEquals,
   hashCode: userProfileHashCode,
-  serialize: userProfileSerialize,
-  serializeWithContext: userProfileSerializeWithContext,
-  deserialize: userProfileDeserialize,
-  deserializeWithContext: userProfileDeserializeWithContext,
+  encode: userProfileEncode,
+  encodeWithContext: userProfileEncodeWithContext,
+  decode: userProfileDecode,
+  decodeWithContext: userProfileDecodeWithContext,
   validateFields: userProfileValidateFields,
   hasShape: userProfileHasShape,
   is: userProfileIs
@@ -2988,12 +3027,12 @@ export function demoEnumFunctions() {
     const hash = statusHashCode(Status.Active);
     console.log('Hash code:', hash);
 
-    // Serialize - statusSerialize
-    const json = statusSerialize(Status.Inactive);
-    console.log('Serialized:', json);
+    // Encode - statusEncode
+    const json = statusEncode(Status.Inactive);
+    console.log('Encoded:', json);
 
-    // Deserialize - statusDeserialize
-    const parsed = statusDeserialize('pending');
+    // Decode - statusDecode
+    const parsed = statusDecode('pending');
     console.log('Parsed:', parsed);
 }
 
@@ -3028,12 +3067,12 @@ export function demoTypeFunctions() {
     const pointHash = pointHashCode(point1);
     console.log('Point hash:', pointHash);
 
-    // Serialize - pointSerialize
-    const pointJson = pointSerialize(point1);
+    // Encode - pointEncode
+    const pointJson = pointEncode(point1);
     console.log('Point JSON:', pointJson);
 
-    // Deserialize - pointDeserialize
-    const parsedPoint = pointDeserialize({ x: 5, y: 10 });
+    // Decode - pointDecode
+    const parsedPoint = pointDecode({ x: 5, y: 10 });
     console.log('Parsed point:', parsedPoint);
 }
 
@@ -3054,7 +3093,7 @@ demoTypeFunctions();
 
 // ==================== ENUM EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export enum Status {
     Active = 'active',
     Inactive = 'inactive',
@@ -3092,39 +3131,55 @@ export function statusHashCode(value: Status): number {
                         return hash;
                     }
 
-/** Serializes this enum value to a JSON string.  */
-                export function statusSerialize(value: Status): string {
+/** Encodes this enum value to a JSON string.  */
+                export function statusEncode(value: Status): string {
                     return JSON.stringify(value);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs.  */
-                export function statusSerializeWithContext(value: Status, _ctx: __mf_SerializeContext): string | number {
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function statusEncodeWithContext(value: Status, ctx: __mf_EncodeContext): string | number;
+                export function statusEncodeWithContext(value: Status): string | number {
                     return value;
                 }
 
-/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function statusDeserialize(input: unknown): Status {
-            return statusDeserializeWithContext(input);
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function statusDecode(input: unknown): Status {
+            return statusDecodeWithContext(input);
         }
 
-        /** Deserializes with an existing context (for consistency with other types).  */
-        export function statusDeserializeWithContext(data: unknown): Status {
-            for (const key of Object.keys(Status)) {
-                const enumValue = Status[key as keyof typeof Status];
-                if (enumValue === data) {
-                    return data as Status;
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function statusDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Status;
+        export function statusDecodeWithContext(data: unknown): Status {
+            if (Status["Active"] === data) {
+                    return Status["Active"];
                 }
-            }
+            if (Status["Inactive"] === data) {
+                    return Status["Inactive"];
+                }
+            if (Status["Pending"] === data) {
+                    return Status["Pending"];
+                }
+
+
+
+
             throw new Error("Invalid Status value: " + JSON.stringify(data));
         }
 
         export function statusIs(value: unknown): value is Status {
-            for (const key of Object.keys(Status)) {
-                const enumValue = Status[key as keyof typeof Status];
-                if (enumValue === value) {
+            if (Status["Active"] === value) {
                     return true;
                 }
-            }
+            if (Status["Inactive"] === value) {
+                    return true;
+                }
+            if (Status["Pending"] === value) {
+                    return true;
+                }
+
+
+
+
             return false;
         }
 
@@ -3133,14 +3188,14 @@ export namespace Status {
   export const clone = statusClone;
   export const equals = statusEquals;
   export const hashCode = statusHashCode;
-  export const serialize = statusSerialize;
-  export const serializeWithContext = statusSerializeWithContext;
-  export const deserialize = statusDeserialize;
-  export const deserializeWithContext = statusDeserializeWithContext;
+  export const encode = statusEncode;
+  export const encodeWithContext = statusEncodeWithContext;
+  export const decode = statusDecode;
+  export const decodeWithContext = statusDecodeWithContext;
   export const is = statusIs;
 }
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export enum Priority {
     Low = 1,
     Medium = 2,
@@ -3175,39 +3230,61 @@ export function priorityHashCode(value: Priority): number {
                         return value as number;
                     }
 
-/** Serializes this enum value to a JSON string.  */
-                export function prioritySerialize(value: Priority): string {
+/** Encodes this enum value to a JSON string.  */
+                export function priorityEncode(value: Priority): string {
                     return JSON.stringify(value);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs.  */
-                export function prioritySerializeWithContext(value: Priority, _ctx: __mf_SerializeContext): string | number {
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function priorityEncodeWithContext(value: Priority, ctx: __mf_EncodeContext): string | number;
+                export function priorityEncodeWithContext(value: Priority): string | number {
                     return value;
                 }
 
-/** Deserializes input to an enum value. @param input - Value to deserialize @returns The enum value @throws Error if the value is not a valid enum member  */
-        export function priorityDeserialize(input: unknown): Priority {
-            return priorityDeserializeWithContext(input);
+/** Decodes input to an enum value. @param input - Value to decode @returns The enum value @throws Error if the value is not a valid enum member  */
+        export function priorityDecode(input: unknown): Priority {
+            return priorityDecodeWithContext(input);
         }
 
-        /** Deserializes with an existing context (for consistency with other types).  */
-        export function priorityDeserializeWithContext(data: unknown): Priority {
-            for (const key of Object.keys(Priority)) {
-                const enumValue = Priority[key as keyof typeof Priority];
-                if (enumValue === data) {
-                    return data as Priority;
+        /** Decodes with an existing context (for consistency with other types).  */
+        export function priorityDecodeWithContext(data: unknown, ctx?: __mf_DecodeContext): Priority;
+        export function priorityDecodeWithContext(data: unknown): Priority {
+            if (Priority["Low"] === data) {
+                    return Priority["Low"];
                 }
-            }
+            if (Priority["Medium"] === data) {
+                    return Priority["Medium"];
+                }
+            if (Priority["High"] === data) {
+                    return Priority["High"];
+                }
+            if (Priority["Critical"] === data) {
+                    return Priority["Critical"];
+                }
+
+
+
+
             throw new Error("Invalid Priority value: " + JSON.stringify(data));
         }
 
         export function priorityIs(value: unknown): value is Priority {
-            for (const key of Object.keys(Priority)) {
-                const enumValue = Priority[key as keyof typeof Priority];
-                if (enumValue === value) {
+            if (Priority["Low"] === value) {
                     return true;
                 }
-            }
+            if (Priority["Medium"] === value) {
+                    return true;
+                }
+            if (Priority["High"] === value) {
+                    return true;
+                }
+            if (Priority["Critical"] === value) {
+                    return true;
+                }
+
+
+
+
             return false;
         }
 
@@ -3216,10 +3293,10 @@ export namespace Priority {
   export const clone = priorityClone;
   export const equals = priorityEquals;
   export const hashCode = priorityHashCode;
-  export const serialize = prioritySerialize;
-  export const serializeWithContext = prioritySerializeWithContext;
-  export const deserialize = priorityDeserialize;
-  export const deserializeWithContext = priorityDeserializeWithContext;
+  export const encode = priorityEncode;
+  export const encodeWithContext = priorityEncodeWithContext;
+  export const decode = priorityDecode;
+  export const decodeWithContext = priorityDecodeWithContext;
   export const is = priorityIs;
 }
 
@@ -3261,7 +3338,7 @@ export namespace Color {
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type Point = {
     x: number;
     y: number;
@@ -3297,16 +3374,16 @@ export function pointHashCode(value: Point): number {
                         return hash;
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function pointSerialize(value: Point, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = pointSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function pointEncode(value: Point, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = pointEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function pointSerializeWithContext(value: Point, ctx: __mf_SerializeContext): Record<string, unknown> {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function pointEncodeWithContext(value: Point, ctx: __mf_EncodeContext): Record<string, unknown> {
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
                                 return { __ref: existingId };
@@ -3342,21 +3419,21 @@ export function pointHashCode(value: Point): number {
                             return result;
                         }
 
-/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function pointDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function pointDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Point } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = pointDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = pointDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Point.deserialize: root cannot be a forward reference"
+		message: "Point.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -3379,7 +3456,7 @@ export function pointHashCode(value: Point): number {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -3396,14 +3473,14 @@ export function pointHashCode(value: Point): number {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function pointDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Point | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function pointDecodeWithContext(value: any, ctx: __mf_DecodeContext): Point | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref) as Point | __mf_PendingRef;
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Point.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Point.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -4289,16 +4366,16 @@ export const Point = {
   clone: pointClone,
   equals: pointEquals,
   hashCode: pointHashCode,
-  serialize: pointSerialize,
-  serializeWithContext: pointSerializeWithContext,
-  deserialize: pointDeserialize,
-  deserializeWithContext: pointDeserializeWithContext,
+  encode: pointEncode,
+  encodeWithContext: pointEncodeWithContext,
+  decode: pointDecode,
+  decodeWithContext: pointDecodeWithContext,
   validateFields: pointValidateFields,
   hasShape: pointHasShape,
   is: pointIs
 } as const;
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type UserProfile = {
     id: string;
     username: string;
@@ -4343,16 +4420,16 @@ export function userProfileHashCode(value: UserProfile): number {
                         return hash;
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function userProfileSerialize(value: UserProfile, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = userProfileSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function userProfileEncode(value: UserProfile, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = userProfileEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function userProfileSerializeWithContext(value: UserProfile, ctx: __mf_SerializeContext): Record<string, unknown> {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function userProfileEncodeWithContext(value: UserProfile, ctx: __mf_EncodeContext): Record<string, unknown> {
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
                                 return { __ref: existingId };
@@ -4388,21 +4465,21 @@ export function userProfileHashCode(value: UserProfile): number {
                             return result;
                         }
 
-/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function userProfileDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = userProfileDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = userProfileDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "UserProfile.deserialize: root cannot be a forward reference"
+		message: "UserProfile.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -4425,7 +4502,7 @@ export function userProfileHashCode(value: UserProfile): number {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -4442,14 +4519,14 @@ export function userProfileHashCode(value: UserProfile): number {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function userProfileDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserProfile | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function userProfileDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref) as UserProfile | __mf_PendingRef;
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "UserProfile.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "UserProfile.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -5905,10 +5982,10 @@ export const UserProfile = {
   clone: userProfileClone,
   equals: userProfileEquals,
   hashCode: userProfileHashCode,
-  serialize: userProfileSerialize,
-  serializeWithContext: userProfileSerializeWithContext,
-  deserialize: userProfileDeserialize,
-  deserializeWithContext: userProfileDeserializeWithContext,
+  encode: userProfileEncode,
+  encodeWithContext: userProfileEncodeWithContext,
+  decode: userProfileDecode,
+  decodeWithContext: userProfileDecodeWithContext,
   validateFields: userProfileValidateFields,
   hasShape: userProfileHasShape,
   is: userProfileIs
@@ -6014,12 +6091,12 @@ export function demoEnumFunctions() {
     const hash = statusHashCode(Status.Active);
     console.log('Hash code:', hash);
 
-    // Serialize - statusSerialize
-    const json = statusSerialize(Status.Inactive);
-    console.log('Serialized:', json);
+    // Encode - statusEncode
+    const json = statusEncode(Status.Inactive);
+    console.log('Encoded:', json);
 
-    // Deserialize - statusDeserialize
-    const parsed = statusDeserialize('pending');
+    // Decode - statusDecode
+    const parsed = statusDecode('pending');
     console.log('Parsed:', parsed);
 }
 
@@ -6054,12 +6131,12 @@ export function demoTypeFunctions() {
     const pointHash = pointHashCode(point1);
     console.log('Point hash:', pointHash);
 
-    // Serialize - pointSerialize
-    const pointJson = pointSerialize(point1);
+    // Encode - pointEncode
+    const pointJson = pointEncode(point1);
     console.log('Point JSON:', pointJson);
 
-    // Deserialize - pointDeserialize
-    const parsedPoint = pointDeserialize({ x: 5, y: 10 });
+    // Decode - pointDecode
+    const parsedPoint = pointDecode({ x: 5, y: 10 });
     console.log('Parsed point:', parsedPoint);
 }
 
@@ -6073,65 +6150,65 @@ demoTypeFunctions();
 
 ## Mapping
 
-original 0..535 -> expanded 0..535
-original 535..691 -> expanded 3446..3602
-original 691..782 -> expanded 6407..6498
-original 782..974 -> expanded 7212..7404
-original 974..1175 -> expanded 15663..15864
-original 1175..1299 -> expanded 26611..26735
-original 1299..1396 -> expanded 28376..28473
-original 1396..3779 -> expanded 29531..31914
-generated 535..869 <- Debug
-generated 869..975 <- Clone
-generated 975..1092 <- PartialEq
-generated 1092..1411 <- Hash
-generated 1411..1874 <- Serialize
-generated 1874..3001 <- Deserialize
-generated 3001..3446 <- __convenience_const
-generated 3602..3948 <- Debug
-generated 3948..4060 <- Clone
-generated 4060..4183 <- PartialEq
-generated 4183..4314 <- Hash
-generated 4314..4785 <- Serialize
-generated 4785..5942 <- Deserialize
-generated 5942..6407 <- __convenience_const
-generated 6498..6826 <- Debug
-generated 6826..6940 <- PartialEq
-generated 6940..7065 <- Hash
-generated 7065..7212 <- __convenience_const
-generated 7404..7701 <- Debug
-generated 7701..7937 <- Clone
-generated 7937..8128 <- PartialEq
-generated 8128..8581 <- Hash
-generated 8581..10176 <- Serialize
-generated 10176..15281 <- Deserialize
-generated 15281..15663 <- __convenience_const
-generated 15864..16312 <- Debug
-generated 16312..16678 <- Clone
-generated 16678..16978 <- PartialEq
-generated 16978..17680 <- Hash
-generated 17680..19414 <- Serialize
-generated 19414..26157 <- Deserialize
-generated 26157..26611 <- __convenience_const
-generated 26735..27082 <- Debug
-generated 27082..27366 <- Clone
-generated 27366..27593 <- PartialEq
-generated 27593..28208 <- Hash
-generated 28208..28376 <- __convenience_const
-generated 28473..28633 <- Debug
-generated 28633..29023 <- PartialEq
-generated 29023..29403 <- Hash
-generated 29403..29531 <- __convenience_const
+original 0..527 -> expanded 0..527
+original 527..675 -> expanded 3708..3856
+original 675..766 -> expanded 7136..7227
+original 766..950 -> expanded 7941..8125
+original 950..1143 -> expanded 16231..16424
+original 1143..1267 -> expanded 27018..27142
+original 1267..1364 -> expanded 28783..28880
+original 1364..3696 -> expanded 29938..32270
+generated 527..861 <- Debug
+generated 861..967 <- Clone
+generated 967..1084 <- PartialEq
+generated 1084..1403 <- Hash
+generated 1403..1939 <- Encode
+generated 1939..3295 <- Decode
+generated 3295..3708 <- __convenience_const
+generated 3856..4202 <- Debug
+generated 4202..4314 <- Clone
+generated 4314..4437 <- PartialEq
+generated 4437..4568 <- Hash
+generated 4568..5116 <- Encode
+generated 5116..6703 <- Decode
+generated 6703..7136 <- __convenience_const
+generated 7227..7555 <- Debug
+generated 7555..7669 <- PartialEq
+generated 7669..7794 <- Hash
+generated 7794..7941 <- __convenience_const
+generated 8125..8422 <- Debug
+generated 8422..8658 <- Clone
+generated 8658..8849 <- PartialEq
+generated 8849..9302 <- Hash
+generated 9302..10865 <- Encode
+generated 10865..15881 <- Decode
+generated 15881..16231 <- __convenience_const
+generated 16424..16872 <- Debug
+generated 16872..17238 <- Clone
+generated 17238..17538 <- PartialEq
+generated 17538..18240 <- Hash
+generated 18240..19942 <- Encode
+generated 19942..26596 <- Decode
+generated 26596..27018 <- __convenience_const
+generated 27142..27489 <- Debug
+generated 27489..27773 <- Clone
+generated 27773..28000 <- PartialEq
+generated 28000..28615 <- Hash
+generated 28615..28783 <- __convenience_const
+generated 28880..29040 <- Debug
+generated 29040..29430 <- PartialEq
+generated 29430..29810 <- Hash
+generated 29810..29938 <- __convenience_const
 
 ## Metadata
 
-enum Status: {"body_span":{"end":536,"start":459},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":439,"start":370}}],"is_const":false,"name":"Status","span":{"end":536,"start":447},"variants":[{"decorators":[],"name":"Active","span":{"end":482,"start":465},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":509,"start":488},"value":{"String":"inactive"}},{"decorators":[],"name":"Pending","span":{"end":534,"start":515},"value":{"String":"pending"}}]}
-enum Priority: {"body_span":{"end":692,"start":629},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":607,"start":538}}],"is_const":false,"name":"Priority","span":{"end":692,"start":615},"variants":[{"decorators":[],"name":"Low","span":{"end":642,"start":635},"value":{"Number":1.0}},{"decorators":[],"name":"Medium","span":{"end":658,"start":648},"value":{"Number":2.0}},{"decorators":[],"name":"High","span":{"end":672,"start":664},"value":{"Number":3.0}},{"decorators":[],"name":"Critical","span":{"end":690,"start":678},"value":{"Number":4.0}}]}
-enum Color: {"body_span":{"end":783,"start":751},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":732,"start":694}}],"is_const":false,"name":"Color","span":{"end":783,"start":740},"variants":[{"decorators":[],"name":"Red","span":{"end":760,"start":757},"value":{"Number":0.0}},{"decorators":[],"name":"Green","span":{"end":771,"start":766},"value":{"Number":1.0}},{"decorators":[],"name":"Blue","span":{"end":781,"start":777},"value":{"Number":2.0}}]}
-type Point: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":957,"start":947},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":972,"start":962},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":920,"start":851}}],"name":"Point","span":{"end":975,"start":928},"type_params":[]}
-type UserProfile: {"body":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1090,"start":1079},"ts_type":"string"},{"decorators":[],"name":"username","optional":false,"readonly":false,"span":{"end":1112,"start":1095},"ts_type":"string"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":1131,"start":1117},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":1148,"start":1136},"ts_type":"number"},{"decorators":[],"name":"isVerified","optional":false,"readonly":false,"span":{"end":1173,"start":1153},"ts_type":"boolean"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":1046,"start":977}}],"name":"UserProfile","span":{"end":1176,"start":1054},"type_params":[]}
-type Coordinate3D: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":1267,"start":1257},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":1282,"start":1272},"ts_type":"number"},{"decorators":[],"name":"z","optional":false,"readonly":false,"span":{"end":1297,"start":1287},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":1223,"start":1178}}],"name":"Coordinate3D","span":{"end":1300,"start":1231},"type_params":[]}
-type ApiStatus: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'loading'"}},{"decorators":[],"kind":{"Literal":"'success'"}},{"decorators":[],"kind":{"Literal":"'error'"}}]},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":1340,"start":1302}}],"name":"ApiStatus","span":{"end":1397,"start":1348},"type_params":[]}
+enum Status: {"body_span":{"end":528,"start":451},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":431,"start":370}}],"is_const":false,"name":"Status","span":{"end":528,"start":439},"variants":[{"decorators":[],"name":"Active","span":{"end":474,"start":457},"value":{"String":"active"}},{"decorators":[],"name":"Inactive","span":{"end":501,"start":480},"value":{"String":"inactive"}},{"decorators":[],"name":"Pending","span":{"end":526,"start":507},"value":{"String":"pending"}}]}
+enum Priority: {"body_span":{"end":676,"start":613},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":591,"start":530}}],"is_const":false,"name":"Priority","span":{"end":676,"start":599},"variants":[{"decorators":[],"name":"Low","span":{"end":626,"start":619},"value":{"Number":1.0}},{"decorators":[],"name":"Medium","span":{"end":642,"start":632},"value":{"Number":2.0}},{"decorators":[],"name":"High","span":{"end":656,"start":648},"value":{"Number":3.0}},{"decorators":[],"name":"Critical","span":{"end":674,"start":662},"value":{"Number":4.0}}]}
+enum Color: {"body_span":{"end":767,"start":735},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":716,"start":678}}],"is_const":false,"name":"Color","span":{"end":767,"start":724},"variants":[{"decorators":[],"name":"Red","span":{"end":744,"start":741},"value":{"Number":0.0}},{"decorators":[],"name":"Green","span":{"end":755,"start":750},"value":{"Number":1.0}},{"decorators":[],"name":"Blue","span":{"end":765,"start":761},"value":{"Number":2.0}}]}
+type Point: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":933,"start":923},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":948,"start":938},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":896,"start":835}}],"name":"Point","span":{"end":951,"start":904},"type_params":[]}
+type UserProfile: {"body":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1058,"start":1047},"ts_type":"string"},{"decorators":[],"name":"username","optional":false,"readonly":false,"span":{"end":1080,"start":1063},"ts_type":"string"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":1099,"start":1085},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":1116,"start":1104},"ts_type":"number"},{"decorators":[],"name":"isVerified","optional":false,"readonly":false,"span":{"end":1141,"start":1121},"ts_type":"boolean"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":1014,"start":953}}],"name":"UserProfile","span":{"end":1144,"start":1022},"type_params":[]}
+type Coordinate3D: {"body":{"Object":{"fields":[{"decorators":[],"name":"x","optional":false,"readonly":false,"span":{"end":1235,"start":1225},"ts_type":"number"},{"decorators":[],"name":"y","optional":false,"readonly":false,"span":{"end":1250,"start":1240},"ts_type":"number"},{"decorators":[],"name":"z","optional":false,"readonly":false,"span":{"end":1265,"start":1255},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash","name":"Derive","span":{"end":1191,"start":1146}}],"name":"Coordinate3D","span":{"end":1268,"start":1199},"type_params":[]}
+type ApiStatus: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'loading'"}},{"decorators":[],"kind":{"Literal":"'success'"}},{"decorators":[],"kind":{"Literal":"'error'"}}]},"decorators":[{"args_src":"Debug, PartialEq, Hash","name":"Derive","span":{"end":1308,"start":1270}}],"name":"ApiStatus","span":{"end":1365,"start":1316},"type_params":[]}
 
 ## Registry reads
 

@@ -5,7 +5,7 @@
 //!
 //! ## Return Types
 //!
-//! - **Deserialize**: `{ success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }`
+//! - **Decode**: `{ success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }`
 //! - **PartialOrd**: `number | null`
 //!
 //! ## Notation
@@ -16,40 +16,40 @@
 //!
 //! ## Usage
 //!
-//! These helpers are used by the `serde::derive_deserialize` and `derive_partial_ord`
+//! These helpers are used by the `serde::derive_decode` and `derive_partial_ord`
 //! modules to generate vanilla TypeScript code.
 
 // ============================================================================
-// Serde Type Aliases
+// Endec Type Aliases
 // ============================================================================
 
-// Serde types (aliased) - use with TsStream::add_aliased_import()
-/// Aliased name for DeserializeContext
-pub const DESERIALIZE_CONTEXT: &str = "__mf_DeserializeContext";
-/// Aliased name for DeserializeError
-pub const DESERIALIZE_ERROR: &str = "__mf_DeserializeError";
-/// Aliased name for DeserializeOptions
-pub const DESERIALIZE_OPTIONS: &str = "__mf_DeserializeOptions";
+// Endec types (aliased) - use with TsStream::add_aliased_import()
+/// Aliased name for DecodeContext
+pub const DECODE_CONTEXT: &str = "__mf_DecodeContext";
+/// Aliased name for DecodeError
+pub const DECODE_ERROR: &str = "__mf_DecodeError";
+/// Aliased name for DecodeOptions
+pub const DECODE_OPTIONS: &str = "__mf_DecodeOptions";
 /// Aliased name for PendingRef
 pub const PENDING_REF: &str = "__mf_PendingRef";
-/// Aliased name for SerializeContext
-pub const SERIALIZE_CONTEXT: &str = "__mf_SerializeContext";
+/// Aliased name for EncodeContext
+pub const ENCODE_CONTEXT: &str = "__mf_EncodeContext";
 
 // ============================================================================
-// Deserialize Return Type Helpers
+// Decode Return Type Helpers
 // ============================================================================
 
-/// Returns the return type string for Deserialize.
+/// Returns the return type string for Decode.
 ///
 /// # Arguments
 ///
-/// * `type_name` - The name of the type being deserialized (e.g., "User")
+/// * `type_name` - The name of the type being decoded (e.g., "User")
 ///
 /// # Returns
 ///
 /// The vanilla return type signature:
 /// `{ success: true; value: T } | { success: false; errors: Array<{ field: string; message: string }> }`
-pub fn deserialize_return_type(type_name: &str) -> String {
+pub fn decode_return_type(type_name: &str) -> String {
     format!(
         "{{ success: true; value: {} }} | {{ success: false; errors: Array<{{ field: string; message: string }}> }}",
         type_name
@@ -82,7 +82,7 @@ pub fn wrap_error(expr: &str) -> String {
     format!("{{ success: false, errors: {} }}", expr)
 }
 
-/// Returns an expression to check if a deserialize result is successful.
+/// Returns an expression to check if a decode result is successful.
 ///
 /// # Arguments
 ///
@@ -141,8 +141,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_deserialize_return_type() {
-        let result = deserialize_return_type("User");
+    fn test_decode_return_type() {
+        let result = decode_return_type("User");
         assert!(result.contains("success: true"));
         assert!(result.contains("success: false"));
         assert!(result.contains("User"));

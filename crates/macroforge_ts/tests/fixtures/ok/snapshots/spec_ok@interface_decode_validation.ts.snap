@@ -1,0 +1,3233 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/interface_decode_validation.ts
+---
+## Input
+
+/** @derive(Decode) */
+interface UserProfile {
+    /** @endec(email) */
+    email: string;
+
+    /** @endec(minLength(2), maxLength(50)) */
+    username: string;
+
+    /** @endec(positive) */
+    age?: number;
+}
+
+## Changed
+
+true
+
+## Output
+
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+
+interface UserProfile {
+    
+    email: string;
+
+    
+    username: string;
+
+    
+    age?: number;
+}
+
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = userProfileDecodeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "UserProfile.decode: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DecodeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function userProfileDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DecodeError([{ field: "_root", message: "UserProfile.decodeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("email" in obj)) {
+                            errors.push({ field: "email", message: "missing required field" });
+                        }if (!("username" in obj)) {
+                            errors.push({ field: "username", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_email = obj["email"] as string;
+                                            if (__raw_email == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
+}
+instance.email = __raw_email;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_username = obj["username"] as string;
+                                            if (__raw_username == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+if (__raw_username.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
+if (__raw_username.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
+}
+instance.username = __raw_username;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }if ("age" in obj && obj["age"] !== undefined) {
+                                const __raw_age = obj["age"] as number;
+                                            if (__raw_age != null) {
+if (__raw_age <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+}
+instance.age = __raw_age;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as UserProfile;
+            }
+
+            export function userProfileValidateField<K extends keyof UserProfile>(
+                _field: K,
+                _value: UserProfile[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "email") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
+}
+
+
+                }
+                if (_field === "username") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+if (__val.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
+if (__val.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
+}
+
+
+                }
+                if (_field === "age") {
+                    const __val = _value as number;
+                    if (__val != null) {
+if (__val <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function userProfileValidateFields(
+                _partial: Partial<UserProfile>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("email" in _partial && _partial.email !== undefined) {
+                    const __val = _partial.email as string;
+                    if (__val == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
+}
+
+
+                }
+                if ("username" in _partial && _partial.username !== undefined) {
+                    const __val = _partial.username as string;
+                    if (__val == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+if (__val.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
+if (__val.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
+}
+
+
+                }
+                if ("age" in _partial && _partial.age !== undefined) {
+                    const __val = _partial.age as number;
+                    if (__val != null) {
+if (__val <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function userProfileHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "email" in o && "username" in o;
+            }
+
+            export function userProfileIs(obj: unknown): obj is UserProfile {
+                if (!userProfileHasShape(obj)) {
+                    return false;
+                }
+                const result = userProfileDecode(obj);
+                return result.success;
+            }
+
+const UserProfile = {
+  decode: userProfileDecode,
+  decodeWithContext: userProfileDecodeWithContext,
+  validateFields: userProfileValidateFields,
+  hasShape: userProfileHasShape,
+  is: userProfileIs
+} as const;
+
+## DTS
+
+interface UserProfile {
+    
+    email: string;
+
+    
+    username: string;
+
+    
+    age?: number;
+}
+
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function userProfileDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserProfile } | { success: false; errors: Array<{ field: string; message: string }> } {
+                try {
+
+                    const data = typeof input === "string" ? JSON.parse(input) : input;
+
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = userProfileDecodeWithContext(data, ctx);
+
+                    if (__mf_PendingRef.is(resultOrRef)) {
+                        return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "UserProfile.decode: root cannot be a forward reference"
+	}]
+});
+                    }
+
+                    ctx.applyPatches();
+                    if (opts?.freeze) {
+                        ctx.freezeAll();
+                    }
+
+                    const __errors = ctx.getErrors();
+                    if (__errors.length > 0) {
+                        return ({
+	success: false,
+	errors: __errors
+});
+                    }
+
+                    return ({
+	success: true,
+	value: resultOrRef
+});
+                } catch (e) {
+                    if (e instanceof __mf_DecodeError) {
+                        return ({
+	success: false,
+	errors: e.errors
+});
+                    }
+                    const message = e instanceof Error ? e.message : String(e);
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+                }
+            }
+
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function userProfileDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserProfile | __mf_PendingRef {
+                if (value?.__ref !== undefined) {
+                    return ctx.getOrDefer(value.__ref);
+                }
+
+                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                    throw new __mf_DecodeError([{ field: "_root", message: "UserProfile.decodeWithContext: expected an object" }]);
+                }
+
+                const obj = value as Record<string, unknown>;
+                const errors: Array<{ field: string; message: string }> = [];if (!("email" in obj)) {
+                            errors.push({ field: "email", message: "missing required field" });
+                        }if (!("username" in obj)) {
+                            errors.push({ field: "username", message: "missing required field" });
+                        }
+
+
+
+
+
+
+
+                const instance: any = {};
+
+                if (obj.__id !== undefined) {
+                    ctx.register(obj.__id as number, instance);
+                }
+
+                ctx.trackForFreeze(instance);{
+                                const __raw_email = obj["email"] as string;
+                                            if (__raw_email == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
+}
+instance.email = __raw_email;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }{
+                                const __raw_username = obj["username"] as string;
+                                            if (__raw_username == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+if (__raw_username.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
+if (__raw_username.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
+}
+instance.username = __raw_username;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }if ("age" in obj && obj["age"] !== undefined) {
+                                const __raw_age = obj["age"] as number;
+                                            if (__raw_age != null) {
+if (__raw_age <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+}
+instance.age = __raw_age;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ctx.pushErrors(errors);
+
+                return instance as UserProfile;
+            }
+
+            export function userProfileValidateField<K extends keyof UserProfile>(
+                _field: K,
+                _value: UserProfile[K]
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if (_field === "email") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
+}
+
+
+                }
+                if (_field === "username") {
+                    const __val = _value as string;
+                    if (__val == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+if (__val.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
+if (__val.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
+}
+
+
+                }
+                if (_field === "age") {
+                    const __val = _value as number;
+                    if (__val != null) {
+if (__val <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function userProfileValidateFields(
+                _partial: Partial<UserProfile>
+            ): Array<{ field: string; message: string }> {const errors: Array<{ field: string; message: string }> = [];
+                if ("email" in _partial && _partial.email !== undefined) {
+                    const __val = _partial.email as string;
+                    if (__val == null) { errors.push({ field: "email", message: "UserProfile.email is required" }); } else {
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) { errors.push({ field: "email", message: "UserProfile.email must be a valid email" }); }
+}
+
+
+                }
+                if ("username" in _partial && _partial.username !== undefined) {
+                    const __val = _partial.username as string;
+                    if (__val == null) { errors.push({ field: "username", message: "UserProfile.username is required" }); } else {
+if (__val.length < 2) { errors.push({ field: "username", message: "UserProfile.username must have at least 2 characters" }); }
+if (__val.length > 50) { errors.push({ field: "username", message: "UserProfile.username must have at most 50 characters" }); }
+}
+
+
+                }
+                if ("age" in _partial && _partial.age !== undefined) {
+                    const __val = _partial.age as number;
+                    if (__val != null) {
+if (__val <= 0) { errors.push({ field: "age", message: "UserProfile.age must be positive" }); }
+}
+
+
+                }
+
+
+
+
+
+
+
+                return errors;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+            export function userProfileHasShape(obj: unknown): boolean {
+                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                    return false;
+                }
+                const o = obj as Record<string, unknown>;
+                return "email" in o && "username" in o;
+            }
+
+            export function userProfileIs(obj: unknown): obj is UserProfile {
+                if (!userProfileHasShape(obj)) {
+                    return false;
+                }
+                const result = userProfileDecode(obj);
+                return result.success;
+            }
+
+const UserProfile = {
+  decode: userProfileDecode,
+  decodeWithContext: userProfileDecodeWithContext,
+  validateFields: userProfileValidateFields,
+  hasShape: userProfileHasShape,
+  is: userProfileIs
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 22..51 -> expanded 0..29
+original 71..96 -> expanded 29..54
+original 138..166 -> expanded 54..82
+original 189..209 -> expanded 82..102
+original 209..210 -> expanded 9845..9846
+generated 102..9632 <- Decode
+generated 9632..9845 <- __convenience_const
+
+## Metadata
+
+interface UserProfile: {"body_span":{"end":210,"start":46},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[{"args_src":"email","name":"endec","span":{"end":72,"start":52}}],"name":"email","optional":false,"readonly":false,"span":{"end":91,"start":77},"ts_type":"string"},{"decorators":[{"args_src":"minLength(2), maxLength(50)","name":"endec","span":{"end":139,"start":97}}],"name":"username","optional":false,"readonly":false,"span":{"end":161,"start":144},"ts_type":"string"},{"decorators":[{"args_src":"positive","name":"endec","span":{"end":190,"start":167}}],"name":"age","optional":true,"readonly":false,"span":{"end":208,"start":195},"ts_type":"number"}],"heritage":[],"methods":[],"name":"UserProfile","span":{"end":210,"start":24},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

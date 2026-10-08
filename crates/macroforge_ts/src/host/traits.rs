@@ -109,7 +109,7 @@ pub trait Macroforge: Send + Sync {
     ///
     /// # Convention
     ///
-    /// Use PascalCase for macro names (e.g., "Debug", "PartialEq", "Serialize").
+    /// Use PascalCase for macro names (e.g., "Debug", "PartialEq", "Encode").
     fn name(&self) -> &str;
 
     /// Returns the kind of this macro.

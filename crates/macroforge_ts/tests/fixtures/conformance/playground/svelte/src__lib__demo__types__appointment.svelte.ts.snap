@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/appointment.svelte.ts
-sha256 a7d263456f8e5937ad9d2a0d47ab5132ed35809d2445da9f0b24ce607016f3be
+sha256 2dfb87dceedfd47dc1cf3a6a4f78209be4a361fbafd6946abe27876a89b1a988
 
 ## Changed
 
@@ -12,22 +12,22 @@ true
 
 ## Output
 
-import { colorsDeserializeWithContext } from "./colors.svelte";
-import { employeeDeserialize } from "./employee.svelte";
-import { recurrenceRuleDeserializeWithContext } from "./recurrence-rule.svelte";
-import { siteDeserializeWithContext } from "./site.svelte";
-import { statusDeserializeWithContext } from "./status.svelte";
-import { colorsSerializeWithContext } from "./colors.svelte";
-import { employeeSerializeWithContext } from "./employee.svelte";
-import { recurrenceRuleSerializeWithContext } from "./recurrence-rule.svelte";
-import { siteSerializeWithContext } from "./site.svelte";
-import { statusSerializeWithContext } from "./status.svelte";
+import { colorsDecodeWithContext } from "./colors.svelte";
+import { employeeDecode } from "./employee.svelte";
+import { recurrenceRuleDecodeWithContext } from "./recurrence-rule.svelte";
+import { siteDecodeWithContext } from "./site.svelte";
+import { statusDecodeWithContext } from "./status.svelte";
+import { colorsEncodeWithContext } from "./colors.svelte";
+import { employeeEncodeWithContext } from "./employee.svelte";
+import { recurrenceRuleEncodeWithContext } from "./recurrence-rule.svelte";
+import { siteEncodeWithContext } from "./site.svelte";
+import { statusEncodeWithContext } from "./status.svelte";
 import { DateTime as __mf_DateTime } from "effect";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
 import { toExit } from "@playground/macro/gigaform";
@@ -100,16 +100,16 @@ recurrenceRule: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function appointmentSerialize(value: Appointment, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = appointmentSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function appointmentEncode(value: Appointment, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = appointmentEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function appointmentSerializeWithContext(value: Appointment, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function appointmentEncodeWithContext(value: Appointment, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -122,12 +122,12 @@ recurrenceRule: null,
                     const result: Record<string, unknown> = {
                         "__type": "Appointment",
                         __id,
-                    };result.id = value.id;result.title = value.title;result.status = statusSerializeWithContext(value.status, ctx);result.begins = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(value.begins);result.duration = value.duration;result.timeZone = value.timeZone;result.offsetMs = value.offsetMs;result.allDay = value.allDay;result.multiDay = value.multiDay;result.employees = value.employees.map(
-                                                            (item) => typeof item === "string" ? item : employeeSerializeWithContext(item, ctx)
+                    };result.id = value.id;result.title = value.title;result.status = statusEncodeWithContext(value.status, ctx);result.begins = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(value.begins);result.duration = value.duration;result.timeZone = value.timeZone;result.offsetMs = value.offsetMs;result.allDay = value.allDay;result.multiDay = value.multiDay;result.employees = value.employees.map(
+                                                            (item) => typeof item === "string" ? item : employeeEncodeWithContext(item, ctx)
                                                         );result.location = typeof value.location === "string"
                                                 ? value.location
-                                                : siteSerializeWithContext(value.location, ctx);result.description = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.description);result.colors = colorsSerializeWithContext(value.colors, ctx);if (value.recurrenceRule !== null) {
-                                                    result.recurrenceRule = recurrenceRuleSerializeWithContext(value.recurrenceRule, ctx);
+                                                : siteEncodeWithContext(value.location, ctx);result.description = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.description);result.colors = colorsEncodeWithContext(value.colors, ctx);if (value.recurrenceRule !== null) {
+                                                    result.recurrenceRule = recurrenceRuleEncodeWithContext(value.recurrenceRule, ctx);
 
 
 
@@ -234,21 +234,21 @@ recurrenceRule: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function appointmentDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = appointmentDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = appointmentDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Appointment.deserialize: root cannot be a forward reference"
+		message: "Appointment.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -271,7 +271,7 @@ recurrenceRule: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -288,14 +288,14 @@ recurrenceRule: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function appointmentDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Appointment | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function appointmentDecodeWithContext(value: any, ctx: __mf_DecodeContext): Appointment | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Appointment.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Appointment.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -868,10 +868,10 @@ instance.title = __raw_title;
                             }{
                                 const __raw_status = obj["status"] as Status;ctx.pushScope("status");
                                             try {
-                                                const __result = statusDeserializeWithContext(__raw_status, ctx);
+                                                const __result = statusDecodeWithContext(__raw_status, ctx);
                                                 ctx.assignOrDefer(instance, "status", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "status" : "status." + __err.field,
@@ -2462,7 +2462,7 @@ instance.title = __raw_title;
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = employeeDeserialize(item);
+                                                            const __elemResult = employeeDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -2802,10 +2802,10 @@ instance.title = __raw_title;
                                             } else {
                                                 ctx.pushScope("location");
                                                 try {
-                                                    const __result = siteDeserializeWithContext(__raw_location, ctx);
+                                                    const __result = siteDecodeWithContext(__raw_location, ctx);
                                                     ctx.assignOrDefer(instance, "location", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "location" : "location." + __err.field,
@@ -3080,10 +3080,10 @@ instance.title = __raw_title;
                             }instance.description = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["description"]);{
                                 const __raw_colors = obj["colors"] as Colors;ctx.pushScope("colors");
                                             try {
-                                                const __result = colorsDeserializeWithContext(__raw_colors, ctx);
+                                                const __result = colorsDecodeWithContext(__raw_colors, ctx);
                                                 ctx.assignOrDefer(instance, "colors", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "colors" : "colors." + __err.field,
@@ -3360,10 +3360,10 @@ instance.title = __raw_title;
                                                 } else {
                                                         ctx.pushScope("recurrenceRule");
                                                         try {
-                                                            const __result = recurrenceRuleDeserializeWithContext(__raw_recurrenceRule, ctx);
+                                                            const __result = recurrenceRuleDecodeWithContext(__raw_recurrenceRule, ctx);
                                                             ctx.assignOrDefer(instance, "recurrenceRule", __result);
                                                         } catch (__e) {
-                                                            if (__e instanceof __mf_DeserializeError) {
+                                                            if (__e instanceof __mf_DecodeError) {
                                                                 for (const __err of __e.errors) {
                                                                     errors.push({
                                                                         field: __err.field === "_root" ? "recurrenceRule" : "recurrenceRule." + __err.field,
@@ -4312,7 +4312,7 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
                 if (!appointmentHasShape(obj)) {
                     return false;
                 }
-                const result = appointmentDeserialize(obj);
+                const result = appointmentDecode(obj);
                 return result.success;
             }
 
@@ -4760,7 +4760,7 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
 
 
             function validate(): Exit.Exit<Appointment, Array<{ field: string; message: string }>> {
-                return toExit(appointmentDeserialize(data));
+                return toExit(appointmentDecode(data));
             }
 
 
@@ -4817,7 +4817,7 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function appointmentFromFormData(formData: FormData): Exit.Exit<Appointment, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4952,15 +4952,15 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
         }
 
 
-            return toExit(appointmentDeserialize(obj));
+            return toExit(appointmentDecode(obj));
         }
 
 export const Appointment = {
   defaultValue: appointmentDefaultValue,
-  serialize: appointmentSerialize,
-  serializeWithContext: appointmentSerializeWithContext,
-  deserialize: appointmentDeserialize,
-  deserializeWithContext: appointmentDeserializeWithContext,
+  encode: appointmentEncode,
+  encodeWithContext: appointmentEncodeWithContext,
+  decode: appointmentDecode,
+  decodeWithContext: appointmentDecodeWithContext,
   validateFields: appointmentValidateFields,
   hasShape: appointmentHasShape,
   is: appointmentIs,
@@ -5038,16 +5038,16 @@ recurrenceRule: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function appointmentSerialize(value: Appointment, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = appointmentSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function appointmentEncode(value: Appointment, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = appointmentEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function appointmentSerializeWithContext(value: Appointment, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function appointmentEncodeWithContext(value: Appointment, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -5060,12 +5060,12 @@ recurrenceRule: null,
                     const result: Record<string, unknown> = {
                         "__type": "Appointment",
                         __id,
-                    };result.id = value.id;result.title = value.title;result.status = statusSerializeWithContext(value.status, ctx);result.begins = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(value.begins);result.duration = value.duration;result.timeZone = value.timeZone;result.offsetMs = value.offsetMs;result.allDay = value.allDay;result.multiDay = value.multiDay;result.employees = value.employees.map(
-                                                            (item) => typeof item === "string" ? item : employeeSerializeWithContext(item, ctx)
+                    };result.id = value.id;result.title = value.title;result.status = statusEncodeWithContext(value.status, ctx);result.begins = ((v: __mf_DateTime.DateTime) => __mf_DateTime.formatIso(v))(value.begins);result.duration = value.duration;result.timeZone = value.timeZone;result.offsetMs = value.offsetMs;result.allDay = value.allDay;result.multiDay = value.multiDay;result.employees = value.employees.map(
+                                                            (item) => typeof item === "string" ? item : employeeEncodeWithContext(item, ctx)
                                                         );result.location = typeof value.location === "string"
                                                 ? value.location
-                                                : siteSerializeWithContext(value.location, ctx);result.description = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.description);result.colors = colorsSerializeWithContext(value.colors, ctx);if (value.recurrenceRule !== null) {
-                                                    result.recurrenceRule = recurrenceRuleSerializeWithContext(value.recurrenceRule, ctx);
+                                                : siteEncodeWithContext(value.location, ctx);result.description = ((v: Option.Option<unknown>) => Option.getOrNull(v))(value.description);result.colors = colorsEncodeWithContext(value.colors, ctx);if (value.recurrenceRule !== null) {
+                                                    result.recurrenceRule = recurrenceRuleEncodeWithContext(value.recurrenceRule, ctx);
 
 
 
@@ -5172,21 +5172,21 @@ recurrenceRule: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function appointmentDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function appointmentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Appointment } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = appointmentDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = appointmentDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Appointment.deserialize: root cannot be a forward reference"
+		message: "Appointment.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -5209,7 +5209,7 @@ recurrenceRule: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -5226,14 +5226,14 @@ recurrenceRule: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function appointmentDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Appointment | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function appointmentDecodeWithContext(value: any, ctx: __mf_DecodeContext): Appointment | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Appointment.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Appointment.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -5806,10 +5806,10 @@ instance.title = __raw_title;
                             }{
                                 const __raw_status = obj["status"] as Status;ctx.pushScope("status");
                                             try {
-                                                const __result = statusDeserializeWithContext(__raw_status, ctx);
+                                                const __result = statusDecodeWithContext(__raw_status, ctx);
                                                 ctx.assignOrDefer(instance, "status", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "status" : "status." + __err.field,
@@ -7400,7 +7400,7 @@ instance.title = __raw_title;
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = employeeDeserialize(item);
+                                                            const __elemResult = employeeDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -7740,10 +7740,10 @@ instance.title = __raw_title;
                                             } else {
                                                 ctx.pushScope("location");
                                                 try {
-                                                    const __result = siteDeserializeWithContext(__raw_location, ctx);
+                                                    const __result = siteDecodeWithContext(__raw_location, ctx);
                                                     ctx.assignOrDefer(instance, "location", __result);
                                                 } catch (__e) {
-                                                    if (__e instanceof __mf_DeserializeError) {
+                                                    if (__e instanceof __mf_DecodeError) {
                                                         for (const __err of __e.errors) {
                                                             errors.push({
                                                                 field: __err.field === "_root" ? "location" : "location." + __err.field,
@@ -8018,10 +8018,10 @@ instance.title = __raw_title;
                             }instance.description = ((raw: unknown) => Option.isOption(raw) ? raw : Option.fromNullable(raw))(obj["description"]);{
                                 const __raw_colors = obj["colors"] as Colors;ctx.pushScope("colors");
                                             try {
-                                                const __result = colorsDeserializeWithContext(__raw_colors, ctx);
+                                                const __result = colorsDecodeWithContext(__raw_colors, ctx);
                                                 ctx.assignOrDefer(instance, "colors", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "colors" : "colors." + __err.field,
@@ -8298,10 +8298,10 @@ instance.title = __raw_title;
                                                 } else {
                                                         ctx.pushScope("recurrenceRule");
                                                         try {
-                                                            const __result = recurrenceRuleDeserializeWithContext(__raw_recurrenceRule, ctx);
+                                                            const __result = recurrenceRuleDecodeWithContext(__raw_recurrenceRule, ctx);
                                                             ctx.assignOrDefer(instance, "recurrenceRule", __result);
                                                         } catch (__e) {
-                                                            if (__e instanceof __mf_DeserializeError) {
+                                                            if (__e instanceof __mf_DecodeError) {
                                                                 for (const __err of __e.errors) {
                                                                     errors.push({
                                                                         field: __err.field === "_root" ? "recurrenceRule" : "recurrenceRule." + __err.field,
@@ -9250,7 +9250,7 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
                 if (!appointmentHasShape(obj)) {
                     return false;
                 }
-                const result = appointmentDeserialize(obj);
+                const result = appointmentDecode(obj);
                 return result.success;
             }
 
@@ -9698,7 +9698,7 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
 
 
             function validate(): Exit.Exit<Appointment, Array<{ field: string; message: string }>> {
-                return toExit(appointmentDeserialize(data));
+                return toExit(appointmentDecode(data));
             }
 
 
@@ -9755,7 +9755,7 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function appointmentFromFormData(formData: FormData): Exit.Exit<Appointment, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -9890,15 +9890,15 @@ if (__val.length === 0) { errors.push({ field: "title", message: "Appointment.ti
         }
 
 
-            return toExit(appointmentDeserialize(obj));
+            return toExit(appointmentDecode(obj));
         }
 
 export const Appointment = {
   defaultValue: appointmentDefaultValue,
-  serialize: appointmentSerialize,
-  serializeWithContext: appointmentSerializeWithContext,
-  deserialize: appointmentDeserialize,
-  deserializeWithContext: appointmentDeserializeWithContext,
+  encode: appointmentEncode,
+  encodeWithContext: appointmentEncodeWithContext,
+  decode: appointmentDecode,
+  decodeWithContext: appointmentDecodeWithContext,
   validateFields: appointmentValidateFields,
   hasShape: appointmentHasShape,
   is: appointmentIs,
@@ -9913,35 +9913,35 @@ export const Appointment = {
 ## Mapping
 
 original 0..359 -> expanded 0..359
-original 416..452 -> expanded 359..395
-original 480..501 -> expanded 395..416
-original 543..548 -> expanded 416..421
-original 589..613 -> expanded 421..445
-original 792..797 -> expanded 445..450
-original 825..850 -> expanded 450..475
-original 897..933 -> expanded 475..511
-original 988..1015 -> expanded 511..538
-original 1061..1088 -> expanded 538..565
-original 1116..1143 -> expanded 565..592
-original 1189..1215 -> expanded 592..618
-original 1263..1291 -> expanded 618..646
-original 1380..1426 -> expanded 646..692
-original 1479..1484 -> expanded 692..697
-original 1503..1537 -> expanded 697..731
-original 1589..1634 -> expanded 731..776
-original 1662..1667 -> expanded 776..781
-original 1740..1765 -> expanded 781..806
-original 1793..1838 -> expanded 806..851
-original 1838..1839 -> expanded 51961..51962
+original 408..444 -> expanded 359..395
+original 472..493 -> expanded 395..416
+original 535..540 -> expanded 416..421
+original 581..605 -> expanded 421..445
+original 784..789 -> expanded 445..450
+original 817..842 -> expanded 450..475
+original 889..925 -> expanded 475..511
+original 980..1007 -> expanded 511..538
+original 1053..1080 -> expanded 538..565
+original 1108..1135 -> expanded 565..592
+original 1181..1207 -> expanded 592..618
+original 1255..1283 -> expanded 618..646
+original 1372..1418 -> expanded 646..692
+original 1471..1476 -> expanded 692..697
+original 1495..1529 -> expanded 697..731
+original 1581..1626 -> expanded 731..776
+original 1654..1659 -> expanded 776..781
+original 1732..1757 -> expanded 781..806
+original 1785..1830 -> expanded 806..851
+original 1830..1831 -> expanded 51723..51724
 generated 851..1284 <- Default
-generated 1284..4130 <- Serialize
-generated 4130..25986 <- Deserialize
-generated 25986..51510 <- Gigaform
-generated 51510..51961 <- __convenience_const
+generated 1284..4083 <- Encode
+generated 4083..25800 <- Decode
+generated 25800..51304 <- Gigaform
+generated 51304..51723 <- __convenience_const
 
 ## Metadata
 
-interface Appointment: {"body_span":{"end":1839,"start":447},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":417,"start":360}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":481,"start":453}}],"name":"id","optional":false,"readonly":false,"span":{"end":497,"start":486},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":590,"start":549}},{"args_src":"{ label: \"Title\" }","name":"textController","span":{"end":544,"start":502}}],"name":"title","optional":false,"readonly":false,"span":{"end":609,"start":595},"ts_type":"string"},{"decorators":[{"args_src":"\"Scheduled\"","name":"default","span":{"end":826,"start":798}},{"args_src":"{ label: \"Status\", options: [{ label: \"Scheduled\", value: \"Scheduled\" }, { label: \"On Deck\", value: \"OnDeck\" }, { label: \"Waiting\", value: \"Waiting\" }] }","name":"selectController","span":{"end":793,"start":614}}],"name":"status","optional":false,"readonly":false,"span":{"end":846,"start":831},"ts_type":"Status"},{"decorators":[{"args_src":"{ label: \"Begins\" }","name":"dateTimeController","span":{"end":898,"start":851}}],"name":"begins","optional":false,"readonly":false,"span":{"end":929,"start":903},"ts_type":"DateTime.DateTime"},{"decorators":[{"args_src":"{ label: \"Duration\", min: 0 }","name":"numberController","span":{"end":989,"start":934}}],"name":"duration","optional":false,"readonly":false,"span":{"end":1011,"start":994},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Time Zone\" }","name":"textController","span":{"end":1062,"start":1016}}],"name":"timeZone","optional":false,"readonly":false,"span":{"end":1084,"start":1067},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1117,"start":1089}}],"name":"offsetMs","optional":false,"readonly":false,"span":{"end":1139,"start":1122},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"All Day\" }","name":"switchController","span":{"end":1190,"start":1144}}],"name":"allDay","optional":false,"readonly":false,"span":{"end":1211,"start":1195},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Multi Day\" }","name":"switchController","span":{"end":1264,"start":1216}}],"name":"multiDay","optional":false,"readonly":false,"span":{"end":1287,"start":1269},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Employees\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1381,"start":1292}}],"name":"employees","optional":false,"readonly":false,"span":{"end":1422,"start":1386},"ts_type":"Array<string | Employee>"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":1504,"start":1485}},{"args_src":"{ label: \"Location\" }","name":"siteFieldsetController","span":{"end":1480,"start":1427}}],"name":"location","optional":false,"readonly":false,"span":{"end":1533,"start":1509},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1590,"start":1538}}],"name":"description","optional":false,"readonly":false,"span":{"end":1630,"start":1595},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ main: \"#000000\", hover: \"#333333\", active: \"#666666\" }","name":"default","span":{"end":1741,"start":1668}},{"args_src":"{}","name":"hiddenController","span":{"end":1663,"start":1635}}],"name":"colors","optional":false,"readonly":false,"span":{"end":1761,"start":1746},"ts_type":"Colors"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1794,"start":1766}}],"name":"recurrenceRule","optional":false,"readonly":false,"span":{"end":1837,"start":1799},"ts_type":"RecurrenceRule | null"}],"heritage":[],"methods":[],"name":"Appointment","span":{"end":1839,"start":425},"type_params":[]}
+interface Appointment: {"body_span":{"end":1831,"start":439},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":409,"start":360}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":473,"start":445}}],"name":"id","optional":false,"readonly":false,"span":{"end":489,"start":478},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":582,"start":541}},{"args_src":"{ label: \"Title\" }","name":"textController","span":{"end":536,"start":494}}],"name":"title","optional":false,"readonly":false,"span":{"end":601,"start":587},"ts_type":"string"},{"decorators":[{"args_src":"\"Scheduled\"","name":"default","span":{"end":818,"start":790}},{"args_src":"{ label: \"Status\", options: [{ label: \"Scheduled\", value: \"Scheduled\" }, { label: \"On Deck\", value: \"OnDeck\" }, { label: \"Waiting\", value: \"Waiting\" }] }","name":"selectController","span":{"end":785,"start":606}}],"name":"status","optional":false,"readonly":false,"span":{"end":838,"start":823},"ts_type":"Status"},{"decorators":[{"args_src":"{ label: \"Begins\" }","name":"dateTimeController","span":{"end":890,"start":843}}],"name":"begins","optional":false,"readonly":false,"span":{"end":921,"start":895},"ts_type":"DateTime.DateTime"},{"decorators":[{"args_src":"{ label: \"Duration\", min: 0 }","name":"numberController","span":{"end":981,"start":926}}],"name":"duration","optional":false,"readonly":false,"span":{"end":1003,"start":986},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Time Zone\" }","name":"textController","span":{"end":1054,"start":1008}}],"name":"timeZone","optional":false,"readonly":false,"span":{"end":1076,"start":1059},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1109,"start":1081}}],"name":"offsetMs","optional":false,"readonly":false,"span":{"end":1131,"start":1114},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"All Day\" }","name":"switchController","span":{"end":1182,"start":1136}}],"name":"allDay","optional":false,"readonly":false,"span":{"end":1203,"start":1187},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Multi Day\" }","name":"switchController","span":{"end":1256,"start":1208}}],"name":"multiDay","optional":false,"readonly":false,"span":{"end":1279,"start":1261},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Employees\", fetchUrls: [\"/api/employees\"] }","name":"comboboxMultipleController","span":{"end":1373,"start":1284}}],"name":"employees","optional":false,"readonly":false,"span":{"end":1414,"start":1378},"ts_type":"Array<string | Employee>"},{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":1496,"start":1477}},{"args_src":"{ label: \"Location\" }","name":"siteFieldsetController","span":{"end":1472,"start":1419}}],"name":"location","optional":false,"readonly":false,"span":{"end":1525,"start":1501},"ts_type":"string | Site"},{"decorators":[{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":1582,"start":1530}}],"name":"description","optional":false,"readonly":false,"span":{"end":1622,"start":1587},"ts_type":"Option.Option<string>"},{"decorators":[{"args_src":"{ main: \"#000000\", hover: \"#333333\", active: \"#666666\" }","name":"default","span":{"end":1733,"start":1660}},{"args_src":"{}","name":"hiddenController","span":{"end":1655,"start":1627}}],"name":"colors","optional":false,"readonly":false,"span":{"end":1753,"start":1738},"ts_type":"Colors"},{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":1786,"start":1758}}],"name":"recurrenceRule","optional":false,"readonly":false,"span":{"end":1829,"start":1791},"ts_type":"RecurrenceRule | null"}],"heritage":[],"methods":[],"name":"Appointment","span":{"end":1831,"start":417},"type_params":[]}
 
 ## Registry reads
 

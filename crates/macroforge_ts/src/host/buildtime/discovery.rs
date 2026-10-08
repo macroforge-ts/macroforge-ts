@@ -3,7 +3,7 @@
 //! A `@buildtime` declaration is a top-level `const` (Tier 1) or `function`
 //! (Tier 2) whose directly preceding doc comment contains `@buildtime`.
 //! The pre-pass runs each one in the sandbox and replaces the declaration
-//! with the serialized result.
+//! with the encoded result.
 //!
 //! This module performs the AST walk and text extraction. Running the
 //! sandbox and building patches happens in [`super::prepass`].
@@ -15,18 +15,18 @@ use oxc::ast::ast::{Declaration, Expression, Program, Statement, VariableDeclara
 use crate::ts_syn::abi::SpanIR;
 use crate::ts_syn::jsdoc::adjacent_jsdoc;
 
-/// Which tier the declaration belongs to — decides how the sandbox
+/// Which tier the declaration belongs to: decides how the sandbox
 /// result is spliced back.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BuildtimeKind {
-    /// `const NAME = <expr>;` — evaluate `<expr>`, serialize the result,
+    /// `const NAME = <expr>;`: evaluate `<expr>`, encode the result,
     /// emit `const NAME = <literal>;`.
     Tier1Const,
-    /// `function NAME() { <body> }` — evaluate the body, and:
+    /// `function NAME() { <body> }`: evaluate the body, and:
     /// * if the return value is a string, splice it verbatim;
-    /// * otherwise, serialize the value and emit `const NAME = <literal>;`.
+    /// * otherwise, encode the value and emit `const NAME = <literal>;`.
     Tier2Function,
-    /// `type NAME = <expr>;` — evaluate `<expr>` (which must return a
+    /// `type NAME = <expr>;`: evaluate `<expr>` (which must return a
     /// string of TypeScript type syntax), splice the returned text as
     /// the RHS. Emit `type NAME = <returned>;`.
     ///
@@ -53,9 +53,9 @@ pub struct BuildtimeDecl {
     /// `"X"`; for `function f() { ... }`, `"f"`.
     pub name: String,
     /// Span of the entire statement that should be replaced by the
-    /// serialized result (including the leading `export` keyword when
+    /// encoded result (including the leading `export` keyword when
     /// present). 1-based byte offsets into the original source (the
-    /// SpanIR convention — the patch applicator subtracts 1).
+    /// SpanIR convention: the patch applicator subtracts 1).
     pub decl_span: SpanIR,
     /// Source text to pass to the sandbox. For Tier 1 this is `return <expr>;`,
     /// for Tier 2 it's the function body with its outer braces stripped.
@@ -66,7 +66,7 @@ pub struct BuildtimeDecl {
 /// `@buildtime`-annotated declaration.
 ///
 /// Returns an empty vector when the source contains no `@buildtime`
-/// marker — callers should fast-path this by checking the source text
+/// marker: callers should fast-path this by checking the source text
 /// first; the walk is relatively cheap but allocation-free is cheaper.
 pub fn discover(program: &Program<'_>, source: &str) -> Vec<BuildtimeDecl> {
     let mut out = Vec::new();
@@ -104,7 +104,7 @@ fn try_extract_decl(stmt: &Statement<'_>, source: &str) -> Option<BuildtimeDecl>
 
     let stmt_span = stmt_byte_span(stmt);
     // `has_buildtime_annotation` walks bytes of `source` directly, so
-    // it needs a 0-based offset (SpanIR is 1-based — subtract).
+    // it needs a 0-based offset (SpanIR is 1-based: subtract).
     if !has_buildtime_annotation(source, stmt_span.start.saturating_sub(1)) {
         return None;
     }
@@ -116,7 +116,7 @@ fn try_extract_decl(stmt: &Statement<'_>, source: &str) -> Option<BuildtimeDecl>
 
     match inner_kind {
         StatementKind::Var(var_decl) => {
-            // `const NAME = EXPR;` is the only shape we accept for Tier 1 —
+            // `const NAME = EXPR;` is the only shape we accept for Tier 1 :
             // destructuring, multiple bindings, and missing initializers
             // all mean the user's code can't be faithfully lowered to a
             // single literal.
@@ -182,7 +182,7 @@ fn try_extract_decl(stmt: &Statement<'_>, source: &str) -> Option<BuildtimeDecl>
             //
             // The RHS is `"string"` (a TS string-literal type whose
             // contents happen to be a valid type expression). We
-            // evaluate the string as a JS expression — same string —
+            // evaluate the string as a JS expression: same string :
             // and splice it. The sandbox's SandboxValue::String becomes
             // the spliced type text.
             //
@@ -222,7 +222,7 @@ fn stmt_byte_span(stmt: &Statement<'_>) -> SpanIR {
         _ => oxc::span::Span::default(),
     };
     // SpanIR is 1-based (the patch applicator subtracts 1 before
-    // indexing) — OXC is 0-based, so convert.
+    // indexing): OXC is 0-based, so convert.
     SpanIR {
         start: span.start + 1,
         end: span.end + 1,
@@ -241,7 +241,7 @@ fn expression_span(expr: &Expression<'_>) -> (usize, usize) {
 /// comment is found.
 ///
 /// Also walks backward past the comment's start to swallow the
-/// indentation on its line — without this step the patch leaves an
+/// indentation on its line: without this step the patch leaves an
 /// orphan run of spaces / tabs from the original comment's indent.
 /// The newline before that indent is preserved so the surrounding
 /// formatting stays intact.
@@ -273,7 +273,7 @@ fn with_jsdoc_lead(source: &str, span: SpanIR) -> SpanIR {
 
 /// Recursively strip TypeScript-only expression wrappers, returning
 /// the underlying JS expression. Keeps unwrapping until we hit a node
-/// that's valid JS syntax — `as X`, `satisfies X`, `!`, and `<X>expr`
+/// that's valid JS syntax: `as X`, `satisfies X`, `!`, and `<X>expr`
 /// all peel off.
 fn unwrap_ts_expression<'a>(expr: &'a Expression<'a>) -> &'a Expression<'a> {
     match expr {

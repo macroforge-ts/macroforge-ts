@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/site.svelte.ts
-sha256 373edb9f2f70fd2bd3a605fd2bd5cb505093bc2dccc63bb3dd68833083fd5def
+sha256 8ff6629c9d5026770f25fd2a9a1e43967d293da8860cbb51aa985343c08c4e04
 
 ## Changed
 
@@ -12,14 +12,14 @@ true
 
 ## Output
 
-import { coordinatesDeserializeWithContext } from "./coordinates.svelte";
-import { coordinatesSerializeWithContext } from "./coordinates.svelte";
+import { coordinatesDecodeWithContext } from "./coordinates.svelte";
+import { coordinatesEncodeWithContext } from "./coordinates.svelte";
 import { coordinatesDefaultValue } from "./coordinates.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -66,16 +66,16 @@ coordinates: coordinatesDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function siteSerialize(value: Site, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = siteSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function siteEncode(value: Site, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = siteEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function siteSerializeWithContext(value: Site, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function siteEncodeWithContext(value: Site, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -88,7 +88,7 @@ coordinates: coordinatesDefaultValue(),
                     const result: Record<string, unknown> = {
                         "__type": "Site",
                         __id,
-                    };result.id = value.id;result.addressLine1 = value.addressLine1;result.addressLine2 = value.addressLine2;result.sublocalityLevel1 = value.sublocalityLevel1;result.locality = value.locality;result.administrativeAreaLevel3 = value.administrativeAreaLevel3;result.administrativeAreaLevel2 = value.administrativeAreaLevel2;result.administrativeAreaLevel1 = value.administrativeAreaLevel1;result.country = value.country;result.postalCode = value.postalCode;result.postalCodeSuffix = value.postalCodeSuffix;result.coordinates = coordinatesSerializeWithContext(value.coordinates, ctx);
+                    };result.id = value.id;result.addressLine1 = value.addressLine1;result.addressLine2 = value.addressLine2;result.sublocalityLevel1 = value.sublocalityLevel1;result.locality = value.locality;result.administrativeAreaLevel3 = value.administrativeAreaLevel3;result.administrativeAreaLevel2 = value.administrativeAreaLevel2;result.administrativeAreaLevel1 = value.administrativeAreaLevel1;result.country = value.country;result.postalCode = value.postalCode;result.postalCodeSuffix = value.postalCodeSuffix;result.coordinates = coordinatesEncodeWithContext(value.coordinates, ctx);
 
 
 
@@ -187,21 +187,21 @@ coordinates: coordinatesDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function siteDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function siteDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = siteDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = siteDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Site.deserialize: root cannot be a forward reference"
+		message: "Site.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -224,7 +224,7 @@ coordinates: coordinatesDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -241,14 +241,14 @@ coordinates: coordinatesDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Site | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function siteDecodeWithContext(value: any, ctx: __mf_DecodeContext): Site | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Site.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Site.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3178,10 +3178,10 @@ instance.postalCode = __raw_postalCode;
                             }{
                                 const __raw_coordinates = obj["coordinates"] as Coordinates;ctx.pushScope("coordinates");
                                             try {
-                                                const __result = coordinatesDeserializeWithContext(__raw_coordinates, ctx);
+                                                const __result = coordinatesDecodeWithContext(__raw_coordinates, ctx);
                                                 ctx.assignOrDefer(instance, "coordinates", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "coordinates" : "coordinates." + __err.field,
@@ -4171,7 +4171,7 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
                 if (!siteHasShape(obj)) {
                     return false;
                 }
-                const result = siteDeserialize(obj);
+                const result = siteDecode(obj);
                 return result.success;
             }
 
@@ -4552,7 +4552,7 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
 
 
             function validate(): Exit.Exit<Site, Array<{ field: string; message: string }>> {
-                return toExit(siteDeserialize(data));
+                return toExit(siteDecode(data));
             }
 
 
@@ -4605,7 +4605,7 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function siteFromFormData(formData: FormData): Exit.Exit<Site, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4644,15 +4644,15 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
         }
 
 
-            return toExit(siteDeserialize(obj));
+            return toExit(siteDecode(obj));
         }
 
 export const Site = {
   defaultValue: siteDefaultValue,
-  serialize: siteSerialize,
-  serializeWithContext: siteSerializeWithContext,
-  deserialize: siteDeserialize,
-  deserializeWithContext: siteDeserializeWithContext,
+  encode: siteEncode,
+  encodeWithContext: siteEncodeWithContext,
+  decode: siteDecode,
+  decodeWithContext: siteDecodeWithContext,
   validateFields: siteValidateFields,
   hasShape: siteHasShape,
   is: siteIs,
@@ -4704,16 +4704,16 @@ coordinates: coordinatesDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function siteSerialize(value: Site, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = siteSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function siteEncode(value: Site, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = siteEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function siteSerializeWithContext(value: Site, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function siteEncodeWithContext(value: Site, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -4726,7 +4726,7 @@ coordinates: coordinatesDefaultValue(),
                     const result: Record<string, unknown> = {
                         "__type": "Site",
                         __id,
-                    };result.id = value.id;result.addressLine1 = value.addressLine1;result.addressLine2 = value.addressLine2;result.sublocalityLevel1 = value.sublocalityLevel1;result.locality = value.locality;result.administrativeAreaLevel3 = value.administrativeAreaLevel3;result.administrativeAreaLevel2 = value.administrativeAreaLevel2;result.administrativeAreaLevel1 = value.administrativeAreaLevel1;result.country = value.country;result.postalCode = value.postalCode;result.postalCodeSuffix = value.postalCodeSuffix;result.coordinates = coordinatesSerializeWithContext(value.coordinates, ctx);
+                    };result.id = value.id;result.addressLine1 = value.addressLine1;result.addressLine2 = value.addressLine2;result.sublocalityLevel1 = value.sublocalityLevel1;result.locality = value.locality;result.administrativeAreaLevel3 = value.administrativeAreaLevel3;result.administrativeAreaLevel2 = value.administrativeAreaLevel2;result.administrativeAreaLevel1 = value.administrativeAreaLevel1;result.country = value.country;result.postalCode = value.postalCode;result.postalCodeSuffix = value.postalCodeSuffix;result.coordinates = coordinatesEncodeWithContext(value.coordinates, ctx);
 
 
 
@@ -4825,21 +4825,21 @@ coordinates: coordinatesDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function siteDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function siteDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Site } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = siteDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = siteDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Site.deserialize: root cannot be a forward reference"
+		message: "Site.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -4862,7 +4862,7 @@ coordinates: coordinatesDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -4879,14 +4879,14 @@ coordinates: coordinatesDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function siteDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Site | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function siteDecodeWithContext(value: any, ctx: __mf_DecodeContext): Site | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Site.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Site.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -7816,10 +7816,10 @@ instance.postalCode = __raw_postalCode;
                             }{
                                 const __raw_coordinates = obj["coordinates"] as Coordinates;ctx.pushScope("coordinates");
                                             try {
-                                                const __result = coordinatesDeserializeWithContext(__raw_coordinates, ctx);
+                                                const __result = coordinatesDecodeWithContext(__raw_coordinates, ctx);
                                                 ctx.assignOrDefer(instance, "coordinates", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "coordinates" : "coordinates." + __err.field,
@@ -8809,7 +8809,7 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
                 if (!siteHasShape(obj)) {
                     return false;
                 }
-                const result = siteDeserialize(obj);
+                const result = siteDecode(obj);
                 return result.success;
             }
 
@@ -9190,7 +9190,7 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
 
 
             function validate(): Exit.Exit<Site, Array<{ field: string; message: string }>> {
-                return toExit(siteDeserialize(data));
+                return toExit(siteDecode(data));
             }
 
 
@@ -9243,7 +9243,7 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function siteFromFormData(formData: FormData): Exit.Exit<Site, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -9282,15 +9282,15 @@ if (__val.length === 0) { errors.push({ field: "postalCode", message: "Site.post
         }
 
 
-            return toExit(siteDeserialize(obj));
+            return toExit(siteDecode(obj));
         }
 
 export const Site = {
   defaultValue: siteDefaultValue,
-  serialize: siteSerialize,
-  serializeWithContext: siteSerializeWithContext,
-  deserialize: siteDeserialize,
-  deserializeWithContext: siteDeserializeWithContext,
+  encode: siteEncode,
+  encodeWithContext: siteEncodeWithContext,
+  decode: siteDecode,
+  decodeWithContext: siteDecodeWithContext,
   validateFields: siteValidateFields,
   hasShape: siteHasShape,
   is: siteIs,
@@ -9305,22 +9305,22 @@ export const Site = {
 ## Mapping
 
 original 0..116 -> expanded 0..116
-original 173..218 -> expanded 116..161
-original 259..361 -> expanded 161..263
-original 402..519 -> expanded 263..380
-original 560..603 -> expanded 380..423
-original 644..670 -> expanded 423..449
-original 711..804 -> expanded 449..542
-original 804..805 -> expanded 42150..42151
+original 165..210 -> expanded 116..161
+original 251..353 -> expanded 161..263
+original 394..511 -> expanded 263..380
+original 552..595 -> expanded 380..423
+original 636..662 -> expanded 423..449
+original 703..796 -> expanded 449..542
+original 796..797 -> expanded 41959..41960
 generated 542..916 <- Default
-generated 916..2967 <- Serialize
-generated 2967..22055 <- Deserialize
-generated 22055..41776 <- Gigaform
-generated 41776..42150 <- __convenience_const
+generated 916..2932 <- Encode
+generated 2932..21916 <- Decode
+generated 21916..41617 <- Gigaform
+generated 41617..41959 <- __convenience_const
 
 ## Metadata
 
-interface Site: {"body_span":{"end":805,"start":197},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":174,"start":117}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":214,"start":203},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":260,"start":219}}],"name":"addressLine1","optional":false,"readonly":false,"span":{"end":286,"start":265},"ts_type":"string"},{"decorators":[],"name":"addressLine2","optional":false,"readonly":false,"span":{"end":319,"start":291},"ts_type":"string | null"},{"decorators":[],"name":"sublocalityLevel1","optional":false,"readonly":false,"span":{"end":357,"start":324},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":403,"start":362}}],"name":"locality","optional":false,"readonly":false,"span":{"end":425,"start":408},"ts_type":"string"},{"decorators":[],"name":"administrativeAreaLevel3","optional":false,"readonly":false,"span":{"end":470,"start":430},"ts_type":"string | null"},{"decorators":[],"name":"administrativeAreaLevel2","optional":false,"readonly":false,"span":{"end":515,"start":475},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":561,"start":520}}],"name":"administrativeAreaLevel1","optional":false,"readonly":false,"span":{"end":599,"start":566},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":645,"start":604}}],"name":"country","optional":false,"readonly":false,"span":{"end":666,"start":650},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":712,"start":671}}],"name":"postalCode","optional":false,"readonly":false,"span":{"end":736,"start":717},"ts_type":"string"},{"decorators":[],"name":"postalCodeSuffix","optional":false,"readonly":false,"span":{"end":773,"start":741},"ts_type":"string | null"},{"decorators":[],"name":"coordinates","optional":false,"readonly":false,"span":{"end":803,"start":778},"ts_type":"Coordinates"}],"heritage":[],"methods":[],"name":"Site","span":{"end":805,"start":182},"type_params":[]}
+interface Site: {"body_span":{"end":797,"start":189},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":166,"start":117}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":206,"start":195},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":252,"start":211}}],"name":"addressLine1","optional":false,"readonly":false,"span":{"end":278,"start":257},"ts_type":"string"},{"decorators":[],"name":"addressLine2","optional":false,"readonly":false,"span":{"end":311,"start":283},"ts_type":"string | null"},{"decorators":[],"name":"sublocalityLevel1","optional":false,"readonly":false,"span":{"end":349,"start":316},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":395,"start":354}}],"name":"locality","optional":false,"readonly":false,"span":{"end":417,"start":400},"ts_type":"string"},{"decorators":[],"name":"administrativeAreaLevel3","optional":false,"readonly":false,"span":{"end":462,"start":422},"ts_type":"string | null"},{"decorators":[],"name":"administrativeAreaLevel2","optional":false,"readonly":false,"span":{"end":507,"start":467},"ts_type":"string | null"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":553,"start":512}}],"name":"administrativeAreaLevel1","optional":false,"readonly":false,"span":{"end":591,"start":558},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":637,"start":596}}],"name":"country","optional":false,"readonly":false,"span":{"end":658,"start":642},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":704,"start":663}}],"name":"postalCode","optional":false,"readonly":false,"span":{"end":728,"start":709},"ts_type":"string"},{"decorators":[],"name":"postalCodeSuffix","optional":false,"readonly":false,"span":{"end":765,"start":733},"ts_type":"string | null"},{"decorators":[],"name":"coordinates","optional":false,"readonly":false,"span":{"end":795,"start":770},"ts_type":"Coordinates"}],"heritage":[],"methods":[],"name":"Site","span":{"end":797,"start":174},"type_params":[]}
 
 ## Registry reads
 

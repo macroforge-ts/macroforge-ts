@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/colors-config.svelte.ts
-sha256 94dfb70418e02a0884fdf773c8196a2d68da16d46c8330b749c0d20b879a4b47
+sha256 feb27562168849cc672147068daa7f54cd0a4db41e7ac62383c1173ca1250778
 
 ## Changed
 
@@ -12,20 +12,20 @@ true
 
 ## Output
 
-import { cardinalDeserializeWithContext } from "./cardinal.svelte";
+import { cardinalDecodeWithContext } from "./cardinal.svelte";
 import { cardinalHasShape } from "./cardinal.svelte";
-import { customDeserializeWithContext } from "./custom.svelte";
+import { customDecodeWithContext } from "./custom.svelte";
 import { customHasShape } from "./custom.svelte";
-import { gradientDeserializeWithContext } from "./gradient.svelte";
+import { gradientDecodeWithContext } from "./gradient.svelte";
 import { gradientHasShape } from "./gradient.svelte";
-import { ordinalDeserializeWithContext } from "./ordinal.svelte";
+import { ordinalDecodeWithContext } from "./ordinal.svelte";
 import { ordinalHasShape } from "./ordinal.svelte";
 import { gradientDefaultValue } from "./gradient.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { cardinalDefaultValue } from "./cardinal.svelte";
 import { customDefaultValue } from "./custom.svelte";
 import { ordinalDefaultValue } from "./ordinal.svelte";
@@ -51,20 +51,20 @@ export function colorsConfigDefaultValue(): ColorsConfig {
                             return gradientDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function colorsConfigSerialize(value: ColorsConfig, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = colorsConfigSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function colorsConfigEncode(value: ColorsConfig, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = colorsConfigEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function colorsConfigSerializeWithContext(value: ColorsConfig, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -131,20 +131,20 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function colorsConfigDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ColorsConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function colorsConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColorsConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = colorsConfigDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = colorsConfigDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ColorsConfig.deserialize: root cannot be a forward reference"
+		message: "ColorsConfig.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -167,7 +167,7 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -184,8 +184,8 @@ export function colorsConfigDefaultValue(): ColorsConfig {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function colorsConfigDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ColorsConfig | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function colorsConfigDecodeWithContext(value: any, ctx: __mf_DecodeContext): ColorsConfig | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as ColorsConfig | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -193,19 +193,19 @@ export function colorsConfigDefaultValue(): ColorsConfig {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "Cardinal") {
-                                                return cardinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return cardinalDecodeWithContext(value, ctx) as ColorsConfig;
                                             }
                                         
                                             if (__typeName === "Ordinal") {
-                                                return ordinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return ordinalDecodeWithContext(value, ctx) as ColorsConfig;
                                             }
                                         
                                             if (__typeName === "Custom") {
-                                                return customDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return customDecodeWithContext(value, ctx) as ColorsConfig;
                                             }
                                         
                                             if (__typeName === "Gradient") {
-                                                return gradientDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return gradientDecodeWithContext(value, ctx) as ColorsConfig;
                                             }
 
 
@@ -219,9 +219,9 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "ColorsConfig.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: Cardinal, Ordinal, Custom, Gradient"
+                                            message: "ColorsConfig.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: Cardinal, Ordinal, Custom, Gradient"
                                         }]);
                                     }
                                 }
@@ -245,19 +245,19 @@ export function colorsConfigDefaultValue(): ColorsConfig {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "Cardinal") {
-                                            return cardinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                            return cardinalDecodeWithContext(value, ctx) as ColorsConfig;
                                         }
                                     
                                         if (__shapeMatches[0] === "Ordinal") {
-                                            return ordinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                            return ordinalDecodeWithContext(value, ctx) as ColorsConfig;
                                         }
                                     
                                         if (__shapeMatches[0] === "Custom") {
-                                            return customDeserializeWithContext(value, ctx) as ColorsConfig;
+                                            return customDecodeWithContext(value, ctx) as ColorsConfig;
                                         }
                                     
                                         if (__shapeMatches[0] === "Gradient") {
-                                            return gradientDeserializeWithContext(value, ctx) as ColorsConfig;
+                                            return gradientDecodeWithContext(value, ctx) as ColorsConfig;
                                         }
 
 
@@ -273,28 +273,28 @@ export function colorsConfigDefaultValue(): ColorsConfig {
                                     
                                         if (__shapeMatches.includes("Cardinal")) {
                                             try {
-                                                return cardinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return cardinalDecodeWithContext(value, ctx) as ColorsConfig;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Ordinal")) {
                                             try {
-                                                return ordinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return ordinalDecodeWithContext(value, ctx) as ColorsConfig;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Custom")) {
                                             try {
-                                                return customDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return customDecodeWithContext(value, ctx) as ColorsConfig;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Gradient")) {
                                             try {
-                                                return gradientDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return gradientDecodeWithContext(value, ctx) as ColorsConfig;
                                             } catch {                        }
                                         }
 
@@ -307,15 +307,15 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "ColorsConfig.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "ColorsConfig.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "ColorsConfig.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: Cardinal, Ordinal, Custom, Gradient"
+                                    message: "ColorsConfig.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: Cardinal, Ordinal, Custom, Gradient"
                                 }]);
 
 
@@ -1204,7 +1204,7 @@ if (variant === "Gradient") { return gradientDefaultValue() as ColorsConfig; }
 
 
             function validate(): Exit.Exit<ColorsConfig, Array<{ field: string; message: string }>> {
-                return toExit(colorsConfigDeserialize(data));
+                return toExit(colorsConfigDecode(data));
             }
 
 
@@ -1265,15 +1265,15 @@ if (variant === "Gradient") { return gradientDefaultValue() as ColorsConfig; }
                 }
 
 
-            return toExit(colorsConfigDeserialize(obj));
+            return toExit(colorsConfigDecode(obj));
         }
 
 export const ColorsConfig = {
   defaultValue: colorsConfigDefaultValue,
-  serialize: colorsConfigSerialize,
-  serializeWithContext: colorsConfigSerializeWithContext,
-  deserialize: colorsConfigDeserialize,
-  deserializeWithContext: colorsConfigDeserializeWithContext,
+  encode: colorsConfigEncode,
+  encodeWithContext: colorsConfigEncodeWithContext,
+  decode: colorsConfigDecode,
+  decodeWithContext: colorsConfigDecodeWithContext,
   hasShape: colorsConfigHasShape,
   is: colorsConfigIs,
   createForm: colorsConfigCreateForm,
@@ -1300,20 +1300,20 @@ export function colorsConfigDefaultValue(): ColorsConfig {
                             return gradientDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function colorsConfigSerialize(value: ColorsConfig, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = colorsConfigSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function colorsConfigEncode(value: ColorsConfig, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = colorsConfigEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function colorsConfigSerializeWithContext(value: ColorsConfig, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function colorsConfigEncodeWithContext(value: ColorsConfig, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1380,20 +1380,20 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function colorsConfigDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ColorsConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function colorsConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColorsConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = colorsConfigDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = colorsConfigDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ColorsConfig.deserialize: root cannot be a forward reference"
+		message: "ColorsConfig.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1416,7 +1416,7 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1433,8 +1433,8 @@ export function colorsConfigDefaultValue(): ColorsConfig {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function colorsConfigDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ColorsConfig | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function colorsConfigDecodeWithContext(value: any, ctx: __mf_DecodeContext): ColorsConfig | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as ColorsConfig | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -1442,19 +1442,19 @@ export function colorsConfigDefaultValue(): ColorsConfig {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "Cardinal") {
-                                                return cardinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return cardinalDecodeWithContext(value, ctx) as ColorsConfig;
                                             }
                                         
                                             if (__typeName === "Ordinal") {
-                                                return ordinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return ordinalDecodeWithContext(value, ctx) as ColorsConfig;
                                             }
                                         
                                             if (__typeName === "Custom") {
-                                                return customDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return customDecodeWithContext(value, ctx) as ColorsConfig;
                                             }
                                         
                                             if (__typeName === "Gradient") {
-                                                return gradientDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return gradientDecodeWithContext(value, ctx) as ColorsConfig;
                                             }
 
 
@@ -1468,9 +1468,9 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "ColorsConfig.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: Cardinal, Ordinal, Custom, Gradient"
+                                            message: "ColorsConfig.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: Cardinal, Ordinal, Custom, Gradient"
                                         }]);
                                     }
                                 }
@@ -1494,19 +1494,19 @@ export function colorsConfigDefaultValue(): ColorsConfig {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "Cardinal") {
-                                            return cardinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                            return cardinalDecodeWithContext(value, ctx) as ColorsConfig;
                                         }
                                     
                                         if (__shapeMatches[0] === "Ordinal") {
-                                            return ordinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                            return ordinalDecodeWithContext(value, ctx) as ColorsConfig;
                                         }
                                     
                                         if (__shapeMatches[0] === "Custom") {
-                                            return customDeserializeWithContext(value, ctx) as ColorsConfig;
+                                            return customDecodeWithContext(value, ctx) as ColorsConfig;
                                         }
                                     
                                         if (__shapeMatches[0] === "Gradient") {
-                                            return gradientDeserializeWithContext(value, ctx) as ColorsConfig;
+                                            return gradientDecodeWithContext(value, ctx) as ColorsConfig;
                                         }
 
 
@@ -1522,28 +1522,28 @@ export function colorsConfigDefaultValue(): ColorsConfig {
                                     
                                         if (__shapeMatches.includes("Cardinal")) {
                                             try {
-                                                return cardinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return cardinalDecodeWithContext(value, ctx) as ColorsConfig;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Ordinal")) {
                                             try {
-                                                return ordinalDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return ordinalDecodeWithContext(value, ctx) as ColorsConfig;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Custom")) {
                                             try {
-                                                return customDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return customDecodeWithContext(value, ctx) as ColorsConfig;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Gradient")) {
                                             try {
-                                                return gradientDeserializeWithContext(value, ctx) as ColorsConfig;
+                                                return gradientDecodeWithContext(value, ctx) as ColorsConfig;
                                             } catch {                        }
                                         }
 
@@ -1556,15 +1556,15 @@ export function colorsConfigDefaultValue(): ColorsConfig {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "ColorsConfig.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "ColorsConfig.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "ColorsConfig.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: Cardinal, Ordinal, Custom, Gradient"
+                                    message: "ColorsConfig.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: Cardinal, Ordinal, Custom, Gradient"
                                 }]);
 
 
@@ -2453,7 +2453,7 @@ if (variant === "Gradient") { return gradientDefaultValue() as ColorsConfig; }
 
 
             function validate(): Exit.Exit<ColorsConfig, Array<{ field: string; message: string }>> {
-                return toExit(colorsConfigDeserialize(data));
+                return toExit(colorsConfigDecode(data));
             }
 
 
@@ -2514,15 +2514,15 @@ if (variant === "Gradient") { return gradientDefaultValue() as ColorsConfig; }
                 }
 
 
-            return toExit(colorsConfigDeserialize(obj));
+            return toExit(colorsConfigDecode(obj));
         }
 
 export const ColorsConfig = {
   defaultValue: colorsConfigDefaultValue,
-  serialize: colorsConfigSerialize,
-  serializeWithContext: colorsConfigSerializeWithContext,
-  deserialize: colorsConfigDeserialize,
-  deserializeWithContext: colorsConfigDeserializeWithContext,
+  encode: colorsConfigEncode,
+  encodeWithContext: colorsConfigEncodeWithContext,
+  decode: colorsConfigDecode,
+  decodeWithContext: colorsConfigDecodeWithContext,
   hasShape: colorsConfigHasShape,
   is: colorsConfigIs,
   createForm: colorsConfigCreateForm,
@@ -2536,17 +2536,17 @@ export const ColorsConfig = {
 ## Mapping
 
 original 0..257 -> expanded 0..257
-original 314..415 -> expanded 257..358
-original 415..416 -> expanded 20192..20193
+original 306..407 -> expanded 257..358
+original 407..408 -> expanded 19943..19944
 generated 358..503 <- Default
-generated 503..2469 <- Serialize
-generated 2469..12535 <- Deserialize
-generated 12535..19776 <- Gigaform
-generated 19776..20192 <- __convenience_const
+generated 503..2431 <- Encode
+generated 2431..12328 <- Decode
+generated 12328..19559 <- Gigaform
+generated 19559..19943 <- __convenience_const
 
 ## Metadata
 
-type ColorsConfig: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Cardinal"}},{"decorators":[],"kind":{"TypeRef":"Ordinal"}},{"decorators":[],"kind":{"TypeRef":"Custom"}},{"decorators":[{"args_src":"","name":"default","span":{"end":406,"start":391}}],"kind":{"TypeRef":"Gradient"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":315,"start":258}}],"name":"ColorsConfig","span":{"end":416,"start":323},"type_params":[]}
+type ColorsConfig: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"Cardinal"}},{"decorators":[],"kind":{"TypeRef":"Ordinal"}},{"decorators":[],"kind":{"TypeRef":"Custom"}},{"decorators":[{"args_src":"","name":"default","span":{"end":398,"start":383}}],"kind":{"TypeRef":"Gradient"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":307,"start":258}}],"name":"ColorsConfig","span":{"end":408,"start":315},"type_params":[]}
 
 ## Registry reads
 

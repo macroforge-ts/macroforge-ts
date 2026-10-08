@@ -321,15 +321,15 @@ pub(super) fn parse_single_foreign_type(
             "from" => {
                 ft.from = extract_string_or_array(&prop.value);
             }
-            "serialize" => {
+            "encode" => {
                 let (expr, import) = extract_function_expr(&prop.value, imports, source);
-                ft.serialize_expr = expr;
-                ft.serialize_import = import;
+                ft.encode_expr = expr;
+                ft.encode_import = import;
             }
-            "deserialize" => {
+            "decode" => {
                 let (expr, import) = extract_function_expr(&prop.value, imports, source);
-                ft.deserialize_expr = expr;
-                ft.deserialize_import = import;
+                ft.decode_expr = expr;
+                ft.decode_import = import;
             }
             "default" => {
                 let (expr, import) = extract_function_expr(&prop.value, imports, source);
@@ -350,8 +350,8 @@ pub(super) fn parse_single_foreign_type(
 
     let mut namespaces = HashSet::new();
     for expr in [
-        ft.serialize_expr.as_deref(),
-        ft.deserialize_expr.as_deref(),
+        ft.encode_expr.as_deref(),
+        ft.decode_expr.as_deref(),
         ft.default_expr.as_deref(),
         ft.has_shape_expr.as_deref(),
     ]

@@ -335,8 +335,10 @@ impl ImportRegistry {
             return;
         }
 
-        // Already generated: skip
-        if self.generated.contains_key(local_name) {
+        // Already generated: a value request upgrades a type-only import, since
+        // a value import also serves type positions.
+        if let Some(existing) = self.generated.get_mut(local_name) {
+            existing.is_type_only &= is_type_only;
             return;
         }
 
@@ -394,7 +396,7 @@ impl ImportRegistry {
 
     /// Take a snapshot of generated imports and clear them from the registry.
     /// Used by `TsStream::into_result()` to capture imports into `MacroResult`
-    /// so they survive serialization across process boundaries.
+    /// so they survive encoding across process boundaries.
     pub fn take_generated_imports(&mut self) -> Vec<GeneratedImport> {
         std::mem::take(&mut self.generated).into_values().collect()
     }
@@ -403,10 +405,16 @@ impl ImportRegistry {
     /// Used to restore imports from a `MacroResult` (e.g., from an external macro).
     pub fn merge_imports(&mut self, imports: Vec<GeneratedImport>) {
         for import in imports {
-            if !self.source_imports.contains_key(&import.local_name)
-                && !self.generated.contains_key(&import.local_name)
-            {
-                self.generated.insert(import.local_name.clone(), import);
+            if self.source_imports.contains_key(&import.local_name) {
+                continue;
+            }
+            match self.generated.entry(import.local_name.clone()) {
+                indexmap::map::Entry::Occupied(mut entry) => {
+                    entry.get_mut().is_type_only &= import.is_type_only;
+                }
+                indexmap::map::Entry::Vacant(entry) => {
+                    entry.insert(import);
+                }
             }
         }
     }
@@ -582,6 +590,26 @@ mod tests {
         let allocator = Allocator::default();
         let parsed = Parser::new(&allocator, source, SourceType::ts()).parse();
         macro_imports_in_comments(&parsed.program.comments, source)
+    }
+
+    #[test]
+    fn a_value_request_upgrades_a_type_only_import() {
+        for type_first in [true, false] {
+            let mut registry = super::ImportRegistry::new();
+            let requests = if type_first {
+                [true, false]
+            } else {
+                [false, true]
+            };
+            for is_type_only in requests {
+                registry.request_import("__mf_Ctx", Some("Ctx"), "pkg", is_type_only);
+            }
+            assert_eq!(
+                registry.emit_generated_imports().trim(),
+                "import { Ctx as __mf_Ctx } from \"pkg\";",
+                "type-only requested first: {type_first}"
+            );
+        }
     }
 
     #[test]

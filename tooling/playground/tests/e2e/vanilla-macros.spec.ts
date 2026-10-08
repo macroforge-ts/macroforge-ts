@@ -55,30 +55,30 @@ test.describe('Vanilla Playground Macro Tests', () => {
         await expect(debugResult).not.toContainText('secretToken'); // skipped field
     });
 
-    test('Serialize macro generates serialize()', async ({ page }) => {
+    test('Encode macro generates encode()', async ({ page }) => {
         await page.click('[data-testid="test-all-macros"]');
         await page.waitForSelector('[data-tests-complete="true"]');
 
-        const serializeResult = page.locator('[data-testid="result-serialize"]');
-        await expect(serializeResult).toContainText('Serialize:');
-        await expect(serializeResult).toContainText('"id"');
-        await expect(serializeResult).toContainText('"name"');
-        await expect(serializeResult).toContainText('"email"');
+        const encodeResult = page.locator('[data-testid="result-encode"]');
+        await expect(encodeResult).toContainText('Encode:');
+        await expect(encodeResult).toContainText('"id"');
+        await expect(encodeResult).toContainText('"name"');
+        await expect(encodeResult).toContainText('"email"');
     });
 
-    test('Deserialize macro generates deserialize()', async ({ page }) => {
+    test('Decode macro generates decode()', async ({ page }) => {
         await page.click('[data-testid="test-all-macros"]');
         await page.waitForSelector('[data-tests-complete="true"]');
 
-        const deserializeResult = page.locator(
-            '[data-testid="result-deserialize"]'
+        const decodeResult = page.locator(
+            '[data-testid="result-decode"]'
         );
-        const content = await deserializeResult.textContent();
-        // Check if deserialize is available or shows "Not available"
+        const content = await decodeResult.textContent();
+        // Check if decode is available or shows "Not available"
         expect(
-            content?.includes('Deserialized User') ||
+            content?.includes('Decoded User') ||
                 content?.includes('Not available') ||
-                content?.includes('Deserialize')
+                content?.includes('Decode')
         ).toBe(true);
     });
 
@@ -114,7 +114,7 @@ test.describe('Vanilla Playground Macro Tests', () => {
         expect(typeof results.debug).toBe('string');
         expect(results.debug).toContain('AllMacrosTestClass');
 
-        expect(results.serialize).toBeDefined();
-        expect(typeof results.serialize).toBe('string'); // serialize() returns JSON string
+        expect(results.encode).toBeDefined();
+        expect(typeof results.encode).toBe('string'); // encode() returns JSON string
     });
 });

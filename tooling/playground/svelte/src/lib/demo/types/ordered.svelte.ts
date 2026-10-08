@@ -3,7 +3,7 @@
 import type { Account } from './account.svelte';
 import type { Order } from './order.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Ordered {
     id: string;
     /** @default("") */

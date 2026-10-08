@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/billed-item.svelte.ts
-sha256 02b6d66e862e2f22e512499d28163f93030807953453b46527cdcf7d23994c70
+sha256 cc827a7dba4f07ffeb549d7f4f5cea48c66f5b1d10752d369ccdca8d0ac7eb8d
 
 ## Changed
 
@@ -12,13 +12,13 @@ true
 
 ## Output
 
-import { itemDeserializeWithContext } from "./item.svelte";
-import { itemSerializeWithContext } from "./item.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { itemDecodeWithContext } from "./item.svelte";
+import { itemEncodeWithContext } from "./item.svelte";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -49,16 +49,16 @@ upsale: false,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function billedItemSerialize(value: BilledItem, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = billedItemSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function billedItemEncode(value: BilledItem, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = billedItemEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function billedItemSerializeWithContext(value: BilledItem, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function billedItemEncodeWithContext(value: BilledItem, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -71,7 +71,7 @@ upsale: false,
                     const result: Record<string, unknown> = {
                         "__type": "BilledItem",
                         __id,
-                    };result.item = itemSerializeWithContext(value.item, ctx);result.quantity = value.quantity;result.taxed = value.taxed;result.upsale = value.upsale;
+                    };result.item = itemEncodeWithContext(value.item, ctx);result.quantity = value.quantity;result.taxed = value.taxed;result.upsale = value.upsale;
 
 
 
@@ -170,21 +170,21 @@ upsale: false,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function billedItemDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function billedItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = billedItemDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = billedItemDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "BilledItem.deserialize: root cannot be a forward reference"
+		message: "BilledItem.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -207,7 +207,7 @@ upsale: false,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -224,14 +224,14 @@ upsale: false,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function billedItemDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): BilledItem | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function billedItemDecodeWithContext(value: any, ctx: __mf_DecodeContext): BilledItem | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "BilledItem.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "BilledItem.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -260,10 +260,10 @@ upsale: false,
                 ctx.trackForFreeze(instance);{
                                 const __raw_item = obj["item"] as Item;ctx.pushScope("item");
                                             try {
-                                                const __result = itemDeserializeWithContext(__raw_item, ctx);
+                                                const __result = itemDecodeWithContext(__raw_item, ctx);
                                                 ctx.assignOrDefer(instance, "item", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "item" : "item." + __err.field,
@@ -1937,7 +1937,7 @@ upsale: false,
                 if (!billedItemHasShape(obj)) {
                     return false;
                 }
-                const result = billedItemDeserialize(obj);
+                const result = billedItemDecode(obj);
                 return result.success;
             }
 
@@ -2102,7 +2102,7 @@ upsale: false,
 
 
             function validate(): Exit.Exit<BilledItem, Array<{ field: string; message: string }>> {
-                return toExit(billedItemDeserialize(data));
+                return toExit(billedItemDecode(data));
             }
 
 
@@ -2139,7 +2139,7 @@ upsale: false,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function billedItemFromFormData(formData: FormData): Exit.Exit<BilledItem, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2180,15 +2180,15 @@ upsale: false,
                 }
 
 
-            return toExit(billedItemDeserialize(obj));
+            return toExit(billedItemDecode(obj));
         }
 
 export const BilledItem = {
   defaultValue: billedItemDefaultValue,
-  serialize: billedItemSerialize,
-  serializeWithContext: billedItemSerializeWithContext,
-  deserialize: billedItemDeserialize,
-  deserializeWithContext: billedItemDeserializeWithContext,
+  encode: billedItemEncode,
+  encodeWithContext: billedItemEncodeWithContext,
+  decode: billedItemDecode,
+  decodeWithContext: billedItemDecodeWithContext,
   validateFields: billedItemValidateFields,
   hasShape: billedItemHasShape,
   is: billedItemIs,
@@ -2224,16 +2224,16 @@ upsale: false,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function billedItemSerialize(value: BilledItem, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = billedItemSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function billedItemEncode(value: BilledItem, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = billedItemEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function billedItemSerializeWithContext(value: BilledItem, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function billedItemEncodeWithContext(value: BilledItem, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2246,7 +2246,7 @@ upsale: false,
                     const result: Record<string, unknown> = {
                         "__type": "BilledItem",
                         __id,
-                    };result.item = itemSerializeWithContext(value.item, ctx);result.quantity = value.quantity;result.taxed = value.taxed;result.upsale = value.upsale;
+                    };result.item = itemEncodeWithContext(value.item, ctx);result.quantity = value.quantity;result.taxed = value.taxed;result.upsale = value.upsale;
 
 
 
@@ -2345,21 +2345,21 @@ upsale: false,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function billedItemDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function billedItemDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: BilledItem } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = billedItemDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = billedItemDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "BilledItem.deserialize: root cannot be a forward reference"
+		message: "BilledItem.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2382,7 +2382,7 @@ upsale: false,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2399,14 +2399,14 @@ upsale: false,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function billedItemDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): BilledItem | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function billedItemDecodeWithContext(value: any, ctx: __mf_DecodeContext): BilledItem | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "BilledItem.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "BilledItem.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2435,10 +2435,10 @@ upsale: false,
                 ctx.trackForFreeze(instance);{
                                 const __raw_item = obj["item"] as Item;ctx.pushScope("item");
                                             try {
-                                                const __result = itemDeserializeWithContext(__raw_item, ctx);
+                                                const __result = itemDecodeWithContext(__raw_item, ctx);
                                                 ctx.assignOrDefer(instance, "item", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "item" : "item." + __err.field,
@@ -4112,7 +4112,7 @@ upsale: false,
                 if (!billedItemHasShape(obj)) {
                     return false;
                 }
-                const result = billedItemDeserialize(obj);
+                const result = billedItemDecode(obj);
                 return result.success;
             }
 
@@ -4277,7 +4277,7 @@ upsale: false,
 
 
             function validate(): Exit.Exit<BilledItem, Array<{ field: string; message: string }>> {
-                return toExit(billedItemDeserialize(data));
+                return toExit(billedItemDecode(data));
             }
 
 
@@ -4314,7 +4314,7 @@ upsale: false,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function billedItemFromFormData(formData: FormData): Exit.Exit<BilledItem, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4355,15 +4355,15 @@ upsale: false,
                 }
 
 
-            return toExit(billedItemDeserialize(obj));
+            return toExit(billedItemDecode(obj));
         }
 
 export const BilledItem = {
   defaultValue: billedItemDefaultValue,
-  serialize: billedItemSerialize,
-  serializeWithContext: billedItemSerializeWithContext,
-  deserialize: billedItemDeserialize,
-  deserializeWithContext: billedItemDeserializeWithContext,
+  encode: billedItemEncode,
+  encodeWithContext: billedItemEncodeWithContext,
+  decode: billedItemDecode,
+  decodeWithContext: billedItemDecodeWithContext,
   validateFields: billedItemValidateFields,
   hasShape: billedItemHasShape,
   is: billedItemIs,
@@ -4378,22 +4378,22 @@ export const BilledItem = {
 ## Mapping
 
 original 0..102 -> expanded 0..102
-original 159..194 -> expanded 102..137
-original 305..310 -> expanded 137..142
-original 329..350 -> expanded 142..163
-original 414..441 -> expanded 163..190
-original 485..510 -> expanded 190..215
-original 555..578 -> expanded 215..238
-original 578..579 -> expanded 19280..19281
+original 151..186 -> expanded 102..137
+original 297..302 -> expanded 137..142
+original 321..342 -> expanded 142..163
+original 406..433 -> expanded 163..190
+original 477..502 -> expanded 190..215
+original 547..570 -> expanded 215..238
+original 570..571 -> expanded 19089..19090
 generated 238..404 <- Default
-generated 404..2060 <- Serialize
-generated 2060..10081 <- Deserialize
-generated 10081..18840 <- Gigaform
-generated 18840..19280 <- __convenience_const
+generated 404..2025 <- Encode
+generated 2025..9942 <- Decode
+generated 9942..18681 <- Gigaform
+generated 18681..19089 <- __convenience_const
 
 ## Metadata
 
-interface BilledItem: {"body_span":{"end":579,"start":189},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":160,"start":103}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":330,"start":311}},{"args_src":"{ label: \"Item\", allowCustom: true, fetchUrls: [\"/api/products\", \"/api/services\"] }","name":"comboboxController","span":{"end":306,"start":195}}],"name":"item","optional":false,"readonly":false,"span":{"end":346,"start":335},"ts_type":"Item"},{"decorators":[{"args_src":"{ label: \"Quantity\", min: 0, step: 1 }","name":"numberController","span":{"end":415,"start":351}}],"name":"quantity","optional":false,"readonly":false,"span":{"end":437,"start":420},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Taxed\" }","name":"switchController","span":{"end":486,"start":442}}],"name":"taxed","optional":false,"readonly":false,"span":{"end":506,"start":491},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Upsale\" }","name":"switchController","span":{"end":556,"start":511}}],"name":"upsale","optional":false,"readonly":false,"span":{"end":577,"start":561},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BilledItem","span":{"end":579,"start":168},"type_params":[]}
+interface BilledItem: {"body_span":{"end":571,"start":181},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":152,"start":103}}],"fields":[{"decorators":[{"args_src":"\"\"","name":"default","span":{"end":322,"start":303}},{"args_src":"{ label: \"Item\", allowCustom: true, fetchUrls: [\"/api/products\", \"/api/services\"] }","name":"comboboxController","span":{"end":298,"start":187}}],"name":"item","optional":false,"readonly":false,"span":{"end":338,"start":327},"ts_type":"Item"},{"decorators":[{"args_src":"{ label: \"Quantity\", min: 0, step: 1 }","name":"numberController","span":{"end":407,"start":343}}],"name":"quantity","optional":false,"readonly":false,"span":{"end":429,"start":412},"ts_type":"number"},{"decorators":[{"args_src":"{ label: \"Taxed\" }","name":"switchController","span":{"end":478,"start":434}}],"name":"taxed","optional":false,"readonly":false,"span":{"end":498,"start":483},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Upsale\" }","name":"switchController","span":{"end":548,"start":503}}],"name":"upsale","optional":false,"readonly":false,"span":{"end":569,"start":553},"ts_type":"boolean"}],"heritage":[],"methods":[],"name":"BilledItem","span":{"end":571,"start":160},"type_params":[]}
 
 ## Registry reads
 

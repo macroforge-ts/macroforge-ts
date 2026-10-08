@@ -73,7 +73,7 @@ TypeScript
 
 ```
 const user = new User("Alice");
-User.  // Suggests: toString(), clone(), serialize(), etc.
+User.  // Suggests: toString(), clone(), encode(), etc.
 ```
 
 ### Type Information

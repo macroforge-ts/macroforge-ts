@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/colors.svelte.ts
-sha256 21398bf3d308fd7822bb1fb6b7ed60b78c3824422b9b6b45f820eafc686cc84c
+sha256 6dd7051360646fdf3b4753e837f1b936b872265c717749a0a155504f63b6c19c
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -41,16 +41,16 @@ active: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function colorsSerialize(value: Colors, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = colorsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function colorsEncode(value: Colors, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = colorsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function colorsSerializeWithContext(value: Colors, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function colorsEncodeWithContext(value: Colors, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -162,21 +162,21 @@ active: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function colorsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Colors } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function colorsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Colors } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = colorsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = colorsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Colors.deserialize: root cannot be a forward reference"
+		message: "Colors.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -199,7 +199,7 @@ active: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -216,14 +216,14 @@ active: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function colorsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Colors | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function colorsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Colors | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Colors.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Colors.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1726,7 +1726,7 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
                 if (!colorsHasShape(obj)) {
                     return false;
                 }
-                const result = colorsDeserialize(obj);
+                const result = colorsDecode(obj);
                 return result.success;
             }
 
@@ -1864,7 +1864,7 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
 
 
             function validate(): Exit.Exit<Colors, Array<{ field: string; message: string }>> {
-                return toExit(colorsDeserialize(data));
+                return toExit(colorsDecode(data));
             }
 
 
@@ -1899,7 +1899,7 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function colorsFromFormData(formData: FormData): Exit.Exit<Colors, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1909,15 +1909,15 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
             obj.active = formData.get("active") ?? "";
 
 
-            return toExit(colorsDeserialize(obj));
+            return toExit(colorsDecode(obj));
         }
 
 export const Colors = {
   defaultValue: colorsDefaultValue,
-  serialize: colorsSerialize,
-  serializeWithContext: colorsSerializeWithContext,
-  deserialize: colorsDeserialize,
-  deserializeWithContext: colorsDeserializeWithContext,
+  encode: colorsEncode,
+  encodeWithContext: colorsEncodeWithContext,
+  decode: colorsDecode,
+  decodeWithContext: colorsDecodeWithContext,
   validateFields: colorsValidateFields,
   hasShape: colorsHasShape,
   is: colorsIs,
@@ -1947,16 +1947,16 @@ active: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function colorsSerialize(value: Colors, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = colorsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function colorsEncode(value: Colors, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = colorsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function colorsSerializeWithContext(value: Colors, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function colorsEncodeWithContext(value: Colors, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2068,21 +2068,21 @@ active: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function colorsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Colors } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function colorsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Colors } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = colorsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = colorsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Colors.deserialize: root cannot be a forward reference"
+		message: "Colors.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2105,7 +2105,7 @@ active: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2122,14 +2122,14 @@ active: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function colorsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Colors | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function colorsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Colors | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Colors.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Colors.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3632,7 +3632,7 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
                 if (!colorsHasShape(obj)) {
                     return false;
                 }
-                const result = colorsDeserialize(obj);
+                const result = colorsDecode(obj);
                 return result.success;
             }
 
@@ -3770,7 +3770,7 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
 
 
             function validate(): Exit.Exit<Colors, Array<{ field: string; message: string }>> {
-                return toExit(colorsDeserialize(data));
+                return toExit(colorsDecode(data));
             }
 
 
@@ -3805,7 +3805,7 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function colorsFromFormData(formData: FormData): Exit.Exit<Colors, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3815,15 +3815,15 @@ if (__val.length === 0) { errors.push({ field: "active", message: "Colors.active
             obj.active = formData.get("active") ?? "";
 
 
-            return toExit(colorsDeserialize(obj));
+            return toExit(colorsDecode(obj));
         }
 
 export const Colors = {
   defaultValue: colorsDefaultValue,
-  serialize: colorsSerialize,
-  serializeWithContext: colorsSerializeWithContext,
-  deserialize: colorsDeserialize,
-  deserializeWithContext: colorsDeserializeWithContext,
+  encode: colorsEncode,
+  encodeWithContext: colorsEncodeWithContext,
+  decode: colorsDecode,
+  decodeWithContext: colorsDecodeWithContext,
   validateFields: colorsValidateFields,
   hasShape: colorsHasShape,
   is: colorsIs,
@@ -3838,20 +3838,20 @@ export const Colors = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..146 -> expanded 58..89
-original 187..210 -> expanded 89..112
-original 251..275 -> expanded 112..136
-original 316..338 -> expanded 136..158
-original 338..339 -> expanded 17673..17674
+original 107..138 -> expanded 58..89
+original 179..202 -> expanded 89..112
+original 243..267 -> expanded 112..136
+original 308..330 -> expanded 136..158
+original 330..331 -> expanded 17495..17496
 generated 158..297 <- Default
-generated 297..1865 <- Serialize
-generated 1865..11151 <- Deserialize
-generated 11151..17277 <- Gigaform
-generated 17277..17673 <- __convenience_const
+generated 297..1833 <- Encode
+generated 1833..11025 <- Decode
+generated 11025..17131 <- Gigaform
+generated 17131..17495 <- __convenience_const
 
 ## Metadata
 
-interface Colors: {"body_span":{"end":339,"start":141},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":188,"start":147}}],"name":"main","optional":false,"readonly":false,"span":{"end":206,"start":193},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":252,"start":211}}],"name":"hover","optional":false,"readonly":false,"span":{"end":271,"start":257},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":317,"start":276}}],"name":"active","optional":false,"readonly":false,"span":{"end":337,"start":322},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Colors","span":{"end":339,"start":124},"type_params":[]}
+interface Colors: {"body_span":{"end":331,"start":133},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":180,"start":139}}],"name":"main","optional":false,"readonly":false,"span":{"end":198,"start":185},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":244,"start":203}}],"name":"hover","optional":false,"readonly":false,"span":{"end":263,"start":249},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":309,"start":268}}],"name":"active","optional":false,"readonly":false,"span":{"end":329,"start":314},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Colors","span":{"end":331,"start":116},"type_params":[]}
 
 ## Registry reads
 

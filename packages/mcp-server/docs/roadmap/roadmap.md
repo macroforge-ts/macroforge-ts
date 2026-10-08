@@ -44,7 +44,7 @@ Expanding the library of built-in derive macros.
 | Macro                              | Status      | Description                                   |
 | ---------------------------------- | ----------- | --------------------------------------------- |
 | Debug, Clone, PartialEq, Ord, Hash | Available   | Core derive macros                            |
-| Serialize, Deserialize             | Available   | JSON serialization with validation            |
+| Encode, Decode                     | Available   | JSON encoding with validation                 |
 | Builder                            | Planned     | Generate builder pattern for classes          |
 | Immutable                          | Considering | Generate immutable update methods (with, set) |
 
@@ -52,11 +52,11 @@ Expanding the library of built-in derive macros.
 
 Making it easier to publish and share custom macros.
 
-| Feature                | Status      | Description                                                                                            |
-| ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
-| Native Node Binaries   | Available   | Platform-specific binaries for maximum performance                                                     |
-| WASM Binary Generation | Available   | Cross-platform WebAssembly binaries for easier macro distribution — build them with `macroforge build` |
-| Macro Registry         | Considering | Central registry for discovering and sharing community macros                                          |
+| Feature                | Status      | Description                                                                                           |
+| ---------------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
+| Native Node Binaries   | Available   | Platform-specific binaries for maximum performance                                                    |
+| WASM Binary Generation | Available   | Cross-platform WebAssembly binaries for easier macro distribution: build them with `macroforge build` |
+| Macro Registry         | Considering | Central registry for discovering and sharing community macros                                         |
 
 ## Tooling & DX
 

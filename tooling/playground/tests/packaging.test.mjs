@@ -107,8 +107,8 @@ test('packaging: svelte-package alone ships empty type modules (bug documentatio
         'without the expand step the generated runtime is dropped (empty module)'
     );
     assert.ok(
-        !code.includes('personNameSerialize'),
-        'serialize runtime should be absent in the unexpanded module'
+        !code.includes('personNameEncode'),
+        'encode runtime should be absent in the unexpanded module'
     );
 });
 
@@ -129,22 +129,22 @@ test('packaging: supported build chain emits expanded runtime into dist', async 
         'default value factory should be present and correct'
     );
 
-    const json = personName.personNameSerialize({
+    const json = personName.personNameEncode({
         firstName: 'Ada',
         lastName: 'Lovelace'
     });
-    const roundTrip = personName.personNameDeserialize(json);
+    const roundTrip = personName.personNameDecode(json);
     assert.equal(
         roundTrip.success,
         true,
-        'round-trip deserialize should succeed'
+        'round-trip decode should succeed'
     );
     assert.deepEqual(roundTrip.value, {
         firstName: 'Ada',
         lastName: 'Lovelace'
     });
 
-    const invalid = personName.personNameDeserialize({
+    const invalid = personName.personNameDecode({
         firstName: '',
         lastName: 'x'
     });
@@ -445,8 +445,8 @@ test('packaging: an annotation-only change re-expands only the modules that read
         'src/lib/types/person-name.ts',
         (source) =>
             source.replace(
-                '/** @serde({ validate: ["nonEmpty"] }) */\n    firstName',
-                '/** @serde({ validate: ["nonEmpty", "maxLength(40)"] }) */\n    firstName'
+                '/** @endec({ validate: ["nonEmpty"] }) */\n    firstName',
+                '/** @endec({ validate: ["nonEmpty", "maxLength(40)"] }) */\n    firstName'
             ),
         () => {
             const output = packageOk();
@@ -592,8 +592,8 @@ test('packaging: a missing expanded artifact is rebuilt, not silently skipped', 
     ensureInstalled();
     packageOk();
 
-    // The artifact for an unchanged file is reused by path. If it disappears
-    // (an interrupted write, a stray `rm`), nothing about the *source* looks
+    // The artifact for an unchanged file is reused by path. If it disappears :
+    // an interrupted write, a stray `rm`: nothing about the *source* looks
     // different, so without an explicit check the packager would read the raw
     // module and publish it with its generated runtime missing.
     rmSync(

@@ -28,8 +28,8 @@ fn test_parse_config_with_foreign_types() {
                 foreignTypes: {
                     DateTime: {
                         from: ["effect"],
-                        serialize: (v, ctx) => v.toJSON(),
-                        deserialize: (raw, ctx) => DateTime.fromJSON(raw)
+                        encode: (v, ctx) => v.toJSON(),
+                        decode: (raw, ctx) => DateTime.fromJSON(raw)
                     }
                 }
             }
@@ -41,8 +41,8 @@ fn test_parse_config_with_foreign_types() {
     let dt = &config.foreign_types[0];
     assert_eq!(dt.name, "DateTime");
     assert_eq!(dt.from, vec!["effect"]);
-    assert!(dt.serialize_expr.is_some());
-    assert!(dt.deserialize_expr.is_some());
+    assert!(dt.encode_expr.is_some());
+    assert!(dt.decode_expr.is_some());
 }
 
 #[test]
@@ -71,7 +71,7 @@ fn test_parse_typescript_config() {
                 foreignTypes: {
                     DateTime: {
                         from: ["effect"],
-                        serialize: (v: DateTime, ctx: unknown) => v.toJSON(),
+                        encode: (v: DateTime, ctx: unknown) => v.toJSON(),
                     }
                 }
             }

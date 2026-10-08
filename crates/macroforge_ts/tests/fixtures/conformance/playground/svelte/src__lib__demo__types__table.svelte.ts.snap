@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/table.svelte.ts
-sha256 a043b8ded52bfae482e49c5a95a01713dc6a0cbeec94a63a35f332823dae925c
+sha256 f89e605ada4a117ca0abcb035737fd52fd4569d6d549cb165853484565fc3f6e
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -48,20 +48,20 @@ export function tableDefaultValue(): Table {
                             return "Account";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function tableSerialize(value: Table, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = tableSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function tableEncode(value: Table, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = tableEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function tableSerializeWithContext(value: Table, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function tableEncodeWithContext(value: Table, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -128,8 +128,8 @@ export function tableDefaultValue(): Table {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function tableDeserialize(input: unknown): { success: true; value: Table } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function tableDecode(input: unknown): { success: true; value: Table } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Account':
                     case 'Did':
@@ -157,8 +157,8 @@ export function tableDefaultValue(): Table {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function tableDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Table | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function tableDecodeWithContext(value: any, ctx: __mf_DecodeContext): Table | __mf_PendingRef {
                 switch (value) {
                     case 'Account':
                     case 'Did':
@@ -182,7 +182,7 @@ export function tableDefaultValue(): Table {
 
                         return value as Table;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Table: expected one of " + ['Account', 'Did', 'Appointment', 'Lead', 'TaxRate', 'Site', 'Employee', 'Route', 'Company', 'Product', 'Service', 'User', 'Order', 'Payment', 'Package', 'Promotion', 'Represents', 'Ordered'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -706,7 +706,7 @@ if (variant === "Ordered") { return "Ordered" as Table; }
 
 
             function validate(): Exit.Exit<Table, Array<{ field: string; message: string }>> {
-                return toExit(tableDeserialize(data));
+                return toExit(tableDecode(data));
             }
 
 
@@ -851,15 +851,15 @@ if (variant === "Ordered") { return "Ordered" as Table; }
                 }
 
 
-            return toExit(tableDeserialize(obj));
+            return toExit(tableDecode(obj));
         }
 
 export const Table = {
   defaultValue: tableDefaultValue,
-  serialize: tableSerialize,
-  serializeWithContext: tableSerializeWithContext,
-  deserialize: tableDeserialize,
-  deserializeWithContext: tableDeserializeWithContext,
+  encode: tableEncode,
+  encodeWithContext: tableEncodeWithContext,
+  decode: tableDecode,
+  decodeWithContext: tableDecodeWithContext,
   hasShape: tableHasShape,
   is: tableIs,
   createForm: tableCreateForm,
@@ -895,20 +895,20 @@ export function tableDefaultValue(): Table {
                             return "Account";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function tableSerialize(value: Table, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = tableSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function tableEncode(value: Table, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = tableEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function tableSerializeWithContext(value: Table, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function tableEncodeWithContext(value: Table, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -975,8 +975,8 @@ export function tableDefaultValue(): Table {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function tableDeserialize(input: unknown): { success: true; value: Table } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function tableDecode(input: unknown): { success: true; value: Table } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Account':
                     case 'Did':
@@ -1004,8 +1004,8 @@ export function tableDefaultValue(): Table {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function tableDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Table | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function tableDecodeWithContext(value: any, ctx: __mf_DecodeContext): Table | __mf_PendingRef {
                 switch (value) {
                     case 'Account':
                     case 'Did':
@@ -1029,7 +1029,7 @@ export function tableDefaultValue(): Table {
 
                         return value as Table;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Table: expected one of " + ['Account', 'Did', 'Appointment', 'Lead', 'TaxRate', 'Site', 'Employee', 'Route', 'Company', 'Product', 'Service', 'User', 'Order', 'Payment', 'Package', 'Promotion', 'Represents', 'Ordered'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -1553,7 +1553,7 @@ if (variant === "Ordered") { return "Ordered" as Table; }
 
 
             function validate(): Exit.Exit<Table, Array<{ field: string; message: string }>> {
-                return toExit(tableDeserialize(data));
+                return toExit(tableDecode(data));
             }
 
 
@@ -1698,15 +1698,15 @@ if (variant === "Ordered") { return "Ordered" as Table; }
                 }
 
 
-            return toExit(tableDeserialize(obj));
+            return toExit(tableDecode(obj));
         }
 
 export const Table = {
   defaultValue: tableDefaultValue,
-  serialize: tableSerialize,
-  serializeWithContext: tableSerializeWithContext,
-  deserialize: tableDeserialize,
-  deserializeWithContext: tableDeserializeWithContext,
+  encode: tableEncode,
+  encodeWithContext: tableEncodeWithContext,
+  decode: tableDecode,
+  decodeWithContext: tableDecodeWithContext,
   hasShape: tableHasShape,
   is: tableIs,
   createForm: tableCreateForm,
@@ -1720,17 +1720,17 @@ export const Table = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..433 -> expanded 58..376
-original 433..434 -> expanded 24961..24962
+original 107..425 -> expanded 58..376
+original 425..426 -> expanded 24851..24852
 generated 376..494 <- Default
-generated 494..2425 <- Serialize
-generated 2425..6477 <- Deserialize
-generated 6477..24615 <- Gigaform
-generated 24615..24961 <- __convenience_const
+generated 494..2387 <- Encode
+generated 2387..6409 <- Decode
+generated 6409..24537 <- Gigaform
+generated 24537..24851 <- __convenience_const
 
 ## Metadata
 
-type Table: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":158,"start":143}}],"kind":{"Literal":"'Account'"}},{"decorators":[],"kind":{"Literal":"'Did'"}},{"decorators":[],"kind":{"Literal":"'Appointment'"}},{"decorators":[],"kind":{"Literal":"'Lead'"}},{"decorators":[],"kind":{"Literal":"'TaxRate'"}},{"decorators":[],"kind":{"Literal":"'Site'"}},{"decorators":[],"kind":{"Literal":"'Employee'"}},{"decorators":[],"kind":{"Literal":"'Route'"}},{"decorators":[],"kind":{"Literal":"'Company'"}},{"decorators":[],"kind":{"Literal":"'Product'"}},{"decorators":[],"kind":{"Literal":"'Service'"}},{"decorators":[],"kind":{"Literal":"'User'"}},{"decorators":[],"kind":{"Literal":"'Order'"}},{"decorators":[],"kind":{"Literal":"'Payment'"}},{"decorators":[],"kind":{"Literal":"'Package'"}},{"decorators":[],"kind":{"Literal":"'Promotion'"}},{"decorators":[],"kind":{"Literal":"'Represents'"}},{"decorators":[],"kind":{"Literal":"'Ordered'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Table","span":{"end":434,"start":124},"type_params":[]}
+type Table: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":150,"start":135}}],"kind":{"Literal":"'Account'"}},{"decorators":[],"kind":{"Literal":"'Did'"}},{"decorators":[],"kind":{"Literal":"'Appointment'"}},{"decorators":[],"kind":{"Literal":"'Lead'"}},{"decorators":[],"kind":{"Literal":"'TaxRate'"}},{"decorators":[],"kind":{"Literal":"'Site'"}},{"decorators":[],"kind":{"Literal":"'Employee'"}},{"decorators":[],"kind":{"Literal":"'Route'"}},{"decorators":[],"kind":{"Literal":"'Company'"}},{"decorators":[],"kind":{"Literal":"'Product'"}},{"decorators":[],"kind":{"Literal":"'Service'"}},{"decorators":[],"kind":{"Literal":"'User'"}},{"decorators":[],"kind":{"Literal":"'Order'"}},{"decorators":[],"kind":{"Literal":"'Payment'"}},{"decorators":[],"kind":{"Literal":"'Package'"}},{"decorators":[],"kind":{"Literal":"'Promotion'"}},{"decorators":[],"kind":{"Literal":"'Represents'"}},{"decorators":[],"kind":{"Literal":"'Ordered'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"Table","span":{"end":426,"start":116},"type_params":[]}
 
 ## Registry reads
 

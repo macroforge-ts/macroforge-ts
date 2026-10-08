@@ -321,14 +321,14 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
         match result {
             Ok(events) => {
                 // Kernel event-queue overflow makes the backend synthesize
-                // events for every tracked file (rescan flag); none of
+                // events for every tracked file (rescan flag): none of
                 // them describe real changes. Resync against content
                 // hashes once (sub-second when nothing changed) instead of
                 // processing thousands of phantom "changes".
                 if events.iter().any(|event| event.need_rescan()) {
                     eprintln!(
                         "[macroforge watch] Watch backend requested a rescan \
-                         (event queue overflow); resyncing against content hashes"
+                         (event queue overflow): resyncing against content hashes"
                     );
                     let lock = ProjectLock::acquire(root, "watch", false)?;
                     warm_cache("watch", root, &cache_dir, &mut manifest)?;
@@ -370,7 +370,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                 for event in &events {
                     // Reads are not changes. Reacting to access events feeds
                     // back: the config hash guard below reads the config to
-                    // compare it, which emits the next access event, an
+                    // compare it, which emits the next access event: an
                     // endless read→event→read loop on an untouched file.
                     if event.kind.is_access() || event.kind.is_other() {
                         continue;
@@ -414,7 +414,7 @@ pub fn run_watch(root: &Path, debounce_ms: u64) -> Result<()> {
                     let new_config_hash = compute_config_hash(root);
                     if new_config_hash == manifest.config_hash {
                         eprintln!(
-                            "[macroforge watch] Config file event with unchanged content; \
+                            "[macroforge watch] Config file event with unchanged content: \
                              ignoring ({})",
                             config_event_path
                                 .as_deref()

@@ -21,28 +21,28 @@ describe('Array Validators', () => {
     // ============================================================================
     describe('MaxItems', () => {
         test('accepts array at max items', () => {
-            const result = mod.MaxItemsValidator.deserialize(
+            const result = mod.MaxItemsValidator.decode(
                 JSON.stringify({ items: ['a', 'b', 'c', 'd', 'e'] })
             );
             assertValidationSuccess(result, 'items');
         });
 
         test('accepts array below max items', () => {
-            const result = mod.MaxItemsValidator.deserialize(
+            const result = mod.MaxItemsValidator.decode(
                 JSON.stringify({ items: ['a', 'b'] })
             );
             assertValidationSuccess(result, 'items');
         });
 
         test('accepts empty array', () => {
-            const result = mod.MaxItemsValidator.deserialize(
+            const result = mod.MaxItemsValidator.decode(
                 JSON.stringify({ items: [] })
             );
             assertValidationSuccess(result, 'items');
         });
 
         test('rejects array exceeding max items', () => {
-            const result = mod.MaxItemsValidator.deserialize(
+            const result = mod.MaxItemsValidator.decode(
                 JSON.stringify({ items: ['a', 'b', 'c', 'd', 'e', 'f'] })
             );
             assertValidationError(result, 'items', 'must have at most 5 items');
@@ -54,28 +54,28 @@ describe('Array Validators', () => {
     // ============================================================================
     describe('MinItems', () => {
         test('accepts array at min items', () => {
-            const result = mod.MinItemsValidator.deserialize(
+            const result = mod.MinItemsValidator.decode(
                 JSON.stringify({ items: ['a', 'b'] })
             );
             assertValidationSuccess(result, 'items');
         });
 
         test('accepts array above min items', () => {
-            const result = mod.MinItemsValidator.deserialize(
+            const result = mod.MinItemsValidator.decode(
                 JSON.stringify({ items: ['a', 'b', 'c', 'd'] })
             );
             assertValidationSuccess(result, 'items');
         });
 
         test('rejects array below min items', () => {
-            const result = mod.MinItemsValidator.deserialize(
+            const result = mod.MinItemsValidator.decode(
                 JSON.stringify({ items: ['a'] })
             );
             assertValidationError(result, 'items', 'must have at least 2 items');
         });
 
         test('rejects empty array', () => {
-            const result = mod.MinItemsValidator.deserialize(
+            const result = mod.MinItemsValidator.decode(
                 JSON.stringify({ items: [] })
             );
             assertValidationError(result, 'items', 'must have at least 2 items');
@@ -87,28 +87,28 @@ describe('Array Validators', () => {
     // ============================================================================
     describe('ItemsCount', () => {
         test('accepts array at exact count', () => {
-            const result = mod.ItemsCountValidator.deserialize(
+            const result = mod.ItemsCountValidator.decode(
                 JSON.stringify({ items: ['a', 'b', 'c'] })
             );
             assertValidationSuccess(result, 'items');
         });
 
         test('rejects array below count', () => {
-            const result = mod.ItemsCountValidator.deserialize(
+            const result = mod.ItemsCountValidator.decode(
                 JSON.stringify({ items: ['a', 'b'] })
             );
             assertValidationError(result, 'items', 'must have exactly 3 items');
         });
 
         test('rejects array above count', () => {
-            const result = mod.ItemsCountValidator.deserialize(
+            const result = mod.ItemsCountValidator.decode(
                 JSON.stringify({ items: ['a', 'b', 'c', 'd'] })
             );
             assertValidationError(result, 'items', 'must have exactly 3 items');
         });
 
         test('rejects empty array', () => {
-            const result = mod.ItemsCountValidator.deserialize(
+            const result = mod.ItemsCountValidator.decode(
                 JSON.stringify({ items: [] })
             );
             assertValidationError(result, 'items', 'must have exactly 3 items');

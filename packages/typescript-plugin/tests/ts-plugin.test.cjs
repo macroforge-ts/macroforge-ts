@@ -298,7 +298,7 @@ test('skips expansion for real-world JSDoc file with @derive in comments (fixtur
         'should contain original exports'
     );
     assert(
-        result.includes('@derive(Default, Serialize'),
+        result.includes('@derive(Default, Encode'),
         'should preserve JSDoc example content'
     );
 

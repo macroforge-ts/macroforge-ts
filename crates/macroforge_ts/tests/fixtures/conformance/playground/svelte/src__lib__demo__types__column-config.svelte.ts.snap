@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/column-config.svelte.ts
-sha256 fd08861cfc00523ad18b4e1426d2b7b4a0ee6ec2826111a35fc9d88344e1a863
+sha256 dc9ce4ccf6f2748102b49ee735f3205b2fde6c3f4b10dbd732d72fa186bbe1a1
 
 ## Changed
 
@@ -12,14 +12,14 @@ true
 
 ## Output
 
-import { dataPathDeserializeWithContext } from "./data-path.svelte";
-import { dataPathSerializeWithContext } from "./data-path.svelte";
+import { dataPathDecodeWithContext } from "./data-path.svelte";
+import { dataPathEncodeWithContext } from "./data-path.svelte";
 import { dataPathDefaultValue } from "./data-path.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -41,16 +41,16 @@ dataPath: dataPathDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function columnConfigSerialize(value: ColumnConfig, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = columnConfigSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function columnConfigEncode(value: ColumnConfig, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = columnConfigEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function columnConfigSerializeWithContext(value: ColumnConfig, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function columnConfigEncodeWithContext(value: ColumnConfig, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -63,7 +63,7 @@ dataPath: dataPathDefaultValue(),
                     const result: Record<string, unknown> = {
                         "__type": "ColumnConfig",
                         __id,
-                    };result.heading = value.heading;result.dataPath = dataPathSerializeWithContext(value.dataPath, ctx);
+                    };result.heading = value.heading;result.dataPath = dataPathEncodeWithContext(value.dataPath, ctx);
 
 
 
@@ -162,21 +162,21 @@ dataPath: dataPathDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function columnConfigDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = columnConfigDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = columnConfigDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ColumnConfig.deserialize: root cannot be a forward reference"
+		message: "ColumnConfig.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -199,7 +199,7 @@ dataPath: dataPathDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -216,14 +216,14 @@ dataPath: dataPathDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function columnConfigDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ColumnConfig | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function columnConfigDecodeWithContext(value: any, ctx: __mf_DecodeContext): ColumnConfig | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "ColumnConfig.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "ColumnConfig.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -512,10 +512,10 @@ instance.heading = __raw_heading;
                             }{
                                 const __raw_dataPath = obj["dataPath"] as DataPath;ctx.pushScope("dataPath");
                                             try {
-                                                const __result = dataPathDeserializeWithContext(__raw_dataPath, ctx);
+                                                const __result = dataPathDecodeWithContext(__raw_dataPath, ctx);
                                                 ctx.assignOrDefer(instance, "dataPath", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "dataPath" : "dataPath." + __err.field,
@@ -1441,7 +1441,7 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
                 if (!columnConfigHasShape(obj)) {
                     return false;
                 }
-                const result = columnConfigDeserialize(obj);
+                const result = columnConfigDecode(obj);
                 return result.success;
             }
 
@@ -1552,7 +1552,7 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
 
 
             function validate(): Exit.Exit<ColumnConfig, Array<{ field: string; message: string }>> {
-                return toExit(columnConfigDeserialize(data));
+                return toExit(columnConfigDecode(data));
             }
 
 
@@ -1585,7 +1585,7 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function columnConfigFromFormData(formData: FormData): Exit.Exit<ColumnConfig, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1614,15 +1614,15 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
         }
 
 
-            return toExit(columnConfigDeserialize(obj));
+            return toExit(columnConfigDecode(obj));
         }
 
 export const ColumnConfig = {
   defaultValue: columnConfigDefaultValue,
-  serialize: columnConfigSerialize,
-  serializeWithContext: columnConfigSerializeWithContext,
-  deserialize: columnConfigDeserialize,
-  deserializeWithContext: columnConfigDeserializeWithContext,
+  encode: columnConfigEncode,
+  encodeWithContext: columnConfigEncodeWithContext,
+  decode: columnConfigDecode,
+  decodeWithContext: columnConfigDecodeWithContext,
   validateFields: columnConfigValidateFields,
   hasShape: columnConfigHasShape,
   is: columnConfigIs,
@@ -1649,16 +1649,16 @@ dataPath: dataPathDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function columnConfigSerialize(value: ColumnConfig, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = columnConfigSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function columnConfigEncode(value: ColumnConfig, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = columnConfigEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function columnConfigSerializeWithContext(value: ColumnConfig, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function columnConfigEncodeWithContext(value: ColumnConfig, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1671,7 +1671,7 @@ dataPath: dataPathDefaultValue(),
                     const result: Record<string, unknown> = {
                         "__type": "ColumnConfig",
                         __id,
-                    };result.heading = value.heading;result.dataPath = dataPathSerializeWithContext(value.dataPath, ctx);
+                    };result.heading = value.heading;result.dataPath = dataPathEncodeWithContext(value.dataPath, ctx);
 
 
 
@@ -1770,21 +1770,21 @@ dataPath: dataPathDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function columnConfigDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function columnConfigDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ColumnConfig } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = columnConfigDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = columnConfigDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ColumnConfig.deserialize: root cannot be a forward reference"
+		message: "ColumnConfig.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1807,7 +1807,7 @@ dataPath: dataPathDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1824,14 +1824,14 @@ dataPath: dataPathDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function columnConfigDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ColumnConfig | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function columnConfigDecodeWithContext(value: any, ctx: __mf_DecodeContext): ColumnConfig | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "ColumnConfig.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "ColumnConfig.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2120,10 +2120,10 @@ instance.heading = __raw_heading;
                             }{
                                 const __raw_dataPath = obj["dataPath"] as DataPath;ctx.pushScope("dataPath");
                                             try {
-                                                const __result = dataPathDeserializeWithContext(__raw_dataPath, ctx);
+                                                const __result = dataPathDecodeWithContext(__raw_dataPath, ctx);
                                                 ctx.assignOrDefer(instance, "dataPath", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "dataPath" : "dataPath." + __err.field,
@@ -3049,7 +3049,7 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
                 if (!columnConfigHasShape(obj)) {
                     return false;
                 }
-                const result = columnConfigDeserialize(obj);
+                const result = columnConfigDecode(obj);
                 return result.success;
             }
 
@@ -3160,7 +3160,7 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
 
 
             function validate(): Exit.Exit<ColumnConfig, Array<{ field: string; message: string }>> {
-                return toExit(columnConfigDeserialize(data));
+                return toExit(columnConfigDecode(data));
             }
 
 
@@ -3193,7 +3193,7 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function columnConfigFromFormData(formData: FormData): Exit.Exit<ColumnConfig, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3222,15 +3222,15 @@ if (__val.length === 0) { errors.push({ field: "heading", message: "ColumnConfig
         }
 
 
-            return toExit(columnConfigDeserialize(obj));
+            return toExit(columnConfigDecode(obj));
         }
 
 export const ColumnConfig = {
   defaultValue: columnConfigDefaultValue,
-  serialize: columnConfigSerialize,
-  serializeWithContext: columnConfigSerializeWithContext,
-  deserialize: columnConfigDeserialize,
-  deserializeWithContext: columnConfigDeserializeWithContext,
+  encode: columnConfigEncode,
+  encodeWithContext: columnConfigEncodeWithContext,
+  decode: columnConfigDecode,
+  decodeWithContext: columnConfigDecodeWithContext,
   validateFields: columnConfigValidateFields,
   hasShape: columnConfigHasShape,
   is: columnConfigIs,
@@ -3245,18 +3245,18 @@ export const ColumnConfig = {
 ## Mapping
 
 original 0..110 -> expanded 0..110
-original 167..204 -> expanded 110..147
-original 245..292 -> expanded 147..194
-original 292..293 -> expanded 16673..16674
+original 159..196 -> expanded 110..147
+original 237..284 -> expanded 147..194
+original 284..285 -> expanded 16482..16483
 generated 194..359 <- Default
-generated 359..1981 <- Serialize
-generated 1981..10192 <- Deserialize
-generated 10192..16211 <- Gigaform
-generated 16211..16673 <- __convenience_const
+generated 359..1946 <- Encode
+generated 1946..10053 <- Decode
+generated 10053..16052 <- Gigaform
+generated 16052..16482 <- __convenience_const
 
 ## Metadata
 
-interface ColumnConfig: {"body_span":{"end":293,"start":199},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":168,"start":111}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":246,"start":205}}],"name":"heading","optional":false,"readonly":false,"span":{"end":267,"start":251},"ts_type":"string"},{"decorators":[],"name":"dataPath","optional":false,"readonly":false,"span":{"end":291,"start":272},"ts_type":"DataPath"}],"heritage":[],"methods":[],"name":"ColumnConfig","span":{"end":293,"start":176},"type_params":[]}
+interface ColumnConfig: {"body_span":{"end":285,"start":191},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":160,"start":111}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":238,"start":197}}],"name":"heading","optional":false,"readonly":false,"span":{"end":259,"start":243},"ts_type":"string"},{"decorators":[],"name":"dataPath","optional":false,"readonly":false,"span":{"end":283,"start":264},"ts_type":"DataPath"}],"heritage":[],"methods":[],"name":"ColumnConfig","span":{"end":285,"start":168},"type_params":[]}
 
 ## Registry reads
 

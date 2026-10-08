@@ -921,7 +921,7 @@ mod tests {
         // path, not a `@playground` directive.
         let iface = single_interface(
             r#"/** import macro {Gigaform} from "@playground/macro"; */
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface PhoneNumber {
     label: string;
     number: string;
@@ -942,7 +942,7 @@ export interface PhoneNumber {
     fn type_alias_with_multiple_decorators() {
         let alias = single_type_alias(
             r#"/**
- * @derive(Default, Deserialize)
+ * @derive(Default, Decode)
  * @default(DailyRecurrenceRule.defaultValue())
  */
 export type Interval = DailyRecurrenceRule | WeeklyRecurrenceRule;"#,
@@ -995,10 +995,10 @@ export type UnionWithDefault =
         let iface = single_interface(
             r#"
 interface UserProfile {
-    /** @serde(email) */
+    /** @endec(email) */
     email: string;
 
-    /** @serde(minLength(2), maxLength(50)) */
+    /** @endec(minLength(2), maxLength(50)) */
     username: string;
 }
 "#,
@@ -1016,8 +1016,8 @@ interface UserProfile {
                 field
                     .decorators
                     .iter()
-                    .any(|decorator| decorator.name == "serde"),
-                "{name} should have @serde decorator. Got: {:?}",
+                    .any(|decorator| decorator.name == "endec"),
+                "{name} should have @endec decorator. Got: {:?}",
                 field.decorators
             );
         }
@@ -1028,10 +1028,10 @@ interface UserProfile {
         let alias = single_type_alias(
             r#"
 type ContactInfo = {
-    /** @serde(email) */
+    /** @endec(email) */
     primaryEmail: string;
 
-    /** @serde(minLength(1)) */
+    /** @endec(minLength(1)) */
     address: string;
 };
 "#,
@@ -1051,8 +1051,8 @@ type ContactInfo = {
                 field
                     .decorators
                     .iter()
-                    .any(|decorator| decorator.name == "serde"),
-                "{name} should have @serde decorator. Got: {:?}",
+                    .any(|decorator| decorator.name == "endec"),
+                "{name} should have @endec decorator. Got: {:?}",
                 field.decorators
             );
         }

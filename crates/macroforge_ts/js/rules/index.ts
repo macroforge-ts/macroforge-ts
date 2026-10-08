@@ -27,14 +27,14 @@
  * ## Runtime behavior
  *
  * `macroRules` is a sentinel tag function. It throws at runtime if the
- * macroforge build pass is not installed — if you see the runtime error,
+ * macroforge build pass is not installed: if you see the runtime error,
  * your build toolchain is not running macroforge on this file.
  *
  * @module @macroforge/core/rules
  */
 
 /**
- * A macro invocation — a function that takes any arguments and may produce
+ * A macro invocation: a function that takes any arguments and may produce
  * any value. The exact return type depends on the macro body; for accurate
  * types, the macroforge build pass is responsible for erasing the macro
  * definition and inlining the expansion at each call site. Only this
@@ -52,7 +52,7 @@ export type MacroInvocation = (...args: any[]) => any;
  *
  * The return type is a generic callable, so TypeScript lets users invoke
  * `$name(...)` without complaint. At runtime (if the build pass did not
- * run) the tag itself throws — any caller would already have seen the
+ * run) the tag itself throws: any caller would already have seen the
  * build-time rewrite.
  */
 export function macroRules(
@@ -60,7 +60,7 @@ export function macroRules(
   ..._values: unknown[]
 ): MacroInvocation {
   throw new Error(
-    "@macroforge/core/rules: macros are build-time only — they should have been erased by the macroforge build pass. " +
+    "@macroforge/core/rules: macros are build-time only: they should have been erased by the macroforge build pass. " +
       "If you're seeing this at runtime, the macroforge plugin is not installed or not running on this file.",
   );
 }
@@ -117,7 +117,7 @@ export interface MacroConfig {
    * Template for the shared runtime helper's name, specialized per cluster.
    * Must contain the literal token `$__cluster__` exactly once; the rewriter
    * replaces it with the cluster id per cluster variant
-   * (e.g., `"__serialize_$__cluster__"`).
+   * (e.g., `"__encode_$__cluster__"`).
    */
   readonly runtimeName?: string;
 }

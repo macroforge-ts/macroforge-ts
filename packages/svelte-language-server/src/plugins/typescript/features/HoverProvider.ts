@@ -118,7 +118,7 @@ export class HoverProviderImpl implements HoverProvider {
     /**
      * Get hover info for macro-related tokens:
      * - JSDoc @derive(MacroName) comments
-     * - @decorator(...) decorators like @serde, @debug
+     * - @decorator(...) decorators like @endec, @debug
      */
     private getMacroHover(document: Document, position: Position): Hover | null {
         const text = document.getText();
@@ -126,7 +126,7 @@ export class HoverProviderImpl implements HoverProvider {
         const cache = getMacroManifestCache();
 
         // Check if hovering in a JSDoc @derive comment
-        // Pattern: /** @derive(Debug, Serialize) */
+        // Pattern: /** @derive(Debug, Encode) */
         const deriveMatch = this.findDeriveAtPosition(text, offset);
         if (deriveMatch) {
             const macroInfo = cache.getMacroInfo(deriveMatch.macroName);
@@ -142,7 +142,7 @@ export class HoverProviderImpl implements HoverProvider {
             }
         }
 
-        // Check if hovering on a decorator like @serde or @debug
+        // Check if hovering on a decorator like @endec or @debug
         const decoratorMatch = this.findDecoratorAtPosition(text, offset);
         if (decoratorMatch) {
             // First check if it's a macro (like @Debug used as decorator)
@@ -158,7 +158,7 @@ export class HoverProviderImpl implements HoverProvider {
                 };
             }
 
-            // Then check if it's a field decorator (like @serde, @debug)
+            // Then check if it's a field decorator (like @endec, @debug)
             const decoratorInfo = cache.getDecoratorInfo(decoratorMatch.name);
             if (decoratorInfo && decoratorInfo.docs) {
                 return {
@@ -224,7 +224,7 @@ export class HoverProviderImpl implements HoverProvider {
     }
 
     /**
-     * Find if the cursor is on a decorator name like @serde or @debug
+     * Find if the cursor is on a decorator name like @endec or @debug
      * Returns the decorator name if found
      */
     private findDecoratorAtPosition(
@@ -244,7 +244,7 @@ export class HoverProviderImpl implements HoverProvider {
             // Check if offset is on the decorator name (including the @)
             if (offset >= atSign && offset <= nameEnd) {
                 // Skip if this is inside a JSDoc comment starting with @derive
-                // We want @serde/@debug decorators, not the @derive in comments
+                // We want @endec/@debug decorators, not the @derive in comments
                 if (match[1].toLowerCase() === 'derive') {
                     // Check if we're inside a JSDoc comment
                     const beforeMatch = text.substring(0, atSign);

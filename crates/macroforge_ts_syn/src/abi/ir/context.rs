@@ -16,7 +16,7 @@
 //!          │
 //!          ▼
 //! ┌─────────────────┐
-//! │ MacroContextIR  │  (Serialized to macro)
+//! │ MacroContextIR  │  (Encoded to macro)
 //! └────────┬────────┘
 //!          │
 //!          ▼
@@ -209,14 +209,14 @@ pub struct MacroContextIR {
     pub target_source: String,
 
     /// The full import registry from the file being processed.
-    /// Populated by the host before serializing the context for external macros.
+    /// Populated by the host before encoding the context for external macros.
     /// Includes source imports, config imports, and previously generated imports,
     /// giving external macros full parity with builtins.
     #[serde(default)]
     pub import_registry: ImportRegistry,
 
     /// Macroforge configuration from macroforge.config.ts.
-    /// Populated by the host before serializing the context for external macros.
+    /// Populated by the host before encoding the context for external macros.
     /// Gives external macros access to foreign type configs, etc.
     #[serde(default)]
     pub config: Option<crate::config::MacroforgeConfig>,
@@ -225,7 +225,7 @@ pub struct MacroContextIR {
     /// Gives macros access to all types defined in the project for
     /// Zig-style build-time type awareness.
     ///
-    /// Always present — defaults to an empty `TypeRegistry` when no scan
+    /// Always present: defaults to an empty `TypeRegistry` when no scan
     /// data is available (e.g. unit-test fixtures that don't exercise
     /// cross-file resolution). Macros must treat this as the source of
     /// truth and call `resolve` rather than ad-hoc lookups.

@@ -9,7 +9,7 @@ use crate::ts_syn::abi::{MacroContextIR, MacroResult};
 
 /// Extract every JSDoc annotation name a macro package's manifest contributes.
 ///
-/// `decorators` holds helper attributes declared via `attributes((serde, "…"))`
+/// `decorators` holds helper attributes declared via `attributes((endec, "…"))`
 /// and is keyed by `export`. `macros` holds the macros themselves; only
 /// attribute macros are annotations, because an attribute macro is invoked as
 /// `@traced` and its name *is* the annotation. Derive macros are invoked as
@@ -119,7 +119,7 @@ impl ExternalMacroLoader {
     /// from its wasm manifest export.
     ///
     /// Two manifest sections contribute: `decorators`, the helper attributes a
-    /// derive macro declares (used as `@serde`), and attribute macros, whose own
+    /// derive macro declares (used as `@endec`), and attribute macros, whose own
     /// name is the annotation (used as `@traced`). Derive macros are invoked as
     /// `@derive(Name)`, and `derive` is seeded unconditionally.
     pub(crate) fn resolve_decorator_names(
@@ -491,13 +491,13 @@ mod tests {
         MacroManifest {
             version: 1,
             macros: vec![
-                entry("Serialize", "derive"),
+                entry("Encode", "derive"),
                 entry("traced", "attribute"),
                 entry("stringify", "call"),
             ],
             decorators: vec![DecoratorManifestEntry {
                 module: "macroforge_ts".to_string(),
-                export: "serde".to_string(),
+                export: "endec".to_string(),
                 kind: "property".to_string(),
                 docs: String::new(),
             }],
@@ -513,13 +513,13 @@ mod tests {
 
     #[test]
     fn helper_decorators_are_annotation_names() {
-        assert!(annotation_names_from_manifest(&manifest()).contains(&"serde".to_string()));
+        assert!(annotation_names_from_manifest(&manifest()).contains(&"endec".to_string()));
     }
 
     #[test]
     fn derive_and_call_macros_are_not_annotation_names() {
         let names = annotation_names_from_manifest(&manifest());
-        assert!(!names.contains(&"Serialize".to_string()));
+        assert!(!names.contains(&"Encode".to_string()));
         assert!(!names.contains(&"stringify".to_string()));
     }
 

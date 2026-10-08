@@ -52,9 +52,9 @@ pub struct UnionConfig {
 /// How a union is discriminated.
 #[derive(Debug, Clone)]
 pub enum UnionMode {
-    /// Tagged union with explicit discriminant field: @serde({ tag: "kind" })
+    /// Tagged union with explicit discriminant field: @endec({ tag: "kind" })
     Tagged { field: String },
-    /// Untagged union - infer variant from structure: @serde({ untagged: true })
+    /// Untagged union - infer variant from structure: @endec({ untagged: true })
     Untagged,
 }
 
@@ -112,7 +112,7 @@ pub struct ParsedField {
     pub is_array: bool,
     /// The array element type (if is_array is true)
     pub array_element_type: Option<String>,
-    /// Sync validators from @serde
+    /// Sync validators from @endec
     pub validators: Vec<ValidatorSpec>,
     /// Async validators from @gigaform
     pub async_validators: Vec<String>,
@@ -140,7 +140,7 @@ impl ParsedField {
     }
 }
 
-/// A validator specification parsed from @serde({ validate: [...] })
+/// A validator specification parsed from @endec({ validate: [...] })
 #[derive(Debug, Clone)]
 pub struct ValidatorSpec {
     /// The validator name/function (e.g., "minLength", "email", "pattern")
@@ -508,7 +508,7 @@ pub fn create_synthetic_field(
     _options: &GigaformOptions,
 ) -> Vec<ParsedField> {
     // Convert Attributes to DecoratorIRs for the synthetic field
-    // (e.g., @serde validators on the type alias apply to field "0")
+    // (e.g., @endec validators on the type alias apply to field "0")
     let decorators: Vec<_> = container_attrs.iter().map(|a| a.inner.clone()).collect();
     let field = parse_field_common(field_name, inner_type, false, &decorators);
     vec![field]
@@ -601,15 +601,15 @@ pub fn parse_union_config(
             })
         }
         UnionKind::ObjectUnion => {
-            // Inline object union - requires @serde({ tag }) or @serde({ untagged })
-            let serde_opts = parse_serde_container_options(container_attrs);
+            // Inline object union - requires @endec({ tag }) or @endec({ untagged })
+            let endec_opts = parse_endec_container_options(container_attrs);
 
-            let mode = if let Some(tag_field) = serde_opts.tag {
+            let mode = if let Some(tag_field) = endec_opts.tag {
                 UnionMode::Tagged { field: tag_field }
-            } else if serde_opts.untagged {
+            } else if endec_opts.untagged {
                 UnionMode::Untagged
             } else {
-                return Err("Union types with inline objects require @serde({ tag: \"fieldName\" }) or @serde({ untagged: true })".to_string());
+                return Err("Union types with inline objects require @endec({ tag: \"fieldName\" }) or @endec({ untagged: true })".to_string());
             };
 
             let variants = match &mode {
@@ -684,19 +684,19 @@ fn extract_literal_value(literal: &str) -> String {
     trimmed.to_string()
 }
 
-/// Serde container-level options relevant to unions.
+/// Endec container-level options relevant to unions.
 #[derive(Debug, Default)]
-struct SerdeContainerOpts {
+struct EndecContainerOpts {
     tag: Option<String>,
     untagged: bool,
 }
 
-/// Parses @serde({ tag: "...", untagged: true }) from container attributes.
-fn parse_serde_container_options(attrs: &[Attribute]) -> SerdeContainerOpts {
-    let mut opts = SerdeContainerOpts::default();
+/// Parses @endec({ tag: "...", untagged: true }) from container attributes.
+fn parse_endec_container_options(attrs: &[Attribute]) -> EndecContainerOpts {
+    let mut opts = EndecContainerOpts::default();
 
     for attr in attrs {
-        if attr.name() == "serde" {
+        if attr.name() == "endec" {
             let json = parse_decorator_args(&attr.inner.args_src);
             if let Some(tag) = json.get("tag").and_then(|v| v.as_str()) {
                 opts.tag = Some(tag.to_string());
@@ -853,7 +853,7 @@ fn parse_field_common(
     let (is_nested, nested_type) = detect_nested_type(&ts_type);
     let (is_array, array_element_type) = detect_array_type(&ts_type);
 
-    // Parse @serde validators
+    // Parse @endec validators
     let validators = parse_serde_validators_from_decorators(decorators);
 
     // Parse @gigaform field options
@@ -958,14 +958,14 @@ fn detect_array_type(ts_type: &str) -> (bool, Option<String>) {
     (false, None)
 }
 
-/// Parses @serde({ validate: [...] }) validators from decorators.
+/// Parses @endec({ validate: [...] }) validators from decorators.
 fn parse_serde_validators_from_decorators(
     decorators: &[macroforge_ts::ts_syn::DecoratorIR],
 ) -> Vec<ValidatorSpec> {
     let mut validators = Vec::new();
 
     for decorator in decorators {
-        if decorator.name == "serde" {
+        if decorator.name == "endec" {
             let json_value = parse_decorator_args(&decorator.args_src);
             if let Some(validate_array) = json_value.get("validate").and_then(|v| v.as_array()) {
                 for item in validate_array {
@@ -1072,7 +1072,7 @@ fn parse_field_controller_from_decorators(
         let decorator_name = controller_type.decorator_name();
         if let Some(decorator) = decorators.iter().find(|d| d.name == decorator_name) {
             let json_value = parse_decorator_args(&decorator.args_src);
-            let options = deserialize_controller_options(*controller_type, json_value);
+            let options = decode_controller_options(*controller_type, json_value);
             return Some(ParsedController { options });
         }
     }
@@ -1081,8 +1081,8 @@ fn parse_field_controller_from_decorators(
     infer_controller_from_type(ts_type)
 }
 
-/// Deserializes JSON into the appropriate controller options struct.
-fn deserialize_controller_options(
+/// Decodes JSON into the appropriate controller options struct.
+fn decode_controller_options(
     controller_type: ControllerType,
     value: serde_json::Value,
 ) -> ControllerOptions {

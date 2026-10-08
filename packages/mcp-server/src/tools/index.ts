@@ -88,7 +88,7 @@ WORKFLOW:
 2. Analyze use_cases to find relevant sections
 3. Call get-documentation with ALL relevant section names
 
-Example use_cases: "setup, install", "serialization, json", "validation, email"`,
+Example use_cases: "setup, install", "encoding, json", "validation, email"`,
                     inputSchema: {
                         type: 'object',
                         properties: {}
@@ -137,7 +137,7 @@ If require_another_tool_call_after_fixing is true, fix the issues and validate a
 Detects:
 - Invalid/unknown macro names
 - Malformed @derive decorators
-- @serde validator issues (email, url, length, etc.)
+- @endec validator issues (email, url, length, etc.)
 - Macro expansion failures
 - Syntax errors in generated code`,
                     inputSchema: {
@@ -188,8 +188,8 @@ Useful for:
                     description: `Get documentation for Macroforge macros and decorators.
 
 Returns information about:
-- Macro descriptions (e.g., Debug, Serialize, Clone)
-- Decorator documentation (e.g., @serde, @debug field decorators)
+- Macro descriptions (e.g., Debug, Encode, Clone)
+- Decorator documentation (e.g., @endec, @debug field decorators)
 - Available macro options and configuration
 
 Use without parameters to get the full manifest of all available macros and decorators.
@@ -565,8 +565,8 @@ async function handleExpandCode(args: { code: string; filename?: string }) {
  *
  * ## Manifest Contents
  *
- * - **Macros**: @derive decorators like Debug, Serialize, Clone
- * - **Decorators**: Field decorators like @serde.skip, @serde.rename
+ * - **Macros**: @derive decorators like Debug, Encode, Clone
+ * - **Decorators**: Field decorators like @endec.skip, @endec.rename
  *
  * @param args - Tool arguments
  * @param args.name - Optional macro or decorator name to look up
@@ -693,7 +693,7 @@ interface Diagnostic {
  *
  * Describes a @derive macro that can be applied to classes.
  *
- * @property name - Macro name as used in @derive (e.g., "Debug", "Serialize")
+ * @property name - Macro name as used in @derive (e.g., "Debug", "Encode")
  * @property kind - Type of macro (e.g., "derive")
  * @property description - Human-readable description of what the macro does
  * @property package - Package that provides this macro
@@ -709,7 +709,7 @@ interface MacroManifestEntry {
  * Metadata for a field decorator in the manifest.
  *
  * Describes a decorator that can be applied to class fields to customize
- * macro behavior (e.g., @serde.skip, @debug.format).
+ * macro behavior (e.g., @endec.skip, @debug.format).
  *
  * @property module - Module path where the decorator is defined
  * @property export - Export name of the decorator

@@ -21,8 +21,8 @@ The crate is organized into several modules:
   Binary Interface types for stable macro communication
 - [`ast`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=ast) - Source-backed
   expression and identifier values for templates
-- [`config`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=config) -
-  Serializable configuration types shared between host and macro processes
+- [`config`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=config) - Encodable
+  configuration types shared between host and macro processes
 - [`context_registry`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=context_registry) -
   Thread-local storage for the active
   [`MacroContextIR`](https://docs.rs/macroforge_ts_syn/latest/macroforge_ts_syn/?search=MacroContextIR)

@@ -1,6 +1,6 @@
 use convert_case::{Case, Casing};
 
-use crate::builtin::serde::{TypeCategory, get_foreign_types, split_top_level_union};
+use crate::builtin::endec::{TypeCategory, get_foreign_types, split_top_level_union};
 use crate::ts_syn::abi::ir::{FileImportEntry, TypeRegistry, resolve_generic_aliases};
 
 /// Check if a TypeScript type is a primitive type
@@ -48,7 +48,7 @@ pub fn is_generic_type(type_name: &str) -> bool {
 ///
 /// This is the structural shape left behind when `resolve_generic_aliases`
 /// expands `RecordLink<ErrandMessage>` into `string | ErrandMessage`.
-pub fn detect_primitive_serializable_union(ts_type: &str) -> Option<(String, String)> {
+pub fn detect_primitive_encodable_union(ts_type: &str) -> Option<(String, String)> {
     let parts = split_top_level_union(ts_type.trim())?;
     if parts.len() != 2 {
         return None;
@@ -59,12 +59,8 @@ pub fn detect_primitive_serializable_union(ts_type: &str) -> Option<(String, Str
         TypeCategory::from_ts_type(left),
         TypeCategory::from_ts_type(right),
     ) {
-        (TypeCategory::Primitive, TypeCategory::Serializable(name)) => {
-            Some((left.to_string(), name))
-        }
-        (TypeCategory::Serializable(name), TypeCategory::Primitive) => {
-            Some((right.to_string(), name))
-        }
+        (TypeCategory::Primitive, TypeCategory::Encodable(name)) => Some((left.to_string(), name)),
+        (TypeCategory::Encodable(name), TypeCategory::Primitive) => Some((right.to_string(), name)),
         _ => None,
     }
 }
@@ -131,7 +127,7 @@ fn get_type_default_resolved(ts_type: &str) -> String {
     // Check for foreign type default first
     let foreign_types = get_foreign_types();
     let ft_match = TypeCategory::match_foreign_type(t, &foreign_types);
-    // Note: Warnings from near-matches are handled by serialize/deserialize macros
+    // Note: Warnings from near-matches are handled by encode/decode macros
     // which have access to diagnostics
     if let Some(ft) = ft_match.config
         && let Some(ref default_expr) = ft.default_expr
@@ -139,7 +135,7 @@ fn get_type_default_resolved(ts_type: &str) -> String {
         // Wrap the expression in an IIFE if it's a function
         // Foreign type defaults are expected to be functions: () => DateTime.now()
         // Rewrite namespace references to use generated aliases
-        let rewritten = crate::builtin::serde::rewrite_expression_namespaces(default_expr);
+        let rewritten = crate::builtin::endec::rewrite_expression_namespaces(default_expr);
         return format!("({})()", rewritten);
     }
 
@@ -175,7 +171,7 @@ fn get_type_default_resolved(ts_type: &str) -> String {
                 return get_type_default_resolved(p);
             }
         }
-        // 3. Union of only custom types — default via first member
+        // 3. Union of only custom types: default via first member
         return get_type_default_resolved(parts[0]);
     }
 
@@ -225,7 +221,7 @@ fn get_type_default_resolved(ts_type: &str) -> String {
         // Generic type instantiations (`RecordLink<T>`, etc.) should have
         // been resolved to their body by `resolve_generic_aliases` before we
         // got here. Any instantiation that reaches this branch is either an
-        // unregistered alias or a type we cannot introspect — emit `undefined`
+        // unregistered alias or a type we cannot introspect: emit `undefined`
         // rather than a call to a nonexistent `xDefaultValue<T>()` helper.
         t if is_generic_type(t) => "undefined".to_string(),
         // String literal types: "active", 'pending', `template`

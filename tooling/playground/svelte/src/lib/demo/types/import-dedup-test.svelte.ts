@@ -18,9 +18,9 @@
 
 import { Exit, Option } from 'effect';
 
-// Test 1: Type with Deserialize (uses Exit for return type)
-/** @derive(Deserialize) */
-export interface UserWithDeserialize {
+// Test 1: Type with Decode (uses Exit for return type)
+/** @derive(Decode) */
+export interface UserWithDecode {
     name: string;
     age: number;
     email: string;
@@ -33,8 +33,8 @@ export interface ComparableItem {
     name: string;
 }
 
-// Test 3: Type with both Deserialize and PartialOrd
-/** @derive(Deserialize, PartialOrd) */
+// Test 3: Type with both Decode and PartialOrd
+/** @derive(Decode, PartialOrd) */
 export interface FullFeaturedType {
     id: number;
     value: string;
@@ -42,12 +42,12 @@ export interface FullFeaturedType {
 }
 
 // Test 4: Multiple types to stress test deduplication across types
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export interface TypeA {
     fieldA: string;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export interface TypeB {
     fieldB: number;
 }

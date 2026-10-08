@@ -2,7 +2,7 @@
  * Comprehensive test class for Svelte playground.
  */
 
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize, Hash) */
+/** @derive(Debug, Clone, PartialEq, Encode, Decode, Hash) */
 export interface SvelteAllMacrosTest {
     /** @debug({ rename: "testId" }) */
     id: string;

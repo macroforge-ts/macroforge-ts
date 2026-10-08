@@ -237,9 +237,9 @@ fn test_extract_imports_with_jsdoc_decorators() {
     let code = r#"
             import type { DateTime } from 'effect';
 
-            /** @derive(Serialize) */
+            /** @derive(Encode) */
             interface Event {
-                /** @serde({ validate: ["nonEmpty"] }) */
+                /** @endec({ validate: ["nonEmpty"] }) */
                 name: string;
                 begins: DateTime.DateTime;
             }
@@ -851,7 +851,7 @@ fn test_unreadable_state_is_treated_as_a_first_run() {
 fn test_external_macro_hash_finds_a_workspace_root_package() {
     // A workspace installs the macro package once, at the repository root, so a
     // package building from `apps/web` has no `node_modules` of its own. Missing
-    // it pins the hash at "none", and a rebuilt macro then invalidates nothing:
+    // it pins the hash at "none", and a rebuilt macro then invalidates nothing :
     // every consumer silently keeps serving the previous build's expansions.
     let tmp = tempfile::tempdir().unwrap();
     let workspace = tmp.path();

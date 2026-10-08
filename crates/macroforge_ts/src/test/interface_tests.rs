@@ -204,7 +204,7 @@ class User {
 fn test_unknown_derive_macro_on_interface_produces_error() {
     // A derive macro that doesn't exist should produce an error for interfaces too
     let source = r#"
-/** @derive(Serializable) */
+/** @derive(Encodable) */
 interface Config {
     host: string;
     port: number;
@@ -216,7 +216,7 @@ interface Config {
 
         // Should have a diagnostic for unknown macro
         let unknown_error = result.diagnostics.iter().find(|d| {
-            d.message.contains("Serializable")
+            d.message.contains("Encodable")
                 || d.message.contains("unknown")
                 || d.message.contains("not found")
         });
@@ -263,9 +263,9 @@ interface Data {
 }
 
 #[test]
-fn test_derive_serialize_on_interface_generates_functions() {
+fn test_derive_encode_on_interface_generates_functions() {
     let source = r#"
-/** @derive(Serialize) */
+/** @derive(Encode) */
 interface Point {
     x: number;
     y: number;
@@ -283,22 +283,22 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain prefix-style serialize functions (default naming style)
+        // Output should contain prefix-style encode functions (default naming style)
         assert!(
-            result.code.contains("pointSerialize"),
-            "Should generate prefix-style pointSerialize function"
+            result.code.contains("pointEncode"),
+            "Should generate prefix-style pointEncode function"
         );
         assert!(
-            result.code.contains("pointSerializeWithContext"),
-            "Should generate prefix-style pointSerializeWithContext function"
+            result.code.contains("pointEncodeWithContext"),
+            "Should generate prefix-style pointEncodeWithContext function"
         );
     }
 }
 
 #[test]
-fn test_derive_deserialize_on_interface_generates_functions() {
+fn test_derive_decode_on_interface_generates_functions() {
     let source = r#"
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 interface Point {
     x: number;
     y: number;
@@ -316,14 +316,14 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain prefix-style deserialize functions (default naming style)
+        // Output should contain prefix-style decode functions (default naming style)
         assert!(
-            result.code.contains("pointDeserialize"),
-            "Should generate prefix-style pointDeserialize function"
+            result.code.contains("pointDecode"),
+            "Should generate prefix-style pointDecode function"
         );
         assert!(
-            result.code.contains("pointDeserializeWithContext"),
-            "Should generate prefix-style pointDeserializeWithContextfunction"
+            result.code.contains("pointDecodeWithContext"),
+            "Should generate prefix-style pointDecodeWithContextfunction"
         );
     }
 }
@@ -331,7 +331,7 @@ interface Point {
 #[test]
 fn test_interface_derive_macros_default_to_prefix_functions() {
     let source = r#"
-/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Encode, Decode) */
 export interface Point {
     x: number;
     y: number;
@@ -354,8 +354,8 @@ export interface Point {
             "export function pointPartialCompare",
             "export function pointCompare",
             "export function pointDefaultValue",
-            "export function pointSerializeWithContext",
-            "export function pointDeserializeWithContext",
+            "export function pointEncodeWithContext",
+            "export function pointDecodeWithContext",
         ] {
             assert!(
                 result.code.contains(expected),
@@ -370,7 +370,7 @@ fn test_external_type_function_imports_for_prefix_style() {
     let source = r#"
 import { Metadata } from "./metadata.svelte";
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface User {
     metadata: Metadata;
 }
@@ -381,12 +381,12 @@ export interface User {
 
         // The expansion should call into the imported type's generated functions
         assert!(
-            result.code.contains("metadataSerializeWithContext"),
-            "Expected User serialization to reference metadataSerializeWithContext"
+            result.code.contains("metadataEncodeWithContext"),
+            "Expected User encoding to reference metadataEncodeWithContext"
         );
         assert!(
-            result.code.contains("metadataDeserializeWithContext"),
-            "Expected User deserialization to reference metadataDeserializeWithContext"
+            result.code.contains("metadataDecodeWithContext"),
+            "Expected User decoding to reference metadataDecodeWithContext"
         );
         assert!(
             result.code.contains("metadataDefaultValue"),
@@ -397,14 +397,14 @@ export interface User {
         assert!(
             result
                 .code
-                .contains("import { metadataSerializeWithContext } from \"./metadata.svelte\";"),
-            "Expected metadataSerializeWithContext import to be added"
+                .contains("import { metadataEncodeWithContext } from \"./metadata.svelte\";"),
+            "Expected metadataEncodeWithContext import to be added"
         );
         assert!(
             result
                 .code
-                .contains("import { metadataDeserializeWithContext } from \"./metadata.svelte\";"),
-            "Expected metadataDeserializeWithContext import to be added"
+                .contains("import { metadataDecodeWithContext } from \"./metadata.svelte\";"),
+            "Expected metadataDecodeWithContext import to be added"
         );
         assert!(
             result

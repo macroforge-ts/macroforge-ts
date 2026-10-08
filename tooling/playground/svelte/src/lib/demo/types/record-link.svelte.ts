@@ -1,2 +1,2 @@
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export type RecordLink<T> = /** @default */ string | T;

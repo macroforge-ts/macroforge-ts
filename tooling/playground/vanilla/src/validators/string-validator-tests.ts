@@ -1,123 +1,123 @@
 /**
- * String validator test classes for comprehensive deserializer validation testing.
+ * String validator test classes for comprehensive decoder validation testing.
  * Each class tests a single validator for isolation.
  */
 
 // Email validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class EmailValidator {
-    /** @serde({ validate: ["email"] }) */
+    /** @endec({ validate: ["email"] }) */
     email: string;
 }
 
 // URL validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class UrlValidator {
-    /** @serde({ validate: ["url"] }) */
+    /** @endec({ validate: ["url"] }) */
     url: string;
 }
 
 // UUID validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class UuidValidator {
-    /** @serde({ validate: ["uuid"] }) */
+    /** @endec({ validate: ["uuid"] }) */
     id: string;
 }
 
 // MaxLength validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MaxLengthValidator {
-    /** @serde({ validate: ["maxLength(10)"] }) */
+    /** @endec({ validate: ["maxLength(10)"] }) */
     shortText: string;
 }
 
 // MinLength validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MinLengthValidator {
-    /** @serde({ validate: ["minLength(5)"] }) */
+    /** @endec({ validate: ["minLength(5)"] }) */
     longText: string;
 }
 
 // Length validator (exact)
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LengthValidator {
-    /** @serde({ validate: ["length(8)"] }) */
+    /** @endec({ validate: ["length(8)"] }) */
     fixedText: string;
 }
 
 // LengthRange validator (use length with 2 args)
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LengthRangeValidator {
-    /** @serde({ validate: ["length(5, 10)"] }) */
+    /** @endec({ validate: ["length(5, 10)"] }) */
     rangedText: string;
 }
 
 // Pattern validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class PatternValidator {
-    /** @serde({ validate: ['pattern("^[A-Z]{3}$")'] }) */
+    /** @endec({ validate: ['pattern("^[A-Z]{3}$")'] }) */
     code: string;
 }
 
 // NonEmpty validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class NonEmptyValidator {
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     required: string;
 }
 
 // Trimmed validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class TrimmedValidator {
-    /** @serde({ validate: ["trimmed"] }) */
+    /** @endec({ validate: ["trimmed"] }) */
     trimmed: string;
 }
 
 // Lowercase validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LowercaseValidator {
-    /** @serde({ validate: ["lowercase"] }) */
+    /** @endec({ validate: ["lowercase"] }) */
     lower: string;
 }
 
 // Uppercase validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class UppercaseValidator {
-    /** @serde({ validate: ["uppercase"] }) */
+    /** @endec({ validate: ["uppercase"] }) */
     upper: string;
 }
 
 // Capitalized validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CapitalizedValidator {
-    /** @serde({ validate: ["capitalized"] }) */
+    /** @endec({ validate: ["capitalized"] }) */
     cap: string;
 }
 
 // Uncapitalized validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class UncapitalizedValidator {
-    /** @serde({ validate: ["uncapitalized"] }) */
+    /** @endec({ validate: ["uncapitalized"] }) */
     uncap: string;
 }
 
 // StartsWith validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class StartsWithValidator {
-    /** @serde({ validate: ['startsWith("https://")'] }) */
+    /** @endec({ validate: ['startsWith("https://")'] }) */
     secureUrl: string;
 }
 
 // EndsWith validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class EndsWithValidator {
-    /** @serde({ validate: ['endsWith(".json")'] }) */
+    /** @endec({ validate: ['endsWith(".json")'] }) */
     filename: string;
 }
 
 // Includes validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class IncludesValidator {
-    /** @serde({ validate: ['includes("@")'] }) */
+    /** @endec({ validate: ['includes("@")'] }) */
     emailLike: string;
 }

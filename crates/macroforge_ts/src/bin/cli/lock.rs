@@ -3,14 +3,14 @@
 //!
 //! Without it, `macroforge watch`, `svelte-package`, `tsc`, `svelte-check`,
 //! `cache` and `refresh` all write the same `.macroforge/type-registry.json`,
-//! `.macroforge/cache/manifest.json` and staging trees with no coordination —
+//! `.macroforge/cache/manifest.json` and staging trees with no coordination :
 //! two of them running at once interleave their writes.
 //!
 //! The primitive is `std::fs::File::{try_lock, lock}` (stable since 1.89),
 //! which is `flock` on unix and `LockFileEx` on Windows. This is the same call
 //! cargo makes for its own package-cache and build-directory locks. An advisory
 //! whole-file lock is used rather than a create-and-delete "dot lock" because
-//! the kernel releases it when the holder exits, however it exits — there is no
+//! the kernel releases it when the holder exits, however it exits: there is no
 //! stale lock to detect and reclaim after a crash or a `kill -9`.
 //!
 //! ## Granularity
@@ -50,7 +50,7 @@ struct LockFile {
 ///
 /// A second `flock` on a *different* descriptor deadlocks against the first,
 /// even within one process, so nested acquisitions are refcounted rather than
-/// re-locked — the same approach cargo takes in its `CacheLocker`.
+/// re-locked: the same approach cargo takes in its `CacheLocker`.
 struct LockState {
     /// The descriptor holding the OS lock. `None` when unheld.
     file: Option<File>,
@@ -86,7 +86,7 @@ impl ProjectLock {
         //
         // It is held across the blocking wait below, which is deliberate. Two
         // threads racing for the same root would otherwise both reach the
-        // syscall, and the second `flock` — on its own descriptor — would
+        // syscall, and the second `flock`: on its own descriptor: would
         // block against the first forever. Serializing them here means the
         // loser wakes up to `holders > 0` and refcounts instead.
         let mut state = lock
@@ -96,7 +96,7 @@ impl ProjectLock {
 
         // Already held by this process: refcount instead of deadlocking on a
         // second descriptor. Likewise once the filesystem has been found unable
-        // to lock — retrying would fail identically every time.
+        // to lock: retrying would fail identically every time.
         if state.holders > 0 || state.unsupported {
             state.holders += 1;
             drop(state);
@@ -141,7 +141,7 @@ impl ProjectLock {
                 if !quiet && e.kind() != std::io::ErrorKind::Unsupported {
                     eprintln!(
                         "[macroforge] warning: cannot lock {} ({e}); \
-                         continuing without a project lock — concurrent \
+                         continuing without a project lock: concurrent \
                          macroforge processes will not be serialized",
                         lock.path.display()
                     );
@@ -237,8 +237,8 @@ struct HolderRecord {
 
 /// Stamps the lock file with who holds it, so a waiting process can name it.
 ///
-/// This has to be written to the locked file itself — the lock lives on that
-/// inode, so it cannot be replaced by a rename — which means a reader can
+/// This has to be written to the locked file itself: the lock lives on that
+/// inode, so it cannot be replaced by a rename: which means a reader can
 /// catch it mid-write. That is tolerable because the record is only ever read
 /// to build a human-readable message, and [`describe_holder`] falls back when
 /// it cannot parse.
@@ -252,7 +252,7 @@ fn record_holder(file: &File, command: &str) -> Result<()> {
         command: command.to_string(),
         started_at,
     })
-    .context("failed to serialize the lock holder")?;
+    .context("failed to encode the lock holder")?;
 
     let mut file = file;
     file.set_len(0).context("failed to truncate")?;
@@ -287,7 +287,7 @@ fn describe_holder(path: &Path) -> String {
 /// directory.
 ///
 /// The path is canonicalized so two invocations naming the same project
-/// through different paths — a symlink, a relative path, `.` — resolve to one
+/// through different paths: a symlink, a relative path, `.`: resolve to one
 /// lock. A root that does not exist yet is returned as given: locking it will
 /// create it.
 pub(crate) fn resolve_project_root(explicit: Option<&Path>) -> PathBuf {

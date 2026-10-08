@@ -132,8 +132,8 @@ pub fn ts_macro_attribute(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ## With Description
 ///
 /// ```rust,ignore
-/// #[ts_macro_derive(Serialize, description = "Generates JSON serialization methods")]
-/// fn serialize_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
+/// #[ts_macro_derive(Encode, description = "Generates JSON encoding methods")]
+/// fn encode_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
 ///     Ok(input)
 /// }
 /// ```
@@ -142,9 +142,9 @@ pub fn ts_macro_attribute(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ```rust,ignore
 /// #[ts_macro_derive(
-///     Serde,
-///     description = "Serialization with validation",
-///     attributes((serde, "Configure serialization"), (validate, "Add validators"))
+///     Endec,
+///     description = "Encoding with validation",
+///     attributes((endec, "Configure encoding"), (validate, "Add validators"))
 /// )]
 /// fn serde_macro(input: TsStream) -> Result<TsStream, MacroforgeError> {
 ///     Ok(input)
@@ -365,7 +365,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
             macroforge_ts::host::import_registry::clear_foreign_types();
 
             macroforge_ts::serde_json::to_string(&result)
-                .map_err(|e| format!("Failed to serialize result: {}", e))
+                .map_err(|e| format!("Failed to encode result: {}", e))
         }
 
         // --- WASM Bindings ---
@@ -530,7 +530,7 @@ fn generate_macro_impl(options: MacroOptions, item: TokenStream, attr_name: &str
 ///
 /// - `debug_macro` → `DebugMacro`
 /// - `r#type` → `Type` (raw identifier prefix stripped)
-/// - `serialize_json` → `SerializeJson`
+/// - `encode_json` → `EncodeJson`
 fn pascal_case_ident(ident: &Ident) -> Ident {
     let raw = ident.to_string();
     let trimmed = raw.trim_start_matches("r#");
@@ -588,13 +588,13 @@ fn pascal_case_ident(ident: &Ident) -> Ident {
 ///
 /// ```rust,ignore
 /// // Simple identifier (no documentation)
-/// attributes(serde, clone)
+/// attributes(endec, clone)
 ///
 /// // Tuple with documentation
-/// attributes((serde, "Configure serialization"), (validate, "Add validators"))
+/// attributes((endec, "Configure encoding"), (validate, "Add validators"))
 ///
 /// // Mixed
-/// attributes(clone, (serde, "Serialization support"))
+/// attributes(clone, (endec, "Encoding support"))
 /// ```
 fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
     if tokens.is_empty() {
@@ -641,8 +641,8 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
                 opts.kind = MacroKindOption::from_lit(&lit)?;
             } else if meta.path.is_ident("attributes") {
                 // Parse attributes(...) which can contain:
-                // - Simple identifiers: `serde`
-                // - Tuples with docs: `(serde, "Configure serialization")`
+                // - Simple identifiers: `endec`
+                // - Tuples with docs: `(endec, "Configure encoding")`
                 let content;
                 syn::parenthesized!(content in meta.input);
 
@@ -709,8 +709,8 @@ fn parse_macro_options_with_default_kind(
 /// Represents a decorator attribute with optional documentation.
 ///
 /// Decorators are field-level annotations that modify how the macro processes
-/// individual class members. For example, `@serde.skip` might exclude a field
-/// from serialization.
+/// individual class members. For example, `@endec.skip` might exclude a field
+/// from encoding.
 ///
 /// # Syntax
 ///
@@ -723,7 +723,7 @@ fn parse_macro_options_with_default_kind(
 ///
 /// ```rust,ignore
 /// // In macro definition
-/// #[ts_macro_derive(Serde, attributes(
+/// #[ts_macro_derive(Endec, attributes(
 ///     skip,                                    // Simple form
 ///     (rename, "Rename the field in output")   // With documentation
 /// ))]
@@ -797,7 +797,7 @@ struct MacroOptions {
 
     /// List of decorator attributes that this macro recognizes.
     ///
-    /// These are field-level annotations like `@serde.skip` or `@validate.email`.
+    /// These are field-level annotations like `@endec.skip` or `@validate.email`.
     attributes: Vec<AttributeWithDoc>,
 }
 

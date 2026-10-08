@@ -89,7 +89,7 @@ function submitEvent() {
 </svelte:head>
 
 <h1>Validator Form Testing</h1>
-<p>Test deserializer validators with real form data.</p>
+<p>Test decoder validators with real form data.</p>
 
 <!-- User Registration Form -->
 <div class="form-section">

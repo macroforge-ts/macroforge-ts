@@ -175,7 +175,7 @@ export interface MacroConfig {
      * @remarks
      * When `true` (default), generates an `export const TypeName = { ... } as const;`
      * that groups all generated functions for a type into a single namespace-like object.
-     * For example: `export const User = { clone: userClone, serialize: userSerialize } as const;`
+     * For example: `export const User = { clone: userClone, encode: userEncode } as const;`
      *
      * When `false`, only the standalone functions are generated without the grouping const.
      */

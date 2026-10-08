@@ -6,7 +6,7 @@ import type { OverviewSettings } from './overview-settings.svelte';
 import type { Page } from './page.svelte';
 import type { ScheduleSettings } from './schedule-settings.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Settings {
     appointmentNotifications: AppointmentNotifications | null;
     commissions: Commissions | null;

@@ -11,7 +11,7 @@
         ".": "./pkg/macroforge_ts.js",
         "./buildtime": "./js/buildtime/index.ts",
         "./rules": "./js/rules/index.ts",
-        "./serde": "./js/serde/index.ts",
+        "./endec": "./js/endec/index.ts",
         "./traits": "./js/traits/index.ts"
     },
     "homepage": "https://macroforge.dev",

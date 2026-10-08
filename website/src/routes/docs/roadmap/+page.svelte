@@ -157,9 +157,9 @@
             <td>Core derive macros</td>
         </tr>
         <tr>
-            <td>Serialize, Deserialize</td>
+            <td>Encode, Decode</td>
             <td><span class="text-success">Available</span></td>
-            <td>JSON serialization with validation</td>
+            <td>JSON encoding with validation</td>
         </tr>
         <tr>
             <td>Builder</td>
@@ -197,7 +197,7 @@
             <td><span class="text-success">Available</span></td>
             <td
                 >Cross-platform WebAssembly binaries for easier macro
-                distribution — build them with <code>macroforge build</code></td
+                distribution: build them with <code>macroforge build</code></td
             >
         </tr>
         <tr>

@@ -1,10 +1,10 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Email {
     /** @switchController({ label: "Can Email" }) */
     canEmail: boolean;
     /** @textController({ label: "Email" }) */
-    /** @serde({ validate: ["nonEmpty", "email"] }) */
+    /** @endec({ validate: ["nonEmpty", "email"] }) */
     emailString: string;
 }

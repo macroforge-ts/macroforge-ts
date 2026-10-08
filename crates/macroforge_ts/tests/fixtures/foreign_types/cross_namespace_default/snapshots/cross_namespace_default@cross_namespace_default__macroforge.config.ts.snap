@@ -16,8 +16,8 @@ export default {
     foreignTypes: {
         'DateTime.Utc': {
             from: ['effect'],
-            serialize: (v: DateTime.Utc) => DateTime.formatIso(v),
-            deserialize: (raw: unknown) =>
+            encode: (v: DateTime.Utc) => DateTime.formatIso(v),
+            decode: (raw: unknown) =>
                 Option.match(DateTime.make(raw as string), {
                     onSome: (dt) => dt,
                     onNone: () => Option.getOrElse(DateTime.make(0), () => null as never)
@@ -36,7 +36,7 @@ export default {
 
 import { DateTime } from 'effect';
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface Foo {
     /** @default("place:holder") */
     id: string;
@@ -51,18 +51,18 @@ Option
 ## Generated imports (only `__mf_*` lines)
 
 import { Option as __mf_Option } from "effect";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 ## `__mf_*` aliases referenced in body
 
-__mf_DeserializeContext
+__mf_DecodeContext
+__mf_EncodeContext
 __mf_Option
 __mf_PendingRef
-__mf_SerializeContext
 
 ## Body references: config-declared (must be aliased)
 

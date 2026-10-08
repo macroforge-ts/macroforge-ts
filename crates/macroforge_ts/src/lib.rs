@@ -20,7 +20,7 @@
 //! - **Position Mapping** (`api_types::SourceMappingResult`): Bidirectional source mapping
 //!   for IDE integration.
 //! - **Macro Host** (`host` module): Core expansion engine with registry and dispatcher.
-//! - **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Serialize, etc.).
+//! - **Built-in Macros** (`builtin` module): Standard derive macros (Debug, Clone, Encode, etc.).
 //!
 //! ## Usage
 //!
@@ -242,7 +242,7 @@ pub unsafe extern "C" fn __macroforge_ffi_get_manifest(
             0
         }
         Err(e) => {
-            let msg = format!("Failed to serialize manifest: {e}")
+            let msg = format!("Failed to encode manifest: {e}")
                 .into_bytes()
                 .into_boxed_slice();
             unsafe {

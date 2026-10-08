@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/buildtime-demo.ts
-sha256 be277bd3364e0ce39be0c83dbafb7bdee3a97eb91f0c53fa5f421a66c6592574
+sha256 422991b2674d344ec99c1c13ed9c8555e03d039bc00ed609a9d4ef2aabfabce0
 
 ## Changed
 
@@ -22,7 +22,7 @@ import { buildtime } from '@macroforge/core/buildtime';
 import type { BuildtimeDemoResult } from './playground-globals.ts';
 
 // ---------------------------------------------------------------------
-// Tier 1 — build-time constants
+// Tier 1: build-time constants
 // ---------------------------------------------------------------------
 
 const ANSWER = 42;
@@ -36,12 +36,12 @@ const CONSTANT_OBJECT = {items: [1, 2, 3], label: "build-time", thirteen: 13};
 const DERIVED_SUMMARY = "answer=42, hash=10450f98";
 
 // Tier 1 can also use IIFEs for larger computation, staying within the
-// tier's serialize-a-value contract. Here we generate a greeting table
+// tier's encode-a-value contract. Here we generate a greeting table
 // from a list at build time.
 const GREETINGS = {alice: "hello, alice", bob: "hello, bob", cam: "hello, cam"};
 
 // ---------------------------------------------------------------------
-// Tier 3 — build-time computed TypeScript type
+// Tier 3: build-time computed TypeScript type
 // ---------------------------------------------------------------------
 
 export type UserId = string;
@@ -79,11 +79,11 @@ export function collectBuildtimeDemo(): BuildtimeDemoResult {
 
 ## Mapping
 
-original 0..2101 -> expanded 0..2101
+original 0..2092 -> expanded 0..2092
 
 ## Metadata
 
-type UserId: {"body":{"Other":"string"},"decorators":[],"name":"UserId","span":{"end":1483,"start":1462},"type_params":[]}
+type UserId: {"body":{"Other":"string"},"decorators":[],"name":"UserId","span":{"end":1474,"start":1453},"type_params":[]}
 
 ## Registry reads
 

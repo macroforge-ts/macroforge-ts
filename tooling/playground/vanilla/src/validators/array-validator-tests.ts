@@ -1,24 +1,24 @@
 /**
- * Array validator test classes for comprehensive deserializer validation testing.
+ * Array validator test classes for comprehensive decoder validation testing.
  */
 
 // MaxItems validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MaxItemsValidator {
-    /** @serde({ validate: ["maxItems(5)"] }) */
+    /** @endec({ validate: ["maxItems(5)"] }) */
     items: Array<string>;
 }
 
 // MinItems validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MinItemsValidator {
-    /** @serde({ validate: ["minItems(2)"] }) */
+    /** @endec({ validate: ["minItems(2)"] }) */
     items: Array<string>;
 }
 
 // ItemsCount validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class ItemsCountValidator {
-    /** @serde({ validate: ["itemsCount(3)"] }) */
+    /** @endec({ validate: ["itemsCount(3)"] }) */
     items: Array<string>;
 }

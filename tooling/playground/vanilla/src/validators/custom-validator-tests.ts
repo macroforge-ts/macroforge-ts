@@ -1,5 +1,5 @@
 /**
- * Custom validator test classes for comprehensive deserializer validation testing.
+ * Custom validator test classes for comprehensive decoder validation testing.
  */
 
 // Custom validator function for even numbers
@@ -13,29 +13,29 @@ export function isValidUsername(value: string): boolean {
 }
 
 // Custom number validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CustomNumberValidator {
-    /** @serde({ validate: ["custom(isEven)"] }) */
+    /** @endec({ validate: ["custom(isEven)"] }) */
     evenNumber: number;
 }
 
 // Custom string validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CustomStringValidator {
-    /** @serde({ validate: ["custom(isValidUsername)"] }) */
+    /** @endec({ validate: ["custom(isValidUsername)"] }) */
     username: string;
 }
 
 // Custom validator with custom message
 // Custom validator imported from another module by the expansion itself
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class ImportedCustomValidator {
-    /** @serde({ validate: ['custom({ function: "isMultipleOfThree", source: "./shared-validators" })'] }) */
+    /** @endec({ validate: ['custom({ function: "isMultipleOfThree", source: "./shared-validators" })'] }) */
     count: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CustomWithMessageValidator {
-    /** @serde({ validate: [{ validate: "custom(isEven)", message: "Number must be even" }] }) */
+    /** @endec({ validate: [{ validate: "custom(isEven)", message: "Number must be even" }] }) */
     evenNumber: number;
 }

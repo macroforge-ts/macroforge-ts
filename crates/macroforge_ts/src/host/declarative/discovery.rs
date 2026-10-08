@@ -39,7 +39,7 @@ pub struct DiscoveredMacro {
     /// Span covering the full `const $name = macroRules\`...\`;` declaration,
     /// in the **1-based SpanIR convention** used by the patch applicator.
     pub def_span: SpanIR,
-    /// Span of the smallest enclosing lexical scope — the program
+    /// Span of the smallest enclosing lexical scope: the program
     /// span for top-level declarations, or the block / function body
     /// span for nested declarations (PR 11).
     ///
@@ -63,7 +63,7 @@ pub const MACRO_RULES_IDENT: &str = "macroRules";
 /// found, or the first parse error encountered.
 ///
 /// If the file does not import `macroRules` from `"@macroforge/core/rules"`,
-/// returns an empty vector immediately — this is the fast-path for files
+/// returns an empty vector immediately: this is the fast-path for files
 /// that don't use declarative macros, which is the common case.
 pub fn discover(
     program: &Program<'_>,
@@ -106,7 +106,7 @@ pub fn discover(
 /// Error handling: OXC's `Visit` trait has no `Result` return type,
 /// so parse errors from `parse_tag_form_macro` / `parse_object_form_macro`
 /// are stashed into `self.error`. The first error short-circuits
-/// further work via a flag check at every visitor entry — we can't
+/// further work via a flag check at every visitor entry: we can't
 /// actually stop the walker, so we silently no-op until the caller
 /// retrieves the error.
 struct DiscoveryVisitor<'s> {
@@ -200,7 +200,7 @@ impl<'s> DiscoveryVisitor<'s> {
 impl<'a> oxc::ast_visit::Visit<'a> for DiscoveryVisitor<'_> {
     fn visit_variable_declaration(&mut self, decl: &oxc::ast::ast::VariableDeclaration<'a>) {
         self.try_collect_decl(decl, decl.span);
-        // Don't descend — a `const $name = macroRules\`...\``'s
+        // Don't descend: a `const $name = macroRules\`...\``'s
         // template body is a string literal to us, not nested code.
     }
 
@@ -209,7 +209,7 @@ impl<'a> oxc::ast_visit::Visit<'a> for DiscoveryVisitor<'_> {
         // `ExportDeclaration` whose inner `declaration` is a
         // `VariableDeclaration`. The default walker would descend to the
         // inner decl, which would then call `try_collect_decl` with the
-        // *inner* span — causing the rewriter to erase only the
+        // *inner* span: causing the rewriter to erase only the
         // `const $name = ...` portion and leave the `export` keyword
         // orphaned. To fix that we intercept here and pass the *outer*
         // span (which covers `export`), then skip the default descent.
@@ -217,7 +217,7 @@ impl<'a> oxc::ast_visit::Visit<'a> for DiscoveryVisitor<'_> {
             // Use the outer `export ...` span so the rewriter deletes the
             // entire statement including the `export` keyword.
             self.try_collect_decl(var_decl, decl.span);
-            // Skip walk — macro template bodies don't contain nested code
+            // Skip walk: macro template bodies don't contain nested code
             // we need to visit, and we've already handled the decl.
             return;
         }
@@ -305,7 +305,7 @@ fn parse_object_form_macro(
     for prop in &obj.properties {
         use oxc::ast::ast::{ObjectPropertyKind, PropertyKey};
         let ObjectPropertyKind::ObjectProperty(p) = prop else {
-            // Spread (`...other`) isn't supported — it would defeat the
+            // Spread (`...other`) isn't supported: it would defeat the
             // static analysis the expander relies on.
             return Err(DeclarativeError::new(
                 oxc_span_to_ir(prop.span()),
@@ -347,7 +347,7 @@ fn parse_object_form_macro(
                 mode = Some(parsed);
             }
             "expand" => {
-                // `expand: macroRules\`...\`` — a nested tag-form template.
+                // `expand: macroRules\`...\``: a nested tag-form template.
                 let Expression::TaggedTemplateExpression(tagged) = &p.value else {
                     return Err(DeclarativeError::new(
                         oxc_span_to_ir(p.value.span()),
@@ -448,7 +448,7 @@ fn parse_object_form_macro(
                         "`runtimeName` must contain the literal token `$__cluster__` exactly once; the rewriter substitutes it with the cluster id per call site",
                     )
                     .with_help(
-                        "example: `runtimeName: \"__serialize_$__cluster__\"` — the `$__cluster__` placeholder is replaced with the cluster id (e.g. `a`, `struct_User_Person`) per cluster variant.",
+                        "example: `runtimeName: \"__encode_$__cluster__\"`: the `$__cluster__` placeholder is replaced with the cluster id (e.g. `a`, `struct_User_Person`) per cluster variant.",
                     ));
                 }
                 runtime_name_template = Some(text);
@@ -506,7 +506,7 @@ fn parse_object_form_macro(
     }
 
     // Type-position macros can't participate in reverse-monomorphization
-    // because there's no runtime at the type level — `runtime` / `call`
+    // because there's no runtime at the type level: `runtime` / `call`
     // only make sense in value space. Reject the combination early so
     // users get a clear diagnostic instead of silently-wrong behavior.
     if effective_kind == MacroKind::Type {
@@ -522,7 +522,7 @@ fn parse_object_form_macro(
         if runtime.is_some() || call_arms.is_some() {
             return Err(DeclarativeError::new(
                 oxc_span_to_ir(obj.span),
-                "type-position macros cannot declare `runtime` or `call` — those fields only apply in value position",
+                "type-position macros cannot declare `runtime` or `call`: those fields only apply in value position",
             )
             .with_help(
                 "remove the `runtime` and `call` fields, or drop `kind: \"type\"` if you're writing a value-position macro.",
@@ -576,7 +576,7 @@ fn extract_plain_string(expr: &Expression<'_>) -> Result<String, DeclarativeErro
 /// `/** import macro */` directive.
 ///
 /// Aliased imports (`import { state as $state }`) use the local name as
-/// the key — that's the callee the user writes, which is what the
+/// the key: that's the callee the user writes, which is what the
 /// rewriter looks up.
 pub fn collect_dollar_imports(program: &Program<'_>) -> std::collections::HashMap<String, String> {
     let mut out = std::collections::HashMap::new();
@@ -605,7 +605,7 @@ pub fn collect_dollar_imports(program: &Program<'_>) -> std::collections::HashMa
 /// can rely on AST-level identifier matches instead of tracking renames.
 ///
 /// This is the broad "does this file opt into declarative macros?" check.
-/// It fires regardless of what else the import statement contains — a file
+/// It fires regardless of what else the import statement contains: a file
 /// with `import { macroRules, type MacroInvocation } from "@macroforge/core/rules"`
 /// still counts. Use [`find_macro_rules_import_span`] instead when you
 /// need to know whether the whole statement is safe to delete.
@@ -650,7 +650,7 @@ fn has_macro_import(program: &Program<'_>) -> bool {
 /// binding has no remaining uses. Under `noUnusedLocals`, TypeScript
 /// flags the unused import. Stripping the whole import statement fixes
 /// this, but only when `macroRules` is the *only* thing imported from
-/// the rules module — if the user also imports (say) a type like
+/// the rules module: if the user also imports (say) a type like
 /// `MacroInvocation`, the statement stays and they live with one
 /// `noUnusedLocals` warning they can silence manually.
 ///
@@ -691,7 +691,7 @@ pub(super) fn find_macro_rules_import_span(program: &Program<'_>) -> Option<Span
 
 /// Pull the static text out of a TaggedTemplateExpression's quasi.
 ///
-/// MVP rejects templates with `${...}` interpolations — the macro body
+/// MVP rejects templates with `${...}` interpolations: the macro body
 /// must be pure text. If interpolations are present we emit an error
 /// pointing at the first one.
 fn extract_static_quasi<'a>(
@@ -770,7 +770,7 @@ pub struct ResolvedImports {
 /// Resolve each `$`-prefixed name of the file's
 /// `/** import macro { $name1, $name2 } from "./spec" */` comments against the project-wide
 /// declarative registry. Non-prefixed names are derive-macro imports and
-/// are ignored here — the derive pipeline already handles them.
+/// are ignored here: the derive pipeline already handles them.
 ///
 /// `importer_path` must be the absolute path of the file whose source is
 /// being scanned; it's used as the anchor for relative specifier
@@ -783,7 +783,7 @@ pub fn resolve_cross_file_imports(
     let mut out = ResolvedImports::default();
     for (name, module) in macro_imports {
         // Only `$`-prefixed names are declarative macros. Derive imports
-        // (bare names like `Serialize`) fall through to the derive path.
+        // (bare names like `Encode`) fall through to the derive path.
         if !name.starts_with('$') {
             continue;
         }
@@ -823,7 +823,7 @@ pub fn resolve_cross_file_imports(
         let bare_name = &name[1..];
         let Some(file_macros) = project_registry.file_macros(&resolved_path) else {
             // resolve_specifier only returns paths known to the registry,
-            // so file_macros should always succeed — but guard anyway.
+            // so file_macros should always succeed: but guard anyway.
             out.diagnostics.push(Diagnostic {
                 level: DiagnosticLevel::Error,
                 message: format!(

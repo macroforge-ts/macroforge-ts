@@ -387,10 +387,10 @@ pub struct MacroResult {
 ///
 /// let error = Diagnostic {
 ///     level: DiagnosticLevel::Error,
-///     message: "Field 'password' cannot be serialized".to_string(),
+///     message: "Field 'password' cannot be encoded".to_string(),
 ///     span: Some(SpanIR::new(100, 115)),
-///     notes: vec!["Sensitive fields should use @serde(skip)".to_string()],
-///     help: Some("Add @serde(skip) decorator to this field".to_string()),
+///     notes: vec!["Sensitive fields should use @endec(skip)".to_string()],
+///     help: Some("Add @endec(skip) decorator to this field".to_string()),
 /// };
 /// ```
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]

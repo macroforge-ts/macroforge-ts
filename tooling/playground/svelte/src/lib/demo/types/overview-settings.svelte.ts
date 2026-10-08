@@ -4,7 +4,7 @@ import type { ColumnConfig } from './column-config.svelte';
 import type { OverviewDisplay } from './overview-display.svelte';
 import type { RowHeight } from './row-height.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface OverviewSettings {
     /** @default("Medium") */
     rowHeight: RowHeight;

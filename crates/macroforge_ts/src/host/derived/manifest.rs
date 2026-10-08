@@ -19,7 +19,7 @@ pub struct MacroManifestEntry {
 /// Entry for a registered decorator in the manifest.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DecoratorManifestEntry {
-    /// The module this decorator belongs to (e.g., "serde").
+    /// The module this decorator belongs to (e.g., "endec").
     pub module: String,
     /// The exported name of the decorator (e.g., "skip", "rename").
     pub export: String,

@@ -1,6 +1,6 @@
 /** import macro { JSON } from "@playground/macro"; */
 
-/** @derive(Debug, Serialize, Deserialize) */
+/** @derive(Debug, Encode, Decode) */
 export class MacroUser {
     /** @debug({ rename: "userId" }) */
     id: string;
@@ -22,4 +22,4 @@ const showcaseUser = new MacroUser({
 });
 
 export const showcaseUserSummary = MacroUser.toString(showcaseUser);
-export const showcaseUserJson = JSON.parse(MacroUser.serialize(showcaseUser));
+export const showcaseUserJson = JSON.parse(MacroUser.encode(showcaseUser));

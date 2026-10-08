@@ -1,25 +1,25 @@
-//! Serialize [`SandboxValue`] back to TypeScript literal source.
+//! Encode [`SandboxValue`] back to TypeScript literal source.
 //!
 //! The pre-pass invokes the sandbox, gets a [`SandboxValue`], and must
 //! splice an equivalent TS literal into the user's file. That conversion
-//! happens here. The output is deliberately minimal — one line per value
-//! when short, no pretty-printing, no trailing commas — because the
+//! happens here. The output is deliberately minimal: one line per value
+//! when short, no pretty-printing, no trailing commas: because the
 //! OXC codegen pass re-formats the file anyway.
 //!
 //! Object keys that aren't valid TS identifiers get quoted. Strings get
 //! JSON-style escaping. Numbers that can't be expressed as decimal
-//! literals (NaN, ±Infinity) cause a hard error — there's no valid TS
+//! literals (NaN, ±Infinity) cause a hard error: there's no valid TS
 //! syntax for them, and the user would much rather see a build-time
 //! failure than mysterious `NaN` values in their bundle.
 
 use crate::host::buildtime::sandbox::SandboxValue;
 
-/// Serializer failure modes.
+/// Encoder failure modes.
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum SerializeError {
     #[error("value {0} has no valid TypeScript literal representation")]
     NotRepresentable(&'static str),
-    #[error("number {0} cannot be serialized as a TypeScript numeric literal")]
+    #[error("number {0} cannot be encoded as a TypeScript numeric literal")]
     NumberNotRepresentable(f64),
 }
 
@@ -29,7 +29,7 @@ pub enum SerializeError {
 /// evaluated at runtime, produces a value equal to `value` (modulo the
 /// BigInt/Number distinction, which is preserved by using `n` suffixes).
 ///
-/// [`SandboxValue::SourceCode`] is emitted verbatim — the serializer
+/// [`SandboxValue::SourceCode`] is emitted verbatim: the encoder
 /// trusts the Tier 2 function to have returned valid TS. If it didn't,
 /// the next OXC parse will catch it and produce a diagnostic on the
 /// original `@buildtime function` declaration.
@@ -125,7 +125,7 @@ fn write_object_key(key: &str, out: &mut String) {
 
 /// True if `s` is a valid ES/TS identifier (and not a reserved word).
 ///
-/// This is a conservative check — we reject anything that isn't an ASCII
+/// This is a conservative check: we reject anything that isn't an ASCII
 /// identifier even though ES allows Unicode identifiers. Quoting an
 /// otherwise-valid Unicode identifier is harmless, so the strict version
 /// is fine.
@@ -193,7 +193,7 @@ fn is_reserved_word(s: &str) -> bool {
 }
 
 #[cfg(test)]
-mod serialize_unit {
+mod encode_unit {
     use super::*;
     use std::collections::BTreeMap;
 

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/settings.svelte.ts
-sha256 4fb256dc4e247a47fe144e13036d5594195ad413a1dc3285dca14e3ca5b8df59
+sha256 1d08282c2a5ac7af9541e722b2c825aa21fea8749e012a0d79c9cead20c62161
 
 ## Changed
 
@@ -12,23 +12,23 @@ true
 
 ## Output
 
-import { appointmentNotificationsDeserializeWithContext } from "./appointment-notifications.svelte";
-import { commissionsDeserializeWithContext } from "./commissions.svelte";
-import { overviewSettingsDeserializeWithContext } from "./overview-settings.svelte";
-import { pageDeserializeWithContext } from "./page.svelte";
-import { scheduleSettingsDeserializeWithContext } from "./schedule-settings.svelte";
-import { appointmentNotificationsSerializeWithContext } from "./appointment-notifications.svelte";
-import { commissionsSerializeWithContext } from "./commissions.svelte";
-import { overviewSettingsSerializeWithContext } from "./overview-settings.svelte";
-import { pageSerializeWithContext } from "./page.svelte";
-import { scheduleSettingsSerializeWithContext } from "./schedule-settings.svelte";
+import { appointmentNotificationsDecodeWithContext } from "./appointment-notifications.svelte";
+import { commissionsDecodeWithContext } from "./commissions.svelte";
+import { overviewSettingsDecodeWithContext } from "./overview-settings.svelte";
+import { pageDecodeWithContext } from "./page.svelte";
+import { scheduleSettingsDecodeWithContext } from "./schedule-settings.svelte";
+import { appointmentNotificationsEncodeWithContext } from "./appointment-notifications.svelte";
+import { commissionsEncodeWithContext } from "./commissions.svelte";
+import { overviewSettingsEncodeWithContext } from "./overview-settings.svelte";
+import { pageEncodeWithContext } from "./page.svelte";
+import { scheduleSettingsEncodeWithContext } from "./schedule-settings.svelte";
 import { overviewSettingsDefaultValue } from "./overview-settings.svelte";
 import { scheduleSettingsDefaultValue } from "./schedule-settings.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -75,16 +75,16 @@ homePage: "UserHome",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function settingsSerialize(value: Settings, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = settingsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function settingsEncode(value: Settings, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = settingsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function settingsSerializeWithContext(value: Settings, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -98,7 +98,7 @@ homePage: "UserHome",
                         "__type": "Settings",
                         __id,
                     };if (value.appointmentNotifications !== null) {
-                                                    result.appointmentNotifications = appointmentNotificationsSerializeWithContext(value.appointmentNotifications, ctx);
+                                                    result.appointmentNotifications = appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
 
 
 
@@ -107,7 +107,7 @@ homePage: "UserHome",
                                             } else {
                                                 result.appointmentNotifications = null;
                                             }if (value.commissions !== null) {
-                                                    result.commissions = commissionsSerializeWithContext(value.commissions, ctx);
+                                                    result.commissions = commissionsEncodeWithContext(value.commissions, ctx);
 
 
 
@@ -115,7 +115,7 @@ homePage: "UserHome",
 
                                             } else {
                                                 result.commissions = null;
-                                            }result.scheduleSettings = scheduleSettingsSerializeWithContext(value.scheduleSettings, ctx);result.accountOverviewSettings = overviewSettingsSerializeWithContext(value.accountOverviewSettings, ctx);result.serviceOverviewSettings = overviewSettingsSerializeWithContext(value.serviceOverviewSettings, ctx);result.appointmentOverviewSettings = overviewSettingsSerializeWithContext(value.appointmentOverviewSettings, ctx);result.leadOverviewSettings = overviewSettingsSerializeWithContext(value.leadOverviewSettings, ctx);result.packageOverviewSettings = overviewSettingsSerializeWithContext(value.packageOverviewSettings, ctx);result.productOverviewSettings = overviewSettingsSerializeWithContext(value.productOverviewSettings, ctx);result.orderOverviewSettings = overviewSettingsSerializeWithContext(value.orderOverviewSettings, ctx);result.taxRateOverviewSettings = overviewSettingsSerializeWithContext(value.taxRateOverviewSettings, ctx);result.homePage = pageSerializeWithContext(value.homePage, ctx);
+                                            }result.scheduleSettings = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);result.accountOverviewSettings = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);result.serviceOverviewSettings = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);result.appointmentOverviewSettings = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);result.leadOverviewSettings = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);result.packageOverviewSettings = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);result.productOverviewSettings = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);result.orderOverviewSettings = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);result.taxRateOverviewSettings = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);result.homePage = pageEncodeWithContext(value.homePage, ctx);
 
 
 
@@ -214,21 +214,21 @@ homePage: "UserHome",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function settingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = settingsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = settingsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Settings.deserialize: root cannot be a forward reference"
+		message: "Settings.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -251,7 +251,7 @@ homePage: "UserHome",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -268,14 +268,14 @@ homePage: "UserHome",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function settingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Settings | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function settingsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Settings.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -323,10 +323,10 @@ homePage: "UserHome",
                                                 } else {
                                                         ctx.pushScope("appointmentNotifications");
                                                         try {
-                                                            const __result = appointmentNotificationsDeserializeWithContext(__raw_appointmentNotifications, ctx);
+                                                            const __result = appointmentNotificationsDecodeWithContext(__raw_appointmentNotifications, ctx);
                                                             ctx.assignOrDefer(instance, "appointmentNotifications", __result);
                                                         } catch (__e) {
-                                                            if (__e instanceof __mf_DeserializeError) {
+                                                            if (__e instanceof __mf_DecodeError) {
                                                                 for (const __err of __e.errors) {
                                                                     errors.push({
                                                                         field: __err.field === "_root" ? "appointmentNotifications" : "appointmentNotifications." + __err.field,
@@ -626,10 +626,10 @@ homePage: "UserHome",
                                                 } else {
                                                         ctx.pushScope("commissions");
                                                         try {
-                                                            const __result = commissionsDeserializeWithContext(__raw_commissions, ctx);
+                                                            const __result = commissionsDecodeWithContext(__raw_commissions, ctx);
                                                             ctx.assignOrDefer(instance, "commissions", __result);
                                                         } catch (__e) {
-                                                            if (__e instanceof __mf_DeserializeError) {
+                                                            if (__e instanceof __mf_DecodeError) {
                                                                 for (const __err of __e.errors) {
                                                                     errors.push({
                                                                         field: __err.field === "_root" ? "commissions" : "commissions." + __err.field,
@@ -926,10 +926,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_scheduleSettings = obj["scheduleSettings"] as ScheduleSettings;ctx.pushScope("scheduleSettings");
                                             try {
-                                                const __result = scheduleSettingsDeserializeWithContext(__raw_scheduleSettings, ctx);
+                                                const __result = scheduleSettingsDecodeWithContext(__raw_scheduleSettings, ctx);
                                                 ctx.assignOrDefer(instance, "scheduleSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "scheduleSettings" : "scheduleSettings." + __err.field,
@@ -1203,10 +1203,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;ctx.pushScope("accountOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_accountOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_accountOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "accountOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "accountOverviewSettings" : "accountOverviewSettings." + __err.field,
@@ -1480,10 +1480,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_serviceOverviewSettings = obj["serviceOverviewSettings"] as OverviewSettings;ctx.pushScope("serviceOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_serviceOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_serviceOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "serviceOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "serviceOverviewSettings" : "serviceOverviewSettings." + __err.field,
@@ -1757,10 +1757,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;ctx.pushScope("appointmentOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_appointmentOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_appointmentOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "appointmentOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "appointmentOverviewSettings" : "appointmentOverviewSettings." + __err.field,
@@ -2034,10 +2034,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_leadOverviewSettings = obj["leadOverviewSettings"] as OverviewSettings;ctx.pushScope("leadOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_leadOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_leadOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "leadOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "leadOverviewSettings" : "leadOverviewSettings." + __err.field,
@@ -2311,10 +2311,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;ctx.pushScope("packageOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_packageOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_packageOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "packageOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "packageOverviewSettings" : "packageOverviewSettings." + __err.field,
@@ -2588,10 +2588,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_productOverviewSettings = obj["productOverviewSettings"] as OverviewSettings;ctx.pushScope("productOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_productOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_productOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "productOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "productOverviewSettings" : "productOverviewSettings." + __err.field,
@@ -2865,10 +2865,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;ctx.pushScope("orderOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_orderOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_orderOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "orderOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "orderOverviewSettings" : "orderOverviewSettings." + __err.field,
@@ -3142,10 +3142,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings"] as OverviewSettings;ctx.pushScope("taxRateOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_taxRateOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_taxRateOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "taxRateOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "taxRateOverviewSettings" : "taxRateOverviewSettings." + __err.field,
@@ -3419,10 +3419,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_homePage = obj["homePage"] as Page;ctx.pushScope("homePage");
                                             try {
-                                                const __result = pageDeserializeWithContext(__raw_homePage, ctx);
+                                                const __result = pageDecodeWithContext(__raw_homePage, ctx);
                                                 ctx.assignOrDefer(instance, "homePage", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "homePage" : "homePage." + __err.field,
@@ -4316,7 +4316,7 @@ homePage: "UserHome",
                 if (!settingsHasShape(obj)) {
                     return false;
                 }
-                const result = settingsDeserialize(obj);
+                const result = settingsDecode(obj);
                 return result.success;
             }
 
@@ -4697,7 +4697,7 @@ homePage: "UserHome",
 
 
             function validate(): Exit.Exit<Settings, Array<{ field: string; message: string }>> {
-                return toExit(settingsDeserialize(data));
+                return toExit(settingsDecode(data));
             }
 
 
@@ -4750,7 +4750,7 @@ homePage: "UserHome",
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function settingsFromFormData(formData: FormData): Exit.Exit<Settings, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -5009,15 +5009,15 @@ homePage: "UserHome",
         }
 
 
-            return toExit(settingsDeserialize(obj));
+            return toExit(settingsDecode(obj));
         }
 
 export const Settings = {
   defaultValue: settingsDefaultValue,
-  serialize: settingsSerialize,
-  serializeWithContext: settingsSerializeWithContext,
-  deserialize: settingsDeserialize,
-  deserializeWithContext: settingsDeserializeWithContext,
+  encode: settingsEncode,
+  encodeWithContext: settingsEncodeWithContext,
+  decode: settingsDecode,
+  decodeWithContext: settingsDecodeWithContext,
   validateFields: settingsValidateFields,
   hasShape: settingsHasShape,
   is: settingsIs,
@@ -5069,16 +5069,16 @@ homePage: "UserHome",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function settingsSerialize(value: Settings, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = settingsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function settingsEncode(value: Settings, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = settingsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function settingsSerializeWithContext(value: Settings, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function settingsEncodeWithContext(value: Settings, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -5092,7 +5092,7 @@ homePage: "UserHome",
                         "__type": "Settings",
                         __id,
                     };if (value.appointmentNotifications !== null) {
-                                                    result.appointmentNotifications = appointmentNotificationsSerializeWithContext(value.appointmentNotifications, ctx);
+                                                    result.appointmentNotifications = appointmentNotificationsEncodeWithContext(value.appointmentNotifications, ctx);
 
 
 
@@ -5101,7 +5101,7 @@ homePage: "UserHome",
                                             } else {
                                                 result.appointmentNotifications = null;
                                             }if (value.commissions !== null) {
-                                                    result.commissions = commissionsSerializeWithContext(value.commissions, ctx);
+                                                    result.commissions = commissionsEncodeWithContext(value.commissions, ctx);
 
 
 
@@ -5109,7 +5109,7 @@ homePage: "UserHome",
 
                                             } else {
                                                 result.commissions = null;
-                                            }result.scheduleSettings = scheduleSettingsSerializeWithContext(value.scheduleSettings, ctx);result.accountOverviewSettings = overviewSettingsSerializeWithContext(value.accountOverviewSettings, ctx);result.serviceOverviewSettings = overviewSettingsSerializeWithContext(value.serviceOverviewSettings, ctx);result.appointmentOverviewSettings = overviewSettingsSerializeWithContext(value.appointmentOverviewSettings, ctx);result.leadOverviewSettings = overviewSettingsSerializeWithContext(value.leadOverviewSettings, ctx);result.packageOverviewSettings = overviewSettingsSerializeWithContext(value.packageOverviewSettings, ctx);result.productOverviewSettings = overviewSettingsSerializeWithContext(value.productOverviewSettings, ctx);result.orderOverviewSettings = overviewSettingsSerializeWithContext(value.orderOverviewSettings, ctx);result.taxRateOverviewSettings = overviewSettingsSerializeWithContext(value.taxRateOverviewSettings, ctx);result.homePage = pageSerializeWithContext(value.homePage, ctx);
+                                            }result.scheduleSettings = scheduleSettingsEncodeWithContext(value.scheduleSettings, ctx);result.accountOverviewSettings = overviewSettingsEncodeWithContext(value.accountOverviewSettings, ctx);result.serviceOverviewSettings = overviewSettingsEncodeWithContext(value.serviceOverviewSettings, ctx);result.appointmentOverviewSettings = overviewSettingsEncodeWithContext(value.appointmentOverviewSettings, ctx);result.leadOverviewSettings = overviewSettingsEncodeWithContext(value.leadOverviewSettings, ctx);result.packageOverviewSettings = overviewSettingsEncodeWithContext(value.packageOverviewSettings, ctx);result.productOverviewSettings = overviewSettingsEncodeWithContext(value.productOverviewSettings, ctx);result.orderOverviewSettings = overviewSettingsEncodeWithContext(value.orderOverviewSettings, ctx);result.taxRateOverviewSettings = overviewSettingsEncodeWithContext(value.taxRateOverviewSettings, ctx);result.homePage = pageEncodeWithContext(value.homePage, ctx);
 
 
 
@@ -5208,21 +5208,21 @@ homePage: "UserHome",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function settingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function settingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Settings } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = settingsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = settingsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Settings.deserialize: root cannot be a forward reference"
+		message: "Settings.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -5245,7 +5245,7 @@ homePage: "UserHome",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -5262,14 +5262,14 @@ homePage: "UserHome",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function settingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Settings | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function settingsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Settings | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Settings.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Settings.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -5317,10 +5317,10 @@ homePage: "UserHome",
                                                 } else {
                                                         ctx.pushScope("appointmentNotifications");
                                                         try {
-                                                            const __result = appointmentNotificationsDeserializeWithContext(__raw_appointmentNotifications, ctx);
+                                                            const __result = appointmentNotificationsDecodeWithContext(__raw_appointmentNotifications, ctx);
                                                             ctx.assignOrDefer(instance, "appointmentNotifications", __result);
                                                         } catch (__e) {
-                                                            if (__e instanceof __mf_DeserializeError) {
+                                                            if (__e instanceof __mf_DecodeError) {
                                                                 for (const __err of __e.errors) {
                                                                     errors.push({
                                                                         field: __err.field === "_root" ? "appointmentNotifications" : "appointmentNotifications." + __err.field,
@@ -5620,10 +5620,10 @@ homePage: "UserHome",
                                                 } else {
                                                         ctx.pushScope("commissions");
                                                         try {
-                                                            const __result = commissionsDeserializeWithContext(__raw_commissions, ctx);
+                                                            const __result = commissionsDecodeWithContext(__raw_commissions, ctx);
                                                             ctx.assignOrDefer(instance, "commissions", __result);
                                                         } catch (__e) {
-                                                            if (__e instanceof __mf_DeserializeError) {
+                                                            if (__e instanceof __mf_DecodeError) {
                                                                 for (const __err of __e.errors) {
                                                                     errors.push({
                                                                         field: __err.field === "_root" ? "commissions" : "commissions." + __err.field,
@@ -5920,10 +5920,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_scheduleSettings = obj["scheduleSettings"] as ScheduleSettings;ctx.pushScope("scheduleSettings");
                                             try {
-                                                const __result = scheduleSettingsDeserializeWithContext(__raw_scheduleSettings, ctx);
+                                                const __result = scheduleSettingsDecodeWithContext(__raw_scheduleSettings, ctx);
                                                 ctx.assignOrDefer(instance, "scheduleSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "scheduleSettings" : "scheduleSettings." + __err.field,
@@ -6197,10 +6197,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_accountOverviewSettings = obj["accountOverviewSettings"] as OverviewSettings;ctx.pushScope("accountOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_accountOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_accountOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "accountOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "accountOverviewSettings" : "accountOverviewSettings." + __err.field,
@@ -6474,10 +6474,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_serviceOverviewSettings = obj["serviceOverviewSettings"] as OverviewSettings;ctx.pushScope("serviceOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_serviceOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_serviceOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "serviceOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "serviceOverviewSettings" : "serviceOverviewSettings." + __err.field,
@@ -6751,10 +6751,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings"] as OverviewSettings;ctx.pushScope("appointmentOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_appointmentOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_appointmentOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "appointmentOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "appointmentOverviewSettings" : "appointmentOverviewSettings." + __err.field,
@@ -7028,10 +7028,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_leadOverviewSettings = obj["leadOverviewSettings"] as OverviewSettings;ctx.pushScope("leadOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_leadOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_leadOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "leadOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "leadOverviewSettings" : "leadOverviewSettings." + __err.field,
@@ -7305,10 +7305,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_packageOverviewSettings = obj["packageOverviewSettings"] as OverviewSettings;ctx.pushScope("packageOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_packageOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_packageOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "packageOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "packageOverviewSettings" : "packageOverviewSettings." + __err.field,
@@ -7582,10 +7582,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_productOverviewSettings = obj["productOverviewSettings"] as OverviewSettings;ctx.pushScope("productOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_productOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_productOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "productOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "productOverviewSettings" : "productOverviewSettings." + __err.field,
@@ -7859,10 +7859,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_orderOverviewSettings = obj["orderOverviewSettings"] as OverviewSettings;ctx.pushScope("orderOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_orderOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_orderOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "orderOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "orderOverviewSettings" : "orderOverviewSettings." + __err.field,
@@ -8136,10 +8136,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings"] as OverviewSettings;ctx.pushScope("taxRateOverviewSettings");
                                             try {
-                                                const __result = overviewSettingsDeserializeWithContext(__raw_taxRateOverviewSettings, ctx);
+                                                const __result = overviewSettingsDecodeWithContext(__raw_taxRateOverviewSettings, ctx);
                                                 ctx.assignOrDefer(instance, "taxRateOverviewSettings", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "taxRateOverviewSettings" : "taxRateOverviewSettings." + __err.field,
@@ -8413,10 +8413,10 @@ homePage: "UserHome",
                             }{
                                 const __raw_homePage = obj["homePage"] as Page;ctx.pushScope("homePage");
                                             try {
-                                                const __result = pageDeserializeWithContext(__raw_homePage, ctx);
+                                                const __result = pageDecodeWithContext(__raw_homePage, ctx);
                                                 ctx.assignOrDefer(instance, "homePage", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "homePage" : "homePage." + __err.field,
@@ -9310,7 +9310,7 @@ homePage: "UserHome",
                 if (!settingsHasShape(obj)) {
                     return false;
                 }
-                const result = settingsDeserialize(obj);
+                const result = settingsDecode(obj);
                 return result.success;
             }
 
@@ -9691,7 +9691,7 @@ homePage: "UserHome",
 
 
             function validate(): Exit.Exit<Settings, Array<{ field: string; message: string }>> {
-                return toExit(settingsDeserialize(data));
+                return toExit(settingsDecode(data));
             }
 
 
@@ -9744,7 +9744,7 @@ homePage: "UserHome",
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function settingsFromFormData(formData: FormData): Exit.Exit<Settings, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -10003,15 +10003,15 @@ homePage: "UserHome",
         }
 
 
-            return toExit(settingsDeserialize(obj));
+            return toExit(settingsDecode(obj));
         }
 
 export const Settings = {
   defaultValue: settingsDefaultValue,
-  serialize: settingsSerialize,
-  serializeWithContext: settingsSerializeWithContext,
-  deserialize: settingsDeserialize,
-  deserializeWithContext: settingsDeserializeWithContext,
+  encode: settingsEncode,
+  encodeWithContext: settingsEncodeWithContext,
+  decode: settingsDecode,
+  decodeWithContext: settingsDecodeWithContext,
   validateFields: settingsValidateFields,
   hasShape: settingsHasShape,
   is: settingsIs,
@@ -10026,18 +10026,18 @@ export const Settings = {
 ## Mapping
 
 original 0..379 -> expanded 0..379
-original 436..984 -> expanded 379..927
-original 1011..1033 -> expanded 927..949
-original 1033..1034 -> expanded 65199..65200
+original 428..976 -> expanded 379..927
+original 1003..1025 -> expanded 927..949
+original 1025..1026 -> expanded 64865..64866
 generated 949..1637 <- Default
-generated 1637..4887 <- Serialize
-generated 4887..33825 <- Deserialize
-generated 33825..64781 <- Gigaform
-generated 64781..65199 <- __convenience_const
+generated 1637..4819 <- Encode
+generated 4819..33543 <- Decode
+generated 33543..64479 <- Gigaform
+generated 64479..64865 <- __convenience_const
 
 ## Metadata
 
-interface Settings: {"body_span":{"end":1034,"start":464},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":437,"start":380}}],"fields":[{"decorators":[],"name":"appointmentNotifications","optional":false,"readonly":false,"span":{"end":528,"start":470},"ts_type":"AppointmentNotifications | null"},{"decorators":[],"name":"commissions","optional":false,"readonly":false,"span":{"end":565,"start":533},"ts_type":"Commissions | null"},{"decorators":[],"name":"scheduleSettings","optional":false,"readonly":false,"span":{"end":605,"start":570},"ts_type":"ScheduleSettings"},{"decorators":[],"name":"accountOverviewSettings","optional":false,"readonly":false,"span":{"end":652,"start":610},"ts_type":"OverviewSettings"},{"decorators":[],"name":"serviceOverviewSettings","optional":false,"readonly":false,"span":{"end":699,"start":657},"ts_type":"OverviewSettings"},{"decorators":[],"name":"appointmentOverviewSettings","optional":false,"readonly":false,"span":{"end":750,"start":704},"ts_type":"OverviewSettings"},{"decorators":[],"name":"leadOverviewSettings","optional":false,"readonly":false,"span":{"end":794,"start":755},"ts_type":"OverviewSettings"},{"decorators":[],"name":"packageOverviewSettings","optional":false,"readonly":false,"span":{"end":841,"start":799},"ts_type":"OverviewSettings"},{"decorators":[],"name":"productOverviewSettings","optional":false,"readonly":false,"span":{"end":888,"start":846},"ts_type":"OverviewSettings"},{"decorators":[],"name":"orderOverviewSettings","optional":false,"readonly":false,"span":{"end":933,"start":893},"ts_type":"OverviewSettings"},{"decorators":[],"name":"taxRateOverviewSettings","optional":false,"readonly":false,"span":{"end":980,"start":938},"ts_type":"OverviewSettings"},{"decorators":[{"args_src":"\"UserHome\"","name":"default","span":{"end":1012,"start":985}}],"name":"homePage","optional":false,"readonly":false,"span":{"end":1032,"start":1017},"ts_type":"Page"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":1034,"start":445},"type_params":[]}
+interface Settings: {"body_span":{"end":1026,"start":456},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":429,"start":380}}],"fields":[{"decorators":[],"name":"appointmentNotifications","optional":false,"readonly":false,"span":{"end":520,"start":462},"ts_type":"AppointmentNotifications | null"},{"decorators":[],"name":"commissions","optional":false,"readonly":false,"span":{"end":557,"start":525},"ts_type":"Commissions | null"},{"decorators":[],"name":"scheduleSettings","optional":false,"readonly":false,"span":{"end":597,"start":562},"ts_type":"ScheduleSettings"},{"decorators":[],"name":"accountOverviewSettings","optional":false,"readonly":false,"span":{"end":644,"start":602},"ts_type":"OverviewSettings"},{"decorators":[],"name":"serviceOverviewSettings","optional":false,"readonly":false,"span":{"end":691,"start":649},"ts_type":"OverviewSettings"},{"decorators":[],"name":"appointmentOverviewSettings","optional":false,"readonly":false,"span":{"end":742,"start":696},"ts_type":"OverviewSettings"},{"decorators":[],"name":"leadOverviewSettings","optional":false,"readonly":false,"span":{"end":786,"start":747},"ts_type":"OverviewSettings"},{"decorators":[],"name":"packageOverviewSettings","optional":false,"readonly":false,"span":{"end":833,"start":791},"ts_type":"OverviewSettings"},{"decorators":[],"name":"productOverviewSettings","optional":false,"readonly":false,"span":{"end":880,"start":838},"ts_type":"OverviewSettings"},{"decorators":[],"name":"orderOverviewSettings","optional":false,"readonly":false,"span":{"end":925,"start":885},"ts_type":"OverviewSettings"},{"decorators":[],"name":"taxRateOverviewSettings","optional":false,"readonly":false,"span":{"end":972,"start":930},"ts_type":"OverviewSettings"},{"decorators":[{"args_src":"\"UserHome\"","name":"default","span":{"end":1004,"start":977}}],"name":"homePage","optional":false,"readonly":false,"span":{"end":1024,"start":1009},"ts_type":"Page"}],"heritage":[],"methods":[],"name":"Settings","span":{"end":1026,"start":437},"type_params":[]}
 
 ## Registry reads
 

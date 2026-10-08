@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/activity-type.svelte.ts
-sha256 d974612e73f3fbbce6b24ce05093c88438a56666742f34c71bd3d199c8ecbd8d
+sha256 a69e78a8a1efeb9476d57f8af455c82065eece297335a9e97ae4f23cb80549d6
 
 ## Changed
 
@@ -12,24 +12,24 @@ true
 
 ## Output
 
-import { commentedDeserializeWithContext } from "./commented.svelte";
+import { commentedDecodeWithContext } from "./commented.svelte";
 import { commentedHasShape } from "./commented.svelte";
-import { createdDeserializeWithContext } from "./created.svelte";
+import { createdDecodeWithContext } from "./created.svelte";
 import { createdHasShape } from "./created.svelte";
-import { editedDeserializeWithContext } from "./edited.svelte";
+import { editedDecodeWithContext } from "./edited.svelte";
 import { editedHasShape } from "./edited.svelte";
-import { paidDeserializeWithContext } from "./paid.svelte";
+import { paidDecodeWithContext } from "./paid.svelte";
 import { paidHasShape } from "./paid.svelte";
-import { sentDeserializeWithContext } from "./sent.svelte";
+import { sentDecodeWithContext } from "./sent.svelte";
 import { sentHasShape } from "./sent.svelte";
-import { viewedDeserializeWithContext } from "./viewed.svelte";
+import { viewedDecodeWithContext } from "./viewed.svelte";
 import { viewedHasShape } from "./viewed.svelte";
 import { createdDefaultValue } from "./created.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { commentedDefaultValue } from "./commented.svelte";
 import { editedDefaultValue } from "./edited.svelte";
 import { paidDefaultValue } from "./paid.svelte";
@@ -61,20 +61,20 @@ export function activityTypeDefaultValue(): ActivityType {
                             return createdDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function activityTypeSerialize(value: ActivityType, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = activityTypeSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function activityTypeEncode(value: ActivityType, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = activityTypeEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function activityTypeSerializeWithContext(value: ActivityType, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -141,20 +141,20 @@ export function activityTypeDefaultValue(): ActivityType {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function activityTypeDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = activityTypeDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = activityTypeDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ActivityType.deserialize: root cannot be a forward reference"
+		message: "ActivityType.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -177,7 +177,7 @@ export function activityTypeDefaultValue(): ActivityType {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -194,8 +194,8 @@ export function activityTypeDefaultValue(): ActivityType {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function activityTypeDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ActivityType | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function activityTypeDecodeWithContext(value: any, ctx: __mf_DecodeContext): ActivityType | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as ActivityType | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -203,27 +203,27 @@ export function activityTypeDefaultValue(): ActivityType {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "Created") {
-                                                return createdDeserializeWithContext(value, ctx) as ActivityType;
+                                                return createdDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Edited") {
-                                                return editedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return editedDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Sent") {
-                                                return sentDeserializeWithContext(value, ctx) as ActivityType;
+                                                return sentDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Viewed") {
-                                                return viewedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return viewedDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Commented") {
-                                                return commentedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return commentedDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Paid") {
-                                                return paidDeserializeWithContext(value, ctx) as ActivityType;
+                                                return paidDecodeWithContext(value, ctx) as ActivityType;
                                             }
 
 
@@ -237,9 +237,9 @@ export function activityTypeDefaultValue(): ActivityType {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "ActivityType.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: Created, Edited, Sent, Viewed, Commented, Paid"
+                                            message: "ActivityType.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: Created, Edited, Sent, Viewed, Commented, Paid"
                                         }]);
                                     }
                                 }
@@ -267,27 +267,27 @@ export function activityTypeDefaultValue(): ActivityType {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "Created") {
-                                            return createdDeserializeWithContext(value, ctx) as ActivityType;
+                                            return createdDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Edited") {
-                                            return editedDeserializeWithContext(value, ctx) as ActivityType;
+                                            return editedDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Sent") {
-                                            return sentDeserializeWithContext(value, ctx) as ActivityType;
+                                            return sentDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Viewed") {
-                                            return viewedDeserializeWithContext(value, ctx) as ActivityType;
+                                            return viewedDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Commented") {
-                                            return commentedDeserializeWithContext(value, ctx) as ActivityType;
+                                            return commentedDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Paid") {
-                                            return paidDeserializeWithContext(value, ctx) as ActivityType;
+                                            return paidDecodeWithContext(value, ctx) as ActivityType;
                                         }
 
 
@@ -303,42 +303,42 @@ export function activityTypeDefaultValue(): ActivityType {
                                     
                                         if (__shapeMatches.includes("Created")) {
                                             try {
-                                                return createdDeserializeWithContext(value, ctx) as ActivityType;
+                                                return createdDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Edited")) {
                                             try {
-                                                return editedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return editedDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Sent")) {
                                             try {
-                                                return sentDeserializeWithContext(value, ctx) as ActivityType;
+                                                return sentDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Viewed")) {
                                             try {
-                                                return viewedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return viewedDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Commented")) {
                                             try {
-                                                return commentedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return commentedDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Paid")) {
                                             try {
-                                                return paidDeserializeWithContext(value, ctx) as ActivityType;
+                                                return paidDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
@@ -351,15 +351,15 @@ export function activityTypeDefaultValue(): ActivityType {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "ActivityType.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "ActivityType.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "ActivityType.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: Created, Edited, Sent, Viewed, Commented, Paid"
+                                    message: "ActivityType.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: Created, Edited, Sent, Viewed, Commented, Paid"
                                 }]);
 
 
@@ -1298,7 +1298,7 @@ if (variant === "Paid") { return paidDefaultValue() as ActivityType; }
 
 
             function validate(): Exit.Exit<ActivityType, Array<{ field: string; message: string }>> {
-                return toExit(activityTypeDeserialize(data));
+                return toExit(activityTypeDecode(data));
             }
 
 
@@ -1371,15 +1371,15 @@ if (variant === "Paid") { return paidDefaultValue() as ActivityType; }
                 }
 
 
-            return toExit(activityTypeDeserialize(obj));
+            return toExit(activityTypeDecode(obj));
         }
 
 export const ActivityType = {
   defaultValue: activityTypeDefaultValue,
-  serialize: activityTypeSerialize,
-  serializeWithContext: activityTypeSerializeWithContext,
-  deserialize: activityTypeDeserialize,
-  deserializeWithContext: activityTypeDeserializeWithContext,
+  encode: activityTypeEncode,
+  encodeWithContext: activityTypeEncodeWithContext,
+  decode: activityTypeDecode,
+  decodeWithContext: activityTypeDecodeWithContext,
   hasShape: activityTypeHasShape,
   is: activityTypeIs,
   createForm: activityTypeCreateForm,
@@ -1410,20 +1410,20 @@ export function activityTypeDefaultValue(): ActivityType {
                             return createdDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function activityTypeSerialize(value: ActivityType, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = activityTypeSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function activityTypeEncode(value: ActivityType, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = activityTypeEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function activityTypeSerializeWithContext(value: ActivityType, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function activityTypeEncodeWithContext(value: ActivityType, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1490,20 +1490,20 @@ export function activityTypeDefaultValue(): ActivityType {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function activityTypeDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function activityTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ActivityType } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = activityTypeDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = activityTypeDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ActivityType.deserialize: root cannot be a forward reference"
+		message: "ActivityType.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1526,7 +1526,7 @@ export function activityTypeDefaultValue(): ActivityType {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1543,8 +1543,8 @@ export function activityTypeDefaultValue(): ActivityType {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function activityTypeDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ActivityType | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function activityTypeDecodeWithContext(value: any, ctx: __mf_DecodeContext): ActivityType | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as ActivityType | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -1552,27 +1552,27 @@ export function activityTypeDefaultValue(): ActivityType {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "Created") {
-                                                return createdDeserializeWithContext(value, ctx) as ActivityType;
+                                                return createdDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Edited") {
-                                                return editedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return editedDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Sent") {
-                                                return sentDeserializeWithContext(value, ctx) as ActivityType;
+                                                return sentDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Viewed") {
-                                                return viewedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return viewedDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Commented") {
-                                                return commentedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return commentedDecodeWithContext(value, ctx) as ActivityType;
                                             }
                                         
                                             if (__typeName === "Paid") {
-                                                return paidDeserializeWithContext(value, ctx) as ActivityType;
+                                                return paidDecodeWithContext(value, ctx) as ActivityType;
                                             }
 
 
@@ -1586,9 +1586,9 @@ export function activityTypeDefaultValue(): ActivityType {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "ActivityType.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: Created, Edited, Sent, Viewed, Commented, Paid"
+                                            message: "ActivityType.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: Created, Edited, Sent, Viewed, Commented, Paid"
                                         }]);
                                     }
                                 }
@@ -1616,27 +1616,27 @@ export function activityTypeDefaultValue(): ActivityType {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "Created") {
-                                            return createdDeserializeWithContext(value, ctx) as ActivityType;
+                                            return createdDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Edited") {
-                                            return editedDeserializeWithContext(value, ctx) as ActivityType;
+                                            return editedDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Sent") {
-                                            return sentDeserializeWithContext(value, ctx) as ActivityType;
+                                            return sentDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Viewed") {
-                                            return viewedDeserializeWithContext(value, ctx) as ActivityType;
+                                            return viewedDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Commented") {
-                                            return commentedDeserializeWithContext(value, ctx) as ActivityType;
+                                            return commentedDecodeWithContext(value, ctx) as ActivityType;
                                         }
                                     
                                         if (__shapeMatches[0] === "Paid") {
-                                            return paidDeserializeWithContext(value, ctx) as ActivityType;
+                                            return paidDecodeWithContext(value, ctx) as ActivityType;
                                         }
 
 
@@ -1652,42 +1652,42 @@ export function activityTypeDefaultValue(): ActivityType {
                                     
                                         if (__shapeMatches.includes("Created")) {
                                             try {
-                                                return createdDeserializeWithContext(value, ctx) as ActivityType;
+                                                return createdDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Edited")) {
                                             try {
-                                                return editedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return editedDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Sent")) {
                                             try {
-                                                return sentDeserializeWithContext(value, ctx) as ActivityType;
+                                                return sentDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Viewed")) {
                                             try {
-                                                return viewedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return viewedDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Commented")) {
                                             try {
-                                                return commentedDeserializeWithContext(value, ctx) as ActivityType;
+                                                return commentedDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Paid")) {
                                             try {
-                                                return paidDeserializeWithContext(value, ctx) as ActivityType;
+                                                return paidDecodeWithContext(value, ctx) as ActivityType;
                                             } catch {                        }
                                         }
 
@@ -1700,15 +1700,15 @@ export function activityTypeDefaultValue(): ActivityType {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "ActivityType.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "ActivityType.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "ActivityType.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: Created, Edited, Sent, Viewed, Commented, Paid"
+                                    message: "ActivityType.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: Created, Edited, Sent, Viewed, Commented, Paid"
                                 }]);
 
 
@@ -2647,7 +2647,7 @@ if (variant === "Paid") { return paidDefaultValue() as ActivityType; }
 
 
             function validate(): Exit.Exit<ActivityType, Array<{ field: string; message: string }>> {
-                return toExit(activityTypeDeserialize(data));
+                return toExit(activityTypeDecode(data));
             }
 
 
@@ -2720,15 +2720,15 @@ if (variant === "Paid") { return paidDefaultValue() as ActivityType; }
                 }
 
 
-            return toExit(activityTypeDeserialize(obj));
+            return toExit(activityTypeDecode(obj));
         }
 
 export const ActivityType = {
   defaultValue: activityTypeDefaultValue,
-  serialize: activityTypeSerialize,
-  serializeWithContext: activityTypeSerializeWithContext,
-  deserialize: activityTypeDeserialize,
-  deserializeWithContext: activityTypeDeserializeWithContext,
+  encode: activityTypeEncode,
+  encodeWithContext: activityTypeEncodeWithContext,
+  decode: activityTypeDecode,
+  decodeWithContext: activityTypeDecodeWithContext,
   hasShape: activityTypeHasShape,
   is: activityTypeIs,
   createForm: activityTypeCreateForm,
@@ -2742,17 +2742,17 @@ export const ActivityType = {
 ## Mapping
 
 original 0..341 -> expanded 0..341
-original 398..520 -> expanded 341..463
-original 520..521 -> expanded 24300..24301
+original 390..512 -> expanded 341..463
+original 512..513 -> expanded 24021..24022
 generated 463..607 <- Default
-generated 607..2573 <- Serialize
-generated 2573..15031 <- Deserialize
-generated 15031..23884 <- Gigaform
-generated 23884..24300 <- __convenience_const
+generated 607..2535 <- Encode
+generated 2535..14794 <- Decode
+generated 14794..23637 <- Gigaform
+generated 23637..24021 <- __convenience_const
 
 ## Metadata
 
-type ActivityType: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":448,"start":433}}],"kind":{"TypeRef":"Created"}},{"decorators":[],"kind":{"TypeRef":"Edited"}},{"decorators":[],"kind":{"TypeRef":"Sent"}},{"decorators":[],"kind":{"TypeRef":"Viewed"}},{"decorators":[],"kind":{"TypeRef":"Commented"}},{"decorators":[],"kind":{"TypeRef":"Paid"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":399,"start":342}}],"name":"ActivityType","span":{"end":521,"start":407},"type_params":[]}
+type ActivityType: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":440,"start":425}}],"kind":{"TypeRef":"Created"}},{"decorators":[],"kind":{"TypeRef":"Edited"}},{"decorators":[],"kind":{"TypeRef":"Sent"}},{"decorators":[],"kind":{"TypeRef":"Viewed"}},{"decorators":[],"kind":{"TypeRef":"Commented"}},{"decorators":[],"kind":{"TypeRef":"Paid"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":391,"start":342}}],"name":"ActivityType","span":{"end":513,"start":399},"type_params":[]}
 
 ## Registry reads
 

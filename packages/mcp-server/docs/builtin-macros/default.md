@@ -117,5 +117,5 @@ The macro reports an expansion error only if:
 Missing defaults on non-primitive fields are **not** expansion errors: every type is assumed to
 implement Default (Rust-like philosophy), so the macro emits a `typeNameDefaultValue()` call for any
 custom type. If a field's type is in the type registry but does not derive `Default`, a warning is
-printed to stderr at expansion time and the call is generated anyway — it may then fail at runtime
+printed to stderr at expansion time and the call is generated anyway, so it may then fail at runtime
 if the function does not exist.

@@ -14,9 +14,9 @@ pub fn call_validate_field(type_name: &str, field_expr: &str, value_expr: &str) 
     )
 }
 
-pub fn call_deserialize(type_name: &str, generic_args: &str, value_expr: &str) -> String {
+pub fn call_decode(type_name: &str, generic_args: &str, value_expr: &str) -> String {
     format!(
-        "{}Deserialize{generic_args}({value_expr})",
+        "{}Decode{generic_args}({value_expr})",
         type_name.to_case(convert_case::Case::Camel)
     )
 }

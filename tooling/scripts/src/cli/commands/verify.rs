@@ -16,22 +16,64 @@ use anyhow::{Context, Result};
 use colored::Colorize;
 use std::io::{self, Write};
 
-/// The number of numbered steps a run prints.
-const STEP_COUNT: usize = 8;
-
-fn step(number: usize, label: &str) {
-    println!(
-        "\n{} {}",
-        format!("[{number}/{STEP_COUNT}]").bold(),
-        label.bold()
-    );
+/// A step of the run. The flags decide which steps run, and only those are
+/// numbered and printed.
+enum Step {
+    ExtractApiDocs,
+    InstallDependencies,
+    BuildPackages,
+    Diagnostics,
+    PublishCheck,
+    Tests,
+    BuildExtensions,
+    CheckDocs,
+    ExtractMcpDocs,
 }
 
-fn skipped(number: usize, what: &str) {
-    println!(
-        "\n{} Skipping {what}",
-        format!("[{number}/{STEP_COUNT}]").dimmed()
-    );
+impl Step {
+    fn label(&self) -> &'static str {
+        match self {
+            Step::ExtractApiDocs => "Extracting API documentation",
+            Step::InstallDependencies => "Installing dependencies",
+            Step::BuildPackages => "Building packages",
+            Step::Diagnostics => "Running diagnostics",
+            Step::PublishCheck => "Checking the JSR publish",
+            Step::Tests => "Running tests",
+            Step::BuildExtensions => "Building the extensions (wasm32-wasip1)",
+            Step::CheckDocs => "Checking the generated documentation",
+            Step::ExtractMcpDocs => "Extracting the MCP server docs",
+        }
+    }
+}
+
+/// The steps `args` enables, in order.
+fn plan(args: &VerifyArgs) -> Vec<Step> {
+    let mut steps = Vec::new();
+    // With `check`, the final step compares the checked-in docs instead.
+    if !args.skip_docs && !args.check {
+        steps.push(Step::ExtractApiDocs);
+    }
+    if !args.skip_build {
+        steps.push(Step::InstallDependencies);
+        steps.push(Step::BuildPackages);
+    }
+    // After the build: the type-checks expand through the engine it just
+    // produced, not whatever an earlier build left behind.
+    steps.push(Step::Diagnostics);
+    if !args.skip_build {
+        steps.push(Step::PublishCheck);
+        steps.push(Step::Tests);
+        steps.push(Step::BuildExtensions);
+    }
+    // Both need the website the build step produced.
+    if !args.skip_docs {
+        steps.push(if args.check {
+            Step::CheckDocs
+        } else {
+            Step::ExtractMcpDocs
+        });
+    }
+    steps
 }
 
 /// Whether `repo` builds anything of its own. The other Rust crates compile as
@@ -105,81 +147,58 @@ pub fn run(args: VerifyArgs) -> Result<()> {
         .filter_map(|name| config.repos.get(name))
         .collect();
 
-    println!("\n{}", "=".repeat(60));
-    println!("{}", "Verify".bold());
-    println!(
-        "Repos: {}",
-        repos
-            .iter()
-            .map(|r| r.name.as_str())
-            .collect::<Vec<_>>()
-            .join(", ")
-            .cyan()
-    );
-    println!("{}", "=".repeat(60));
-
-    if args.skip_docs {
-        skipped(1, "API extraction");
-    } else if args.check {
-        skipped(1, "API extraction (checked in step 8)");
-    } else {
-        step(1, "Extracting API documentation");
-        extract_api_docs(&config.root)?;
-        generate_readmes::generate(&config.root)?.write(&config.root)?;
-    }
-
-    if args.skip_build {
-        skipped(2, "dependency install");
-        skipped(3, "build");
-    } else {
-        step(2, "Installing dependencies");
-        shell::deno::install(&config.root).context("deno install failed")?;
-
-        step(3, "Building packages");
-        for repo in &repos {
-            if !has_build_step(repo)? {
-                continue;
+    let steps = plan(&args);
+    let total = steps.len();
+    for (index, step) in steps.iter().enumerate() {
+        println!(
+            "\n{} {}",
+            format!("[{}/{total}]", index + 1).bold(),
+            step.label().bold()
+        );
+        match step {
+            Step::ExtractApiDocs => {
+                extract_api_docs(&config.root)?;
+                generate_readmes::generate(&config.root)?.write(&config.root)?;
             }
-            print!("  {} {}... ", "Building:".bold(), repo.name.cyan());
-            io::stdout().flush()?;
-            build_repo(repo).with_context(|| format!("Build failed for {}", repo.name))?;
-            println!("{}", "done".green());
+            Step::InstallDependencies => {
+                shell::deno::install(&config.root).context("deno install failed")?;
+            }
+            Step::BuildPackages => {
+                for repo in &repos {
+                    if !has_build_step(repo)? {
+                        continue;
+                    }
+                    print!("  {} {}... ", "Building:".bold(), repo.name.cyan());
+                    io::stdout().flush()?;
+                    build_repo(repo).with_context(|| format!("Build failed for {}", repo.name))?;
+                    println!("{}", "done".green());
+                }
+                // The playground macro package and the test suites run this
+                // checkout's CLI, so a stale one would test older engine code.
+                print!("  {} {}... ", "Building:".bold(), "cli".cyan());
+                io::stdout().flush()?;
+                shell::cargo::build_bin(&config.root, "macroforge_ts", "macroforge")
+                    .context("Build failed for the macroforge CLI")?;
+                println!("{}", "done".green());
+                // The playground is type-checked next, against the packages it links.
+                super::test::prepare_playground_apps(&config)?;
+            }
+            Step::Diagnostics => run_diagnostics(&config, args.check)?,
+            Step::PublishCheck => {
+                shell::deno::publish_check(&config.root)
+                    .context("deno publish --dry-run failed")?;
+            }
+            Step::Tests => {
+                super::test::run_rust_tests(&config)?;
+                super::test::run_package_tests(&config)?;
+                super::test::run_playground_suites(&config)?;
+            }
+            Step::BuildExtensions => build_extensions(&config)?,
+            Step::CheckDocs => check_freshness::check(&config.root)?,
+            Step::ExtractMcpDocs => {
+                extract_mcp::generate(&config.root)?.write(&config.root)?;
+            }
         }
-        // The playground is type-checked next, against the packages it links.
-        super::test::prepare_playground_apps(&config)?;
-    }
-
-    // After the build: the type-checks expand through the engine it just
-    // produced, not whatever an earlier build left behind.
-    step(4, "Running diagnostics");
-    run_diagnostics(&config, args.check)?;
-
-    if args.skip_build {
-        skipped(5, "JSR publish check");
-        skipped(6, "tests");
-        skipped(7, "extension builds");
-    } else {
-        step(5, "Checking the JSR publish");
-        shell::deno::publish_check(&config.root).context("deno publish --dry-run failed")?;
-
-        step(6, "Running tests");
-        super::test::run_rust_tests(&config)?;
-        super::test::run_package_tests(&config)?;
-        super::test::run_playground_suites(&config)?;
-
-        step(7, "Building the extensions (wasm32-wasip1)");
-        build_extensions(&config)?;
-    }
-
-    // Both need the website step 3 built.
-    if args.skip_docs {
-        skipped(8, "MCP docs");
-    } else if args.check {
-        step(8, "Checking the generated documentation");
-        check_freshness::check(&config.root)?;
-    } else {
-        step(8, "Extracting the MCP server docs");
-        extract_mcp::generate(&config.root)?.write(&config.root)?;
     }
 
     println!("\n{} {}", "✓".green(), "Verified".bold());

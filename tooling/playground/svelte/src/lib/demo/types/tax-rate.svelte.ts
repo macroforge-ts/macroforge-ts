@@ -1,30 +1,30 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface TaxRate {
     /** @hiddenController({}) */
     id: string;
     /** @textController({ label: "Name" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
     /** @textController({ label: "Tax Agency" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     taxAgency: string;
     /** @numberController({ label: "Zip", min: 0 }) */
     zip: number;
     /** @textController({ label: "City" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     city: string;
     /** @textController({ label: "County" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     county: string;
     /** @textController({ label: "State" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     state: string;
     /** @switchController({ label: "Active" }) */
     isActive: boolean;
     /** @textAreaController({ label: "Description" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     description: string;
     /** @hiddenController({}) */
     /** @default({}) */

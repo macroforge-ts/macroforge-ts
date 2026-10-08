@@ -279,7 +279,7 @@ impl DataTypeAlias {
 <h3>Decorator Structure</h3>
 
 <CodeBlock code={`struct DecoratorIR {
-    pub name: String,      // e.g., "serde"
+    pub name: String,      // e.g., "endec"
     pub args_src: String,  // Raw args text, e.g., "skip, rename: 'id'"
     pub span: SpanIR,
 }`} lang="rust" />

@@ -93,7 +93,7 @@ async function initPluginForFile({ fileName, fileText }) {
 describe('TypeScript plugin macro hover + attribute diagnostics', () => {
     test('hover over @derive macro name returns QuickInfo docs', async () => {
         const fileText = `
-      /** @derive(Serialize, Deserialize) */
+      /** @derive(Encode, Decode) */
       export interface User {
         id: string;
       }
@@ -104,30 +104,30 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
         );
         const ls = await initPluginForFile({ fileName, fileText });
 
-        const pos = fileText.indexOf('Serialize') + 1;
-        assert.ok(pos > 0, 'sanity: expected to find Serialize');
+        const pos = fileText.indexOf('Encode') + 1;
+        assert.ok(pos > 0, 'sanity: expected to find Encode');
 
         const info = ls.getQuickInfoAtPosition(fileName, pos);
-        assert.ok(info, 'expected QuickInfo for Serialize');
+        assert.ok(info, 'expected QuickInfo for Encode');
         const docText = (info.documentation ?? []).map((d) => d.text).join('\n');
         assert.ok(
-            docText.toLowerCase().includes('serialization methods'),
-            `expected Serialize documentation, got: ${docText}`
+            docText.toLowerCase().includes('encoding methods'),
+            `expected Encode documentation, got: ${docText}`
         );
         assert.equal(
             fileText.slice(
                 info.textSpan.start,
                 info.textSpan.start + info.textSpan.length
             ),
-            'Serialize'
+            'Encode'
         );
     });
 
-    test('hover over @serde decorator returns QuickInfo docs', async () => {
+    test('hover over @endec decorator returns QuickInfo docs', async () => {
         const fileText = `
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       export interface User {
-        /** @serde({ validate: ["email"] }) */
+        /** @endec({ validate: ["email"] }) */
         email: string;
       }
     `;
@@ -137,35 +137,35 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
         );
         const ls = await initPluginForFile({ fileName, fileText });
 
-        const pos = fileText.indexOf('@serde') + 2;
-        assert.ok(pos > 1, 'sanity: expected to find @serde');
+        const pos = fileText.indexOf('@endec') + 2;
+        assert.ok(pos > 1, 'sanity: expected to find @endec');
 
         const info = ls.getQuickInfoAtPosition(fileName, pos);
-        assert.ok(info, 'expected QuickInfo for @serde');
+        assert.ok(info, 'expected QuickInfo for @endec');
         const docText = (info.documentation ?? []).map((d) => d.text).join('\n');
         assert.ok(
             docText.toLowerCase().includes('configure') &&
                 docText.toLowerCase().includes('for this field'),
-            `expected serde documentation, got: ${docText}`
+            `expected endec documentation, got: ${docText}`
         );
         assert.equal(
             fileText.slice(
                 info.textSpan.start,
                 info.textSpan.start + info.textSpan.length
             ),
-            '@serde'
+            '@endec'
         );
     });
 
-    test('invalid @serde validate attribute surfaces as semantic diagnostic', async () => {
+    test('invalid @endec validate attribute surfaces as semantic diagnostic', async () => {
         const fileText = `
-      /** @derive(Deserialize) */
+      /** @derive(Decode) */
       export interface User {
-        /** @serde({ validate: ["doesNotExist"] }) */
+        /** @endec({ validate: ["doesNotExist"] }) */
         name: string;
       }
     `;
-        const fileName = path.join(repoRoot, 'playground/tests/.tmp-serde-diag.ts');
+        const fileName = path.join(repoRoot, 'playground/tests/.tmp-endec-diag.ts');
         const ls = await initPluginForFile({ fileName, fileText });
 
         const diags = ls.getSemanticDiagnostics(fileName);
@@ -185,14 +185,14 @@ describe('TypeScript plugin macro hover + attribute diagnostics', () => {
             'expected diagnostic start to be set'
         );
 
-        const serdeStart = fileText.indexOf('@serde');
-        assert.ok(serdeStart >= 0, 'sanity: expected @serde in file');
+        const endecStart = fileText.indexOf('@endec');
+        assert.ok(endecStart >= 0, 'sanity: expected @endec in file');
         assert.ok(
-            macroDiags[0].start >= serdeStart - 4 &&
-                macroDiags[0].start <= serdeStart + 4,
-            `expected diagnostic near @serde (got start=${
+            macroDiags[0].start >= endecStart - 4 &&
+                macroDiags[0].start <= endecStart + 4,
+            `expected diagnostic near @endec (got start=${
                 macroDiags[0].start
-            }, serdeStart=${serdeStart})`
+            }, endecStart=${endecStart})`
         );
     });
 });

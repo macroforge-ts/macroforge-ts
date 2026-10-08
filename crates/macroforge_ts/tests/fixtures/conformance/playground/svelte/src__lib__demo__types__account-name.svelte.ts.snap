@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/account-name.svelte.ts
-sha256 034545b758c30ff8ea4a80446c35adc7bafb7c96befce005fe007415f81d92d2
+sha256 5b3eeb55fe24e9441ff10eebefea2544196440b05f2e73db64293ee627330692
 
 ## Changed
 
@@ -12,16 +12,16 @@ true
 
 ## Output
 
-import { companyNameDeserializeWithContext } from "./company-name.svelte";
+import { companyNameDecodeWithContext } from "./company-name.svelte";
 import { companyNameHasShape } from "./company-name.svelte";
-import { personNameDeserializeWithContext } from "./person-name.svelte";
+import { personNameDecodeWithContext } from "./person-name.svelte";
 import { personNameHasShape } from "./person-name.svelte";
 import { companyNameDefaultValue } from "./company-name.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { personNameDefaultValue } from "./person-name.svelte";
 import { Option } from "effect";
 import { Exit } from "effect";
@@ -39,20 +39,20 @@ export function accountNameDefaultValue(): AccountName {
                             return companyNameDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function accountNameSerialize(value: AccountName, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = accountNameSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function accountNameEncode(value: AccountName, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = accountNameEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function accountNameSerializeWithContext(value: AccountName, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -119,20 +119,20 @@ export function accountNameDefaultValue(): AccountName {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function accountNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: AccountName } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function accountNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AccountName } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = accountNameDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = accountNameDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "AccountName.deserialize: root cannot be a forward reference"
+		message: "AccountName.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -155,7 +155,7 @@ export function accountNameDefaultValue(): AccountName {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -172,8 +172,8 @@ export function accountNameDefaultValue(): AccountName {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function accountNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): AccountName | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function accountNameDecodeWithContext(value: any, ctx: __mf_DecodeContext): AccountName | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as AccountName | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -181,11 +181,11 @@ export function accountNameDefaultValue(): AccountName {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "CompanyName") {
-                                                return companyNameDeserializeWithContext(value, ctx) as AccountName;
+                                                return companyNameDecodeWithContext(value, ctx) as AccountName;
                                             }
                                         
                                             if (__typeName === "PersonName") {
-                                                return personNameDeserializeWithContext(value, ctx) as AccountName;
+                                                return personNameDecodeWithContext(value, ctx) as AccountName;
                                             }
 
 
@@ -199,9 +199,9 @@ export function accountNameDefaultValue(): AccountName {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "AccountName.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: CompanyName, PersonName"
+                                            message: "AccountName.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: CompanyName, PersonName"
                                         }]);
                                     }
                                 }
@@ -221,11 +221,11 @@ export function accountNameDefaultValue(): AccountName {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "CompanyName") {
-                                            return companyNameDeserializeWithContext(value, ctx) as AccountName;
+                                            return companyNameDecodeWithContext(value, ctx) as AccountName;
                                         }
                                     
                                         if (__shapeMatches[0] === "PersonName") {
-                                            return personNameDeserializeWithContext(value, ctx) as AccountName;
+                                            return personNameDecodeWithContext(value, ctx) as AccountName;
                                         }
 
 
@@ -241,14 +241,14 @@ export function accountNameDefaultValue(): AccountName {
                                     
                                         if (__shapeMatches.includes("CompanyName")) {
                                             try {
-                                                return companyNameDeserializeWithContext(value, ctx) as AccountName;
+                                                return companyNameDecodeWithContext(value, ctx) as AccountName;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("PersonName")) {
                                             try {
-                                                return personNameDeserializeWithContext(value, ctx) as AccountName;
+                                                return personNameDecodeWithContext(value, ctx) as AccountName;
                                             } catch {                        }
                                         }
 
@@ -261,15 +261,15 @@ export function accountNameDefaultValue(): AccountName {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "AccountName.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "AccountName.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "AccountName.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: CompanyName, PersonName"
+                                    message: "AccountName.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: CompanyName, PersonName"
                                 }]);
 
 
@@ -1108,7 +1108,7 @@ if (variant === "PersonName") { return personNameDefaultValue() as AccountName; 
 
 
             function validate(): Exit.Exit<AccountName, Array<{ field: string; message: string }>> {
-                return toExit(accountNameDeserialize(data));
+                return toExit(accountNameDecode(data));
             }
 
 
@@ -1157,15 +1157,15 @@ if (variant === "PersonName") { return personNameDefaultValue() as AccountName; 
                 }
 
 
-            return toExit(accountNameDeserialize(obj));
+            return toExit(accountNameDecode(obj));
         }
 
 export const AccountName = {
   defaultValue: accountNameDefaultValue,
-  serialize: accountNameSerialize,
-  serializeWithContext: accountNameSerializeWithContext,
-  deserialize: accountNameDeserialize,
-  deserializeWithContext: accountNameDeserializeWithContext,
+  encode: accountNameEncode,
+  encodeWithContext: accountNameEncodeWithContext,
+  decode: accountNameDecode,
+  decodeWithContext: accountNameDecodeWithContext,
   hasShape: accountNameHasShape,
   is: accountNameIs,
   createForm: accountNameCreateForm,
@@ -1186,20 +1186,20 @@ export function accountNameDefaultValue(): AccountName {
                             return companyNameDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function accountNameSerialize(value: AccountName, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = accountNameSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function accountNameEncode(value: AccountName, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = accountNameEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function accountNameSerializeWithContext(value: AccountName, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function accountNameEncodeWithContext(value: AccountName, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1266,20 +1266,20 @@ export function accountNameDefaultValue(): AccountName {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function accountNameDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: AccountName } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function accountNameDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AccountName } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = accountNameDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = accountNameDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "AccountName.deserialize: root cannot be a forward reference"
+		message: "AccountName.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1302,7 +1302,7 @@ export function accountNameDefaultValue(): AccountName {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1319,8 +1319,8 @@ export function accountNameDefaultValue(): AccountName {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function accountNameDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): AccountName | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function accountNameDecodeWithContext(value: any, ctx: __mf_DecodeContext): AccountName | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as AccountName | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -1328,11 +1328,11 @@ export function accountNameDefaultValue(): AccountName {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "CompanyName") {
-                                                return companyNameDeserializeWithContext(value, ctx) as AccountName;
+                                                return companyNameDecodeWithContext(value, ctx) as AccountName;
                                             }
                                         
                                             if (__typeName === "PersonName") {
-                                                return personNameDeserializeWithContext(value, ctx) as AccountName;
+                                                return personNameDecodeWithContext(value, ctx) as AccountName;
                                             }
 
 
@@ -1346,9 +1346,9 @@ export function accountNameDefaultValue(): AccountName {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "AccountName.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: CompanyName, PersonName"
+                                            message: "AccountName.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: CompanyName, PersonName"
                                         }]);
                                     }
                                 }
@@ -1368,11 +1368,11 @@ export function accountNameDefaultValue(): AccountName {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "CompanyName") {
-                                            return companyNameDeserializeWithContext(value, ctx) as AccountName;
+                                            return companyNameDecodeWithContext(value, ctx) as AccountName;
                                         }
                                     
                                         if (__shapeMatches[0] === "PersonName") {
-                                            return personNameDeserializeWithContext(value, ctx) as AccountName;
+                                            return personNameDecodeWithContext(value, ctx) as AccountName;
                                         }
 
 
@@ -1388,14 +1388,14 @@ export function accountNameDefaultValue(): AccountName {
                                     
                                         if (__shapeMatches.includes("CompanyName")) {
                                             try {
-                                                return companyNameDeserializeWithContext(value, ctx) as AccountName;
+                                                return companyNameDecodeWithContext(value, ctx) as AccountName;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("PersonName")) {
                                             try {
-                                                return personNameDeserializeWithContext(value, ctx) as AccountName;
+                                                return personNameDecodeWithContext(value, ctx) as AccountName;
                                             } catch {                        }
                                         }
 
@@ -1408,15 +1408,15 @@ export function accountNameDefaultValue(): AccountName {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "AccountName.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "AccountName.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "AccountName.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: CompanyName, PersonName"
+                                    message: "AccountName.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: CompanyName, PersonName"
                                 }]);
 
 
@@ -2255,7 +2255,7 @@ if (variant === "PersonName") { return personNameDefaultValue() as AccountName; 
 
 
             function validate(): Exit.Exit<AccountName, Array<{ field: string; message: string }>> {
-                return toExit(accountNameDeserialize(data));
+                return toExit(accountNameDecode(data));
             }
 
 
@@ -2304,15 +2304,15 @@ if (variant === "PersonName") { return personNameDefaultValue() as AccountName; 
                 }
 
 
-            return toExit(accountNameDeserialize(obj));
+            return toExit(accountNameDecode(obj));
         }
 
 export const AccountName = {
   defaultValue: accountNameDefaultValue,
-  serialize: accountNameSerialize,
-  serializeWithContext: accountNameSerializeWithContext,
-  deserialize: accountNameDeserialize,
-  deserializeWithContext: accountNameDeserializeWithContext,
+  encode: accountNameEncode,
+  encodeWithContext: accountNameEncodeWithContext,
+  decode: accountNameDecode,
+  decodeWithContext: accountNameDecodeWithContext,
   hasShape: accountNameHasShape,
   is: accountNameIs,
   createForm: accountNameCreateForm,
@@ -2326,17 +2326,17 @@ export const AccountName = {
 ## Mapping
 
 original 0..173 -> expanded 0..173
-original 363..431 -> expanded 173..241
-original 431..432 -> expanded 15958..15959
+original 355..423 -> expanded 173..241
+original 423..424 -> expanded 15739..15740
 generated 241..387 <- Default
-generated 387..2348 <- Serialize
-generated 2348..9990 <- Deserialize
-generated 9990..15552 <- Gigaform
-generated 15552..15958 <- __convenience_const
+generated 387..2310 <- Encode
+generated 2310..9813 <- Decode
+generated 9813..15365 <- Gigaform
+generated 15365..15739 <- __convenience_const
 
 ## Metadata
 
-type AccountName: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":406,"start":391}}],"kind":{"TypeRef":"CompanyName"}},{"decorators":[],"kind":{"TypeRef":"PersonName"}}]},"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":364,"start":232}},{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":231,"start":174}}],"name":"AccountName","span":{"end":432,"start":372},"type_params":[]}
+type AccountName: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":398,"start":383}}],"kind":{"TypeRef":"CompanyName"}},{"decorators":[],"kind":{"TypeRef":"PersonName"}}]},"decorators":[{"args_src":"{ legend: \"Name\", variants: { CompanyName: { label: \"Company\" }, PersonName: { label: \"Person\" } } }","name":"enumFieldsetController","span":{"end":356,"start":224}},{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":223,"start":174}}],"name":"AccountName","span":{"end":424,"start":364},"type_params":[]}
 
 ## Registry reads
 

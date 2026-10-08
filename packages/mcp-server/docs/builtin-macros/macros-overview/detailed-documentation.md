@@ -9,5 +9,5 @@ Each macro has its own options and behaviors:
 - [**PartialEq**](../docs/builtin-macros/partial-eq) - Value-based equality comparison
 - [**Ord**](../docs/builtin-macros/ord) - Total ordering for sorting
 - [**PartialOrd**](../docs/builtin-macros/partial-ord) - Partial ordering comparison
-- [**Serialize**](../docs/builtin-macros/serialize) - JSON serialization with serde-style options
-- [**Deserialize**](../docs/builtin-macros/deserialize) - JSON deserialization with validation
+- [**Encode**](../docs/builtin-macros/encode) - JSON encoding with endec-style options
+- [**Decode**](../docs/builtin-macros/decode) - JSON decoding with validation

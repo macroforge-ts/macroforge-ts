@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/applications.svelte.ts
-sha256 558c6bf8748a3250a5e0989de96c44e12797c815ca3a612e2c75b28ebdea3d1f
+sha256 85b87b9846326c07568ea96e6a9ed49a6ac575d3665d0552105b7452467b4705
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -37,20 +37,20 @@ export function applicationsDefaultValue(): Applications {
                             return "Sales";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function applicationsSerialize(value: Applications, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = applicationsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function applicationsEncode(value: Applications, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = applicationsEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function applicationsSerializeWithContext(value: Applications, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function applicationsEncodeWithContext(value: Applications, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -117,8 +117,8 @@ export function applicationsDefaultValue(): Applications {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function applicationsDeserialize(input: unknown): { success: true; value: Applications } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function applicationsDecode(input: unknown): { success: true; value: Applications } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Sales':
                     case 'Accounting':
@@ -135,8 +135,8 @@ export function applicationsDefaultValue(): Applications {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function applicationsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Applications | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function applicationsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Applications | __mf_PendingRef {
                 switch (value) {
                     case 'Sales':
                     case 'Accounting':
@@ -149,7 +149,7 @@ export function applicationsDefaultValue(): Applications {
 
                         return value as Applications;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Applications: expected one of " + ['Sales', 'Accounting', 'Errand', 'HumanResources', 'Logistics', 'Marketing', 'Website'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -409,7 +409,7 @@ if (variant === "Website") { return "Website" as Applications; }
 
 
             function validate(): Exit.Exit<Applications, Array<{ field: string; message: string }>> {
-                return toExit(applicationsDeserialize(data));
+                return toExit(applicationsDecode(data));
             }
 
 
@@ -488,15 +488,15 @@ if (variant === "Website") { return "Website" as Applications; }
                 }
 
 
-            return toExit(applicationsDeserialize(obj));
+            return toExit(applicationsDecode(obj));
         }
 
 export const Applications = {
   defaultValue: applicationsDefaultValue,
-  serialize: applicationsSerialize,
-  serializeWithContext: applicationsSerializeWithContext,
-  deserialize: applicationsDeserialize,
-  deserializeWithContext: applicationsDeserializeWithContext,
+  encode: applicationsEncode,
+  encodeWithContext: applicationsEncodeWithContext,
+  decode: applicationsDecode,
+  decodeWithContext: applicationsDecodeWithContext,
   hasShape: applicationsHasShape,
   is: applicationsIs,
   createForm: applicationsCreateForm,
@@ -521,20 +521,20 @@ export function applicationsDefaultValue(): Applications {
                             return "Sales";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function applicationsSerialize(value: Applications, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = applicationsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function applicationsEncode(value: Applications, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = applicationsEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function applicationsSerializeWithContext(value: Applications, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function applicationsEncodeWithContext(value: Applications, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -601,8 +601,8 @@ export function applicationsDefaultValue(): Applications {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function applicationsDeserialize(input: unknown): { success: true; value: Applications } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function applicationsDecode(input: unknown): { success: true; value: Applications } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Sales':
                     case 'Accounting':
@@ -619,8 +619,8 @@ export function applicationsDefaultValue(): Applications {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function applicationsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Applications | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function applicationsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Applications | __mf_PendingRef {
                 switch (value) {
                     case 'Sales':
                     case 'Accounting':
@@ -633,7 +633,7 @@ export function applicationsDefaultValue(): Applications {
 
                         return value as Applications;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Applications: expected one of " + ['Sales', 'Accounting', 'Errand', 'HumanResources', 'Logistics', 'Marketing', 'Website'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -893,7 +893,7 @@ if (variant === "Website") { return "Website" as Applications; }
 
 
             function validate(): Exit.Exit<Applications, Array<{ field: string; message: string }>> {
-                return toExit(applicationsDeserialize(data));
+                return toExit(applicationsDecode(data));
             }
 
 
@@ -972,15 +972,15 @@ if (variant === "Website") { return "Website" as Applications; }
                 }
 
 
-            return toExit(applicationsDeserialize(obj));
+            return toExit(applicationsDecode(obj));
         }
 
 export const Applications = {
   defaultValue: applicationsDefaultValue,
-  serialize: applicationsSerialize,
-  serializeWithContext: applicationsSerializeWithContext,
-  deserialize: applicationsDeserialize,
-  deserializeWithContext: applicationsDeserializeWithContext,
+  encode: applicationsEncode,
+  encodeWithContext: applicationsEncodeWithContext,
+  decode: applicationsDecode,
+  decodeWithContext: applicationsDecodeWithContext,
   hasShape: applicationsHasShape,
   is: applicationsIs,
   createForm: applicationsCreateForm,
@@ -994,17 +994,17 @@ export const Applications = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..282 -> expanded 58..225
-original 282..283 -> expanded 15629..15630
+original 107..274 -> expanded 58..225
+original 274..275 -> expanded 15519..15520
 generated 225..355 <- Default
-generated 355..2321 <- Serialize
-generated 2321..5117 <- Deserialize
-generated 5117..15213 <- Gigaform
-generated 15213..15629 <- __convenience_const
+generated 355..2283 <- Encode
+generated 2283..5049 <- Decode
+generated 5049..15135 <- Gigaform
+generated 15135..15519 <- __convenience_const
 
 ## Metadata
 
-type Applications: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":165,"start":150}}],"kind":{"Literal":"'Sales'"}},{"decorators":[],"kind":{"Literal":"'Accounting'"}},{"decorators":[],"kind":{"Literal":"'Errand'"}},{"decorators":[],"kind":{"Literal":"'HumanResources'"}},{"decorators":[],"kind":{"Literal":"'Logistics'"}},{"decorators":[],"kind":{"Literal":"'Marketing'"}},{"decorators":[],"kind":{"Literal":"'Website'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Applications","span":{"end":283,"start":124},"type_params":[]}
+type Applications: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":157,"start":142}}],"kind":{"Literal":"'Sales'"}},{"decorators":[],"kind":{"Literal":"'Accounting'"}},{"decorators":[],"kind":{"Literal":"'Errand'"}},{"decorators":[],"kind":{"Literal":"'HumanResources'"}},{"decorators":[],"kind":{"Literal":"'Logistics'"}},{"decorators":[],"kind":{"Literal":"'Marketing'"}},{"decorators":[],"kind":{"Literal":"'Website'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"Applications","span":{"end":275,"start":116},"type_params":[]}
 
 ## Registry reads
 

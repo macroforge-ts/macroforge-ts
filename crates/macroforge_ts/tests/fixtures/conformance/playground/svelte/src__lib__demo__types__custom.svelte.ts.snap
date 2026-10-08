@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/custom.svelte.ts
-sha256 010edc40c50d52754fbfeed2d0afa64c1362e47fab5e18ee495be78ac2790403
+sha256 b7eca2620c387b635f3f58cef97d1a184b8a4f792fa7b046df73b6544039d69e
 
 ## Changed
 
@@ -12,13 +12,13 @@ true
 
 ## Output
 
-import { directionHueDeserialize } from "./direction-hue.svelte";
-import { directionHueSerializeWithContext } from "./direction-hue.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { directionHueDecode } from "./direction-hue.svelte";
+import { directionHueEncodeWithContext } from "./direction-hue.svelte";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -39,16 +39,16 @@ mappings: [],
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function customSerialize(value: Custom, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = customSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function customEncode(value: Custom, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = customEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function customSerializeWithContext(value: Custom, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -62,7 +62,7 @@ mappings: [],
                         "__type": "Custom",
                         __id,
                     };result.mappings = value.mappings.map(
-                                                            (item) => directionHueSerializeWithContext(item, ctx)
+                                                            (item) => directionHueEncodeWithContext(item, ctx)
                                                         );
 
 
@@ -162,21 +162,21 @@ mappings: [],
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function customDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function customDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = customDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = customDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Custom.deserialize: root cannot be a forward reference"
+		message: "Custom.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -199,7 +199,7 @@ mappings: [],
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -216,14 +216,14 @@ mappings: [],
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function customDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Custom | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function customDecodeWithContext(value: any, ctx: __mf_DecodeContext): Custom | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Custom.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Custom.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -261,7 +261,7 @@ mappings: [],
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = directionHueDeserialize(item);
+                                                            const __elemResult = directionHueDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -1215,7 +1215,7 @@ mappings: [],
                 if (!customHasShape(obj)) {
                     return false;
                 }
-                const result = customDeserialize(obj);
+                const result = customDecode(obj);
                 return result.success;
             }
 
@@ -1312,7 +1312,7 @@ mappings: [],
 
 
             function validate(): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
-                return toExit(customDeserialize(data));
+                return toExit(customDecode(data));
             }
 
 
@@ -1343,7 +1343,7 @@ mappings: [],
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function customFromFormData(formData: FormData): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1373,15 +1373,15 @@ mappings: [],
                 }
 
 
-            return toExit(customDeserialize(obj));
+            return toExit(customDecode(obj));
         }
 
 export const Custom = {
   defaultValue: customDefaultValue,
-  serialize: customSerialize,
-  serializeWithContext: customSerializeWithContext,
-  deserialize: customDeserialize,
-  deserializeWithContext: customDeserializeWithContext,
+  encode: customEncode,
+  encodeWithContext: customEncodeWithContext,
+  decode: customDecode,
+  decodeWithContext: customDecodeWithContext,
   validateFields: customValidateFields,
   hasShape: customHasShape,
   is: customIs,
@@ -1406,16 +1406,16 @@ mappings: [],
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function customSerialize(value: Custom, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = customSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function customEncode(value: Custom, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = customEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function customSerializeWithContext(value: Custom, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function customEncodeWithContext(value: Custom, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1429,7 +1429,7 @@ mappings: [],
                         "__type": "Custom",
                         __id,
                     };result.mappings = value.mappings.map(
-                                                            (item) => directionHueSerializeWithContext(item, ctx)
+                                                            (item) => directionHueEncodeWithContext(item, ctx)
                                                         );
 
 
@@ -1529,21 +1529,21 @@ mappings: [],
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function customDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function customDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Custom } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = customDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = customDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Custom.deserialize: root cannot be a forward reference"
+		message: "Custom.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1566,7 +1566,7 @@ mappings: [],
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1583,14 +1583,14 @@ mappings: [],
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function customDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Custom | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function customDecodeWithContext(value: any, ctx: __mf_DecodeContext): Custom | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Custom.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Custom.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1628,7 +1628,7 @@ mappings: [],
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = directionHueDeserialize(item);
+                                                            const __elemResult = directionHueDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -2582,7 +2582,7 @@ mappings: [],
                 if (!customHasShape(obj)) {
                     return false;
                 }
-                const result = customDeserialize(obj);
+                const result = customDecode(obj);
                 return result.success;
             }
 
@@ -2679,7 +2679,7 @@ mappings: [],
 
 
             function validate(): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
-                return toExit(customDeserialize(data));
+                return toExit(customDecode(data));
             }
 
 
@@ -2710,7 +2710,7 @@ mappings: [],
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function customFromFormData(formData: FormData): Exit.Exit<Custom, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2740,15 +2740,15 @@ mappings: [],
                 }
 
 
-            return toExit(customDeserialize(obj));
+            return toExit(customDecode(obj));
         }
 
 export const Custom = {
   defaultValue: customDefaultValue,
-  serialize: customSerialize,
-  serializeWithContext: customSerializeWithContext,
-  deserialize: customDeserialize,
-  deserializeWithContext: customDeserializeWithContext,
+  encode: customEncode,
+  encodeWithContext: customEncodeWithContext,
+  decode: customDecode,
+  decodeWithContext: customDecodeWithContext,
   validateFields: customValidateFields,
   hasShape: customHasShape,
   is: customIs,
@@ -2763,17 +2763,17 @@ export const Custom = {
 ## Mapping
 
 original 0..119 -> expanded 0..119
-original 176..239 -> expanded 119..182
-original 239..240 -> expanded 15748..15749
+original 168..231 -> expanded 119..182
+original 231..232 -> expanded 15562..15563
 generated 182..302 <- Default
-generated 302..1999 <- Serialize
-generated 1999..9707 <- Deserialize
-generated 9707..15352 <- Gigaform
-generated 15352..15748 <- __convenience_const
+generated 302..1964 <- Encode
+generated 1964..9573 <- Decode
+generated 9573..15198 <- Gigaform
+generated 15198..15562 <- __convenience_const
 
 ## Metadata
 
-interface Custom: {"body_span":{"end":240,"start":202},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":177,"start":120}}],"fields":[{"decorators":[],"name":"mappings","optional":false,"readonly":false,"span":{"end":238,"start":208},"ts_type":"Array<DirectionHue>"}],"heritage":[],"methods":[],"name":"Custom","span":{"end":240,"start":185},"type_params":[]}
+interface Custom: {"body_span":{"end":232,"start":194},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":169,"start":120}}],"fields":[{"decorators":[],"name":"mappings","optional":false,"readonly":false,"span":{"end":230,"start":200},"ts_type":"Array<DirectionHue>"}],"heritage":[],"methods":[],"name":"Custom","span":{"end":232,"start":177},"type_params":[]}
 
 ## Registry reads
 

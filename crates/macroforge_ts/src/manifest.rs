@@ -22,7 +22,7 @@ pub use crate::host::derived::manifest::{
 /// ```javascript
 /// const manifest = __macroforgeGetManifest();
 /// console.log("Available macros:", manifest.macros.map(m => m.name));
-/// // ["Debug", "Clone", "PartialEq", "Hash", "Serialize", "Deserialize", ...]
+/// // ["Debug", "Clone", "PartialEq", "Hash", "Encode", "Decode", ...]
 /// ```
 pub fn get_macro_manifest() -> MacroManifest {
     derived::get_manifest()
@@ -43,7 +43,7 @@ pub fn is_macro_package() -> bool {
 ///
 /// # Returns
 ///
-/// A vector of macro names (e.g., `["Debug", "Clone", "Serialize"]`).
+/// A vector of macro names (e.g., `["Debug", "Clone", "Encode"]`).
 pub fn get_macro_names() -> Vec<String> {
     inventory::iter::<crate::host::derived::DerivedMacroRegistration>()
         .map(|entry| {
@@ -59,7 +59,7 @@ pub fn get_macro_names() -> Vec<String> {
 
 /// Returns all registered macro module names (debug API).
 ///
-/// Modules group related macros together (e.g., "builtin", "serde").
+/// Modules group related macros together (e.g., "builtin", "endec").
 ///
 /// # Returns
 ///

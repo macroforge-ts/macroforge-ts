@@ -1,0 +1,76 @@
+# Endec Reference
+
+`@derive(Encode)` and `@derive(Decode)` generate JSON encoding with cycle detection, forward
+references, and runtime validation. This section is the complete reference; the
+[Encode](/docs/builtin-macros/encode) and [Decode](/docs/builtin-macros/decode) pages cover the
+basics.
+
+## Generated API
+
+For a **class**, the macros emit static methods plus standalone functions that the statics delegate
+to:
+
+```typescript
+/** @derive(Encode, Decode) */
+class User {
+    name: string;
+    email: string;
+}
+
+// Encode
+User.encode(user); // string
+User.encode(user, true); // keep __type/__id metadata
+User.encodeWithContext(user, ctx); // Record<string, unknown>
+
+// Decode
+const r = User.decode(input);
+if (r.success) {
+    r.value; // User
+} else {
+    r.errors; // Array<{ field: string; message: string }>
+}
+
+User.decode(input, { freeze: true }); // freeze all decoded objects
+User.hasShape(obj); // boolean: required keys present
+User.is(value); // type guard
+User.validateField('email', value);
+User.validateFields({ email: '…' });
+```
+
+### Static wrappers vs standalone functions
+
+This distinction trips people up, so it's worth stating plainly:
+
+| Declaration    | What you get                                       |
+| -------------- | -------------------------------------------------- |
+| **Class**      | `static X(...)` **and** standalone `{camel}X(...)` |
+| **Interface**  | standalone `{camel}X(...)` only                    |
+| **Type alias** | standalone `{camel}X(...)` only                    |
+| **Enum**       | standalone `{camel}X(...)` only                    |
+
+There is no class to attach statics to for the last three, so they get functions like
+`userEncode(value)` and `userDecode(input)`. With `generateConvenienceConst` enabled (the default),
+a grouping `const`: or, for enums, a merged `namespace`: is also emitted so you can still write
+`User.encode(...)`.
+
+### Enums differ
+
+Enum `decode` **throws** on invalid input rather than returning the success/errors union. Enum
+`encode` takes no `keepMetadata` parameter.
+
+## Metadata and `keepMetadata`
+
+`encode` adds `__type` and `__id` fields internally to support cycle detection, then **strips them**
+from the JSON output unless you pass `keepMetadata: true`. If you're round-tripping a cyclic graph,
+keep the metadata; if you're producing an API payload, leave it off.
+
+## Section contents
+
+- **[Validators](/docs/endec/validators)**: all 50 validator names and the three ways to apply them
+- **[Container Options](/docs/endec/container-options)**: `renameAll`, tagging modes,
+  `denyUnknownFields`
+- **[Field Options](/docs/endec/field-options)**: skip, rename, default, flatten, custom functions,
+  `format`
+- **[Foreign Types](/docs/endec/foreign-types)**: encoding types you don't own
+- **[Cycles & References](/docs/endec/cycles-and-references)**: cycle detection, forward refs,
+  `freeze`

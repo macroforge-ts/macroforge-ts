@@ -1,66 +1,66 @@
 /**
- * BigInt validator test classes for comprehensive deserializer validation testing.
+ * BigInt validator test classes for comprehensive decoder validation testing.
  */
 
 // GreaterThanBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class GreaterThanBigIntValidator {
-    /** @serde({ validate: ["greaterThanBigInt(0)"] }) */
+    /** @endec({ validate: ["greaterThanBigInt(0)"] }) */
     value: bigint;
 }
 
 // GreaterThanOrEqualToBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class GreaterThanOrEqualToBigIntValidator {
-    /** @serde({ validate: ["greaterThanOrEqualToBigInt(0)"] }) */
+    /** @endec({ validate: ["greaterThanOrEqualToBigInt(0)"] }) */
     value: bigint;
 }
 
 // LessThanBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LessThanBigIntValidator {
-    /** @serde({ validate: ["lessThanBigInt(1000)"] }) */
+    /** @endec({ validate: ["lessThanBigInt(1000)"] }) */
     value: bigint;
 }
 
 // LessThanOrEqualToBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class LessThanOrEqualToBigIntValidator {
-    /** @serde({ validate: ["lessThanOrEqualToBigInt(1000)"] }) */
+    /** @endec({ validate: ["lessThanOrEqualToBigInt(1000)"] }) */
     value: bigint;
 }
 
 // BetweenBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class BetweenBigIntValidator {
-    /** @serde({ validate: ["betweenBigInt(0, 1000)"] }) */
+    /** @endec({ validate: ["betweenBigInt(0, 1000)"] }) */
     value: bigint;
 }
 
 // PositiveBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class PositiveBigIntValidator {
-    /** @serde({ validate: ["positiveBigInt"] }) */
+    /** @endec({ validate: ["positiveBigInt"] }) */
     value: bigint;
 }
 
 // NonNegativeBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class NonNegativeBigIntValidator {
-    /** @serde({ validate: ["nonNegativeBigInt"] }) */
+    /** @endec({ validate: ["nonNegativeBigInt"] }) */
     value: bigint;
 }
 
 // NegativeBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class NegativeBigIntValidator {
-    /** @serde({ validate: ["negativeBigInt"] }) */
+    /** @endec({ validate: ["negativeBigInt"] }) */
     value: bigint;
 }
 
 // NonPositiveBigInt validator
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class NonPositiveBigIntValidator {
-    /** @serde({ validate: ["nonPositiveBigInt"] }) */
+    /** @endec({ validate: ["nonPositiveBigInt"] }) */
     value: bigint;
 }

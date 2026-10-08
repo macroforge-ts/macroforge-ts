@@ -331,7 +331,7 @@ mod adjacency_tests {
 
     #[test]
     fn a_fenced_example_is_not_a_directive() {
-        let body = "\n * @example\n * ```ts\n * @serde({ skip: true })\n * ```\n * @debug\n ";
+        let body = "\n * @example\n * ```ts\n * @endec({ skip: true })\n * ```\n * @debug\n ";
         let names: Vec<String> = parse_all_macro_directives(body, None)
             .into_iter()
             .map(|(name, _)| name)

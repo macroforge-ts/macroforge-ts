@@ -5,7 +5,7 @@
 
 <svelte:head>
 	<title>Built-in Macros - Macroforge Documentation</title>
-	<meta name="description" content="Overview of Macroforge's built-in derive macros: Debug, Clone, PartialEq, Serialize, and Deserialize." />
+	<meta name="description" content="Overview of Macroforge's built-in derive macros: Debug, Clone, PartialEq, Encode, and Decode." />
 </svelte:head>
 
 <h1>Built-in Macros</h1>
@@ -62,14 +62,14 @@
 			<td>Partial ordering comparison</td>
 		</tr>
 		<tr>
-			<td><a href={resolve('/docs/builtin-macros/serialize')}><code>Serialize</code></a></td>
-			<td><code>static serialize(value: T, keepMetadata?: boolean): string</code></td>
-			<td>JSON serialization with type handling</td>
+			<td><a href={resolve('/docs/builtin-macros/encode')}><code>Encode</code></a></td>
+			<td><code>static encode(value: T, keepMetadata?: boolean): string</code></td>
+			<td>JSON encoding with type handling</td>
 		</tr>
 		<tr>
-			<td><a href={resolve('/docs/builtin-macros/deserialize')}><code>Deserialize</code></a></td>
-			<td><code>static deserialize(input, opts?): &lbrace; success: true; value: T &rbrace; | &lbrace; success: false; errors &rbrace;</code></td>
-			<td>JSON deserialization with validation</td>
+			<td><a href={resolve('/docs/builtin-macros/decode')}><code>Decode</code></a></td>
+			<td><code>static decode(input, opts?): &lbrace; success: true; value: T &rbrace; | &lbrace; success: false; errors &rbrace;</code></td>
+			<td>JSON decoding with validation</td>
 		</tr>
 	</tbody>
 </table>
@@ -136,7 +136,7 @@ console.log(Point.toString(point));`} lang="typescript" />
 	in a namespace with the same name:
 </p>
 
-<CodeBlock code={`/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+<CodeBlock code={`/** @derive(Debug, Clone, PartialEq, Encode, Decode) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
@@ -148,21 +148,21 @@ enum Status {
 // export function statusClone(value: Status): Status { ... }
 // export function statusEquals(a: Status, b: Status): boolean { ... }
 // export function statusHashCode(value: Status): number { ... }
-// export function statusSerialize(value: Status): string { ... }
-// export function statusDeserialize(input: unknown): Status { ... }
+// export function statusEncode(value: Status): string { ... }
+// export function statusDecode(input: unknown): Status { ... }
 
 // Enums use namespace merging for the convenience names:
 // namespace Status {
 //   export const toString = statusToString;
-//   export const serialize = statusSerialize;
+//   export const encode = statusEncode;
 // }
 
 console.log(statusToString(Status.Active));                // "Status.Active"
 console.log(statusEquals(Status.Active, Status.Active));   // true
-const json = statusSerialize(Status.Pending);              // "pending"
-// Note: enum deserialize throws on invalid input rather than
+const json = statusEncode(Status.Pending);              // "pending"
+// Note: enum decode throws on invalid input rather than
 // returning a success/errors union.
-const parsed = statusDeserialize("active");                // Status.Active`} lang="typescript" />
+const parsed = statusDecode("active");                // Status.Active`} lang="typescript" />
 
 <h2 id="type-alias-support">Type Alias Support</h2>
 
@@ -171,7 +171,7 @@ const parsed = statusDeserialize("active");                // Status.Active`} la
 	functions, plus the optional grouping <code>const</code>:
 </p>
 
-<CodeBlock code={`/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+<CodeBlock code={`/** @derive(Debug, Clone, PartialEq, Encode, Decode) */
 type Point = {
   x: number;
   y: number;
@@ -182,8 +182,8 @@ type Point = {
 // export function pointClone(value: Point): Point { ... }
 // export function pointEquals(a: Point, b: Point): boolean { ... }
 // export function pointHashCode(value: Point): number { ... }
-// export function pointSerialize(value: Point, keepMetadata?: boolean): string { ... }
-// export function pointDeserialize(input: unknown, opts?): { success: true; value: Point }
+// export function pointEncode(value: Point, keepMetadata?: boolean): string { ... }
+// export function pointDecode(input: unknown, opts?): { success: true; value: Point }
 //                                                        | { success: false; errors } { ... }
 
 const point: Point = { x: 10, y: 20 };
@@ -235,6 +235,6 @@ console.log(User.equals(user, copy)); // true`} lang="typescript" />
 	<li><a href={resolve('/docs/builtin-macros/partial-eq')}><strong>PartialEq</strong></a> - Value-based equality comparison</li>
 	<li><a href={resolve('/docs/builtin-macros/ord')}><strong>Ord</strong></a> - Total ordering for sorting</li>
 	<li><a href={resolve('/docs/builtin-macros/partial-ord')}><strong>PartialOrd</strong></a> - Partial ordering comparison</li>
-	<li><a href={resolve('/docs/builtin-macros/serialize')}><strong>Serialize</strong></a> - JSON serialization with serde-style options</li>
-	<li><a href={resolve('/docs/builtin-macros/deserialize')}><strong>Deserialize</strong></a> - JSON deserialization with validation</li>
+	<li><a href={resolve('/docs/builtin-macros/encode')}><strong>Encode</strong></a> - JSON encoding with endec-style options</li>
+	<li><a href={resolve('/docs/builtin-macros/decode')}><strong>Decode</strong></a> - JSON decoding with validation</li>
 </ul>

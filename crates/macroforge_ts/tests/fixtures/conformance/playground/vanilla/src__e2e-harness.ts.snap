@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/e2e-harness.ts
-sha256 655030053d2de145e727f6cbd05f88d33a56289d0445fe64fab9cf5ebc80b6ba
+sha256 9704ce9769a471da99d073c7f5ef1e8fa22f8949b37888fc39aab39db0ad90e4
 
 ## Changed
 
@@ -24,7 +24,7 @@ false
 
 ## Mapping
 
-original 0..9543 -> expanded 0..9543
+original 0..9435 -> expanded 0..9435
 
 ## Metadata
 

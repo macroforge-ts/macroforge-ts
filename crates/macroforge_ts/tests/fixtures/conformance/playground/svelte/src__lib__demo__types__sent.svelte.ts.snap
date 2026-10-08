@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/sent.svelte.ts
-sha256 209ec908c31a20ca683b377da53468ffbc2ee6a5c6ca4a0df46c235bbf5c0539
+sha256 4c29734e9929c9022bca447f23e6669a0317ebd7bc3fba9a08ab33e2a6e93f5f
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -36,16 +36,16 @@ method: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function sentSerialize(value: Sent, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = sentSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function sentEncode(value: Sent, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = sentEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function sentSerializeWithContext(value: Sent, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function sentEncodeWithContext(value: Sent, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -157,21 +157,21 @@ method: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function sentDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Sent } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function sentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Sent } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = sentDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = sentDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Sent.deserialize: root cannot be a forward reference"
+		message: "Sent.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -194,7 +194,7 @@ method: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -211,14 +211,14 @@ method: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function sentDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Sent | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function sentDecodeWithContext(value: any, ctx: __mf_DecodeContext): Sent | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Sent.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Sent.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1385,7 +1385,7 @@ method: null,
                 if (!sentHasShape(obj)) {
                     return false;
                 }
-                const result = sentDeserialize(obj);
+                const result = sentDecode(obj);
                 return result.success;
             }
 
@@ -1496,7 +1496,7 @@ method: null,
 
 
             function validate(): Exit.Exit<Sent, Array<{ field: string; message: string }>> {
-                return toExit(sentDeserialize(data));
+                return toExit(sentDecode(data));
             }
 
 
@@ -1529,7 +1529,7 @@ method: null,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function sentFromFormData(formData: FormData): Exit.Exit<Sent, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1538,15 +1538,15 @@ method: null,
             obj.method = formData.get("method") ?? "";
 
 
-            return toExit(sentDeserialize(obj));
+            return toExit(sentDecode(obj));
         }
 
 export const Sent = {
   defaultValue: sentDefaultValue,
-  serialize: sentSerialize,
-  serializeWithContext: sentSerializeWithContext,
-  deserialize: sentDeserialize,
-  deserializeWithContext: sentDeserializeWithContext,
+  encode: sentEncode,
+  encodeWithContext: sentEncodeWithContext,
+  decode: sentDecode,
+  decodeWithContext: sentDecodeWithContext,
   validateFields: sentValidateFields,
   hasShape: sentHasShape,
   is: sentIs,
@@ -1571,16 +1571,16 @@ method: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function sentSerialize(value: Sent, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = sentSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function sentEncode(value: Sent, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = sentEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function sentSerializeWithContext(value: Sent, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function sentEncodeWithContext(value: Sent, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1692,21 +1692,21 @@ method: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function sentDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Sent } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function sentDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Sent } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = sentDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = sentDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Sent.deserialize: root cannot be a forward reference"
+		message: "Sent.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1729,7 +1729,7 @@ method: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1746,14 +1746,14 @@ method: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function sentDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Sent | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function sentDecodeWithContext(value: any, ctx: __mf_DecodeContext): Sent | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Sent.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Sent.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2920,7 +2920,7 @@ method: null,
                 if (!sentHasShape(obj)) {
                     return false;
                 }
-                const result = sentDeserialize(obj);
+                const result = sentDecode(obj);
                 return result.success;
             }
 
@@ -3031,7 +3031,7 @@ method: null,
 
 
             function validate(): Exit.Exit<Sent, Array<{ field: string; message: string }>> {
-                return toExit(sentDeserialize(data));
+                return toExit(sentDecode(data));
             }
 
 
@@ -3064,7 +3064,7 @@ method: null,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function sentFromFormData(formData: FormData): Exit.Exit<Sent, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3073,15 +3073,15 @@ method: null,
             obj.method = formData.get("method") ?? "";
 
 
-            return toExit(sentDeserialize(obj));
+            return toExit(sentDecode(obj));
         }
 
 export const Sent = {
   defaultValue: sentDefaultValue,
-  serialize: sentSerialize,
-  serializeWithContext: sentSerializeWithContext,
-  deserialize: sentDeserialize,
-  deserializeWithContext: sentDeserializeWithContext,
+  encode: sentEncode,
+  encodeWithContext: sentEncodeWithContext,
+  decode: sentDecode,
+  decodeWithContext: sentDecodeWithContext,
   validateFields: sentValidateFields,
   hasShape: sentHasShape,
   is: sentIs,
@@ -3096,17 +3096,17 @@ export const Sent = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..198 -> expanded 58..141
-original 198..199 -> expanded 12935..12936
+original 107..190 -> expanded 58..141
+original 190..191 -> expanded 12757..12758
 generated 141..274 <- Default
-generated 274..1813 <- Serialize
-generated 1813..7524 <- Deserialize
-generated 7524..12561 <- Gigaform
-generated 12561..12935 <- __convenience_const
+generated 274..1781 <- Encode
+generated 1781..7398 <- Decode
+generated 7398..12415 <- Gigaform
+generated 12415..12757 <- __convenience_const
 
 ## Metadata
 
-interface Sent: {"body_span":{"end":199,"start":139},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"recipient","optional":false,"readonly":false,"span":{"end":170,"start":145},"ts_type":"string | null"},{"decorators":[],"name":"method","optional":false,"readonly":false,"span":{"end":197,"start":175},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Sent","span":{"end":199,"start":124},"type_params":[]}
+interface Sent: {"body_span":{"end":191,"start":131},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"recipient","optional":false,"readonly":false,"span":{"end":162,"start":137},"ts_type":"string | null"},{"decorators":[],"name":"method","optional":false,"readonly":false,"span":{"end":189,"start":167},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Sent","span":{"end":191,"start":116},"type_params":[]}
 
 ## Registry reads
 

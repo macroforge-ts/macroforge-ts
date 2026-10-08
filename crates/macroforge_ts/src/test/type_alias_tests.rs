@@ -96,9 +96,9 @@ type Vector = {
 }
 
 #[test]
-fn test_derive_serialize_on_type_alias_generates_functions() {
+fn test_derive_encode_on_type_alias_generates_functions() {
     let source = r#"
-/** @derive(Serialize) */
+/** @derive(Encode) */
 type User = {
     name: string;
     age: number;
@@ -116,18 +116,18 @@ type User = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Serialize macro on type alias generates standalone userSerialize function
+        // Encode macro on type alias generates standalone userEncode function
         assert!(
-            result.code.contains("userSerialize"),
-            "Should generate userSerialize function for type"
+            result.code.contains("userEncode"),
+            "Should generate userEncode function for type"
         );
     }
 }
 
 #[test]
-fn test_derive_deserialize_on_type_alias_generates_functions() {
+fn test_derive_decode_on_type_alias_generates_functions() {
     let source = r#"
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 type Settings = {
     theme: string;
     language: string;
@@ -145,10 +145,10 @@ type Settings = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Deserialize macro on type alias generates standalone settingsDeserialize function
+        // Decode macro on type alias generates standalone settingsDecode function
         assert!(
-            result.code.contains("settingsDeserialize"),
-            "Should generate settingsDeserialize function for type"
+            result.code.contains("settingsDecode"),
+            "Should generate settingsDecode function for type"
         );
     }
 }
@@ -156,7 +156,7 @@ type Settings = {
 #[test]
 fn test_multiple_derives_on_type_alias() {
     let source = r#"
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 type Coordinate = {
     lat: number;
     lng: number;
@@ -196,12 +196,12 @@ type Coordinate = {
             "Should have Hash's coordinateHashCode"
         );
         assert!(
-            result.code.contains("coordinateSerialize"),
-            "Should have Serialize's coordinateSerialize"
+            result.code.contains("coordinateEncode"),
+            "Should have Encode's coordinateEncode"
         );
         assert!(
-            result.code.contains("coordinateDeserialize"),
-            "Should have Deserialize's coordinateDeserialize"
+            result.code.contains("coordinateDecode"),
+            "Should have Decode's coordinateDecode"
         );
     }
 }
@@ -432,10 +432,10 @@ export type ActivityType = /** @default */ Created | Edited | Sent;
 fn test_derive_default_inline_object_union_with_default() {
     // Regression test: union of inline object types with @default on first member.
     // This matches the PropValue pattern where all members are inline objects
-    // (adjacently-tagged serde unions).
+    // (adjacently-tagged endec unions).
     let source = r#"
-/** @derive(Default, Serialize, Deserialize) */
-/** @serde({ tag: "type", content: "value" }) */
+/** @derive(Default, Encode, Decode) */
+/** @endec({ tag: "type", content: "value" }) */
 export type PropValue = /** @default */ { type: 'String'; value: string } | { type: 'Number'; value: number } | { type: 'Boolean'; value: boolean } | { type: 'Json'; value: string } | { type: 'Asset'; value: string } | { type: 'Page'; value: string } | { type: 'Expression'; value: string };
 "#;
 
@@ -627,14 +627,14 @@ fn test_derive_comment_does_not_bind_to_following_type_alias() {
     // Only `Box` carries the derive. The aliases after it must neither be
     // derived nor make the expansion delete the same comment twice.
     let source = r#"
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export interface Box {
     size: number;
 }
 
 export type Other = string;
 
-export type BoxResult = ReturnType<typeof Box.deserialize>;
+export type BoxResult = ReturnType<typeof Box.decode>;
 "#;
 
     let result = expand_test(source);
@@ -646,12 +646,12 @@ export type BoxResult = ReturnType<typeof Box.deserialize>;
         .collect();
     assert!(errors.is_empty(), "Should have no errors, got {errors:?}");
     assert!(
-        result.code.contains("boxDeserialize"),
-        "Box should still get its deserializer. Got:\n{}",
+        result.code.contains("boxDecode"),
+        "Box should still get its decoder. Got:\n{}",
         result.code
     );
     assert!(
-        !result.code.contains("otherDeserialize") && !result.code.contains("boxResultDeserialize"),
+        !result.code.contains("otherDecode") && !result.code.contains("boxResultDecode"),
         "Aliases without their own @derive must not be derived. Got:\n{}",
         result.code
     );

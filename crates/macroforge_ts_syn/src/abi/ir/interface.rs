@@ -8,7 +8,7 @@
 //! Given this TypeScript interface:
 //!
 //! ```typescript
-//! /** @derive(Serialize) */
+//! /** @derive(Encode) */
 //! interface User extends Entity {
 //!     readonly id: string;
 //!     name: string;
@@ -119,7 +119,7 @@ impl InterfaceIR {
 /// For the TypeScript property:
 ///
 /// ```typescript
-/// /** @serde(rename = "user_email") */
+/// /** @endec(rename = "user_email") */
 /// readonly email?: string;
 /// ```
 ///
@@ -128,7 +128,7 @@ impl InterfaceIR {
 /// - `ts_type`: `"string"`
 /// - `optional`: `true`
 /// - `readonly`: `true`
-/// - `decorators`: Contains the `@serde(rename = "user_email")` decorator
+/// - `decorators`: Contains the `@endec(rename = "user_email")` decorator
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct InterfaceFieldIR {
     /// The property name (identifier).

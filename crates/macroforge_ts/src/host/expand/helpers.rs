@@ -10,7 +10,7 @@ pub(super) fn extract_function_names_from_patches(
     patches: &[Patch],
     type_name: &str,
 ) -> Vec<(String, String)> {
-    let mut functions = Vec::new();
+    let mut functions: Vec<(String, String)> = Vec::new();
     let camel_type_name = type_name.to_case(Case::Camel);
 
     for patch in patches {
@@ -30,6 +30,9 @@ pub(super) fn extract_function_names_from_patches(
                         .chars()
                         .all(|c| c.is_ascii_alphanumeric() || c == '_')
                     && let Some(short_name) = extract_short_name(fn_name, &camel_type_name)
+                    && !functions
+                        .iter()
+                        .any(|(existing_name, ..)| existing_name == fn_name)
                 {
                     functions.push((fn_name.to_string(), short_name));
                 }

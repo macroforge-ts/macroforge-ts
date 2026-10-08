@@ -81,7 +81,7 @@ class User {
 }`} lang="typescript" />
 
 <Alert type="note" title="Built-in macros">
-	Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement.
+	Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode) do not require an import statement.
 </Alert>
 
 <h3 id="field-attributes">Field Attributes</h3>
@@ -124,8 +124,8 @@ class User {
 			<td><code>skip</code>, <code>clone_with</code></td>
 		</tr>
 		<tr>
-			<td>Serialize/Deserialize</td>
-			<td><code>@serde</code></td>
+			<td>Encode/Decode</td>
+			<td><code>@endec</code></td>
 			<td><code>skip</code>, <code>rename</code>, <code>flatten</code>, <code>default</code></td>
 		</tr>
 		<tr>
@@ -181,7 +181,7 @@ class User {
 		<tr>
 			<td>Built-in</td>
 			<td>No</td>
-			<td>Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize</td>
+			<td>Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Encode, Decode</td>
 		</tr>
 		<tr>
 			<td>Custom</td>

@@ -79,7 +79,7 @@
 //!
 //!     // Check for a specific decorator
 //!     for attr in &input.attrs {
-//!         if attr.name() == "serde" {
+//!         if attr.name() == "endec" {
 //!             let _args = attr.args(); // e.g., "rename = \"user\""
 //!             // Parse and handle decorator arguments
 //!         }
@@ -89,8 +89,8 @@
 //!     if let Some(class) = input.as_class() {
 //!         for field in class.fields() {
 //!             for dec in &field.decorators {
-//!                 if dec.name == "serde" {
-//!                     // Handle field-level serde options
+//!                 if dec.name == "endec" {
+//!                     // Handle field-level endec options
 //!                 }
 //!             }
 //!         }
@@ -284,8 +284,8 @@ impl AsRef<str> for Ident {
 /// fn example(input: DeriveInput) {
 ///     for attr in &input.attrs {
 ///         match attr.name() {
-///             "serde" => {
-///                 // Parse serde options from attr.args()
+///             "endec" => {
+///                 // Parse endec options from attr.args()
 ///                 let _args = attr.args(); // e.g., "rename = \"user_id\""
 ///             }
 ///             "validate" => {

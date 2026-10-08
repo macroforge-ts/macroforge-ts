@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/overview-settings.svelte.ts
-sha256 d8fc5e13170b69c558d9eece4ab909d27d9e7f46f34b556e83707150639dd918
+sha256 4cdbacdbb2ee0087a0b82a620b0c7c05f5230bc88436fea10ef5df0f9fbb090f
 
 ## Changed
 
@@ -12,17 +12,17 @@ true
 
 ## Output
 
-import { columnConfigDeserialize } from "./column-config.svelte";
-import { overviewDisplayDeserializeWithContext } from "./overview-display.svelte";
-import { rowHeightDeserializeWithContext } from "./row-height.svelte";
-import { columnConfigSerializeWithContext } from "./column-config.svelte";
-import { overviewDisplaySerializeWithContext } from "./overview-display.svelte";
-import { rowHeightSerializeWithContext } from "./row-height.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { columnConfigDecode } from "./column-config.svelte";
+import { overviewDisplayDecodeWithContext } from "./overview-display.svelte";
+import { rowHeightDecodeWithContext } from "./row-height.svelte";
+import { columnConfigEncodeWithContext } from "./column-config.svelte";
+import { overviewDisplayEncodeWithContext } from "./overview-display.svelte";
+import { rowHeightEncodeWithContext } from "./row-height.svelte";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -53,16 +53,16 @@ columnConfigs: [],
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function overviewSettingsSerialize(value: OverviewSettings, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = overviewSettingsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function overviewSettingsEncode(value: OverviewSettings, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = overviewSettingsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function overviewSettingsSerializeWithContext(value: OverviewSettings, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function overviewSettingsEncodeWithContext(value: OverviewSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -75,8 +75,8 @@ columnConfigs: [],
                     const result: Record<string, unknown> = {
                         "__type": "OverviewSettings",
                         __id,
-                    };result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);result.cardOrRow = overviewDisplaySerializeWithContext(value.cardOrRow, ctx);result.perPage = value.perPage;result.columnConfigs = value.columnConfigs.map(
-                                                            (item) => columnConfigSerializeWithContext(item, ctx)
+                    };result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);result.cardOrRow = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);result.perPage = value.perPage;result.columnConfigs = value.columnConfigs.map(
+                                                            (item) => columnConfigEncodeWithContext(item, ctx)
                                                         );
 
 
@@ -176,21 +176,21 @@ columnConfigs: [],
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function overviewSettingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = overviewSettingsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = overviewSettingsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "OverviewSettings.deserialize: root cannot be a forward reference"
+		message: "OverviewSettings.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -213,7 +213,7 @@ columnConfigs: [],
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -230,14 +230,14 @@ columnConfigs: [],
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function overviewSettingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): OverviewSettings | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function overviewSettingsDecodeWithContext(value: any, ctx: __mf_DecodeContext): OverviewSettings | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "OverviewSettings.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "OverviewSettings.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -266,10 +266,10 @@ columnConfigs: [],
                 ctx.trackForFreeze(instance);{
                                 const __raw_rowHeight = obj["rowHeight"] as RowHeight;ctx.pushScope("rowHeight");
                                             try {
-                                                const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
+                                                const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
                                                 ctx.assignOrDefer(instance, "rowHeight", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
@@ -543,10 +543,10 @@ columnConfigs: [],
                             }{
                                 const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;ctx.pushScope("cardOrRow");
                                             try {
-                                                const __result = overviewDisplayDeserializeWithContext(__raw_cardOrRow, ctx);
+                                                const __result = overviewDisplayDecodeWithContext(__raw_cardOrRow, ctx);
                                                 ctx.assignOrDefer(instance, "cardOrRow", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "cardOrRow" : "cardOrRow." + __err.field,
@@ -1095,7 +1095,7 @@ columnConfigs: [],
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = columnConfigDeserialize(item);
+                                                            const __elemResult = columnConfigDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -2049,7 +2049,7 @@ columnConfigs: [],
                 if (!overviewSettingsHasShape(obj)) {
                     return false;
                 }
-                const result = overviewSettingsDeserialize(obj);
+                const result = overviewSettingsDecode(obj);
                 return result.success;
             }
 
@@ -2227,7 +2227,7 @@ columnConfigs: [],
 
 
             function validate(): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>> {
-                return toExit(overviewSettingsDeserialize(data));
+                return toExit(overviewSettingsDecode(data));
             }
 
 
@@ -2264,7 +2264,7 @@ columnConfigs: [],
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function overviewSettingsFromFormData(formData: FormData): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2341,15 +2341,15 @@ columnConfigs: [],
                 }
 
 
-            return toExit(overviewSettingsDeserialize(obj));
+            return toExit(overviewSettingsDecode(obj));
         }
 
 export const OverviewSettings = {
   defaultValue: overviewSettingsDefaultValue,
-  serialize: overviewSettingsSerialize,
-  serializeWithContext: overviewSettingsSerializeWithContext,
-  deserialize: overviewSettingsDeserialize,
-  deserializeWithContext: overviewSettingsDeserializeWithContext,
+  encode: overviewSettingsEncode,
+  encodeWithContext: overviewSettingsEncodeWithContext,
+  decode: overviewSettingsDecode,
+  decodeWithContext: overviewSettingsDecodeWithContext,
   validateFields: overviewSettingsValidateFields,
   hasShape: overviewSettingsHasShape,
   is: overviewSettingsIs,
@@ -2384,16 +2384,16 @@ columnConfigs: [],
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function overviewSettingsSerialize(value: OverviewSettings, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = overviewSettingsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function overviewSettingsEncode(value: OverviewSettings, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = overviewSettingsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function overviewSettingsSerializeWithContext(value: OverviewSettings, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function overviewSettingsEncodeWithContext(value: OverviewSettings, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2406,8 +2406,8 @@ columnConfigs: [],
                     const result: Record<string, unknown> = {
                         "__type": "OverviewSettings",
                         __id,
-                    };result.rowHeight = rowHeightSerializeWithContext(value.rowHeight, ctx);result.cardOrRow = overviewDisplaySerializeWithContext(value.cardOrRow, ctx);result.perPage = value.perPage;result.columnConfigs = value.columnConfigs.map(
-                                                            (item) => columnConfigSerializeWithContext(item, ctx)
+                    };result.rowHeight = rowHeightEncodeWithContext(value.rowHeight, ctx);result.cardOrRow = overviewDisplayEncodeWithContext(value.cardOrRow, ctx);result.perPage = value.perPage;result.columnConfigs = value.columnConfigs.map(
+                                                            (item) => columnConfigEncodeWithContext(item, ctx)
                                                         );
 
 
@@ -2507,21 +2507,21 @@ columnConfigs: [],
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function overviewSettingsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function overviewSettingsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: OverviewSettings } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = overviewSettingsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = overviewSettingsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "OverviewSettings.deserialize: root cannot be a forward reference"
+		message: "OverviewSettings.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2544,7 +2544,7 @@ columnConfigs: [],
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2561,14 +2561,14 @@ columnConfigs: [],
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function overviewSettingsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): OverviewSettings | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function overviewSettingsDecodeWithContext(value: any, ctx: __mf_DecodeContext): OverviewSettings | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "OverviewSettings.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "OverviewSettings.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2597,10 +2597,10 @@ columnConfigs: [],
                 ctx.trackForFreeze(instance);{
                                 const __raw_rowHeight = obj["rowHeight"] as RowHeight;ctx.pushScope("rowHeight");
                                             try {
-                                                const __result = rowHeightDeserializeWithContext(__raw_rowHeight, ctx);
+                                                const __result = rowHeightDecodeWithContext(__raw_rowHeight, ctx);
                                                 ctx.assignOrDefer(instance, "rowHeight", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "rowHeight" : "rowHeight." + __err.field,
@@ -2874,10 +2874,10 @@ columnConfigs: [],
                             }{
                                 const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;ctx.pushScope("cardOrRow");
                                             try {
-                                                const __result = overviewDisplayDeserializeWithContext(__raw_cardOrRow, ctx);
+                                                const __result = overviewDisplayDecodeWithContext(__raw_cardOrRow, ctx);
                                                 ctx.assignOrDefer(instance, "cardOrRow", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "cardOrRow" : "cardOrRow." + __err.field,
@@ -3426,7 +3426,7 @@ columnConfigs: [],
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = columnConfigDeserialize(item);
+                                                            const __elemResult = columnConfigDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -4380,7 +4380,7 @@ columnConfigs: [],
                 if (!overviewSettingsHasShape(obj)) {
                     return false;
                 }
-                const result = overviewSettingsDeserialize(obj);
+                const result = overviewSettingsDecode(obj);
                 return result.success;
             }
 
@@ -4558,7 +4558,7 @@ columnConfigs: [],
 
 
             function validate(): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>> {
-                return toExit(overviewSettingsDeserialize(data));
+                return toExit(overviewSettingsDecode(data));
             }
 
 
@@ -4595,7 +4595,7 @@ columnConfigs: [],
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function overviewSettingsFromFormData(formData: FormData): Exit.Exit<OverviewSettings, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4672,15 +4672,15 @@ columnConfigs: [],
                 }
 
 
-            return toExit(overviewSettingsDeserialize(obj));
+            return toExit(overviewSettingsDecode(obj));
         }
 
 export const OverviewSettings = {
   defaultValue: overviewSettingsDefaultValue,
-  serialize: overviewSettingsSerialize,
-  serializeWithContext: overviewSettingsSerializeWithContext,
-  deserialize: overviewSettingsDeserialize,
-  deserializeWithContext: overviewSettingsDeserializeWithContext,
+  encode: overviewSettingsEncode,
+  encodeWithContext: overviewSettingsEncodeWithContext,
+  decode: overviewSettingsDecode,
+  decodeWithContext: overviewSettingsDecodeWithContext,
   validateFields: overviewSettingsValidateFields,
   hasShape: overviewSettingsHasShape,
   is: overviewSettingsIs,
@@ -4695,19 +4695,19 @@ export const OverviewSettings = {
 ## Mapping
 
 original 0..239 -> expanded 0..239
-original 296..337 -> expanded 239..280
-original 362..393 -> expanded 280..311
-original 417..512 -> expanded 311..406
-original 512..513 -> expanded 26903..26904
+original 288..329 -> expanded 239..280
+original 354..385 -> expanded 280..311
+original 409..504 -> expanded 311..406
+original 504..505 -> expanded 26691..26692
 generated 406..604 <- Default
-generated 604..2550 <- Serialize
-generated 2550..14721 <- Deserialize
-generated 14721..26397 <- Gigaform
-generated 26397..26903 <- __convenience_const
+generated 604..2509 <- Encode
+generated 2509..14561 <- Decode
+generated 14561..26217 <- Gigaform
+generated 26217..26691 <- __convenience_const
 
 ## Metadata
 
-interface OverviewSettings: {"body_span":{"end":513,"start":332},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":297,"start":240}}],"fields":[{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":363,"start":338}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":389,"start":368},"ts_type":"RowHeight"},{"decorators":[{"args_src":"\"Table\"","name":"default","span":{"end":418,"start":394}}],"name":"cardOrRow","optional":false,"readonly":false,"span":{"end":450,"start":423},"ts_type":"OverviewDisplay"},{"decorators":[],"name":"perPage","optional":false,"readonly":false,"span":{"end":471,"start":455},"ts_type":"number"},{"decorators":[],"name":"columnConfigs","optional":false,"readonly":false,"span":{"end":511,"start":476},"ts_type":"Array<ColumnConfig>"}],"heritage":[],"methods":[],"name":"OverviewSettings","span":{"end":513,"start":305},"type_params":[]}
+interface OverviewSettings: {"body_span":{"end":505,"start":324},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":289,"start":240}}],"fields":[{"decorators":[{"args_src":"\"Medium\"","name":"default","span":{"end":355,"start":330}}],"name":"rowHeight","optional":false,"readonly":false,"span":{"end":381,"start":360},"ts_type":"RowHeight"},{"decorators":[{"args_src":"\"Table\"","name":"default","span":{"end":410,"start":386}}],"name":"cardOrRow","optional":false,"readonly":false,"span":{"end":442,"start":415},"ts_type":"OverviewDisplay"},{"decorators":[],"name":"perPage","optional":false,"readonly":false,"span":{"end":463,"start":447},"ts_type":"number"},{"decorators":[],"name":"columnConfigs","optional":false,"readonly":false,"span":{"end":503,"start":468},"ts_type":"Array<ColumnConfig>"}],"heritage":[],"methods":[],"name":"OverviewSettings","span":{"end":505,"start":297},"type_params":[]}
 
 ## Registry reads
 

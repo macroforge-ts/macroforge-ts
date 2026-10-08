@@ -9,14 +9,14 @@
 
 // ==================== ENUM EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export enum Status {
     Active = 'active',
     Inactive = 'inactive',
     Pending = 'pending'
 }
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export enum Priority {
     Low = 1,
     Medium = 2,
@@ -33,13 +33,13 @@ export enum Color {
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type Point = {
     x: number;
     y: number;
 };
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export type UserProfile = {
     id: string;
     username: string;
@@ -82,12 +82,12 @@ export function demoEnumFunctions() {
     const hash = statusHashCode(Status.Active);
     console.log('Hash code:', hash);
 
-    // Serialize - statusSerialize
-    const json = statusSerialize(Status.Inactive);
-    console.log('Serialized:', json);
+    // Encode - statusEncode
+    const json = statusEncode(Status.Inactive);
+    console.log('Encoded:', json);
 
-    // Deserialize - statusDeserialize
-    const parsed = statusDeserialize('pending');
+    // Decode - statusDecode
+    const parsed = statusDecode('pending');
     console.log('Parsed:', parsed);
 }
 
@@ -122,12 +122,12 @@ export function demoTypeFunctions() {
     const pointHash = pointHashCode(point1);
     console.log('Point hash:', pointHash);
 
-    // Serialize - pointSerialize
-    const pointJson = pointSerialize(point1);
+    // Encode - pointEncode
+    const pointJson = pointEncode(point1);
     console.log('Point JSON:', pointJson);
 
-    // Deserialize - pointDeserialize
-    const parsedPoint = pointDeserialize({ x: 5, y: 10 });
+    // Decode - pointDecode
+    const parsedPoint = pointDecode({ x: 5, y: 10 });
     console.log('Parsed point:', parsedPoint);
 }
 

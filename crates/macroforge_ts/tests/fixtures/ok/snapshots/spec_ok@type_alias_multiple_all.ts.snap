@@ -5,7 +5,7 @@ input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_multiple_all.ts
 ---
 ## Input
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 type Coordinate = {
     lat: number;
     lng: number;
@@ -17,11 +17,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 
 type Coordinate = {
     lat: number;
@@ -58,16 +58,16 @@ export function coordinateHashCode(value: Coordinate): number {
                         return hash;
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function coordinateSerialize(value: Coordinate, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = coordinateSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function coordinateEncode(value: Coordinate, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = coordinateEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function coordinateSerializeWithContext(value: Coordinate, ctx: __mf_SerializeContext): Record<string, unknown> {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown> {
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
                                 return { __ref: existingId };
@@ -103,21 +103,21 @@ export function coordinateHashCode(value: Coordinate): number {
                             return result;
                         }
 
-/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function coordinateDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = coordinateDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = coordinateDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Coordinate.deserialize: root cannot be a forward reference"
+		message: "Coordinate.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -140,7 +140,7 @@ export function coordinateHashCode(value: Coordinate): number {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -157,14 +157,14 @@ export function coordinateHashCode(value: Coordinate): number {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function coordinateDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Coordinate | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function coordinateDecodeWithContext(value: any, ctx: __mf_DecodeContext): Coordinate | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref) as Coordinate | __mf_PendingRef;
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Coordinate.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Coordinate.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1050,10 +1050,10 @@ const Coordinate = {
   clone: coordinateClone,
   equals: coordinateEquals,
   hashCode: coordinateHashCode,
-  serialize: coordinateSerialize,
-  serializeWithContext: coordinateSerializeWithContext,
-  deserialize: coordinateDeserialize,
-  deserializeWithContext: coordinateDeserializeWithContext,
+  encode: coordinateEncode,
+  encodeWithContext: coordinateEncodeWithContext,
+  decode: coordinateDecode,
+  decodeWithContext: coordinateDecodeWithContext,
   validateFields: coordinateValidateFields,
   hasShape: coordinateHasShape,
   is: coordinateIs
@@ -1096,16 +1096,16 @@ export function coordinateHashCode(value: Coordinate): number {
                         return hash;
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function coordinateSerialize(value: Coordinate, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = coordinateSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function coordinateEncode(value: Coordinate, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = coordinateEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function coordinateSerializeWithContext(value: Coordinate, ctx: __mf_SerializeContext): Record<string, unknown> {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function coordinateEncodeWithContext(value: Coordinate, ctx: __mf_EncodeContext): Record<string, unknown> {
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
                                 return { __ref: existingId };
@@ -1141,21 +1141,21 @@ export function coordinateHashCode(value: Coordinate): number {
                             return result;
                         }
 
-/** Deserializes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function coordinateDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function coordinateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Coordinate } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = coordinateDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = coordinateDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Coordinate.deserialize: root cannot be a forward reference"
+		message: "Coordinate.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1178,7 +1178,7 @@ export function coordinateHashCode(value: Coordinate): number {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1195,14 +1195,14 @@ export function coordinateHashCode(value: Coordinate): number {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function coordinateDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Coordinate | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function coordinateDecodeWithContext(value: any, ctx: __mf_DecodeContext): Coordinate | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref) as Coordinate | __mf_PendingRef;
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Coordinate.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Coordinate.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2088,10 +2088,10 @@ const Coordinate = {
   clone: coordinateClone,
   equals: coordinateEquals,
   hashCode: coordinateHashCode,
-  serialize: coordinateSerialize,
-  serializeWithContext: coordinateSerializeWithContext,
-  deserialize: coordinateDeserialize,
-  deserializeWithContext: coordinateDeserializeWithContext,
+  encode: coordinateEncode,
+  encodeWithContext: coordinateEncodeWithContext,
+  decode: coordinateDecode,
+  decodeWithContext: coordinateDecodeWithContext,
   validateFields: coordinateValidateFields,
   hasShape: coordinateHasShape,
   is: coordinateIs
@@ -2103,19 +2103,19 @@ const Coordinate = {
 
 ## Mapping
 
-original 69..126 -> expanded 0..57
-original 126..127 -> expanded 8621..8622
+original 61..118 -> expanded 0..57
+original 118..119 -> expanded 8468..8469
 generated 57..377 <- Debug
 generated 377..641 <- Clone
 generated 641..855 <- PartialEq
 generated 855..1330 <- Hash
-generated 1330..2963 <- Serialize
-generated 2963..8186 <- Deserialize
-generated 8186..8621 <- __convenience_const
+generated 1330..2931 <- Encode
+generated 2931..8065 <- Decode
+generated 8065..8468 <- __convenience_const
 
 ## Metadata
 
-type Coordinate: {"body":{"Object":{"fields":[{"decorators":[],"name":"lat","optional":false,"readonly":false,"span":{"end":107,"start":95},"ts_type":"number"},{"decorators":[],"name":"lng","optional":false,"readonly":false,"span":{"end":124,"start":112},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":70,"start":1}}],"name":"Coordinate","span":{"end":127,"start":71},"type_params":[]}
+type Coordinate: {"body":{"Object":{"fields":[{"decorators":[],"name":"lat","optional":false,"readonly":false,"span":{"end":99,"start":87},"ts_type":"number"},{"decorators":[],"name":"lng","optional":false,"readonly":false,"span":{"end":116,"start":104},"ts_type":"number"}]}},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":62,"start":1}}],"name":"Coordinate","span":{"end":119,"start":63},"type_params":[]}
 
 ## Registry reads
 

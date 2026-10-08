@@ -55,8 +55,8 @@ test('get-macro-info - built-in macros present', async (t) => {
     const macroNames = manifest.macros.map((m) => m.name);
     const expectedMacros = [
         'Debug',
-        'Serialize',
-        'Deserialize',
+        'Encode',
+        'Decode',
         'Clone',
         'Default'
     ];
@@ -92,7 +92,7 @@ test('get-macro-info - macro has description', async (t) => {
     );
 });
 
-test('get-macro-info - Serialize macro description', async (t) => {
+test('get-macro-info - Encode macro description', async (t) => {
     const macroforge = await importTools();
 
     if (!macroforge || !macroforge.__macroforgeGetManifest) {
@@ -102,20 +102,20 @@ test('get-macro-info - Serialize macro description', async (t) => {
 
     const manifest = macroforge.__macroforgeGetManifest();
 
-    const serializeMacro = manifest.macros.find((m) => m.name === 'Serialize');
-    assert.ok(serializeMacro, 'Serialize macro should exist');
+    const encodeMacro = manifest.macros.find((m) => m.name === 'Encode');
+    assert.ok(encodeMacro, 'Encode macro should exist');
     assert.ok(
-        serializeMacro.description && serializeMacro.description.length > 0,
-        'Serialize macro should have description'
+        encodeMacro.description && encodeMacro.description.length > 0,
+        'Encode macro should have description'
     );
-    // The Serialize macro generates `toStringifiedJSON` (a JSON-string
-    // serializer) plus a streaming `serializeWithContext` pair. The
+    // The Encode macro generates `toStringifiedJSON` (a JSON-string
+    // encoder) plus a streaming `encodeWithContext` pair. The
     // description should mention at least one of those surface methods.
     assert.ok(
-        serializeMacro.description.includes('toStringifiedJSON') ||
-            serializeMacro.description.includes('serializeWithContext') ||
-            serializeMacro.description.includes('serialization'),
-        `Serialize description should describe its output; got: ${serializeMacro.description}`
+        encodeMacro.description.includes('toStringifiedJSON') ||
+            encodeMacro.description.includes('encodeWithContext') ||
+            encodeMacro.description.includes('encoding'),
+        `Encode description should describe its output; got: ${encodeMacro.description}`
     );
 });
 
@@ -131,12 +131,12 @@ test('get-macro-info - decorators have docs', async (t) => {
 
     // Check that decorators exist and have the expected structure
     // Note: docs may be empty if the native bindings weren't rebuilt with the new docs
-    const serdeDecorator = manifest.decorators.find((d) => d.export === 'serde');
-    if (serdeDecorator) {
+    const endecDecorator = manifest.decorators.find((d) => d.export === 'endec');
+    if (endecDecorator) {
         // Just verify the decorator exists and has the docs field (may be empty string)
         assert.ok(
-            serdeDecorator.docs !== undefined,
-            'serde decorator should have docs field'
+            endecDecorator.docs !== undefined,
+            'endec decorator should have docs field'
         );
         // If docs are populated, they should be non-empty
         // This test will pass once native bindings are rebuilt
@@ -269,7 +269,7 @@ class User {
     );
 });
 
-test('expand-code - expands Serialize macro', async (t) => {
+test('expand-code - expands Encode macro', async (t) => {
     const macroforge = await importTools();
 
     if (!macroforge || !macroforge.expandSync) {
@@ -277,7 +277,7 @@ test('expand-code - expands Serialize macro', async (t) => {
         return;
     }
 
-    const code = `/** @derive(Serialize) */
+    const code = `/** @derive(Encode) */
 class User {
   name: string;
   age: number;
@@ -285,13 +285,13 @@ class User {
 
     const result = macroforge.expandSync(code, 'test.ts', {});
 
-    // Expanded code should include the generated serializer — either the
-    // public `toStringifiedJSON` or the internal `serializeWithContext`.
+    // Expanded code should include the generated encoder: either the
+    // public `toStringifiedJSON` or the internal `encodeWithContext`.
     assert.ok(result.code, 'should have expanded code');
     assert.ok(
         result.code.includes('toStringifiedJSON') ||
-            result.code.includes('serializeWithContext'),
-        'expanded code should include Serialize methods'
+            result.code.includes('encodeWithContext'),
+        'expanded code should include Encode methods'
     );
 });
 
@@ -303,7 +303,7 @@ test('expand-code - expands multiple macros', async (t) => {
         return;
     }
 
-    const code = `/** @derive(Debug, Serialize, Clone) */
+    const code = `/** @derive(Debug, Encode, Clone) */
 class User {
   name: string;
   age: number;
@@ -318,8 +318,8 @@ class User {
     );
     assert.ok(
         result.code.includes('toStringifiedJSON') ||
-            result.code.includes('serializeWithContext'),
-        'expanded code should include Serialize methods'
+            result.code.includes('encodeWithContext'),
+        'expanded code should include Encode methods'
     );
     assert.ok(
         result.code.includes('clone'),
@@ -327,7 +327,7 @@ class User {
     );
 });
 
-test('expand-code - preserves @serde field decorators info', async (t) => {
+test('expand-code - preserves @endec field decorators info', async (t) => {
     const macroforge = await importTools();
 
     if (!macroforge || !macroforge.expandSync) {
@@ -335,11 +335,11 @@ test('expand-code - preserves @serde field decorators info', async (t) => {
         return;
     }
 
-    const code = `/** @derive(Serialize) */
+    const code = `/** @derive(Encode) */
 class User {
   name: string;
 
-  @serde({ skip: true })
+  @endec({ skip: true })
   password: string;
 }`;
 
@@ -352,7 +352,7 @@ class User {
             result.code.includes('// password skipped') ||
             // Check that password is not included in the return object of toJSON
             !/toJSON\(\)[^}]*password/.test(result.code),
-        'password should be skipped in serialization'
+        'password should be skipped in encoding'
     );
 });
 

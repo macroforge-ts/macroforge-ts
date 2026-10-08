@@ -13,8 +13,8 @@ const BUILTIN_MACRO_NAMES: &[&str] = &[
     "Ord",
     "PartialEq",
     "PartialOrd",
-    "Serialize",
-    "Deserialize",
+    "Encode",
+    "Decode",
 ];
 
 /// Warns on each built-in macro imported from a macro module: built-ins need
@@ -93,7 +93,7 @@ pub(super) fn external_type_function_import_patches(
 
         // Strip generic parameters (e.g., "RecordLink<Employee>" -> "RecordLink")
         // before converting to camelCase, since `<>` are not valid in identifiers
-        // and would produce broken function names like `recordLink<employee>Serialize`.
+        // and would produce broken function names like `recordLink<employee>Encode`.
         let base_type = if let Some(idx) = type_name.find('<') {
             &type_name[..idx]
         } else {
@@ -101,14 +101,14 @@ pub(super) fn external_type_function_import_patches(
         };
         let camel = base_type.to_case(Case::Camel);
 
-        // Built-in suffixes from core macros (Default, Serialize, Deserialize, etc.)
+        // Built-in suffixes from core macros (Default, Encode, Decode, etc.)
         // These are always camelCase value references (function calls).
         let mut candidates: Vec<(String, bool)> = vec![
-            (format!("{camel}SerializeWithContext"), false),
-            (format!("{camel}DeserializeWithContext"), false),
+            (format!("{camel}EncodeWithContext"), false),
+            (format!("{camel}DecodeWithContext"), false),
             (format!("{camel}DefaultValue"), false),
-            (format!("{camel}Serialize"), false),
-            (format!("{camel}Deserialize"), false),
+            (format!("{camel}Encode"), false),
+            (format!("{camel}Decode"), false),
             (format!("{camel}ValidateField"), false),
             (format!("{camel}ValidateFields"), false),
             (format!("{camel}HasShape"), false),

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/commissions.svelte.ts
-sha256 f89ff6d4b744abf29a3f99cd2ce0f51d7eae4dd5f01ea7567380ce3535ef2957
+sha256 01a15717d86d80b0928bbbea22511697b1d07bcfeec1853b5e388013f53542d5
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -38,16 +38,16 @@ salesRep: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function commissionsSerialize(value: Commissions, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = commissionsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function commissionsEncode(value: Commissions, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = commissionsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function commissionsSerializeWithContext(value: Commissions, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function commissionsEncodeWithContext(value: Commissions, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -159,21 +159,21 @@ salesRep: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function commissionsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = commissionsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = commissionsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Commissions.deserialize: root cannot be a forward reference"
+		message: "Commissions.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -196,7 +196,7 @@ salesRep: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -213,14 +213,14 @@ salesRep: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function commissionsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Commissions | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function commissionsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Commissions | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Commissions.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Commissions.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1441,7 +1441,7 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
                 if (!commissionsHasShape(obj)) {
                     return false;
                 }
-                const result = commissionsDeserialize(obj);
+                const result = commissionsDecode(obj);
                 return result.success;
             }
 
@@ -1552,7 +1552,7 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
 
 
             function validate(): Exit.Exit<Commissions, Array<{ field: string; message: string }>> {
-                return toExit(commissionsDeserialize(data));
+                return toExit(commissionsDecode(data));
             }
 
 
@@ -1585,7 +1585,7 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function commissionsFromFormData(formData: FormData): Exit.Exit<Commissions, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -1594,15 +1594,15 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
             obj.salesRep = formData.get("salesRep") ?? "";
 
 
-            return toExit(commissionsDeserialize(obj));
+            return toExit(commissionsDecode(obj));
         }
 
 export const Commissions = {
   defaultValue: commissionsDefaultValue,
-  serialize: commissionsSerialize,
-  serializeWithContext: commissionsSerializeWithContext,
-  deserialize: commissionsDeserialize,
-  deserializeWithContext: commissionsDeserializeWithContext,
+  encode: commissionsEncode,
+  encodeWithContext: commissionsEncodeWithContext,
+  decode: commissionsDecode,
+  decodeWithContext: commissionsDecodeWithContext,
   validateFields: commissionsValidateFields,
   hasShape: commissionsHasShape,
   is: commissionsIs,
@@ -1629,16 +1629,16 @@ salesRep: "",
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function commissionsSerialize(value: Commissions, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = commissionsSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function commissionsEncode(value: Commissions, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = commissionsEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function commissionsSerializeWithContext(value: Commissions, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function commissionsEncodeWithContext(value: Commissions, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1750,21 +1750,21 @@ salesRep: "",
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function commissionsDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function commissionsDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Commissions } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = commissionsDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = commissionsDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Commissions.deserialize: root cannot be a forward reference"
+		message: "Commissions.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1787,7 +1787,7 @@ salesRep: "",
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1804,14 +1804,14 @@ salesRep: "",
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function commissionsDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Commissions | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function commissionsDecodeWithContext(value: any, ctx: __mf_DecodeContext): Commissions | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Commissions.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Commissions.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3032,7 +3032,7 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
                 if (!commissionsHasShape(obj)) {
                     return false;
                 }
-                const result = commissionsDeserialize(obj);
+                const result = commissionsDecode(obj);
                 return result.success;
             }
 
@@ -3143,7 +3143,7 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
 
 
             function validate(): Exit.Exit<Commissions, Array<{ field: string; message: string }>> {
-                return toExit(commissionsDeserialize(data));
+                return toExit(commissionsDecode(data));
             }
 
 
@@ -3176,7 +3176,7 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function commissionsFromFormData(formData: FormData): Exit.Exit<Commissions, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -3185,15 +3185,15 @@ if (__val.length === 0) { errors.push({ field: "salesRep", message: "Commissions
             obj.salesRep = formData.get("salesRep") ?? "";
 
 
-            return toExit(commissionsDeserialize(obj));
+            return toExit(commissionsDecode(obj));
         }
 
 export const Commissions = {
   defaultValue: commissionsDefaultValue,
-  serialize: commissionsSerialize,
-  serializeWithContext: commissionsSerializeWithContext,
-  deserialize: commissionsDeserialize,
-  deserializeWithContext: commissionsDeserializeWithContext,
+  encode: commissionsEncode,
+  encodeWithContext: commissionsEncodeWithContext,
+  decode: commissionsDecode,
+  decodeWithContext: commissionsDecodeWithContext,
   validateFields: commissionsValidateFields,
   hasShape: commissionsHasShape,
   is: commissionsIs,
@@ -3208,19 +3208,19 @@ export const Commissions = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..151 -> expanded 58..94
-original 192..221 -> expanded 94..123
-original 262..286 -> expanded 123..147
-original 286..287 -> expanded 15681..15682
+original 107..143 -> expanded 58..94
+original 184..213 -> expanded 94..123
+original 254..278 -> expanded 123..147
+original 278..279 -> expanded 15503..15504
 generated 147..293 <- Default
-generated 293..1880 <- Serialize
-generated 1880..9976 <- Deserialize
-generated 9976..15230 <- Gigaform
-generated 15230..15681 <- __convenience_const
+generated 293..1848 <- Encode
+generated 1848..9850 <- Decode
+generated 9850..15084 <- Gigaform
+generated 15084..15503 <- __convenience_const
 
 ## Metadata
 
-interface Commissions: {"body_span":{"end":287,"start":146},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":193,"start":152}}],"name":"technician","optional":false,"readonly":false,"span":{"end":217,"start":198},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":263,"start":222}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":285,"start":268},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Commissions","span":{"end":287,"start":124},"type_params":[]}
+interface Commissions: {"body_span":{"end":279,"start":138},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":185,"start":144}}],"name":"technician","optional":false,"readonly":false,"span":{"end":209,"start":190},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":255,"start":214}}],"name":"salesRep","optional":false,"readonly":false,"span":{"end":277,"start":260},"ts_type":"string"}],"heritage":[],"methods":[],"name":"Commissions","span":{"end":279,"start":116},"type_params":[]}
 
 ## Registry reads
 

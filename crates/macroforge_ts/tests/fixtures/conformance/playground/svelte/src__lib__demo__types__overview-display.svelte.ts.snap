@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/overview-display.svelte.ts
-sha256 250a595a9902bd125627255702cec314d74da706552a2c11ef1078c276c8f18d
+sha256 709c58ed80d2a48ed517a631767aaaa7a778f884d778a90e87e7155db603f0f5
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -30,20 +30,20 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
                             return "Card";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function overviewDisplaySerialize(value: OverviewDisplay, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = overviewDisplaySerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function overviewDisplayEncode(value: OverviewDisplay, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = overviewDisplayEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function overviewDisplaySerializeWithContext(value: OverviewDisplay, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function overviewDisplayEncodeWithContext(value: OverviewDisplay, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -110,8 +110,8 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function overviewDisplayDeserialize(input: unknown): { success: true; value: OverviewDisplay } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function overviewDisplayDecode(input: unknown): { success: true; value: OverviewDisplay } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Card':
                     case 'Table':
@@ -123,8 +123,8 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function overviewDisplayDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): OverviewDisplay | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function overviewDisplayDecodeWithContext(value: any, ctx: __mf_DecodeContext): OverviewDisplay | __mf_PendingRef {
                 switch (value) {
                     case 'Card':
                     case 'Table':
@@ -132,7 +132,7 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
 
                         return value as OverviewDisplay;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for OverviewDisplay: expected one of " + ['Card', 'Table'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -272,7 +272,7 @@ if (variant === "Table") { return "Table" as OverviewDisplay; }
 
 
             function validate(): Exit.Exit<OverviewDisplay, Array<{ field: string; message: string }>> {
-                return toExit(overviewDisplayDeserialize(data));
+                return toExit(overviewDisplayDecode(data));
             }
 
 
@@ -321,15 +321,15 @@ if (variant === "Table") { return "Table" as OverviewDisplay; }
                 }
 
 
-            return toExit(overviewDisplayDeserialize(obj));
+            return toExit(overviewDisplayDecode(obj));
         }
 
 export const OverviewDisplay = {
   defaultValue: overviewDisplayDefaultValue,
-  serialize: overviewDisplaySerialize,
-  serializeWithContext: overviewDisplaySerializeWithContext,
-  deserialize: overviewDisplayDeserialize,
-  deserializeWithContext: overviewDisplayDeserializeWithContext,
+  encode: overviewDisplayEncode,
+  encodeWithContext: overviewDisplayEncodeWithContext,
+  decode: overviewDisplayDecode,
+  decodeWithContext: overviewDisplayDecodeWithContext,
   hasShape: overviewDisplayHasShape,
   is: overviewDisplayIs,
   createForm: overviewDisplayCreateForm,
@@ -347,20 +347,20 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
                             return "Card";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function overviewDisplaySerialize(value: OverviewDisplay, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = overviewDisplaySerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function overviewDisplayEncode(value: OverviewDisplay, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = overviewDisplayEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function overviewDisplaySerializeWithContext(value: OverviewDisplay, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function overviewDisplayEncodeWithContext(value: OverviewDisplay, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -427,8 +427,8 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function overviewDisplayDeserialize(input: unknown): { success: true; value: OverviewDisplay } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function overviewDisplayDecode(input: unknown): { success: true; value: OverviewDisplay } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Card':
                     case 'Table':
@@ -440,8 +440,8 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function overviewDisplayDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): OverviewDisplay | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function overviewDisplayDecodeWithContext(value: any, ctx: __mf_DecodeContext): OverviewDisplay | __mf_PendingRef {
                 switch (value) {
                     case 'Card':
                     case 'Table':
@@ -449,7 +449,7 @@ export function overviewDisplayDefaultValue(): OverviewDisplay {
 
                         return value as OverviewDisplay;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for OverviewDisplay: expected one of " + ['Card', 'Table'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -589,7 +589,7 @@ if (variant === "Table") { return "Table" as OverviewDisplay; }
 
 
             function validate(): Exit.Exit<OverviewDisplay, Array<{ field: string; message: string }>> {
-                return toExit(overviewDisplayDeserialize(data));
+                return toExit(overviewDisplayDecode(data));
             }
 
 
@@ -638,15 +638,15 @@ if (variant === "Table") { return "Table" as OverviewDisplay; }
                 }
 
 
-            return toExit(overviewDisplayDeserialize(obj));
+            return toExit(overviewDisplayDecode(obj));
         }
 
 export const OverviewDisplay = {
   defaultValue: overviewDisplayDefaultValue,
-  serialize: overviewDisplaySerialize,
-  serializeWithContext: overviewDisplaySerializeWithContext,
-  deserialize: overviewDisplayDeserialize,
-  deserializeWithContext: overviewDisplayDeserializeWithContext,
+  encode: overviewDisplayEncode,
+  encodeWithContext: overviewDisplayEncodeWithContext,
+  decode: overviewDisplayDecode,
+  decodeWithContext: overviewDisplayDecodeWithContext,
   hasShape: overviewDisplayHasShape,
   is: overviewDisplayIs,
   createForm: overviewDisplayCreateForm,
@@ -660,17 +660,17 @@ export const OverviewDisplay = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..179 -> expanded 58..122
-original 179..180 -> expanded 10302..10303
+original 107..171 -> expanded 58..122
+original 171..172 -> expanded 10192..10193
 generated 122..257 <- Default
-generated 257..2238 <- Serialize
-generated 2238..4340 <- Deserialize
-generated 4340..9856 <- Gigaform
-generated 9856..10302 <- __convenience_const
+generated 257..2200 <- Encode
+generated 2200..4272 <- Decode
+generated 4272..9778 <- Gigaform
+generated 9778..10192 <- __convenience_const
 
 ## Metadata
 
-type OverviewDisplay: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":162,"start":147}}],"kind":{"Literal":"'Card'"}},{"decorators":[],"kind":{"Literal":"'Table'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"OverviewDisplay","span":{"end":180,"start":124},"type_params":[]}
+type OverviewDisplay: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":154,"start":139}}],"kind":{"Literal":"'Card'"}},{"decorators":[],"kind":{"Literal":"'Table'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"OverviewDisplay","span":{"end":172,"start":116},"type_params":[]}
 
 ## Registry reads
 

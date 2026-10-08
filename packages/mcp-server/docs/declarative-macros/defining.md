@@ -24,7 +24,7 @@ Three requirements:
   is a hard error.
 
 Both `const $name = …` and `export const $name = …` are supported. The expander erases the entire
-binding — including the `export` keyword — so a library file that only defines macros still compiles
+binding: including the `export` keyword: so a library file that only defines macros still compiles
 cleanly under `noUnusedLocals`. The `import { macroRules }` statement is stripped too, when
 `macroRules` is its only specifier.
 
@@ -36,12 +36,12 @@ those require the object form.
 The object form is required whenever you need anything beyond plain inline expansion:
 
 ```typescript
-const $serialize = macroRules({
+const $encode = macroRules({
     mode: 'auto',
     kind: 'value',
-    expand: macroRules`($x:Expr) => __inline_serialize($x)`,
-    runtime: 'function __serialize(value) { return JSON.stringify(value); }',
-    call: macroRules`($x:Expr) => __serialize($x)`
+    expand: macroRules`($x:Expr) => __inline_encode($x)`,
+    runtime: 'function __encode(value) { return JSON.stringify(value); }',
+    call: macroRules`($x:Expr) => __encode($x)`
 });
 ```
 
@@ -55,8 +55,8 @@ const $serialize = macroRules({
 | `runtimeName`           | string           | Template for the emitted helper's name. Must contain `$__cluster__`.                                                                         |
 | `megamorphismThreshold` | number           | `0`–`255`. Distinct-shape count above which `auto` gives up and expands inline. `megamorphism_threshold` is also accepted.                   |
 
-`expand` and `call` must be **literal** `` macroRules`…` `` tags — you cannot pass a variable
-holding one. `runtime` may be a plain string or an interpolation-free template literal.
+`expand` and `call` must be **literal** `` macroRules`…` `` tags: you cannot pass a variable holding
+one. `runtime` may be a plain string or an interpolation-free template literal.
 
 ### The `mode` default is inferred
 
@@ -86,7 +86,7 @@ Arms are split on **a line whose first non-whitespace character is `(` at delimi
 This is worth knowing because a _body_ line that begins with `(` in column zero will be misread as
 the start of a new arm. Indent such a line, or wrap it, to avoid the ambiguity.
 
-`()` matches exactly zero arguments — it is not a wildcard.
+`()` matches exactly zero arguments: it is not a wildcard.
 
 ## Scoping and shadowing
 

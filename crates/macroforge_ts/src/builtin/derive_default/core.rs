@@ -72,7 +72,7 @@ fn wrap_string_for_tagged_union(
     let tag = alias
         .decorators
         .iter()
-        .find_map(|d| (d.name == "serde").then(|| extract_tag_from_serde_args(&d.args_src)))
+        .find_map(|d| (d.name == "endec").then(|| extract_tag_from_endec_args(&d.args_src)))
         .flatten()?;
 
     for member in members {
@@ -125,8 +125,8 @@ fn wrap_string_for_tagged_union(
 
 /// True when `s` contains a `|` at top level (depth 0 with respect to
 /// matching parens / brackets / braces / angle brackets). Used to tell a
-/// parenthesized union (`(string | T)`) — which we reject — from a
-/// parenthesized intersection (`({ tag } & T)`) — which is fine.
+/// parenthesized union (`(string | T)`): which we reject: from a
+/// parenthesized intersection (`({ tag } & T)`): which is fine.
 fn contains_top_level_pipe(s: &str) -> bool {
     let mut depth: i32 = 0;
     for ch in s.chars() {
@@ -141,8 +141,8 @@ fn contains_top_level_pipe(s: &str) -> bool {
 }
 
 /// Extract `"value"` out of `tag: "value"` or `tag = "value"` inside the
-/// raw arguments of `@serde(...)`. Returns the unquoted variant tag name.
-fn extract_tag_from_serde_args(args: &str) -> Option<String> {
+/// raw arguments of `@endec(...)`. Returns the unquoted variant tag name.
+fn extract_tag_from_endec_args(args: &str) -> Option<String> {
     let s = args.trim();
     let idx = s.find("tag")?;
     let after = &s[idx + 3..];
@@ -610,7 +610,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                                 parts.push(format!("{}: {}", f.name, value));
                             }
                         }
-                        // Literals and nested intersections fall through —
+                        // Literals and nested intersections fall through :
                         // we only handle the common `{tag} & TypeRef` shape.
                     }
                     if parts.is_empty() {
@@ -623,7 +623,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 // Check for parenthesized union members - can't place @default inside parens
                 // e.g., `(string | Product) | (string | Service)` is not allowed.
                 // Parenthesized intersections like `({ kind: 'A' } & ADetail)` are
-                // fine — they preserve doc-comment placement unambiguously and are
+                // fine: they preserve doc-comment placement unambiguously and are
                 // already handled by `as_intersection_members` below.
                 let parenthesized: Vec<&str> = members
                     .iter()
@@ -650,11 +650,11 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 // First, look for a variant with @default decorator
                 let default_variant_from_member = members.iter().find_map(|member| {
                     if member.has_decorator("default") {
-                        // Named type (TypeRef or Literal) — use the type name
+                        // Named type (TypeRef or Literal): use the type name
                         if let Some(name) = member.type_name() {
                             return Some(name.to_string());
                         }
-                        // Object type (tagged union variant) — build an object literal
+                        // Object type (tagged union variant): build an object literal
                         // with default values for each field
                         if let Some(fields) = member.as_object() {
                             return Some(build_object_default(

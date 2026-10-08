@@ -36,7 +36,7 @@ pub(crate) static DECLARATIVE_REGISTRY_CACHE_PATH: Mutex<Option<String>> = Mutex
 /// so cross-file `/** import macro */` resolution works in the
 /// tsc/svelte-check wrappers and the Vite plugin.
 ///
-/// `root` is the resolved project root, the same directory the cache and the
+/// `root` is the resolved project root: the same directory the cache and the
 /// project lock are keyed on. It is passed in rather than read from the current
 /// directory so that `macroforge cache <elsewhere>` keeps the whole
 /// `.macroforge/` tree in one place instead of splitting the registry from the
@@ -134,14 +134,14 @@ fn write_registries(
     let declarative = cache_dir.join("declarative-registry.json");
 
     let registry_json =
-        serde_json::to_string(&output.registry).context("failed to serialize the type registry")?;
+        serde_json::to_string(&output.registry).context("failed to encode the type registry")?;
     write_atomic(&types, registry_json.as_bytes())
         .with_context(|| format!("failed to write {}", types.display()))?;
 
     let declarative_json = output
         .declarative_registry
         .to_json()
-        .map_err(|err| anyhow::anyhow!("failed to serialize the declarative registry: {err}"))?;
+        .map_err(|err| anyhow::anyhow!("failed to encode the declarative registry: {err}"))?;
     write_atomic(&declarative, declarative_json.as_bytes())
         .with_context(|| format!("failed to write {}", declarative.display()))?;
 
@@ -175,8 +175,8 @@ const WRAPPER_COMMON: &str = include_str!("../../../js/cli/wrapper-common.mjs");
 /// `node` is reading them, and two *different* builds would overwrite each
 /// other outright.
 ///
-/// The directory is therefore content-addressed (`<version>-<hash>` over the
-/// scripts themselves), so identical content collides harmlessly and differing
+/// The directory is therefore content-addressed: `<version>-<hash>` over the
+/// scripts themselves: so identical content collides harmlessly and differing
 /// content never does. Each file is still written atomically, so a reader that
 /// arrives mid-write sees the complete previous copy rather than a partial one.
 ///
@@ -241,7 +241,7 @@ pub fn run_tsc_wrapper(root: &Path, project: Option<PathBuf>) -> Result<()> {
     let registries = registries_for_check(root, "tsc")?;
 
     // The tsc wrapper must be a JS script because it monkey-patches the TypeScript
-    // CompilerHost.getSourceFile to expand macros on the fly; that hooking can only
+    // CompilerHost.getSourceFile to expand macros on the fly: that hooking can only
     // happen in JS since it's patching the TS compiler API internals. We write it to
     // a temp file because `node` needs a file path to execute.
     let temp_dir = materialize_scripts(
@@ -425,7 +425,7 @@ fn absolutize(root: &Path, path: &Path) -> PathBuf {
 /// The output directory is swapped into place rather than rebuilt in situ.
 /// `@sveltejs/package` finishes by deleting the output directory and recursively
 /// copying its own staging tree into it, which leaves anything reading the
-/// package (a watching bundler, an editor, a publish step) looking at a
+/// package: a watching bundler, an editor, a publish step: looking at a
 /// half-populated tree for the duration of the copy, and leaves it deleted
 /// outright if the build fails. Redirecting the packager at a scratch directory
 /// and renaming that into place reduces the exposure to a single `rename` and
@@ -485,7 +485,7 @@ pub fn run_svelte_package_wrapper(
             let probe = probe_package_config(&main_path, &flags)?;
             // Used exactly as the probe reported it. The redirect matches read
             // paths against this prefix, and the packager builds those paths
-            // with `path.resolve`, which is purely lexical; canonicalizing here
+            // with `path.resolve`, which is purely lexical: canonicalizing here
             // would stop a symlinked input directory from ever matching, and a
             // read that fails to match is served unexpanded.
             ResolvedPackageConfig {

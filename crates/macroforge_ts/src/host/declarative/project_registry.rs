@@ -22,7 +22,7 @@ use crate::ts_syn::declarative::MacroDef;
 
 /// Project-wide declarative macro registry keyed by absolute file path.
 ///
-/// Ordered maps, so two scans of the same sources serialize identically and
+/// Ordered maps, so two scans of the same sources encode identically and
 /// the written registry can be compared by its bytes.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ProjectDeclarativeRegistry {
@@ -118,12 +118,12 @@ impl ProjectDeclarativeRegistry {
         None
     }
 
-    /// Serialize to JSON for crossing the WASM boundary.
+    /// Encode to JSON for crossing the WASM boundary.
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string(self)
     }
 
-    /// Deserialize from JSON produced by [`to_json`].
+    /// Decode from JSON produced by [`to_json`].
     pub fn from_json(s: &str) -> Result<Self, serde_json::Error> {
         serde_json::from_str(s)
     }

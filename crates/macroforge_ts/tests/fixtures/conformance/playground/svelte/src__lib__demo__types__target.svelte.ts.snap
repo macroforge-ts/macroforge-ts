@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/target.svelte.ts
-sha256 fdee787ca7862985b9dc17c692af5a3d35e7d8baacd85725f7477087c08bb725
+sha256 3b07f86669a07e354b142f13383fdfc21b156ef3b800fcf32e654c813ae70356
 
 ## Changed
 
@@ -12,46 +12,46 @@ true
 
 ## Output
 
-import { accountDeserializeWithContext } from "./account.svelte";
+import { accountDecodeWithContext } from "./account.svelte";
 import { accountHasShape } from "./account.svelte";
-import { appointmentDeserializeWithContext } from "./appointment.svelte";
+import { appointmentDecodeWithContext } from "./appointment.svelte";
 import { appointmentHasShape } from "./appointment.svelte";
-import { companyDeserializeWithContext } from "./company.svelte";
+import { companyDecodeWithContext } from "./company.svelte";
 import { companyHasShape } from "./company.svelte";
-import { employeeDeserializeWithContext } from "./employee.svelte";
+import { employeeDecodeWithContext } from "./employee.svelte";
 import { employeeHasShape } from "./employee.svelte";
-import { leadDeserializeWithContext } from "./lead.svelte";
+import { leadDecodeWithContext } from "./lead.svelte";
 import { leadHasShape } from "./lead.svelte";
-import { orderDeserializeWithContext } from "./order.svelte";
+import { orderDecodeWithContext } from "./order.svelte";
 import { orderHasShape } from "./order.svelte";
-import { orderedDeserializeWithContext } from "./ordered.svelte";
+import { orderedDecodeWithContext } from "./ordered.svelte";
 import { orderedHasShape } from "./ordered.svelte";
-import { packageDeserializeWithContext } from "./package.svelte";
+import { packageDecodeWithContext } from "./package.svelte";
 import { packageHasShape } from "./package.svelte";
-import { paymentDeserializeWithContext } from "./payment.svelte";
+import { paymentDecodeWithContext } from "./payment.svelte";
 import { paymentHasShape } from "./payment.svelte";
-import { productDeserializeWithContext } from "./product.svelte";
+import { productDecodeWithContext } from "./product.svelte";
 import { productHasShape } from "./product.svelte";
-import { promotionDeserializeWithContext } from "./promotion.svelte";
+import { promotionDecodeWithContext } from "./promotion.svelte";
 import { promotionHasShape } from "./promotion.svelte";
-import { representsDeserializeWithContext } from "./represents.svelte";
+import { representsDecodeWithContext } from "./represents.svelte";
 import { representsHasShape } from "./represents.svelte";
-import { routeDeserializeWithContext } from "./route.svelte";
+import { routeDecodeWithContext } from "./route.svelte";
 import { routeHasShape } from "./route.svelte";
-import { serviceDeserializeWithContext } from "./service.svelte";
+import { serviceDecodeWithContext } from "./service.svelte";
 import { serviceHasShape } from "./service.svelte";
-import { siteDeserializeWithContext } from "./site.svelte";
+import { siteDecodeWithContext } from "./site.svelte";
 import { siteHasShape } from "./site.svelte";
-import { taxRateDeserializeWithContext } from "./tax-rate.svelte";
+import { taxRateDecodeWithContext } from "./tax-rate.svelte";
 import { taxRateHasShape } from "./tax-rate.svelte";
-import { userDeserializeWithContext } from "./user.svelte";
+import { userDecodeWithContext } from "./user.svelte";
 import { userHasShape } from "./user.svelte";
 import { accountDefaultValue } from "./account.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { appointmentDefaultValue } from "./appointment.svelte";
 import { companyDefaultValue } from "./company.svelte";
 import { employeeDefaultValue } from "./employee.svelte";
@@ -116,20 +116,20 @@ export function targetDefaultValue(): Target {
                             return accountDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function targetSerialize(value: Target, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = targetSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function targetEncode(value: Target, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = targetEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function targetSerializeWithContext(value: Target, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -196,20 +196,20 @@ export function targetDefaultValue(): Target {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function targetDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function targetDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = targetDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = targetDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Target.deserialize: root cannot be a forward reference"
+		message: "Target.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -232,7 +232,7 @@ export function targetDefaultValue(): Target {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -249,8 +249,8 @@ export function targetDefaultValue(): Target {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function targetDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Target | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function targetDecodeWithContext(value: any, ctx: __mf_DecodeContext): Target | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Target | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -258,71 +258,71 @@ export function targetDefaultValue(): Target {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "Account") {
-                                                return accountDeserializeWithContext(value, ctx) as Target;
+                                                return accountDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "User") {
-                                                return userDeserializeWithContext(value, ctx) as Target;
+                                                return userDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Employee") {
-                                                return employeeDeserializeWithContext(value, ctx) as Target;
+                                                return employeeDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Appointment") {
-                                                return appointmentDeserializeWithContext(value, ctx) as Target;
+                                                return appointmentDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Lead") {
-                                                return leadDeserializeWithContext(value, ctx) as Target;
+                                                return leadDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "TaxRate") {
-                                                return taxRateDeserializeWithContext(value, ctx) as Target;
+                                                return taxRateDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Site") {
-                                                return siteDeserializeWithContext(value, ctx) as Target;
+                                                return siteDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Route") {
-                                                return routeDeserializeWithContext(value, ctx) as Target;
+                                                return routeDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Company") {
-                                                return companyDeserializeWithContext(value, ctx) as Target;
+                                                return companyDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Product") {
-                                                return productDeserializeWithContext(value, ctx) as Target;
+                                                return productDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Service") {
-                                                return serviceDeserializeWithContext(value, ctx) as Target;
+                                                return serviceDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Order") {
-                                                return orderDeserializeWithContext(value, ctx) as Target;
+                                                return orderDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Payment") {
-                                                return paymentDeserializeWithContext(value, ctx) as Target;
+                                                return paymentDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Package") {
-                                                return packageDeserializeWithContext(value, ctx) as Target;
+                                                return packageDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Promotion") {
-                                                return promotionDeserializeWithContext(value, ctx) as Target;
+                                                return promotionDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Represents") {
-                                                return representsDeserializeWithContext(value, ctx) as Target;
+                                                return representsDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Ordered") {
-                                                return orderedDeserializeWithContext(value, ctx) as Target;
+                                                return orderedDecodeWithContext(value, ctx) as Target;
                                             }
 
 
@@ -336,9 +336,9 @@ export function targetDefaultValue(): Target {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "Target.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered"
+                                            message: "Target.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered"
                                         }]);
                                     }
                                 }
@@ -388,71 +388,71 @@ export function targetDefaultValue(): Target {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "Account") {
-                                            return accountDeserializeWithContext(value, ctx) as Target;
+                                            return accountDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "User") {
-                                            return userDeserializeWithContext(value, ctx) as Target;
+                                            return userDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Employee") {
-                                            return employeeDeserializeWithContext(value, ctx) as Target;
+                                            return employeeDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Appointment") {
-                                            return appointmentDeserializeWithContext(value, ctx) as Target;
+                                            return appointmentDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Lead") {
-                                            return leadDeserializeWithContext(value, ctx) as Target;
+                                            return leadDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "TaxRate") {
-                                            return taxRateDeserializeWithContext(value, ctx) as Target;
+                                            return taxRateDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Site") {
-                                            return siteDeserializeWithContext(value, ctx) as Target;
+                                            return siteDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Route") {
-                                            return routeDeserializeWithContext(value, ctx) as Target;
+                                            return routeDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Company") {
-                                            return companyDeserializeWithContext(value, ctx) as Target;
+                                            return companyDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Product") {
-                                            return productDeserializeWithContext(value, ctx) as Target;
+                                            return productDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Service") {
-                                            return serviceDeserializeWithContext(value, ctx) as Target;
+                                            return serviceDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Order") {
-                                            return orderDeserializeWithContext(value, ctx) as Target;
+                                            return orderDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Payment") {
-                                            return paymentDeserializeWithContext(value, ctx) as Target;
+                                            return paymentDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Package") {
-                                            return packageDeserializeWithContext(value, ctx) as Target;
+                                            return packageDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Promotion") {
-                                            return promotionDeserializeWithContext(value, ctx) as Target;
+                                            return promotionDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Represents") {
-                                            return representsDeserializeWithContext(value, ctx) as Target;
+                                            return representsDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Ordered") {
-                                            return orderedDeserializeWithContext(value, ctx) as Target;
+                                            return orderedDecodeWithContext(value, ctx) as Target;
                                         }
 
 
@@ -468,119 +468,119 @@ export function targetDefaultValue(): Target {
                                     
                                         if (__shapeMatches.includes("Account")) {
                                             try {
-                                                return accountDeserializeWithContext(value, ctx) as Target;
+                                                return accountDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("User")) {
                                             try {
-                                                return userDeserializeWithContext(value, ctx) as Target;
+                                                return userDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Employee")) {
                                             try {
-                                                return employeeDeserializeWithContext(value, ctx) as Target;
+                                                return employeeDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Appointment")) {
                                             try {
-                                                return appointmentDeserializeWithContext(value, ctx) as Target;
+                                                return appointmentDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Lead")) {
                                             try {
-                                                return leadDeserializeWithContext(value, ctx) as Target;
+                                                return leadDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("TaxRate")) {
                                             try {
-                                                return taxRateDeserializeWithContext(value, ctx) as Target;
+                                                return taxRateDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Site")) {
                                             try {
-                                                return siteDeserializeWithContext(value, ctx) as Target;
+                                                return siteDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Route")) {
                                             try {
-                                                return routeDeserializeWithContext(value, ctx) as Target;
+                                                return routeDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Company")) {
                                             try {
-                                                return companyDeserializeWithContext(value, ctx) as Target;
+                                                return companyDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Product")) {
                                             try {
-                                                return productDeserializeWithContext(value, ctx) as Target;
+                                                return productDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Service")) {
                                             try {
-                                                return serviceDeserializeWithContext(value, ctx) as Target;
+                                                return serviceDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Order")) {
                                             try {
-                                                return orderDeserializeWithContext(value, ctx) as Target;
+                                                return orderDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Payment")) {
                                             try {
-                                                return paymentDeserializeWithContext(value, ctx) as Target;
+                                                return paymentDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Package")) {
                                             try {
-                                                return packageDeserializeWithContext(value, ctx) as Target;
+                                                return packageDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Promotion")) {
                                             try {
-                                                return promotionDeserializeWithContext(value, ctx) as Target;
+                                                return promotionDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Represents")) {
                                             try {
-                                                return representsDeserializeWithContext(value, ctx) as Target;
+                                                return representsDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Ordered")) {
                                             try {
-                                                return orderedDeserializeWithContext(value, ctx) as Target;
+                                                return orderedDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
@@ -593,15 +593,15 @@ export function targetDefaultValue(): Target {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "Target.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "Target.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "Target.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered"
+                                    message: "Target.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered"
                                 }]);
 
 
@@ -1815,7 +1815,7 @@ if (variant === "Ordered") { return orderedDefaultValue() as Target; }
 
 
             function validate(): Exit.Exit<Target, Array<{ field: string; message: string }>> {
-                return toExit(targetDeserialize(data));
+                return toExit(targetDecode(data));
             }
 
 
@@ -1954,15 +1954,15 @@ if (variant === "Ordered") { return orderedDefaultValue() as Target; }
                 }
 
 
-            return toExit(targetDeserialize(obj));
+            return toExit(targetDecode(obj));
         }
 
 export const Target = {
   defaultValue: targetDefaultValue,
-  serialize: targetSerialize,
-  serializeWithContext: targetSerializeWithContext,
-  deserialize: targetDeserialize,
-  deserializeWithContext: targetDeserializeWithContext,
+  encode: targetEncode,
+  encodeWithContext: targetEncodeWithContext,
+  decode: targetDecode,
+  decodeWithContext: targetDecodeWithContext,
   hasShape: targetHasShape,
   is: targetIs,
   createForm: targetCreateForm,
@@ -2015,20 +2015,20 @@ export function targetDefaultValue(): Target {
                             return accountDefaultValue();
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function targetSerialize(value: Target, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = targetSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function targetEncode(value: Target, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = targetEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function targetSerializeWithContext(value: Target, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function targetEncodeWithContext(value: Target, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -2095,20 +2095,20 @@ export function targetDefaultValue(): Target {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function targetDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function targetDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Target } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = targetDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = targetDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Target.deserialize: root cannot be a forward reference"
+		message: "Target.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -2131,7 +2131,7 @@ export function targetDefaultValue(): Target {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -2148,8 +2148,8 @@ export function targetDefaultValue(): Target {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function targetDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Target | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function targetDecodeWithContext(value: any, ctx: __mf_DecodeContext): Target | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as Target | __mf_PendingRef;
                         }if (typeof value === "object" && value !== null) {
@@ -2157,71 +2157,71 @@ export function targetDefaultValue(): Target {
                                     if (typeof __typeName === "string") {
                                         
                                             if (__typeName === "Account") {
-                                                return accountDeserializeWithContext(value, ctx) as Target;
+                                                return accountDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "User") {
-                                                return userDeserializeWithContext(value, ctx) as Target;
+                                                return userDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Employee") {
-                                                return employeeDeserializeWithContext(value, ctx) as Target;
+                                                return employeeDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Appointment") {
-                                                return appointmentDeserializeWithContext(value, ctx) as Target;
+                                                return appointmentDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Lead") {
-                                                return leadDeserializeWithContext(value, ctx) as Target;
+                                                return leadDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "TaxRate") {
-                                                return taxRateDeserializeWithContext(value, ctx) as Target;
+                                                return taxRateDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Site") {
-                                                return siteDeserializeWithContext(value, ctx) as Target;
+                                                return siteDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Route") {
-                                                return routeDeserializeWithContext(value, ctx) as Target;
+                                                return routeDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Company") {
-                                                return companyDeserializeWithContext(value, ctx) as Target;
+                                                return companyDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Product") {
-                                                return productDeserializeWithContext(value, ctx) as Target;
+                                                return productDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Service") {
-                                                return serviceDeserializeWithContext(value, ctx) as Target;
+                                                return serviceDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Order") {
-                                                return orderDeserializeWithContext(value, ctx) as Target;
+                                                return orderDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Payment") {
-                                                return paymentDeserializeWithContext(value, ctx) as Target;
+                                                return paymentDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Package") {
-                                                return packageDeserializeWithContext(value, ctx) as Target;
+                                                return packageDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Promotion") {
-                                                return promotionDeserializeWithContext(value, ctx) as Target;
+                                                return promotionDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Represents") {
-                                                return representsDeserializeWithContext(value, ctx) as Target;
+                                                return representsDecodeWithContext(value, ctx) as Target;
                                             }
                                         
                                             if (__typeName === "Ordered") {
-                                                return orderedDeserializeWithContext(value, ctx) as Target;
+                                                return orderedDecodeWithContext(value, ctx) as Target;
                                             }
 
 
@@ -2235,9 +2235,9 @@ export function targetDefaultValue(): Target {
 
 
 
-                                        throw new __mf_DeserializeError([{
+                                        throw new __mf_DecodeError([{
                                             field: "_root",
-                                            message: "Target.deserializeWithContext: unknown type \"" + __typeName + "\". Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered"
+                                            message: "Target.decodeWithContext: unknown type \"" + __typeName + "\". Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered"
                                         }]);
                                     }
                                 }
@@ -2287,71 +2287,71 @@ export function targetDefaultValue(): Target {
                                 if (__shapeMatches.length === 1) {
                                     
                                         if (__shapeMatches[0] === "Account") {
-                                            return accountDeserializeWithContext(value, ctx) as Target;
+                                            return accountDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "User") {
-                                            return userDeserializeWithContext(value, ctx) as Target;
+                                            return userDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Employee") {
-                                            return employeeDeserializeWithContext(value, ctx) as Target;
+                                            return employeeDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Appointment") {
-                                            return appointmentDeserializeWithContext(value, ctx) as Target;
+                                            return appointmentDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Lead") {
-                                            return leadDeserializeWithContext(value, ctx) as Target;
+                                            return leadDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "TaxRate") {
-                                            return taxRateDeserializeWithContext(value, ctx) as Target;
+                                            return taxRateDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Site") {
-                                            return siteDeserializeWithContext(value, ctx) as Target;
+                                            return siteDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Route") {
-                                            return routeDeserializeWithContext(value, ctx) as Target;
+                                            return routeDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Company") {
-                                            return companyDeserializeWithContext(value, ctx) as Target;
+                                            return companyDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Product") {
-                                            return productDeserializeWithContext(value, ctx) as Target;
+                                            return productDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Service") {
-                                            return serviceDeserializeWithContext(value, ctx) as Target;
+                                            return serviceDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Order") {
-                                            return orderDeserializeWithContext(value, ctx) as Target;
+                                            return orderDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Payment") {
-                                            return paymentDeserializeWithContext(value, ctx) as Target;
+                                            return paymentDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Package") {
-                                            return packageDeserializeWithContext(value, ctx) as Target;
+                                            return packageDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Promotion") {
-                                            return promotionDeserializeWithContext(value, ctx) as Target;
+                                            return promotionDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Represents") {
-                                            return representsDeserializeWithContext(value, ctx) as Target;
+                                            return representsDecodeWithContext(value, ctx) as Target;
                                         }
                                     
                                         if (__shapeMatches[0] === "Ordered") {
-                                            return orderedDeserializeWithContext(value, ctx) as Target;
+                                            return orderedDecodeWithContext(value, ctx) as Target;
                                         }
 
 
@@ -2367,119 +2367,119 @@ export function targetDefaultValue(): Target {
                                     
                                         if (__shapeMatches.includes("Account")) {
                                             try {
-                                                return accountDeserializeWithContext(value, ctx) as Target;
+                                                return accountDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("User")) {
                                             try {
-                                                return userDeserializeWithContext(value, ctx) as Target;
+                                                return userDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Employee")) {
                                             try {
-                                                return employeeDeserializeWithContext(value, ctx) as Target;
+                                                return employeeDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Appointment")) {
                                             try {
-                                                return appointmentDeserializeWithContext(value, ctx) as Target;
+                                                return appointmentDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Lead")) {
                                             try {
-                                                return leadDeserializeWithContext(value, ctx) as Target;
+                                                return leadDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("TaxRate")) {
                                             try {
-                                                return taxRateDeserializeWithContext(value, ctx) as Target;
+                                                return taxRateDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Site")) {
                                             try {
-                                                return siteDeserializeWithContext(value, ctx) as Target;
+                                                return siteDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Route")) {
                                             try {
-                                                return routeDeserializeWithContext(value, ctx) as Target;
+                                                return routeDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Company")) {
                                             try {
-                                                return companyDeserializeWithContext(value, ctx) as Target;
+                                                return companyDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Product")) {
                                             try {
-                                                return productDeserializeWithContext(value, ctx) as Target;
+                                                return productDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Service")) {
                                             try {
-                                                return serviceDeserializeWithContext(value, ctx) as Target;
+                                                return serviceDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Order")) {
                                             try {
-                                                return orderDeserializeWithContext(value, ctx) as Target;
+                                                return orderDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Payment")) {
                                             try {
-                                                return paymentDeserializeWithContext(value, ctx) as Target;
+                                                return paymentDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Package")) {
                                             try {
-                                                return packageDeserializeWithContext(value, ctx) as Target;
+                                                return packageDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Promotion")) {
                                             try {
-                                                return promotionDeserializeWithContext(value, ctx) as Target;
+                                                return promotionDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Represents")) {
                                             try {
-                                                return representsDeserializeWithContext(value, ctx) as Target;
+                                                return representsDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
                                     
                                         if (__shapeMatches.includes("Ordered")) {
                                             try {
-                                                return orderedDeserializeWithContext(value, ctx) as Target;
+                                                return orderedDecodeWithContext(value, ctx) as Target;
                                             } catch {                        }
                                         }
 
@@ -2492,15 +2492,15 @@ export function targetDefaultValue(): Target {
 
 
 
-                                    throw new __mf_DeserializeError([{
+                                    throw new __mf_DecodeError([{
                                         field: "_root",
-                                        message: "Target.deserializeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
+                                        message: "Target.decodeWithContext: missing __type field and value matches multiple variants: " + __shapeMatches.join(", ") + ". Add a __type field to disambiguate."
                                     }]);
                                 }
 
-                                throw new __mf_DeserializeError([{
+                                throw new __mf_DecodeError([{
                                     field: "_root",
-                                    message: "Target.deserializeWithContext: missing __type field and value does not match any variant shape. Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered"
+                                    message: "Target.decodeWithContext: missing __type field and value does not match any variant shape. Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered"
                                 }]);
 
 
@@ -3714,7 +3714,7 @@ if (variant === "Ordered") { return orderedDefaultValue() as Target; }
 
 
             function validate(): Exit.Exit<Target, Array<{ field: string; message: string }>> {
-                return toExit(targetDeserialize(data));
+                return toExit(targetDecode(data));
             }
 
 
@@ -3853,15 +3853,15 @@ if (variant === "Ordered") { return orderedDefaultValue() as Target; }
                 }
 
 
-            return toExit(targetDeserialize(obj));
+            return toExit(targetDecode(obj));
         }
 
 export const Target = {
   defaultValue: targetDefaultValue,
-  serialize: targetSerialize,
-  serializeWithContext: targetSerializeWithContext,
-  deserialize: targetDeserialize,
-  deserializeWithContext: targetDeserializeWithContext,
+  encode: targetEncode,
+  encodeWithContext: targetEncodeWithContext,
+  decode: targetDecode,
+  decodeWithContext: targetDecodeWithContext,
   hasShape: targetHasShape,
   is: targetIs,
   createForm: targetCreateForm,
@@ -3875,17 +3875,17 @@ export const Target = {
 ## Mapping
 
 original 0..887 -> expanded 0..887
-original 944..1217 -> expanded 887..1160
-original 1217..1218 -> expanded 46840..46841
+original 936..1209 -> expanded 887..1160
+original 1209..1210 -> expanded 46396..46397
 generated 1160..1292 <- Default
-generated 1292..3228 <- Serialize
-generated 3228..28950 <- Deserialize
-generated 28950..46484 <- Gigaform
-generated 46484..46840 <- __convenience_const
+generated 1292..3190 <- Encode
+generated 3190..28548 <- Decode
+generated 28548..46072 <- Gigaform
+generated 46072..46396 <- __convenience_const
 
 ## Metadata
 
-type Target: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":988,"start":973}}],"kind":{"TypeRef":"Account"}},{"decorators":[],"kind":{"TypeRef":"User"}},{"decorators":[],"kind":{"TypeRef":"Employee"}},{"decorators":[],"kind":{"TypeRef":"Appointment"}},{"decorators":[],"kind":{"TypeRef":"Lead"}},{"decorators":[],"kind":{"TypeRef":"TaxRate"}},{"decorators":[],"kind":{"TypeRef":"Site"}},{"decorators":[],"kind":{"TypeRef":"Route"}},{"decorators":[],"kind":{"TypeRef":"Company"}},{"decorators":[],"kind":{"TypeRef":"Product"}},{"decorators":[],"kind":{"TypeRef":"Service"}},{"decorators":[],"kind":{"TypeRef":"Order"}},{"decorators":[],"kind":{"TypeRef":"Payment"}},{"decorators":[],"kind":{"TypeRef":"Package"}},{"decorators":[],"kind":{"TypeRef":"Promotion"}},{"decorators":[],"kind":{"TypeRef":"Represents"}},{"decorators":[],"kind":{"TypeRef":"Ordered"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":945,"start":888}}],"name":"Target","span":{"end":1218,"start":953},"type_params":[]}
+type Target: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":980,"start":965}}],"kind":{"TypeRef":"Account"}},{"decorators":[],"kind":{"TypeRef":"User"}},{"decorators":[],"kind":{"TypeRef":"Employee"}},{"decorators":[],"kind":{"TypeRef":"Appointment"}},{"decorators":[],"kind":{"TypeRef":"Lead"}},{"decorators":[],"kind":{"TypeRef":"TaxRate"}},{"decorators":[],"kind":{"TypeRef":"Site"}},{"decorators":[],"kind":{"TypeRef":"Route"}},{"decorators":[],"kind":{"TypeRef":"Company"}},{"decorators":[],"kind":{"TypeRef":"Product"}},{"decorators":[],"kind":{"TypeRef":"Service"}},{"decorators":[],"kind":{"TypeRef":"Order"}},{"decorators":[],"kind":{"TypeRef":"Payment"}},{"decorators":[],"kind":{"TypeRef":"Package"}},{"decorators":[],"kind":{"TypeRef":"Promotion"}},{"decorators":[],"kind":{"TypeRef":"Represents"}},{"decorators":[],"kind":{"TypeRef":"Ordered"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":937,"start":888}}],"name":"Target","span":{"end":1210,"start":945},"type_params":[]}
 
 ## Registry reads
 

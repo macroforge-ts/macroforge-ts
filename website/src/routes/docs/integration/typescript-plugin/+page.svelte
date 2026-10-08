@@ -72,7 +72,7 @@ class User {
 </p>
 
 <CodeBlock code={`const user = new User("Alice");
-User.  // Suggests: toString(), clone(), serialize(), etc.`} lang="typescript" />
+User.  // Suggests: toString(), clone(), encode(), etc.`} lang="typescript" />
 
 <h3>Type Information</h3>
 

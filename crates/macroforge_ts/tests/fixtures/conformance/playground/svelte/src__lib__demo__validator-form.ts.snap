@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/validator-form.ts
-sha256 8d09b1f804f59e72b8e876c06a8ebffcd2800f003b91a4702d02e5a10fed405f
+sha256 efc4b4c1a7279590acd90092e2bef55d57a7ca6697c9330a48bee3878cdb6b5d
 
 ## Changed
 
@@ -12,10 +12,10 @@ true
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 /**
  * Validator form model for E2E testing in Svelte.
  * Tests string, number, array, and date validators with real form validation.
@@ -50,21 +50,21 @@ constructor(props: { email: string; password: string; username: string; age: num
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = UserRegistrationForm.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = UserRegistrationForm.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "UserRegistrationForm.deserialize: root cannot be a forward reference"
+		message: "UserRegistrationForm.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -87,7 +87,7 @@ constructor(props: { email: string; password: string; username: string; age: num
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -104,15 +104,15 @@ constructor(props: { email: string; password: string; username: string; age: num
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserRegistrationForm | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): UserRegistrationForm | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "UserRegistrationForm.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "UserRegistrationForm.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -1664,21 +1664,21 @@ if (!URL.canParse(__val)) { errors.push({ field: "website", message: "UserRegist
             if (!UserRegistrationForm.hasShape(obj)) {
                 return false;
             }
-            const result = UserRegistrationForm.deserialize(obj);
+            const result = UserRegistrationForm.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function userRegistrationFormDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return UserRegistrationForm.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function userRegistrationFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return UserRegistrationForm.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function userRegistrationFormDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserRegistrationForm | __mf_PendingRef {
-            return UserRegistrationForm.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function userRegistrationFormDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserRegistrationForm | __mf_PendingRef {
+            return UserRegistrationForm.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function userRegistrationFormIs(value: unknown): value is UserRegistrationForm {
             return UserRegistrationForm.is(value);
         }
@@ -1710,21 +1710,21 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = ProductForm.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = ProductForm.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ProductForm.deserialize: root cannot be a forward reference"
+		message: "ProductForm.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1747,7 +1747,7 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1764,15 +1764,15 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ProductForm | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): ProductForm | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "ProductForm.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "ProductForm.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -3381,21 +3381,21 @@ if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__va
             if (!ProductForm.hasShape(obj)) {
                 return false;
             }
-            const result = ProductForm.deserialize(obj);
+            const result = ProductForm.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function productFormDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return ProductForm.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function productFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return ProductForm.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function productFormDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ProductForm | __mf_PendingRef {
-            return ProductForm.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function productFormDecodeWithContext(value: any, ctx: __mf_DecodeContext): ProductForm | __mf_PendingRef {
+            return ProductForm.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function productFormIs(value: unknown): value is ProductForm {
             return ProductForm.is(value);
         }
@@ -3423,21 +3423,21 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = EventForm.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = EventForm.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "EventForm.deserialize: root cannot be a forward reference"
+		message: "EventForm.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -3460,7 +3460,7 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -3477,15 +3477,15 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): EventForm | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): EventForm | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "EventForm.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "EventForm.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -4751,21 +4751,21 @@ if (__val < 1 || __val > 1000) { errors.push({ field: "maxAttendees", message: "
             if (!EventForm.hasShape(obj)) {
                 return false;
             }
-            const result = EventForm.deserialize(obj);
+            const result = EventForm.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function eventFormDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return EventForm.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function eventFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return EventForm.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function eventFormDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): EventForm | __mf_PendingRef {
-            return EventForm.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function eventFormDecodeWithContext(value: any, ctx: __mf_DecodeContext): EventForm | __mf_PendingRef {
+            return EventForm.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function eventFormIs(value: unknown): value is EventForm {
             return EventForm.is(value);
         }
@@ -4773,7 +4773,7 @@ if (__val < 1 || __val > 1000) { errors.push({ field: "maxAttendees", message: "
 /** A validator's result, with each field error rendered as `field: message`. */
 export type ValidationResult<T> = ValidationOutcome<T, Array<string>>;
 
-/** Converts what a derived `deserialize()` returns into a `ValidationResult`. */
+/** Converts what a derived `decode()` returns into a `ValidationResult`. */
 export function toValidationResult<T>(
     result: { success: true; value: T } | {
         success: false;
@@ -4793,17 +4793,17 @@ export function toValidationResult<T>(
 export function validateUserRegistration(
     data: unknown
 ): ValidationResult<UserRegistrationForm> {
-    const result = UserRegistrationForm.deserialize(data);
+    const result = UserRegistrationForm.decode(data);
     return toValidationResult(result);
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = ProductForm.deserialize(data);
+    const result = ProductForm.decode(data);
     return toValidationResult(result);
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = EventForm.deserialize(data);
+    const result = EventForm.decode(data);
     return toValidationResult(result);
 }
 
@@ -4843,21 +4843,21 @@ constructor(props: { email: string; password: string; username: string; age: num
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = UserRegistrationForm.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = UserRegistrationForm.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "UserRegistrationForm.deserialize: root cannot be a forward reference"
+		message: "UserRegistrationForm.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -4880,7 +4880,7 @@ constructor(props: { email: string; password: string; username: string; age: num
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -4897,15 +4897,15 @@ constructor(props: { email: string; password: string; username: string; age: num
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserRegistrationForm | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): UserRegistrationForm | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "UserRegistrationForm.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "UserRegistrationForm.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -6457,21 +6457,21 @@ if (!URL.canParse(__val)) { errors.push({ field: "website", message: "UserRegist
             if (!UserRegistrationForm.hasShape(obj)) {
                 return false;
             }
-            const result = UserRegistrationForm.deserialize(obj);
+            const result = UserRegistrationForm.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function userRegistrationFormDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return UserRegistrationForm.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function userRegistrationFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserRegistrationForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return UserRegistrationForm.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function userRegistrationFormDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserRegistrationForm | __mf_PendingRef {
-            return UserRegistrationForm.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function userRegistrationFormDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserRegistrationForm | __mf_PendingRef {
+            return UserRegistrationForm.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function userRegistrationFormIs(value: unknown): value is UserRegistrationForm {
             return UserRegistrationForm.is(value);
         }
@@ -6503,21 +6503,21 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = ProductForm.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = ProductForm.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "ProductForm.deserialize: root cannot be a forward reference"
+		message: "ProductForm.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -6540,7 +6540,7 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -6557,15 +6557,15 @@ constructor(props: { name: string; price: number; quantity: number; tags: Array<
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): ProductForm | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): ProductForm | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "ProductForm.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "ProductForm.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -8174,21 +8174,21 @@ if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(__va
             if (!ProductForm.hasShape(obj)) {
                 return false;
             }
-            const result = ProductForm.deserialize(obj);
+            const result = ProductForm.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function productFormDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return ProductForm.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function productFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: ProductForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return ProductForm.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function productFormDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): ProductForm | __mf_PendingRef {
-            return ProductForm.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function productFormDecodeWithContext(value: any, ctx: __mf_DecodeContext): ProductForm | __mf_PendingRef {
+            return ProductForm.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function productFormIs(value: unknown): value is ProductForm {
             return ProductForm.is(value);
         }
@@ -8216,21 +8216,21 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = EventForm.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = EventForm.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "EventForm.deserialize: root cannot be a forward reference"
+		message: "EventForm.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -8253,7 +8253,7 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -8270,15 +8270,15 @@ constructor(props: { title: string; startDate: Date; endDate: Date; maxAttendees
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): EventForm | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): EventForm | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "EventForm.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "EventForm.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -9544,21 +9544,21 @@ if (__val < 1 || __val > 1000) { errors.push({ field: "maxAttendees", message: "
             if (!EventForm.hasShape(obj)) {
                 return false;
             }
-            const result = EventForm.deserialize(obj);
+            const result = EventForm.decode(obj);
             return result.success;
         }}
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function eventFormDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return EventForm.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function eventFormDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: EventForm } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return EventForm.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function eventFormDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): EventForm | __mf_PendingRef {
-            return EventForm.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function eventFormDecodeWithContext(value: any, ctx: __mf_DecodeContext): EventForm | __mf_PendingRef {
+            return EventForm.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function eventFormIs(value: unknown): value is EventForm {
             return EventForm.is(value);
         }
@@ -9566,7 +9566,7 @@ if (__val < 1 || __val > 1000) { errors.push({ field: "maxAttendees", message: "
 /** A validator's result, with each field error rendered as `field: message`. */
 export type ValidationResult<T> = ValidationOutcome<T, Array<string>>;
 
-/** Converts what a derived `deserialize()` returns into a `ValidationResult`. */
+/** Converts what a derived `decode()` returns into a `ValidationResult`. */
 export function toValidationResult<T>(
     result: { success: true; value: T } | {
         success: false;
@@ -9586,17 +9586,17 @@ export function toValidationResult<T>(
 export function validateUserRegistration(
     data: unknown
 ): ValidationResult<UserRegistrationForm> {
-    const result = UserRegistrationForm.deserialize(data);
+    const result = UserRegistrationForm.decode(data);
     return toValidationResult(result);
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = ProductForm.deserialize(data);
+    const result = ProductForm.decode(data);
     return toValidationResult(result);
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = EventForm.deserialize(data);
+    const result = EventForm.decode(data);
     return toValidationResult(result);
 }
 
@@ -9607,42 +9607,42 @@ export function validateEvent(data: unknown): ValidationResult<EventForm> {
 ## Mapping
 
 original 0..204 -> expanded 0..204
-original 231..272 -> expanded 204..245
-original 310..335 -> expanded 245..270
-original 397..425 -> expanded 270..298
-original 534..562 -> expanded 298..326
-original 618..641 -> expanded 326..349
-original 677..699 -> expanded 349..371
-original 699..700 -> expanded 15127..15128
-original 700..702 -> expanded 16453..16455
-original 729..761 -> expanded 16455..16487
-original 820..844 -> expanded 16487..16511
-original 906..931 -> expanded 16511..16536
-original 982..1010 -> expanded 16536..16564
-original 1069..1100 -> expanded 16564..16595
-original 1137..1155 -> expanded 16595..16613
-original 1155..1156 -> expanded 30229..30230
-original 1156..1158 -> expanded 31474..31476
-original 1185..1215 -> expanded 31476..31506
-original 1267..1292 -> expanded 31506..31531
-original 1369..1396 -> expanded 31531..31558
-original 1438..1463 -> expanded 31558..31583
-original 1519..1546 -> expanded 31583..31610
-original 1546..1547 -> expanded 43900..43901
-original 1547..2766 -> expanded 45127..46346
-generated 371..15127 <- Deserialize
-generated 15128..16453 <- Deserialize
-generated 16613..30229 <- Deserialize
-generated 30230..31474 <- Deserialize
-generated 31610..43900 <- Deserialize
-generated 43901..45127 <- Deserialize
+original 226..267 -> expanded 204..245
+original 305..330 -> expanded 245..270
+original 392..420 -> expanded 270..298
+original 529..557 -> expanded 298..326
+original 613..636 -> expanded 326..349
+original 672..694 -> expanded 349..371
+original 694..695 -> expanded 15033..15034
+original 695..697 -> expanded 16280..16282
+original 719..751 -> expanded 16282..16314
+original 810..834 -> expanded 16314..16338
+original 896..921 -> expanded 16338..16363
+original 972..1000 -> expanded 16363..16391
+original 1059..1090 -> expanded 16391..16422
+original 1127..1145 -> expanded 16422..16440
+original 1145..1146 -> expanded 29962..29963
+original 1146..1148 -> expanded 31128..31130
+original 1170..1200 -> expanded 31130..31160
+original 1252..1277 -> expanded 31160..31185
+original 1354..1381 -> expanded 31185..31212
+original 1423..1448 -> expanded 31212..31237
+original 1504..1531 -> expanded 31237..31264
+original 1531..1532 -> expanded 43460..43461
+original 1532..2731 -> expanded 44608..45807
+generated 371..15033 <- Decode
+generated 15034..16280 <- Decode
+generated 16440..29962 <- Decode
+generated 29963..31128 <- Decode
+generated 31264..43460 <- Decode
+generated 43461..44608 <- Decode
 
 ## Metadata
 
-class UserRegistrationForm: {"body_span":{"end":701,"start":267},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":232,"start":205}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"serde","span":{"end":311,"start":273}}],"name":"email","optional":false,"readonly":false,"span":{"end":330,"start":316},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"serde","span":{"end":398,"start":336}}],"name":"password","optional":false,"readonly":false,"span":{"end":420,"start":403},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"serde","span":{"end":535,"start":426}}],"name":"username","optional":false,"readonly":false,"span":{"end":557,"start":540},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"serde","span":{"end":619,"start":563}}],"name":"age","optional":false,"readonly":false,"span":{"end":636,"start":624},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"serde","span":{"end":678,"start":642}}],"name":"website","optional":false,"readonly":false,"span":{"end":699,"start":683},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":701,"start":240},"type_params":[]}
-class ProductForm: {"body_span":{"end":1157,"start":756},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":730,"start":703}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"serde","span":{"end":821,"start":762}}],"name":"name","optional":false,"readonly":false,"span":{"end":839,"start":826},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"serde","span":{"end":907,"start":845}}],"name":"price","optional":false,"readonly":false,"span":{"end":926,"start":912},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"serde","span":{"end":983,"start":932}}],"name":"quantity","optional":false,"readonly":false,"span":{"end":1005,"start":988},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"serde","span":{"end":1070,"start":1011}}],"name":"tags","optional":false,"readonly":false,"span":{"end":1095,"start":1075},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"serde","span":{"end":1138,"start":1101}}],"name":"sku","optional":false,"readonly":false,"span":{"end":1155,"start":1143},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1157,"start":738},"type_params":[]}
-class EventForm: {"body_span":{"end":1548,"start":1210},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":1186,"start":1159}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"serde","span":{"end":1268,"start":1216}}],"name":"title","optional":false,"readonly":false,"span":{"end":1287,"start":1273},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"serde","span":{"end":1370,"start":1293}}],"name":"startDate","optional":false,"readonly":false,"span":{"end":1391,"start":1375},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"serde","span":{"end":1439,"start":1397}}],"name":"endDate","optional":false,"readonly":false,"span":{"end":1458,"start":1444},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"serde","span":{"end":1520,"start":1464}}],"name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1546,"start":1525},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1548,"start":1194},"type_params":[]}
-type ValidationResult: {"body":{"Other":"ValidationOutcome<T, Array<string>>"},"decorators":[],"name":"ValidationResult","span":{"end":1701,"start":1638},"type_params":["T"]}
+class UserRegistrationForm: {"body_span":{"end":696,"start":262},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":227,"start":205}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"email\"] }","name":"endec","span":{"end":306,"start":268}}],"name":"email","optional":false,"readonly":false,"span":{"end":325,"start":311},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(8)\", \"maxLength(50)\"] }","name":"endec","span":{"end":393,"start":331}}],"name":"password","optional":false,"readonly":false,"span":{"end":415,"start":398},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minLength(3)\", \"maxLength(20)\", \"lowercase\", \"pattern(\\\"^[a-z][a-z0-9_]+$\\\")\"] }","name":"endec","span":{"end":530,"start":421}}],"name":"username","optional":false,"readonly":false,"span":{"end":552,"start":535},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(18, 120)\"] }","name":"endec","span":{"end":614,"start":558}}],"name":"age","optional":false,"readonly":false,"span":{"end":631,"start":619},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"url\"] }","name":"endec","span":{"end":673,"start":637}}],"name":"website","optional":false,"readonly":false,"span":{"end":694,"start":678},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"UserRegistrationForm","span":{"end":696,"start":235},"type_params":[]}
+class ProductForm: {"body_span":{"end":1147,"start":746},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":720,"start":698}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"maxLength(100)\"] }","name":"endec","span":{"end":811,"start":752}}],"name":"name","optional":false,"readonly":false,"span":{"end":829,"start":816},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"positive\", \"lessThan(1000000)\"] }","name":"endec","span":{"end":897,"start":835}}],"name":"price","optional":false,"readonly":false,"span":{"end":916,"start":902},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"nonNegative\"] }","name":"endec","span":{"end":973,"start":922}}],"name":"quantity","optional":false,"readonly":false,"span":{"end":995,"start":978},"ts_type":"number","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"minItems(1)\", \"maxItems(5)\"] }","name":"endec","span":{"end":1060,"start":1001}}],"name":"tags","optional":false,"readonly":false,"span":{"end":1085,"start":1065},"ts_type":"Array<string>","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"uuid\"] }","name":"endec","span":{"end":1128,"start":1091}}],"name":"sku","optional":false,"readonly":false,"span":{"end":1145,"start":1133},"ts_type":"string","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"ProductForm","span":{"end":1147,"start":728},"type_params":[]}
+class EventForm: {"body_span":{"end":1533,"start":1195},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1171,"start":1149}}],"fields":[{"decorators":[{"args_src":"{ validate: [\"nonEmpty\", \"trimmed\"] }","name":"endec","span":{"end":1253,"start":1201}}],"name":"title","optional":false,"readonly":false,"span":{"end":1272,"start":1258},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\", \"greaterThanDate(\\\"2020-01-01\\\")\"] }","name":"endec","span":{"end":1355,"start":1278}}],"name":"startDate","optional":false,"readonly":false,"span":{"end":1376,"start":1360},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"validDate\"] }","name":"endec","span":{"end":1424,"start":1382}}],"name":"endDate","optional":false,"readonly":false,"span":{"end":1443,"start":1429},"ts_type":"Date","visibility":"Public"},{"decorators":[{"args_src":"{ validate: [\"int\", \"between(1, 1000)\"] }","name":"endec","span":{"end":1505,"start":1449}}],"name":"maxAttendees","optional":false,"readonly":false,"span":{"end":1531,"start":1510},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"EventForm","span":{"end":1533,"start":1179},"type_params":[]}
+type ValidationResult: {"body":{"Other":"ValidationOutcome<T, Array<string>>"},"decorators":[],"name":"ValidationResult","span":{"end":1686,"start":1623},"type_params":["T"]}
 
 ## Registry reads
 

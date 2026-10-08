@@ -1,0 +1,3776 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/type_alias_decode_external_scalar_payload.ts
+---
+## Input
+
+// An externally-tagged variant whose payload is a link type: encodable in
+// its own right, but carried as a bare id string as often as an object. The
+// payload has to survive decoding either way: coercing the non-object case
+// drops the link while still reporting success.
+
+/** @derive(Encode, Decode) */
+export type Ref = string | { id: string };
+
+/** @derive(Encode, Decode) */
+/** @endec({ externallyTagged: true }) */
+export type Stage = 'Active' | { Invoice: Ref };
+
+## Changed
+
+true
+
+## Output
+
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+// An externally-tagged variant whose payload is a link type: encodable in
+// its own right, but carried as a bare id string as often as an object. The
+// payload has to survive decoding either way: coercing the non-object case
+// drops the link while still reporting success.
+
+
+export type Ref = string | { id: string };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function refEncode(value: Ref, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = refEncodeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function refDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ref } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = refDecodeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Ref.decode: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function refDecodeWithContext(value: any, ctx: __mf_DecodeContext): Ref | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as Ref | __mf_PendingRef;
+                        }if (typeof value === "string") {
+                                        return value as Ref;
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
+                                    const __result: Record<string, unknown> = {};
+                                    __result["id"] = (value as any)["id"];
+
+
+                                    return __result as Ref;
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+                            throw new __mf_DecodeError([{
+                                field: "_root",
+                                message: "Ref.decodeWithContext: value does not match any union member"
+                            }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function refHasShape(value: unknown): boolean {if (typeof value === "string") return true;
+
+
+
+
+
+
+
+
+
+                            if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function refIs(value: unknown): value is Ref {
+            return refHasShape(value);
+        }
+
+export const Ref = {
+  encode: refEncode,
+  encodeWithContext: refEncodeWithContext,
+  decode: refDecode,
+  decodeWithContext: refDecodeWithContext,
+  hasShape: refHasShape,
+  is: refIs
+} as const;
+
+
+export type Stage = 'Active' | { Invoice: Ref };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function stageEncode(value: Stage, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = stageEncodeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
+                                __matched = true;
+                            }if (!__matched && value !== null && typeof value === "object") {
+                                const __exName = Object.keys(value as object)[0];
+                                if (!__matched && __exName === "Invoice") {
+                                    __variant = ({ "Invoice": refEncodeWithContext((value as any)["Invoice"], ctx) });
+                                    __matched = true;
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (typeof __variant !== "object" || __variant === null) return __variant;
+                                const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+                                if (typeof __typeName !== "string") return __variant;const __outer: Record<string, unknown> = { [__typeName]: fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function stageDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Stage } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = stageDecodeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Stage.decode: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function stageDecodeWithContext(value: any, ctx: __mf_DecodeContext): Stage | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as Stage | __mf_PendingRef;
+                        }const allowedLiterals = ['Active'] as const;
+                                if (allowedLiterals.includes(value as any)) {
+                                    return value as Stage;
+                                }if (typeof value === "object" && value !== null) {
+                                    const __keys = Object.keys(value);
+                                    const __variantName = __keys[0];
+                                    if (__variantName !== undefined) {
+                                        const __inner = (value as any)[__variantName];
+                                        if (__variantName === "Invoice") {return ({ "Invoice": refDecodeWithContext(__inner ?? {}, ctx) }) as Stage;
+
+
+
+
+
+
+
+
+
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    }
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+                            throw new __mf_DecodeError([{
+                                field: "_root",
+                                message: "Stage.decodeWithContext: value does not match any union member"
+                            }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function stageHasShape(value: unknown): boolean {const allowedLiterals = ['Active'] as const;
+                                if (allowedLiterals.includes(value as any)) return true;if (typeof value === "object" && value !== null) {
+                                    const __keys = Object.keys(value);
+                                    const __variantName = __keys[0];
+                                    if (__variantName !== undefined) {
+                                        if (["Invoice"].includes(__variantName)) return true;
+                                    }
+                                }return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function stageIs(value: unknown): value is Stage {
+            return stageHasShape(value);
+        }
+export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: any }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && "Invoice" in __v;
+                }
+
+export const Stage = {
+  encode: stageEncode,
+  encodeWithContext: stageEncodeWithContext,
+  decode: stageDecode,
+  decodeWithContext: stageDecodeWithContext,
+  hasShape: stageHasShape,
+  is: stageIs,
+  invoiceIs: stageInvoiceIs
+} as const;
+
+## DTS
+
+// An externally-tagged variant whose payload is a link type: encodable in
+// its own right, but carried as a bare id string as often as an object. The
+// payload has to survive decoding either way: coercing the non-object case
+// drops the link while still reporting success.
+
+
+export type Ref = string | { id: string };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function refEncode(value: Ref, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = refEncodeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function refEncodeWithContext(value: Ref, ctx: __mf_EncodeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
+                                __matched = true;
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (__variant !== null && typeof __variant === "object" && "__type" in (__variant as any)) {
+                                    const { __type: __typeName, ...fields } = __variant as any;
+                                    return { "__type": (value as any)["__type"] ?? __typeName, ...fields };
+                                }
+                                return __variant;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function refDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Ref } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = refDecodeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Ref.decode: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function refDecodeWithContext(value: any, ctx: __mf_DecodeContext): Ref | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as Ref | __mf_PendingRef;
+                        }if (typeof value === "string") {
+                                        return value as Ref;
+                                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) {
+                                    const __result: Record<string, unknown> = {};
+                                    __result["id"] = (value as any)["id"];
+
+
+                                    return __result as Ref;
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+                            throw new __mf_DecodeError([{
+                                field: "_root",
+                                message: "Ref.decodeWithContext: value does not match any union member"
+                            }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function refHasShape(value: unknown): boolean {if (typeof value === "string") return true;
+
+
+
+
+
+
+
+
+
+                            if (typeof value === "object" && value !== null && !Array.isArray(value) && "id" in value) return true;return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function refIs(value: unknown): value is Ref {
+            return refHasShape(value);
+        }
+
+export const Ref = {
+  encode: refEncode,
+  encodeWithContext: refEncodeWithContext,
+  decode: refDecode,
+  decodeWithContext: refDecodeWithContext,
+  hasShape: refHasShape,
+  is: refIs
+} as const;
+
+
+export type Stage = 'Active' | { Invoice: Ref };
+
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function stageEncode(value: Stage, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = stageEncodeWithContext(value, ctx);
+                            if (keepMetadata) return JSON.stringify(__raw);
+                            return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
+                        }
+
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function stageEncodeWithContext(value: Stage, ctx: __mf_EncodeContext): unknown {
+                            let __variant: unknown;
+                            let __matched = false;
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
+                                __matched = true;
+                            }if (!__matched && value !== null && typeof value === "object") {
+                                const __exName = Object.keys(value as object)[0];
+                                if (!__matched && __exName === "Invoice") {
+                                    __variant = ({ "Invoice": refEncodeWithContext((value as any)["Invoice"], ctx) });
+                                    __matched = true;
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            if (!__matched) {
+                                __variant = value;
+                            }if (typeof __variant !== "object" || __variant === null) return __variant;
+                                const { __type: __typeName, __id: __idVal, ...fields } = __variant as any;
+                                if (typeof __typeName !== "string") return __variant;const __outer: Record<string, unknown> = { [__typeName]: fields };
+                                    if (__idVal !== undefined) __outer.__id = __idVal;
+                                    return __outer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        }
+
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function stageDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Stage } | { success: false; errors: Array<{ field: string; message: string }> } {
+            try {
+                const data = input;
+
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = stageDecodeWithContext(data, ctx);
+
+                if (__mf_PendingRef.is(resultOrRef)) {
+                    return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message: "Stage.decode: root cannot be a forward reference"
+	}]
+});
+                }
+
+                ctx.applyPatches();
+                if (opts?.freeze) {
+                    ctx.freezeAll();
+                }
+
+                const __errors = ctx.getErrors();
+                if (__errors.length > 0) {
+                    return ({
+	success: false,
+	errors: __errors
+});
+                }
+
+                return ({
+	success: true,
+	value: resultOrRef
+});
+            } catch (e) {
+                if (e instanceof __mf_DecodeError) {
+                    return ({
+	success: false,
+	errors: e.errors
+});
+                }
+                const message = e instanceof Error ? e.message : String(e);
+                return ({
+	success: false,
+	errors: [{
+		field: "_root",
+		message
+	}]
+});
+            }
+        }
+
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function stageDecodeWithContext(value: any, ctx: __mf_DecodeContext): Stage | __mf_PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref) as Stage | __mf_PendingRef;
+                        }const allowedLiterals = ['Active'] as const;
+                                if (allowedLiterals.includes(value as any)) {
+                                    return value as Stage;
+                                }if (typeof value === "object" && value !== null) {
+                                    const __keys = Object.keys(value);
+                                    const __variantName = __keys[0];
+                                    if (__variantName !== undefined) {
+                                        const __inner = (value as any)[__variantName];
+                                        if (__variantName === "Invoice") {return ({ "Invoice": refDecodeWithContext(__inner ?? {}, ctx) }) as Stage;
+
+
+
+
+
+
+
+
+
+                                            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    }
+                                }
+
+
+
+
+
+
+
+
+
+
+
+
+                            throw new __mf_DecodeError([{
+                                field: "_root",
+                                message: "Stage.decodeWithContext: value does not match any union member"
+                            }]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function stageHasShape(value: unknown): boolean {const allowedLiterals = ['Active'] as const;
+                                if (allowedLiterals.includes(value as any)) return true;if (typeof value === "object" && value !== null) {
+                                    const __keys = Object.keys(value);
+                                    const __variantName = __keys[0];
+                                    if (__variantName !== undefined) {
+                                        if (["Invoice"].includes(__variantName)) return true;
+                                    }
+                                }return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        export function stageIs(value: unknown): value is Stage {
+            return stageHasShape(value);
+        }
+export function stageInvoiceIs(__v: unknown): __v is Extract<Stage, { Invoice: any }> {
+                    return __v !== null
+                        && typeof __v === "object"
+                        && "Invoice" in __v;
+                }
+
+export const Stage = {
+  encode: stageEncode,
+  encodeWithContext: stageEncodeWithContext,
+  decode: stageDecode,
+  decodeWithContext: stageDecodeWithContext,
+  hasShape: stageHasShape,
+  is: stageIs,
+  invoiceIs: stageInvoiceIs
+} as const;
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 0..278 -> expanded 0..278
+original 308..351 -> expanded 278..321
+original 351..353 -> expanded 6203..6205
+original 425..474 -> expanded 6205..6254
+original 474..475 -> expanded 13716..13717
+generated 321..2204 <- Encode
+generated 2204..6004 <- Decode
+generated 6004..6203 <- __convenience_const
+generated 6254..8712 <- Encode
+generated 8712..13474 <- Decode
+generated 13474..13716 <- __convenience_const
+
+## Metadata
+
+type Ref: {"body":{"Union":[{"decorators":[],"kind":{"TypeRef":"string"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":349,"start":339},"ts_type":"string"}]}}}]},"decorators":[{"args_src":"Encode, Decode","name":"Derive","span":{"end":309,"start":279}}],"name":"Ref","span":{"end":352,"start":317},"type_params":[]}
+type Stage: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'Active'"}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"Invoice","optional":false,"readonly":false,"span":{"end":472,"start":460},"ts_type":"Ref"}]}}}]},"decorators":[{"args_src":"{ externallyTagged: true }","name":"endec","span":{"end":426,"start":385}},{"args_src":"Encode, Decode","name":"Derive","span":{"end":384,"start":354}}],"name":"Stage","span":{"end":475,"start":434},"type_params":[]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

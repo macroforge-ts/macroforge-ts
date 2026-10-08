@@ -1,4 +1,4 @@
-//! Unit tests for the buildtime sandbox + serializer + capabilities.
+//! Unit tests for the buildtime sandbox + encoder + capabilities.
 //!
 //! Only runs when a backend feature is enabled. When no backend is on,
 //! the file still compiles (so `cargo check` works in bare-feature mode)
@@ -282,7 +282,7 @@ fn crypto_sha256_is_stable() {
 }
 
 #[test]
-fn serialize_round_trip_through_sandbox() {
+fn encode_round_trip_through_sandbox() {
     let sandbox = BoaSandbox::new();
     let result = sandbox
         .evaluate(
@@ -291,7 +291,7 @@ fn serialize_round_trip_through_sandbox() {
             &default_options(),
         )
         .expect("evaluation failed");
-    let ts = value_to_ts_source(&result.value).expect("serialize");
+    let ts = value_to_ts_source(&result.value).expect("encode");
     // Every SandboxValue must round-trip to some valid TS expression.
     assert!(ts.contains("n: 42"));
     assert!(ts.contains(r#"s: "hi""#));
@@ -409,7 +409,7 @@ fn path_pattern_matches() {
 }
 
 // These tests don't exercise the sandbox but live here to keep
-// capability/serializer regression coverage adjacent to the sandbox
+// capability/encoder regression coverage adjacent to the sandbox
 // tests they pair with.
 
 // ---------------------------------------------------------------------
@@ -827,7 +827,7 @@ export function collectBuildtimeDemo(): BuildtimeDemoResult {
 fn prepass_same_file_prelude_warns_on_impure_top_level() {
     // An impure top-level call disables the prelude and emits a warning
     // diagnostic. Evaluation still proceeds (the @buildtime can use
-    // only what's in-scope inside its own body), but in this case the
+    // only what's in-scope inside its own body): but in this case the
     // body also references the would-be prelude symbol, so it fails
     // with a reference error.
     let src = r#"console.log("side-effect at module load");
@@ -944,15 +944,15 @@ export type Level = "number";
 
 #[test]
 fn prepass_tier3_non_string_errors() {
-    // Non-string TS types (e.g., the type `number` itself) can't be
+    // Non-string TS types: e.g., the type `number` itself: can't be
     // evaluated as a JS expression. So this intentionally fails at
     // build time with a diagnostic on the user's decl.
     let src = r#"/** @buildtime */
 type Bad = 42;
 "#;
     let out = run_prepass_fixture(src);
-    // Either the sandbox rejected evaluation (because `42` serialized
-    // as a Number, not String) or serialization did. Either way: error.
+    // Either the sandbox rejected evaluation (because `42` encoded
+    // as a Number, not String) or encoding did. Either way: error.
     assert!(
         !out.diagnostics.is_empty(),
         "expected at least one diagnostic"
@@ -990,7 +990,7 @@ const B = 2 + 2;
 
 // Shared-with-above util.
 #[test]
-fn serializer_table_matches_spec() {
+fn encoder_table_matches_spec() {
     // null
     assert_eq!(value_to_ts_source(&SandboxValue::Null).unwrap(), "null");
     // bool

@@ -1,38 +1,38 @@
 /**
- * Edge case test classes for comprehensive deserializer validation testing.
+ * Edge case test classes for comprehensive decoder validation testing.
  */
 
 // Multiple validators on single field
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MultipleValidatorsTest {
-    /** @serde({ validate: ["nonEmpty", "maxLength(100)", "trimmed"] }) */
+    /** @endec({ validate: ["nonEmpty", "maxLength(100)", "trimmed"] }) */
     text: string;
 }
 
 // Custom error message
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CustomMessageTest {
-    /** @serde({ validate: [{ validate: "email", message: "Please enter a valid email address" }] }) */
+    /** @endec({ validate: [{ validate: "email", message: "Please enter a valid email address" }] }) */
     email: string;
 }
 
 // Mixed validators with custom message
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class MixedValidatorsTest {
-    /** @serde({ validate: ["nonEmpty", { validate: "email", message: "Invalid email format" }] }) */
+    /** @endec({ validate: ["nonEmpty", { validate: "email", message: "Invalid email format" }] }) */
     email: string;
 }
 
 // Combined string validators
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CombinedStringValidatorsTest {
-    /** @serde({ validate: ["minLength(3)", "maxLength(20)", "lowercase"] }) */
+    /** @endec({ validate: ["minLength(3)", "maxLength(20)", "lowercase"] }) */
     username: string;
 }
 
 // Combined number validators
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export class CombinedNumberValidatorsTest {
-    /** @serde({ validate: ["int", "positive", "lessThan(1000)"] }) */
+    /** @endec({ validate: ["int", "positive", "lessThan(1000)"] }) */
     score: number;
 }

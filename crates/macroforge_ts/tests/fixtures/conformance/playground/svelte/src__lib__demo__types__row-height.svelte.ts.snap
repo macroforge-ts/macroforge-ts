@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/row-height.svelte.ts
-sha256 536686cb946cf68f7aea38fdfd772d5368dff57f101f2ea66ee8977fa39e8c1c
+sha256 007d6edad77041b33aa6de19d9cb53ca3fec7e14947ce366d593fff29e6c0a8f
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -34,20 +34,20 @@ export function rowHeightDefaultValue(): RowHeight {
                             return "Medium";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function rowHeightSerialize(value: RowHeight, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = rowHeightSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function rowHeightEncode(value: RowHeight, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = rowHeightEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function rowHeightSerializeWithContext(value: RowHeight, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function rowHeightEncodeWithContext(value: RowHeight, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -114,8 +114,8 @@ export function rowHeightDefaultValue(): RowHeight {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function rowHeightDeserialize(input: unknown): { success: true; value: RowHeight } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function rowHeightDecode(input: unknown): { success: true; value: RowHeight } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'ExtraSmall':
                     case 'Small':
@@ -129,8 +129,8 @@ export function rowHeightDefaultValue(): RowHeight {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function rowHeightDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): RowHeight | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function rowHeightDecodeWithContext(value: any, ctx: __mf_DecodeContext): RowHeight | __mf_PendingRef {
                 switch (value) {
                     case 'ExtraSmall':
                     case 'Small':
@@ -140,7 +140,7 @@ export function rowHeightDefaultValue(): RowHeight {
 
                         return value as RowHeight;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for RowHeight: expected one of " + ['ExtraSmall', 'Small', 'Medium', 'Large'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -328,7 +328,7 @@ if (variant === "Large") { return "Large" as RowHeight; }
 
 
             function validate(): Exit.Exit<RowHeight, Array<{ field: string; message: string }>> {
-                return toExit(rowHeightDeserialize(data));
+                return toExit(rowHeightDecode(data));
             }
 
 
@@ -389,15 +389,15 @@ if (variant === "Large") { return "Large" as RowHeight; }
                 }
 
 
-            return toExit(rowHeightDeserialize(obj));
+            return toExit(rowHeightDecode(obj));
         }
 
 export const RowHeight = {
   defaultValue: rowHeightDefaultValue,
-  serialize: rowHeightSerialize,
-  serializeWithContext: rowHeightSerializeWithContext,
-  deserialize: rowHeightDeserialize,
-  deserializeWithContext: rowHeightDeserializeWithContext,
+  encode: rowHeightEncode,
+  encodeWithContext: rowHeightEncodeWithContext,
+  decode: rowHeightDecode,
+  decodeWithContext: rowHeightDecodeWithContext,
   hasShape: rowHeightHasShape,
   is: rowHeightIs,
   createForm: rowHeightCreateForm,
@@ -419,20 +419,20 @@ export function rowHeightDefaultValue(): RowHeight {
                             return "Medium";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function rowHeightSerialize(value: RowHeight, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = rowHeightSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function rowHeightEncode(value: RowHeight, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = rowHeightEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function rowHeightSerializeWithContext(value: RowHeight, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function rowHeightEncodeWithContext(value: RowHeight, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -499,8 +499,8 @@ export function rowHeightDefaultValue(): RowHeight {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function rowHeightDeserialize(input: unknown): { success: true; value: RowHeight } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function rowHeightDecode(input: unknown): { success: true; value: RowHeight } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'ExtraSmall':
                     case 'Small':
@@ -514,8 +514,8 @@ export function rowHeightDefaultValue(): RowHeight {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function rowHeightDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): RowHeight | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function rowHeightDecodeWithContext(value: any, ctx: __mf_DecodeContext): RowHeight | __mf_PendingRef {
                 switch (value) {
                     case 'ExtraSmall':
                     case 'Small':
@@ -525,7 +525,7 @@ export function rowHeightDefaultValue(): RowHeight {
 
                         return value as RowHeight;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for RowHeight: expected one of " + ['ExtraSmall', 'Small', 'Medium', 'Large'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -713,7 +713,7 @@ if (variant === "Large") { return "Large" as RowHeight; }
 
 
             function validate(): Exit.Exit<RowHeight, Array<{ field: string; message: string }>> {
-                return toExit(rowHeightDeserialize(data));
+                return toExit(rowHeightDecode(data));
             }
 
 
@@ -774,15 +774,15 @@ if (variant === "Large") { return "Large" as RowHeight; }
                 }
 
 
-            return toExit(rowHeightDeserialize(obj));
+            return toExit(rowHeightDecode(obj));
         }
 
 export const RowHeight = {
   defaultValue: rowHeightDefaultValue,
-  serialize: rowHeightSerialize,
-  serializeWithContext: rowHeightSerializeWithContext,
-  deserialize: rowHeightDeserialize,
-  deserializeWithContext: rowHeightDeserializeWithContext,
+  encode: rowHeightEncode,
+  encodeWithContext: rowHeightEncodeWithContext,
+  decode: rowHeightDecode,
+  decodeWithContext: rowHeightDecodeWithContext,
   hasShape: rowHeightHasShape,
   is: rowHeightIs,
   createForm: rowHeightCreateForm,
@@ -796,17 +796,17 @@ export const RowHeight = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..218 -> expanded 58..161
-original 218..219 -> expanded 11923..11924
+original 107..210 -> expanded 58..161
+original 210..211 -> expanded 11813..11814
 generated 161..286 <- Default
-generated 286..2237 <- Serialize
-generated 2237..4542 <- Deserialize
-generated 4542..11537 <- Gigaform
-generated 11537..11923 <- __convenience_const
+generated 286..2199 <- Encode
+generated 2199..4474 <- Decode
+generated 4474..11459 <- Gigaform
+generated 11459..11813 <- __convenience_const
 
 ## Metadata
 
-type RowHeight: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'ExtraSmall'"}},{"decorators":[],"kind":{"Literal":"'Small'"}},{"decorators":[{"args_src":"","name":"default","span":{"end":195,"start":180}}],"kind":{"Literal":"'Medium'"}},{"decorators":[],"kind":{"Literal":"'Large'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"RowHeight","span":{"end":219,"start":124},"type_params":[]}
+type RowHeight: {"body":{"Union":[{"decorators":[],"kind":{"Literal":"'ExtraSmall'"}},{"decorators":[],"kind":{"Literal":"'Small'"}},{"decorators":[{"args_src":"","name":"default","span":{"end":187,"start":172}}],"kind":{"Literal":"'Medium'"}},{"decorators":[],"kind":{"Literal":"'Large'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"RowHeight","span":{"end":211,"start":116},"type_params":[]}
 
 ## Registry reads
 

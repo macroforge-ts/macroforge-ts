@@ -1,4 +1,4 @@
-//! Boa backend — pure-Rust JS engine.
+//! Boa backend: pure-Rust JS engine.
 //!
 //! [`boa_engine`] compiles cleanly for wasm32-unknown-unknown (no C
 //! code, no libc dependency), so it's the backend the Vite plugin's
@@ -43,7 +43,7 @@ use crate::host::buildtime::sandbox::{
 };
 
 /// State shared between the outer driver and the native API functions
-/// installed inside the Boa context. Single-threaded — the Boa context
+/// installed inside the Boa context. Single-threaded: the Boa context
 /// is constructed and consumed on one thread per evaluation.
 struct SandboxState {
     options: SandboxOptions,
@@ -103,7 +103,7 @@ impl BuildtimeSandbox for BoaSandbox {
         // so we can interrupt long-running scripts at deadline. Boa
         // doesn't expose per-instruction interrupt hooks; instead
         // `Script::evaluate_async_with_budget` yields to the executor
-        // every N "clock cycles" — `drive_to_deadline` polls that
+        // every N "clock cycles": `drive_to_deadline` polls that
         // future with a no-op waker and bails on deadline.
         let script = match Script::parse(Source::from_bytes(wrapped.as_bytes()), None, &mut context)
         {
@@ -180,11 +180,11 @@ const EVAL_BUDGET: u32 = 1024;
 
 /// Drive a Boa-produced future to completion, returning [`SandboxError::Timeout`]
 /// once the deadline passes. Uses a no-op waker because Boa's
-/// `evaluate_async_with_budget` is pure-CPU work — there's nothing to
+/// `evaluate_async_with_budget` is pure-CPU work: there's nothing to
 /// wake when it returns Pending; the caller just polls again.
 ///
 /// Takes a stack-pinned `Pin<&mut F>` so non-`'static` futures (which
-/// Boa's APIs return — they borrow the Context) work without boxing.
+/// Boa's APIs return: they borrow the Context) work without boxing.
 fn drive_to_deadline<F, T>(mut future: Pin<&mut F>, deadline: Instant) -> Result<T, SandboxError>
 where
     F: Future<Output = JsResult<T>>,
@@ -258,14 +258,14 @@ fn install_buildtime_api(
 /// Wrap a stateful closure as a NativeFunction. The closure captures
 /// `Rc<RefCell<SandboxState>>`, which isn't `Copy` and must be passed
 /// via the unsafe constructor. `Rc<RefCell<SandboxState>>` contains no
-/// JS values, so there's nothing for the GC to trace — the unsafe
+/// JS values, so there's nothing for the GC to trace: the unsafe
 /// invariant (no Trace captures) holds.
 fn stateful_fn<F>(closure: F) -> NativeFunction
 where
     F: Fn(&JsValue, &[JsValue], &mut Context) -> JsResult<JsValue> + 'static,
 {
     // SAFETY: The captured `Rc<RefCell<SandboxState>>` owns only Rust
-    // data (Vec<PathBuf>, SandboxOptions, Option<SandboxError>) — no
+    // data (Vec<PathBuf>, SandboxOptions, Option<SandboxError>): no
     // `JsObject`, `JsValue`, or any GC-traceable type. Boa's Trace
     // invariant therefore holds vacuously.
     unsafe { NativeFunction::from_closure(closure) }
@@ -646,14 +646,14 @@ fn unix_to_civil(unix_secs: i64) -> (i32, u32, u32, u32, u32, u32) {
 // Value conversion + error helpers
 // ---------------------------------------------------------------------
 
-const MAX_SERIALIZE_DEPTH: usize = 512;
+const MAX_ENCODE_DEPTH: usize = 512;
 
 fn js_to_sandbox(
     value: &JsValue,
     context: &mut Context,
     depth: usize,
 ) -> Result<SandboxValue, SandboxError> {
-    if depth > MAX_SERIALIZE_DEPTH {
+    if depth > MAX_ENCODE_DEPTH {
         return Err(SandboxError::UnserializableResult {
             kind: "deeply nested or circular value".to_string(),
         });

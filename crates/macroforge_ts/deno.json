@@ -3,7 +3,7 @@
         ".": "./pkg-deno/macroforge_ts.js",
         "./buildtime": "./js/buildtime/index.ts",
         "./rules": "./js/rules/index.ts",
-        "./serde": "./js/serde/index.ts",
+        "./endec": "./js/endec/index.ts",
         "./traits": "./js/traits/index.ts"
     },
     "fmt": {
@@ -38,7 +38,7 @@
             "pkg-deno/macroforge_ts_bg.wasm",
             "js/buildtime/",
             "js/rules/",
-            "js/serde/",
+            "js/endec/",
             "js/traits/",
             "deno.json",
             "LICENSE",

@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/product.svelte.ts
-sha256 d0136e3e54c9d025fdebea11edc8a4d0899080397737c14a36871250fc635d48
+sha256 785946619ad1463a61d8388fdc8456ec21a309a139af4f4d093a0b3da69c43cf
 
 ## Changed
 
@@ -12,14 +12,14 @@ true
 
 ## Output
 
-import { productDefaultsDeserializeWithContext } from "./product-defaults.svelte";
-import { productDefaultsSerializeWithContext } from "./product-defaults.svelte";
+import { productDefaultsDecodeWithContext } from "./product-defaults.svelte";
+import { productDefaultsEncodeWithContext } from "./product-defaults.svelte";
 import { productDefaultsDefaultValue } from "./product-defaults.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -68,16 +68,16 @@ defaults: productDefaultsDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function productSerialize(value: Product, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = productSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function productEncode(value: Product, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = productEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function productSerializeWithContext(value: Product, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -90,7 +90,7 @@ defaults: productDefaultsDefaultValue(),
                     const result: Record<string, unknown> = {
                         "__type": "Product",
                         __id,
-                    };result.id = value.id;result.name = value.name;result.quickCode = value.quickCode;result.group = value.group;result.subgroup = value.subgroup;result.unit = value.unit;result.active = value.active;result.commission = value.commission;result.favorite = value.favorite;result.defaults = productDefaultsSerializeWithContext(value.defaults, ctx);
+                    };result.id = value.id;result.name = value.name;result.quickCode = value.quickCode;result.group = value.group;result.subgroup = value.subgroup;result.unit = value.unit;result.active = value.active;result.commission = value.commission;result.favorite = value.favorite;result.defaults = productDefaultsEncodeWithContext(value.defaults, ctx);
 
 
 
@@ -189,21 +189,21 @@ defaults: productDefaultsDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function productDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = productDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = productDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Product.deserialize: root cannot be a forward reference"
+		message: "Product.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -226,7 +226,7 @@ defaults: productDefaultsDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -243,14 +243,14 @@ defaults: productDefaultsDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function productDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Product | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function productDecodeWithContext(value: any, ctx: __mf_DecodeContext): Product | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Product.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Product.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2642,10 +2642,10 @@ instance.quickCode = __raw_quickCode;
                             }{
                                 const __raw_defaults = obj["defaults"] as ProductDefaults;ctx.pushScope("defaults");
                                             try {
-                                                const __result = productDefaultsDeserializeWithContext(__raw_defaults, ctx);
+                                                const __result = productDefaultsDecodeWithContext(__raw_defaults, ctx);
                                                 ctx.assignOrDefer(instance, "defaults", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
@@ -3587,7 +3587,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
                 if (!productHasShape(obj)) {
                     return false;
                 }
-                const result = productDeserialize(obj);
+                const result = productDecode(obj);
                 return result.success;
             }
 
@@ -3914,7 +3914,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
 
 
             function validate(): Exit.Exit<Product, Array<{ field: string; message: string }>> {
-                return toExit(productDeserialize(data));
+                return toExit(productDecode(data));
             }
 
 
@@ -3963,7 +3963,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function productFromFormData(formData: FormData): Exit.Exit<Product, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4009,15 +4009,15 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
         }
 
 
-            return toExit(productDeserialize(obj));
+            return toExit(productDecode(obj));
         }
 
 export const Product = {
   defaultValue: productDefaultValue,
-  serialize: productSerialize,
-  serializeWithContext: productSerializeWithContext,
-  deserialize: productDeserialize,
-  deserializeWithContext: productDeserializeWithContext,
+  encode: productEncode,
+  encodeWithContext: productEncodeWithContext,
+  decode: productDecode,
+  decodeWithContext: productDecodeWithContext,
   validateFields: productValidateFields,
   hasShape: productHasShape,
   is: productIs,
@@ -4071,16 +4071,16 @@ defaults: productDefaultsDefaultValue(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function productSerialize(value: Product, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = productSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function productEncode(value: Product, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = productEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function productSerializeWithContext(value: Product, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function productEncodeWithContext(value: Product, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -4093,7 +4093,7 @@ defaults: productDefaultsDefaultValue(),
                     const result: Record<string, unknown> = {
                         "__type": "Product",
                         __id,
-                    };result.id = value.id;result.name = value.name;result.quickCode = value.quickCode;result.group = value.group;result.subgroup = value.subgroup;result.unit = value.unit;result.active = value.active;result.commission = value.commission;result.favorite = value.favorite;result.defaults = productDefaultsSerializeWithContext(value.defaults, ctx);
+                    };result.id = value.id;result.name = value.name;result.quickCode = value.quickCode;result.group = value.group;result.subgroup = value.subgroup;result.unit = value.unit;result.active = value.active;result.commission = value.commission;result.favorite = value.favorite;result.defaults = productDefaultsEncodeWithContext(value.defaults, ctx);
 
 
 
@@ -4192,21 +4192,21 @@ defaults: productDefaultsDefaultValue(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function productDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function productDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Product } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = productDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = productDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Product.deserialize: root cannot be a forward reference"
+		message: "Product.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -4229,7 +4229,7 @@ defaults: productDefaultsDefaultValue(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -4246,14 +4246,14 @@ defaults: productDefaultsDefaultValue(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function productDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Product | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function productDecodeWithContext(value: any, ctx: __mf_DecodeContext): Product | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Product.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Product.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -6645,10 +6645,10 @@ instance.quickCode = __raw_quickCode;
                             }{
                                 const __raw_defaults = obj["defaults"] as ProductDefaults;ctx.pushScope("defaults");
                                             try {
-                                                const __result = productDefaultsDeserializeWithContext(__raw_defaults, ctx);
+                                                const __result = productDefaultsDecodeWithContext(__raw_defaults, ctx);
                                                 ctx.assignOrDefer(instance, "defaults", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "defaults" : "defaults." + __err.field,
@@ -7590,7 +7590,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
                 if (!productHasShape(obj)) {
                     return false;
                 }
-                const result = productDeserialize(obj);
+                const result = productDecode(obj);
                 return result.success;
             }
 
@@ -7917,7 +7917,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
 
 
             function validate(): Exit.Exit<Product, Array<{ field: string; message: string }>> {
-                return toExit(productDeserialize(data));
+                return toExit(productDecode(data));
             }
 
 
@@ -7966,7 +7966,7 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function productFromFormData(formData: FormData): Exit.Exit<Product, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -8012,15 +8012,15 @@ if (__val.length === 0) { errors.push({ field: "quickCode", message: "Product.qu
         }
 
 
-            return toExit(productDeserialize(obj));
+            return toExit(productDecode(obj));
         }
 
 export const Product = {
   defaultValue: productDefaultValue,
-  serialize: productSerialize,
-  serializeWithContext: productSerializeWithContext,
-  deserialize: productDeserialize,
-  deserializeWithContext: productDeserializeWithContext,
+  encode: productEncode,
+  encodeWithContext: productEncodeWithContext,
+  decode: productDecode,
+  decodeWithContext: productDecodeWithContext,
   validateFields: productValidateFields,
   hasShape: productHasShape,
   is: productIs,
@@ -8035,28 +8035,28 @@ export const Product = {
 ## Mapping
 
 original 0..125 -> expanded 0..125
-original 182..214 -> expanded 125..157
-original 242..263 -> expanded 157..178
-original 304..309 -> expanded 178..183
-original 350..373 -> expanded 183..206
-original 420..425 -> expanded 206..211
-original 466..494 -> expanded 211..239
-original 559..590 -> expanded 239..270
-original 658..692 -> expanded 270..304
-original 756..786 -> expanded 304..334
-original 831..857 -> expanded 334..360
-original 906..936 -> expanded 360..390
-original 983..1039 -> expanded 390..446
-original 1039..1040 -> expanded 32711..32712
+original 174..206 -> expanded 125..157
+original 234..255 -> expanded 157..178
+original 296..301 -> expanded 178..183
+original 342..365 -> expanded 183..206
+original 412..417 -> expanded 206..211
+original 458..486 -> expanded 211..239
+original 551..582 -> expanded 239..270
+original 650..684 -> expanded 270..304
+original 748..778 -> expanded 304..334
+original 823..849 -> expanded 334..360
+original 898..928 -> expanded 360..390
+original 975..1031 -> expanded 390..446
+original 1031..1032 -> expanded 32520..32521
 generated 446..720 <- Default
-generated 720..2553 <- Serialize
-generated 2553..16348 <- Deserialize
-generated 16348..32304 <- Gigaform
-generated 32304..32711 <- __convenience_const
+generated 720..2518 <- Encode
+generated 2518..16209 <- Decode
+generated 16209..32145 <- Gigaform
+generated 32145..32520 <- __convenience_const
 
 ## Metadata
 
-interface Product: {"body_span":{"end":1040,"start":209},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":183,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":243,"start":215}}],"name":"id","optional":false,"readonly":false,"span":{"end":259,"start":248},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":351,"start":310}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":305,"start":264}}],"name":"name","optional":false,"readonly":false,"span":{"end":369,"start":356},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":467,"start":426}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":421,"start":374}}],"name":"quickCode","optional":false,"readonly":false,"span":{"end":490,"start":472},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":560,"start":495}}],"name":"group","optional":false,"readonly":false,"span":{"end":586,"start":565},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":659,"start":591}}],"name":"subgroup","optional":false,"readonly":false,"span":{"end":688,"start":664},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":757,"start":693}}],"name":"unit","optional":false,"readonly":false,"span":{"end":782,"start":762},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":832,"start":787}}],"name":"active","optional":false,"readonly":false,"span":{"end":853,"start":837},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":907,"start":858}}],"name":"commission","optional":false,"readonly":false,"span":{"end":932,"start":912},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":984,"start":937}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":1007,"start":989},"ts_type":"boolean"},{"decorators":[],"name":"defaults","optional":false,"readonly":false,"span":{"end":1038,"start":1012},"ts_type":"ProductDefaults"}],"heritage":[],"methods":[],"name":"Product","span":{"end":1040,"start":191},"type_params":[]}
+interface Product: {"body_span":{"end":1032,"start":201},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":175,"start":126}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":235,"start":207}}],"name":"id","optional":false,"readonly":false,"span":{"end":251,"start":240},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":343,"start":302}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":297,"start":256}}],"name":"name","optional":false,"readonly":false,"span":{"end":361,"start":348},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":459,"start":418}},{"args_src":"{ label: \"Quick Code\" }","name":"textController","span":{"end":413,"start":366}}],"name":"quickCode","optional":false,"readonly":false,"span":{"end":482,"start":464},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Group\", allowCustom: true }","name":"comboboxController","span":{"end":552,"start":487}}],"name":"group","optional":false,"readonly":false,"span":{"end":578,"start":557},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Subgroup\", allowCustom: true }","name":"comboboxController","span":{"end":651,"start":583}}],"name":"subgroup","optional":false,"readonly":false,"span":{"end":680,"start":656},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Unit\", allowCustom: true }","name":"comboboxController","span":{"end":749,"start":685}}],"name":"unit","optional":false,"readonly":false,"span":{"end":774,"start":754},"ts_type":"string | null"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":824,"start":779}}],"name":"active","optional":false,"readonly":false,"span":{"end":845,"start":829},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Commission\" }","name":"switchController","span":{"end":899,"start":850}}],"name":"commission","optional":false,"readonly":false,"span":{"end":924,"start":904},"ts_type":"boolean"},{"decorators":[{"args_src":"{ label: \"Favorite\" }","name":"switchController","span":{"end":976,"start":929}}],"name":"favorite","optional":false,"readonly":false,"span":{"end":999,"start":981},"ts_type":"boolean"},{"decorators":[],"name":"defaults","optional":false,"readonly":false,"span":{"end":1030,"start":1004},"ts_type":"ProductDefaults"}],"heritage":[],"methods":[],"name":"Product","span":{"end":1032,"start":183},"type_params":[]}
 
 ## Registry reads
 

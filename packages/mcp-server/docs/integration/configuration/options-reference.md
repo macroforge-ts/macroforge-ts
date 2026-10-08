@@ -28,7 +28,7 @@ Default
 Whether to generate a convenience const for non-class types. When `true`, generates an
 `export const TypeName = { ... } as const;` that groups all generated functions for a type into a
 single namespace-like object. For example:
-`export const User = { clone: userClone, serialize: userSerialize } as const;`.
+`export const User = { clone: userClone, encode: userEncode } as const;`.
 
 ### foreignTypes
 
@@ -51,8 +51,8 @@ export default {
       aliases: [
         { name: "DateTime", from: "effect/DateTime" }
       ],
-      serialize: (v) => DateTime.formatIso(v),
-      deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+      encode: (v) => DateTime.formatIso(v),
+      decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
       default: () => DateTime.unsafeNow(),
       // Optional shape check for union variant matching
       hasShape: (v) => v instanceof Date || typeof v === "string"
@@ -64,8 +64,8 @@ export default {
 Each foreign type handler supports the following properties:
 
 - `from`: Array of module paths this type can be imported from.
-- `serialize`: Function `(value) => unknown` for serialization.
-- `deserialize`: Function `(raw) => T` for deserialization.
+- `encode`: Function `(value) => unknown` for encoding.
+- `decode`: Function `(raw) => T` for decoding.
 - `default`: Function `() => T` for default value generation.
 - `hasShape`: Optional function `(value) => boolean` used for shape-check predicate expression in
   union variant matching.

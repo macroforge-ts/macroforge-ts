@@ -35,7 +35,7 @@ fn registry_json() -> (tempfile::TempDir, String) {
     })
     .scan()
     .expect("the project scans");
-    let json = serde_json::to_string(&scan.registry).expect("the registry serializes");
+    let json = serde_json::to_string(&scan.registry).expect("the registry encodes");
     (dir, json)
 }
 

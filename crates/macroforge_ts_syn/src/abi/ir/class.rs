@@ -46,7 +46,7 @@ use crate::abi::{DecoratorIR, SpanIR};
 /// - `body_span` - Source span of just the class body (between `{` and `}`)
 /// - `is_abstract` - Whether the class is declared as `abstract`
 /// - `type_params` - Generic type parameters (e.g., `["T", "U"]` for `class Foo<T, U>`)
-/// - `heritage` - Extended/implemented types (e.g., `["BaseClass", "ISerializable"]`)
+/// - `heritage` - Extended/implemented types (e.g., `["BaseClass", "IEncodable"]`)
 /// - `decorators` - Decorators applied to the class
 /// - `fields` - Class properties/fields
 /// - `methods` - Class methods and constructor
@@ -123,7 +123,7 @@ impl ClassIR {
 /// For the TypeScript field:
 ///
 /// ```typescript
-/// /** @serde(skip) */
+/// /** @endec(skip) */
 /// private readonly email?: string;
 /// ```
 ///
@@ -133,7 +133,7 @@ impl ClassIR {
 /// - `optional`: `true`
 /// - `readonly`: `true`
 /// - `visibility`: `Visibility::Private`
-/// - `decorators`: Contains the `@serde(skip)` decorator
+/// - `decorators`: Contains the `@endec(skip)` decorator
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct FieldIR {
     /// The field name (identifier).

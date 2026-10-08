@@ -153,7 +153,7 @@ pub struct MacroforgeConfig {
 }
 ```
 
-[Foreign types](../../docs/serde/foreign-types) are the usual reason to read it: a macro that
+[Foreign types](../../docs/endec/foreign-types) are the usual reason to read it: a macro that
 handles field types itself should treat a configured foreign type, such as `DateTime.DateTime`, the
 way the project configured it.
 

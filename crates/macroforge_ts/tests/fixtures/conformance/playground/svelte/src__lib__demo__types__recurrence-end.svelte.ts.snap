@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/recurrence-end.svelte.ts
-sha256 e79ba909bda3510321f8e9e835af7569c6437920e14bed06fb35164b81cc41b1
+sha256 933f1bf6ae7e3ac7ca1d4413ab353134f0c0684959b8f18ce900a58d0b7c43aa
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -30,20 +30,20 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
                             return 0;
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function recurrenceEndSerialize(value: RecurrenceEnd, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = recurrenceEndSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function recurrenceEndEncode(value: RecurrenceEnd, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = recurrenceEndEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function recurrenceEndSerializeWithContext(value: RecurrenceEnd, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function recurrenceEndEncodeWithContext(value: RecurrenceEnd, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -110,20 +110,20 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function recurrenceEndDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function recurrenceEndDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = recurrenceEndDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = recurrenceEndDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "RecurrenceEnd.deserialize: root cannot be a forward reference"
+		message: "RecurrenceEnd.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -146,7 +146,7 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -163,8 +163,8 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function recurrenceEndDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): RecurrenceEnd | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function recurrenceEndDecodeWithContext(value: any, ctx: __mf_DecodeContext): RecurrenceEnd | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as RecurrenceEnd | __mf_PendingRef;
                         }if (typeof value === "number") {
@@ -177,9 +177,9 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 
 
 
-                            throw new __mf_DeserializeError([{
+                            throw new __mf_DecodeError([{
                                 field: "_root",
-                                message: "RecurrenceEnd.deserializeWithContext: expected number, string, got " + typeof value
+                                message: "RecurrenceEnd.decodeWithContext: expected number, string, got " + typeof value
                             }]);
 
 
@@ -1002,7 +1002,7 @@ if (variant === "string") { return "" as RecurrenceEnd; }
 
 
             function validate(): Exit.Exit<RecurrenceEnd, Array<{ field: string; message: string }>> {
-                return toExit(recurrenceEndDeserialize(data));
+                return toExit(recurrenceEndDecode(data));
             }
 
 
@@ -1051,15 +1051,15 @@ if (variant === "string") { return "" as RecurrenceEnd; }
                 }
 
 
-            return toExit(recurrenceEndDeserialize(obj));
+            return toExit(recurrenceEndDecode(obj));
         }
 
 export const RecurrenceEnd = {
   defaultValue: recurrenceEndDefaultValue,
-  serialize: recurrenceEndSerialize,
-  serializeWithContext: recurrenceEndSerializeWithContext,
-  deserialize: recurrenceEndDeserialize,
-  deserializeWithContext: recurrenceEndDeserializeWithContext,
+  encode: recurrenceEndEncode,
+  encodeWithContext: recurrenceEndEncodeWithContext,
+  decode: recurrenceEndDecode,
+  decodeWithContext: recurrenceEndDecodeWithContext,
   hasShape: recurrenceEndHasShape,
   is: recurrenceEndIs,
   createForm: recurrenceEndCreateForm,
@@ -1077,20 +1077,20 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
                             return 0;
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function recurrenceEndSerialize(value: RecurrenceEnd, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = recurrenceEndSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function recurrenceEndEncode(value: RecurrenceEnd, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = recurrenceEndEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function recurrenceEndSerializeWithContext(value: RecurrenceEnd, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function recurrenceEndEncodeWithContext(value: RecurrenceEnd, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -1157,20 +1157,20 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 
                         }
 
-/** Deserializes input to this type. @param input - Value to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-        export function recurrenceEndDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this type. @param input - Value to decode @param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+        export function recurrenceEndDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceEnd } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
                 const data = input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = recurrenceEndDeserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = recurrenceEndDecodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "RecurrenceEnd.deserialize: root cannot be a forward reference"
+		message: "RecurrenceEnd.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -1193,7 +1193,7 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -1210,8 +1210,8 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function recurrenceEndDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): RecurrenceEnd | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function recurrenceEndDecodeWithContext(value: any, ctx: __mf_DecodeContext): RecurrenceEnd | __mf_PendingRef {
                         if (value?.__ref !== undefined) {
                             return ctx.getOrDefer(value.__ref) as RecurrenceEnd | __mf_PendingRef;
                         }if (typeof value === "number") {
@@ -1224,9 +1224,9 @@ export function recurrenceEndDefaultValue(): RecurrenceEnd {
 
 
 
-                            throw new __mf_DeserializeError([{
+                            throw new __mf_DecodeError([{
                                 field: "_root",
-                                message: "RecurrenceEnd.deserializeWithContext: expected number, string, got " + typeof value
+                                message: "RecurrenceEnd.decodeWithContext: expected number, string, got " + typeof value
                             }]);
 
 
@@ -2049,7 +2049,7 @@ if (variant === "string") { return "" as RecurrenceEnd; }
 
 
             function validate(): Exit.Exit<RecurrenceEnd, Array<{ field: string; message: string }>> {
-                return toExit(recurrenceEndDeserialize(data));
+                return toExit(recurrenceEndDecode(data));
             }
 
 
@@ -2098,15 +2098,15 @@ if (variant === "string") { return "" as RecurrenceEnd; }
                 }
 
 
-            return toExit(recurrenceEndDeserialize(obj));
+            return toExit(recurrenceEndDecode(obj));
         }
 
 export const RecurrenceEnd = {
   defaultValue: recurrenceEndDefaultValue,
-  serialize: recurrenceEndSerialize,
-  serializeWithContext: recurrenceEndSerializeWithContext,
-  deserialize: recurrenceEndDeserialize,
-  deserializeWithContext: recurrenceEndDeserializeWithContext,
+  encode: recurrenceEndEncode,
+  encodeWithContext: recurrenceEndEncodeWithContext,
+  decode: recurrenceEndDecode,
+  decodeWithContext: recurrenceEndDecodeWithContext,
   hasShape: recurrenceEndHasShape,
   is: recurrenceEndIs,
   createForm: recurrenceEndCreateForm,
@@ -2120,17 +2120,17 @@ export const RecurrenceEnd = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..179 -> expanded 58..122
-original 179..180 -> expanded 11671..11672
+original 107..171 -> expanded 58..122
+original 171..172 -> expanded 11502..11503
 generated 122..248 <- Default
-generated 248..2219 <- Serialize
-generated 2219..5827 <- Deserialize
-generated 5827..11245 <- Gigaform
-generated 11245..11671 <- __convenience_const
+generated 248..2181 <- Encode
+generated 2181..5700 <- Decode
+generated 5700..11108 <- Gigaform
+generated 11108..11502 <- __convenience_const
 
 ## Metadata
 
-type RecurrenceEnd: {"body":{"Union":[{"decorators":[{"args_src":"0","name":"default","span":{"end":163,"start":145}}],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"RecurrenceEnd","span":{"end":180,"start":124},"type_params":[]}
+type RecurrenceEnd: {"body":{"Union":[{"decorators":[{"args_src":"0","name":"default","span":{"end":155,"start":137}}],"kind":{"TypeRef":"number"}},{"decorators":[],"kind":{"TypeRef":"string"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"RecurrenceEnd","span":{"end":172,"start":116},"type_params":[]}
 
 ## Registry reads
 

@@ -80,12 +80,12 @@ const USE_CASES: &[(&str, &str)] = &[
         "compareTo, partial ordering, sorting, nullable comparison",
     ),
     (
-        "/docs/builtin-macros/serialize",
-        "toJSON, serialization, json, api, data transfer",
+        "/docs/builtin-macros/encode",
+        "toJSON, encoding, json, api, data transfer",
     ),
     (
-        "/docs/builtin-macros/deserialize",
-        "fromJSON, deserialization, parsing, validation, json",
+        "/docs/builtin-macros/decode",
+        "fromJSON, decoding, parsing, validation, json",
     ),
     // Custom Macros
     (

@@ -1,5 +1,5 @@
 /**
- * Hyper-complex nested type graph for deserialization e2e testing.
+ * Hyper-complex nested type graph for decoding e2e testing.
  *
  * Shape:
  *   Organization
@@ -30,7 +30,7 @@
 
 // --- Leaf types ---
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Address {
     street: string;
     city: string;
@@ -39,46 +39,46 @@ export interface Address {
     country: string;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Skill {
     name: string;
     level: number;
     certifiedAt: Date;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Milestone {
     title: string;
     dueDate: Date;
     completedAt: Date | null;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface MetadataValue {
     value: string;
     updatedAt: Date;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Tag {
     label: string;
     color: string;
     createdAt: Date;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Feature {
     name: string;
     enabledAt: Date;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Limit {
     max: number;
     resetAt: Date;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Budget {
     amount: number;
     currency: string;
@@ -87,7 +87,7 @@ export interface Budget {
 
 // --- Mid-level types ---
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Project {
     id: string;
     name: string;
@@ -96,7 +96,7 @@ export interface Project {
     startedAt: Date;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Employee {
     id: string;
     name: string;
@@ -108,7 +108,7 @@ export interface Employee {
     terminatedAt: Date | null;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface OrgConfig {
     features: Set<Feature>;
     limits: Map<string, Limit>;
@@ -116,7 +116,7 @@ export interface OrgConfig {
 
 // --- Top-level type ---
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Department {
     id: string;
     name: string;
@@ -126,7 +126,7 @@ export interface Department {
     createdAt: Date;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface Organization {
     id: string;
     name: string;
@@ -138,7 +138,7 @@ export interface Organization {
 
 // --- Intersection types ---
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export interface AccountBase {
     id: string;
     name: string;
@@ -146,12 +146,12 @@ export interface AccountBase {
     createdAt: Date;
 }
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export type SavingsAccount =
     & { variant: 'savings'; interestRate: number }
     & AccountBase;
 
-/** @derive(Serialize, Deserialize) */
+/** @derive(Encode, Decode) */
 export type CheckingAccount =
     & { variant: 'checking'; overdraftLimit: number }
     & AccountBase;

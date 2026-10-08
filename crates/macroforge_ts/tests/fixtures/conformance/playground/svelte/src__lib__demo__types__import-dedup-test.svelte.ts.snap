@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/import-dedup-test.svelte.ts
-sha256 fa67231208fd189f1cc290e67a43940ba0ec7d70d5e5cbf8bb3d56a080fdf0e3
+sha256 187accfd4584c9ffaf863b5d500d7226cd242966bab8ee42a50d7aaa78f9889f
 
 ## Changed
 
@@ -12,10 +12,10 @@ true
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 /**
  * Stress test for aliased imports and tree-shaking.
  *
@@ -36,29 +36,29 @@ import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
 
 import { Exit, Option } from 'effect';
 
-// Test 1: Type with Deserialize (uses Exit for return type)
+// Test 1: Type with Decode (uses Exit for return type)
 
-export interface UserWithDeserialize {
+export interface UserWithDecode {
     name: string;
     age: number;
     email: string;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function userWithDeserializeDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: UserWithDeserialize } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserWithDecode } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = userWithDeserializeDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = userWithDecodeDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "UserWithDeserialize.deserialize: root cannot be a forward reference"
+		message: "UserWithDecode.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -81,7 +81,7 @@ export interface UserWithDeserialize {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -98,14 +98,14 @@ export interface UserWithDeserialize {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function userWithDeserializeDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserWithDeserialize | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function userWithDecodeDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserWithDecode | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "UserWithDeserialize.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "UserWithDecode.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1480,12 +1480,12 @@ export interface UserWithDeserialize {
 
                 ctx.pushErrors(errors);
 
-                return instance as UserWithDeserialize;
+                return instance as UserWithDecode;
             }
 
-            export function userWithDeserializeValidateField<K extends keyof UserWithDeserialize>(
+            export function userWithDecodeValidateField<K extends keyof UserWithDecode>(
                 _field: K,
-                _value: UserWithDeserialize[K]
+                _value: UserWithDecode[K]
             ): Array<{ field: string; message: string }> {return [];
 
 
@@ -1502,8 +1502,8 @@ export interface UserWithDeserialize {
 
             }
 
-            export function userWithDeserializeValidateFields(
-                _partial: Partial<UserWithDeserialize>
+            export function userWithDecodeValidateFields(
+                _partial: Partial<UserWithDecode>
             ): Array<{ field: string; message: string }> {return [];
 
 
@@ -1520,7 +1520,7 @@ export interface UserWithDeserialize {
 
             }
 
-            export function userWithDeserializeHasShape(obj: unknown): boolean {
+            export function userWithDecodeHasShape(obj: unknown): boolean {
                 if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
                     return false;
                 }
@@ -1528,20 +1528,20 @@ export interface UserWithDeserialize {
                 return "name" in o && "age" in o && "email" in o;
             }
 
-            export function userWithDeserializeIs(obj: unknown): obj is UserWithDeserialize {
-                if (!userWithDeserializeHasShape(obj)) {
+            export function userWithDecodeIs(obj: unknown): obj is UserWithDecode {
+                if (!userWithDecodeHasShape(obj)) {
                     return false;
                 }
-                const result = userWithDeserializeDeserialize(obj);
+                const result = userWithDecodeDecode(obj);
                 return result.success;
             }
 
-export const UserWithDeserialize = {
-  deserialize: userWithDeserializeDeserialize,
-  deserializeWithContext: userWithDeserializeDeserializeWithContext,
-  validateFields: userWithDeserializeValidateFields,
-  hasShape: userWithDeserializeHasShape,
-  is: userWithDeserializeIs
+export const UserWithDecode = {
+  decode: userWithDecodeDecode,
+  decodeWithContext: userWithDecodeDecodeWithContext,
+  validateFields: userWithDecodeValidateFields,
+  hasShape: userWithDecodeHasShape,
+  is: userWithDecodeIs
 } as const;
 
 // Test 2: Type with PartialOrd (uses Option for return type)
@@ -1567,7 +1567,7 @@ export const ComparableItem = {
   partialCompare: comparableItemPartialCompare
 } as const;
 
-// Test 3: Type with both Deserialize and PartialOrd
+// Test 3: Type with both Decode and PartialOrd
 
 export interface FullFeaturedType {
     id: number;
@@ -1575,21 +1575,21 @@ export interface FullFeaturedType {
     score: number;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function fullFeaturedTypeDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: FullFeaturedType } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: FullFeaturedType } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = fullFeaturedTypeDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = fullFeaturedTypeDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "FullFeaturedType.deserialize: root cannot be a forward reference"
+		message: "FullFeaturedType.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1612,7 +1612,7 @@ export interface FullFeaturedType {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1629,14 +1629,14 @@ export interface FullFeaturedType {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function fullFeaturedTypeDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): FullFeaturedType | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function fullFeaturedTypeDecodeWithContext(value: any, ctx: __mf_DecodeContext): FullFeaturedType | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "FullFeaturedType.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "FullFeaturedType.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3063,7 +3063,7 @@ export interface FullFeaturedType {
                 if (!fullFeaturedTypeHasShape(obj)) {
                     return false;
                 }
-                const result = fullFeaturedTypeDeserialize(obj);
+                const result = fullFeaturedTypeDecode(obj);
                 return result.success;
             }
 
@@ -3083,8 +3083,8 @@ if (cmp2 !== 0) return cmp2;
                     }
 
 export const FullFeaturedType = {
-  deserialize: fullFeaturedTypeDeserialize,
-  deserializeWithContext: fullFeaturedTypeDeserializeWithContext,
+  decode: fullFeaturedTypeDecode,
+  decodeWithContext: fullFeaturedTypeDecodeWithContext,
   validateFields: fullFeaturedTypeValidateFields,
   hasShape: fullFeaturedTypeHasShape,
   is: fullFeaturedTypeIs,
@@ -3097,21 +3097,21 @@ export interface TypeA {
     fieldA: string;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function typeADeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: TypeA } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function typeADecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeA } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = typeADeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = typeADecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "TypeA.deserialize: root cannot be a forward reference"
+		message: "TypeA.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -3134,7 +3134,7 @@ export interface TypeA {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -3151,14 +3151,14 @@ export interface TypeA {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function typeADeserializeWithContext(value: any, ctx: __mf_DeserializeContext): TypeA | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function typeADecodeWithContext(value: any, ctx: __mf_DecodeContext): TypeA | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "TypeA.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "TypeA.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -4061,13 +4061,13 @@ export interface TypeA {
                 if (!typeAHasShape(obj)) {
                     return false;
                 }
-                const result = typeADeserialize(obj);
+                const result = typeADecode(obj);
                 return result.success;
             }
 
 export const TypeA = {
-  deserialize: typeADeserialize,
-  deserializeWithContext: typeADeserializeWithContext,
+  decode: typeADecode,
+  decodeWithContext: typeADecodeWithContext,
   validateFields: typeAValidateFields,
   hasShape: typeAHasShape,
   is: typeAIs
@@ -4078,21 +4078,21 @@ export interface TypeB {
     fieldB: number;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function typeBDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: TypeB } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeB } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = typeBDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = typeBDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "TypeB.deserialize: root cannot be a forward reference"
+		message: "TypeB.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -4115,7 +4115,7 @@ export interface TypeB {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -4132,14 +4132,14 @@ export interface TypeB {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function typeBDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): TypeB | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function typeBDecodeWithContext(value: any, ctx: __mf_DecodeContext): TypeB | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "TypeB.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "TypeB.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -5042,13 +5042,13 @@ export interface TypeB {
                 if (!typeBHasShape(obj)) {
                     return false;
                 }
-                const result = typeBDeserialize(obj);
+                const result = typeBDecode(obj);
                 return result.success;
             }
 
 export const TypeB = {
-  deserialize: typeBDeserialize,
-  deserializeWithContext: typeBDeserializeWithContext,
+  decode: typeBDecode,
+  decodeWithContext: typeBDecodeWithContext,
   validateFields: typeBValidateFields,
   hasShape: typeBHasShape,
   is: typeBIs
@@ -5112,29 +5112,29 @@ export function verifyImports(): void {
 
 import { Exit, Option } from 'effect';
 
-// Test 1: Type with Deserialize (uses Exit for return type)
+// Test 1: Type with Decode (uses Exit for return type)
 
-export interface UserWithDeserialize {
+export interface UserWithDecode {
     name: string;
     age: number;
     email: string;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function userWithDeserializeDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: UserWithDeserialize } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function userWithDecodeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: UserWithDecode } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = userWithDeserializeDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = userWithDecodeDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "UserWithDeserialize.deserialize: root cannot be a forward reference"
+		message: "UserWithDecode.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -5157,7 +5157,7 @@ export interface UserWithDeserialize {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -5174,14 +5174,14 @@ export interface UserWithDeserialize {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function userWithDeserializeDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): UserWithDeserialize | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function userWithDecodeDecodeWithContext(value: any, ctx: __mf_DecodeContext): UserWithDecode | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "UserWithDeserialize.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "UserWithDecode.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -6556,12 +6556,12 @@ export interface UserWithDeserialize {
 
                 ctx.pushErrors(errors);
 
-                return instance as UserWithDeserialize;
+                return instance as UserWithDecode;
             }
 
-            export function userWithDeserializeValidateField<K extends keyof UserWithDeserialize>(
+            export function userWithDecodeValidateField<K extends keyof UserWithDecode>(
                 _field: K,
-                _value: UserWithDeserialize[K]
+                _value: UserWithDecode[K]
             ): Array<{ field: string; message: string }> {return [];
 
 
@@ -6578,8 +6578,8 @@ export interface UserWithDeserialize {
 
             }
 
-            export function userWithDeserializeValidateFields(
-                _partial: Partial<UserWithDeserialize>
+            export function userWithDecodeValidateFields(
+                _partial: Partial<UserWithDecode>
             ): Array<{ field: string; message: string }> {return [];
 
 
@@ -6596,7 +6596,7 @@ export interface UserWithDeserialize {
 
             }
 
-            export function userWithDeserializeHasShape(obj: unknown): boolean {
+            export function userWithDecodeHasShape(obj: unknown): boolean {
                 if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
                     return false;
                 }
@@ -6604,20 +6604,20 @@ export interface UserWithDeserialize {
                 return "name" in o && "age" in o && "email" in o;
             }
 
-            export function userWithDeserializeIs(obj: unknown): obj is UserWithDeserialize {
-                if (!userWithDeserializeHasShape(obj)) {
+            export function userWithDecodeIs(obj: unknown): obj is UserWithDecode {
+                if (!userWithDecodeHasShape(obj)) {
                     return false;
                 }
-                const result = userWithDeserializeDeserialize(obj);
+                const result = userWithDecodeDecode(obj);
                 return result.success;
             }
 
-export const UserWithDeserialize = {
-  deserialize: userWithDeserializeDeserialize,
-  deserializeWithContext: userWithDeserializeDeserializeWithContext,
-  validateFields: userWithDeserializeValidateFields,
-  hasShape: userWithDeserializeHasShape,
-  is: userWithDeserializeIs
+export const UserWithDecode = {
+  decode: userWithDecodeDecode,
+  decodeWithContext: userWithDecodeDecodeWithContext,
+  validateFields: userWithDecodeValidateFields,
+  hasShape: userWithDecodeHasShape,
+  is: userWithDecodeIs
 } as const;
 
 // Test 2: Type with PartialOrd (uses Option for return type)
@@ -6643,7 +6643,7 @@ export const ComparableItem = {
   partialCompare: comparableItemPartialCompare
 } as const;
 
-// Test 3: Type with both Deserialize and PartialOrd
+// Test 3: Type with both Decode and PartialOrd
 
 export interface FullFeaturedType {
     id: number;
@@ -6651,21 +6651,21 @@ export interface FullFeaturedType {
     score: number;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function fullFeaturedTypeDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: FullFeaturedType } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function fullFeaturedTypeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: FullFeaturedType } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = fullFeaturedTypeDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = fullFeaturedTypeDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "FullFeaturedType.deserialize: root cannot be a forward reference"
+		message: "FullFeaturedType.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -6688,7 +6688,7 @@ export interface FullFeaturedType {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -6705,14 +6705,14 @@ export interface FullFeaturedType {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function fullFeaturedTypeDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): FullFeaturedType | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function fullFeaturedTypeDecodeWithContext(value: any, ctx: __mf_DecodeContext): FullFeaturedType | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "FullFeaturedType.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "FullFeaturedType.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -8139,7 +8139,7 @@ export interface FullFeaturedType {
                 if (!fullFeaturedTypeHasShape(obj)) {
                     return false;
                 }
-                const result = fullFeaturedTypeDeserialize(obj);
+                const result = fullFeaturedTypeDecode(obj);
                 return result.success;
             }
 
@@ -8159,8 +8159,8 @@ if (cmp2 !== 0) return cmp2;
                     }
 
 export const FullFeaturedType = {
-  deserialize: fullFeaturedTypeDeserialize,
-  deserializeWithContext: fullFeaturedTypeDeserializeWithContext,
+  decode: fullFeaturedTypeDecode,
+  decodeWithContext: fullFeaturedTypeDecodeWithContext,
   validateFields: fullFeaturedTypeValidateFields,
   hasShape: fullFeaturedTypeHasShape,
   is: fullFeaturedTypeIs,
@@ -8173,21 +8173,21 @@ export interface TypeA {
     fieldA: string;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function typeADeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: TypeA } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function typeADecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeA } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = typeADeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = typeADecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "TypeA.deserialize: root cannot be a forward reference"
+		message: "TypeA.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -8210,7 +8210,7 @@ export interface TypeA {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -8227,14 +8227,14 @@ export interface TypeA {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function typeADeserializeWithContext(value: any, ctx: __mf_DeserializeContext): TypeA | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function typeADecodeWithContext(value: any, ctx: __mf_DecodeContext): TypeA | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "TypeA.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "TypeA.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -9137,13 +9137,13 @@ export interface TypeA {
                 if (!typeAHasShape(obj)) {
                     return false;
                 }
-                const result = typeADeserialize(obj);
+                const result = typeADecode(obj);
                 return result.success;
             }
 
 export const TypeA = {
-  deserialize: typeADeserialize,
-  deserializeWithContext: typeADeserializeWithContext,
+  decode: typeADecode,
+  decodeWithContext: typeADecodeWithContext,
   validateFields: typeAValidateFields,
   hasShape: typeAHasShape,
   is: typeAIs
@@ -9154,21 +9154,21 @@ export interface TypeB {
     fieldB: number;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function typeBDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: TypeB } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function typeBDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TypeB } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = typeBDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = typeBDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "TypeB.deserialize: root cannot be a forward reference"
+		message: "TypeB.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -9191,7 +9191,7 @@ export interface TypeB {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -9208,14 +9208,14 @@ export interface TypeB {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function typeBDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): TypeB | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function typeBDecodeWithContext(value: any, ctx: __mf_DecodeContext): TypeB | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "TypeB.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "TypeB.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -10118,13 +10118,13 @@ export interface TypeB {
                 if (!typeBHasShape(obj)) {
                     return false;
                 }
-                const result = typeBDeserialize(obj);
+                const result = typeBDecode(obj);
                 return result.success;
             }
 
 export const TypeB = {
-  deserialize: typeBDeserialize,
-  deserializeWithContext: typeBDeserializeWithContext,
+  decode: typeBDecode,
+  decodeWithContext: typeBDecodeWithContext,
   validateFields: typeBValidateFields,
   hasShape: typeBHasShape,
   is: typeBIs
@@ -10172,41 +10172,41 @@ export function verifyImports(): void {
 
 ## Mapping
 
-original 0..750 -> expanded 0..750
-original 777..872 -> expanded 750..845
-original 872..936 -> expanded 7502..7566
-original 962..1038 -> expanded 7566..7642
-original 1038..1093 -> expanded 8207..8262
-original 1132..1224 -> expanded 8262..8354
-original 1224..1294 -> expanded 15574..15644
-original 1321..1368 -> expanded 15644..15691
-original 1368..1370 -> expanded 20928..20930
-original 1397..1444 -> expanded 20930..20977
-original 1444..1446 -> expanded 26214..26216
-original 1472..1519 -> expanded 26216..26263
-original 1519..2165 -> expanded 26671..27317
-generated 845..7214 <- Deserialize
-generated 7214..7502 <- __convenience_const
-generated 7642..8115 <- PartialOrd
-generated 8115..8207 <- __convenience_const
-generated 8354..14669 <- Deserialize
-generated 14669..15254 <- PartialOrd
-generated 15254..15574 <- __convenience_const
-generated 15691..20724 <- Deserialize
-generated 20724..20928 <- __convenience_const
-generated 20977..26010 <- Deserialize
-generated 26010..26214 <- __convenience_const
-generated 26263..26597 <- PartialOrd
-generated 26597..26671 <- __convenience_const
+original 0..745 -> expanded 0..745
+original 767..857 -> expanded 745..835
+original 857..921 -> expanded 7258..7322
+original 947..1023 -> expanded 7322..7398
+original 1023..1073 -> expanded 7963..8013
+original 1107..1199 -> expanded 8013..8105
+original 1199..1269 -> expanded 15211..15281
+original 1291..1338 -> expanded 15281..15328
+original 1338..1340 -> expanded 20451..20453
+original 1362..1409 -> expanded 20453..20500
+original 1409..1411 -> expanded 25623..25625
+original 1437..1484 -> expanded 25625..25672
+original 1484..2130 -> expanded 26080..26726
+generated 835..7020 <- Decode
+generated 7020..7258 <- __convenience_const
+generated 7398..7871 <- PartialOrd
+generated 7871..7963 <- __convenience_const
+generated 8105..14326 <- Decode
+generated 14326..14911 <- PartialOrd
+generated 14911..15211 <- __convenience_const
+generated 15328..20267 <- Decode
+generated 20267..20451 <- __convenience_const
+generated 20500..25439 <- Decode
+generated 25439..25623 <- __convenience_const
+generated 25672..26006 <- PartialOrd
+generated 26006..26080 <- __convenience_const
 
 ## Metadata
 
-interface UserWithDeserialize: {"body_span":{"end":873,"start":816},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":778,"start":751}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":835,"start":822},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":852,"start":840},"ts_type":"number"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":871,"start":857},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UserWithDeserialize","span":{"end":873,"start":786},"type_params":[]}
-interface ComparableItem: {"body_span":{"end":1039,"start":996},"decorators":[{"args_src":"PartialOrd","name":"Derive","span":{"end":963,"start":937}}],"fields":[{"decorators":[],"name":"priority","optional":false,"readonly":false,"span":{"end":1019,"start":1002},"ts_type":"number"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1037,"start":1024},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ComparableItem","span":{"end":1039,"start":971},"type_params":[]}
-interface FullFeaturedType: {"body_span":{"end":1225,"start":1168},"decorators":[{"args_src":"Deserialize, PartialOrd","name":"Derive","span":{"end":1133,"start":1094}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1185,"start":1174},"ts_type":"number"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1204,"start":1190},"ts_type":"string"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":1223,"start":1209},"ts_type":"number"}],"heritage":[],"methods":[],"name":"FullFeaturedType","span":{"end":1225,"start":1141},"type_params":[]}
-interface TypeA: {"body_span":{"end":1369,"start":1346},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":1322,"start":1295}}],"fields":[{"decorators":[],"name":"fieldA","optional":false,"readonly":false,"span":{"end":1367,"start":1352},"ts_type":"string"}],"heritage":[],"methods":[],"name":"TypeA","span":{"end":1369,"start":1330},"type_params":[]}
-interface TypeB: {"body_span":{"end":1445,"start":1422},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":1398,"start":1371}}],"fields":[{"decorators":[],"name":"fieldB","optional":false,"readonly":false,"span":{"end":1443,"start":1428},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeB","span":{"end":1445,"start":1406},"type_params":[]}
-interface TypeC: {"body_span":{"end":1520,"start":1497},"decorators":[{"args_src":"PartialOrd","name":"Derive","span":{"end":1473,"start":1447}}],"fields":[{"decorators":[],"name":"fieldC","optional":false,"readonly":false,"span":{"end":1518,"start":1503},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeC","span":{"end":1520,"start":1481},"type_params":[]}
+interface UserWithDecode: {"body_span":{"end":858,"start":801},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":768,"start":746}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":820,"start":807},"ts_type":"string"},{"decorators":[],"name":"age","optional":false,"readonly":false,"span":{"end":837,"start":825},"ts_type":"number"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":856,"start":842},"ts_type":"string"}],"heritage":[],"methods":[],"name":"UserWithDecode","span":{"end":858,"start":776},"type_params":[]}
+interface ComparableItem: {"body_span":{"end":1024,"start":981},"decorators":[{"args_src":"PartialOrd","name":"Derive","span":{"end":948,"start":922}}],"fields":[{"decorators":[],"name":"priority","optional":false,"readonly":false,"span":{"end":1004,"start":987},"ts_type":"number"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":1022,"start":1009},"ts_type":"string"}],"heritage":[],"methods":[],"name":"ComparableItem","span":{"end":1024,"start":956},"type_params":[]}
+interface FullFeaturedType: {"body_span":{"end":1200,"start":1143},"decorators":[{"args_src":"Decode, PartialOrd","name":"Derive","span":{"end":1108,"start":1074}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":1160,"start":1149},"ts_type":"number"},{"decorators":[],"name":"value","optional":false,"readonly":false,"span":{"end":1179,"start":1165},"ts_type":"string"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":1198,"start":1184},"ts_type":"number"}],"heritage":[],"methods":[],"name":"FullFeaturedType","span":{"end":1200,"start":1116},"type_params":[]}
+interface TypeA: {"body_span":{"end":1339,"start":1316},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1292,"start":1270}}],"fields":[{"decorators":[],"name":"fieldA","optional":false,"readonly":false,"span":{"end":1337,"start":1322},"ts_type":"string"}],"heritage":[],"methods":[],"name":"TypeA","span":{"end":1339,"start":1300},"type_params":[]}
+interface TypeB: {"body_span":{"end":1410,"start":1387},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":1363,"start":1341}}],"fields":[{"decorators":[],"name":"fieldB","optional":false,"readonly":false,"span":{"end":1408,"start":1393},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeB","span":{"end":1410,"start":1371},"type_params":[]}
+interface TypeC: {"body_span":{"end":1485,"start":1462},"decorators":[{"args_src":"PartialOrd","name":"Derive","span":{"end":1438,"start":1412}}],"fields":[{"decorators":[],"name":"fieldC","optional":false,"readonly":false,"span":{"end":1483,"start":1468},"ts_type":"number"}],"heritage":[],"methods":[],"name":"TypeC","span":{"end":1485,"start":1446},"type_params":[]}
 
 ## Registry reads
 

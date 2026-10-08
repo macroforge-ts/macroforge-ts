@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/runtime-deser-test.ts
-sha256 73b66a7cec6872048f2520859d53def64d306aa9ad0cea40394166cdb290df01
+sha256 a62ce3653926a00802b5e0b20591604ba0d991d38eeb03fca6fd07b02c751573
 
 ## Changed
 
@@ -12,32 +12,32 @@ true
 
 ## Output
 
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
-/** @derive(Deserialize) */
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
+/** @derive(Decode) */
 export interface Inner {
     name: string;
     createdAt: Date;
     score: number;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function innerDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = innerDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = innerDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Inner.deserialize: root cannot be a forward reference"
+		message: "Inner.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -60,7 +60,7 @@ export interface Inner {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -77,14 +77,14 @@ export interface Inner {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function innerDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Inner | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function innerDecodeWithContext(value: any, ctx: __mf_DecodeContext): Inner | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Inner.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Inner.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1514,38 +1514,38 @@ export interface Inner {
                 if (!innerHasShape(obj)) {
                     return false;
                 }
-                const result = innerDeserialize(obj);
+                const result = innerDecode(obj);
                 return result.success;
             }
 
 export const Inner = {
-  deserialize: innerDeserialize,
-  deserializeWithContext: innerDeserializeWithContext,
+  decode: innerDecode,
+  decodeWithContext: innerDecodeWithContext,
   validateFields: innerValidateFields,
   hasShape: innerHasShape,
   is: innerIs
 } as const;
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export interface Container {
     items: Inner[];
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function containerDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function containerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = containerDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = containerDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Container.deserialize: root cannot be a forward reference"
+		message: "Container.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1568,7 +1568,7 @@ export interface Container {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1585,14 +1585,14 @@ export interface Container {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function containerDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Container | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function containerDecodeWithContext(value: any, ctx: __mf_DecodeContext): Container | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Container.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Container.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1630,7 +1630,7 @@ export interface Container {
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = innerDeserialize(item);
+                                                            const __elemResult = innerDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -2584,20 +2584,20 @@ export interface Container {
                 if (!containerHasShape(obj)) {
                     return false;
                 }
-                const result = containerDeserialize(obj);
+                const result = containerDecode(obj);
                 return result.success;
             }
 
 export const Container = {
-  deserialize: containerDeserialize,
-  deserializeWithContext: containerDeserializeWithContext,
+  decode: containerDecode,
+  decodeWithContext: containerDecodeWithContext,
   validateFields: containerValidateFields,
   hasShape: containerHasShape,
   is: containerIs
 } as const;
 
 export function testNormal() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 }
         ]
@@ -2605,7 +2605,7 @@ export function testNormal() {
 }
 
 export function testMissingFields() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Bob' } // missing createdAt and score
         ]
@@ -2613,13 +2613,13 @@ export function testMissingFields() {
 }
 
 export function testNullElement() {
-    return Container.deserialize({
+    return Container.decode({
         items: [null]
     });
 }
 
 export function testMixedElements() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
             { name: 'Bob' } // missing fields
@@ -2627,7 +2627,7 @@ export function testMixedElements() {
     });
 }
 
-type ContainerFailure = Extract<ReturnType<typeof Container.deserialize>, { success: false }>;
+type ContainerFailure = Extract<ReturnType<typeof Container.decode>, { success: false }>;
 
 export type RecursiveDeserResult =
     | { success: false; errors: ContainerFailure['errors'] }
@@ -2640,13 +2640,13 @@ export type RecursiveDeserResult =
         secondDateISO: string | undefined;
     };
 
-/** The item's ISO date when deserialization produced a real `Date`. */
+/** The item's ISO date when decoding produced a real `Date`. */
 function isoDate(item: Inner | undefined): string | undefined {
     return item?.createdAt instanceof Date ? item.createdAt.toISOString() : undefined;
 }
 
 export function testRecursiveActual(): RecursiveDeserResult {
-    const result = Container.deserialize({
+    const result = Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
             { name: 'Bob', createdAt: '2024-06-20T14:00:00Z', score: 87 }
@@ -2666,28 +2666,28 @@ export function testRecursiveActual(): RecursiveDeserResult {
 
 ## DTS
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export interface Inner {
     name: string;
     createdAt: Date;
     score: number;
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function innerDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function innerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Inner } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = innerDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = innerDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Inner.deserialize: root cannot be a forward reference"
+		message: "Inner.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2710,7 +2710,7 @@ export interface Inner {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2727,14 +2727,14 @@ export interface Inner {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function innerDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Inner | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function innerDecodeWithContext(value: any, ctx: __mf_DecodeContext): Inner | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Inner.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Inner.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -4164,38 +4164,38 @@ export interface Inner {
                 if (!innerHasShape(obj)) {
                     return false;
                 }
-                const result = innerDeserialize(obj);
+                const result = innerDecode(obj);
                 return result.success;
             }
 
 export const Inner = {
-  deserialize: innerDeserialize,
-  deserializeWithContext: innerDeserializeWithContext,
+  decode: innerDecode,
+  decodeWithContext: innerDecodeWithContext,
   validateFields: innerValidateFields,
   hasShape: innerHasShape,
   is: innerIs
 } as const;
 
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 export interface Container {
     items: Inner[];
 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function containerDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function containerDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Container } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = containerDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = containerDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Container.deserialize: root cannot be a forward reference"
+		message: "Container.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -4218,7 +4218,7 @@ export interface Container {
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -4235,14 +4235,14 @@ export interface Container {
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function containerDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Container | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function containerDecodeWithContext(value: any, ctx: __mf_DecodeContext): Container | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Container.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Container.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -4280,7 +4280,7 @@ export interface Container {
                                                                 }
                                                                 return result;
                                                             }
-                                                            const __elemResult = innerDeserialize(item);
+                                                            const __elemResult = innerDecode(item);
                                                             if (!__elemResult.success) {
                                                                 for (const __err of __elemResult.errors) {
                                                                     errors.push({
@@ -5234,20 +5234,20 @@ export interface Container {
                 if (!containerHasShape(obj)) {
                     return false;
                 }
-                const result = containerDeserialize(obj);
+                const result = containerDecode(obj);
                 return result.success;
             }
 
 export const Container = {
-  deserialize: containerDeserialize,
-  deserializeWithContext: containerDeserializeWithContext,
+  decode: containerDecode,
+  decodeWithContext: containerDecodeWithContext,
   validateFields: containerValidateFields,
   hasShape: containerHasShape,
   is: containerIs
 } as const;
 
 export function testNormal() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 }
         ]
@@ -5255,7 +5255,7 @@ export function testNormal() {
 }
 
 export function testMissingFields() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Bob' } // missing createdAt and score
         ]
@@ -5263,13 +5263,13 @@ export function testMissingFields() {
 }
 
 export function testNullElement() {
-    return Container.deserialize({
+    return Container.decode({
         items: [null]
     });
 }
 
 export function testMixedElements() {
-    return Container.deserialize({
+    return Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
             { name: 'Bob' } // missing fields
@@ -5277,7 +5277,7 @@ export function testMixedElements() {
     });
 }
 
-type ContainerFailure = Extract<ReturnType<typeof Container.deserialize>, { success: false }>;
+type ContainerFailure = Extract<ReturnType<typeof Container.decode>, { success: false }>;
 
 export type RecursiveDeserResult =
     | { success: false; errors: ContainerFailure['errors'] }
@@ -5290,13 +5290,13 @@ export type RecursiveDeserResult =
         secondDateISO: string | undefined;
     };
 
-/** The item's ISO date when deserialization produced a real `Date`. */
+/** The item's ISO date when decoding produced a real `Date`. */
 function isoDate(item: Inner | undefined): string | undefined {
     return item?.createdAt instanceof Date ? item.createdAt.toISOString() : undefined;
 }
 
 export function testRecursiveActual(): RecursiveDeserResult {
-    const result = Container.deserialize({
+    const result = Container.decode({
         items: [
             { name: 'Alice', createdAt: '2024-01-15T10:30:00Z', score: 95 },
             { name: 'Bob', createdAt: '2024-06-20T14:00:00Z', score: 87 }
@@ -5320,20 +5320,20 @@ export function testRecursiveActual(): RecursiveDeserResult {
 
 ## Mapping
 
-original 0..112 -> expanded 0..112
-original 112..192 -> expanded 6717..6797
-original 192..2206 -> expanded 14728..16742
-generated 112..6513 <- Deserialize
-generated 6513..6717 <- __convenience_const
-generated 6797..14500 <- Deserialize
-generated 14500..14728 <- __convenience_const
+original 0..107 -> expanded 0..107
+original 107..182 -> expanded 6598..6673
+original 182..2159 -> expanded 14485..16462
+generated 107..6414 <- Decode
+generated 6414..6598 <- __convenience_const
+generated 6673..14277 <- Decode
+generated 14277..14485 <- __convenience_const
 
 ## Metadata
 
-interface Inner: {"body_span":{"end":113,"start":52},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":28,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":71,"start":58},"ts_type":"string"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":92,"start":76},"ts_type":"Date"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":111,"start":97},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Inner","span":{"end":113,"start":36},"type_params":[]}
-interface Container: {"body_span":{"end":193,"start":170},"decorators":[{"args_src":"Deserialize","name":"Derive","span":{"end":142,"start":115}}],"fields":[{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":191,"start":176},"ts_type":"Inner[]"}],"heritage":[],"methods":[],"name":"Container","span":{"end":193,"start":150},"type_params":[]}
-type ContainerFailure: {"body":{"Other":"Extract<ReturnType<typeof Container.deserialize>, { success: false }>"},"decorators":[],"name":"ContainerFailure","span":{"end":977,"start":883},"type_params":[]}
-type RecursiveDeserResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1037,"start":1022},"ts_type":"false"},{"decorators":[],"name":"errors","optional":false,"readonly":false,"span":{"end":1072,"start":1038},"ts_type":"ContainerFailure['errors']"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1105,"start":1091},"ts_type":"true"},{"decorators":[],"name":"itemCount","optional":false,"readonly":false,"span":{"end":1132,"start":1114},"ts_type":"number"},{"decorators":[],"name":"firstIsDate","optional":false,"readonly":false,"span":{"end":1162,"start":1141},"ts_type":"boolean"},{"decorators":[],"name":"firstDateISO","optional":false,"readonly":false,"span":{"end":1204,"start":1171},"ts_type":"string | undefined"},{"decorators":[],"name":"secondIsDate","optional":false,"readonly":false,"span":{"end":1235,"start":1213},"ts_type":"boolean"},{"decorators":[],"name":"secondDateISO","optional":false,"readonly":false,"span":{"end":1278,"start":1244},"ts_type":"string | undefined"}]}}}]},"decorators":[],"name":"RecursiveDeserResult","span":{"end":1285,"start":986},"type_params":[]}
+interface Inner: {"body_span":{"end":108,"start":47},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":23,"start":1}}],"fields":[{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":66,"start":53},"ts_type":"string"},{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":87,"start":71},"ts_type":"Date"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":106,"start":92},"ts_type":"number"}],"heritage":[],"methods":[],"name":"Inner","span":{"end":108,"start":31},"type_params":[]}
+interface Container: {"body_span":{"end":183,"start":160},"decorators":[{"args_src":"Decode","name":"Derive","span":{"end":132,"start":110}}],"fields":[{"decorators":[],"name":"items","optional":false,"readonly":false,"span":{"end":181,"start":166},"ts_type":"Inner[]"}],"heritage":[],"methods":[],"name":"Container","span":{"end":183,"start":140},"type_params":[]}
+type ContainerFailure: {"body":{"Other":"Extract<ReturnType<typeof Container.decode>, { success: false }>"},"decorators":[],"name":"ContainerFailure","span":{"end":942,"start":853},"type_params":[]}
+type RecursiveDeserResult: {"body":{"Union":[{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1002,"start":987},"ts_type":"false"},{"decorators":[],"name":"errors","optional":false,"readonly":false,"span":{"end":1037,"start":1003},"ts_type":"ContainerFailure['errors']"}]}}},{"decorators":[],"kind":{"Object":{"fields":[{"decorators":[],"name":"success","optional":false,"readonly":false,"span":{"end":1070,"start":1056},"ts_type":"true"},{"decorators":[],"name":"itemCount","optional":false,"readonly":false,"span":{"end":1097,"start":1079},"ts_type":"number"},{"decorators":[],"name":"firstIsDate","optional":false,"readonly":false,"span":{"end":1127,"start":1106},"ts_type":"boolean"},{"decorators":[],"name":"firstDateISO","optional":false,"readonly":false,"span":{"end":1169,"start":1136},"ts_type":"string | undefined"},{"decorators":[],"name":"secondIsDate","optional":false,"readonly":false,"span":{"end":1200,"start":1178},"ts_type":"boolean"},{"decorators":[],"name":"secondDateISO","optional":false,"readonly":false,"span":{"end":1243,"start":1209},"ts_type":"string | undefined"}]}}}]},"decorators":[],"name":"RecursiveDeserResult","span":{"end":1250,"start":951},"type_params":[]}
 
 ## Registry reads
 

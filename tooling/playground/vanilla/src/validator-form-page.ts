@@ -153,7 +153,7 @@ export function initValidatorFormPage() {
     </style>
 
     <h1>Validator Form Testing</h1>
-    <p>Test deserializer validators with real form data.</p>
+    <p>Test decoder validators with real form data.</p>
 
     <!-- User Registration Form -->
     <div class="form-section">
@@ -301,7 +301,7 @@ export function initValidatorFormPage() {
     wireForm(
         'event-form',
         'event-result',
-        // Dates go in as typed: deserialization parses them, and `validDate`
+        // Dates go in as typed: decoding parses them, and `validDate`
         // reports text that is not a date.
         (form) =>
             validateEvent({

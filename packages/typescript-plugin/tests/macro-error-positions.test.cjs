@@ -245,15 +245,15 @@ class InvalidClass {
     );
 });
 
-test('invalid @serde(validate) surfaces as a macro diagnostic near the decorator', () => {
+test('invalid @endec(validate) surfaces as a macro diagnostic near the decorator', () => {
     const source = `
-/** @derive(Deserialize) */
+/** @derive(Decode) */
 interface User {
-  /** @serde({ validate: ["doesNotExist"] }) */
+  /** @endec({ validate: ["doesNotExist"] }) */
   name: string;
 }`;
 
-    const serdeCommentStart = findMarker(source, '/** @serde');
+    const endecCommentStart = findMarker(source, '/** @endec');
 
     const env = createEnv({
         '/virtual/test.ts': source,
@@ -276,8 +276,8 @@ interface User {
     assert.strictEqual(diag.category, ts.DiagnosticCategory.Error);
     assert.strictEqual(
         diag.start,
-        serdeCommentStart.offset,
-        `diagnostic should start at @serde comment (${serdeCommentStart.offset}), got ${diag.start}`
+        endecCommentStart.offset,
+        `diagnostic should start at @endec comment (${endecCommentStart.offset}), got ${diag.start}`
     );
 });
 

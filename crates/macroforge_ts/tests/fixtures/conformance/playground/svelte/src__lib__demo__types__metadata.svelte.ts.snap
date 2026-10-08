@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/metadata.svelte.ts
-sha256 4f4b0bf880aa4f749d621bebe4d1525b1234e24d0128e800d278ca2ea51cc7a0
+sha256 06b2d363e3ab2d947894b7f334f5b7e0bc1835da19e5672dc337f58a10cede7d
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -41,16 +41,16 @@ roles: [],
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function metadataSerialize(value: Metadata, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = metadataSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function metadataEncode(value: Metadata, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = metadataEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function metadataSerializeWithContext(value: Metadata, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function metadataEncodeWithContext(value: Metadata, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -162,21 +162,21 @@ roles: [],
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function metadataDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Metadata } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function metadataDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Metadata } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = metadataDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = metadataDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Metadata.deserialize: root cannot be a forward reference"
+		message: "Metadata.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -199,7 +199,7 @@ roles: [],
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -216,14 +216,14 @@ roles: [],
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function metadataDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Metadata | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function metadataDecodeWithContext(value: any, ctx: __mf_DecodeContext): Metadata | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Metadata.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Metadata.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1967,7 +1967,7 @@ roles: [],
                 if (!metadataHasShape(obj)) {
                     return false;
                 }
-                const result = metadataDeserialize(obj);
+                const result = metadataDecode(obj);
                 return result.success;
             }
 
@@ -2145,7 +2145,7 @@ roles: [],
 
 
             function validate(): Exit.Exit<Metadata, Array<{ field: string; message: string }>> {
-                return toExit(metadataDeserialize(data));
+                return toExit(metadataDecode(data));
             }
 
 
@@ -2182,7 +2182,7 @@ roles: [],
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function metadataFromFormData(formData: FormData): Exit.Exit<Metadata, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2196,15 +2196,15 @@ roles: [],
             obj.roles = formData.getAll("roles") as Array<string>;
 
 
-            return toExit(metadataDeserialize(obj));
+            return toExit(metadataDecode(obj));
         }
 
 export const Metadata = {
   defaultValue: metadataDefaultValue,
-  serialize: metadataSerialize,
-  serializeWithContext: metadataSerializeWithContext,
-  deserialize: metadataDeserialize,
-  deserializeWithContext: metadataDeserializeWithContext,
+  encode: metadataEncode,
+  encodeWithContext: metadataEncodeWithContext,
+  decode: metadataDecode,
+  decodeWithContext: metadataDecodeWithContext,
   validateFields: metadataValidateFields,
   hasShape: metadataHasShape,
   is: metadataIs,
@@ -2233,16 +2233,16 @@ roles: [],
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function metadataSerialize(value: Metadata, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = metadataSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function metadataEncode(value: Metadata, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = metadataEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function metadataSerializeWithContext(value: Metadata, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function metadataEncodeWithContext(value: Metadata, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2354,21 +2354,21 @@ roles: [],
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function metadataDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Metadata } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function metadataDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Metadata } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = metadataDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = metadataDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Metadata.deserialize: root cannot be a forward reference"
+		message: "Metadata.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2391,7 +2391,7 @@ roles: [],
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2408,14 +2408,14 @@ roles: [],
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function metadataDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Metadata | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function metadataDecodeWithContext(value: any, ctx: __mf_DecodeContext): Metadata | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Metadata.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Metadata.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -4159,7 +4159,7 @@ roles: [],
                 if (!metadataHasShape(obj)) {
                     return false;
                 }
-                const result = metadataDeserialize(obj);
+                const result = metadataDecode(obj);
                 return result.success;
             }
 
@@ -4337,7 +4337,7 @@ roles: [],
 
 
             function validate(): Exit.Exit<Metadata, Array<{ field: string; message: string }>> {
-                return toExit(metadataDeserialize(data));
+                return toExit(metadataDecode(data));
             }
 
 
@@ -4374,7 +4374,7 @@ roles: [],
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function metadataFromFormData(formData: FormData): Exit.Exit<Metadata, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4388,15 +4388,15 @@ roles: [],
             obj.roles = formData.getAll("roles") as Array<string>;
 
 
-            return toExit(metadataDeserialize(obj));
+            return toExit(metadataDecode(obj));
         }
 
 export const Metadata = {
   defaultValue: metadataDefaultValue,
-  serialize: metadataSerialize,
-  serializeWithContext: metadataSerializeWithContext,
-  deserialize: metadataDeserialize,
-  deserializeWithContext: metadataDeserializeWithContext,
+  encode: metadataEncode,
+  encodeWithContext: metadataEncodeWithContext,
+  decode: metadataDecode,
+  decodeWithContext: metadataDecodeWithContext,
   validateFields: metadataValidateFields,
   hasShape: metadataHasShape,
   is: metadataIs,
@@ -4411,17 +4411,17 @@ export const Metadata = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..247 -> expanded 58..190
-original 247..248 -> expanded 17856..17857
+original 107..239 -> expanded 58..190
+original 239..240 -> expanded 17678..17679
 generated 190..360 <- Default
-generated 360..1989 <- Serialize
-generated 1989..9018 <- Deserialize
-generated 9018..17438 <- Gigaform
-generated 17438..17856 <- __convenience_const
+generated 360..1957 <- Encode
+generated 1957..8892 <- Decode
+generated 8892..17292 <- Gigaform
+generated 17292..17678 <- __convenience_const
 
 ## Metadata
 
-interface Metadata: {"body_span":{"end":248,"start":143},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":167,"start":149},"ts_type":"string"},{"decorators":[],"name":"lastLogin","optional":false,"readonly":false,"span":{"end":197,"start":172},"ts_type":"string | null"},{"decorators":[],"name":"isActive","optional":false,"readonly":false,"span":{"end":220,"start":202},"ts_type":"boolean"},{"decorators":[],"name":"roles","optional":false,"readonly":false,"span":{"end":246,"start":225},"ts_type":"Array<string>"}],"heritage":[],"methods":[],"name":"Metadata","span":{"end":248,"start":124},"type_params":[]}
+interface Metadata: {"body_span":{"end":240,"start":135},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[],"name":"createdAt","optional":false,"readonly":false,"span":{"end":159,"start":141},"ts_type":"string"},{"decorators":[],"name":"lastLogin","optional":false,"readonly":false,"span":{"end":189,"start":164},"ts_type":"string | null"},{"decorators":[],"name":"isActive","optional":false,"readonly":false,"span":{"end":212,"start":194},"ts_type":"boolean"},{"decorators":[],"name":"roles","optional":false,"readonly":false,"span":{"end":238,"start":217},"ts_type":"Array<string>"}],"heritage":[],"methods":[],"name":"Metadata","span":{"end":240,"start":116},"type_params":[]}
 
 ## Registry reads
 

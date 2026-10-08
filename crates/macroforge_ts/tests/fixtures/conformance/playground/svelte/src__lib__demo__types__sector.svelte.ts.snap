@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/sector.svelte.ts
-sha256 1b3bc473d651eb60d3173ee8853cf42cf50e222d98a496c19b4ad5c7e128bad1
+sha256 7886b817de00ff6dfe496e1ada3d658e0eafca4ec93634e3cbcac9d4eddcc750
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -30,20 +30,20 @@ export function sectorDefaultValue(): Sector {
                             return "Residential";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function sectorSerialize(value: Sector, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = sectorSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function sectorEncode(value: Sector, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = sectorEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function sectorSerializeWithContext(value: Sector, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function sectorEncodeWithContext(value: Sector, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -110,8 +110,8 @@ export function sectorDefaultValue(): Sector {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function sectorDeserialize(input: unknown): { success: true; value: Sector } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function sectorDecode(input: unknown): { success: true; value: Sector } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Residential':
                     case 'Commercial':
@@ -123,8 +123,8 @@ export function sectorDefaultValue(): Sector {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function sectorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Sector | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function sectorDecodeWithContext(value: any, ctx: __mf_DecodeContext): Sector | __mf_PendingRef {
                 switch (value) {
                     case 'Residential':
                     case 'Commercial':
@@ -132,7 +132,7 @@ export function sectorDefaultValue(): Sector {
 
                         return value as Sector;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Sector: expected one of " + ['Residential', 'Commercial'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -272,7 +272,7 @@ if (variant === "Commercial") { return "Commercial" as Sector; }
 
 
             function validate(): Exit.Exit<Sector, Array<{ field: string; message: string }>> {
-                return toExit(sectorDeserialize(data));
+                return toExit(sectorDecode(data));
             }
 
 
@@ -321,15 +321,15 @@ if (variant === "Commercial") { return "Commercial" as Sector; }
                 }
 
 
-            return toExit(sectorDeserialize(obj));
+            return toExit(sectorDecode(obj));
         }
 
 export const Sector = {
   defaultValue: sectorDefaultValue,
-  serialize: sectorSerialize,
-  serializeWithContext: sectorSerializeWithContext,
-  deserialize: sectorDeserialize,
-  deserializeWithContext: sectorDeserializeWithContext,
+  encode: sectorEncode,
+  encodeWithContext: sectorEncodeWithContext,
+  decode: sectorDecode,
+  decodeWithContext: sectorDecodeWithContext,
   hasShape: sectorHasShape,
   is: sectorIs,
   createForm: sectorCreateForm,
@@ -347,20 +347,20 @@ export function sectorDefaultValue(): Sector {
                             return "Residential";
                         }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                        export function sectorSerialize(value: Sector, keepMetadata?: boolean): string {
-                            const ctx = __mf_SerializeContext.create();
-                            const __raw = sectorSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                        export function sectorEncode(value: Sector, keepMetadata?: boolean): string {
+                            const ctx = __mf_EncodeContext.create();
+                            const __raw = sectorEncodeWithContext(value, ctx);
                             if (keepMetadata) return JSON.stringify(__raw);
                             return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                         }
 
-                        /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                        export function sectorSerializeWithContext(value: Sector, ctx: __mf_SerializeContext): unknown {
+                        /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                        export function sectorEncodeWithContext(value: Sector, ctx: __mf_EncodeContext): unknown {
                             let __variant: unknown;
                             let __matched = false;
-                            if (typeof (value as any)?.serializeWithContext === "function") {
-                                __variant = (value as any).serializeWithContext(ctx);
+                            if (typeof (value as any)?.encodeWithContext === "function") {
+                                __variant = (value as any).encodeWithContext(ctx);
                                 __matched = true;
                             }
 
@@ -427,8 +427,8 @@ export function sectorDefaultValue(): Sector {
 
                         }
 
-/** Deserializes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
-            export function sectorDeserialize(input: unknown): { success: true; value: Sector } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes a literal union value. Validates input against known variants. @param input - Value to validate @returns Result containing the validated value or error  */
+            export function sectorDecode(input: unknown): { success: true; value: Sector } | { success: false; errors: Array<{ field: string; message: string }> } {
                 switch (input) {
                     case 'Residential':
                     case 'Commercial':
@@ -440,8 +440,8 @@ export function sectorDefaultValue(): Sector {
                 }
             }
 
-            /** Deserializes with an existing context (validates against known variants).  */
-            export function sectorDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Sector | __mf_PendingRef {
+            /** Decodes with an existing context (validates against known variants).  */
+            export function sectorDecodeWithContext(value: any, ctx: __mf_DecodeContext): Sector | __mf_PendingRef {
                 switch (value) {
                     case 'Residential':
                     case 'Commercial':
@@ -449,7 +449,7 @@ export function sectorDefaultValue(): Sector {
 
                         return value as Sector;
                     default:
-                        throw new __mf_DeserializeError([{
+                        throw new __mf_DecodeError([{
                             field: "_root",
                             message: "Invalid value for Sector: expected one of " + ['Residential', 'Commercial'].map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                         }]);
@@ -589,7 +589,7 @@ if (variant === "Commercial") { return "Commercial" as Sector; }
 
 
             function validate(): Exit.Exit<Sector, Array<{ field: string; message: string }>> {
-                return toExit(sectorDeserialize(data));
+                return toExit(sectorDecode(data));
             }
 
 
@@ -638,15 +638,15 @@ if (variant === "Commercial") { return "Commercial" as Sector; }
                 }
 
 
-            return toExit(sectorDeserialize(obj));
+            return toExit(sectorDecode(obj));
         }
 
 export const Sector = {
   defaultValue: sectorDefaultValue,
-  serialize: sectorSerialize,
-  serializeWithContext: sectorSerializeWithContext,
-  deserialize: sectorDeserialize,
-  deserializeWithContext: sectorDeserializeWithContext,
+  encode: sectorEncode,
+  encodeWithContext: sectorEncodeWithContext,
+  decode: sectorDecode,
+  decodeWithContext: sectorDecodeWithContext,
   hasShape: sectorHasShape,
   is: sectorIs,
   createForm: sectorCreateForm,
@@ -660,17 +660,17 @@ export const Sector = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..182 -> expanded 58..125
-original 182..183 -> expanded 9918..9919
+original 107..174 -> expanded 58..125
+original 174..175 -> expanded 9808..9809
 generated 125..249 <- Default
-generated 249..2185 <- Serialize
-generated 2185..4239 <- Deserialize
-generated 4239..9562 <- Gigaform
-generated 9562..9918 <- __convenience_const
+generated 249..2147 <- Encode
+generated 2147..4171 <- Decode
+generated 4171..9484 <- Gigaform
+generated 9484..9808 <- __convenience_const
 
 ## Metadata
 
-type Sector: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":153,"start":138}}],"kind":{"Literal":"'Residential'"}},{"decorators":[],"kind":{"Literal":"'Commercial'"}}]},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"name":"Sector","span":{"end":183,"start":124},"type_params":[]}
+type Sector: {"body":{"Union":[{"decorators":[{"args_src":"","name":"default","span":{"end":145,"start":130}}],"kind":{"Literal":"'Residential'"}},{"decorators":[],"kind":{"Literal":"'Commercial'"}}]},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"name":"Sector","span":{"end":175,"start":116},"type_params":[]}
 
 ## Registry reads
 

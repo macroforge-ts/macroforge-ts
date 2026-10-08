@@ -1,0 +1,93 @@
+---
+source: crates/macroforge_ts/tests/conformance.rs
+expression: snapshot
+input_file: crates/macroforge_ts/tests/fixtures/ok/enum_encode.ts
+---
+## Input
+
+/** @derive(Encode) */
+enum Direction {
+    North,
+    South,
+    East,
+    West
+}
+
+## Changed
+
+true
+
+## Output
+
+import type { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+
+enum Direction {
+    North,
+    South,
+    East,
+    West
+}
+
+/** Encodes this enum value to a JSON string.  */
+                export function directionEncode(value: Direction): string {
+                    return JSON.stringify(value);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function directionEncodeWithContext(value: Direction, ctx: __mf_EncodeContext): string | number;
+                export function directionEncodeWithContext(value: Direction): string | number {
+                    return value;
+                }
+
+namespace Direction {
+  export const encode = directionEncode;
+  export const encodeWithContext = directionEncodeWithContext;
+}
+
+## DTS
+
+enum Direction {
+    North,
+    South,
+    East,
+    West
+}
+
+/** Encodes this enum value to a JSON string.  */
+                export function directionEncode(value: Direction): string {
+                    return JSON.stringify(value);
+                }
+
+                /** Encodes with an existing context for nested/cyclic object graphs.  */
+                export function directionEncodeWithContext(value: Direction, ctx: __mf_EncodeContext): string | number;
+                export function directionEncodeWithContext(value: Direction): string | number {
+                    return value;
+                }
+
+namespace Direction {
+  export const encode = directionEncode;
+  export const encodeWithContext = directionEncodeWithContext;
+}
+
+## Diagnostics
+
+(none)
+
+## Mapping
+
+original 22..82 -> expanded 0..60
+original 82..83 -> expanded 743..744
+generated 60..614 <- Encode
+generated 614..743 <- __convenience_const
+
+## Metadata
+
+enum Direction: {"body_span":{"end":83,"start":39},"decorators":[{"args_src":"Encode","name":"Derive","span":{"end":23,"start":1}}],"is_const":false,"name":"Direction","span":{"end":83,"start":24},"variants":[{"decorators":[],"name":"North","span":{"end":50,"start":45},"value":{"Number":0.0}},{"decorators":[],"name":"South","span":{"end":61,"start":56},"value":{"Number":1.0}},{"decorators":[],"name":"East","span":{"end":71,"start":67},"value":{"Number":2.0}},{"decorators":[],"name":"West","span":{"end":81,"start":77},"value":{"Number":3.0}}]}
+
+## Registry reads
+
+(not recorded)
+
+## Buildtime dependencies
+
+(none)

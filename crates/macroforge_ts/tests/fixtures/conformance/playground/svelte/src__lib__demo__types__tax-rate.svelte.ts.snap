@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/tax-rate.svelte.ts
-sha256 fcbddb0a7f4e206a70e6485d0915d17f3e9615bab64eea1c4f25f2c8353213f2
+sha256 10fc027d8cdf52ae2262446ac5301b3b81f0e114ad89f0adfbd410a059648bbe
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -69,16 +69,16 @@ taxComponents: ({}),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function taxRateSerialize(value: TaxRate, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = taxRateSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function taxRateEncode(value: TaxRate, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = taxRateEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function taxRateSerializeWithContext(value: TaxRate, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function taxRateEncodeWithContext(value: TaxRate, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -190,21 +190,21 @@ taxComponents: ({}),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function taxRateDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = taxRateDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = taxRateDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "TaxRate.deserialize: root cannot be a forward reference"
+		message: "TaxRate.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -227,7 +227,7 @@ taxComponents: ({}),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -244,14 +244,14 @@ taxComponents: ({}),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): TaxRate | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function taxRateDecodeWithContext(value: any, ctx: __mf_DecodeContext): TaxRate | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "TaxRate.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "TaxRate.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3648,7 +3648,7 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
                 if (!taxRateHasShape(obj)) {
                     return false;
                 }
-                const result = taxRateDeserialize(obj);
+                const result = taxRateDecode(obj);
                 return result.success;
             }
 
@@ -3975,7 +3975,7 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
 
 
             function validate(): Exit.Exit<TaxRate, Array<{ field: string; message: string }>> {
-                return toExit(taxRateDeserialize(data));
+                return toExit(taxRateDecode(data));
             }
 
 
@@ -4024,7 +4024,7 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function taxRateFromFormData(formData: FormData): Exit.Exit<TaxRate, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4048,15 +4048,15 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
             obj.taxComponents = formData.get("taxComponents") ?? "";
 
 
-            return toExit(taxRateDeserialize(obj));
+            return toExit(taxRateDecode(obj));
         }
 
 export const TaxRate = {
   defaultValue: taxRateDefaultValue,
-  serialize: taxRateSerialize,
-  serializeWithContext: taxRateSerializeWithContext,
-  deserialize: taxRateDeserialize,
-  deserializeWithContext: taxRateDeserializeWithContext,
+  encode: taxRateEncode,
+  encodeWithContext: taxRateEncodeWithContext,
+  decode: taxRateDecode,
+  decodeWithContext: taxRateDecodeWithContext,
   validateFields: taxRateValidateFields,
   hasShape: taxRateHasShape,
   is: taxRateIs,
@@ -4114,16 +4114,16 @@ taxComponents: ({}),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function taxRateSerialize(value: TaxRate, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = taxRateSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function taxRateEncode(value: TaxRate, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = taxRateEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function taxRateSerializeWithContext(value: TaxRate, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function taxRateEncodeWithContext(value: TaxRate, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -4235,21 +4235,21 @@ taxComponents: ({}),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function taxRateDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function taxRateDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: TaxRate } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = taxRateDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = taxRateDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "TaxRate.deserialize: root cannot be a forward reference"
+		message: "TaxRate.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -4272,7 +4272,7 @@ taxComponents: ({}),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -4289,14 +4289,14 @@ taxComponents: ({}),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function taxRateDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): TaxRate | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function taxRateDecodeWithContext(value: any, ctx: __mf_DecodeContext): TaxRate | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "TaxRate.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "TaxRate.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -7693,7 +7693,7 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
                 if (!taxRateHasShape(obj)) {
                     return false;
                 }
-                const result = taxRateDeserialize(obj);
+                const result = taxRateDecode(obj);
                 return result.success;
             }
 
@@ -8020,7 +8020,7 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
 
 
             function validate(): Exit.Exit<TaxRate, Array<{ field: string; message: string }>> {
-                return toExit(taxRateDeserialize(data));
+                return toExit(taxRateDecode(data));
             }
 
 
@@ -8069,7 +8069,7 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function taxRateFromFormData(formData: FormData): Exit.Exit<TaxRate, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -8093,15 +8093,15 @@ if (__val.length === 0) { errors.push({ field: "description", message: "TaxRate.
             obj.taxComponents = formData.get("taxComponents") ?? "";
 
 
-            return toExit(taxRateDeserialize(obj));
+            return toExit(taxRateDecode(obj));
         }
 
 export const TaxRate = {
   defaultValue: taxRateDefaultValue,
-  serialize: taxRateSerialize,
-  serializeWithContext: taxRateSerializeWithContext,
-  deserialize: taxRateDeserialize,
-  deserializeWithContext: taxRateDeserializeWithContext,
+  encode: taxRateEncode,
+  encodeWithContext: taxRateEncodeWithContext,
+  decode: taxRateDecode,
+  decodeWithContext: taxRateDecodeWithContext,
   validateFields: taxRateValidateFields,
   hasShape: taxRateHasShape,
   is: taxRateIs,
@@ -8116,34 +8116,34 @@ export const TaxRate = {
 ## Mapping
 
 original 0..58 -> expanded 0..58
-original 115..147 -> expanded 58..90
-original 175..196 -> expanded 90..111
-original 237..242 -> expanded 111..116
-original 283..306 -> expanded 116..139
-original 353..358 -> expanded 139..144
-original 399..427 -> expanded 144..172
-original 477..499 -> expanded 172..194
-original 540..545 -> expanded 194..199
-original 586..609 -> expanded 199..222
-original 652..657 -> expanded 222..227
-original 698..723 -> expanded 227..252
-original 765..770 -> expanded 252..257
-original 811..835 -> expanded 257..281
-original 880..908 -> expanded 281..309
-original 960..965 -> expanded 309..314
-original 1006..1036 -> expanded 314..344
-original 1064..1069 -> expanded 344..349
-original 1088..1136 -> expanded 349..397
-original 1136..1137 -> expanded 34360..34361
+original 107..139 -> expanded 58..90
+original 167..188 -> expanded 90..111
+original 229..234 -> expanded 111..116
+original 275..298 -> expanded 116..139
+original 345..350 -> expanded 139..144
+original 391..419 -> expanded 144..172
+original 469..491 -> expanded 172..194
+original 532..537 -> expanded 194..199
+original 578..601 -> expanded 199..222
+original 644..649 -> expanded 222..227
+original 690..715 -> expanded 227..252
+original 757..762 -> expanded 252..257
+original 803..827 -> expanded 257..281
+original 872..900 -> expanded 281..309
+original 952..957 -> expanded 309..314
+original 998..1028 -> expanded 314..344
+original 1056..1061 -> expanded 344..349
+original 1080..1128 -> expanded 349..397
+original 1128..1129 -> expanded 34182..34183
 generated 397..634 <- Default
-generated 634..2427 <- Serialize
-generated 2427..18898 <- Deserialize
-generated 18898..33953 <- Gigaform
-generated 33953..34360 <- __convenience_const
+generated 634..2395 <- Encode
+generated 2395..18772 <- Decode
+generated 18772..33807 <- Gigaform
+generated 33807..34182 <- __convenience_const
 
 ## Metadata
 
-interface TaxRate: {"body_span":{"end":1137,"start":142},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":116,"start":59}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":176,"start":148}}],"name":"id","optional":false,"readonly":false,"span":{"end":192,"start":181},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":284,"start":243}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":238,"start":197}}],"name":"name","optional":false,"readonly":false,"span":{"end":302,"start":289},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":400,"start":359}},{"args_src":"{ label: \"Tax Agency\" }","name":"textController","span":{"end":354,"start":307}}],"name":"taxAgency","optional":false,"readonly":false,"span":{"end":423,"start":405},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Zip\", min: 0 }","name":"numberController","span":{"end":478,"start":428}}],"name":"zip","optional":false,"readonly":false,"span":{"end":495,"start":483},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":587,"start":546}},{"args_src":"{ label: \"City\" }","name":"textController","span":{"end":541,"start":500}}],"name":"city","optional":false,"readonly":false,"span":{"end":605,"start":592},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":699,"start":658}},{"args_src":"{ label: \"County\" }","name":"textController","span":{"end":653,"start":610}}],"name":"county","optional":false,"readonly":false,"span":{"end":719,"start":704},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":812,"start":771}},{"args_src":"{ label: \"State\" }","name":"textController","span":{"end":766,"start":724}}],"name":"state","optional":false,"readonly":false,"span":{"end":831,"start":817},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":881,"start":836}}],"name":"isActive","optional":false,"readonly":false,"span":{"end":904,"start":886},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":1007,"start":966}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":961,"start":909}}],"name":"description","optional":false,"readonly":false,"span":{"end":1032,"start":1012},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":1089,"start":1070}},{"args_src":"{}","name":"hiddenController","span":{"end":1065,"start":1037}}],"name":"taxComponents","optional":false,"readonly":false,"span":{"end":1135,"start":1094},"ts_type":"{ [key: string]: number }"}],"heritage":[],"methods":[],"name":"TaxRate","span":{"end":1137,"start":124},"type_params":[]}
+interface TaxRate: {"body_span":{"end":1129,"start":134},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":108,"start":59}}],"fields":[{"decorators":[{"args_src":"{}","name":"hiddenController","span":{"end":168,"start":140}}],"name":"id","optional":false,"readonly":false,"span":{"end":184,"start":173},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":276,"start":235}},{"args_src":"{ label: \"Name\" }","name":"textController","span":{"end":230,"start":189}}],"name":"name","optional":false,"readonly":false,"span":{"end":294,"start":281},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":392,"start":351}},{"args_src":"{ label: \"Tax Agency\" }","name":"textController","span":{"end":346,"start":299}}],"name":"taxAgency","optional":false,"readonly":false,"span":{"end":415,"start":397},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Zip\", min: 0 }","name":"numberController","span":{"end":470,"start":420}}],"name":"zip","optional":false,"readonly":false,"span":{"end":487,"start":475},"ts_type":"number"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":579,"start":538}},{"args_src":"{ label: \"City\" }","name":"textController","span":{"end":533,"start":492}}],"name":"city","optional":false,"readonly":false,"span":{"end":597,"start":584},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":691,"start":650}},{"args_src":"{ label: \"County\" }","name":"textController","span":{"end":645,"start":602}}],"name":"county","optional":false,"readonly":false,"span":{"end":711,"start":696},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":804,"start":763}},{"args_src":"{ label: \"State\" }","name":"textController","span":{"end":758,"start":716}}],"name":"state","optional":false,"readonly":false,"span":{"end":823,"start":809},"ts_type":"string"},{"decorators":[{"args_src":"{ label: \"Active\" }","name":"switchController","span":{"end":873,"start":828}}],"name":"isActive","optional":false,"readonly":false,"span":{"end":896,"start":878},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":999,"start":958}},{"args_src":"{ label: \"Description\" }","name":"textAreaController","span":{"end":953,"start":901}}],"name":"description","optional":false,"readonly":false,"span":{"end":1024,"start":1004},"ts_type":"string"},{"decorators":[{"args_src":"{}","name":"default","span":{"end":1081,"start":1062}},{"args_src":"{}","name":"hiddenController","span":{"end":1057,"start":1029}}],"name":"taxComponents","optional":false,"readonly":false,"span":{"end":1127,"start":1086},"ts_type":"{ [key: string]: number }"}],"heritage":[],"methods":[],"name":"TaxRate","span":{"end":1129,"start":116},"type_params":[]}
 
 ## Registry reads
 

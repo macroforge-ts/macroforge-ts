@@ -249,7 +249,7 @@ pub struct ExpandOptions {
     ///
     /// These are used during decorator stripping to identify Macroforge-specific
     /// decorators that should be removed from the output. Built-in decorator modules
-    /// (like "serde", "debug") are automatically included.
+    /// (like "endec", "debug") are automatically included.
     ///
     /// External macro packages should export their decorator module names, which
     /// plugins can collect and pass here.
@@ -394,10 +394,10 @@ pub struct ScanOptions {
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScanResult {
-    /// JSON-serialized [`TypeRegistry`].
+    /// JSON-encoded [`TypeRegistry`].
     /// Pass this to `expand_sync` via `ExpandOptions.type_registry_json`.
     pub registry_json: String,
-    /// JSON-serialized
+    /// JSON-encoded
     /// [`ProjectDeclarativeRegistry`](crate::host::declarative::ProjectDeclarativeRegistry)
     /// produced by the same walk as `registry_json`. Pass to `expand_sync`
     /// via `ExpandOptions.declarative_registry_json`.

@@ -1,6 +1,6 @@
 //! # Macroforge Configuration Types
 //!
-//! Serializable configuration types shared between the host process and external macro
+//! Encodable configuration types shared between the host process and external macro
 //! processes. These live in `macroforge_ts_syn` so they can be used in [`MacroContextIR`]
 //! for cross-process transfer.
 //!
@@ -33,7 +33,7 @@ pub struct ImportInfo {
 ///     aliases: [
 ///       { name: "DateTime", from: "effect/DateTime" }
 ///     ],
-///     serialize: (v) => DateTime.formatIso(v),
+///     encode: (v) => DateTime.formatIso(v),
 ///     // ...
 ///   }
 /// }
@@ -74,8 +74,8 @@ pub struct ForeignTypeAlias {
 ///       { name: "DateTime", from: "effect/DateTime" },
 ///       { name: "MyDateTime", from: "my-effect-wrapper" }
 ///     ],
-///     serialize: (v) => DateTime.formatIso(v),
-///     deserialize: (raw) => DateTime.unsafeFromDate(new Date(raw)),
+///     encode: (v) => DateTime.formatIso(v),
+///     decode: (raw) => DateTime.unsafeFromDate(new Date(raw)),
 ///     default: () => DateTime.unsafeNow()
 ///   }
 /// }
@@ -100,17 +100,17 @@ pub struct ForeignTypeConfig {
     /// Used to validate that the type is imported from the correct module.
     pub from: Vec<String>,
 
-    /// Serialization function expression (e.g., "(v, ctx) => v.toJSON()").
-    pub serialize_expr: Option<String>,
+    /// Encoding function expression (e.g., "(v, ctx) => v.toJSON()").
+    pub encode_expr: Option<String>,
 
-    /// Import info if serialize is a named function from another module.
-    pub serialize_import: Option<ImportInfo>,
+    /// Import info if encode is a named function from another module.
+    pub encode_import: Option<ImportInfo>,
 
-    /// Deserialization function expression.
-    pub deserialize_expr: Option<String>,
+    /// Decoding function expression.
+    pub decode_expr: Option<String>,
 
-    /// Import info if deserialize is a named function from another module.
-    pub deserialize_import: Option<ImportInfo>,
+    /// Import info if decode is a named function from another module.
+    pub decode_import: Option<ImportInfo>,
 
     /// Default value function expression (e.g., "() => DateTime.now()").
     pub default_expr: Option<String>,
@@ -121,7 +121,7 @@ pub struct ForeignTypeConfig {
     /// Shape-check predicate expression for union variant matching.
     /// Used when this foreign type appears as a variant in a union type alias.
     /// The expression should be a function `(value: unknown) => boolean`.
-    /// Example: `(v: unknown) => typeof v === "string"` for types deserialized from strings.
+    /// Example: `(v: unknown) => typeof v === "string"` for types decoded from strings.
     pub has_shape_expr: Option<String>,
 
     /// Import info if hasShape is a named function from another module.
@@ -131,10 +131,10 @@ pub struct ForeignTypeConfig {
     #[serde(default)]
     pub aliases: Vec<ForeignTypeAlias>,
 
-    /// Namespaces referenced in expressions (serialize_expr, deserialize_expr, default_expr).
+    /// Namespaces referenced in expressions (encode_expr, decode_expr, default_expr).
     ///
     /// This is auto-extracted during config parsing by analyzing the expression ASTs.
-    /// For example, if `serialize: (v) => DateTime.formatIso(v)`, this would contain `["DateTime"]`.
+    /// For example, if `encode: (v) => DateTime.formatIso(v)`, this would contain `["DateTime"]`.
     ///
     /// Used to determine which namespaces need to be imported for the generated code to work.
     #[serde(default)]
@@ -368,7 +368,7 @@ pub struct MacroforgeConfig {
 
     /// Foreign type configurations.
     ///
-    /// Maps type names to their handlers for serialization, deserialization, and defaults.
+    /// Maps type names to their handlers for encoding, decoding, and defaults.
     #[serde(default)]
     pub foreign_types: Vec<ForeignTypeConfig>,
 

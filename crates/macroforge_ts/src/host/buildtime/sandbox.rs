@@ -19,7 +19,7 @@ use crate::host::buildtime::capabilities::CapabilitySet;
 ///
 /// These map 1:1 to JSON-compatible JavaScript values, with two extensions:
 ///
-/// - [`SandboxValue::BigInt`] for arbitrary integers (serialized as `42n`).
+/// - [`SandboxValue::BigInt`] for arbitrary integers (encoded as `42n`).
 /// - [`SandboxValue::SourceCode`] for Tier 2 `@buildtime function` results
 ///   that return a string of TypeScript source to splice verbatim.
 ///
@@ -102,7 +102,7 @@ impl SandboxOptions {
     /// Construct default options anchored at `source_file`.
     ///
     /// `capabilities` defaults to the empty set, `timeout` to 5 seconds,
-    /// and `max_heap` to 256 MB, all values matching the config defaults
+    /// and `max_heap` to 256 MB: all values matching the config defaults
     /// documented in `plans/buildtime.md`.
     #[must_use]
     pub fn new(source_file: PathBuf) -> Self {
@@ -181,7 +181,7 @@ pub trait BuildtimeSandbox: Send + Sync {
     /// `source` is the full text of a synthetic module (the pre-pass
     /// wraps user code in a try/catch that stashes the result on
     /// `globalThis.__macroforgeResult`). `origin` is the file path
-    /// displayed in stack traces, usually `<buildtime>` followed by the
+    /// displayed in stack traces: usually `<buildtime>` followed by the
     /// user's source file name.
     ///
     /// Implementations read `__macroforgeResult` from the global scope

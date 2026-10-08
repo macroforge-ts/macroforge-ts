@@ -2,7 +2,7 @@
 //!
 //! The pre-pass is pure: it owns no state beyond the sandbox it's given,
 //! and it returns a [`PrepassOutput`] that the host splices into the
-//! normal patch pipeline. Errors never propagate up through `anyhow`:
+//! normal patch pipeline. Errors never propagate up through `anyhow` :
 //! every failure becomes a [`Diagnostic`] attached to the offending
 //! declaration, so a broken `@buildtime` block fails the user's build
 //! with a useful message rather than crashing the compiler.
@@ -31,7 +31,7 @@ pub struct PrepassOutput {
     /// on-disk cache when any of them change.
     pub dependencies: Vec<PathBuf>,
     /// Diagnostics to surface to the user. Errors come from the sandbox
-    /// (throw, timeout, capability-denied) or from the serializer
+    /// (throw, timeout, capability-denied) or from the encoder
     /// (unrepresentable result).
     pub diagnostics: Vec<Diagnostic>,
 }
@@ -85,7 +85,7 @@ pub fn run_prepass(
     // block can call any pure function in scope.
     //
     // If the stripped source has impure top-level code, the prelude is
-    // disabled and we emit a diagnostic, but evaluation still proceeds
+    // disabled and we emit a diagnostic: but evaluation still proceeds
     // with an empty prelude so files that don't rely on siblings work.
     let prelude = build_same_file_prelude(program, source, &decls);
     let prelude_for_sandbox = match &prelude {
@@ -151,7 +151,7 @@ pub fn run_prepass(
                 dependencies.extend(result.dependencies);
                 match build_patch(&decl, result.value) {
                     Ok(patch) => patches.push(patch),
-                    Err(err) => diagnostics.push(serialize_error_to_diagnostic(&decl, err)),
+                    Err(err) => diagnostics.push(encode_error_to_diagnostic(&decl, err)),
                 }
             }
             Err(err) => diagnostics.push(sandbox_error_to_diagnostic(
@@ -320,11 +320,11 @@ fn sandbox_error_to_diagnostic(
     }
 }
 
-fn serialize_error_to_diagnostic(decl: &BuildtimeDecl, err: SerializeError) -> Diagnostic {
+fn encode_error_to_diagnostic(decl: &BuildtimeDecl, err: SerializeError) -> Diagnostic {
     Diagnostic {
         level: DiagnosticLevel::Error,
         message: format!(
-            "@buildtime `{}` produced a value that couldn't be serialized: {}",
+            "@buildtime `{}` produced a value that couldn't be encoded: {}",
             decl.name, err
         ),
         span: Some(decl.decl_span),
@@ -541,8 +541,8 @@ fn strip_string_contents(src: &str) -> String {
 
 /// True if `src` contains a `:` in a position consistent with a TS
 /// type annotation: after `)`, `]`, or an identifier, and not followed
-/// by `=` (which would make it `:=`, a shorthand property with
-/// default; those are rare and we tolerate false positives).
+/// by `=` (which would make it `:=`: a shorthand property with
+/// default: those are rare and we tolerate false positives).
 fn contains_type_colon(src: &str) -> bool {
     let bytes = src.as_bytes();
     let mut paren_depth = 0i32;
@@ -569,7 +569,7 @@ fn contains_type_colon(src: &str) -> bool {
                 // any braces / brackets) is a type annotation.
                 if paren_depth > 0 || (brace_depth == 0 && bracket_depth == 0) {
                     // Still need to exclude object-literal shorthand
-                    // like `{ a: 1 }`, which has brace_depth > 0 at
+                    // like `{ a: 1 }`: which has brace_depth > 0 at
                     // the colon. We've already required brace_depth == 0
                     // for the non-paren case.
                     return true;

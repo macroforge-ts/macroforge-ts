@@ -29,30 +29,30 @@ function assertDecoratorsStripped(output, fileLabel) {
 function assertMethodsGenerated(
     output,
     fileLabel,
-    serializeMethod = 'serialize'
+    encodeMethod = 'encode'
 ) {
     // Debug macro now generates static toString method
     assert.ok(
         /static\s+toString\s*\(value:/.test(output),
         `${fileLabel}: expected generated static toString(value:) implementation`
     );
-    // Users can choose any api they want, like JSON uses instance methods. Built-in, in order to unify the API across classes, interfaces, and enum, like Serialize, use static
+    // Users can choose any api they want, like JSON uses instance methods. Built-in, in order to unify the API across classes, interfaces, and enum, like Encode, use static
     // Check for either static or instance method depending on the macro
-    if (serializeMethod === 'toJSON') {
+    if (encodeMethod === 'toJSON') {
         // JSON macro generates instance method
-        const methodPattern = new RegExp(`${serializeMethod}\\s*\\(\\).*?\\{`);
+        const methodPattern = new RegExp(`${encodeMethod}\\s*\\(\\).*?\\{`);
         assert.ok(
             methodPattern.test(output),
-            `${fileLabel}: expected generated ${serializeMethod}() instance method`
+            `${fileLabel}: expected generated ${encodeMethod}() instance method`
         );
     } else {
-        // Serialize macro generates static method
+        // Encode macro generates static method
         const methodPattern = new RegExp(
-            `static\\s+${serializeMethod}\\s*\\(value:`
+            `static\\s+${encodeMethod}\\s*\\(value:`
         );
         assert.ok(
             methodPattern.test(output),
-            `${fileLabel}: expected generated static ${serializeMethod}(value:) method`
+            `${fileLabel}: expected generated static ${encodeMethod}(value:) method`
         );
     }
 }
@@ -229,8 +229,8 @@ test('svelte: attribute pre-pass strips, brands, and rewrites annotations', () =
 test('svelte: decorators stripped and methods generated', () => {
     const { code } = expandFile('playground/svelte/src/lib/demo/macro-user.ts');
     assertDecoratorsStripped(code, 'svelte/macro-user.ts');
-    // svelte uses @derive(Serialize) which generates serialize()
-    assertMethodsGenerated(code, 'svelte/macro-user.ts', 'serialize');
+    // svelte uses @derive(Encode) which generates encode()
+    assertMethodsGenerated(code, 'svelte/macro-user.ts', 'encode');
 });
 
 test('declarative macros: $vec expands inline at call sites', () => {
@@ -289,8 +289,8 @@ const result = $withTemp(10);
 // Both declarative cross-file tests read the pre-built registry file
 // written by `macroforge watch` (or the CLI `tsc`/`svelte-check` wrappers
 // that run `ensure_type_registry_cache`). The WASM `scanProjectSync` can't
-// walk the filesystem from inside the WASM sandbox (that path only works
-// from the native CLI), so the tests pick up the on-disk registry
+// walk the filesystem from inside the WASM sandbox: that path only works
+// from the native CLI: so the tests pick up the on-disk registry
 // directly, matching how the Vite plugin reads it in `buildStart`.
 function loadDeclarativeRegistry(vanillaRoot) {
     const registryPath = path.join(

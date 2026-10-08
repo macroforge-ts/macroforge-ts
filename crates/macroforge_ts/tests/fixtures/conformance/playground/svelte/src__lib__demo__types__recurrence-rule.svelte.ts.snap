@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/recurrence-rule.svelte.ts
-sha256 584f4b7ba32d16e20c9adbaffc9b8138472246d14c0cfe47734f48a9292721ea
+sha256 3be913d61e59dc439c21c948216ca4d946beb445ff9ad5921be0ae49badc0d19
 
 ## Changed
 
@@ -12,16 +12,16 @@ true
 
 ## Output
 
-import { intervalDeserializeWithContext } from "./interval.svelte";
-import { recurrenceEndDeserializeWithContext } from "./recurrence-end.svelte";
-import { intervalSerializeWithContext } from "./interval.svelte";
-import { recurrenceEndSerializeWithContext } from "./recurrence-end.svelte";
+import { intervalDecodeWithContext } from "./interval.svelte";
+import { recurrenceEndDecodeWithContext } from "./recurrence-end.svelte";
+import { intervalEncodeWithContext } from "./interval.svelte";
+import { recurrenceEndEncodeWithContext } from "./recurrence-end.svelte";
 import { intervalDefaultValue } from "./interval.svelte";
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -50,16 +50,16 @@ additionalInstances: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function recurrenceRuleSerialize(value: RecurrenceRule, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = recurrenceRuleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function recurrenceRuleEncode(value: RecurrenceRule, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = recurrenceRuleEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function recurrenceRuleSerializeWithContext(value: RecurrenceRule, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function recurrenceRuleEncodeWithContext(value: RecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -72,8 +72,8 @@ additionalInstances: null,
                     const result: Record<string, unknown> = {
                         "__type": "RecurrenceRule",
                         __id,
-                    };result.interval = intervalSerializeWithContext(value.interval, ctx);result.recurrenceBegins = value.recurrenceBegins;if (value.recurrenceEnds !== null) {
-                                                    result.recurrenceEnds = recurrenceEndSerializeWithContext(value.recurrenceEnds, ctx);
+                    };result.interval = intervalEncodeWithContext(value.interval, ctx);result.recurrenceBegins = value.recurrenceBegins;if (value.recurrenceEnds !== null) {
+                                                    result.recurrenceEnds = recurrenceEndEncodeWithContext(value.recurrenceEnds, ctx);
 
 
 
@@ -196,21 +196,21 @@ additionalInstances: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function recurrenceRuleDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: RecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function recurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = recurrenceRuleDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = recurrenceRuleDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "RecurrenceRule.deserialize: root cannot be a forward reference"
+		message: "RecurrenceRule.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -233,7 +233,7 @@ additionalInstances: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -250,14 +250,14 @@ additionalInstances: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function recurrenceRuleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): RecurrenceRule | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function recurrenceRuleDecodeWithContext(value: any, ctx: __mf_DecodeContext): RecurrenceRule | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "RecurrenceRule.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "RecurrenceRule.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -288,10 +288,10 @@ additionalInstances: null,
                 ctx.trackForFreeze(instance);{
                                 const __raw_interval = obj["interval"] as Interval;ctx.pushScope("interval");
                                             try {
-                                                const __result = intervalDeserializeWithContext(__raw_interval, ctx);
+                                                const __result = intervalDecodeWithContext(__raw_interval, ctx);
                                                 ctx.assignOrDefer(instance, "interval", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "interval" : "interval." + __err.field,
@@ -828,10 +828,10 @@ additionalInstances: null,
                                                 } else {
                                                         ctx.pushScope("recurrenceEnds");
                                                         try {
-                                                            const __result = recurrenceEndDeserializeWithContext(__raw_recurrenceEnds, ctx);
+                                                            const __result = recurrenceEndDecodeWithContext(__raw_recurrenceEnds, ctx);
                                                             ctx.assignOrDefer(instance, "recurrenceEnds", __result);
                                                         } catch (__e) {
-                                                            if (__e instanceof __mf_DeserializeError) {
+                                                            if (__e instanceof __mf_DecodeError) {
                                                                 for (const __err of __e.errors) {
                                                                     errors.push({
                                                                         field: __err.field === "_root" ? "recurrenceEnds" : "recurrenceEnds." + __err.field,
@@ -2318,7 +2318,7 @@ additionalInstances: null,
                 if (!recurrenceRuleHasShape(obj)) {
                     return false;
                 }
-                const result = recurrenceRuleDeserialize(obj);
+                const result = recurrenceRuleDecode(obj);
                 return result.success;
             }
 
@@ -2510,7 +2510,7 @@ additionalInstances: null,
 
 
             function validate(): Exit.Exit<RecurrenceRule, Array<{ field: string; message: string }>> {
-                return toExit(recurrenceRuleDeserialize(data));
+                return toExit(recurrenceRuleDecode(data));
             }
 
 
@@ -2549,7 +2549,7 @@ additionalInstances: null,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function recurrenceRuleFromFormData(formData: FormData): Exit.Exit<RecurrenceRule, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -2581,15 +2581,15 @@ additionalInstances: null,
             obj.additionalInstances = formData.get("additionalInstances") ?? "";
 
 
-            return toExit(recurrenceRuleDeserialize(obj));
+            return toExit(recurrenceRuleDecode(obj));
         }
 
 export const RecurrenceRule = {
   defaultValue: recurrenceRuleDefaultValue,
-  serialize: recurrenceRuleSerialize,
-  serializeWithContext: recurrenceRuleSerializeWithContext,
-  deserialize: recurrenceRuleDeserialize,
-  deserializeWithContext: recurrenceRuleDeserializeWithContext,
+  encode: recurrenceRuleEncode,
+  encodeWithContext: recurrenceRuleEncodeWithContext,
+  decode: recurrenceRuleDecode,
+  decodeWithContext: recurrenceRuleDecodeWithContext,
   validateFields: recurrenceRuleValidateFields,
   hasShape: recurrenceRuleHasShape,
   is: recurrenceRuleIs,
@@ -2623,16 +2623,16 @@ additionalInstances: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function recurrenceRuleSerialize(value: RecurrenceRule, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = recurrenceRuleSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function recurrenceRuleEncode(value: RecurrenceRule, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = recurrenceRuleEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function recurrenceRuleSerializeWithContext(value: RecurrenceRule, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function recurrenceRuleEncodeWithContext(value: RecurrenceRule, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -2645,8 +2645,8 @@ additionalInstances: null,
                     const result: Record<string, unknown> = {
                         "__type": "RecurrenceRule",
                         __id,
-                    };result.interval = intervalSerializeWithContext(value.interval, ctx);result.recurrenceBegins = value.recurrenceBegins;if (value.recurrenceEnds !== null) {
-                                                    result.recurrenceEnds = recurrenceEndSerializeWithContext(value.recurrenceEnds, ctx);
+                    };result.interval = intervalEncodeWithContext(value.interval, ctx);result.recurrenceBegins = value.recurrenceBegins;if (value.recurrenceEnds !== null) {
+                                                    result.recurrenceEnds = recurrenceEndEncodeWithContext(value.recurrenceEnds, ctx);
 
 
 
@@ -2769,21 +2769,21 @@ additionalInstances: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function recurrenceRuleDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: RecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function recurrenceRuleDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: RecurrenceRule } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = recurrenceRuleDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = recurrenceRuleDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "RecurrenceRule.deserialize: root cannot be a forward reference"
+		message: "RecurrenceRule.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -2806,7 +2806,7 @@ additionalInstances: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -2823,14 +2823,14 @@ additionalInstances: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function recurrenceRuleDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): RecurrenceRule | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function recurrenceRuleDecodeWithContext(value: any, ctx: __mf_DecodeContext): RecurrenceRule | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "RecurrenceRule.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "RecurrenceRule.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -2861,10 +2861,10 @@ additionalInstances: null,
                 ctx.trackForFreeze(instance);{
                                 const __raw_interval = obj["interval"] as Interval;ctx.pushScope("interval");
                                             try {
-                                                const __result = intervalDeserializeWithContext(__raw_interval, ctx);
+                                                const __result = intervalDecodeWithContext(__raw_interval, ctx);
                                                 ctx.assignOrDefer(instance, "interval", __result);
                                             } catch (__e) {
-                                                if (__e instanceof __mf_DeserializeError) {
+                                                if (__e instanceof __mf_DecodeError) {
                                                     for (const __err of __e.errors) {
                                                         errors.push({
                                                             field: __err.field === "_root" ? "interval" : "interval." + __err.field,
@@ -3401,10 +3401,10 @@ additionalInstances: null,
                                                 } else {
                                                         ctx.pushScope("recurrenceEnds");
                                                         try {
-                                                            const __result = recurrenceEndDeserializeWithContext(__raw_recurrenceEnds, ctx);
+                                                            const __result = recurrenceEndDecodeWithContext(__raw_recurrenceEnds, ctx);
                                                             ctx.assignOrDefer(instance, "recurrenceEnds", __result);
                                                         } catch (__e) {
-                                                            if (__e instanceof __mf_DeserializeError) {
+                                                            if (__e instanceof __mf_DecodeError) {
                                                                 for (const __err of __e.errors) {
                                                                     errors.push({
                                                                         field: __err.field === "_root" ? "recurrenceEnds" : "recurrenceEnds." + __err.field,
@@ -4891,7 +4891,7 @@ additionalInstances: null,
                 if (!recurrenceRuleHasShape(obj)) {
                     return false;
                 }
-                const result = recurrenceRuleDeserialize(obj);
+                const result = recurrenceRuleDecode(obj);
                 return result.success;
             }
 
@@ -5083,7 +5083,7 @@ additionalInstances: null,
 
 
             function validate(): Exit.Exit<RecurrenceRule, Array<{ field: string; message: string }>> {
-                return toExit(recurrenceRuleDeserialize(data));
+                return toExit(recurrenceRuleDecode(data));
             }
 
 
@@ -5122,7 +5122,7 @@ additionalInstances: null,
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function recurrenceRuleFromFormData(formData: FormData): Exit.Exit<RecurrenceRule, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -5154,15 +5154,15 @@ additionalInstances: null,
             obj.additionalInstances = formData.get("additionalInstances") ?? "";
 
 
-            return toExit(recurrenceRuleDeserialize(obj));
+            return toExit(recurrenceRuleDecode(obj));
         }
 
 export const RecurrenceRule = {
   defaultValue: recurrenceRuleDefaultValue,
-  serialize: recurrenceRuleSerialize,
-  serializeWithContext: recurrenceRuleSerializeWithContext,
-  deserialize: recurrenceRuleDeserialize,
-  deserializeWithContext: recurrenceRuleDeserializeWithContext,
+  encode: recurrenceRuleEncode,
+  encodeWithContext: recurrenceRuleEncodeWithContext,
+  decode: recurrenceRuleDecode,
+  decodeWithContext: recurrenceRuleDecodeWithContext,
   validateFields: recurrenceRuleValidateFields,
   hasShape: recurrenceRuleHasShape,
   is: recurrenceRuleIs,
@@ -5177,17 +5177,17 @@ export const RecurrenceRule = {
 ## Mapping
 
 original 0..172 -> expanded 0..172
-original 229..454 -> expanded 172..397
-original 454..455 -> expanded 25653..25654
+original 221..446 -> expanded 172..397
+original 446..447 -> expanded 25449..25450
 generated 397..650 <- Default
-generated 650..3220 <- Serialize
-generated 3220..14539 <- Deserialize
-generated 14539..25169 <- Gigaform
-generated 25169..25653 <- __convenience_const
+generated 650..3182 <- Encode
+generated 3182..14387 <- Decode
+generated 14387..24997 <- Gigaform
+generated 24997..25449 <- __convenience_const
 
 ## Metadata
 
-interface RecurrenceRule: {"body_span":{"end":455,"start":263},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":230,"start":173}}],"fields":[{"decorators":[],"name":"interval","optional":false,"readonly":false,"span":{"end":288,"start":269},"ts_type":"Interval"},{"decorators":[],"name":"recurrenceBegins","optional":false,"readonly":false,"span":{"end":318,"start":293},"ts_type":"string"},{"decorators":[],"name":"recurrenceEnds","optional":false,"readonly":false,"span":{"end":360,"start":323},"ts_type":"RecurrenceEnd | null"},{"decorators":[],"name":"cancelledInstances","optional":false,"readonly":false,"span":{"end":406,"start":365},"ts_type":"Array<string> | null"},{"decorators":[],"name":"additionalInstances","optional":false,"readonly":false,"span":{"end":453,"start":411},"ts_type":"Array<string> | null"}],"heritage":[],"methods":[],"name":"RecurrenceRule","span":{"end":455,"start":238},"type_params":[]}
+interface RecurrenceRule: {"body_span":{"end":447,"start":255},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":222,"start":173}}],"fields":[{"decorators":[],"name":"interval","optional":false,"readonly":false,"span":{"end":280,"start":261},"ts_type":"Interval"},{"decorators":[],"name":"recurrenceBegins","optional":false,"readonly":false,"span":{"end":310,"start":285},"ts_type":"string"},{"decorators":[],"name":"recurrenceEnds","optional":false,"readonly":false,"span":{"end":352,"start":315},"ts_type":"RecurrenceEnd | null"},{"decorators":[],"name":"cancelledInstances","optional":false,"readonly":false,"span":{"end":398,"start":357},"ts_type":"Array<string> | null"},{"decorators":[],"name":"additionalInstances","optional":false,"readonly":false,"span":{"end":445,"start":403},"ts_type":"Array<string> | null"}],"heritage":[],"methods":[],"name":"RecurrenceRule","span":{"end":447,"start":230},"type_params":[]}
 
 ## Registry reads
 

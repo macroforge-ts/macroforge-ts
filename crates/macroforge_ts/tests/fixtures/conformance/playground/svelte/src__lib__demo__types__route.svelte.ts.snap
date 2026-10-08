@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/lib/demo/types/route.svelte.ts
-sha256 2f0381f5ac60e38a1d6c72e75e5d4c735211f96064741bf9a8c76aeda1ff705d
+sha256 2b065f4ef936c15171913958926e2a1890c0322b347be2564d5c8f22df505cf1
 
 ## Changed
 
@@ -12,11 +12,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { Option } from "effect";
 import { Exit } from "effect";
 import type { FieldController } from "@playground/macro/gigaform";
@@ -60,16 +60,16 @@ color: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function routeSerialize(value: Route, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = routeSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function routeEncode(value: Route, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = routeEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function routeSerializeWithContext(value: Route, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -189,21 +189,21 @@ color: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function routeDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Route } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function routeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Route } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = routeDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = routeDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Route.deserialize: root cannot be a forward reference"
+		message: "Route.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -226,7 +226,7 @@ color: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -243,14 +243,14 @@ color: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function routeDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Route | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function routeDecodeWithContext(value: any, ctx: __mf_DecodeContext): Route | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Route.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Route.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -3930,7 +3930,7 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
                 if (!routeHasShape(obj)) {
                     return false;
                 }
-                const result = routeDeserialize(obj);
+                const result = routeDecode(obj);
                 return result.success;
             }
 
@@ -4297,7 +4297,7 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
 
 
             function validate(): Exit.Exit<Route, Array<{ field: string; message: string }>> {
-                return toExit(routeDeserialize(data));
+                return toExit(routeDecode(data));
             }
 
 
@@ -4348,7 +4348,7 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function routeFromFormData(formData: FormData): Exit.Exit<Route, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -4376,15 +4376,15 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
             obj.color = formData.get("color") ?? "";
 
 
-            return toExit(routeDeserialize(obj));
+            return toExit(routeDecode(obj));
         }
 
 export const Route = {
   defaultValue: routeDefaultValue,
-  serialize: routeSerialize,
-  serializeWithContext: routeSerializeWithContext,
-  deserialize: routeDeserialize,
-  deserializeWithContext: routeDeserializeWithContext,
+  encode: routeEncode,
+  encodeWithContext: routeEncodeWithContext,
+  decode: routeDecode,
+  decodeWithContext: routeDecodeWithContext,
   validateFields: routeValidateFields,
   hasShape: routeHasShape,
   is: routeIs,
@@ -4432,16 +4432,16 @@ color: null,
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function routeSerialize(value: Route, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = routeSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function routeEncode(value: Route, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = routeEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function routeSerializeWithContext(value: Route, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function routeEncodeWithContext(value: Route, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -4561,21 +4561,21 @@ color: null,
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function routeDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Route } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function routeDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Route } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = routeDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = routeDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Route.deserialize: root cannot be a forward reference"
+		message: "Route.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -4598,7 +4598,7 @@ color: null,
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -4615,14 +4615,14 @@ color: null,
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function routeDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Route | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function routeDecodeWithContext(value: any, ctx: __mf_DecodeContext): Route | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Route.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Route.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -8302,7 +8302,7 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
                 if (!routeHasShape(obj)) {
                     return false;
                 }
-                const result = routeDeserialize(obj);
+                const result = routeDecode(obj);
                 return result.success;
             }
 
@@ -8669,7 +8669,7 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
 
 
             function validate(): Exit.Exit<Route, Array<{ field: string; message: string }>> {
-                return toExit(routeDeserialize(data));
+                return toExit(routeDecode(data));
             }
 
 
@@ -8720,7 +8720,7 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
                 reset,
             };
         }
-/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to deserialize() from @derive(Deserialize).  */
+/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to decode() from @derive(Decode).  */
         export function routeFromFormData(formData: FormData): Exit.Exit<Route, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
@@ -8748,15 +8748,15 @@ if (__val.length === 0) { errors.push({ field: "position", message: "Route.posit
             obj.color = formData.get("color") ?? "";
 
 
-            return toExit(routeDeserialize(obj));
+            return toExit(routeDecode(obj));
         }
 
 export const Route = {
   defaultValue: routeDefaultValue,
-  serialize: routeSerialize,
-  serializeWithContext: routeSerializeWithContext,
-  deserialize: routeDeserialize,
-  deserializeWithContext: routeDeserializeWithContext,
+  encode: routeEncode,
+  encodeWithContext: routeEncodeWithContext,
+  decode: routeDecode,
+  decodeWithContext: routeDecodeWithContext,
   validateFields: routeValidateFields,
   hasShape: routeHasShape,
   is: routeIs,
@@ -8771,20 +8771,20 @@ export const Route = {
 ## Mapping
 
 original 0..110 -> expanded 0..110
-original 167..278 -> expanded 110..221
-original 319..342 -> expanded 221..244
-original 383..407 -> expanded 244..268
-original 448..609 -> expanded 268..429
-original 609..610 -> expanded 34703..34704
+original 159..270 -> expanded 110..221
+original 311..334 -> expanded 221..244
+original 375..399 -> expanded 244..268
+original 440..601 -> expanded 268..429
+original 601..602 -> expanded 34525..34526
 generated 429..685 <- Default
-generated 685..2703 <- Serialize
-generated 2703..17093 <- Deserialize
-generated 17093..34318 <- Gigaform
-generated 34318..34703 <- __convenience_const
+generated 685..2671 <- Encode
+generated 2671..16967 <- Decode
+generated 16967..34172 <- Gigaform
+generated 34172..34525 <- __convenience_const
 
 ## Metadata
 
-interface Route: {"body_span":{"end":610,"start":192},"decorators":[{"args_src":"Default, Serialize, Deserialize, Gigaform","name":"Derive","span":{"end":168,"start":111}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":209,"start":198},"ts_type":"string"},{"decorators":[],"name":"techs","optional":false,"readonly":false,"span":{"end":253,"start":214},"ts_type":"Array<string | Employee> | null"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":274,"start":258},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":320,"start":279}}],"name":"name","optional":false,"readonly":false,"span":{"end":338,"start":325},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":384,"start":343}}],"name":"phone","optional":false,"readonly":false,"span":{"end":403,"start":389},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"serde","span":{"end":449,"start":408}}],"name":"position","optional":false,"readonly":false,"span":{"end":471,"start":454},"ts_type":"string"},{"decorators":[],"name":"serviceRoute","optional":false,"readonly":false,"span":{"end":498,"start":476},"ts_type":"boolean"},{"decorators":[],"name":"defaultDurationHours","optional":false,"readonly":false,"span":{"end":532,"start":503},"ts_type":"number"},{"decorators":[],"name":"tags","optional":false,"readonly":false,"span":{"end":557,"start":537},"ts_type":"Array<string>"},{"decorators":[],"name":"icon","optional":false,"readonly":false,"span":{"end":582,"start":562},"ts_type":"string | null"},{"decorators":[],"name":"color","optional":false,"readonly":false,"span":{"end":608,"start":587},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Route","span":{"end":610,"start":176},"type_params":[]}
+interface Route: {"body_span":{"end":602,"start":184},"decorators":[{"args_src":"Default, Encode, Decode, Gigaform","name":"Derive","span":{"end":160,"start":111}}],"fields":[{"decorators":[],"name":"id","optional":false,"readonly":false,"span":{"end":201,"start":190},"ts_type":"string"},{"decorators":[],"name":"techs","optional":false,"readonly":false,"span":{"end":245,"start":206},"ts_type":"Array<string | Employee> | null"},{"decorators":[],"name":"active","optional":false,"readonly":false,"span":{"end":266,"start":250},"ts_type":"boolean"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":312,"start":271}}],"name":"name","optional":false,"readonly":false,"span":{"end":330,"start":317},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":376,"start":335}}],"name":"phone","optional":false,"readonly":false,"span":{"end":395,"start":381},"ts_type":"string"},{"decorators":[{"args_src":"{ validate: [\"nonEmpty\"] }","name":"endec","span":{"end":441,"start":400}}],"name":"position","optional":false,"readonly":false,"span":{"end":463,"start":446},"ts_type":"string"},{"decorators":[],"name":"serviceRoute","optional":false,"readonly":false,"span":{"end":490,"start":468},"ts_type":"boolean"},{"decorators":[],"name":"defaultDurationHours","optional":false,"readonly":false,"span":{"end":524,"start":495},"ts_type":"number"},{"decorators":[],"name":"tags","optional":false,"readonly":false,"span":{"end":549,"start":529},"ts_type":"Array<string>"},{"decorators":[],"name":"icon","optional":false,"readonly":false,"span":{"end":574,"start":554},"ts_type":"string | null"},{"decorators":[],"name":"color","optional":false,"readonly":false,"span":{"end":600,"start":579},"ts_type":"string | null"}],"heritage":[],"methods":[],"name":"Route","span":{"end":602,"start":168},"type_params":[]}
 
 ## Registry reads
 

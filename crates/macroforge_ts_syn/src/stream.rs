@@ -56,7 +56,7 @@
 //!     let mut stream = TsStream::new(source, "input.ts")?;
 //!
 //!     // Add a runtime import
-//!     stream.add_import("deserialize", "./runtime");
+//!     stream.add_import("decode", "./runtime");
 //!
 //!     // Add a type-only import
 //!     stream.add_type_import("Options", "./types");
@@ -79,8 +79,8 @@ use crate::TsSynError;
 /// use macroforge_ts_syn::ImportConfig;
 ///
 /// const MY_IMPORTS: &[ImportConfig] = &[
-///     ImportConfig::value("ok", "__mf_ok", "@macroforge/core/serde"),
-///     ImportConfig::type_only("Result", "__mf_Result", "@macroforge/core/serde"),
+///     ImportConfig::value("ok", "__mf_ok", "@macroforge/core/endec"),
+///     ImportConfig::type_only("Result", "__mf_Result", "@macroforge/core/endec"),
 /// ];
 ///
 /// stream.add_imports(MY_IMPORTS);
@@ -176,7 +176,7 @@ impl ImportConfig {
 ///     let mut stream = TsStream::new(source, "file.ts")?;
 ///
 ///     // These imports will be added to the file
-///     stream.add_import("deserialize", "./runtime");
+///     stream.add_import("decode", "./runtime");
 ///     stream.add_type_import("Options", "./types");
 ///
 ///     // Get the result with accumulated patches
@@ -332,7 +332,7 @@ impl TsStream {
 
     /// Convert the stream into a MacroResult.
     /// Captures any imports registered via `add_import()` etc. from the thread-local
-    /// registry so they survive serialization across process boundaries.
+    /// registry so they survive encoding across process boundaries.
     pub fn into_result(self) -> crate::abi::MacroResult {
         let imports = crate::import_registry::with_registry_mut(|r| r.take_generated_imports());
         crate::abi::MacroResult {
@@ -422,8 +422,8 @@ impl TsStream {
     ///
     /// # Example
     /// ```ignore
-    /// stream.add_aliased_import("DeserializeContext", "@macroforge/core/serde");
-    /// // Generates: import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
+    /// stream.add_aliased_import("DecodeContext", "@macroforge/core/endec");
+    /// // Generates: import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
     /// ```
     pub fn add_aliased_import(&mut self, name: &str, module: &str) {
         let alias = format!("__mf_{name}");
@@ -436,8 +436,8 @@ impl TsStream {
     ///
     /// # Example
     /// ```ignore
-    /// stream.add_aliased_type_import("DeserializeOptions", "@macroforge/core/serde");
-    /// // Generates: import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
+    /// stream.add_aliased_type_import("DecodeOptions", "@macroforge/core/endec");
+    /// // Generates: import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
     /// ```
     pub fn add_aliased_type_import(&mut self, name: &str, module: &str) {
         let alias = format!("__mf_{name}");
@@ -450,8 +450,8 @@ impl TsStream {
     ///
     /// # Example
     /// ```ignore
-    /// stream.add_import_as("resultOk", "__mf_resultOk", "@macroforge/core/serde");
-    /// // Generates: import { resultOk as __mf_resultOk } from "@macroforge/core/serde";
+    /// stream.add_import_as("resultOk", "__mf_resultOk", "@macroforge/core/endec");
+    /// // Generates: import { resultOk as __mf_resultOk } from "@macroforge/core/endec";
     /// ```
     pub fn add_import_as(&mut self, name: &str, alias: &str, module: &str) {
         crate::import_registry::with_registry_mut(|r| {
@@ -463,8 +463,8 @@ impl TsStream {
     ///
     /// # Example
     /// ```ignore
-    /// stream.add_type_import_as("Result", "__mf_Result", "@macroforge/core/serde");
-    /// // Generates: import type { Result as __mf_Result } from "@macroforge/core/serde";
+    /// stream.add_type_import_as("Result", "__mf_Result", "@macroforge/core/endec");
+    /// // Generates: import type { Result as __mf_Result } from "@macroforge/core/endec";
     /// ```
     pub fn add_type_import_as(&mut self, name: &str, alias: &str, module: &str) {
         crate::import_registry::with_registry_mut(|r| {
@@ -482,12 +482,12 @@ impl TsStream {
     /// ```rust,ignore
     /// use macroforge_ts_syn::ImportConfig;
     ///
-    /// const SERDE_IMPORTS: &[ImportConfig] = &[
-    ///     ImportConfig::value("DeserializeContext", "__mf_DeserializeContext", "@macroforge/core/serde"),
-    ///     ImportConfig::type_only("DeserializeOptions", "__mf_DeserializeOptions", "@macroforge/core/serde"),
+    /// const ENDEC_IMPORTS: &[ImportConfig] = &[
+    ///     ImportConfig::value("DecodeContext", "__mf_DecodeContext", "@macroforge/core/endec"),
+    ///     ImportConfig::type_only("DecodeOptions", "__mf_DecodeOptions", "@macroforge/core/endec"),
     /// ];
     ///
-    /// stream.add_imports(SERDE_IMPORTS);
+    /// stream.add_imports(ENDEC_IMPORTS);
     /// ```
     pub fn add_imports(&mut self, imports: &[ImportConfig]) {
         crate::import_registry::with_registry_mut(|r| {
@@ -506,7 +506,7 @@ impl TsStream {
     ///
     /// When the generated code references a function like `companyNameGetFields()`,
     /// the framework needs to know that `GetFields` is a valid suffix to resolve
-    /// against imported types. Built-in macros (Default, Serialize, etc.) have
+    /// against imported types. Built-in macros (Default, Encode, etc.) have
     /// their suffixes hardcoded; external macros use this method to register theirs.
     ///
     /// # Example

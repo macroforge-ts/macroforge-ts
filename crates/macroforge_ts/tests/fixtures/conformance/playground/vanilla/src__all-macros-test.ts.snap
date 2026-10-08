@@ -4,7 +4,7 @@ source: crates/macroforge_ts/tests/conformance.rs
 ## Source
 
 src/all-macros-test.ts
-sha256 87405ea61ff95cf3d0b13f7687fcbc832088deab730443ae1153c36905eb5e2e
+sha256 e02fa45b0e34e7e55452bba7c953c4d8e1e9e7fcef7182fda9bc528a0fdc5cba
 
 ## Changed
 
@@ -12,17 +12,17 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 /**
  * Comprehensive test class demonstrating all available macros.
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
  */
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export class AllMacrosTestClass {
     /** @debug({ rename: "identifier" }) */
     id: number;
@@ -50,14 +50,14 @@ static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
 static hashCode(value: AllMacrosTestClass): number {
                     return allMacrosTestClassHashCode(value);
                 }
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                static serialize(value: AllMacrosTestClass, keepMetadata?: boolean): string {
-                    return allMacrosTestClassSerialize(value, keepMetadata);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static encode(value: AllMacrosTestClass, keepMetadata?: boolean): string {
+                    return allMacrosTestClassEncode(value, keepMetadata);
                 }
 
-                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                static serializeWithContext(value: AllMacrosTestClass, ctx: __mf_SerializeContext): Record<string, unknown> {
-                    return allMacrosTestClassSerializeWithContext(value, ctx);
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                static encodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+                    return allMacrosTestClassEncodeWithContext(value, ctx);
                 }
 constructor(props: { id: number; name: string; email: string; secretToken: string; isActive: boolean; score: number }) {
             this.id = props.id;
@@ -70,21 +70,21 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = AllMacrosTestClass.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = AllMacrosTestClass.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "AllMacrosTestClass.deserialize: root cannot be a forward reference"
+		message: "AllMacrosTestClass.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -107,7 +107,7 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -124,15 +124,15 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): AllMacrosTestClass | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "AllMacrosTestClass.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "AllMacrosTestClass.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -1817,7 +1817,7 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
             if (!AllMacrosTestClass.hasShape(obj)) {
                 return false;
             }
-            const result = AllMacrosTestClass.deserialize(obj);
+            const result = AllMacrosTestClass.decode(obj);
             return result.success;
         }}
 
@@ -1858,16 +1858,16 @@ export function allMacrosTestClassHashCode(value: AllMacrosTestClass): number {
                     return hash;
                 }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function allMacrosTestClassSerialize(value: AllMacrosTestClass, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = allMacrosTestClassSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function allMacrosTestClassEncode(value: AllMacrosTestClass, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = allMacrosTestClassEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function allMacrosTestClassSerializeWithContext(value: AllMacrosTestClass, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1971,17 +1971,17 @@ export function allMacrosTestClassHashCode(value: AllMacrosTestClass): number {
                     return result;
                 }
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function allMacrosTestClassDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return AllMacrosTestClass.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return AllMacrosTestClass.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function allMacrosTestClassDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): AllMacrosTestClass | __mf_PendingRef {
-            return AllMacrosTestClass.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function allMacrosTestClassDecodeWithContext(value: any, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef {
+            return AllMacrosTestClass.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function allMacrosTestClassIs(value: unknown): value is AllMacrosTestClass {
             return AllMacrosTestClass.is(value);
         }
@@ -2003,7 +2003,7 @@ export const testInstance = new AllMacrosTestClass({
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
  */
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Encode, Decode) */
 export class AllMacrosTestClass {
     /** @debug({ rename: "identifier" }) */
     id: number;
@@ -2031,14 +2031,14 @@ static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
 static hashCode(value: AllMacrosTestClass): number {
                     return allMacrosTestClassHashCode(value);
                 }
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                static serialize(value: AllMacrosTestClass, keepMetadata?: boolean): string {
-                    return allMacrosTestClassSerialize(value, keepMetadata);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                static encode(value: AllMacrosTestClass, keepMetadata?: boolean): string {
+                    return allMacrosTestClassEncode(value, keepMetadata);
                 }
 
-                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                static serializeWithContext(value: AllMacrosTestClass, ctx: __mf_SerializeContext): Record<string, unknown> {
-                    return allMacrosTestClassSerializeWithContext(value, ctx);
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                static encodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
+                    return allMacrosTestClassEncodeWithContext(value, ctx);
                 }
 constructor(props: { id: number; name: string; email: string; secretToken: string; isActive: boolean; score: number }) {
             this.id = props.id;
@@ -2051,21 +2051,21 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 
         }
 
-        /** Deserializes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        static deserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+        /** Decodes input to an instance of this class. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        static decode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
             try {
 
                 const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                const ctx = __mf_DeserializeContext.create();
-                const resultOrRef = AllMacrosTestClass.deserializeWithContext(data, ctx);
+                const ctx = __mf_DecodeContext.create();
+                const resultOrRef = AllMacrosTestClass.decodeWithContext(data, ctx);
 
                 if (__mf_PendingRef.is(resultOrRef)) {
                     return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "AllMacrosTestClass.deserialize: root cannot be a forward reference"
+		message: "AllMacrosTestClass.decode: root cannot be a forward reference"
 	}]
 });
                 }
@@ -2088,7 +2088,7 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
 	value: resultOrRef
 });
             } catch (e) {
-                if (e instanceof __mf_DeserializeError) {
+                if (e instanceof __mf_DecodeError) {
                     return ({
 	success: false,
 	errors: e.errors
@@ -2105,15 +2105,15 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
             }
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        static deserializeWithContext(value: any, ctx: __mf_DeserializeContext): AllMacrosTestClass | __mf_PendingRef {
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        static decodeWithContext(value: any, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef {
 
             if (value?.__ref !== undefined) {
                 return ctx.getOrDefer(value.__ref);
             }
 
             if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                throw new __mf_DeserializeError([{ field: "_root", message: "AllMacrosTestClass.deserializeWithContext: expected an object" }]);
+                throw new __mf_DecodeError([{ field: "_root", message: "AllMacrosTestClass.decodeWithContext: expected an object" }]);
             }
 
             const obj = value as Record<string, unknown>;
@@ -3798,7 +3798,7 @@ constructor(props: { id: number; name: string; email: string; secretToken: strin
             if (!AllMacrosTestClass.hasShape(obj)) {
                 return false;
             }
-            const result = AllMacrosTestClass.deserialize(obj);
+            const result = AllMacrosTestClass.decode(obj);
             return result.success;
         }}
 
@@ -3839,16 +3839,16 @@ export function allMacrosTestClassHashCode(value: AllMacrosTestClass): number {
                     return hash;
                 }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function allMacrosTestClassSerialize(value: AllMacrosTestClass, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = allMacrosTestClassSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function allMacrosTestClassEncode(value: AllMacrosTestClass, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = allMacrosTestClassEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** @internal Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function allMacrosTestClassSerializeWithContext(value: AllMacrosTestClass, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** @internal Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function allMacrosTestClassEncodeWithContext(value: AllMacrosTestClass, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -3952,17 +3952,17 @@ export function allMacrosTestClassHashCode(value: AllMacrosTestClass): number {
                     return result;
                 }
 
-/** Deserializes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to deserialize @param opts - Optional deserialization options @returns Result containing the deserialized instance or validation errors  */
-        export function allMacrosTestClassDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
-            return AllMacrosTestClass.deserialize(input, opts);
+/** Decodes input to an instance. Automatically detects whether input is a JSON string or object. @param input - JSON string or object to decode @param opts - Optional decoding options @returns Result containing the decoded instance or validation errors  */
+        export function allMacrosTestClassDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: AllMacrosTestClass } | { success: false; errors: Array<{ field: string; message: string }> } {
+            return AllMacrosTestClass.decode(input, opts);
         }
 
-        /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-        export function allMacrosTestClassDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): AllMacrosTestClass | __mf_PendingRef {
-            return AllMacrosTestClass.deserializeWithContext(value, ctx);
+        /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+        export function allMacrosTestClassDecodeWithContext(value: any, ctx: __mf_DecodeContext): AllMacrosTestClass | __mf_PendingRef {
+            return AllMacrosTestClass.decodeWithContext(value, ctx);
         }
 
-        /** Type guard: checks if a value can be successfully deserialized. @param value - The value to check @returns True if the value can be deserialized to this type  */
+        /** Type guard: checks if a value can be successfully decoded. @param value - The value to check @returns True if the value can be decoded to this type  */
         export function allMacrosTestClassIs(value: unknown): value is AllMacrosTestClass {
             return AllMacrosTestClass.is(value);
         }
@@ -3983,25 +3983,25 @@ export const testInstance = new AllMacrosTestClass({
 
 ## Mapping
 
-original 0..457 -> expanded 0..457
-original 457..458 -> expanded 9350..9351
-original 458..703 -> expanded 14466..14711
-generated 457..590 <- Debug
-generated 590..729 <- Clone
-generated 729..877 <- PartialEq
-generated 877..1010 <- Hash
-generated 1010..1800 <- Serialize
-generated 1800..9350 <- Deserialize
-generated 9351..9804 <- Debug
-generated 9804..10226 <- Clone
-generated 10226..10562 <- PartialEq
-generated 10562..11426 <- Hash
-generated 11426..13159 <- Serialize
-generated 13159..14466 <- Deserialize
+original 0..449 -> expanded 0..449
+original 449..450 -> expanded 9216..9217
+original 450..695 -> expanded 14221..14466
+generated 449..582 <- Debug
+generated 582..721 <- Clone
+generated 721..869 <- PartialEq
+generated 869..1002 <- Hash
+generated 1002..1760 <- Encode
+generated 1760..9216 <- Decode
+generated 9217..9670 <- Debug
+generated 9670..10092 <- Clone
+generated 10092..10428 <- PartialEq
+generated 10428..11292 <- Hash
+generated 11292..12993 <- Encode
+generated 12993..14221 <- Decode
 
 ## Metadata
 
-class AllMacrosTestClass: {"body_span":{"end":459,"start":253},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Serialize, Deserialize","name":"Derive","span":{"end":220,"start":151}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":298,"start":259}}],"name":"id","optional":false,"readonly":false,"span":{"end":314,"start":303},"ts_type":"number","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":333,"start":320},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":353,"start":339},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":388,"start":359}}],"name":"secretToken","optional":false,"readonly":false,"span":{"end":413,"start":393},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"isActive","optional":false,"readonly":false,"span":{"end":437,"start":419},"ts_type":"boolean","visibility":"Public"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":457,"start":443},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":459,"start":228},"type_params":[]}
+class AllMacrosTestClass: {"body_span":{"end":451,"start":245},"decorators":[{"args_src":"Debug, Clone, PartialEq, Hash, Encode, Decode","name":"Derive","span":{"end":212,"start":151}}],"fields":[{"decorators":[{"args_src":"{ rename: \"identifier\" }","name":"debug","span":{"end":290,"start":251}}],"name":"id","optional":false,"readonly":false,"span":{"end":306,"start":295},"ts_type":"number","visibility":"Public"},{"decorators":[],"name":"name","optional":false,"readonly":false,"span":{"end":325,"start":312},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"email","optional":false,"readonly":false,"span":{"end":345,"start":331},"ts_type":"string","visibility":"Public"},{"decorators":[{"args_src":"{ skip: true }","name":"debug","span":{"end":380,"start":351}}],"name":"secretToken","optional":false,"readonly":false,"span":{"end":405,"start":385},"ts_type":"string","visibility":"Public"},{"decorators":[],"name":"isActive","optional":false,"readonly":false,"span":{"end":429,"start":411},"ts_type":"boolean","visibility":"Public"},{"decorators":[],"name":"score","optional":false,"readonly":false,"span":{"end":449,"start":435},"ts_type":"number","visibility":"Public"}],"heritage":[],"is_abstract":false,"methods":[],"name":"AllMacrosTestClass","span":{"end":451,"start":220},"type_params":[]}
 
 ## Registry reads
 

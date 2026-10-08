@@ -7,7 +7,7 @@ input_file: crates/macroforge_ts/tests/fixtures/foreign_types/value_import_alrea
 
 import { DateTime } from 'effect';
 
-/** @derive(Default, Serialize, Deserialize) */
+/** @derive(Default, Encode, Decode) */
 export interface Tick {
     at: DateTime.Utc;
 }
@@ -18,11 +18,11 @@ true
 
 ## Output
 
-import { SerializeContext as __mf_SerializeContext } from "@macroforge/core/serde";
-import { DeserializeContext as __mf_DeserializeContext } from "@macroforge/core/serde";
-import { DeserializeError as __mf_DeserializeError } from "@macroforge/core/serde";
-import type { DeserializeOptions as __mf_DeserializeOptions } from "@macroforge/core/serde";
-import { PendingRef as __mf_PendingRef } from "@macroforge/core/serde";
+import { EncodeContext as __mf_EncodeContext } from "@macroforge/core/endec";
+import { DecodeContext as __mf_DecodeContext } from "@macroforge/core/endec";
+import { DecodeError as __mf_DecodeError } from "@macroforge/core/endec";
+import type { DecodeOptions as __mf_DecodeOptions } from "@macroforge/core/endec";
+import { PendingRef as __mf_PendingRef } from "@macroforge/core/endec";
 import { DateTime } from 'effect';
 
 
@@ -36,16 +36,16 @@ at: (() => DateTime.make(new Date()))(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function tickSerialize(value: Tick, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = tickSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function tickEncode(value: Tick, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = tickEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function tickSerializeWithContext(value: Tick, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function tickEncodeWithContext(value: Tick, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -157,21 +157,21 @@ at: (() => DateTime.make(new Date()))(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function tickDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function tickDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = tickDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = tickDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Tick.deserialize: root cannot be a forward reference"
+		message: "Tick.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -194,7 +194,7 @@ at: (() => DateTime.make(new Date()))(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -211,14 +211,14 @@ at: (() => DateTime.make(new Date()))(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function tickDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Tick | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function tickDecodeWithContext(value: any, ctx: __mf_DecodeContext): Tick | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Tick.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Tick.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -861,16 +861,16 @@ at: (() => DateTime.make(new Date()))(),
                 if (!tickHasShape(obj)) {
                     return false;
                 }
-                const result = tickDeserialize(obj);
+                const result = tickDecode(obj);
                 return result.success;
             }
 
 export const Tick = {
   defaultValue: tickDefaultValue,
-  serialize: tickSerialize,
-  serializeWithContext: tickSerializeWithContext,
-  deserialize: tickDeserialize,
-  deserializeWithContext: tickDeserializeWithContext,
+  encode: tickEncode,
+  encodeWithContext: tickEncodeWithContext,
+  decode: tickDecode,
+  decodeWithContext: tickDecodeWithContext,
   validateFields: tickValidateFields,
   hasShape: tickHasShape,
   is: tickIs
@@ -891,16 +891,16 @@ at: (() => DateTime.make(new Date()))(),
 };
                     }
 
-/** Serializes a value to a JSON string. @param value - The value to serialize @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
-                export function tickSerialize(value: Tick, keepMetadata?: boolean): string {
-                    const ctx = __mf_SerializeContext.create();
-                    const __raw = tickSerializeWithContext(value, ctx);
+/** Encodes a value to a JSON string. @param value - The value to encode @param keepMetadata - If true, preserves __type and __id fields in the output @returns JSON string representation  */
+                export function tickEncode(value: Tick, keepMetadata?: boolean): string {
+                    const ctx = __mf_EncodeContext.create();
+                    const __raw = tickEncodeWithContext(value, ctx);
                     if (keepMetadata) return JSON.stringify(__raw);
                     return JSON.stringify(__raw, (key, val) => key === "__type" || key === "__id" ? undefined : val);
                 }
 
-                /** Serializes with an existing context for nested/cyclic object graphs. @param value - The value to serialize @param ctx - The serialization context  */
-                export function tickSerializeWithContext(value: Tick, ctx: __mf_SerializeContext): Record<string, unknown> {
+                /** Encodes with an existing context for nested/cyclic object graphs. @param value - The value to encode @param ctx - The encoding context  */
+                export function tickEncodeWithContext(value: Tick, ctx: __mf_EncodeContext): Record<string, unknown> {
 
                     const existingId = ctx.getId(value);
                     if (existingId !== undefined) {
@@ -1012,21 +1012,21 @@ at: (() => DateTime.make(new Date()))(),
                     return result;
                 }
 
-/** Deserializes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to deserialize@param opts - Optional deserialization options @returns Result containing the deserialized value or validation errors  */
-            export function tickDeserialize(input: unknown, opts?: __mf_DeserializeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
+/** Decodes input to this interface type.Automatically detects whether input is a JSON string or object.@param input - JSON string or object to decode@param opts - Optional decoding options @returns Result containing the decoded value or validation errors  */
+            export function tickDecode(input: unknown, opts?: __mf_DecodeOptions): { success: true; value: Tick } | { success: false; errors: Array<{ field: string; message: string }> } {
                 try {
 
                     const data = typeof input === "string" ? JSON.parse(input) : input;
 
-                    const ctx = __mf_DeserializeContext.create();
-                    const resultOrRef = tickDeserializeWithContext(data, ctx);
+                    const ctx = __mf_DecodeContext.create();
+                    const resultOrRef = tickDecodeWithContext(data, ctx);
 
                     if (__mf_PendingRef.is(resultOrRef)) {
                         return ({
 	success: false,
 	errors: [{
 		field: "_root",
-		message: "Tick.deserialize: root cannot be a forward reference"
+		message: "Tick.decode: root cannot be a forward reference"
 	}]
 });
                     }
@@ -1049,7 +1049,7 @@ at: (() => DateTime.make(new Date()))(),
 	value: resultOrRef
 });
                 } catch (e) {
-                    if (e instanceof __mf_DeserializeError) {
+                    if (e instanceof __mf_DecodeError) {
                         return ({
 	success: false,
 	errors: e.errors
@@ -1066,14 +1066,14 @@ at: (() => DateTime.make(new Date()))(),
                 }
             }
 
-            /** Deserializes with an existing context for nested/cyclic object graphs. @param value - The raw value to deserialize @param ctx - The deserialization context  */
-            export function tickDeserializeWithContext(value: any, ctx: __mf_DeserializeContext): Tick | __mf_PendingRef {
+            /** Decodes with an existing context for nested/cyclic object graphs. @param value - The raw value to decode @param ctx - The decoding context  */
+            export function tickDecodeWithContext(value: any, ctx: __mf_DecodeContext): Tick | __mf_PendingRef {
                 if (value?.__ref !== undefined) {
                     return ctx.getOrDefer(value.__ref);
                 }
 
                 if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                    throw new __mf_DeserializeError([{ field: "_root", message: "Tick.deserializeWithContext: expected an object" }]);
+                    throw new __mf_DecodeError([{ field: "_root", message: "Tick.decodeWithContext: expected an object" }]);
                 }
 
                 const obj = value as Record<string, unknown>;
@@ -1716,16 +1716,16 @@ at: (() => DateTime.make(new Date()))(),
                 if (!tickHasShape(obj)) {
                     return false;
                 }
-                const result = tickDeserialize(obj);
+                const result = tickDecode(obj);
                 return result.success;
             }
 
 export const Tick = {
   defaultValue: tickDefaultValue,
-  serialize: tickSerialize,
-  serializeWithContext: tickSerializeWithContext,
-  deserialize: tickDeserialize,
-  deserializeWithContext: tickDeserializeWithContext,
+  encode: tickEncode,
+  encodeWithContext: tickEncodeWithContext,
+  decode: tickDecode,
+  decodeWithContext: tickDecodeWithContext,
   validateFields: tickValidateFields,
   hasShape: tickHasShape,
   is: tickIs
@@ -1738,16 +1738,16 @@ export const Tick = {
 ## Mapping
 
 original 0..36 -> expanded 0..36
-original 83..131 -> expanded 36..84
-original 131..132 -> expanded 6758..6759
+original 75..123 -> expanded 36..84
+original 123..124 -> expanded 6600..6601
 generated 84..227 <- Default
-generated 227..1769 <- Serialize
-generated 1769..6448 <- Deserialize
-generated 6448..6758 <- __convenience_const
+generated 227..1737 <- Encode
+generated 1737..6322 <- Decode
+generated 6322..6600 <- __convenience_const
 
 ## Metadata
 
-interface Tick: {"body_span":{"end":132,"start":107},"decorators":[{"args_src":"Default, Serialize, Deserialize","name":"Derive","span":{"end":84,"start":37}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":130,"start":113},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Tick","span":{"end":132,"start":92},"type_params":[]}
+interface Tick: {"body_span":{"end":124,"start":99},"decorators":[{"args_src":"Default, Encode, Decode","name":"Derive","span":{"end":76,"start":37}}],"fields":[{"decorators":[],"name":"at","optional":false,"readonly":false,"span":{"end":122,"start":105},"ts_type":"DateTime.Utc"}],"heritage":[],"methods":[],"name":"Tick","span":{"end":124,"start":84},"type_params":[]}
 
 ## Registry reads
 

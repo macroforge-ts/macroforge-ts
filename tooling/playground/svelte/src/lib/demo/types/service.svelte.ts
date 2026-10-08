@@ -2,15 +2,15 @@
 
 import type { ServiceDefaults } from './service-defaults.svelte';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @derive(Default, Encode, Decode, Gigaform) */
 export interface Service {
     /** @hiddenController({}) */
     id: string;
     /** @textController({ label: "Name" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     name: string;
     /** @textController({ label: "Quick Code" }) */
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @endec({ validate: ["nonEmpty"] }) */
     quickCode: string;
     /** @comboboxController({ label: "Group", allowCustom: true }) */
     group: string | null;
